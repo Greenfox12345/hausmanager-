@@ -138,3 +138,23 @@
 - [x] Update task creation to save rotation configuration
 - [x] Display due date in task list with formatting
 - [x] Show overdue tasks with visual indicator
+
+## Member Management
+- [x] Add member creation form on Members page
+- [x] Implement member registration with household password + personal password
+- [x] Update login flow to support member authentication (already implemented)
+- [x] Display all household members on Members page
+
+## Automatic Task Rotation
+- [x] Calculate next due date based on repeat interval when task is completed
+- [x] Assign next responsible person from rotation when task is completed
+- [x] Skip excluded members in rotation
+- [x] Handle rotation with required persons count (logic implemented)
+- [x] Update task in database with new due date and assignee
+
+## Activity History Details
+- [x] Display task name in activity history
+- [x] Show task description in activity entries
+- [x] Display responsible person for completed tasks
+- [x] Show due date for task activities
+- [x] Format task details in readable layout

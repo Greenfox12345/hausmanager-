@@ -170,6 +170,44 @@ export default function History() {
                           von {activity.memberName || "Unbekannt"}
                         </p>
 
+                        {/* Task details */}
+                        {activity.taskDetails && (
+                          <div className="mt-2 p-3 bg-accent/10 rounded-lg border border-accent/20">
+                            <div className="space-y-1.5">
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs font-semibold text-accent">Aufgabe:</span>
+                                <span className="text-sm font-medium">{activity.taskDetails.name}</span>
+                              </div>
+                              {activity.taskDetails.description && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">Beschreibung:</span>
+                                  <span className="text-sm text-muted-foreground">{activity.taskDetails.description}</span>
+                                </div>
+                              )}
+                              {activity.taskDetails.assignedToName && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">Verantwortlich:</span>
+                                  <span className="text-sm">{activity.taskDetails.assignedToName}</span>
+                                </div>
+                              )}
+                              {activity.taskDetails.dueDate && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">Fällig:</span>
+                                  <span className="text-sm">
+                                    {new Date(activity.taskDetails.dueDate).toLocaleDateString("de-DE", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Comment */}
                         {activity.comment && (
                           <div className="mt-3 p-3 bg-muted/50 rounded-lg">

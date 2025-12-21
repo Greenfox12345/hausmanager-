@@ -167,6 +167,33 @@ export const authRouter = router({
       };
     }),
 
+  // Add new member to household
+  addMember: publicProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberName: z.string().min(1),
+        password: z.string().min(4),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Check if member name already exists in this household
+      const existing = await getHouseholdMemberByName(input.householdId, input.memberName);
+      if (existing) {
+        throw new Error("Ein Mitglied mit diesem Namen existiert bereits in diesem Haushalt");
+      }
+
+      const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
+      const memberId = await createHouseholdMember({
+        householdId: input.householdId,
+        userId: 0, // Non-owner members don't have a user ID
+        memberName: input.memberName,
+        passwordHash,
+      });
+
+      return { memberId, memberName: input.memberName };
+    }),
+
   // Get activity history for household
   getActivityHistory: publicProcedure
     .input(z.object({ householdId: z.number() }))
@@ -177,9 +204,21 @@ export const authRouter = router({
       const members = await getHouseholdMembers(input.householdId);
       const memberMap = new Map(members.map(m => [m.id, m.memberName]));
       
-      return activities.map(activity => ({
-        ...activity,
-        memberName: memberMap.get(activity.memberId) || "Unbekannt",
-      }));
+      return activities.map((activity: any) => {
+        const result: any = {
+          ...activity,
+          memberName: memberMap.get(activity.memberId) || "Unbekannt",
+        };
+        
+        // Add assigned member name to task details if available
+        if (activity.taskDetails && activity.taskDetails.assignedTo) {
+          result.taskDetails = {
+            ...activity.taskDetails,
+            assignedToName: memberMap.get(activity.taskDetails.assignedTo) || "Unbekannt",
+          };
+        }
+        
+        return result;
+      });
     }),
 });

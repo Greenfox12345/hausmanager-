@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { publicProcedure, router } from "../_core/trpc";
 import {
   getTasks,
@@ -8,7 +9,9 @@ import {
   createActivityLog,
   getHouseholdMembers,
   createTaskRotationExclusions,
+  getDb,
 } from "../db";
+import { taskRotationExclusions } from "../../drizzle/schema";
 
 export const tasksRouter = router({
   // Get all tasks for a household
@@ -248,7 +251,21 @@ export const tasksRouter = router({
             nextDueDate.setMonth(nextDueDate.getMonth() + 1);
             break;
           case "custom":
-            if (task.customFrequencyDays) {
+            // Use new repeatInterval and repeatUnit fields
+            if (task.repeatInterval && task.repeatUnit) {
+              switch (task.repeatUnit) {
+                case "days":
+                  nextDueDate.setDate(nextDueDate.getDate() + task.repeatInterval);
+                  break;
+                case "weeks":
+                  nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval * 7));
+                  break;
+                case "months":
+                  nextDueDate.setMonth(nextDueDate.getMonth() + task.repeatInterval);
+                  break;
+              }
+            } else if (task.customFrequencyDays) {
+              // Fallback to old field for compatibility
               nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
             }
             break;
@@ -267,10 +284,23 @@ export const tasksRouter = router({
         const members = await getHouseholdMembers(input.householdId);
         const activeMembers = members.filter(m => m.isActive);
         
-        if (activeMembers.length > 1) {
-          const currentIndex = activeMembers.findIndex(m => m.id === task.assignedTo);
-          const nextIndex = (currentIndex + 1) % activeMembers.length;
-          const nextMember = activeMembers[nextIndex];
+        // Get excluded members from task_rotation_exclusions table
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const exclusions = await db.select()
+          .from(taskRotationExclusions)
+          .where(eq(taskRotationExclusions.taskId, input.taskId));
+        
+        const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
+        
+        // Filter out excluded members
+        const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
+        
+        if (eligibleMembers.length > 0) {
+          const currentIndex = eligibleMembers.findIndex(m => m.id === task.assignedTo);
+          const nextIndex = (currentIndex + 1) % eligibleMembers.length;
+          const nextMember = eligibleMembers[nextIndex];
           
           if (nextMember) {
             await updateTask(input.taskId, {

@@ -369,14 +369,42 @@ export async function createActivityLog(data: {
   return Number(result[0].insertId);
 }
 
-export async function getActivityHistory(householdId: number, limit: number = 50): Promise<ActivityHistory[]> {
+export async function getActivityHistory(householdId: number, limit: number = 50) {
   const db = await getDb();
   if (!db) return [];
 
-  return db.select().from(activityHistory)
+  // Get activities with task details if relatedItemId exists and activityType is 'task'
+  const activities = await db.select().from(activityHistory)
     .where(eq(activityHistory.householdId, householdId))
     .orderBy(desc(activityHistory.createdAt))
     .limit(limit);
+
+  // Enrich activities with task details
+  const enrichedActivities = await Promise.all(
+    activities.map(async (activity) => {
+      if (activity.activityType === 'task' && activity.relatedItemId) {
+        const taskResult = await db.select().from(tasks)
+          .where(eq(tasks.id, activity.relatedItemId))
+          .limit(1);
+        
+        if (taskResult.length > 0) {
+          const task = taskResult[0];
+          return {
+            ...activity,
+            taskDetails: {
+              name: task.name,
+              description: task.description,
+              assignedTo: task.assignedTo,
+              dueDate: task.dueDate,
+            },
+          };
+        }
+      }
+      return activity;
+    })
+  );
+
+  return enrichedActivities;
 }
 
 // Admin function to delete household and all related data
