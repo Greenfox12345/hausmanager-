@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
+import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,7 +122,7 @@ export default function Shopping() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <AppLayout>
       <div className="container py-6 max-w-4xl">
         <div className="mb-6 flex items-center gap-4">
           <Button
@@ -247,6 +248,6 @@ export default function Shopping() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -359,3 +359,37 @@ export async function getActivityHistory(householdId: number, limit: number = 50
     .orderBy(desc(activityHistory.createdAt))
     .limit(limit);
 }
+
+// Admin function to delete household and all related data
+export async function deleteHousehold(householdId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete household: database not available");
+    return false;
+  }
+
+  try {
+    // Get all tasks for this household first
+    const householdTasks = await db.select({ id: tasks.id })
+      .from(tasks)
+      .where(eq(tasks.householdId, householdId));
+    
+    // Delete task rotation exclusions for these tasks
+    for (const task of householdTasks) {
+      await db.delete(taskRotationExclusions).where(eq(taskRotationExclusions.taskId, task.id));
+    }
+    
+    // Delete in order to respect foreign key constraints
+    await db.delete(activityHistory).where(eq(activityHistory.householdId, householdId));
+    await db.delete(projectHouseholds).where(eq(projectHouseholds.householdId, householdId));
+    await db.delete(shoppingItems).where(eq(shoppingItems.householdId, householdId));
+    await db.delete(tasks).where(eq(tasks.householdId, householdId));
+    await db.delete(householdMembers).where(eq(householdMembers.householdId, householdId));
+    await db.delete(households).where(eq(households.id, householdId));
+    
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to delete household:", error);
+    return false;
+  }
+}

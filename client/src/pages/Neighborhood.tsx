@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
+import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Building2 } from "lucide-react";
@@ -14,7 +15,7 @@ export default function Neighborhood() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <AppLayout>
       <div className="container py-6 max-w-4xl">
         <div className="mb-6 flex items-center gap-4">
           <Button
@@ -42,6 +43,6 @@ export default function Neighborhood() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AppLayout>
   );
 }

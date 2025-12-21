@@ -90,3 +90,8 @@
 ## New Requirements
 - [x] Fix Select component error on Tasks page (empty string value)
 - [x] Add collapsible sidebar navigation to homepage
+
+## Additional Features
+- [x] Admin function to delete test households from database
+- [x] Extend sidebar navigation to all pages
+- [x] Household switcher dropdown in sidebar header

@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
+import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,7 +36,7 @@ export default function Members() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <AppLayout>
       <div className="container py-6 max-w-4xl">
         <div className="mb-6 flex items-center gap-4">
           <Button
@@ -118,6 +119,6 @@ export default function Members() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AppLayout>
   );
 }

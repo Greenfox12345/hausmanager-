@@ -1,10 +1,12 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { authRouter } from "./routers/auth";
 import { shoppingRouter } from "./routers/shopping";
 import { tasksRouter } from "./routers/tasks";
+import { z } from "zod";
+import { deleteHousehold } from "./db";
 
 export const appRouter = router({
   system: systemRouter,
@@ -23,6 +25,19 @@ export const appRouter = router({
   household: authRouter,
   shopping: shoppingRouter,
   tasks: tasksRouter,
+
+  // Admin router
+  admin: router({
+    deleteHousehold: protectedProcedure
+      .input(z.object({ householdId: z.number() }))
+      .mutation(async ({ input }) => {
+        const success = await deleteHousehold(input.householdId);
+        if (!success) {
+          throw new Error("Failed to delete household");
+        }
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
