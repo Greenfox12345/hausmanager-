@@ -28,7 +28,7 @@ export default function Tasks() {
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskFrequency, setNewTaskFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
   const [enableRotation, setEnableRotation] = useState(false);
-  const [assignedMemberId, setAssignedMemberId] = useState<string>("");
+  const [assignedMemberId, setAssignedMemberId] = useState<string>("unassigned");
 
   const utils = trpc.useUtils();
   const { data: tasks = [], isLoading } = trpc.tasks.list.useQuery(
@@ -48,7 +48,7 @@ export default function Tasks() {
       setNewTaskDescription("");
       setNewTaskFrequency("once");
       setEnableRotation(false);
-      setAssignedMemberId("");
+      setAssignedMemberId("unassigned");
       toast.success("Aufgabe hinzugefügt");
     },
     onError: (error) => {
@@ -105,7 +105,7 @@ export default function Tasks() {
       description: newTaskDescription.trim() || undefined,
       frequency: newTaskFrequency,
       enableRotation,
-      assignedTo: assignedMemberId ? parseInt(assignedMemberId) : undefined,
+      assignedTo: assignedMemberId !== "unassigned" ? parseInt(assignedMemberId) : undefined,
     });
   };
 
@@ -205,7 +205,7 @@ export default function Tasks() {
                       <SelectValue placeholder="Nicht zugewiesen" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nicht zugewiesen</SelectItem>
+                      <SelectItem value="unassigned">Nicht zugewiesen</SelectItem>
                       {members.map((m) => (
                         <SelectItem key={m.id} value={m.id.toString()}>
                           {m.memberName}

@@ -84,5 +84,9 @@
 - [x] Test mobile responsiveness on various devices
 - [x] Test authentication flows
 - [x] Test data persistence and relationships
-- [ ] Create checkpoint for deployment
-- [ ] Upload to GitHub repository
+- [x] Create checkpoint for deployment
+- [x] Upload to GitHub repository
+
+## New Requirements
+- [x] Fix Select component error on Tasks page (empty string value)
+- [x] Add collapsible sidebar navigation to homepage
