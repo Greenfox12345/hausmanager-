@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { authRouter } from "./routers/auth";
 import { shoppingRouter } from "./routers/shopping";
 import { tasksRouter } from "./routers/tasks";
+import { uploadRouter } from "./routers/upload";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -25,6 +26,7 @@ export const appRouter = router({
   household: authRouter,
   shopping: shoppingRouter,
   tasks: tasksRouter,
+  upload: uploadRouter,
 
   // Admin router
   admin: router({

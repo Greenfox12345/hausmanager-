@@ -342,6 +342,8 @@ export async function createActivityLog(data: {
   relatedItemId?: number;
   comment?: string;
   photoUrl?: string;
+  photoUrls?: string[];
+  metadata?: Record<string, any>;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

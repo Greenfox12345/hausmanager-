@@ -9,6 +9,7 @@ import {
   getHouseholdMemberByName,
   getHouseholdMemberById,
   getAllHouseholds,
+  getActivityHistory,
 } from "../db";
 
 const SALT_ROUNDS = 10;
@@ -164,5 +165,21 @@ export const authRouter = router({
         photoUrl: member.photoUrl,
         isActive: member.isActive,
       };
+    }),
+
+  // Get activity history for household
+  getActivityHistory: publicProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const activities = await getActivityHistory(input.householdId, 100);
+      
+      // Get member names
+      const members = await getHouseholdMembers(input.householdId);
+      const memberMap = new Map(members.map(m => [m.id, m.memberName]));
+      
+      return activities.map(activity => ({
+        ...activity,
+        memberName: memberMap.get(activity.memberId) || "Unbekannt",
+      }));
     }),
 });

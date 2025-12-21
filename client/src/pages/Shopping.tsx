@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Filter } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart } from "lucide-react";
+import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
 
 const CATEGORIES = ["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"] as const;
 
@@ -20,6 +21,7 @@ export default function Shopping() {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState<typeof CATEGORIES[number]>("Lebensmittel");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
@@ -33,7 +35,7 @@ export default function Shopping() {
       setNewItemName("");
       toast.success("Artikel hinzugefügt");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message);
     },
   });
@@ -68,6 +70,16 @@ export default function Shopping() {
     onSuccess: () => {
       utils.shopping.list.invalidate();
       toast.success("Artikel gelöscht");
+    },
+  });
+
+  const completeMutation = trpc.shopping.completeShopping.useMutation({
+    onSuccess: () => {
+      utils.shopping.list.invalidate();
+      toast.success("Einkauf abgeschlossen!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
     },
   });
 
@@ -110,6 +122,23 @@ export default function Shopping() {
   const filteredItems = filterCategory === "all"
     ? items
     : items.filter((item) => item.category === filterCategory);
+
+  const completedItems = items.filter((item) => item.isCompleted);
+
+  const handleCompleteShopping = async (data: { comment?: string; photoUrls: string[] }) => {
+    if (completedItems.length === 0) {
+      toast.error("Keine abgehakten Artikel zum Abschließen");
+      return;
+    }
+
+    await completeMutation.mutateAsync({
+      householdId: household.householdId,
+      memberId: member.memberId,
+      itemIds: completedItems.map((item) => item.id),
+      comment: data.comment,
+      photoUrls: data.photoUrls,
+    });
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -195,6 +224,19 @@ export default function Shopping() {
           </Select>
         </div>
 
+        {completedItems.length > 0 && (
+          <div className="mb-6">
+            <Button
+              onClick={() => setShowCompleteDialog(true)}
+              className="w-full"
+              size="lg"
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Einkauf abschließen ({completedItems.length} Artikel)
+            </Button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
             Lädt Einkaufsliste...
@@ -248,6 +290,17 @@ export default function Shopping() {
           </div>
         )}
       </div>
+
+      <CompleteShoppingDialog
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+        items={completedItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+        }))}
+        onComplete={handleCompleteShopping}
+      />
     </AppLayout>
   );
 }

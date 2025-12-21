@@ -182,4 +182,158 @@ export const tasksRouter = router({
 
       return { success: true };
     }),
+
+  // Complete task with comment and photos
+  completeTask: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        comment: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find(t => t.id === input.taskId);
+      
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Mark task as completed
+      await updateTask(input.taskId, {
+        isCompleted: true,
+        completedBy: input.memberId,
+        completedAt: new Date(),
+      });
+
+      // Update due date if recurring
+      if (task.frequency !== "once" && task.dueDate) {
+        let nextDueDate = new Date(task.dueDate);
+        
+        switch (task.frequency) {
+          case "daily":
+            nextDueDate.setDate(nextDueDate.getDate() + 1);
+            break;
+          case "weekly":
+            nextDueDate.setDate(nextDueDate.getDate() + 7);
+            break;
+          case "monthly":
+            nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+            break;
+          case "custom":
+            if (task.customFrequencyDays) {
+              nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
+            }
+            break;
+        }
+        
+        await updateTask(input.taskId, {
+          dueDate: nextDueDate,
+          isCompleted: false,
+          completedBy: null,
+          completedAt: null,
+        });
+      }
+
+      // Handle rotation if enabled
+      if (task.enableRotation && task.assignedTo) {
+        const members = await getHouseholdMembers(input.householdId);
+        const activeMembers = members.filter(m => m.isActive);
+        
+        if (activeMembers.length > 1) {
+          const currentIndex = activeMembers.findIndex(m => m.id === task.assignedTo);
+          const nextIndex = (currentIndex + 1) % activeMembers.length;
+          const nextMember = activeMembers[nextIndex];
+          
+          if (nextMember) {
+            await updateTask(input.taskId, {
+              assignedTo: nextMember.id,
+            });
+          }
+        }
+      }
+
+      // Create activity log
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "completed",
+        description: `Aufgabe abgeschlossen: ${task.name}`,
+        relatedItemId: input.taskId,
+        comment: input.comment,
+        photoUrls: input.photoUrls,
+      });
+
+      return { success: true };
+    }),
+
+  // Add milestone (intermediate goal)
+  addMilestone: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        comment: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find(t => t.id === input.taskId);
+      
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Create activity log for milestone
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "milestone",
+        description: `Zwischensieg bei Aufgabe: ${task.name}`,
+        relatedItemId: input.taskId,
+        comment: input.comment,
+        photoUrls: input.photoUrls,
+      });
+
+      return { success: true };
+    }),
+
+  // Send reminder
+  sendReminder: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        comment: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find(t => t.id === input.taskId);
+      
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Create activity log for reminder
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "reminder",
+        description: `Erinnerung gesendet für Aufgabe: ${task.name}`,
+        relatedItemId: input.taskId,
+        comment: input.comment,
+      });
+
+      return { success: true };
+    }),
 });

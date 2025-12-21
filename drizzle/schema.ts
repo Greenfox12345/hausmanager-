@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -190,6 +190,8 @@ export const activityHistory = mysqlTable("activity_history", {
   relatedItemId: int("relatedItemId"),
   comment: text("comment"),
   photoUrl: text("photoUrl"),
+  photoUrls: json("photoUrls").$type<string[]>(),
+  metadata: json("metadata").$type<Record<string, any>>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

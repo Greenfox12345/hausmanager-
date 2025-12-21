@@ -133,4 +133,46 @@ export const shoppingRouter = router({
 
       return { success: true };
     }),
+
+  // Complete shopping with comment and photos
+  completeShopping: publicProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+        itemIds: z.array(z.number()),
+        comment: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Get item names for description
+      const items = await getShoppingItems(input.householdId);
+      const completedItemNames = items
+        .filter((item) => input.itemIds.includes(item.id))
+        .map((item) => item.name);
+
+      // Delete completed items
+      for (const itemId of input.itemIds) {
+        await deleteShoppingItem(itemId);
+      }
+
+      // Create single activity log entry for entire shopping
+      const description = `Einkauf abgeschlossen: ${completedItemNames.join(", ")}`;
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "completed_batch",
+        description,
+        comment: input.comment,
+        photoUrls: input.photoUrls,
+        metadata: {
+          itemCount: input.itemIds.length,
+          items: completedItemNames,
+        },
+      });
+
+      return { success: true };
+    }),
 });

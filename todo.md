@@ -95,3 +95,15 @@
 - [x] Admin function to delete test households from database
 - [x] Extend sidebar navigation to all pages
 - [x] Household switcher dropdown in sidebar header
+
+## Phase 1: Abschluss-Dialoge mit Kommentaren und Fotos
+- [x] Extend database schema for comments and photos in activity history
+- [x] Implement photo upload functionality with S3
+- [x] Create CompleteShoppingDialog with comment and photo upload
+- [x] Update shopping completion to use dialog
+- [x] Create CompleteTaskDialog with comment and photo upload
+- [x] Create MilestoneDialog for task intermediate goals
+- [x] Create ReminderDialog for task reminders
+- [x] Update task completion to use dialogs
+- [x] Update History page to display comments and photos properly
+- [x] Test all dialog functionality
