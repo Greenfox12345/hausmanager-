@@ -160,7 +160,13 @@ export default function Tasks() {
       name: newTaskName.trim(),
       description: newTaskDescription.trim() || undefined,
       frequency,
+      repeatInterval: enableRepeat ? parseInt(repeatInterval) || undefined : undefined,
+      repeatUnit: enableRepeat ? repeatUnit : undefined,
       enableRotation: enableRepeat && enableRotation,
+      requiredPersons: enableRepeat && enableRotation ? parseInt(requiredPersons) || undefined : undefined,
+      excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
+      dueDate: dueDate || undefined,
+      dueTime: dueTime || undefined,
       assignedTo: selectedAssignees[0], // First assignee
     });
   };
@@ -467,19 +473,37 @@ export default function Tasks() {
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
                           {getMemberName(task.assignedTo)}
                         </span>
+                        {task.dueDate && (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            new Date(task.dueDate) < new Date() && !task.isCompleted
+                              ? "bg-destructive/10 text-destructive border border-destructive/20"
+                              : "bg-muted text-muted-foreground border border-border"
+                          }`}>
+                            <Calendar className="h-3 w-3" />
+                            Fällig: {new Date(task.dueDate).toLocaleDateString("de-DE", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        )}
                         {task.frequency && task.frequency !== "once" && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                            <Calendar className="h-3 w-3" />
+                            <RefreshCw className="h-3 w-3" />
                             {task.frequency === "daily" && "Täglich"}
                             {task.frequency === "weekly" && "Wöchentlich"}
                             {task.frequency === "monthly" && "Monatlich"}
-                            {task.frequency === "custom" && "Benutzerdefiniert"}
+                            {task.frequency === "custom" && task.repeatInterval && task.repeatUnit
+                              ? `Alle ${task.repeatInterval} ${task.repeatUnit === "days" ? "Tage" : task.repeatUnit === "weeks" ? "Wochen" : "Monate"}`
+                              : "Benutzerdefiniert"}
                           </span>
                         )}
                         {task.enableRotation && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             <RefreshCw className="h-3 w-3" />
-                            Rotation
+                            Rotation {task.requiredPersons ? `(${task.requiredPersons} Pers.)` : ""}
                           </span>
                         )}
                       </div>

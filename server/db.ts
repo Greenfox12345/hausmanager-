@@ -261,7 +261,10 @@ export async function createTask(data: {
   assignedTo?: number;
   frequency?: "once" | "daily" | "weekly" | "monthly" | "custom";
   customFrequencyDays?: number;
+  repeatInterval?: number;
+  repeatUnit?: "days" | "weeks" | "months";
   enableRotation?: boolean;
+  requiredPersons?: number;
   dueDate?: Date;
   createdBy: number;
 }) {
@@ -284,6 +287,20 @@ export async function deleteTask(id: number) {
   if (!db) throw new Error("Database not available");
 
   await db.delete(tasks).where(eq(tasks.id, id));
+}
+
+export async function createTaskRotationExclusions(taskId: number, memberIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  if (memberIds.length === 0) return;
+
+  const exclusions = memberIds.map(memberId => ({
+    taskId,
+    memberId,
+  }));
+
+  await db.insert(taskRotationExclusions).values(exclusions);
 }
 
 // Projects management

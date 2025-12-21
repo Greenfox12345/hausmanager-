@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "bf411106-9956-4352-a61c-bbd1693a0c1e",
-  "prevId": "1919b478-6088-475e-bacf-b55dd472683e",
+  "id": "3779a749-b713-447c-9d22-970b302b4d6c",
+  "prevId": "bf411106-9956-4352-a61c-bbd1693a0c1e",
   "tables": {
     "activity_history": {
       "name": "activity_history",
@@ -1008,6 +1008,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "repeatInterval": {
+          "name": "repeatInterval",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "repeatUnit": {
+          "name": "repeatUnit",
+          "type": "enum('days','weeks','months')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "enableRotation": {
           "name": "enableRotation",
           "type": "boolean",
@@ -1015,6 +1029,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "requiredPersons": {
+          "name": "requiredPersons",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "dueDate": {
           "name": "dueDate",

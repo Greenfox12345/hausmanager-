@@ -7,6 +7,7 @@ import {
   deleteTask,
   createActivityLog,
   getHouseholdMembers,
+  createTaskRotationExclusions,
 } from "../db";
 
 export const tasksRouter = router({
@@ -28,11 +29,26 @@ export const tasksRouter = router({
         assignedTo: z.number().optional(),
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).default("once"),
         customFrequencyDays: z.number().optional(),
+        repeatInterval: z.number().optional(),
+        repeatUnit: z.enum(["days", "weeks", "months"]).optional(),
         enableRotation: z.boolean().default(false),
+        requiredPersons: z.number().optional(),
+        excludedMembers: z.array(z.number()).optional(),
         dueDate: z.string().optional(),
+        dueTime: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
+      // Combine date and time if both provided
+      let dueDatetime: Date | undefined;
+      if (input.dueDate) {
+        if (input.dueTime) {
+          dueDatetime = new Date(`${input.dueDate}T${input.dueTime}`);
+        } else {
+          dueDatetime = new Date(input.dueDate);
+        }
+      }
+
       const taskId = await createTask({
         householdId: input.householdId,
         name: input.name,
@@ -40,10 +56,18 @@ export const tasksRouter = router({
         assignedTo: input.assignedTo,
         frequency: input.frequency,
         customFrequencyDays: input.customFrequencyDays,
+        repeatInterval: input.repeatInterval,
+        repeatUnit: input.repeatUnit,
         enableRotation: input.enableRotation,
-        dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+        requiredPersons: input.requiredPersons,
+        dueDate: dueDatetime,
         createdBy: input.memberId,
       });
+
+      // Save rotation exclusions if provided
+      if (input.excludedMembers && input.excludedMembers.length > 0) {
+        await createTaskRotationExclusions(taskId, input.excludedMembers);
+      }
 
       await createActivityLog({
         householdId: input.householdId,

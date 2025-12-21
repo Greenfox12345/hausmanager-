@@ -15,6 +15,20 @@
       "when": 1766324037860,
       "tag": "0001_shiny_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1766330810699,
+      "tag": "0002_hesitant_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1766331039299,
+      "tag": "0003_slim_reaper",
+      "breakpoints": true
     }
   ]
 }

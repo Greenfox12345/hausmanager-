@@ -127,3 +127,14 @@
 ## Task Form and List Improvements
 - [x] Make task form fields collapsible until name is entered
 - [x] Add missing details to task list view (frequency, rotation, due date, etc.)
+
+## Task Functionality Fixes
+- [x] Add dueDate field to tasks table schema
+- [x] Add repeatInterval and repeatUnit fields to tasks table
+- [x] Add requiredPersons field for rotation
+- [x] Add excludedMembers field for rotation (via task_rotation_exclusions table)
+- [x] Update task creation mutation to save due date and time
+- [x] Update task creation to save repeat interval details
+- [x] Update task creation to save rotation configuration
+- [x] Display due date in task list with formatting
+- [x] Show overdue tasks with visual indicator
