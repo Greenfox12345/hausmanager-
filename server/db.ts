@@ -1,11 +1,30 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  households, 
+  householdMembers,
+  shoppingItems,
+  tasks,
+  projects,
+  projectTasks,
+  projectHouseholds,
+  activityHistory,
+  taskRotationExclusions,
+  projectTaskDependencies,
+  type Household,
+  type HouseholdMember,
+  type ShoppingItem,
+  type Task,
+  type Project,
+  type ProjectTask,
+  type ActivityHistory
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +108,254 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Household management
+export async function createHousehold(name: string, passwordHash: string, createdBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(households).values({
+    name,
+    passwordHash,
+    createdBy,
+  });
+
+  return Number(result[0].insertId);
+}
+
+export async function getHouseholdById(id: number): Promise<Household | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(households).where(eq(households.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getHouseholdByName(name: string): Promise<Household | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(households).where(eq(households.name, name)).limit(1);
+  return result[0];
+}
+
+export async function getAllHouseholds(): Promise<Household[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(households).orderBy(desc(households.createdAt));
+}
+
+// Household member management
+export async function createHouseholdMember(data: {
+  householdId: number;
+  userId: number;
+  memberName: string;
+  passwordHash: string;
+  photoUrl?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(householdMembers).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getHouseholdMemberById(id: number): Promise<HouseholdMember | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(householdMembers).where(eq(householdMembers.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getHouseholdMembers(householdId: number): Promise<HouseholdMember[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(householdMembers)
+    .where(eq(householdMembers.householdId, householdId))
+    .orderBy(householdMembers.memberName);
+}
+
+export async function getHouseholdMemberByName(householdId: number, memberName: string): Promise<HouseholdMember | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(householdMembers)
+    .where(and(
+      eq(householdMembers.householdId, householdId),
+      eq(householdMembers.memberName, memberName)
+    ))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function updateHouseholdMember(id: number, data: Partial<HouseholdMember>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(householdMembers).set(data).where(eq(householdMembers.id, id));
+}
+
+export async function deleteHouseholdMember(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(householdMembers).where(eq(householdMembers.id, id));
+}
+
+// Shopping items management
+export async function getShoppingItems(householdId: number): Promise<ShoppingItem[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(shoppingItems)
+    .where(eq(shoppingItems.householdId, householdId))
+    .orderBy(shoppingItems.isCompleted, desc(shoppingItems.createdAt));
+}
+
+export async function createShoppingItem(data: {
+  householdId: number;
+  name: string;
+  category: "Lebensmittel" | "Haushalt" | "Pflege" | "Sonstiges";
+  quantity?: string;
+  notes?: string;
+  addedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(shoppingItems).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateShoppingItem(id: number, data: Partial<ShoppingItem>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(shoppingItems).set(data).where(eq(shoppingItems.id, id));
+}
+
+export async function deleteShoppingItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(shoppingItems).where(eq(shoppingItems.id, id));
+}
+
+// Tasks management
+export async function getTasks(householdId: number): Promise<Task[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(tasks)
+    .where(eq(tasks.householdId, householdId))
+    .orderBy(tasks.isCompleted, desc(tasks.createdAt));
+}
+
+export async function createTask(data: {
+  householdId: number;
+  name: string;
+  description?: string;
+  assignedTo?: number;
+  frequency?: "once" | "daily" | "weekly" | "monthly" | "custom";
+  customFrequencyDays?: number;
+  enableRotation?: boolean;
+  dueDate?: Date;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(tasks).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateTask(id: number, data: Partial<Task>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(tasks).set(data).where(eq(tasks.id, id));
+}
+
+export async function deleteTask(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(tasks).where(eq(tasks.id, id));
+}
+
+// Projects management
+export async function getProjects(householdId: number): Promise<Project[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const projectIds = await db.select({ projectId: projectHouseholds.projectId })
+    .from(projectHouseholds)
+    .where(eq(projectHouseholds.householdId, householdId));
+
+  if (projectIds.length === 0) return [];
+
+  return db.select().from(projects)
+    .where(eq(projects.id, projectIds[0]!.projectId))
+    .orderBy(desc(projects.createdAt));
+}
+
+export async function createProject(data: {
+  name: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  status?: "planning" | "active" | "completed" | "cancelled";
+  isNeighborhoodProject?: boolean;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(projects).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateProject(id: number, data: Partial<Project>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(projects).set(data).where(eq(projects.id, id));
+}
+
+export async function deleteProject(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(projects).where(eq(projects.id, id));
+}
+
+// Activity history
+export async function createActivityLog(data: {
+  householdId: number;
+  memberId: number;
+  activityType: "shopping" | "task" | "project" | "member" | "other";
+  action: string;
+  description: string;
+  relatedItemId?: number;
+  comment?: string;
+  photoUrl?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(activityHistory).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getActivityHistory(householdId: number, limit: number = 50): Promise<ActivityHistory[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(activityHistory)
+    .where(eq(activityHistory.householdId, householdId))
+    .orderBy(desc(activityHistory.createdAt))
+    .limit(limit);
+}
