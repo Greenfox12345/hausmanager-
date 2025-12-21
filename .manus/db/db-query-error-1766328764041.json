@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM households WHERE id > 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute DELETE FROM households WHERE id > 2;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`5dpslyh58e9tdjpvglcuzx`.`shopping_items`, CONSTRAINT `shopping_items_addedBy_household_members_id_fk` FOREIGN KEY (`addedBy`) REFERENCES `household_members` (`id`) ON DELETE NO ACTION ON UPDA)"
+  ]
+}

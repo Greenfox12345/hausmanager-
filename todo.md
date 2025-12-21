@@ -107,3 +107,19 @@
 - [x] Update task completion to use dialogs
 - [x] Update History page to display comments and photos properly
 - [x] Test all dialog functionality
+
+## Bug Fixes and Improvements
+- [x] Fix photo upload dialog overlay bug (second dialog not clickable)
+- [x] Remove "Completed shopping item" logs when toggling items
+- [x] Reduce test households to 2 examples (use admin delete function manually)
+
+## Task Creation Form Redesign
+- [x] Move date/time picker above frequency selection
+- [x] Add multiple assignees selection for first occurrence
+- [x] Make repeat checkbox collapsible
+- [x] Add repeat interval with number + unit (days/weeks/months)
+- [x] Add "Rotate responsibility" checkbox under repeat
+- [x] Add "Required persons" number input when rotation enabled
+- [x] Add member exclusion selection for rotation
+- [x] Validate required persons vs available members
+- [x] Show error if numbers don't match

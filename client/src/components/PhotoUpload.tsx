@@ -58,7 +58,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
       }
 
       onPhotosChange([...photos, ...newPhotos]);
-      toast.success(`${newPhotos.length} Foto(s) hochgeladen`);
+      // Toast removed to prevent dialog overlay issues
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Fehler beim Hochladen der Fotos");

@@ -98,14 +98,7 @@ export const shoppingRouter = router({
         completedAt: input.isCompleted ? new Date() : null,
       });
 
-      await createActivityLog({
-        householdId: input.householdId,
-        memberId: input.memberId,
-        activityType: "shopping",
-        action: input.isCompleted ? "completed" : "uncompleted",
-        description: `${input.isCompleted ? "Completed" : "Uncompleted"} shopping item`,
-        relatedItemId: input.itemId,
-      });
+      // Activity log removed - only log when completing shopping via dialog
 
       return { success: true };
     }),

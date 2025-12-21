@@ -10,29 +10,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, RefreshCw, Calendar, CheckCircle2, Target, Bell } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
-
-const FREQUENCIES = [
-  { value: "once", label: "Einmalig" },
-  { value: "daily", label: "Täglich" },
-  { value: "weekly", label: "Wöchentlich" },
-  { value: "monthly", label: "Monatlich" },
-  { value: "custom", label: "Benutzerdefiniert" },
-] as const;
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Tasks() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useHouseholdAuth();
+  
+  // Form state
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskFrequency, setNewTaskFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
+  const [dueDate, setDueDate] = useState("");
+  const [dueTime, setDueTime] = useState("");
+  const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
+  
+  // Repeat options
+  const [enableRepeat, setEnableRepeat] = useState(false);
+  const [repeatInterval, setRepeatInterval] = useState("1");
+  const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
+  
+  // Rotation options
   const [enableRotation, setEnableRotation] = useState(false);
-  const [assignedMemberId, setAssignedMemberId] = useState<string>("unassigned");
+  const [requiredPersons, setRequiredPersons] = useState("1");
+  const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   
   // Dialog states
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
@@ -54,41 +58,22 @@ export default function Tasks() {
   const addMutation = trpc.tasks.add.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
+      // Reset form
       setNewTaskName("");
       setNewTaskDescription("");
-      setNewTaskFrequency("once");
+      setDueDate("");
+      setDueTime("");
+      setSelectedAssignees([]);
+      setEnableRepeat(false);
+      setRepeatInterval("1");
+      setRepeatUnit("weeks");
       setEnableRotation(false);
-      setAssignedMemberId("unassigned");
+      setRequiredPersons("1");
+      setExcludedMembers([]);
       toast.success("Aufgabe hinzugefügt");
     },
     onError: (error) => {
       toast.error(error.message);
-    },
-  });
-
-  const toggleMutation = trpc.tasks.toggleComplete.useMutation({
-    onMutate: async ({ taskId, isCompleted }) => {
-      await utils.tasks.list.cancel();
-      const previousTasks = utils.tasks.list.getData({ householdId: household?.householdId ?? 0 });
-      
-      utils.tasks.list.setData(
-        { householdId: household?.householdId ?? 0 },
-        (old) => old?.map((task) =>
-          task.id === taskId ? { ...task, isCompleted } : task
-        )
-      );
-
-      return { previousTasks };
-    },
-    onError: (err, variables, context) => {
-      utils.tasks.list.setData(
-        { householdId: household?.householdId ?? 0 },
-        context?.previousTasks
-      );
-      toast.error("Fehler beim Aktualisieren");
-    },
-    onSettled: () => {
-      utils.tasks.list.invalidate();
     },
   });
 
@@ -132,27 +117,51 @@ export default function Tasks() {
     return null;
   }
 
+  // Calculate available members for rotation
+  const availableMembers = members.filter(m => !excludedMembers.includes(m.id));
+  const availableCount = availableMembers.length;
+  const requiredCount = parseInt(requiredPersons) || 0;
+  
+  // Validation error
+  const rotationError = enableRotation && enableRepeat && requiredCount > 0 && availableCount < requiredCount
+    ? `Nicht genügend verfügbare Mitglieder! Benötigt: ${requiredCount}, Verfügbar: ${availableCount}`
+    : null;
+
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskName.trim()) return;
+    if (!newTaskName.trim()) {
+      toast.error("Bitte geben Sie einen Aufgabennamen ein");
+      return;
+    }
+
+    if (rotationError) {
+      toast.error(rotationError);
+      return;
+    }
+
+    if (selectedAssignees.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      return;
+    }
+
+    // Determine frequency based on repeat settings
+    let frequency: "once" | "daily" | "weekly" | "monthly" | "custom" = "once";
+    if (enableRepeat) {
+      const interval = parseInt(repeatInterval) || 1;
+      if (repeatUnit === "days" && interval === 1) frequency = "daily";
+      else if (repeatUnit === "weeks" && interval === 1) frequency = "weekly";
+      else if (repeatUnit === "months" && interval === 1) frequency = "monthly";
+      else frequency = "custom";
+    }
 
     addMutation.mutate({
       householdId: household.householdId,
       memberId: member.memberId,
       name: newTaskName.trim(),
       description: newTaskDescription.trim() || undefined,
-      frequency: newTaskFrequency,
-      enableRotation,
-      assignedTo: assignedMemberId !== "unassigned" ? parseInt(assignedMemberId) : undefined,
-    });
-  };
-
-  const handleToggleComplete = (taskId: number, currentStatus: boolean) => {
-    toggleMutation.mutate({
-      taskId,
-      householdId: household.householdId,
-      memberId: member.memberId,
-      isCompleted: !currentStatus,
+      frequency,
+      enableRotation: enableRepeat && enableRotation,
+      assignedTo: selectedAssignees[0], // First assignee
     });
   };
 
@@ -164,16 +173,6 @@ export default function Tasks() {
         memberId: member.memberId,
       });
     }
-  };
-
-  const getFrequencyLabel = (frequency: string) => {
-    return FREQUENCIES.find((f) => f.value === frequency)?.label || frequency;
-  };
-
-  const getMemberName = (memberId: number | null) => {
-    if (!memberId) return "Nicht zugewiesen";
-    const memberData = members.find((m) => m.id === memberId);
-    return memberData?.memberName || "Unbekannt";
   };
 
   const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
@@ -208,6 +207,28 @@ export default function Tasks() {
     });
   };
 
+  const toggleAssignee = (memberId: number) => {
+    setSelectedAssignees(prev =>
+      prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
+  };
+
+  const toggleExcludedMember = (memberId: number) => {
+    setExcludedMembers(prev =>
+      prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
+  };
+
+  const getMemberName = (memberId: number | null) => {
+    if (!memberId) return "Nicht zugewiesen";
+    const memberData = members.find((m) => m.id === memberId);
+    return memberData?.memberName || "Unbekannt";
+  };
+
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl">
@@ -232,71 +253,171 @@ export default function Tasks() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAddTask} className="space-y-4">
+              {/* Task name */}
               <div className="space-y-2">
-                <Label htmlFor="taskName">Aufgabenname</Label>
+                <Label htmlFor="taskName">Aufgabenname *</Label>
                 <Input
                   id="taskName"
-                  placeholder="z.B. Küche putzen, Müll rausbringen..."
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
+                  placeholder="z.B. Müll rausbringen"
                   required
                 />
               </div>
+
+              {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="taskDescription">Beschreibung (optional)</Label>
+                <Label htmlFor="taskDescription">Beschreibung</Label>
                 <Textarea
                   id="taskDescription"
-                  placeholder="Details zur Aufgabe..."
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
+                  placeholder="Optionale Details zur Aufgabe"
                   rows={2}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Date and time picker */}
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="taskFrequency">Häufigkeit</Label>
-                  <Select value={newTaskFrequency} onValueChange={(value: any) => setNewTaskFrequency(value)}>
-                    <SelectTrigger id="taskFrequency">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FREQUENCIES.map((freq) => (
-                        <SelectItem key={freq.value} value={freq.value}>
-                          {freq.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="dueDate">Termin (Datum)</Label>
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="assignedMember">Zugewiesen an</Label>
-                  <Select value={assignedMemberId} onValueChange={setAssignedMemberId}>
-                    <SelectTrigger id="assignedMember">
-                      <SelectValue placeholder="Nicht zugewiesen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unassigned">Nicht zugewiesen</SelectItem>
-                      {members.map((m) => (
-                        <SelectItem key={m.id} value={m.id.toString()}>
-                          {m.memberName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="dueTime">Uhrzeit</Label>
+                  <Input
+                    id="dueTime"
+                    type="time"
+                    value={dueTime}
+                    onChange={(e) => setDueTime(e.target.value)}
+                  />
                 </div>
               </div>
+
+              {/* Multiple assignees */}
+              <div className="space-y-2">
+                <Label>Verantwortliche für ersten Termin *</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {members.map((m) => (
+                    <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <Checkbox
+                        id={`assignee-${m.id}`}
+                        checked={selectedAssignees.includes(m.id)}
+                        onCheckedChange={() => toggleAssignee(m.id)}
+                      />
+                      <Label htmlFor={`assignee-${m.id}`} className="cursor-pointer flex-1">
+                        {m.memberName}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Repeat checkbox */}
               <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
-                <Switch
-                  id="enableRotation"
-                  checked={enableRotation}
-                  onCheckedChange={setEnableRotation}
+                <Checkbox
+                  id="enableRepeat"
+                  checked={enableRepeat}
+                  onCheckedChange={(checked) => setEnableRepeat(checked as boolean)}
                 />
-                <Label htmlFor="enableRotation" className="cursor-pointer flex items-center gap-2">
-                  <RefreshCw className="h-4 w-4" />
-                  Rotation aktivieren (Aufgabe rotiert nach Abschluss)
+                <Label htmlFor="enableRepeat" className="cursor-pointer flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Wiederholung aktivieren
                 </Label>
               </div>
-              <Button type="submit" className="w-full" disabled={addMutation.isPending}>
+
+              {/* Repeat options (collapsible) */}
+              {enableRepeat && (
+                <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                  {/* Repeat interval */}
+                  <div className="space-y-2">
+                    <Label>Wiederholungsintervall</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        value={repeatInterval}
+                        onChange={(e) => setRepeatInterval(e.target.value)}
+                        className="w-20"
+                      />
+                      <Select value={repeatUnit} onValueChange={(v) => setRepeatUnit(v as any)}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="days">Tage(n)</SelectItem>
+                          <SelectItem value="weeks">Woche(n)</SelectItem>
+                          <SelectItem value="months">Monat(e)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Rotation checkbox */}
+                  <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
+                    <Checkbox
+                      id="enableRotation"
+                      checked={enableRotation}
+                      onCheckedChange={(checked) => setEnableRotation(checked as boolean)}
+                    />
+                    <Label htmlFor="enableRotation" className="cursor-pointer">
+                      Verantwortung rotieren
+                    </Label>
+                  </div>
+
+                  {/* Rotation options (collapsible) */}
+                  {enableRotation && (
+                    <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                      {/* Required persons */}
+                      <div className="space-y-2">
+                        <Label htmlFor="requiredPersons">Regulär benötigte Personen *</Label>
+                        <Input
+                          id="requiredPersons"
+                          type="number"
+                          min="1"
+                          value={requiredPersons}
+                          onChange={(e) => setRequiredPersons(e.target.value)}
+                          className="w-32"
+                        />
+                      </div>
+
+                      {/* Excluded members */}
+                      <div className="space-y-2">
+                        <Label>Von Rotation freistellen</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {members.map((m) => (
+                            <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
+                              <Checkbox
+                                id={`exclude-${m.id}`}
+                                checked={excludedMembers.includes(m.id)}
+                                onCheckedChange={() => toggleExcludedMember(m.id)}
+                              />
+                              <Label htmlFor={`exclude-${m.id}`} className="cursor-pointer flex-1">
+                                {m.memberName}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Validation error */}
+                      {rotationError && (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{rotationError}</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full" disabled={addMutation.isPending || !!rotationError}>
                 <Plus className="mr-2 h-4 w-4" />
                 {addMutation.isPending ? "Wird erstellt..." : "Aufgabe erstellen"}
               </Button>
@@ -304,6 +425,7 @@ export default function Tasks() {
           </CardContent>
         </Card>
 
+        {/* Task list */}
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
             Lädt Aufgaben...
@@ -325,11 +447,6 @@ export default function Tasks() {
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <Checkbox
-                      checked={task.isCompleted}
-                      onCheckedChange={() => handleToggleComplete(task.id, task.isCompleted)}
-                      className="mt-1 touch-target"
-                    />
                     <div className="flex-1 min-w-0">
                       <div className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
                         {task.name}
@@ -340,19 +457,9 @@ export default function Tasks() {
                         </p>
                       )}
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                          <Calendar className="h-3 w-3" />
-                          {getFrequencyLabel(task.frequency)}
-                        </span>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
                           {getMemberName(task.assignedTo)}
                         </span>
-                        {task.enableRotation && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
-                            <RefreshCw className="h-3 w-3" />
-                            Rotation
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0">
