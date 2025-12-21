@@ -148,7 +148,7 @@ export async function getAllHouseholds(): Promise<Household[]> {
 // Household member management
 export async function createHouseholdMember(data: {
   householdId: number;
-  userId: number;
+  userId: number | null;
   memberName: string;
   passwordHash: string;
   photoUrl?: string;

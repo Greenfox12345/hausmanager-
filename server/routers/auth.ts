@@ -186,7 +186,7 @@ export const authRouter = router({
       const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
       const memberId = await createHouseholdMember({
         householdId: input.householdId,
-        userId: 0, // Non-owner members don't have a user ID
+        userId: null, // Non-owner members don't have a user ID
         memberName: input.memberName,
         passwordHash,
       });

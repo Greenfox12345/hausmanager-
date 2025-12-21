@@ -40,7 +40,7 @@ export type InsertHousehold = typeof households.$inferInsert;
 export const householdMembers = mysqlTable("household_members", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId").references(() => users.id, { onDelete: "cascade" }),
   memberName: varchar("memberName", { length: 255 }).notNull(),
   passwordHash: text("passwordHash").notNull(),
   photoUrl: text("photoUrl"),

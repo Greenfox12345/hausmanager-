@@ -158,3 +158,8 @@
 - [x] Display responsible person for completed tasks
 - [x] Show due date for task activities
 - [x] Format task details in readable layout
+
+## Bug Fix: Member Addition
+- [x] Fix userId foreign key constraint error when adding members
+- [x] Change userId to allow NULL in household_members schema
+- [x] Update createHouseholdMember to use NULL instead of 0
