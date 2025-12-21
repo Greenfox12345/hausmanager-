@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
@@ -265,6 +265,9 @@ export default function Tasks() {
                 />
               </div>
 
+              {/* Show remaining fields only after name is entered */}
+              {newTaskName.trim() && (
+                <>
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="taskDescription">Beschreibung</Label>
@@ -417,10 +420,14 @@ export default function Tasks() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={addMutation.isPending || !!rotationError}>
-                <Plus className="mr-2 h-4 w-4" />
-                {addMutation.isPending ? "Wird erstellt..." : "Aufgabe erstellen"}
-              </Button>
+              {newTaskName.trim() && (
+                <Button type="submit" className="w-full" disabled={addMutation.isPending || !!rotationError}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  {addMutation.isPending ? "Wird erstellt..." : "Aufgabe erstellen"}
+                </Button>
+              )}
+              </>
+              )}
             </form>
           </CardContent>
         </Card>
@@ -460,6 +467,21 @@ export default function Tasks() {
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
                           {getMemberName(task.assignedTo)}
                         </span>
+                        {task.frequency && task.frequency !== "once" && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                            <Calendar className="h-3 w-3" />
+                            {task.frequency === "daily" && "Täglich"}
+                            {task.frequency === "weekly" && "Wöchentlich"}
+                            {task.frequency === "monthly" && "Monatlich"}
+                            {task.frequency === "custom" && "Benutzerdefiniert"}
+                          </span>
+                        )}
+                        {task.enableRotation && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+                            <RefreshCw className="h-3 w-3" />
+                            Rotation
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0">

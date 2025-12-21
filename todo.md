@@ -123,3 +123,7 @@
 - [x] Add member exclusion selection for rotation
 - [x] Validate required persons vs available members
 - [x] Show error if numbers don't match
+
+## Task Form and List Improvements
+- [x] Make task form fields collapsible until name is entered
+- [x] Add missing details to task list view (frequency, rotation, due date, etc.)
