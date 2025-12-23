@@ -179,3 +179,17 @@
 
 ## Bug Fix: Activity History Due Date
 - [x] Store original due date in activity history when completing recurring tasks (not the new due date)
+
+## Terminübersicht und Projektverwaltung
+- [x] Rename "Projekte & Kalender" page to "Terminübersicht"
+- [x] Update navigation links and routes
+- [x] Create new "Projekte" page for project management
+- [x] Implement project list with create/edit/delete functions
+- [x] Add list view for project tasks
+- [x] Implement Gantt chart view for project tasks
+- [x] Display task dependencies in Haushaltsaufgaben page
+- [x] Display task dependencies in Projektansicht
+- [ ] Display task dependencies in Verlauf (History)
+- [x] Show prerequisites and follow-up tasks with icons and links
+- [x] Create TaskDependencies reusable component
+- [x] Add getAllDependencies endpoint for efficient loading

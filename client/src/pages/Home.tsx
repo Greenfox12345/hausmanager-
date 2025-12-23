@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
@@ -35,6 +35,14 @@ export default function Home() {
       href: "/tasks",
       color: "text-secondary",
       bgColor: "bg-secondary/10",
+    },
+    {
+      title: "Terminübersicht",
+      description: "Kalender und alle Aufgaben im Überblick",
+      icon: Calendar,
+      href: "/calendar",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
       title: "Projekte",

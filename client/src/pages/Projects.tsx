@@ -1,27 +1,59 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight } from "lucide-react";
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  ArrowLeft, 
+  FolderKanban, 
+  Plus, 
+  List, 
+  GanttChart,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  Target,
+  Calendar as CalendarIcon,
+  Users
+} from "lucide-react";
+import { format, isPast } from "date-fns";
 import { de } from "date-fns/locale";
+import { toast } from "sonner";
+import GanttChartView from "@/components/GanttChartView";
+import TaskDependencies from "@/components/TaskDependencies";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useHouseholdAuth();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
 
-  const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
+  // Form state for project creation/editing
+  const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
+  const [projectStatus, setProjectStatus] = useState<"planning" | "active" | "completed" | "cancelled">("planning");
+  const [projectStartDate, setProjectStartDate] = useState("");
+  const [projectEndDate, setProjectEndDate] = useState("");
+  const [isNeighborhoodProject, setIsNeighborhoodProject] = useState(false);
+
+  const { data: projects = [], isLoading: projectsLoading, refetch: refetchProjects } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
 
-  const { data: projects = [], isLoading: projectsLoading } = trpc.projects.list.useQuery(
+  const { data: tasks = [], isLoading: tasksLoading, refetch: refetchTasks } = trpc.tasks.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -31,60 +63,121 @@ export default function Projects() {
     { enabled: !!household }
   );
 
+  const { data: dependencies = [] } = trpc.projects.getAllDependencies.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const createProjectMutation = trpc.projects.create.useMutation({
+    onSuccess: () => {
+      toast.success("Projekt erfolgreich erstellt");
+      refetchProjects();
+      setIsCreateDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Erstellen des Projekts: " + error.message);
+    },
+  });
+
+  const updateProjectMutation = trpc.projects.update.useMutation({
+    onSuccess: () => {
+      toast.success("Projekt erfolgreich aktualisiert");
+      refetchProjects();
+      setIsEditDialogOpen(false);
+      setEditingProject(null);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Aktualisieren des Projekts: " + error.message);
+    },
+  });
+
+  const deleteProjectMutation = trpc.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Projekt erfolgreich gelöscht");
+      refetchProjects();
+      if (selectedProjectId === editingProject?.id) {
+        setSelectedProjectId(null);
+      }
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Löschen des Projekts: " + error.message);
+    },
+  });
+
   if (!isAuthenticated || !household || !member) {
     setLocation("/login");
     return null;
   }
 
-  // Group tasks by due date for calendar view
-  const tasksByDate = useMemo(() => {
-    const grouped: Record<string, typeof tasks> = {};
-    tasks.forEach(task => {
-      if (task.dueDate) {
-        const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-        if (!grouped[dateKey]) {
-          grouped[dateKey] = [];
-        }
-        grouped[dateKey].push(task);
-      }
+  const resetForm = () => {
+    setProjectName("");
+    setProjectDescription("");
+    setProjectStatus("planning");
+    setProjectStartDate("");
+    setProjectEndDate("");
+    setIsNeighborhoodProject(false);
+  };
+
+  const handleCreateProject = () => {
+    if (!projectName.trim()) {
+      toast.error("Bitte geben Sie einen Projektnamen ein");
+      return;
+    }
+
+    createProjectMutation.mutate({
+      householdId: household.householdId,
+      memberId: member.memberId,
+      name: projectName,
+      description: projectDescription || undefined,
+      startDate: projectStartDate || undefined,
+      endDate: projectEndDate || undefined,
+      isNeighborhoodProject,
     });
-    return grouped;
-  }, [tasks]);
+  };
 
-  // Group tasks by project
-  const tasksByProject = useMemo(() => {
-    const grouped: Record<string, typeof tasks> = {
-      "no-project": tasks.filter(t => !t.projectId),
-    };
-    
-    projects.forEach(project => {
-      grouped[`project-${project.id}`] = tasks.filter(t => t.projectId === project.id);
+  const handleUpdateProject = () => {
+    if (!editingProject || !projectName.trim()) {
+      toast.error("Bitte geben Sie einen Projektnamen ein");
+      return;
+    }
+
+    updateProjectMutation.mutate({
+      id: editingProject.id,
+      name: projectName,
+      description: projectDescription || undefined,
+      status: projectStatus,
+      startDate: projectStartDate || undefined,
+      endDate: projectEndDate || undefined,
+      isNeighborhoodProject,
     });
-    
-    return grouped;
-  }, [tasks, projects]);
+  };
 
-  // Get current month days for calendar
-  const currentMonth = new Date();
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const handleDeleteProject = (projectId: number) => {
+    if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
+      deleteProjectMutation.mutate({ id: projectId });
+    }
+  };
 
-  // Get tasks for selected date
-  const selectedDateTasks = selectedDate
-    ? tasksByDate[format(selectedDate, "yyyy-MM-dd")] || []
-    : [];
+  const openEditDialog = (project: any) => {
+    setEditingProject(project);
+    setProjectName(project.name);
+    setProjectDescription(project.description || "");
+    setProjectStatus(project.status);
+    setProjectStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
+    setProjectEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
+    setIsNeighborhoodProject(project.isNeighborhoodProject || false);
+    setIsEditDialogOpen(true);
+  };
+
+  const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const projectTasks = selectedProjectId ? tasks.filter(t => t.projectId === selectedProjectId) : [];
 
   const getMemberName = (memberId: number | null) => {
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
-  };
-
-  const getProjectName = (projectId: number | null) => {
-    if (!projectId) return null;
-    const project = projects.find(p => p.id === projectId);
-    return project?.name;
   };
 
   const getFrequencyBadge = (task: typeof tasks[0]) => {
@@ -103,335 +196,444 @@ export default function Projects() {
     return `Alle ${interval} ${unitText}${interval > 1 ? "e" : ""}`;
   };
 
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      planning: { label: "Planung", variant: "outline" as const },
+      active: { label: "Aktiv", variant: "default" as const },
+      completed: { label: "Abgeschlossen", variant: "outline" as const },
+      cancelled: { label: "Abgebrochen", variant: "destructive" as const },
+    };
+    return statusMap[status as keyof typeof statusMap] || statusMap.planning;
+  };
+
   return (
     <AppLayout>
       <div className="container py-6 max-w-6xl">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Projekte & Kalender</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setLocation("/")}
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Projekte</h1>
+              <p className="text-muted-foreground">{household.householdName}</p>
+            </div>
+          </div>
+
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Neues Projekt
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Neues Projekt erstellen</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Projektname *</Label>
+                  <Input
+                    id="name"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    placeholder="z.B. Gartenrenovierung"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Beschreibung</Label>
+                  <Textarea
+                    id="description"
+                    value={projectDescription}
+                    onChange={(e) => setProjectDescription(e.target.value)}
+                    placeholder="Projektbeschreibung..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={projectStatus} onValueChange={(value: any) => setProjectStatus(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planning">Planung</SelectItem>
+                      <SelectItem value="active">Aktiv</SelectItem>
+                      <SelectItem value="completed">Abgeschlossen</SelectItem>
+                      <SelectItem value="cancelled">Abgebrochen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Startdatum</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={projectStartDate}
+                      onChange={(e) => setProjectStartDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">Enddatum</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={projectEndDate}
+                      onChange={(e) => setProjectEndDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Abbrechen
+                </Button>
+                <Button onClick={handleCreateProject}>
+                  Projekt erstellen
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Project List */}
+          <div className="lg:col-span-1 space-y-3">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <FolderKanban className="h-5 w-5" />
+              Projektliste
+            </h2>
+
+            {projectsLoading ? (
+              <Card className="shadow-sm">
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Lade Projekte...</p>
+                </CardContent>
+              </Card>
+            ) : projects.length === 0 ? (
+              <Card className="shadow-sm">
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              projects.map((project) => {
+                const projectTaskCount = tasks.filter(t => t.projectId === project.id).length;
+                const completedTaskCount = tasks.filter(t => t.projectId === project.id && t.isCompleted).length;
+                const statusBadge = getStatusBadge(project.status);
+
+                return (
+                  <Card
+                    key={project.id}
+                    className={`shadow-sm cursor-pointer transition-all hover:shadow-md ${
+                      selectedProjectId === project.id ? "ring-2 ring-primary" : ""
+                    }`}
+                    onClick={() => setSelectedProjectId(project.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{project.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge variant={statusBadge.variant} className="text-xs">
+                              {statusBadge.label}
+                            </Badge>
+                            {project.isNeighborhoodProject && (
+                              <Badge variant="outline" className="text-xs">
+                                <Users className="h-3 w-3 mr-1" />
+                                Nachbarschaft
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {completedTaskCount} / {projectTaskCount} Aufgaben erledigt
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditDialog(project);
+                            }}
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(project.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+
+          {/* Project Details */}
+          <div className="lg:col-span-2">
+            {!selectedProject ? (
+              <Card className="shadow-sm">
+                <CardContent className="p-8 text-center">
+                  <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">
+                    Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {/* Project Header */}
+                <Card className="shadow-md">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="flex items-center gap-2">
+                          <FolderKanban className="h-5 w-5 text-primary" />
+                          {selectedProject.name}
+                        </CardTitle>
+                        {selectedProject.description && (
+                          <CardDescription className="mt-2">
+                            {selectedProject.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 flex-wrap">
+                      <Badge variant={getStatusBadge(selectedProject.status).variant}>
+                        {getStatusBadge(selectedProject.status).label}
+                      </Badge>
+                      {selectedProject.startDate && (
+                        <Badge variant="outline" className="text-xs">
+                          <CalendarIcon className="h-3 w-3 mr-1" />
+                          Start: {format(new Date(selectedProject.startDate), "dd.MM.yyyy")}
+                        </Badge>
+                      )}
+                      {selectedProject.endDate && (
+                        <Badge variant="outline" className="text-xs">
+                          <CalendarIcon className="h-3 w-3 mr-1" />
+                          Ende: {format(new Date(selectedProject.endDate), "dd.MM.yyyy")}
+                        </Badge>
+                      )}
+                      {selectedProject.isNeighborhoodProject && (
+                        <Badge variant="outline">
+                          <Users className="h-3 w-3 mr-1" />
+                          Nachbarschaftsprojekt
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+
+                {/* Task Views */}
+                <Tabs defaultValue="list" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="list" className="flex items-center gap-2">
+                      <List className="h-4 w-4" />
+                      Listenansicht
+                    </TabsTrigger>
+                    <TabsTrigger value="gantt" className="flex items-center gap-2">
+                      <GanttChart className="h-4 w-4" />
+                      Gantt-Diagramm
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* List View */}
+                  <TabsContent value="list">
+                    <Card className="shadow-md">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Aufgaben</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {projectTasks.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-8">
+                            Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {projectTasks.map((task) => {
+                              const frequency = getFrequencyBadge(task);
+
+                              return (
+                                <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
+                                  <CardContent className="p-3">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
+                                            {task.name}
+                                          </span>
+                                          {task.isCompleted && (
+                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                                              Erledigt
+                                            </Badge>
+                                          )}
+                                          {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
+                                            <Badge variant="destructive" className="text-xs">
+                                              Überfällig
+                                            </Badge>
+                                          )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
+                                          <span>{getMemberName(task.assignedTo)}</span>
+                                          {task.dueDate && (
+                                            <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
+                                          )}
+                                          <TaskDependencies
+                                            taskId={task.id}
+                                            dependencies={dependencies}
+                                            allTasks={tasks}
+                                            compact
+                                          />
+                                          {frequency && (
+                                            <Badge variant="outline" className="text-xs">
+                                              <Clock className="h-3 w-3 mr-1" />
+                                              {frequency}
+                                            </Badge>
+                                          )}
+                                          {task.enableRotation && (
+                                            <Badge variant="outline" className="text-xs">
+                                              <Target className="h-3 w-3 mr-1" />
+                                              Rotation
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Gantt View */}
+                  <TabsContent value="gantt">
+                    <Card className="shadow-md">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Gantt-Diagramm</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {projectTasks.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-8">
+                            Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.
+                          </p>
+                        ) : (
+                          <GanttChartView tasks={projectTasks} members={members} />
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
           </div>
         </div>
 
-        <Tabs defaultValue="calendar" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              Kalenderansicht
-            </TabsTrigger>
-            <TabsTrigger value="projects" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              Projektansicht
-            </TabsTrigger>
-          </TabsList>
+        {/* Edit Project Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Projekt bearbeiten</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Projektname *</Label>
+                <Input
+                  id="edit-name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="z.B. Gartenrenovierung"
+                />
+              </div>
 
-          {/* Calendar View */}
-          <TabsContent value="calendar" className="space-y-4">
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  {format(currentMonth, "MMMM yyyy", { locale: de })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-2 mb-4">
-                  {["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"].map(day => (
-                    <div key={day} className="text-center text-sm font-semibold text-muted-foreground p-2">
-                      {day}
-                    </div>
-                  ))}
-                  
-                  {/* Empty cells for days before month start */}
-                  {Array.from({ length: monthStart.getDay() }).map((_, i) => (
-                    <div key={`empty-${i}`} className="p-2" />
-                  ))}
-                  
-                  {/* Month days */}
-                  {monthDays.map(day => {
-                    const dateKey = format(day, "yyyy-MM-dd");
-                    const dayTasks = tasksByDate[dateKey] || [];
-                    const isSelected = selectedDate && isSameDay(day, selectedDate);
-                    const isCurrentDay = isToday(day);
-                    const hasTasks = dayTasks.length > 0;
-                    
-                    return (
-                      <button
-                        key={dateKey}
-                        onClick={() => setSelectedDate(day)}
-                        className={`
-                          p-2 rounded-lg border transition-all min-h-[60px] flex flex-col items-center justify-start
-                          ${isSelected ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted/50"}
-                          ${isCurrentDay && !isSelected ? "border-primary border-2" : ""}
-                        `}
-                      >
-                        <span className={`text-sm font-medium ${isCurrentDay && !isSelected ? "text-primary" : ""}`}>
-                          {format(day, "d")}
-                        </span>
-                        {hasTasks && (
-                          <div className="flex flex-wrap gap-0.5 mt-1">
-                            {dayTasks.slice(0, 3).map((task, i) => (
-                              <div
-                                key={i}
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  task.isCompleted ? "bg-green-500" : isPast(new Date(task.dueDate!)) ? "bg-red-500" : "bg-blue-500"
-                                }`}
-                              />
-                            ))}
-                            {dayTasks.length > 3 && (
-                              <span className="text-[10px] ml-0.5">+{dayTasks.length - 3}</span>
-                            )}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Beschreibung</Label>
+                <Textarea
+                  id="edit-description"
+                  value={projectDescription}
+                  onChange={(e) => setProjectDescription(e.target.value)}
+                  placeholder="Projektbeschreibung..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-status">Status</Label>
+                <Select value={projectStatus} onValueChange={(value: any) => setProjectStatus(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="planning">Planung</SelectItem>
+                    <SelectItem value="active">Aktiv</SelectItem>
+                    <SelectItem value="completed">Abgeschlossen</SelectItem>
+                    <SelectItem value="cancelled">Abgebrochen</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-startDate">Startdatum</Label>
+                  <Input
+                    id="edit-startDate"
+                    type="date"
+                    value={projectStartDate}
+                    onChange={(e) => setProjectStartDate(e.target.value)}
+                  />
                 </div>
 
-                {/* Selected Date Tasks */}
-                {selectedDate && (
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      Aufgaben am {format(selectedDate, "d. MMMM yyyy", { locale: de })}
-                    </h3>
-                    {selectedDateTasks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground py-4 text-center">
-                        Keine Aufgaben an diesem Tag
-                      </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {selectedDateTasks.map(task => {
-                          const projectName = getProjectName(task.projectId);
-                          const frequency = getFrequencyBadge(task);
-                          
-                          return (
-                            <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
-                              <CardContent className="p-3">
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                                        {task.name}
-                                      </span>
-                                      {task.isCompleted && (
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                                          Erledigt
-                                        </Badge>
-                                      )}
-                                      {!task.isCompleted && isPast(new Date(task.dueDate!)) && (
-                                        <Badge variant="destructive" className="text-xs">
-                                          Überfällig
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                      <span>{getMemberName(task.assignedTo)}</span>
-                                      {task.dueDate && (
-                                        <span>• {format(new Date(task.dueDate), "HH:mm")} Uhr</span>
-                                      )}
-                                      {projectName && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <FolderKanban className="h-3 w-3 mr-1" />
-                                          {projectName}
-                                        </Badge>
-                                      )}
-                                      {frequency && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <Clock className="h-3 w-3 mr-1" />
-                                          {frequency}
-                                        </Badge>
-                                      )}
-                                      {task.enableRotation && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <Target className="h-3 w-3 mr-1" />
-                                          Rotation
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Project View */}
-          <TabsContent value="projects" className="space-y-4">
-            {/* Tasks without project */}
-            {tasksByProject["no-project"].length > 0 && (
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <List className="h-5 w-5" />
-                    Aufgaben ohne Projekt
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {tasksByProject["no-project"].map(task => {
-                      const frequency = getFrequencyBadge(task);
-                      
-                      return (
-                        <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
-                          <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                                    {task.name}
-                                  </span>
-                                  {task.isCompleted && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                                      Erledigt
-                                    </Badge>
-                                  )}
-                                  {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
-                                    <Badge variant="destructive" className="text-xs">
-                                      Überfällig
-                                    </Badge>
-                                  )}
-                                </div>
-                                
-                                <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                  <span>{getMemberName(task.assignedTo)}</span>
-                                  {task.dueDate && (
-                                    <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
-                                  )}
-                                  {frequency && (
-                                    <Badge variant="outline" className="text-xs">
-                                      <Clock className="h-3 w-3 mr-1" />
-                                      {frequency}
-                                    </Badge>
-                                  )}
-                                  {task.enableRotation && (
-                                    <Badge variant="outline" className="text-xs">
-                                      <Target className="h-3 w-3 mr-1" />
-                                      Rotation
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Projects with tasks */}
-            {projects.map(project => {
-              const projectTasks = tasksByProject[`project-${project.id}`] || [];
-              if (projectTasks.length === 0) return null;
-              
-              return (
-                <Card key={project.id} className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FolderKanban className="h-5 w-5 text-primary" />
-                      {project.name}
-                    </CardTitle>
-                    {project.description && (
-                      <p className="text-sm text-muted-foreground">{project.description}</p>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {projectTasks.map(task => {
-                        const frequency = getFrequencyBadge(task);
-                        
-                        return (
-                          <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
-                            <CardContent className="p-3">
-                              <div className="flex items-start gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                                      {task.name}
-                                    </span>
-                                    {task.isCompleted && (
-                                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                        Erledigt
-                                      </Badge>
-                                    )}
-                                    {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
-                                      <Badge variant="destructive" className="text-xs">
-                                        Überfällig
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                    <span>{getMemberName(task.assignedTo)}</span>
-                                    {task.dueDate && (
-                                      <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
-                                    )}
-                                    {frequency && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <Clock className="h-3 w-3 mr-1" />
-                                        {frequency}
-                                      </Badge>
-                                    )}
-                                    {task.enableRotation && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <Target className="h-3 w-3 mr-1" />
-                                        Rotation
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-
-            {/* No projects message */}
-            {projects.length === 0 && tasksByProject["no-project"].length === 0 && (
-              <Card className="shadow-sm">
-                <CardContent className="py-16 text-center">
-                  <FolderKanban className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="text-lg font-semibold mb-2">Keine Projekte vorhanden</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto mb-4">
-                    Erstellen Sie Projektaufgaben auf der Aufgabenseite, um sie hier zu sehen.
-                  </p>
-                  <Button onClick={() => setLocation("/tasks")}>
-                    Zur Aufgabenseite
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-endDate">Enddatum</Label>
+                  <Input
+                    id="edit-endDate"
+                    type="date"
+                    value={projectEndDate}
+                    onChange={(e) => setProjectEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Abbrechen
+              </Button>
+              <Button onClick={handleUpdateProject}>
+                Speichern
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );

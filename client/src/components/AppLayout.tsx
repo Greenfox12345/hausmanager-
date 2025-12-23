@@ -25,7 +25,8 @@ import {
   Home as HomeIcon,
   ChevronRight,
   ChevronsUpDown,
-  Check
+  Check,
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: CheckSquare,
       href: "/tasks",
       color: "text-secondary",
+    },
+    {
+      title: "Terminübersicht",
+      icon: Calendar,
+      href: "/calendar",
+      color: "text-purple-600",
     },
     {
       title: "Projekte",

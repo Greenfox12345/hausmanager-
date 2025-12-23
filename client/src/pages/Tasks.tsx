@@ -16,6 +16,7 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import TaskDependencies from "@/components/TaskDependencies";
 
 export default function Tasks() {
   const [, setLocation] = useLocation();
@@ -70,6 +71,11 @@ export default function Tasks() {
   );
 
   const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: dependencies = [] } = trpc.projects.getAllDependencies.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -690,6 +696,12 @@ export default function Tasks() {
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
                           {getMemberName(task.assignedTo)}
                         </span>
+                        <TaskDependencies
+                          taskId={task.id}
+                          dependencies={dependencies}
+                          allTasks={tasks}
+                          compact
+                        />
                         {task.dueDate && (
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                             new Date(task.dueDate) < new Date() && !task.isCompleted

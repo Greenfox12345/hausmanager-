@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Shopping from "./pages/Shopping";
 import Tasks from "./pages/Tasks";
+import Calendar from "./pages/Calendar";
 import Projects from "./pages/Projects";
 import History from "./pages/History";
 import Neighborhood from "./pages/Neighborhood";
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/shopping" component={Shopping} />
       <Route path="/tasks" component={Tasks} />
+      <Route path="/calendar" component={Calendar} />
       <Route path="/projects" component={Projects} />
       <Route path="/history" component={History} />
       <Route path="/neighborhood" component={Neighborhood} />

@@ -145,6 +145,34 @@ export const projectsRouter = router({
       return deps;
     }),
 
+  // Get all task dependencies for household
+  getAllDependencies: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get all tasks for the household
+      const householdTasks = await db
+        .select({ id: tasks.id })
+        .from(tasks)
+        .where(eq(tasks.householdId, input.householdId));
+
+      if (householdTasks.length === 0) {
+        return [];
+      }
+
+      const taskIds = householdTasks.map((t) => t.id);
+
+      // Get all dependencies for these tasks
+      const deps = await db
+        .select()
+        .from(taskDependencies)
+        .where(inArray(taskDependencies.taskId, taskIds));
+
+      return deps;
+    }),
+
   // Add household to project (multi-household collaboration)
   addHouseholdToProject: protectedProcedure
     .input(
@@ -177,6 +205,55 @@ export const projectsRouter = router({
         projectId: input.projectId,
         householdId: input.householdId,
       });
+
+      return { success: true };
+    }),
+
+  // Update project
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        status: z.enum(["planning", "active", "completed", "cancelled"]).optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        isNeighborhoodProject: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { id, ...updateData } = input;
+      
+      // Convert date strings to Date objects if provided
+      const processedData: any = { ...updateData };
+      if (updateData.startDate) {
+        processedData.startDate = new Date(updateData.startDate);
+      }
+      if (updateData.endDate) {
+        processedData.endDate = new Date(updateData.endDate);
+      }
+
+      await db.update(projects).set(processedData).where(eq(projects.id, id));
+
+      return { success: true };
+    }),
+
+  // Delete project
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Delete project households first (foreign key constraint)
+      await db.delete(projectHouseholds).where(eq(projectHouseholds.projectId, input.id));
+
+      // Delete project
+      await db.delete(projects).where(eq(projects.id, input.id));
 
       return { success: true };
     }),
