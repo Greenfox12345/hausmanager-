@@ -1,0 +1,147 @@
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
+import { eq, and, inArray, desc } from "drizzle-orm";
+
+export const projectsRouter = router({
+  // List all projects accessible to the household
+  list: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get projects where household is a participant
+      const projectHouseholdRecords = await db
+        .select()
+        .from(projectHouseholds)
+        .where(eq(projectHouseholds.householdId, input.householdId));
+
+      if (projectHouseholdRecords.length === 0) {
+        return [];
+      }
+
+      const projectIds = projectHouseholdRecords.map((ph) => ph.projectId);
+      const projectList = await db
+        .select()
+        .from(projects)
+        .where(inArray(projects.id, projectIds))
+        .orderBy(desc(projects.createdAt));
+
+      return projectList;
+    }),
+
+  // Create a new project
+  create: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+        name: z.string().min(1),
+        description: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        isNeighborhoodProject: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Create project
+      const result = await db.insert(projects).values({
+        name: input.name,
+        description: input.description,
+        startDate: input.startDate ? new Date(input.startDate) : undefined,
+        endDate: input.endDate ? new Date(input.endDate) : undefined,
+        status: "planning",
+        isNeighborhoodProject: input.isNeighborhoodProject,
+        createdBy: input.memberId,
+      });
+
+      const projectId = Number(result[0].insertId);
+
+      // Add household to project
+      await db.insert(projectHouseholds).values({
+        projectId,
+        householdId: input.householdId,
+      });
+
+      return { projectId };
+    }),
+
+  // Get all tasks (household tasks) accessible to the household for dependency selection
+  getAvailableTasks: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const taskList = await db
+        .select({
+          id: tasks.id,
+          name: tasks.name,
+          dueDate: tasks.dueDate,
+          projectId: tasks.projectId,
+        })
+        .from(tasks)
+        .where(eq(tasks.householdId, input.householdId))
+        .orderBy(desc(tasks.createdAt));
+
+      return taskList;
+    }),
+
+  // Add task dependencies
+  addDependencies: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        prerequisites: z.array(z.number()).optional(),
+        followups: z.array(z.number()).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Add prerequisites
+      if (input.prerequisites && input.prerequisites.length > 0) {
+        await db.insert(taskDependencies).values(
+          input.prerequisites.map((depId) => ({
+            taskId: input.taskId,
+            dependsOnTaskId: depId,
+            dependencyType: "prerequisite" as const,
+          }))
+        );
+      }
+
+      // Add followups
+      if (input.followups && input.followups.length > 0) {
+        await db.insert(taskDependencies).values(
+          input.followups.map((depId) => ({
+            taskId: depId, // The followup task depends on this task
+            dependsOnTaskId: input.taskId,
+            dependencyType: "followup" as const,
+          }))
+        );
+      }
+
+      return { success: true };
+    }),
+
+  // Get task dependencies
+  getDependencies: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const deps = await db
+        .select()
+        .from(taskDependencies)
+        .where(eq(taskDependencies.taskId, input.taskId));
+
+      return deps;
+    }),
+});

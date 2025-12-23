@@ -163,3 +163,17 @@
 - [x] Fix userId foreign key constraint error when adding members
 - [x] Change userId to allow NULL in household_members schema
 - [x] Update createHouseholdMember to use NULL instead of 0
+
+## Project Overview with Calendar
+- [x] Extend database schema for project task dependencies
+- [ ] Add "Projektaufgabe" checkbox to task creation form
+- [ ] Implement "Projektzuordnung" section (select existing or create new project)
+- [ ] Implement "Aufgabenverknüpfung" with Voraussetzungen and Folgeaufgaben columns
+- [ ] Create calendar view for all tasks
+- [ ] Create project-grouped task view
+- [ ] Implement multi-household project collaboration
+- [ ] Add project creation from main task
+- [ ] Display task dependencies visually
+
+## Bug Fix: Activity History Due Date
+- [x] Store original due date in activity history when completing recurring tasks (not the new due date)

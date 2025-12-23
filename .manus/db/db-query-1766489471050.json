@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS task_dependencies (id INT AUTO_INCREMENT PRIMARY KEY, taskId INT NOT NULL, dependsOnTaskId INT NOT NULL, dependencyType ENUM('prerequisite', 'followup') NOT NULL, createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE, FOREIGN KEY (dependsOnTaskId) REFERENCES tasks(id) ON DELETE CASCADE);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE IF NOT EXISTS task_dependencies (id INT AUTO_INCREMENT PRIMARY KEY, taskId INT NOT NULL, dependsOnTaskId INT NOT NULL, dependencyType ENUM('prerequisite', 'followup') NOT NULL, createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE, FOREIGN KEY (dependsOnTaskId) REFERENCES tasks(id) ON DELETE CASCADE);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 246
+}

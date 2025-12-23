@@ -38,6 +38,15 @@ export default function Tasks() {
   const [requiredPersons, setRequiredPersons] = useState("1");
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   
+  // Project options
+  const [isProjectTask, setIsProjectTask] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [createNewProject, setCreateNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [prerequisites, setPrerequisites] = useState<number[]>([]);
+  const [followups, setFollowups] = useState<number[]>([]);
+  
   // Dialog states
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
@@ -55,9 +64,24 @@ export default function Tasks() {
     { enabled: !!household }
   );
 
+  const { data: projects = [] } = trpc.projects.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const createProjectMutation = trpc.projects.create.useMutation();
+  const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
+
   const addMutation = trpc.tasks.add.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
+      utils.projects.list.invalidate();
+      utils.projects.getAvailableTasks.invalidate();
       // Reset form
       setNewTaskName("");
       setNewTaskDescription("");
@@ -70,6 +94,13 @@ export default function Tasks() {
       setEnableRotation(false);
       setRequiredPersons("1");
       setExcludedMembers([]);
+      setIsProjectTask(false);
+      setSelectedProjectId(null);
+      setCreateNewProject(false);
+      setNewProjectName("");
+      setNewProjectDescription("");
+      setPrerequisites([]);
+      setFollowups([]);
       toast.success("Aufgabe hinzugefügt");
     },
     onError: (error) => {

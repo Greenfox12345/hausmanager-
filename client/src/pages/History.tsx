@@ -190,11 +190,13 @@ export default function History() {
                                   <span className="text-sm">{activity.taskDetails.assignedToName}</span>
                                 </div>
                               )}
-                              {activity.taskDetails.dueDate && (
+                              {(activity.taskDetails.dueDate || (activity.metadata && (activity.metadata as any).originalDueDate)) && (
                                 <div className="flex items-start gap-2">
                                   <span className="text-xs font-semibold text-accent">Fällig:</span>
                                   <span className="text-sm">
-                                    {new Date(activity.taskDetails.dueDate).toLocaleDateString("de-DE", {
+                                    {new Date(
+                                      (activity.metadata && (activity.metadata as any).originalDueDate) || activity.taskDetails.dueDate
+                                    ).toLocaleDateString("de-DE", {
                                       day: "2-digit",
                                       month: "2-digit",
                                       year: "numeric",

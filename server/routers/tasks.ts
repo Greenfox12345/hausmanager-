@@ -229,6 +229,9 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
+      // Save original due date before updating (for activity history)
+      const originalDueDate = task.dueDate;
+
       // Mark task as completed
       await updateTask(input.taskId, {
         isCompleted: true,
@@ -310,7 +313,7 @@ export const tasksRouter = router({
         }
       }
 
-      // Create activity log
+      // Create activity log with original due date
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
@@ -320,6 +323,7 @@ export const tasksRouter = router({
         relatedItemId: input.taskId,
         comment: input.comment,
         photoUrls: input.photoUrls,
+        metadata: originalDueDate ? { originalDueDate: originalDueDate.toISOString() } : undefined,
       });
 
       return { success: true };

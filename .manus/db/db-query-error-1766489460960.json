@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE tasks ADD COLUMN projectId INT NULL, ADD FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE SET NULL; CREATE TABLE IF NOT EXISTS task_dependencies (id INT AUTO_INCREMENT PRIMARY KEY, taskId INT NOT NULL, dependsOnTaskId INT NOT NULL, dependencyType ENUM('prerequisite', 'followup') NOT NULL, createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE, FOREIGN KEY (dependsOnTaskId) REFERENCES tasks(id) ON DELETE CASCADE);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE tasks ADD COLUMN projectId INT NULL, ADD FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE SET NULL; CREATE TABLE IF NOT EXISTS task_dependencies (id INT AUTO_INCREMENT PRIMARY KEY, taskId INT NOT NULL, dependsOnTaskId INT NOT NULL, dependencyType ENUM('prerequisite', 'followup') NOT NULL, createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE, FOREIGN KEY (dependsOnTaskId) REFERENCES tasks(id) ON DELETE CASCADE);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1072 (42000) at line 1: Key column 'projectId' doesn't exist in table"
+  ]
+}

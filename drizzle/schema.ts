@@ -89,6 +89,7 @@ export const tasks = mysqlTable("tasks", {
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),
+  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
@@ -112,6 +113,20 @@ export const taskRotationExclusions = mysqlTable("task_rotation_exclusions", {
 
 export type TaskRotationExclusion = typeof taskRotationExclusions.$inferSelect;
 export type InsertTaskRotationExclusion = typeof taskRotationExclusions.$inferInsert;
+
+/**
+ * Task dependencies - relationships between household tasks
+ */
+export const taskDependencies = mysqlTable("task_dependencies", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  dependsOnTaskId: int("dependsOnTaskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  dependencyType: mysqlEnum("dependencyType", ["prerequisite", "followup"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TaskDependency = typeof taskDependencies.$inferSelect;
+export type InsertTaskDependency = typeof taskDependencies.$inferInsert;
 
 /**
  * Projects - multi-household collaborative projects
