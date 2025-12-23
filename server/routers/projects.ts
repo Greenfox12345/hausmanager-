@@ -144,4 +144,40 @@ export const projectsRouter = router({
 
       return deps;
     }),
+
+  // Add household to project (multi-household collaboration)
+  addHouseholdToProject: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        householdId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Check if household is already part of the project
+      const existing = await db
+        .select()
+        .from(projectHouseholds)
+        .where(
+          and(
+            eq(projectHouseholds.projectId, input.projectId),
+            eq(projectHouseholds.householdId, input.householdId)
+          )
+        );
+
+      if (existing.length > 0) {
+        throw new Error("Household is already part of this project");
+      }
+
+      // Add household to project
+      await db.insert(projectHouseholds).values({
+        projectId: input.projectId,
+        householdId: input.householdId,
+      });
+
+      return { success: true };
+    }),
 });

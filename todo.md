@@ -166,14 +166,16 @@
 
 ## Project Overview with Calendar
 - [x] Extend database schema for project task dependencies
-- [ ] Add "Projektaufgabe" checkbox to task creation form
-- [ ] Implement "Projektzuordnung" section (select existing or create new project)
-- [ ] Implement "Aufgabenverknüpfung" with Voraussetzungen and Folgeaufgaben columns
-- [ ] Create calendar view for all tasks
-- [ ] Create project-grouped task view
-- [ ] Implement multi-household project collaboration
-- [ ] Add project creation from main task
-- [ ] Display task dependencies visually
+- [x] Add "Projektaufgabe" checkbox to task creation form
+- [x] Implement "Projektzuordnung" section (select existing or create new project)
+- [x] Implement "Aufgabenverknüpfung" with Voraussetzungen and Folgeaufgaben columns
+- [x] Create calendar view for all tasks
+- [x] Create project-grouped task view
+- [x] Implement multi-household project collaboration (backend)
+- [x] Add project creation from main task
+- [x] Display task dependencies visually (in project view)
+- [x] Write unit tests for project features (6 tests passing)
+- [x] Fix existing tests (36 tests passing)
 
 ## Bug Fix: Activity History Due Date
 - [x] Store original due date in activity history when completing recurring tasks (not the new due date)

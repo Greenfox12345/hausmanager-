@@ -39,6 +39,7 @@ export const tasksRouter = router({
         excludedMembers: z.array(z.number()).optional(),
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
+        projectId: z.number().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -64,6 +65,7 @@ export const tasksRouter = router({
         enableRotation: input.enableRotation,
         requiredPersons: input.requiredPersons,
         dueDate: dueDatetime,
+        projectId: input.projectId,
         createdBy: input.memberId,
       });
 

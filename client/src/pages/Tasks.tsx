@@ -158,7 +158,7 @@ export default function Tasks() {
     ? `Nicht genügend verfügbare Mitglieder! Benötigt: ${requiredCount}, Verfügbar: ${availableCount}`
     : null;
 
-  const handleAddTask = (e: React.FormEvent) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskName.trim()) {
       toast.error("Bitte geben Sie einen Aufgabennamen ein");
@@ -185,21 +185,52 @@ export default function Tasks() {
       else frequency = "custom";
     }
 
-    addMutation.mutate({
-      householdId: household.householdId,
-      memberId: member.memberId,
-      name: newTaskName.trim(),
-      description: newTaskDescription.trim() || undefined,
-      frequency,
-      repeatInterval: enableRepeat ? parseInt(repeatInterval) || undefined : undefined,
-      repeatUnit: enableRepeat ? repeatUnit : undefined,
-      enableRotation: enableRepeat && enableRotation,
-      requiredPersons: enableRepeat && enableRotation ? parseInt(requiredPersons) || undefined : undefined,
-      excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
-      dueDate: dueDate || undefined,
-      dueTime: dueTime || undefined,
-      assignedTo: selectedAssignees[0], // First assignee
-    });
+    try {
+      let finalProjectId = selectedProjectId;
+
+      // Create new project if requested
+      if (isProjectTask && createNewProject) {
+        const projectName = newProjectName.trim() || newTaskName.trim();
+        const projectResult = await createProjectMutation.mutateAsync({
+          householdId: household.householdId,
+          memberId: member.memberId,
+          name: projectName,
+          description: newProjectDescription.trim() || undefined,
+          endDate: dueDate || undefined,
+          isNeighborhoodProject: false,
+        });
+        finalProjectId = projectResult.projectId;
+      }
+
+      // Create task
+      const taskResult = await addMutation.mutateAsync({
+        householdId: household.householdId,
+        memberId: member.memberId,
+        name: newTaskName.trim(),
+        description: newTaskDescription.trim() || undefined,
+        frequency,
+        repeatInterval: enableRepeat ? parseInt(repeatInterval) || undefined : undefined,
+        repeatUnit: enableRepeat ? repeatUnit : undefined,
+        enableRotation: enableRepeat && enableRotation,
+        requiredPersons: enableRepeat && enableRotation ? parseInt(requiredPersons) || undefined : undefined,
+        excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
+        dueDate: dueDate || undefined,
+        dueTime: dueTime || undefined,
+        assignedTo: selectedAssignees[0], // First assignee
+        projectId: isProjectTask ? finalProjectId || undefined : undefined,
+      });
+
+      // Add dependencies if this is a project task
+      if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
+        await addDependenciesMutation.mutateAsync({
+          taskId: taskResult.taskId,
+          prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
+          followups: followups.length > 0 ? followups : undefined,
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Fehler beim Erstellen der Aufgabe");
+    }
   };
 
   const handleDelete = (taskId: number) => {
@@ -454,6 +485,161 @@ export default function Tasks() {
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Project task checkbox */}
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
+                <Checkbox
+                  id="isProjectTask"
+                  checked={isProjectTask}
+                  onCheckedChange={(checked) => setIsProjectTask(checked as boolean)}
+                />
+                <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Projektaufgabe
+                </Label>
+              </div>
+
+              {/* Project options (collapsible) */}
+              {isProjectTask && (
+                <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                  {/* Project assignment section */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold">Projektzuordnung</Label>
+                    
+                    {/* Toggle between existing and new project */}
+                    <div className="flex items-center space-x-2 p-2 rounded-lg bg-muted/30">
+                      <Checkbox
+                        id="createNewProject"
+                        checked={createNewProject}
+                        onCheckedChange={(checked) => {
+                          setCreateNewProject(checked as boolean);
+                          if (checked) setSelectedProjectId(null);
+                        }}
+                      />
+                      <Label htmlFor="createNewProject" className="cursor-pointer text-sm">
+                        Neues Projekt erstellen (diese Aufgabe wird zur Hauptaufgabe)
+                      </Label>
+                    </div>
+
+                    {createNewProject ? (
+                      <div className="space-y-3 pl-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="newProjectName">Projektname *</Label>
+                          <Input
+                            id="newProjectName"
+                            value={newProjectName}
+                            onChange={(e) => setNewProjectName(e.target.value)}
+                            placeholder="Name wird von Aufgabe übernommen"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="newProjectDescription">Projektbeschreibung</Label>
+                          <Textarea
+                            id="newProjectDescription"
+                            value={newProjectDescription}
+                            onChange={(e) => setNewProjectDescription(e.target.value)}
+                            placeholder="Optionale Projektbeschreibung"
+                            rows={2}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Hinweis: Zieltermin und Verantwortliche werden automatisch von der Aufgabe übernommen.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label htmlFor="selectProject">Bestehendes Projekt wählen</Label>
+                        <Select
+                          value={selectedProjectId?.toString() || "none"}
+                          onValueChange={(v) => setSelectedProjectId(v === "none" ? null : parseInt(v))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Projekt auswählen" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Kein Projekt</SelectItem>
+                            {projects.map((p) => (
+                              <SelectItem key={p.id} value={p.id.toString()}>
+                                {p.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Task dependencies section */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold">Aufgabenverknüpfung</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Prerequisites */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Voraussetzungen</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Aufgaben, die vorher erledigt sein müssen
+                        </p>
+                        <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                          {availableTasks.length === 0 ? (
+                            <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                          ) : (
+                            availableTasks.map((task) => (
+                              <div key={task.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                <Checkbox
+                                  id={`prereq-${task.id}`}
+                                  checked={prerequisites.includes(task.id)}
+                                  onCheckedChange={(checked) => {
+                                    setPrerequisites(prev =>
+                                      checked
+                                        ? [...prev, task.id]
+                                        : prev.filter(id => id !== task.id)
+                                    );
+                                  }}
+                                />
+                                <Label htmlFor={`prereq-${task.id}`} className="cursor-pointer text-sm flex-1">
+                                  {task.name}
+                                </Label>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Follow-ups */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Folgeaufgaben</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Aufgaben, die danach folgen sollen
+                        </p>
+                        <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                          {availableTasks.length === 0 ? (
+                            <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                          ) : (
+                            availableTasks.map((task) => (
+                              <div key={task.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                <Checkbox
+                                  id={`followup-${task.id}`}
+                                  checked={followups.includes(task.id)}
+                                  onCheckedChange={(checked) => {
+                                    setFollowups(prev =>
+                                      checked
+                                        ? [...prev, task.id]
+                                        : prev.filter(id => id !== task.id)
+                                    );
+                                  }}
+                                />
+                                <Label htmlFor={`followup-${task.id}`} className="cursor-pointer text-sm flex-1">
+                                  {task.name}
+                                </Label>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
