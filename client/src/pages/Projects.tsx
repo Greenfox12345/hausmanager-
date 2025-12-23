@@ -52,6 +52,12 @@ export default function Projects() {
   const [taskAssignee, setTaskAssignee] = useState<number | null>(null);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [repeatInterval, setRepeatInterval] = useState("");
+  const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("days");
+  const [hasRotation, setHasRotation] = useState(false);
+  const [rotationRequired, setRotationRequired] = useState("");
+  const [rotationExcluded, setRotationExcluded] = useState<number[]>([]);
 
   // Form state for project creation/editing
   const [projectName, setProjectName] = useState("");
@@ -254,6 +260,10 @@ export default function Projects() {
         assignedTo: taskAssignee || undefined,
         dueDate: dueDateTime ? dueDateTime.toISOString() : undefined,
         projectId: selectedProjectId,
+        frequency: isRepeating && repeatInterval ? (
+          repeatUnit === "days" ? "daily" : repeatUnit === "weeks" ? "weekly" : "monthly"
+        ) : undefined,
+        repeatInterval: isRepeating && repeatInterval ? parseInt(repeatInterval) : undefined,
       });
 
       // Add dependencies if any
@@ -910,6 +920,104 @@ export default function Projects() {
                     ))
                   )}
                 </div>
+              </div>
+
+              {/* Repeat Section */}
+              <div className="space-y-2 pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="task-repeat"
+                    checked={isRepeating}
+                    onCheckedChange={(checked) => setIsRepeating(checked === true)}
+                  />
+                  <Label htmlFor="task-repeat" className="cursor-pointer">
+                    Aufgabe wiederholt sich
+                  </Label>
+                </div>
+                {isRepeating && (
+                  <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="repeat-interval">Intervall</Label>
+                      <Input
+                        id="repeat-interval"
+                        type="number"
+                        min="1"
+                        value={repeatInterval}
+                        onChange={(e) => setRepeatInterval(e.target.value)}
+                        placeholder="z.B. 7"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="repeat-unit">Einheit</Label>
+                      <Select value={repeatUnit} onValueChange={(value: any) => setRepeatUnit(value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="days">Tage</SelectItem>
+                          <SelectItem value="weeks">Wochen</SelectItem>
+                          <SelectItem value="months">Monate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Rotation Section */}
+              <div className="space-y-2 pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="task-rotation"
+                    checked={hasRotation}
+                    onCheckedChange={(checked) => setHasRotation(checked === true)}
+                  />
+                  <Label htmlFor="task-rotation" className="cursor-pointer">
+                    Rotation zwischen Haushaltsmitgliedern
+                  </Label>
+                </div>
+                {hasRotation && (
+                  <div className="space-y-4 mt-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="rotation-required">Erforderliche Anzahl Personen</Label>
+                      <Input
+                        id="rotation-required"
+                        type="number"
+                        min="1"
+                        value={rotationRequired}
+                        onChange={(e) => setRotationRequired(e.target.value)}
+                        placeholder="z.B. 2"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ausgeschlossene Mitglieder</Label>
+                      <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                        {members.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">Keine Mitglieder verfügbar</p>
+                        ) : (
+                          members.map((m) => (
+                            <div key={m.id} className="flex items-center gap-2 py-1">
+                              <Checkbox
+                                id={`excluded-${m.id}`}
+                                checked={rotationExcluded.includes(m.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setRotationExcluded([...rotationExcluded, m.id]);
+                                  } else {
+                                    setRotationExcluded(rotationExcluded.filter(id => id !== m.id));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`excluded-${m.id}`} className="text-sm font-normal cursor-pointer">
+                                {m.memberName}
+                              </Label>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter>

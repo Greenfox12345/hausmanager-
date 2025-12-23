@@ -204,3 +204,30 @@
 - [x] Add "Bestehende zuordnen" button to project header
 - [x] Implement task dependencies in new task dialog
 - [x] Extend tasks.update mutation to support projectId
+
+## Notification System (Re-implementation)
+- [ ] Create database tables (notifications, notificationSettings, taskEditProposals, dependencyProposals)
+- [ ] Implement notifications router with proper error handling
+- [ ] Implement proposals router with proper error handling
+- [ ] Create NotificationCenter component with auth checks
+- [ ] Add bell icon to AppLayout header
+- [ ] Add notification badge with unread count
+- [ ] Implement notification settings dialog
+- [ ] Test notification system thoroughly
+
+## Task Editing with Permissions (Re-implementation)
+- [ ] Create TaskActions component with permission checks
+- [ ] Add edit/delete buttons for task owners
+- [ ] Add propose button for non-owners
+- [ ] Implement edit dialog for task owners
+- [ ] Implement proposal dialog for non-owners
+- [ ] Add TaskActions to all task views (Tasks, Projects, Calendar)
+- [ ] Test permission system thoroughly
+
+## Form Alignment (Current Focus)
+- [x] Add repeat fields to project task form (checkbox, interval, unit)
+- [x] Add rotation fields to project task form (checkbox, required persons, excluded members)
+- [x] Ensure consistent behavior between forms
+- [x] Update handleAddTask to process repeat data
+- [ ] Extend backend to support rotation fields in tasks.add mutation
+- [ ] Test form alignment thoroughly

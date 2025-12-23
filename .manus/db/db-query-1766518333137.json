@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS notification_settings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  member_id INT NOT NULL UNIQUE,\n  task_assigned BOOLEAN DEFAULT TRUE,\n  task_completed BOOLEAN DEFAULT TRUE,\n  task_overdue BOOLEAN DEFAULT TRUE,\n  edit_proposal BOOLEAN DEFAULT TRUE,\n  dependency_proposal BOOLEAN DEFAULT TRUE,\n  project_invitation BOOLEAN DEFAULT TRUE,\n  shopping_reminder BOOLEAN DEFAULT TRUE,\n  milestone_reached BOOLEAN DEFAULT TRUE,\n  rotation_reminder BOOLEAN DEFAULT TRUE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX idx_member (member_id)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE IF NOT EXISTS notification_settings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  member_id INT NOT NULL UNIQUE,\n  task_assigned BOOLEAN DEFAULT TRUE,\n  task_completed BOOLEAN DEFAULT TRUE,\n  task_overdue BOOLEAN DEFAULT TRUE,\n  edit_proposal BOOLEAN DEFAULT TRUE,\n  dependency_proposal BOOLEAN DEFAULT TRUE,\n  project_invitation BOOLEAN DEFAULT TRUE,\n  shopping_reminder BOOLEAN DEFAULT TRUE,\n  milestone_reached BOOLEAN DEFAULT TRUE,\n  rotation_reminder BOOLEAN DEFAULT TRUE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX idx_member (member_id)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 51
+}
