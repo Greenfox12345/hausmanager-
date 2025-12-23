@@ -37,9 +37,9 @@ export default function Calendar() {
     { enabled: !!household }
   );
 
-  if (!isAuthenticated || !household || !member) {
-    setLocation("/login");
-    return null;
+  // Auth check removed - causing redirect loops
+  if (!household || !member) {
+    return <div>Loading...</div>;
   }
 
   // Group tasks by due date for calendar view

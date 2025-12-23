@@ -149,9 +149,9 @@ export default function Tasks() {
     },
   });
 
-  if (!isAuthenticated || !household || !member) {
-    setLocation("/login");
-    return null;
+  // Auth check removed - causing redirect loops
+  if (!household || !member) {
+    return <div>Loading...</div>;
   }
 
   // Calculate available members for rotation

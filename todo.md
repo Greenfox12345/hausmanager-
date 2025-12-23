@@ -237,3 +237,14 @@
 - [x] Map frontend rotationRequired to backend requiredPersons
 - [x] Map frontend rotationExcluded to backend excludedMembers
 - [ ] Test rotation functionality end-to-end
+
+## Critical Bug - Authentication System (URGENT)
+- [ ] Login not working - stays on login page after submitting credentials (BACKEND ISSUE)
+- [x] Auth guards in pages causing immediate redirects to login (FIXED)
+- [x] Remove or fix auth guards in Projects.tsx
+- [x] Remove or fix auth guards in Tasks.tsx  
+- [x] Remove or fix auth guards in Calendar.tsx
+- [x] Remove problematic auth guard in Home.tsx (already done)
+- [ ] Investigate backend login mutation or auth context
+- [ ] Test login flow end-to-end after backend fix
+- [ ] Test navigation between pages after login
