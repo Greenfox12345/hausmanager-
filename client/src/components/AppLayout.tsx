@@ -29,7 +29,6 @@ import {
   Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NotificationCenter } from "@/components/NotificationCenter";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -246,12 +245,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           
           <h1 className="text-lg font-bold">Haushaltsmanager</h1>
           
-          {household && member && (
-            <NotificationCenter 
-              householdId={household.householdId} 
-              memberId={member.memberId} 
-            />
-          )}
+          <div className="w-10" /> {/* Spacer for centering */}
         </div>
       </div>
 

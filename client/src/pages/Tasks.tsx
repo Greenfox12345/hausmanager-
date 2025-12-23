@@ -17,7 +17,6 @@ import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
-import { TaskActions } from "@/components/TaskActions";
 
 export default function Tasks() {
   const [, setLocation] = useLocation();
@@ -303,10 +302,6 @@ export default function Tasks() {
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
   };
-
-  if (!isAuthenticated || !household || !member) {
-    return null;
-  }
 
   return (
     <AppLayout>
@@ -743,12 +738,6 @@ export default function Tasks() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0">
-                      <TaskActions
-                        task={task}
-                        currentMemberId={member.memberId}
-                        householdId={household.householdId}
-                        onSuccess={() => {}}
-                      />
                       {!task.isCompleted && (
                         <>
                           <Button

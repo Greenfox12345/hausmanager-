@@ -7,8 +7,6 @@ import { shoppingRouter } from "./routers/shopping";
 import { tasksRouter } from "./routers/tasks";
 import { uploadRouter } from "./routers/upload";
 import { projectsRouter } from "./routers/projects";
-import { proposalsRouter } from "./routers/proposals";
-import { notificationsRouter } from "./routers/notifications";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -31,8 +29,6 @@ export const appRouter = router({
   tasks: tasksRouter,
   upload: uploadRouter,
   projects: projectsRouter,
-  proposals: proposalsRouter,
-  notifications: notificationsRouter,
 
   // Admin router
   admin: router({
