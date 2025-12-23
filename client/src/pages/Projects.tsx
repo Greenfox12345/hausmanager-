@@ -264,6 +264,9 @@ export default function Projects() {
           repeatUnit === "days" ? "daily" : repeatUnit === "weeks" ? "weekly" : "monthly"
         ) : undefined,
         repeatInterval: isRepeating && repeatInterval ? parseInt(repeatInterval) : undefined,
+        enableRotation: hasRotation,
+        requiredPersons: hasRotation && rotationRequired ? parseInt(rotationRequired) : undefined,
+        excludedMembers: hasRotation && rotationExcluded.length > 0 ? rotationExcluded : undefined,
       });
 
       // Add dependencies if any

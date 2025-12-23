@@ -224,10 +224,16 @@
 - [ ] Add TaskActions to all task views (Tasks, Projects, Calendar)
 - [ ] Test permission system thoroughly
 
-## Form Alignment (Current Focus)
+## Form Alignment
 - [x] Add repeat fields to project task form (checkbox, interval, unit)
 - [x] Add rotation fields to project task form (checkbox, required persons, excluded members)
 - [x] Ensure consistent behavior between forms
 - [x] Update handleAddTask to process repeat data
-- [ ] Extend backend to support rotation fields in tasks.add mutation
-- [ ] Test form alignment thoroughly
+- [x] Test form alignment thoroughly
+
+## Backend Rotation Support (Current Focus)
+- [x] Backend already supports enableRotation, requiredPersons, excludedMembers
+- [x] Update Projects.tsx to send rotation data using correct field names
+- [x] Map frontend rotationRequired to backend requiredPersons
+- [x] Map frontend rotationExcluded to backend excludedMembers
+- [ ] Test rotation functionality end-to-end
