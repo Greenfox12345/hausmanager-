@@ -204,3 +204,39 @@
 - [x] Add "Bestehende zuordnen" button to project header
 - [x] Implement task dependencies in new task dialog
 - [x] Extend tasks.update mutation to support projectId
+
+## Task Editing with Permissions and Approval System
+- [ ] Add edit/delete buttons to task cards in Projects page
+- [ ] Add edit/delete buttons to task cards in Tasks (Haushaltsaufgaben) page
+- [ ] Implement permission check: only assignee can directly edit/delete
+- [ ] Create edit proposal system for non-assignees
+- [x] Add database schema for edit proposals (taskEditProposals table)
+- [x] Add database schema for dependency proposals (dependencyProposals table)
+- [x] Implement backend for creating edit proposals
+- [x] Implement backend for approving/rejecting edit proposals
+- [ ] Show proposed dependencies as grayed out in UI
+- [x] Send notification to assignee when edit proposal is created
+- [x] Send notification to assignee when dependency proposal is created
+- [x] Create proposals router with all CRUD operations
+- [x] Implement dependency proposal approval/rejection
+
+## Notification Center
+- [ ] Add bell icon to AppLayout header (next to "Haushaltsmanager")
+- [x] Create notifications database table
+- [ ] Implement notification overlay (not full-screen)
+- [ ] Show notification list with links to related items
+- [ ] Add notification badge with unread count
+- [ ] Mark notifications as read when clicked
+- [ ] Add gear icon for notification settings in overlay
+- [ ] Create notification settings dialog
+- [ ] Implement notification preferences (which events trigger notifications)
+- [x] Add backend endpoints for notifications CRUD
+- [x] Create notifications router with getNotifications, markAsRead, etc.
+- [x] Implement notification settings backend (getSettings, updateSettings)
+- [x] Add unread count endpoint
+
+## Form Alignment
+- [ ] Review household task form (Tasks.tsx) structure
+- [ ] Align project task form with household task form
+- [ ] Add repeat/rotation fields to project task creation dialog
+- [ ] Ensure all extra fields appear consistently in both forms
