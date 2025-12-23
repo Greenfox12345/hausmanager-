@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as count FROM households WHERE name LIKE 'TestHousehold%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT COUNT(*) as count FROM households WHERE name LIKE 'TestHousehold%'",
+  "rows": [
+    {
+      "count": "205"
+    }
+  ],
+  "messages": [],
+  "stdout": "count\n205\n",
+  "stderr": "",
+  "execution_time_ms": 120
+}

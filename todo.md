@@ -248,3 +248,9 @@
 - [ ] Investigate backend login mutation or auth context
 - [ ] Test login flow end-to-end after backend fix
 - [ ] Test navigation between pages after login
+
+## Database Cleanup
+- [x] Delete 99% of TestHousehold entries from database (200 deleted, 5 kept)
+- [x] Keep only a few test households for automated tests
+- [x] Verify real households (Buchenbühl, Familie Müller) are not affected
+- [x] Created cleanup script (cleanup-test-households.mjs)

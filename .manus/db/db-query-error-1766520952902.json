@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM households WHERE name LIKE 'TestHousehold%' AND id NOT IN (SELECT id FROM (SELECT id FROM households WHERE name LIKE 'TestHousehold%' ORDER BY id DESC LIMIT 5) AS keep_these)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute DELETE FROM households WHERE name LIKE 'TestHousehold%' AND id NOT IN (SELECT id FROM (SELECT id FROM households WHERE name LIKE 'TestHousehold%' ORDER BY id DESC LIMIT 5) AS keep_these)",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`5dpslyh58e9tdjpvglcuzx`.`projects`, CONSTRAINT `projects_createdBy_household_members_id_fk` FOREIGN KEY (`createdBy`) REFERENCES `household_members` (`id`) ON DELETE NO ACTION ON UPDATE NO AC)"
+  ]
+}
