@@ -32,6 +32,7 @@ import { de } from "date-fns/locale";
 import { toast } from "sonner";
 import GanttChartView from "@/components/GanttChartView";
 import TaskDependencies from "@/components/TaskDependencies";
+import { TaskActions } from "@/components/TaskActions";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
@@ -667,6 +668,12 @@ export default function Projects() {
                                           )}
                                         </div>
                                       </div>
+                                      <TaskActions
+                                        task={task}
+                                        currentMemberId={member.memberId}
+                                        householdId={household.householdId}
+                                        onSuccess={() => refetchTasks()}
+                                      />
                                     </div>
                                   </CardContent>
                                 </Card>

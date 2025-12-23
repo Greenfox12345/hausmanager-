@@ -206,10 +206,12 @@
 - [x] Extend tasks.update mutation to support projectId
 
 ## Task Editing with Permissions and Approval System
-- [ ] Add edit/delete buttons to task cards in Projects page
-- [ ] Add edit/delete buttons to task cards in Tasks (Haushaltsaufgaben) page
-- [ ] Implement permission check: only assignee can directly edit/delete
-- [ ] Create edit proposal system for non-assignees
+- [x] Add edit/delete buttons to task cards in Projects page
+- [x] Add edit/delete buttons to task cards in Tasks (Haushaltsaufgaben) page
+- [x] Add edit/delete buttons to task cards in Calendar page
+- [x] Implement permission check: only assignee can directly edit/delete
+- [x] Create edit proposal system for non-assignees
+- [x] Create TaskActions component with edit/delete/propose buttons
 - [x] Add database schema for edit proposals (taskEditProposals table)
 - [x] Add database schema for dependency proposals (dependencyProposals table)
 - [x] Implement backend for creating edit proposals
@@ -221,19 +223,20 @@
 - [x] Implement dependency proposal approval/rejection
 
 ## Notification Center
-- [ ] Add bell icon to AppLayout header (next to "Haushaltsmanager")
+- [x] Add bell icon to AppLayout header (next to "Haushaltsmanager")
 - [x] Create notifications database table
-- [ ] Implement notification overlay (not full-screen)
-- [ ] Show notification list with links to related items
-- [ ] Add notification badge with unread count
-- [ ] Mark notifications as read when clicked
-- [ ] Add gear icon for notification settings in overlay
-- [ ] Create notification settings dialog
-- [ ] Implement notification preferences (which events trigger notifications)
+- [x] Implement notification overlay (not full-screen)
+- [x] Show notification list with links to related items
+- [x] Add notification badge with unread count
+- [x] Mark notifications as read when clicked
+- [x] Add gear icon for notification settings in overlay
+- [x] Create notification settings dialog
+- [x] Implement notification preferences (which events trigger notifications)
 - [x] Add backend endpoints for notifications CRUD
 - [x] Create notifications router with getNotifications, markAsRead, etc.
 - [x] Implement notification settings backend (getSettings, updateSettings)
 - [x] Add unread count endpoint
+- [x] Create NotificationCenter component with overlay and settings
 
 ## Form Alignment
 - [ ] Review household task form (Tasks.tsx) structure

@@ -11,6 +11,7 @@ import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckC
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
+import { TaskActions } from "@/components/TaskActions";
 
 export default function Calendar() {
   const [, setLocation] = useLocation();
@@ -273,6 +274,12 @@ export default function Calendar() {
                                       )}
                                     </div>
                                   </div>
+                                  <TaskActions
+                                    task={task}
+                                    currentMemberId={member.memberId}
+                                    householdId={household.householdId}
+                                    onSuccess={() => {}}
+                                  />
                                 </div>
                               </CardContent>
                             </Card>
