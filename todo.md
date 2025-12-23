@@ -193,3 +193,14 @@
 - [x] Show prerequisites and follow-up tasks with icons and links
 - [x] Create TaskDependencies reusable component
 - [x] Add getAllDependencies endpoint for efficient loading
+
+## Project Task Management
+- [x] Add task creation form to opened project view
+- [x] Reuse task form component from Haushaltsaufgaben page
+- [x] Add ability to assign existing tasks to opened project
+- [x] Show task list within project detail view
+- [x] Update project view to show newly added tasks immediately
+- [x] Add "Neue Aufgabe" button to project header
+- [x] Add "Bestehende zuordnen" button to project header
+- [x] Implement task dependencies in new task dialog
+- [x] Extend tasks.update mutation to support projectId

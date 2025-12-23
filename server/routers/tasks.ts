@@ -100,6 +100,7 @@ export const tasksRouter = router({
         customFrequencyDays: z.number().optional(),
         enableRotation: z.boolean().optional(),
         dueDate: z.string().optional(),
+        projectId: z.number().optional(),
       })
     )
     .mutation(async ({ input }) => {

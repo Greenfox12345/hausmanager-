@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,7 +39,19 @@ export default function Projects() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
+  const [selectedExistingTasks, setSelectedExistingTasks] = useState<number[]>([]);
+
+  // Task form state
+  const [taskName, setTaskName] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskDueDate, setTaskDueDate] = useState("");
+  const [taskDueTime, setTaskDueTime] = useState("");
+  const [taskAssignee, setTaskAssignee] = useState<number | null>(null);
+  const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
+  const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
 
   // Form state for project creation/editing
   const [projectName, setProjectName] = useState("");
@@ -173,6 +186,88 @@ export default function Projects() {
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const projectTasks = selectedProjectId ? tasks.filter(t => t.projectId === selectedProjectId) : [];
+
+  const addTaskMutation = trpc.tasks.add.useMutation({
+    onSuccess: () => {
+      toast.success("Aufgabe erfolgreich hinzugefügt");
+      refetchTasks();
+      setIsAddTaskDialogOpen(false);
+      resetTaskForm();
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Hinzufügen der Aufgabe: " + error.message);
+    },
+  });
+
+  const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
+
+  const updateTaskMutation = trpc.tasks.update.useMutation({
+    onSuccess: () => {
+      toast.success("Aufgaben erfolgreich zugeordnet");
+      refetchTasks();
+      setIsAssignTaskDialogOpen(false);
+      setSelectedExistingTasks([]);
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Zuordnen der Aufgaben: " + error.message);
+    },
+  });
+
+  const resetTaskForm = () => {
+    setTaskName("");
+    setTaskDescription("");
+    setTaskDueDate("");
+    setTaskDueTime("");
+    setTaskAssignee(null);
+    setTaskPrerequisites([]);
+    setTaskFollowups([]);
+  };
+
+  const handleAddTask = async () => {
+    if (!taskName.trim()) {
+      toast.error("Bitte geben Sie einen Aufgabennamen ein");
+      return;
+    }
+
+    if (!household || !selectedProjectId) {
+      toast.error("Kein Projekt ausgewählt");
+      return;
+    }
+
+    try {
+      // Create due date from date and time
+      let dueDateTime = null;
+      if (taskDueDate) {
+        dueDateTime = new Date(taskDueDate);
+        if (taskDueTime) {
+          const [hours, minutes] = taskDueTime.split(":");
+          dueDateTime.setHours(parseInt(hours), parseInt(minutes));
+        }
+      }
+
+      // Create task
+      const result = await addTaskMutation.mutateAsync({
+        householdId: household.householdId,
+        memberId: member?.memberId || 0,
+        name: taskName,
+        description: taskDescription || undefined,
+        assignedTo: taskAssignee || undefined,
+        dueDate: dueDateTime ? dueDateTime.toISOString() : undefined,
+        projectId: selectedProjectId,
+      });
+
+      // Add dependencies if any
+      if (taskPrerequisites.length > 0 || taskFollowups.length > 0) {
+        await addDependenciesMutation.mutateAsync({
+          taskId: result.taskId,
+          prerequisites: taskPrerequisites.length > 0 ? taskPrerequisites : undefined,
+          followups: taskFollowups.length > 0 ? taskFollowups : undefined,
+        });
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
 
   const getMemberName = (memberId: number | null) => {
     if (!memberId) return "Nicht zugewiesen";
@@ -422,6 +517,53 @@ export default function Projects() {
                           </CardDescription>
                         )}
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsAddTaskDialogOpen(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Neue Aufgabe
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsAssignTaskDialogOpen(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Bestehende zuordnen
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingProject(selectedProject);
+                            setProjectName(selectedProject.name);
+                            setProjectDescription(selectedProject.description || "");
+                            setProjectStatus(selectedProject.status);
+                            setProjectStartDate(selectedProject.startDate ? format(new Date(selectedProject.startDate), "yyyy-MM-dd") : "");
+                            setProjectEndDate(selectedProject.endDate ? format(new Date(selectedProject.endDate), "yyyy-MM-dd") : "");
+                            setIsNeighborhoodProject(selectedProject.isNeighborhoodProject || false);
+                            setIsEditDialogOpen(true);
+                          }}
+                        >
+                          <Edit2 className="h-4 w-4 mr-1" />
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
+                              deleteProjectMutation.mutate({ id: selectedProject.id });
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Löschen
+                        </Button>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 mt-4 flex-wrap">
                       <Badge variant={getStatusBadge(selectedProject.status).variant}>
@@ -558,6 +700,228 @@ export default function Projects() {
             )}
           </div>
         </div>
+
+        {/* Assign Existing Tasks Dialog */}
+        <Dialog open={isAssignTaskDialogOpen} onOpenChange={setIsAssignTaskDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Bestehende Aufgaben zum Projekt zuordnen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Verfügbare Aufgaben (ohne Projektzuordnung)</Label>
+                <div className="border rounded-md p-3 max-h-96 overflow-y-auto">
+                  {tasks.filter(t => !t.projectId && !t.isCompleted).length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      Keine verfügbaren Aufgaben ohne Projektzuordnung
+                    </p>
+                  ) : (
+                    tasks.filter(t => !t.projectId && !t.isCompleted).map((task) => (
+                      <div key={task.id} className="flex items-start gap-3 py-2 border-b last:border-0">
+                        <Checkbox
+                          id={`assign-task-${task.id}`}
+                          checked={selectedExistingTasks.includes(task.id)}
+                          onCheckedChange={(checked: boolean) => {
+                            if (checked) {
+                              setSelectedExistingTasks([...selectedExistingTasks, task.id]);
+                            } else {
+                              setSelectedExistingTasks(selectedExistingTasks.filter(id => id !== task.id));
+                            }
+                          }}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor={`assign-task-${task.id}`} className="font-medium cursor-pointer">
+                            {task.name}
+                          </Label>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                          )}
+                          {task.dueDate && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Fällig: {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAssignTaskDialogOpen(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (selectedExistingTasks.length === 0) {
+                    toast.error("Bitte wählen Sie mindestens eine Aufgabe aus");
+                    return;
+                  }
+
+                  if (!selectedProjectId) {
+                    toast.error("Kein Projekt ausgewählt");
+                    return;
+                  }
+
+                  try {
+                    // Update each selected task with the project ID
+                    for (const taskId of selectedExistingTasks) {
+                      await updateTaskMutation.mutateAsync({
+                        taskId: taskId,
+                        householdId: household!.householdId,
+                        memberId: member!.memberId,
+                        projectId: selectedProjectId,
+                      });
+                    }
+                  } catch (error) {
+                    console.error("Error assigning tasks:", error);
+                  }
+                }}
+                disabled={selectedExistingTasks.length === 0}
+              >
+                {selectedExistingTasks.length} Aufgabe(n) zuordnen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Task Dialog */}
+        <Dialog open={isAddTaskDialogOpen} onOpenChange={setIsAddTaskDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Aufgabe zu Projekt hinzufügen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="task-name">Aufgabenname *</Label>
+                <Input
+                  id="task-name"
+                  value={taskName}
+                  onChange={(e) => setTaskName(e.target.value)}
+                  placeholder="z.B. Rasen mähen"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="task-description">Beschreibung</Label>
+                <Textarea
+                  id="task-description"
+                  value={taskDescription}
+                  onChange={(e) => setTaskDescription(e.target.value)}
+                  placeholder="Aufgabenbeschreibung..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="task-dueDate">Fälligkeitsdatum</Label>
+                  <Input
+                    id="task-dueDate"
+                    type="date"
+                    value={taskDueDate}
+                    onChange={(e) => setTaskDueDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="task-dueTime">Uhrzeit</Label>
+                  <Input
+                    id="task-dueTime"
+                    type="time"
+                    value={taskDueTime}
+                    onChange={(e) => setTaskDueTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="task-assignee">Zuständig</Label>
+                <Select
+                  value={taskAssignee?.toString() || "none"}
+                  onValueChange={(value) => setTaskAssignee(value === "none" ? null : Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Person auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nicht zugewiesen</SelectItem>
+                    {members.map((m) => (
+                      <SelectItem key={m.id} value={m.id.toString()}>
+                        {m.memberName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
+                  ) : (
+                    projectTasks.filter(t => !t.isCompleted).map((task) => (
+                      <div key={task.id} className="flex items-center gap-2 py-1">
+                        <Checkbox
+                          id={`prereq-${task.id}`}
+                          checked={taskPrerequisites.includes(task.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setTaskPrerequisites([...taskPrerequisites, task.id]);
+                            } else {
+                              setTaskPrerequisites(taskPrerequisites.filter(id => id !== task.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`prereq-${task.id}`} className="text-sm font-normal cursor-pointer">
+                          {task.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Folgeaufgaben (optionale Aufgaben, die danach kommen)</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
+                  ) : (
+                    projectTasks.filter(t => !t.isCompleted).map((task) => (
+                      <div key={task.id} className="flex items-center gap-2 py-1">
+                        <Checkbox
+                          id={`followup-${task.id}`}
+                          checked={taskFollowups.includes(task.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setTaskFollowups([...taskFollowups, task.id]);
+                            } else {
+                              setTaskFollowups(taskFollowups.filter(id => id !== task.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`followup-${task.id}`} className="text-sm font-normal cursor-pointer">
+                          {task.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)}>
+                Abbrechen
+              </Button>
+              <Button onClick={handleAddTask}>
+                Aufgabe hinzufügen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Project Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
