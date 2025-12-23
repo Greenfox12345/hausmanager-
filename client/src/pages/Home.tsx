@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
@@ -8,12 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function Home() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, member, household } = useHouseholdAuth();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/login");
-    }
-  }, [isAuthenticated, setLocation]);
 
   if (!isAuthenticated || !member || !household) {
     return null;

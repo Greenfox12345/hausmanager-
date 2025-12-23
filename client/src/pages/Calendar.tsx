@@ -39,7 +39,6 @@ export default function Calendar() {
   );
 
   if (!isAuthenticated || !household || !member) {
-    setLocation("/login");
     return null;
   }
 

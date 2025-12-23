@@ -302,6 +302,10 @@ export default function Projects() {
     return statusMap[status as keyof typeof statusMap] || statusMap.planning;
   };
 
+  if (!isAuthenticated || !household || !member) {
+    return null;
+  }
+
   return (
     <AppLayout>
       <div className="container py-6 max-w-6xl">

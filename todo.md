@@ -243,3 +243,8 @@
 - [ ] Align project task form with household task form
 - [ ] Add repeat/rotation fields to project task creation dialog
 - [ ] Ensure all extra fields appear consistently in both forms
+
+## Critical Bugs
+- [x] Fix Projects page not loading (added auth guard)
+- [x] Fix Home page crash when navigating back from other pages (removed problematic useEffect)
+- [x] Add auth guards to all pages (Projects, Tasks, Calendar)

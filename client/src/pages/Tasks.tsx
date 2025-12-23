@@ -304,6 +304,10 @@ export default function Tasks() {
     return memberData?.memberName || "Unbekannt";
   };
 
+  if (!isAuthenticated || !household || !member) {
+    return null;
+  }
+
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl">
