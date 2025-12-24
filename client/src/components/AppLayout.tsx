@@ -39,7 +39,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const { household, member, logout, setHousehold, setMember } = useHouseholdAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { data: households = [] } = trpc.household.listHouseholds.useQuery();
+  const { data: households = [] } = trpc.household.listHouseholds.useQuery(
+    undefined,
+    { enabled: !!household } // Only load when user is logged in
+  );
   const loginHouseholdMutation = trpc.household.loginHousehold.useMutation();
   const loginMemberMutation = trpc.household.loginMember.useMutation();
 
