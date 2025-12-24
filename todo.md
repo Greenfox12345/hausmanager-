@@ -254,3 +254,12 @@
 - [x] Keep only a few test households for automated tests
 - [x] Verify real households (Buchenbühl, Familie Müller) are not affected
 - [x] Created cleanup script (cleanup-test-households.mjs)
+
+## Website and Login Debugging
+- [x] Server is running correctly on port 3000
+- [x] Server responds correctly on localhost (HTML served)
+- [ ] Proxy/Gateway issue preventing external access
+- [ ] Issue is infrastructure-related, not application code
+- [ ] Test login when proxy issue is resolved
+- [ ] Verify session cookie is being set correctly
+- [ ] Test navigation after successful login
