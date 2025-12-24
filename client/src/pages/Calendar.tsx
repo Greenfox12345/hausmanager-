@@ -22,7 +22,11 @@ export default function Calendar() {
     { enabled: !!household }
   );
 
-  // Dependencies are loaded per-task in TaskDependencies component
+  // Load all dependencies once for all tasks
+  const { data: dependencies = [] } = trpc.projects.getAllDependencies.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
 
   const { data: projects = [], isLoading: projectsLoading } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },

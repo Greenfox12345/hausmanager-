@@ -82,7 +82,11 @@ export default function Projects() {
     { enabled: !!household }
   );
 
-  // Dependencies are loaded per-task in TaskDependencies component
+  // Load all dependencies once for all tasks
+  const { data: dependencies = [] } = trpc.projects.getAllDependencies.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
 
   const createProjectMutation = trpc.projects.create.useMutation({
     onSuccess: () => {

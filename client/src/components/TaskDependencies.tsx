@@ -37,7 +37,8 @@ export default function TaskDependencies({
     { enabled: !providedDependencies && !!household }
   );
   
-  const dependencies = providedDependencies || loadedDependencies;
+  // Use provided dependencies if available, otherwise use loaded ones
+  const dependencies = providedDependencies ?? loadedDependencies;
   // Get prerequisites (tasks that must be completed before this task)
   const prerequisites = dependencies.filter(
     (dep) => dep.taskId === taskId && dep.dependencyType === "prerequisite"
