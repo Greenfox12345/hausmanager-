@@ -1,5 +1,8 @@
-import { Badge } from "@/components/ui/badge";
+import React from "react";
 import { ArrowRight, ArrowLeft, Link2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { trpc } from "@/lib/trpc";
+import { useHouseholdAuth } from "@/contexts/AuthContext";
 
 interface Dependency {
   id: number;
@@ -15,17 +18,26 @@ interface Task {
 
 interface TaskDependenciesProps {
   taskId: number;
-  dependencies: Dependency[];
+  dependencies?: Dependency[]; // Optional - will be loaded if not provided
   allTasks: Task[];
   compact?: boolean;
 }
 
 export default function TaskDependencies({
   taskId,
-  dependencies,
+  dependencies: providedDependencies,
   allTasks,
   compact = false,
 }: TaskDependenciesProps) {
+  const { household } = useHouseholdAuth();
+  
+  // Load dependencies if not provided
+  const { data: loadedDependencies = [] } = trpc.projects.getDependencies.useQuery(
+    { taskId },
+    { enabled: !providedDependencies && !!household }
+  );
+  
+  const dependencies = providedDependencies || loadedDependencies;
   // Get prerequisites (tasks that must be completed before this task)
   const prerequisites = dependencies.filter(
     (dep) => dep.taskId === taskId && dep.dependencyType === "prerequisite"

@@ -263,3 +263,13 @@
 - [ ] Test login when proxy issue is resolved
 - [ ] Verify session cookie is being set correctly
 - [ ] Test navigation after successful login
+
+## Auth Redirect Bug (CRITICAL)
+- [ ] /tasks page forces login after a few seconds and redirects to home
+- [ ] /calendar page forces login after a few seconds and redirects to home
+- [ ] /projects page forces login after a few seconds and redirects to home
+- [ ] /shopping, /history, /neighborhood, /members work correctly (no redirect)
+- [ ] Investigate what's different between working and broken pages
+- [ ] Remove or fix problematic auth checks in Tasks.tsx
+- [ ] Remove or fix problematic auth checks in Calendar.tsx
+- [ ] Remove or fix problematic auth checks in Projects.tsx

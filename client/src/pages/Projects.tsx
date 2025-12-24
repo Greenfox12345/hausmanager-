@@ -82,10 +82,7 @@ export default function Projects() {
     { enabled: !!household }
   );
 
-  const { data: dependencies = [] } = trpc.projects.getAllDependencies.useQuery(
-    { householdId: household?.householdId ?? 0 },
-    { enabled: !!household }
-  );
+  // Dependencies are loaded per-task in TaskDependencies component
 
   const createProjectMutation = trpc.projects.create.useMutation({
     onSuccess: () => {
@@ -662,7 +659,6 @@ export default function Projects() {
                                           )}
                                           <TaskDependencies
                                             taskId={task.id}
-                                            dependencies={dependencies}
                                             allTasks={tasks}
                                             compact
                                           />
