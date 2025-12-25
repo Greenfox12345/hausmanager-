@@ -26,6 +26,8 @@ interface GanttChartViewProps {
 }
 
 export default function GanttChartView({ tasks, members }: GanttChartViewProps) {
+
+  
   const getMemberName = (memberId: number | null) => {
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
@@ -34,6 +36,7 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
 
   // Calculate date range for Gantt chart
   const { minDate, maxDate, totalDays } = useMemo(() => {
+
     const tasksWithDates = tasks.filter(t => t.dueDate);
     
     if (tasksWithDates.length === 0) {
@@ -54,19 +57,23 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
     const bufferedMax = addDays(latest, 7);
     const days = differenceInDays(bufferedMax, bufferedMin);
 
-    return {
+    const result = {
       minDate: bufferedMin,
       maxDate: bufferedMax,
-      totalDays: Math.max(days, 14), // Minimum 14 days
+      totalDays: Math.min(Math.max(days, 14), 90), // Minimum 14 days, maximum 90 days
     };
+
+    return result;
   }, [tasks]);
 
   // Generate date labels for header
   const dateLabels = useMemo(() => {
+
     const labels: Date[] = [];
     for (let i = 0; i <= totalDays; i++) {
       labels.push(addDays(minDate, i));
     }
+
     return labels;
   }, [minDate, totalDays]);
 

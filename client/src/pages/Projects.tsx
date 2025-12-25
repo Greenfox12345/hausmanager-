@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
@@ -49,7 +49,7 @@ export default function Projects() {
   const [taskDescription, setTaskDescription] = useState("");
   const [taskDueDate, setTaskDueDate] = useState("");
   const [taskDueTime, setTaskDueTime] = useState("");
-  const [taskAssignee, setTaskAssignee] = useState<number | null>(null);
+  const [taskAssignees, setTaskAssignees] = useState<number[]>([]);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
   const [isRepeating, setIsRepeating] = useState(false);
@@ -192,7 +192,10 @@ export default function Projects() {
   };
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
-  const projectTasks = selectedProjectId ? tasks.filter(t => t.projectId === selectedProjectId) : [];
+  const projectTasks = useMemo(
+    () => selectedProjectId ? tasks.filter(t => t.projectId === selectedProjectId) : [],
+    [selectedProjectId, tasks]
+  );
 
   const addTaskMutation = trpc.tasks.add.useMutation({
     onSuccess: () => {
@@ -225,7 +228,7 @@ export default function Projects() {
     setTaskDescription("");
     setTaskDueDate("");
     setTaskDueTime("");
-    setTaskAssignee(null);
+    setTaskAssignees([]);
     setTaskPrerequisites([]);
     setTaskFollowups([]);
   };
@@ -258,7 +261,7 @@ export default function Projects() {
         memberId: member?.memberId || 0,
         name: taskName,
         description: taskDescription || undefined,
-        assignedTo: taskAssignee || undefined,
+        assignedTo: taskAssignees.length > 0 ? taskAssignees[0] : undefined,
         dueDate: dueDateTime ? dueDateTime.toISOString() : undefined,
         projectId: selectedProjectId,
         frequency: isRepeating && repeatInterval ? (
@@ -664,6 +667,7 @@ export default function Projects() {
                                           <TaskDependencies
                                             taskId={task.id}
                                             allTasks={tasks}
+                                            dependencies={dependencies}
                                             compact
                                           />
                                           {frequency && (
@@ -850,77 +854,145 @@ export default function Projects() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task-assignee">Zuständig</Label>
-                <Select
-                  value={taskAssignee?.toString() || "none"}
-                  onValueChange={(value) => setTaskAssignee(value === "none" ? null : Number(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Person auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nicht zugewiesen</SelectItem>
-                    {members.map((m) => (
-                      <SelectItem key={m.id} value={m.id.toString()}>
+                <Label>Verantwortliche *</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {members.map((m) => (
+                    <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <Checkbox
+                        id={`task-assignee-${m.id}`}
+                        checked={taskAssignees.includes(m.id)}
+                        onCheckedChange={() => {
+                          setTaskAssignees(prev =>
+                            prev.includes(m.id)
+                              ? prev.filter(id => id !== m.id)
+                              : [...prev, m.id]
+                          );
+                        }}
+                      />
+                      <Label htmlFor={`task-assignee-${m.id}`} className="cursor-pointer flex-1">
                         {m.memberName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
+                <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
+                  {tasks.filter(t => !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
                   ) : (
-                    projectTasks.filter(t => !t.isCompleted).map((task) => (
-                      <div key={task.id} className="flex items-center gap-2 py-1">
-                        <Checkbox
-                          id={`prereq-${task.id}`}
-                          checked={taskPrerequisites.includes(task.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setTaskPrerequisites([...taskPrerequisites, task.id]);
-                            } else {
-                              setTaskPrerequisites(taskPrerequisites.filter(id => id !== task.id));
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`prereq-${task.id}`} className="text-sm font-normal cursor-pointer">
-                          {task.name}
-                        </Label>
-                      </div>
-                    ))
+                    <>
+                      {/* Project tasks */}
+                      {projectTasks.filter(t => !t.isCompleted).length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
+                          {projectTasks.filter(t => !t.isCompleted).map((task) => (
+                            <div key={task.id} className="flex items-center gap-2 py-1">
+                              <Checkbox
+                                id={`prereq-${task.id}`}
+                                checked={taskPrerequisites.includes(task.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setTaskPrerequisites([...taskPrerequisites, task.id]);
+                                  } else {
+                                    setTaskPrerequisites(taskPrerequisites.filter(id => id !== task.id));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`prereq-${task.id}`} className="text-sm font-normal cursor-pointer">
+                                {task.name}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Other household tasks */}
+                      {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
+                          {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
+                            <div key={task.id} className="flex items-center gap-2 py-1">
+                              <Checkbox
+                                id={`prereq-${task.id}`}
+                                checked={taskPrerequisites.includes(task.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setTaskPrerequisites([...taskPrerequisites, task.id]);
+                                  } else {
+                                    setTaskPrerequisites(taskPrerequisites.filter(id => id !== task.id));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`prereq-${task.id}`} className="text-sm font-normal cursor-pointer">
+                                {task.name}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Folgeaufgaben (optionale Aufgaben, die danach kommen)</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
+                <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
+                  {tasks.filter(t => !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
                   ) : (
-                    projectTasks.filter(t => !t.isCompleted).map((task) => (
-                      <div key={task.id} className="flex items-center gap-2 py-1">
-                        <Checkbox
-                          id={`followup-${task.id}`}
-                          checked={taskFollowups.includes(task.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setTaskFollowups([...taskFollowups, task.id]);
-                            } else {
-                              setTaskFollowups(taskFollowups.filter(id => id !== task.id));
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`followup-${task.id}`} className="text-sm font-normal cursor-pointer">
-                          {task.name}
-                        </Label>
-                      </div>
-                    ))
+                    <>
+                      {/* Project tasks */}
+                      {projectTasks.filter(t => !t.isCompleted).length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
+                          {projectTasks.filter(t => !t.isCompleted).map((task) => (
+                            <div key={task.id} className="flex items-center gap-2 py-1">
+                              <Checkbox
+                                id={`followup-${task.id}`}
+                                checked={taskFollowups.includes(task.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setTaskFollowups([...taskFollowups, task.id]);
+                                  } else {
+                                    setTaskFollowups(taskFollowups.filter(id => id !== task.id));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`followup-${task.id}`} className="text-sm font-normal cursor-pointer">
+                                {task.name}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Other household tasks */}
+                      {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
+                          {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
+                            <div key={task.id} className="flex items-center gap-2 py-1">
+                              <Checkbox
+                                id={`followup-${task.id}`}
+                                checked={taskFollowups.includes(task.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setTaskFollowups([...taskFollowups, task.id]);
+                                  } else {
+                                    setTaskFollowups(taskFollowups.filter(id => id !== task.id));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`followup-${task.id}`} className="text-sm font-normal cursor-pointer">
+                                {task.name}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

@@ -34,7 +34,7 @@ export default function TaskDependencies({
   // Load dependencies if not provided
   const { data: loadedDependencies = [] } = trpc.projects.getDependencies.useQuery(
     { taskId },
-    { enabled: !providedDependencies && !!household }
+    { enabled: providedDependencies === undefined && !!household }
   );
   
   // Use provided dependencies if available, otherwise use loaded ones

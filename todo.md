@@ -273,3 +273,8 @@
 - [ ] Remove or fix problematic auth checks in Tasks.tsx
 - [ ] Remove or fix problematic auth checks in Calendar.tsx
 - [ ] Remove or fix problematic auth checks in Projects.tsx
+
+## Projects Page Issues (Current)
+- [x] Gantt chart freezes browser when dependencies exist
+- [x] Task assignee selection only allows single person (should be multi-select)
+- [x] Dependency selection only shows project tasks (should include all household tasks)
