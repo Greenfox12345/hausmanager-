@@ -319,3 +319,33 @@
 - [x] Integrate TaskDetailDialog into Tasks page (click on task to open)
 - [x] Integrate TaskDetailDialog into Projects page (click on task to open)
 - [x] Test detail view and edit functionality on both pages
+
+## Authentication System Restructuring (MAJOR CHANGE)
+- [x] Design new database schema with users table
+- [x] Create users table (id, email, password_hash, name, created_at)
+- [x] Update household_members to be junction table (user_id, household_id, member_name, role)
+- [x] Add invite_code field to households table
+- [x] Create user registration backend (email + password + name)
+- [x] Create user login backend (email + password)
+- [x] Implement JWT/session management for users
+- [x] Create household creation backend (user creates household after login)
+- [x] Create household join backend (user enters invite code)
+- [x] Create household switch backend (user switches between their households)
+- [ ] Build user registration page (email, password, name)
+- [ ] Build user login page (email, password)
+- [ ] Build household selection page (create new or join existing)
+- [ ] Build household switcher dropdown in header
+- [ ] Update AuthContext to use user-based auth
+- [ ] Update all pages to use new auth context
+- [ ] Migrate existing data (create users from household_members)
+- [ ] Test complete auth flow end-to-end
+
+## Query Security Audit
+- [ ] Audit all tRPC procedures for householdId filters
+- [ ] Verify tasks queries have WHERE householdId = ?
+- [ ] Verify projects queries have WHERE householdId = ?
+- [ ] Verify shopping queries have WHERE householdId = ?
+- [ ] Verify history queries have WHERE householdId = ?
+- [ ] Verify notifications queries have WHERE householdId = ?
+- [ ] Write security tests for query isolation
+- [ ] Document query security patterns

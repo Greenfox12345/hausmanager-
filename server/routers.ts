@@ -8,6 +8,8 @@ import { tasksRouter } from "./routers/tasks";
 import { uploadRouter } from "./routers/upload";
 import { projectsRouter } from "./routers/projects";
 import { notificationsRouter } from "./routers/notifications";
+import { userAuthRouter } from "./routers/userAuth";
+import { householdManagementRouter } from "./routers/householdManagement";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -25,6 +27,8 @@ export const appRouter = router({
   }),
 
   // Feature routers
+  userAuth: userAuthRouter,
+  householdManagement: householdManagementRouter,
   household: authRouter,
   shopping: shoppingRouter,
   tasks: tasksRouter,

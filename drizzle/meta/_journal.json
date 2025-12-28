@@ -15,6 +15,13 @@
       "when": 1766951852746,
       "tag": "0001_naive_zaran",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1766953723908,
+      "tag": "0002_chubby_spectrum",
+      "breakpoints": true
     }
   ]
 }
