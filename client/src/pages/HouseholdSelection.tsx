@@ -13,7 +13,7 @@ import { InviteCodeDialog } from "@/components/InviteCodeDialog";
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
-  const { setCurrentHousehold } = useUserAuth();
+  const { setCurrentHousehold, token, isAuthenticated } = useUserAuth();
 
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -24,7 +24,10 @@ export default function HouseholdSelection() {
   const [inviteCode, setInviteCode] = useState("");
 
   // Get current user
-  const { data: currentUser, isLoading: userLoading } = trpc.userAuth.getCurrentUser.useQuery();
+  const { data: currentUser, isLoading: userLoading } = trpc.userAuth.getCurrentUser.useQuery(
+    { token: token || undefined },
+    { enabled: !!token, retry: false }
+  );
 
   // Get user's households
   const { data: households, refetch: refetchHouseholds } = trpc.householdManagement.listUserHouseholds.useQuery(
@@ -71,6 +74,7 @@ export default function HouseholdSelection() {
         householdName: data.householdName,
         memberId: data.memberId,
         memberName: data.memberName,
+        inviteCode: data.inviteCode,
       });
       
       toast.success(`Willkommen im Haushalt "${data.householdName}"!`);
@@ -122,10 +126,24 @@ export default function HouseholdSelection() {
     setLocation("/login");
   };
 
-  if (userLoading || !currentUser) {
+  // Redirect to login only if no token exists
+  if (!token) {
+    setLocation("/login");
+    return null;
+  }
+
+  if (userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Laden...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Fehler beim Laden des Benutzers...</p>
       </div>
     );
   }

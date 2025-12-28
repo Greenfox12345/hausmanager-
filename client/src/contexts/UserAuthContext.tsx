@@ -12,6 +12,7 @@ interface CurrentHousehold {
   householdName: string;
   memberId: number;
   memberName: string;
+  inviteCode?: string;
 }
 
 interface UserAuthContextType {

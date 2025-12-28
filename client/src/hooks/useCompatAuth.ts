@@ -13,6 +13,7 @@ export function useCompatAuth() {
       household: {
         householdId: auth.currentHousehold.householdId,
         householdName: auth.currentHousehold.householdName,
+        inviteCode: auth.currentHousehold.inviteCode,
       },
       member: {
         memberId: auth.currentHousehold.memberId,

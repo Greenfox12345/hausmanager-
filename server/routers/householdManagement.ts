@@ -369,6 +369,7 @@ export const householdManagementRouter = router({
         householdName: household.name,
         memberId: member.id,
         memberName: member.memberName,
+        inviteCode: household.inviteCode,
       };
     }),
 });

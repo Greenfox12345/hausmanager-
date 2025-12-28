@@ -437,3 +437,9 @@
 - [x] Redesign Members page to show invite code instead of manual member creation
 - [x] Add "Neues Mitglied einladen" button that shows invite code
 - [x] Test invite code display and copy functionality
+
+## Critical Bug Fixes (Current)
+- [x] Fix redirect loop from /household-selection to /login (without page reload)
+- [x] Fix empty invite code field on /members page (invite code not displaying)
+- [x] Test both fixes thoroughly
+- [x] Verify auth flow works correctly
