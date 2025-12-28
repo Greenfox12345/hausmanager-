@@ -27,6 +27,10 @@ interface Task {
   requiredPersons?: number | null;
   projectId?: number | null;
   completed?: boolean;
+  createdBy?: number | null;
+  createdAt?: string | null;
+  frequency?: string | null;
+  customFrequencyDays?: number | null;
 }
 
 interface Member {
@@ -54,6 +58,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [dueTime, setDueTime] = useState("");
   const [frequency, setFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
   const [customFrequencyDays, setCustomFrequencyDays] = useState(1);
+  const [enableRepeat, setEnableRepeat] = useState(false);
+  const [repeatInterval, setRepeatInterval] = useState("1");
+  const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
 
@@ -73,20 +80,33 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueTime("");
       }
       
-      // Map old repeat fields to frequency
-      if (task.enableRepeat) {
-        if (task.repeatUnit === "days" && task.repeatInterval === 1) {
-          setFrequency("daily");
-        } else if (task.repeatUnit === "weeks" && task.repeatInterval === 1) {
-          setFrequency("weekly");
-        } else if (task.repeatUnit === "months" && task.repeatInterval === 1) {
-          setFrequency("monthly");
-        } else {
-          setFrequency("custom");
-          setCustomFrequencyDays(task.repeatInterval || 1);
+      // Map task data to repeat fields
+      const hasRepeat = task.enableRepeat || (task.frequency && task.frequency !== "once");
+      setEnableRepeat(hasRepeat);
+      
+      if (hasRepeat) {
+        // Use new frequency field if available, otherwise map old repeat fields
+        if (task.frequency) {
+          if (task.frequency === "daily") {
+            setRepeatInterval("1");
+            setRepeatUnit("days");
+          } else if (task.frequency === "weekly") {
+            setRepeatInterval("1");
+            setRepeatUnit("weeks");
+          } else if (task.frequency === "monthly") {
+            setRepeatInterval("1");
+            setRepeatUnit("months");
+          } else if (task.frequency === "custom" && task.customFrequencyDays) {
+            setRepeatInterval(task.customFrequencyDays.toString());
+            setRepeatUnit("days");
+          }
+        } else if (task.repeatInterval && task.repeatUnit) {
+          setRepeatInterval(task.repeatInterval.toString());
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
         }
       } else {
-        setFrequency("once");
+        setRepeatInterval("1");
+        setRepeatUnit("weeks");
       }
       setEnableRotation(task.enableRotation || false);
       setRequiredPersons(task.requiredPersons || 1);
@@ -114,6 +134,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       ? `${dueDate}T00:00:00`
       : null;
 
+    // Determine frequency based on repeat settings
+    let frequency: "once" | "daily" | "weekly" | "monthly" | "custom" = "once";
+    let customFrequencyDays: number | undefined = undefined;
+    
+    if (enableRepeat) {
+      const interval = parseInt(repeatInterval) || 1;
+      if (repeatUnit === "days" && interval === 1) {
+        frequency = "daily";
+      } else if (repeatUnit === "weeks" && interval === 1) {
+        frequency = "weekly";
+      } else if (repeatUnit === "months" && interval === 1) {
+        frequency = "monthly";
+      } else {
+        frequency = "custom";
+        customFrequencyDays = repeatUnit === "days" ? interval : repeatUnit === "weeks" ? interval * 7 : interval * 30;
+      }
+    }
+
     updateTask.mutate({
       householdId: household.householdId,
       memberId: member?.memberId || 0,
@@ -122,9 +160,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       description: description || undefined,
       assignedTo: assignedTo || undefined,
       dueDate: dueDateTimeString || undefined,
-      frequency: frequency || undefined,
-      customFrequencyDays: frequency === "custom" ? customFrequencyDays : undefined,
-      enableRotation: enableRotation || undefined,
+      frequency: frequency,
+      customFrequencyDays: customFrequencyDays,
+      repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
+      repeatUnit: enableRepeat ? repeatUnit : undefined,
+      enableRotation: enableRepeat && enableRotation,
     });
   };
 
@@ -144,20 +184,33 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueTime("");
       }
       
-      // Map old repeat fields to frequency
-      if (task.enableRepeat) {
-        if (task.repeatUnit === "days" && task.repeatInterval === 1) {
-          setFrequency("daily");
-        } else if (task.repeatUnit === "weeks" && task.repeatInterval === 1) {
-          setFrequency("weekly");
-        } else if (task.repeatUnit === "months" && task.repeatInterval === 1) {
-          setFrequency("monthly");
-        } else {
-          setFrequency("custom");
-          setCustomFrequencyDays(task.repeatInterval || 1);
+      // Map task data to repeat fields
+      const hasRepeat = task.enableRepeat || (task.frequency && task.frequency !== "once");
+      setEnableRepeat(hasRepeat);
+      
+      if (hasRepeat) {
+        // Use new frequency field if available, otherwise map old repeat fields
+        if (task.frequency) {
+          if (task.frequency === "daily") {
+            setRepeatInterval("1");
+            setRepeatUnit("days");
+          } else if (task.frequency === "weekly") {
+            setRepeatInterval("1");
+            setRepeatUnit("weeks");
+          } else if (task.frequency === "monthly") {
+            setRepeatInterval("1");
+            setRepeatUnit("months");
+          } else if (task.frequency === "custom" && task.customFrequencyDays) {
+            setRepeatInterval(task.customFrequencyDays.toString());
+            setRepeatUnit("days");
+          }
+        } else if (task.repeatInterval && task.repeatUnit) {
+          setRepeatInterval(task.repeatInterval.toString());
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
         }
       } else {
-        setFrequency("once");
+        setRepeatInterval("1");
+        setRepeatUnit("weeks");
       }
       setEnableRotation(task.enableRotation || false);
       setRequiredPersons(task.requiredPersons || 1);
@@ -261,32 +314,42 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               </div>
 
               <div className="space-y-4 border-t pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="task-frequency">Häufigkeit</Label>
-                  <Select value={frequency} onValueChange={(value: any) => setFrequency(value)}>
-                    <SelectTrigger id="task-frequency">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="once">Einmalig</SelectItem>
-                      <SelectItem value="daily">Täglich</SelectItem>
-                      <SelectItem value="weekly">Wöchentlich</SelectItem>
-                      <SelectItem value="monthly">Monatlich</SelectItem>
-                      <SelectItem value="custom">Benutzerdefiniert</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
+                  <Switch
+                    id="enableRepeat"
+                    checked={enableRepeat}
+                    onCheckedChange={(checked) => setEnableRepeat(checked)}
+                  />
+                  <Label htmlFor="enableRepeat" className="cursor-pointer flex items-center gap-2">
+                    <Repeat className="h-4 w-4" />
+                    Wiederholung aktivieren
+                  </Label>
                 </div>
 
-                {frequency === "custom" && (
-                  <div className="space-y-2 pl-4">
-                    <Label htmlFor="custom-days">Alle X Tage</Label>
-                    <Input
-                      id="custom-days"
-                      type="number"
-                      min="1"
-                      value={customFrequencyDays}
-                      onChange={(e) => setCustomFrequencyDays(parseInt(e.target.value) || 1)}
-                    />
+                {enableRepeat && (
+                  <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                    <div className="space-y-2">
+                      <Label>Wiederholungsintervall</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          value={repeatInterval}
+                          onChange={(e) => setRepeatInterval(e.target.value)}
+                          className="w-20"
+                        />
+                        <Select value={repeatUnit} onValueChange={(v) => setRepeatUnit(v as any)}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="days">Tage(n)</SelectItem>
+                            <SelectItem value="weeks">Woche(n)</SelectItem>
+                            <SelectItem value="months">Monat(e)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -383,6 +446,63 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <Check className="h-3 w-3 mr-1" />
                       Erledigt
                     </Badge>
+                  </div>
+                )}
+
+                {/* Creation Info */}
+                {(task.createdBy || task.createdAt) && (
+                  <div className="border-t pt-4 mt-4">
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      {task.createdBy && (
+                        <div>
+                          Erstellt von: <strong>{members.find(m => m.memberId === task.createdBy)?.memberName || "Unbekannt"}</strong>
+                        </div>
+                      )}
+                      {task.createdAt && (
+                        <div>
+                          Erstellt am: <strong>{format(new Date(task.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}</strong>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Next 4 Occurrences for Recurring Tasks */}
+                {(task.enableRepeat || task.frequency !== "once") && task.dueDate && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-2">Kommende Termine</h4>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      {(() => {
+                        const dates: Date[] = [];
+                        const baseDate = new Date(task.dueDate);
+                        let interval = task.repeatInterval || task.customFrequencyDays || 1;
+                        let unit = task.repeatUnit || (task.frequency === "daily" ? "days" : task.frequency === "weekly" ? "weeks" : task.frequency === "monthly" ? "months" : "days");
+                        
+                        // Map frequency to interval/unit if not using old repeat fields
+                        if (task.frequency === "daily") { interval = 1; unit = "days"; }
+                        else if (task.frequency === "weekly") { interval = 1; unit = "weeks"; }
+                        else if (task.frequency === "monthly") { interval = 1; unit = "months"; }
+                        else if (task.frequency === "custom" && task.customFrequencyDays) { interval = task.customFrequencyDays; unit = "days"; }
+                        
+                        for (let i = 1; i <= 4; i++) {
+                          const nextDate = new Date(baseDate);
+                          if (unit === "days") {
+                            nextDate.setDate(baseDate.getDate() + (interval * i));
+                          } else if (unit === "weeks") {
+                            nextDate.setDate(baseDate.getDate() + (interval * i * 7));
+                          } else if (unit === "months") {
+                            nextDate.setMonth(baseDate.getMonth() + (interval * i));
+                          }
+                          dates.push(nextDate);
+                        }
+                        
+                        return dates.map((date, idx) => (
+                          <div key={idx}>
+                            {idx + 1}. {format(date, "PPP 'um' HH:mm 'Uhr'", { locale: de })}
+                          </div>
+                        ));
+                      })()}
+                    </div>
                   </div>
                 )}
               </div>

@@ -121,19 +121,52 @@ export const householdManagementRouter = router({
 
   /**
    * Join an existing household with invite code
+   * Uses JWT token to identify user (like createHousehold)
    */
   joinHousehold: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
         inviteCode: z.string().length(8),
-        memberName: z.string().min(1),
-        memberPassword: z.string().min(4),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // Get userId from JWT token
+      const authHeader = ctx.req.headers.authorization;
+      const token = authHeader?.replace('Bearer ', '') || ctx.req.cookies?.auth_token;
+      
+      if (!token) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Not authenticated',
+        });
+      }
+
+      let decoded: { userId: number; email: string };
+      try {
+        decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Invalid token',
+        });
+      }
+
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
+
+      // Get user info from database
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, decoded.userId))
+        .limit(1);
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        });
+      }
 
       // Find household by invite code
       const [household] = await db
@@ -143,7 +176,10 @@ export const householdManagementRouter = router({
         .limit(1);
 
       if (!household) {
-        throw new Error("Invalid invite code");
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Invalid invite code',
+        });
       }
 
       // Check if user is already a member
@@ -153,24 +189,24 @@ export const householdManagementRouter = router({
         .where(
           and(
             eq(householdMembers.householdId, household.id),
-            eq(householdMembers.userId, input.userId)
+            eq(householdMembers.userId, decoded.userId)
           )
         )
         .limit(1);
 
       if (existingMember.length > 0) {
-        throw new Error("You are already a member of this household");
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'You are already a member of this household',
+        });
       }
 
-      // Hash member password
-      const memberPasswordHash = await bcrypt.hash(input.memberPassword, 10);
-
-      // Create household member
+      // Create household member (use user's name, no separate member password)
       const [newMember] = await db.insert(householdMembers).values({
         householdId: household.id,
-        userId: input.userId,
-        memberName: input.memberName,
-        passwordHash: memberPasswordHash,
+        userId: decoded.userId,
+        memberName: user.name,
+        passwordHash: null, // No separate member password in new system
         isActive: true,
       });
 
@@ -182,7 +218,7 @@ export const householdManagementRouter = router({
         },
         member: {
           id: newMember.insertId,
-          name: input.memberName,
+          name: user.name,
         },
       };
     }),

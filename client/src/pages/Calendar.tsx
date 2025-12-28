@@ -11,11 +11,14 @@ import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckC
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
+import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 
 export default function Calendar() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTask, setSelectedTask] = useState<any | null>(null);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
   const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -121,7 +124,7 @@ export default function Calendar() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Terminübersicht</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+            {household && <p className="text-muted-foreground">{household.householdName}</p>}
           </div>
         </div>
 
@@ -219,7 +222,14 @@ export default function Calendar() {
                           const frequency = getFrequencyBadge(task);
                           
                           return (
-                            <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
+                            <Card 
+                              key={task.id} 
+                              className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
+                              onClick={() => {
+                                setSelectedTask(task);
+                                setTaskDialogOpen(true);
+                              }}
+                            >
                               <CardContent className="p-3">
                                 <div className="flex items-start gap-3">
                                   <div className="flex-1 min-w-0">
@@ -300,7 +310,14 @@ export default function Calendar() {
                       const frequency = getFrequencyBadge(task);
                       
                       return (
-                        <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
+                        <Card 
+                          key={task.id} 
+                          className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setTaskDialogOpen(true);
+                          }}
+                        >
                           <CardContent className="p-3">
                             <div className="flex items-start gap-3">
                               <div className="flex-1 min-w-0">
@@ -372,7 +389,14 @@ export default function Calendar() {
                         const frequency = getFrequencyBadge(task);
                         
                         return (
-                          <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
+                          <Card 
+                            key={task.id} 
+                            className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
+                            onClick={() => {
+                              setSelectedTask(task);
+                              setTaskDialogOpen(true);
+                            }}
+                          >
                             <CardContent className="p-3">
                               <div className="flex items-start gap-3">
                                 <div className="flex-1 min-w-0">
@@ -442,6 +466,21 @@ export default function Calendar() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Task Detail Dialog */}
+      <TaskDetailDialog
+        task={selectedTask}
+        open={taskDialogOpen}
+        onOpenChange={(open) => {
+          setTaskDialogOpen(open);
+          if (!open) setSelectedTask(null);
+        }}
+        members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
+        onTaskUpdated={() => {
+          // Refetch tasks after update
+          window.location.reload(); // Simple approach for now
+        }}
+      />
     </AppLayout>
   );
 }

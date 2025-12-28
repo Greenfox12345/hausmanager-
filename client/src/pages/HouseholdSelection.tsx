@@ -55,7 +55,7 @@ export default function HouseholdSelection() {
   // Join household mutation
   const joinHouseholdMutation = trpc.householdManagement.joinHousehold.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`Sie sind dem Haushalt "${data.name}" beigetreten.`);
+      toast.success(`Sie sind dem Haushalt "${data.household.name}" beigetreten.`);
       setJoinDialogOpen(false);
       setInviteCode("");
       refetchHouseholds();

@@ -443,3 +443,28 @@
 - [x] Fix empty invite code field on /members page (invite code not displaying)
 - [x] Test both fixes thoroughly
 - [x] Verify auth flow works correctly
+
+## Join Household Bug (CRITICAL)
+- [ ] Fix joinHousehold mutation - missing userId, memberName, memberPassword parameters
+- [ ] Update backend to extract userId from JWT token
+- [ ] Remove memberPassword requirement (new auth system doesn't use separate member passwords)
+- [ ] Update frontend to only send inviteCode
+- [ ] Test with second user account joining via invite code
+
+## Task Detail Dialog Enhancements
+- [x] Add TaskDetailDialog to Calendar page (calendar view clicks)
+- [x] Add TaskDetailDialog to Calendar page (all tasks list clicks)
+- [x] Show next 4 occurrences for recurring tasks
+- [x] Display creation info (created by, created at)
+- [x] Add "Wiederholung aktivieren" checkbox
+- [x] Add recurrence interval inputs
+- [x] Fix Calendar page null reference error
+- [ ] Add multi-select for responsible members (like /tasks)
+- [ ] Add "Verantwortung rotieren" checkbox with rotation logic
+- [ ] Add "Projektaufgabe" checkbox
+- [ ] Add project assignment dropdown
+- [ ] Add prerequisites (Voraussetzungen) selection
+- [ ] Add follow-up tasks (Folgeaufgaben) selection
+- [ ] Pre-select rotation checkbox when editing rotation tasks
+- [ ] Pre-select project checkbox when editing project tasks
+- [ ] Test all features on both /tasks and /calendar pages
