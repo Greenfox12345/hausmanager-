@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Bell, Clock, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
 
 interface NotificationSettingsProps {
@@ -16,7 +16,7 @@ interface NotificationSettingsProps {
 }
 
 export function NotificationSettings({ open, onOpenChange }: NotificationSettingsProps) {
-  const { household, member } = useHouseholdAuth();
+  const { household, member } = useCompatAuth();
   const [browserPushEnabled, setBrowserPushEnabled] = useState(false);
   const [taskAssignedEnabled, setTaskAssignedEnabled] = useState(true);
   const [taskDueEnabled, setTaskDueEnabled] = useState(true);

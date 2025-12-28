@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { trpc } from "@/lib/trpc";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Check, Settings } from "lucide-react";
 
 export function NotificationBell() {
-  const { household, member } = useHouseholdAuth();
+  const { household, member } = useCompatAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const utils = trpc.useUtils();
 

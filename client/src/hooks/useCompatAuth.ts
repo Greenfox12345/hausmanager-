@@ -1,38 +1,38 @@
-import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 
 /**
- * Compatibility hook that works with both old and new auth systems.
- * Prioritizes new user-based auth, falls back to old household-based auth.
+ * Auth hook that provides household and member information.
+ * Uses the new user-based authentication system.
  */
 export function useCompatAuth() {
-  const oldAuth = useHouseholdAuth();
-  const newAuth = useUserAuth();
+  const auth = useUserAuth();
 
-  // If new auth is active and household is selected, use it
-  if (newAuth.isAuthenticated && newAuth.currentHousehold) {
+  // If user is authenticated and household is selected, return data
+  if (auth.isAuthenticated && auth.currentHousehold) {
     return {
       household: {
-        householdId: newAuth.currentHousehold.householdId,
-        householdName: newAuth.currentHousehold.householdName,
+        householdId: auth.currentHousehold.householdId,
+        householdName: auth.currentHousehold.householdName,
       },
       member: {
-        memberId: newAuth.currentHousehold.memberId,
-        memberName: newAuth.currentHousehold.memberName,
-        householdId: newAuth.currentHousehold.householdId,
+        memberId: auth.currentHousehold.memberId,
+        memberName: auth.currentHousehold.memberName,
+        householdId: auth.currentHousehold.householdId,
       },
       isAuthenticated: true,
       logout: () => {
-        newAuth.logout();
+        auth.logout();
       },
     };
   }
 
-  // Fall back to old auth system
+  // Return null values if not authenticated
   return {
-    household: oldAuth.household,
-    member: oldAuth.member,
-    isAuthenticated: oldAuth.isAuthenticated,
-    logout: oldAuth.logout,
+    household: null,
+    member: null,
+    isAuthenticated: false,
+    logout: () => {
+      auth.logout();
+    },
   };
 }

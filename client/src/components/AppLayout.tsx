@@ -1,6 +1,5 @@
 import { ReactNode, useState } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -38,21 +37,15 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
-  const { household: oldHousehold, member: oldMember, logout: oldLogout, setHousehold, setMember } = useHouseholdAuth();
-  const { currentHousehold, logout: userLogout, isAuthenticated: userAuthActive } = useUserAuth();
+  const { currentHousehold, logout: userLogout } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Use new auth system if available, otherwise fall back to old system
-  const household = currentHousehold ? { householdId: currentHousehold.householdId, householdName: currentHousehold.householdName } : oldHousehold;
-  const member = currentHousehold ? { memberId: 0, memberName: currentHousehold.memberName, householdId: currentHousehold.householdId } : oldMember;
+  // Use new user-based auth system
+  const household = currentHousehold ? { householdId: currentHousehold.householdId, householdName: currentHousehold.householdName } : null;
+  const member = currentHousehold ? { memberId: currentHousehold.memberId, memberName: currentHousehold.memberName, householdId: currentHousehold.householdId } : null;
   const logout = () => {
-    if (userAuthActive) {
-      userLogout();
-      setLocation("/login");
-    } else {
-      oldLogout();
-      setLocation("/login");
-    }
+    userLogout();
+    setLocation("/login");
   };
 
   const { data: households = [] } = trpc.household.listHouseholds.useQuery(

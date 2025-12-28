@@ -4,10 +4,9 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { AuthProvider } from "./contexts/AuthContext";
 import { UserAuthProvider } from "./contexts/UserAuthContext";
 import Home from "./pages/Home";
-import OldLogin from "./pages/Login";
+
 import Register from "./pages/Register";
 import UserLogin from "./pages/UserLogin";
 import HouseholdSelection from "./pages/HouseholdSelection";
@@ -24,7 +23,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/login" component={UserLogin} />
-      <Route path="/old-login" component={OldLogin} />
+
       <Route path="/register" component={Register} />
       <Route path="/household-selection" component={HouseholdSelection} />
       <Route path="/shopping" component={Shopping} />
@@ -45,12 +44,10 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <UserAuthProvider>
-          <AuthProvider>
-            <TooltipProvider>
+          <TooltipProvider>
             <Toaster />
             <Router />
-            </TooltipProvider>
-          </AuthProvider>
+          </TooltipProvider>
         </UserAuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

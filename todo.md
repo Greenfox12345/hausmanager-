@@ -404,3 +404,12 @@
 - [x] Fix UserAuthContext to correctly load memberId from currentHousehold localStorage (already working)
 - [x] Ensure useCompatAuth returns correct memberId value (already working)
 - [x] Test shopping item creation after fix (working after hard reload)
+
+## Old Auth System Cleanup
+- [ ] Delete old Login.tsx file
+- [ ] Delete old AuthContext.tsx file
+- [ ] Simplify useCompatAuth to only use UserAuthContext
+- [ ] Remove /old-login route from App.tsx
+- [ ] Update AppLayout to only use UserAuthContext
+- [ ] Remove old localStorage keys (household, member) from logout
+- [ ] Test complete app after cleanup

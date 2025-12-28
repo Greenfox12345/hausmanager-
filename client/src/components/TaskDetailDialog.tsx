@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, Repeat, Users, Edit, X, Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -43,7 +43,7 @@ interface TaskDetailDialogProps {
 }
 
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated }: TaskDetailDialogProps) {
-  const { household, member } = useHouseholdAuth();
+  const { household, member } = useCompatAuth();
   const [isEditing, setIsEditing] = useState(false);
   
   // Form state

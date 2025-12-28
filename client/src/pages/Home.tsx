@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
 import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar } from "lucide-react";
@@ -8,34 +7,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated: oldAuthActive, member, household } = useHouseholdAuth();
-  const { isAuthenticated: userAuthActive, currentHousehold } = useUserAuth();
+  const { isAuthenticated, currentHousehold } = useUserAuth();
 
   useEffect(() => {
-    // Check new user auth first
-    if (!userAuthActive) {
+    // Check user auth
+    if (!isAuthenticated) {
       setLocation("/login");
       return;
     }
     // If user is logged in but no household selected, redirect to household selection
-    if (!currentHousehold && !oldAuthActive) {
+    if (!currentHousehold) {
       setLocation("/household-selection");
       return;
     }
-  }, [userAuthActive, currentHousehold, oldAuthActive, setLocation]);
+  }, [isAuthenticated, currentHousehold, setLocation]);
 
   // Show loading while checking auth
-  if (!userAuthActive && !oldAuthActive) {
+  if (!isAuthenticated || !currentHousehold) {
     return null;
   }
 
-  // If using new auth system but no household selected
-  if (userAuthActive && !currentHousehold && !oldAuthActive) {
-    return null;
-  }
-
-  // Get household info from either auth system
-  const displayHousehold = currentHousehold?.householdName || household?.householdName || "Haushalt";
+  // Get household info
+  const displayHousehold = currentHousehold.householdName;
 
   const features = [
     {
@@ -101,7 +94,7 @@ export default function Home() {
       <div className="container py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2">
-            Willkommen, {currentHousehold?.memberName || member?.memberName || "Benutzer"}!
+            Willkommen, {currentHousehold.memberName}!
           </h1>
           <p className="text-muted-foreground text-lg">
             Haushalt: {displayHousehold}

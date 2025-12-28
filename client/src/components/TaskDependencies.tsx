@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowRight, ArrowLeft, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 
 interface Dependency {
   id: number;
@@ -29,7 +29,7 @@ export default function TaskDependencies({
   allTasks,
   compact = false,
 }: TaskDependenciesProps) {
-  const { household } = useHouseholdAuth();
+  const { household } = useCompatAuth();
   
   // Load dependencies if not provided
   const { data: loadedDependencies = [] } = trpc.projects.getDependencies.useQuery(
