@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import { de } from "date-fns/locale";
 
 export default function History() {
   const [, setLocation] = useLocation();
-  const { household, isAuthenticated } = useHouseholdAuth();
+  const { household, isAuthenticated } = useCompatAuth();
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -33,10 +33,7 @@ export default function History() {
     { enabled: !!household }
   );
 
-  if (!isAuthenticated || !household) {
-    setLocation("/login");
-    return null;
-  }
+  // Auth check removed - AppLayout handles this
 
   const filteredActivities = activities.filter((activity) => {
     const matchesType = filterType === "all" || activity.activityType === filterType;

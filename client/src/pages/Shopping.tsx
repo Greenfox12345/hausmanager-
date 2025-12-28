@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ const CATEGORIES = ["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"] as const;
 
 export default function Shopping() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated } = useHouseholdAuth();
+  const { household, member, isAuthenticated } = useCompatAuth();
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState<typeof CATEGORIES[number]>("Lebensmittel");
   const [filterCategory, setFilterCategory] = useState<string>("all");
@@ -83,10 +83,7 @@ export default function Shopping() {
     },
   });
 
-  if (!isAuthenticated || !household || !member) {
-    setLocation("/login");
-    return null;
-  }
+  // Auth check removed - AppLayout handles this
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();

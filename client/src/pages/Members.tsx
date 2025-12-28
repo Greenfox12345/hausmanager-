@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { useState } from "react";
 
 export default function Members() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated, logout } = useHouseholdAuth();
+  const { household, member, isAuthenticated, logout } = useCompatAuth();
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberPassword, setNewMemberPassword] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -37,10 +37,7 @@ export default function Members() {
     },
   });
 
-  if (!isAuthenticated || !household || !member) {
-    setLocation("/login");
-    return null;
-  }
+  // Auth check removed - AppLayout handles this
 
   const handleLogout = () => {
     logout();

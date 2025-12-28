@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import TaskDependencies from "@/components/TaskDependencies";
 
 export default function Tasks() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated } = useHouseholdAuth();
+  const { household, member, isAuthenticated } = useCompatAuth();
   
   // Form state
   const [newTaskName, setNewTaskName] = useState("");

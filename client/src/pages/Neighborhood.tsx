@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,12 +7,9 @@ import { ArrowLeft, Building2 } from "lucide-react";
 
 export default function Neighborhood() {
   const [, setLocation] = useLocation();
-  const { household, isAuthenticated } = useHouseholdAuth();
+  const { household, isAuthenticated } = useCompatAuth();
 
-  if (!isAuthenticated || !household) {
-    setLocation("/login");
-    return null;
-  }
+  // Auth check removed - AppLayout handles this
 
   return (
     <AppLayout>

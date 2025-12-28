@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -37,8 +38,22 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
-  const { household, member, logout, setHousehold, setMember } = useHouseholdAuth();
+  const { household: oldHousehold, member: oldMember, logout: oldLogout, setHousehold, setMember } = useHouseholdAuth();
+  const { currentHousehold, logout: userLogout, isAuthenticated: userAuthActive } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Use new auth system if available, otherwise fall back to old system
+  const household = currentHousehold ? { householdId: currentHousehold.householdId, householdName: currentHousehold.householdName } : oldHousehold;
+  const member = currentHousehold ? { memberId: 0, memberName: currentHousehold.memberName, householdId: currentHousehold.householdId } : oldMember;
+  const logout = () => {
+    if (userAuthActive) {
+      userLogout();
+      setLocation("/login");
+    } else {
+      oldLogout();
+      setLocation("/login");
+    }
+  };
 
   const { data: households = [] } = trpc.household.listHouseholds.useQuery(
     undefined,

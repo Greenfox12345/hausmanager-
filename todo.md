@@ -350,3 +350,22 @@
 - [ ] Verify notifications queries have WHERE householdId = ?
 - [ ] Write security tests for query isolation
 - [ ] Document query security patterns
+
+## Auth Flow Fixes (URGENT)
+- [x] Change default /login route to use UserLogin instead of old Login
+- [x] Rename old Login.tsx to OldLogin.tsx for backup
+- [x] Remove auth guards from all pages causing redirects
+- [x] Update Home page to check UserAuthContext instead of old AuthContext
+- [x] Redirect unauthenticated users to /login (now UserLogin)
+- [ ] Test complete flow: Register → Login → Household Selection → App pages
+
+## Update All Pages to New Auth System
+- [x] Update AppLayout to support both auth systems
+- [x] Create useCompatAuth hook for backward compatibility
+- [x] Update Shopping page to use useCompatAuth
+- [x] Update Tasks page to use useCompatAuth
+- [x] Update Calendar page to use useCompatAuth
+- [x] Update Projects page to use useCompatAuth
+- [x] Update History page to use useCompatAuth
+- [x] Update Neighborhood page to use useCompatAuth
+- [x] Update Members page to use useCompatAuth

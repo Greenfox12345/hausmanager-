@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import TaskDependencies from "@/components/TaskDependencies";
 
 export default function Calendar() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated } = useHouseholdAuth();
+  const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
@@ -38,10 +38,7 @@ export default function Calendar() {
     { enabled: !!household }
   );
 
-  // Auth check removed - causing redirect loops
-  if (!household || !member) {
-    return <div>Loading...</div>;
-  }
+  // Auth check removed - AppLayout handles this
 
   // Group tasks by due date for calendar view
   const tasksByDate = useMemo(() => {

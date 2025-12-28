@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated } = useHouseholdAuth();
+  const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);

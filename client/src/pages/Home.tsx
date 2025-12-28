@@ -1,23 +1,41 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useHouseholdAuth } from "@/contexts/AuthContext";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
 import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, member, household } = useHouseholdAuth();
+  const { isAuthenticated: oldAuthActive, member, household } = useHouseholdAuth();
+  const { isAuthenticated: userAuthActive, currentHousehold } = useUserAuth();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Check new user auth first
+    if (!userAuthActive) {
       setLocation("/login");
+      return;
     }
-  }, [isAuthenticated, setLocation]);
+    // If user is logged in but no household selected, redirect to household selection
+    if (!currentHousehold && !oldAuthActive) {
+      setLocation("/household-selection");
+      return;
+    }
+  }, [userAuthActive, currentHousehold, oldAuthActive, setLocation]);
 
-  if (!isAuthenticated || !member || !household) {
+  // Show loading while checking auth
+  if (!userAuthActive && !oldAuthActive) {
     return null;
   }
+
+  // If using new auth system but no household selected
+  if (userAuthActive && !currentHousehold && !oldAuthActive) {
+    return null;
+  }
+
+  // Get household info from either auth system
+  const displayHousehold = currentHousehold?.householdName || household?.householdName || "Haushalt";
 
   const features = [
     {
@@ -83,10 +101,10 @@ export default function Home() {
       <div className="container py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2">
-            Willkommen, {member.memberName}!
+            Willkommen, {currentHousehold?.memberName || member?.memberName || "Benutzer"}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            Haushalt: {household.householdName}
+            Haushalt: {displayHousehold}
           </p>
         </div>
 
