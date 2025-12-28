@@ -331,21 +331,22 @@
 - [x] Create household creation backend (user creates household after login)
 - [x] Create household join backend (user enters invite code)
 - [x] Create household switch backend (user switches between their households)
-- [ ] Build user registration page (email, password, name)
-- [ ] Build user login page (email, password)
-- [ ] Build household selection page (create new or join existing)
+- [x] Build user registration page (email, password, name)
+- [x] Build user login page (email, password)
+- [x] Build household selection page (create new or join existing)
 - [ ] Build household switcher dropdown in header
-- [ ] Update AuthContext to use user-based auth
-- [ ] Update all pages to use new auth context
-- [ ] Migrate existing data (create users from household_members)
+- [x] Refactor AuthContext to use JWT tokens and user-based auth
+- [x] Update App.tsx routing with new auth pages
 - [ ] Test complete auth flow end-to-end
 
 ## Query Security Audit
-- [ ] Audit all tRPC procedures for householdId filters
-- [ ] Verify tasks queries have WHERE householdId = ?
-- [ ] Verify projects queries have WHERE householdId = ?
-- [ ] Verify shopping queries have WHERE householdId = ?
-- [ ] Verify history queries have WHERE householdId = ?
+- [x] Audit all tRPC procedures for householdId filters
+- [x] Verify tasks queries have WHERE householdId = ?
+- [x] Verify projects queries have WHERE householdId = ?
+- [x] Verify shopping queries have WHERE householdId = ?
+- [x] Verify history queries have WHERE householdId = ?
+- [x] Fix security issues in projects router (addDependencies, getDependencies)
+- [x] Created SECURITY_AUDIT.md report
 - [ ] Verify notifications queries have WHERE householdId = ?
 - [ ] Write security tests for query isolation
 - [ ] Document query security patterns

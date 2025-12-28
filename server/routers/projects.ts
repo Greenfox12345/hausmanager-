@@ -97,6 +97,7 @@ export const projectsRouter = router({
     .input(
       z.object({
         taskId: z.number(),
+        householdId: z.number(),
         prerequisites: z.array(z.number()).optional(),
         followups: z.array(z.number()).optional(),
       })
@@ -104,6 +105,12 @@ export const projectsRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // Validate task belongs to household
+      const task = await db.select().from(tasks).where(eq(tasks.id, input.taskId)).limit(1);
+      if (!task[0] || task[0].householdId !== input.householdId) {
+        throw new Error("Unauthorized: Task does not belong to your household");
+      }
 
       // Add prerequisites
       if (input.prerequisites && input.prerequisites.length > 0) {
@@ -132,10 +139,16 @@ export const projectsRouter = router({
 
   // Get task dependencies
   getDependencies: protectedProcedure
-    .input(z.object({ taskId: z.number() }))
+    .input(z.object({ taskId: z.number(), householdId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // Validate task belongs to household
+      const task = await db.select().from(tasks).where(eq(tasks.id, input.taskId)).limit(1);
+      if (!task[0] || task[0].householdId !== input.householdId) {
+        throw new Error("Unauthorized: Task does not belong to your household");
+      }
 
       const deps = await db
         .select()

@@ -233,6 +233,7 @@ export default function Tasks() {
       if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
         await addDependenciesMutation.mutateAsync({
           taskId: taskResult.id,
+          householdId: household!.householdId,
           prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
           followups: followups.length > 0 ? followups : undefined,
         });

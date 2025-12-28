@@ -280,6 +280,7 @@ export default function Projects() {
       if (taskPrerequisites.length > 0 || taskFollowups.length > 0) {
         await addDependenciesMutation.mutateAsync({
           taskId: result.id,
+          householdId: household.householdId,
           prerequisites: taskPrerequisites.length > 0 ? taskPrerequisites : undefined,
           followups: taskFollowups.length > 0 ? taskFollowups : undefined,
         });
