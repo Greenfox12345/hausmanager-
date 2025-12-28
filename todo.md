@@ -413,3 +413,12 @@
 - [ ] Update AppLayout to only use UserAuthContext
 - [ ] Remove old localStorage keys (household, member) from logout
 - [ ] Test complete app after cleanup
+
+## Household Switcher Implementation
+- [ ] Add household switcher dropdown to AppLayout header
+- [ ] Fetch all user households with listUserHouseholds query
+- [ ] Display current household with checkmark
+- [ ] Implement switch household functionality with switchHousehold mutation
+- [ ] Update localStorage with new household data
+- [ ] Reload page after switching to apply changes
+- [ ] Test switcher with multiple households

@@ -48,12 +48,30 @@ export default function AppLayout({ children }: AppLayoutProps) {
     setLocation("/login");
   };
 
-  const { data: households = [] } = trpc.household.listHouseholds.useQuery(
+  // Query user's households for switcher
+  const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
     undefined,
-    { enabled: !!household } // Only load when user is logged in
+    { enabled: !!currentHousehold } // Only load when user is logged in
   );
-  const loginHouseholdMutation = trpc.household.loginHousehold.useMutation();
-  const loginMemberMutation = trpc.household.loginMember.useMutation();
+
+  // Mutation to switch household
+  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation({
+    onSuccess: (data) => {
+      // Update localStorage with new household
+      localStorage.setItem('current_household', JSON.stringify({
+        householdId: data.householdId,
+        householdName: data.householdName,
+        memberId: data.memberId,
+        memberName: data.memberName,
+      }));
+      toast.success(`Zu "${data.householdName}" gewechselt`);
+      // Reload page to refresh all data
+      window.location.reload();
+    },
+    onError: (error) => {
+      toast.error(`Fehler beim Wechseln: ${error.message}`);
+    },
+  });
 
   const navigationItems = [
     {
@@ -113,42 +131,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const handleSwitchHousehold = async (householdId: number, householdName: string) => {
     try {
-      // For now, we'll just prompt for password and switch
-      const password = prompt(`Passwort für Haushalt "${householdName}" eingeben:`);
-      if (!password) return;
-
-      const householdResult = await loginHouseholdMutation.mutateAsync({
-        name: householdName,
-        password,
-      });
-
-      setHousehold({
-        householdId: householdResult.householdId,
-        householdName: householdResult.name,
-      });
-
-      // Prompt for member
-      const memberName = prompt("Mitgliedsname eingeben:");
-      if (!memberName) return;
-
-      const memberPassword = prompt("Mitglieds-Passwort eingeben:");
-      if (!memberPassword) return;
-
-      const memberResult = await loginMemberMutation.mutateAsync({
-        householdId: householdResult.householdId,
-        memberName,
-        password: memberPassword,
-      });
-
-      setMember({
-        memberId: memberResult.memberId,
-        memberName: memberResult.memberName,
-        householdId: householdResult.householdId,
-        photoUrl: memberResult.photoUrl || undefined,
-      });
-
+      const result = await switchHouseholdMutation.mutateAsync({ householdId });
+      
+      // Update localStorage with new household data
+      const newHouseholdData = {
+        householdId: result.householdId,
+        householdName: result.householdName,
+        memberId: result.memberId,
+        memberName: result.memberName,
+      };
+      localStorage.setItem('current_household', JSON.stringify(newHouseholdData));
+      
       toast.success(`Zu Haushalt "${householdName}" gewechselt`);
-      setLocation("/");
+      
+      // Reload page to apply changes
+      window.location.href = "/";
     } catch (error: any) {
       toast.error(error.message || "Wechsel fehlgeschlagen");
     }
@@ -167,7 +164,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <Button
               variant="outline"
               className="w-full justify-between"
-              disabled={loginHouseholdMutation.isPending || loginMemberMutation.isPending}
+              disabled={switchHouseholdMutation.isPending}
             >
               <div className="flex flex-col items-start overflow-hidden">
                 <span className="text-sm font-medium truncate w-full">
@@ -183,18 +180,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <DropdownMenuContent className="w-[280px]" align="start">
             <DropdownMenuLabel>Haushalte wechseln</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {households.map((h) => (
+            {userHouseholds.map((h) => (
               <DropdownMenuItem
-                key={h.id}
-                onClick={() => handleSwitchHousehold(h.id, h.name)}
+                key={h.householdId}
+                onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
                 className="cursor-pointer"
               >
                 <div className="flex items-center gap-2 w-full">
-                  {household?.householdId === h.id && (
+                  {household?.householdId === h.householdId && (
                     <Check className="h-4 w-4" />
                   )}
-                  <span className={household?.householdId !== h.id ? "ml-6" : ""}>
-                    {h.name}
+                  <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
+                    {h.householdName}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    als {h.memberName}
                   </span>
                 </div>
               </DropdownMenuItem>
