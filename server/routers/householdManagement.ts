@@ -156,16 +156,23 @@ export const householdManagementRouter = router({
 
   /**
    * Get all households for a user
+   * Requires userId from input (frontend must provide it)
    */
-  getUserHouseholds: publicProcedure
+  listUserHouseholds: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
-      })
+        userId: z.number().optional(),
+      }).optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
+
+      // Get userId from input or return empty if not provided
+      const userId = input?.userId;
+      if (!userId) {
+        return [];
+      }
 
       // Get all household memberships for this user
       const memberships = await db
@@ -180,7 +187,7 @@ export const householdManagementRouter = router({
         .innerJoin(households, eq(householdMembers.householdId, households.id))
         .where(
           and(
-            eq(householdMembers.userId, input.userId),
+            eq(householdMembers.userId, userId),
             eq(householdMembers.isActive, true)
           )
         );

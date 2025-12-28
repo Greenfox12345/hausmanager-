@@ -369,3 +369,9 @@
 - [x] Update History page to use useCompatAuth
 - [x] Update Neighborhood page to use useCompatAuth
 - [x] Update Members page to use useCompatAuth
+
+## Router Registration Fix (CRITICAL)
+- [ ] Register userAuth router in server/routers.ts
+- [ ] Register householdManagement router in server/routers.ts
+- [ ] Test household selection page loads without errors
+- [ ] Test user registration and login flow

@@ -132,16 +132,25 @@ export const userAuthRouter = router({
 
   /**
    * Get current user info from token
+   * Token can be provided via input, Authorization header, or auth_token cookie
    */
-  me: publicProcedure
+  getCurrentUser: publicProcedure
     .input(
       z.object({
-        token: z.string(),
-      })
+        token: z.string().optional(),
+      }).optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
-        const decoded = jwt.verify(input.token, JWT_SECRET) as {
+        // Try to get token from input, Authorization header, or cookie
+        const authHeader = ctx.req.headers.authorization;
+        const token = input?.token || authHeader?.replace('Bearer ', '') || ctx.req.cookies?.auth_token;
+        
+        if (!token) {
+          return null; // Not authenticated
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET) as {
           userId: number;
           email: string;
         };
@@ -166,7 +175,7 @@ export const userAuthRouter = router({
           role: user.role,
         };
       } catch (error) {
-        throw new Error("Invalid or expired token");
+        return null; // Invalid or expired token
       }
     }),
 

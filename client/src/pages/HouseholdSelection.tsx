@@ -19,10 +19,13 @@ export default function HouseholdSelection() {
   const [inviteCode, setInviteCode] = useState("");
 
   // Get current user
-  const { data: currentUser } = trpc.userAuth.getCurrentUser.useQuery();
+  const { data: currentUser, isLoading: userLoading } = trpc.userAuth.getCurrentUser.useQuery();
 
   // Get user's households
-  const { data: households, refetch: refetchHouseholds } = trpc.householdManagement.listUserHouseholds.useQuery();
+  const { data: households, refetch: refetchHouseholds } = trpc.householdManagement.listUserHouseholds.useQuery(
+    { userId: currentUser?.id },
+    { enabled: !!currentUser?.id }
+  );
 
   // Create household mutation
   const createHouseholdMutation = trpc.householdManagement.createHousehold.useMutation({
@@ -103,7 +106,7 @@ export default function HouseholdSelection() {
     setLocation("/user-login");
   };
 
-  if (!currentUser) {
+  if (userLoading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Laden...</p>

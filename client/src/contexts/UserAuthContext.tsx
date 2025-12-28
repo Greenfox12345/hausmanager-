@@ -37,10 +37,13 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
   });
 
   // Get current user from backend
-  const { data: user, isLoading } = trpc.userAuth.getCurrentUser.useQuery(undefined, {
-    enabled: !!token,
-    retry: false,
-  });
+  const { data: user, isLoading } = trpc.userAuth.getCurrentUser.useQuery(
+    { token: token || undefined },
+    {
+      enabled: !!token,
+      retry: false,
+    }
+  );
 
   const login = (newToken: string) => {
     setToken(newToken);
