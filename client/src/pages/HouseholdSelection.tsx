@@ -62,6 +62,7 @@ export default function HouseholdSelection() {
       localStorage.setItem("current_household", JSON.stringify({
         householdId: data.householdId,
         householdName: data.householdName,
+        memberId: data.memberId,
         memberName: data.memberName,
       }));
       

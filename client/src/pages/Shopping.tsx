@@ -85,6 +85,16 @@ export default function Shopping() {
 
   // Auth check removed - AppLayout handles this
 
+  if (!household || !member) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">Laden...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemName.trim()) return;
@@ -161,7 +171,7 @@ export default function Shopping() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Einkaufsliste</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+            <p className="text-muted-foreground">{household?.householdName || 'Laden...'}</p>
           </div>
         </div>
 

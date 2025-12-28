@@ -392,3 +392,15 @@
 - [x] Verified correct household is displayed after selection (Mein Haushalt, not Buchenbühl)
 - [x] Verified logout clears session and redirects to login page
 - [x] Verified re-login works correctly
+
+## Shopping Item Creation Bug (URGENT)
+- [ ] Fix addedBy value being 0 in shopping item creation
+- [ ] Update shopping router to get correct member ID from new auth system
+- [ ] Ensure addedBy references valid household_members.id
+- [ ] Test shopping item creation end-to-end
+
+## memberId Undefined Bug (CRITICAL)
+- [x] Debug why member.memberId is undefined in Shopping.tsx (HMR issue, not code issue)
+- [x] Fix UserAuthContext to correctly load memberId from currentHousehold localStorage (already working)
+- [x] Ensure useCompatAuth returns correct memberId value (already working)
+- [x] Test shopping item creation after fix (working after hard reload)

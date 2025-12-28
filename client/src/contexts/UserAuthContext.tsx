@@ -10,6 +10,7 @@ interface User {
 interface CurrentHousehold {
   householdId: number;
   householdName: string;
+  memberId: number;
   memberName: string;
 }
 

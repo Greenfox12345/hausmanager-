@@ -17,7 +17,7 @@ export function useCompatAuth() {
         householdName: newAuth.currentHousehold.householdName,
       },
       member: {
-        memberId: 0, // Not used in new system
+        memberId: newAuth.currentHousehold.memberId,
         memberName: newAuth.currentHousehold.memberName,
         householdId: newAuth.currentHousehold.householdId,
       },
