@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Home, Plus, LogIn, Users } from "lucide-react";
+import { InviteCodeDialog } from "@/components/InviteCodeDialog";
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
@@ -17,7 +18,9 @@ export default function HouseholdSelection() {
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const [inviteCodeDialogOpen, setInviteCodeDialogOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState("");
+  const [createdHousehold, setCreatedHousehold] = useState<{ name: string; inviteCode: string } | null>(null);
   const [inviteCode, setInviteCode] = useState("");
 
   // Get current user
@@ -32,9 +35,13 @@ export default function HouseholdSelection() {
   // Create household mutation
   const createHouseholdMutation = trpc.householdManagement.createHousehold.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`Haushalt "${data.household.name}" wurde erfolgreich erstellt.`);
+      setCreatedHousehold({
+        name: data.household.name,
+        inviteCode: data.household.inviteCode,
+      });
       setCreateDialogOpen(false);
       setNewHouseholdName("");
+      setInviteCodeDialogOpen(true);
       refetchHouseholds();
     },
     onError: (error: any) => {
@@ -261,6 +268,16 @@ export default function HouseholdSelection() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Invite Code Dialog */}
+      {createdHousehold && (
+        <InviteCodeDialog
+          open={inviteCodeDialogOpen}
+          onOpenChange={setInviteCodeDialogOpen}
+          inviteCode={createdHousehold.inviteCode}
+          householdName={createdHousehold.name}
+        />
+      )}
     </div>
   );
 }

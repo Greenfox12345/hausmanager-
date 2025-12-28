@@ -430,3 +430,10 @@
 - [ ] Fix race condition between token save and page navigation
 - [ ] Test in multiple browsers and tabs
 - [ ] Ensure consistent behavior across all scenarios
+
+## Invite Code Feature
+- [x] Create InviteCodeDialog component with copy button
+- [x] Show invite code dialog after household creation
+- [x] Redesign Members page to show invite code instead of manual member creation
+- [x] Add "Neues Mitglied einladen" button that shows invite code
+- [x] Test invite code display and copy functionality
