@@ -422,3 +422,11 @@
 - [ ] Update localStorage with new household data
 - [ ] Reload page after switching to apply changes
 - [ ] Test switcher with multiple households
+
+## Household Selection Redirect Bug (CRITICAL)
+- [ ] Debug why clicking household redirects to /login instead of /
+- [ ] Check if JWT token expires during switchHousehold mutation
+- [ ] Verify localStorage is saved before page redirect
+- [ ] Fix race condition between token save and page navigation
+- [ ] Test in multiple browsers and tabs
+- [ ] Ensure consistent behavior across all scenarios

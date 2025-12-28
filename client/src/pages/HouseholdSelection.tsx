@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import { Home, Plus, LogIn, Users } from "lucide-react";
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
+  const { setCurrentHousehold } = useUserAuth();
 
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -56,15 +58,15 @@ export default function HouseholdSelection() {
   // Switch household mutation
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`Willkommen im Haushalt "${data.householdName}"!`);
-      
-      // Store current household in localStorage
-      localStorage.setItem("current_household", JSON.stringify({
+      // Update context (also updates localStorage)
+      setCurrentHousehold({
         householdId: data.householdId,
         householdName: data.householdName,
         memberId: data.memberId,
         memberName: data.memberName,
-      }));
+      });
+      
+      toast.success(`Willkommen im Haushalt "${data.householdName}"!`);
       
       // Redirect to home
       setLocation("/");
