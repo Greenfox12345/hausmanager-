@@ -44,7 +44,7 @@ export const householdMembers = mysqlTable("household_members", {
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   userId: int("userId").references(() => users.id, { onDelete: "cascade" }),
   memberName: varchar("memberName", { length: 255 }).notNull(),
-  passwordHash: text("passwordHash").notNull(),
+  passwordHash: text("passwordHash"), // Nullable for new user-based auth system
   photoUrl: text("photoUrl"),
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

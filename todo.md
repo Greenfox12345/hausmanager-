@@ -375,3 +375,11 @@
 - [ ] Register householdManagement router in server/routers.ts
 - [ ] Test household selection page loads without errors
 - [ ] Test user registration and login flow
+
+## Household Selection Loading Bug (URGENT)
+- [ ] Debug why /household-selection shows only "Laden..." after login
+- [ ] Check browser console for errors
+- [ ] Verify getCurrentUser returns user data correctly
+- [ ] Verify listUserHouseholds returns data or empty array
+- [ ] Fix loading state logic in HouseholdSelection component
+- [ ] Test complete login flow: Login → Household Selection → Create/Join Household
