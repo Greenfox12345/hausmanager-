@@ -30,7 +30,7 @@ export default function HouseholdSelection() {
   // Create household mutation
   const createHouseholdMutation = trpc.householdManagement.createHousehold.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`Haushalt "${data.name}" wurde erfolgreich erstellt.`);
+      toast.success(`Haushalt "${data.household.name}" wurde erfolgreich erstellt.`);
       setCreateDialogOpen(false);
       setNewHouseholdName("");
       refetchHouseholds();
@@ -100,10 +100,16 @@ export default function HouseholdSelection() {
   };
 
   const handleLogout = () => {
+    // Clear new auth system
     localStorage.removeItem("auth_token");
     localStorage.removeItem("current_household");
+    
+    // Clear old auth system (to prevent conflicts)
+    localStorage.removeItem("household");
+    localStorage.removeItem("member");
+    
     toast.success("Sie wurden erfolgreich abgemeldet.");
-    setLocation("/user-login");
+    setLocation("/login");
   };
 
   if (userLoading || !currentUser) {

@@ -383,3 +383,12 @@
 - [ ] Verify listUserHouseholds returns data or empty array
 - [ ] Fix loading state logic in HouseholdSelection component
 - [ ] Test complete login flow: Login → Household Selection → Create/Join Household
+
+## Household Selection and Logout Bugs (URGENT)
+- [x] Fix household creation success message (data.household.name instead of data.name)
+- [x] Fix logout redirect (changed from /user-login to /login)
+- [x] Clear all localStorage keys on logout (auth_token, current_household, household, member)
+- [x] Test complete flow: Register → Create Household → Select → Logout → Login
+- [x] Verified correct household is displayed after selection (Mein Haushalt, not Buchenbühl)
+- [x] Verified logout clears session and redirects to login page
+- [x] Verified re-login works correctly
