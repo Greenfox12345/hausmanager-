@@ -32,6 +32,7 @@ import { de } from "date-fns/locale";
 import { toast } from "sonner";
 import GanttChartView from "@/components/GanttChartView";
 import TaskDependencies from "@/components/TaskDependencies";
+import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
@@ -41,6 +42,8 @@ export default function Projects() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false);
+  const [isTaskDetailDialogOpen, setIsTaskDetailDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [selectedExistingTasks, setSelectedExistingTasks] = useState<number[]>([]);
 
@@ -638,7 +641,14 @@ export default function Projects() {
                               const frequency = getFrequencyBadge(task);
 
                               return (
-                                <Card key={task.id} className={`shadow-sm ${task.isCompleted ? "opacity-60" : ""}`}>
+                                <Card 
+                                  key={task.id} 
+                                  className={`shadow-sm cursor-pointer ${task.isCompleted ? "opacity-60" : "hover:shadow-md"}`}
+                                  onClick={() => {
+                                    setSelectedTask(task);
+                                    setIsTaskDetailDialogOpen(true);
+                                  }}
+                                >
                                   <CardContent className="p-3">
                                     <div className="flex items-start gap-3">
                                       <div className="flex-1 min-w-0">
@@ -1182,6 +1192,16 @@ export default function Projects() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <TaskDetailDialog
+        open={isTaskDetailDialogOpen}
+        onOpenChange={setIsTaskDetailDialogOpen}
+        task={selectedTask}
+        members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
+        onTaskUpdated={() => {
+          window.location.reload();
+        }}
+      />
     </AppLayout>
   );
 }

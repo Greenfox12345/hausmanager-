@@ -15,6 +15,7 @@ import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCir
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 
@@ -52,6 +53,7 @@ export default function Tasks() {
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const utils = trpc.useUtils();
@@ -678,9 +680,13 @@ export default function Tasks() {
             {tasks.map((task) => (
               <Card
                 key={task.id}
-                className={`shadow-sm transition-all duration-200 ${
+                className={`shadow-sm transition-all duration-200 cursor-pointer ${
                   task.isCompleted ? "opacity-60" : "hover:shadow-md"
                 }`}
+                onClick={() => {
+                  setSelectedTask(task);
+                  setDetailDialogOpen(true);
+                }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
@@ -816,6 +822,16 @@ export default function Tasks() {
         onOpenChange={setReminderDialogOpen}
         task={selectedTask}
         onSendReminder={handleSendReminder}
+      />
+
+      <TaskDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        task={selectedTask}
+        members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
+        onTaskUpdated={() => {
+          utils.tasks.list.invalidate();
+        }}
       />
     </AppLayout>
   );

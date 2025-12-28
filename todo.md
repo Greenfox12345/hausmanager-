@@ -308,3 +308,14 @@
 - [x] Frontend: Add time picker for DND window
 - [ ] Backend: Check DND window before sending notifications (future enhancement)
 - [x] Test notification preferences functionality
+
+## Task Detail Views with Edit Functionality
+- [x] Create TaskDetailDialog component with view mode
+- [x] Add edit mode toggle with "Bearbeiten" button
+- [x] Implement task update form in edit mode
+- [x] Add "Speichern" and "Abbrechen" buttons in edit mode
+- [x] Add "Schließen" button in view mode
+- [x] Display all task details (name, description, assignee, due date, repeat, rotation, dependencies)
+- [x] Integrate TaskDetailDialog into Tasks page (click on task to open)
+- [x] Integrate TaskDetailDialog into Projects page (click on task to open)
+- [x] Test detail view and edit functionality on both pages
