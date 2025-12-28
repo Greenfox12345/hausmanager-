@@ -1,0 +1,16 @@
+{
+  "query": "SELECT hm.id as memberId, hm.memberName, h.id as householdId, h.name as householdName \nFROM household_members hm \nJOIN households h ON hm.householdId = h.id \nWHERE h.name = 'Buchenbühl' AND hm.memberName = 'Basti';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT hm.id as memberId, hm.memberName, h.id as householdId, h.name as householdName \nFROM household_members hm \nJOIN households h ON hm.householdId = h.id \nWHERE h.name = 'Buchenbühl' AND hm.memberName = 'Basti';",
+  "rows": [
+    {
+      "memberId": "9",
+      "memberName": "Basti",
+      "householdId": "3",
+      "householdName": "Buchenbühl"
+    }
+  ],
+  "messages": [],
+  "stdout": "memberId\tmemberName\thouseholdId\thouseholdName\n9\tBasti\t3\tBuchenbühl\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

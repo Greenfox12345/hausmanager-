@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM notifications WHERE Field = 'type';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SHOW COLUMNS FROM notifications WHERE Field = 'type';",
+  "rows": [
+    {
+      "Field": "type",
+      "Type": "enum('task_assigned','task_completed','task_due_soon','task_overdue','edit_proposal','dependency_proposal','proposal_approved','proposal_rejected','project_update','other')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\ntype\tenum('task_assigned','task_completed','task_due_soon','task_overdue','edit_proposal','dependency_proposal','proposal_approved','proposal_rejected','project_update','other')\tNO\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 99
+}

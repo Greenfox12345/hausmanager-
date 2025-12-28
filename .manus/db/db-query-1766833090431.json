@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `notifications` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `householdId` int NOT NULL,\n  `memberId` int NOT NULL,\n  `type` enum('task_assigned','task_due','task_completed','comment_added','reminder','general') NOT NULL,\n  `title` varchar(255) NOT NULL,\n  `message` text NOT NULL,\n  `relatedTaskId` int,\n  `relatedProjectId` int,\n  `isRead` boolean NOT NULL DEFAULT false,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `notifications_id` PRIMARY KEY(`id`),\n  CONSTRAINT `notifications_householdId_fk` FOREIGN KEY (`householdId`) REFERENCES `households`(`id`) ON DELETE cascade,\n  CONSTRAINT `notifications_memberId_fk` FOREIGN KEY (`memberId`) REFERENCES `household_members`(`id`) ON DELETE cascade\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE IF NOT EXISTS `notifications` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `householdId` int NOT NULL,\n  `memberId` int NOT NULL,\n  `type` enum('task_assigned','task_due','task_completed','comment_added','reminder','general') NOT NULL,\n  `title` varchar(255) NOT NULL,\n  `message` text NOT NULL,\n  `relatedTaskId` int,\n  `relatedProjectId` int,\n  `isRead` boolean NOT NULL DEFAULT false,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `notifications_id` PRIMARY KEY(`id`),\n  CONSTRAINT `notifications_householdId_fk` FOREIGN KEY (`householdId`) REFERENCES `households`(`id`) ON DELETE cascade,\n  CONSTRAINT `notifications_memberId_fk` FOREIGN KEY (`memberId`) REFERENCES `household_members`(`id`) ON DELETE cascade\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 397
+}

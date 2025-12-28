@@ -230,7 +230,7 @@ export default function Tasks() {
       // Add dependencies if this is a project task
       if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
         await addDependenciesMutation.mutateAsync({
-          taskId: taskResult.taskId,
+          taskId: taskResult.id,
           prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
           followups: followups.length > 0 ? followups : undefined,
         });

@@ -53,6 +53,25 @@ export type HouseholdMember = typeof householdMembers.$inferSelect;
 export type InsertHouseholdMember = typeof householdMembers.$inferInsert;
 
 /**
+ * Notifications table - stores in-app and push notifications for household members
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", ["task_assigned", "task_due", "task_completed", "comment_added", "reminder", "general"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  relatedTaskId: int("relatedTaskId"),
+  relatedProjectId: int("relatedProjectId"),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
  * Shopping items - household shopping list with categories
  */
 export const shoppingItems = mysqlTable("shopping_items", {

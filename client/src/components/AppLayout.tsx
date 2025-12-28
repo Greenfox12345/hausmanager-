@@ -29,6 +29,7 @@ import {
   Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -148,7 +149,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b">
-        <h2 className="text-xl font-bold mb-3">Haushaltsmanager</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-bold">Haushaltsmanager</h2>
+          <NotificationBell />
+        </div>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -248,7 +252,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           
           <h1 className="text-lg font-bold">Haushaltsmanager</h1>
           
-          <div className="w-10" /> {/* Spacer for centering */}
+          <NotificationBell />
         </div>
       </div>
 

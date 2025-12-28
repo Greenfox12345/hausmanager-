@@ -11,6 +11,7 @@ import {
   createTaskRotationExclusions,
   getDb,
 } from "../db";
+import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
 import { taskRotationExclusions } from "../../drizzle/schema";
 
 export const tasksRouter = router({
@@ -83,7 +84,17 @@ export const tasksRouter = router({
         relatedItemId: taskId,
       });
 
-      return { taskId };
+      // Send notification if task is assigned to someone
+      if (input.assignedTo && input.assignedTo !== input.memberId) {
+        await notifyTaskAssigned(
+          input.householdId,
+          input.assignedTo,
+          taskId,
+          input.name
+        );
+      }
+
+      return { id: taskId };
     }),
 
   // Update task
@@ -328,6 +339,21 @@ export const tasksRouter = router({
         photoUrls: input.photoUrls,
         metadata: originalDueDate ? { originalDueDate: originalDueDate.toISOString() } : undefined,
       });
+
+      // Send notification to task creator if different from completer
+      if (task.createdBy && task.createdBy !== input.memberId) {
+        const members = await getHouseholdMembers(input.householdId);
+        const completer = members.find(m => m.id === input.memberId);
+        if (completer) {
+          await notifyTaskCompleted(
+            input.householdId,
+            task.createdBy,
+            input.taskId,
+            task.name,
+            completer.memberName
+          );
+        }
+      }
 
       return { success: true };
     }),

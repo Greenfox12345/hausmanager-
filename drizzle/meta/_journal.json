@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1766833082382,
+      "tag": "0000_lame_morgan_stark",
+      "breakpoints": true
+    }
+  ]
+}

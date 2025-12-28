@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO notifications (householdId, memberId, type, title, message, isRead, createdAt)\nVALUES (1, 2, 'reminder', 'Aufgabe fällig', 'Die Aufgabe \"Brot kaufen\" ist heute fällig!', 0, NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute INSERT INTO notifications (householdId, memberId, type, title, message, isRead, createdAt)\nVALUES (1, 2, 'reminder', 'Aufgabe fällig', 'Die Aufgabe \"Brot kaufen\" ist heute fällig!', 0, NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column 'type' at row 1"
+  ]
+}

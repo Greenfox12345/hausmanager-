@@ -276,7 +276,7 @@ export default function Projects() {
       // Add dependencies if any
       if (taskPrerequisites.length > 0 || taskFollowups.length > 0) {
         await addDependenciesMutation.mutateAsync({
-          taskId: result.taskId,
+          taskId: result.id,
           prerequisites: taskPrerequisites.length > 0 ? taskPrerequisites : undefined,
           followups: taskFollowups.length > 0 ? taskFollowups : undefined,
         });

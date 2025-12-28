@@ -278,3 +278,23 @@
 - [x] Gantt chart freezes browser when dependencies exist
 - [x] Task assignee selection only allows single person (should be multi-select)
 - [x] Dependency selection only shows project tasks (should include all household tasks)
+
+## Auth Redirect Issue (URGENT - Recurred)
+- [x] /tasks page redirects to login after a few seconds
+- [x] /calendar page redirects to login after a few seconds
+- [x] /projects page redirects to login after a few seconds
+- [x] Issue recurred after server restart
+- [x] Previous fix (QueryClient config + AppLayout listHouseholds enabled flag) was sufficient, issue resolved after server restart
+
+## Notification System Implementation
+- [x] Create notifications database table with schema
+- [x] Backend: Create notification CRUD procedures (create, list, markAsRead, delete)
+- [x] Backend: Add notification triggers for task assignments and completions
+- [x] Frontend: Bell icon component in AppLayout header with unread badge
+- [x] Frontend: Notification dropdown panel with list and actions
+- [x] Frontend: Browser push notification permission request
+- [x] Frontend: Notification settings dialog
+- [x] Test in-app notifications (working)
+- [ ] Backend: Add notification triggers for comments (future)
+- [ ] Backend: Daily cron job for due date reminders (future)
+- [ ] Service worker for offline push notifications (future)
