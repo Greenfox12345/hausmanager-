@@ -1,159 +1,272 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Settings } from "lucide-react";
-import {
-  requestNotificationPermission,
-  getNotificationPermission,
-  areNotificationsSupported,
-  showNotification,
-} from "@/lib/pushNotifications";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Bell, Clock, Info } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { useHouseholdAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-export function NotificationSettings() {
-  const [permission, setPermission] = useState(getNotificationPermission());
-  const [pushEnabled, setPushEnabled] = useState(permission === 'granted');
+interface NotificationSettingsProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
+export function NotificationSettings({ open, onOpenChange }: NotificationSettingsProps) {
+  const { household, member } = useHouseholdAuth();
+  const [browserPushEnabled, setBrowserPushEnabled] = useState(false);
+  const [taskAssignedEnabled, setTaskAssignedEnabled] = useState(true);
+  const [taskDueEnabled, setTaskDueEnabled] = useState(true);
+  const [taskCompletedEnabled, setTaskCompletedEnabled] = useState(true);
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [dndStartTime, setDndStartTime] = useState("");
+  const [dndEndTime, setDndEndTime] = useState("");
+  const [permissionStatus, setPermissionStatus] = useState<"default" | "granted" | "denied">("default");
+
+  // Load preferences
+  const { data: preferences, refetch } = trpc.notifications.getPreferences.useQuery(
+    {
+      householdId: household?.householdId ?? 0,
+      memberId: member?.memberId ?? 0,
+    },
+    {
+      enabled: !!household && !!member && open,
+    }
+  );
+
+  // Update preferences mutation
+  const updatePreferences = trpc.notifications.updatePreferences.useMutation({
+    onSuccess: () => {
+      refetch();
+      toast.success("Einstellungen gespeichert");
+    },
+  });
+
+  // Load preferences when dialog opens
   useEffect(() => {
-    setPermission(getNotificationPermission());
-    setPushEnabled(getNotificationPermission() === 'granted');
+    if (preferences) {
+      setBrowserPushEnabled(preferences.enableBrowserPush ?? false);
+      setTaskAssignedEnabled(preferences.enableTaskAssigned ?? true);
+      setTaskDueEnabled(preferences.enableTaskDue ?? true);
+      setTaskCompletedEnabled(preferences.enableTaskCompleted ?? true);
+      setCommentsEnabled(preferences.enableComments ?? true);
+      setDndStartTime(preferences.dndStartTime ?? "");
+      setDndEndTime(preferences.dndEndTime ?? "");
+    }
+  }, [preferences]);
+
+  // Check notification permission status
+  useEffect(() => {
+    if ("Notification" in window) {
+      setPermissionStatus(Notification.permission);
+    }
   }, []);
 
-  const handleEnablePush = async () => {
-    const result = await requestNotificationPermission();
-    setPermission(result);
-    
-    if (result === 'granted') {
-      setPushEnabled(true);
-      toast.success('Browser-Benachrichtigungen aktiviert');
-      
-      // Show test notification
-      showNotification('Benachrichtigungen aktiviert', {
-        body: 'Sie erhalten jetzt Browser-Benachrichtigungen für wichtige Ereignisse',
+  const handleBrowserPushToggle = async (enabled: boolean) => {
+    if (enabled && permissionStatus === "default") {
+      const permission = await Notification.requestPermission();
+      setPermissionStatus(permission);
+      if (permission !== "granted") {
+        toast.error("Benachrichtigungen wurden nicht erlaubt");
+        return;
+      }
+      toast.success("Browser-Benachrichtigungen aktiviert");
+    }
+
+    setBrowserPushEnabled(enabled);
+    if (household?.householdId && member?.memberId) {
+      updatePreferences.mutate({
+        householdId: household.householdId,
+        memberId: member.memberId,
+        enableBrowserPush: enabled,
       });
-    } else if (result === 'denied') {
-      setPushEnabled(false);
-      toast.error('Benachrichtigungen wurden blockiert. Bitte ändern Sie die Browser-Einstellungen.');
     }
   };
 
-  const handleDisablePush = () => {
-    setPushEnabled(false);
-    toast.info('Browser-Benachrichtigungen deaktiviert. Berechtigungen können in den Browser-Einstellungen widerrufen werden.');
+  const handlePreferenceToggle = (key: string, value: boolean) => {
+    if (!household?.householdId || !member?.memberId) return;
+
+    const updates: any = {
+      householdId: household.householdId,
+      memberId: member.memberId,
+    };
+    updates[key] = value;
+
+    updatePreferences.mutate(updates);
   };
 
-  const handleTestNotification = () => {
-    if (permission === 'granted') {
-      showNotification('Test-Benachrichtigung', {
-        body: 'Dies ist eine Test-Benachrichtigung vom Haushaltsmanager',
-        requireInteraction: false,
-      });
-      toast.success('Test-Benachrichtigung gesendet');
-    } else {
-      toast.error('Benachrichtigungen sind nicht aktiviert');
-    }
-  };
+  const handleDndTimeChange = () => {
+    if (!household?.householdId || !member?.memberId) return;
 
-  if (!areNotificationsSupported()) {
-    return (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Settings className="h-5 w-5" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Benachrichtigungseinstellungen</DialogTitle>
-            <DialogDescription>
-              Ihr Browser unterstützt keine Push-Benachrichtigungen.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+    updatePreferences.mutate({
+      householdId: household.householdId,
+      memberId: member.memberId,
+      dndStartTime: dndStartTime || null,
+      dndEndTime: dndEndTime || null,
+    });
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Benachrichtigungseinstellungen</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Benachrichtigungseinstellungen
+          </DialogTitle>
           <DialogDescription>
-            Verwalten Sie Ihre Benachrichtigungspräferenzen
+            Passen Sie an, welche Benachrichtigungen Sie erhalten möchten
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Push Notifications */}
-          <div className="flex items-center justify-between space-x-4">
-            <div className="flex-1">
-              <Label htmlFor="push-notifications" className="text-base">
+          {/* Browser Push Notifications */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="browser-push" className="text-base font-medium">
                 Browser-Benachrichtigungen
               </Label>
-              <p className="text-sm text-muted-foreground">
-                Erhalten Sie Benachrichtigungen auch wenn der Browser geschlossen ist
-              </p>
+              <Switch
+                id="browser-push"
+                checked={browserPushEnabled}
+                onCheckedChange={handleBrowserPushToggle}
+                disabled={permissionStatus === "denied"}
+              />
             </div>
-            <Switch
-              id="push-notifications"
-              checked={pushEnabled}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  handleEnablePush();
-                } else {
-                  handleDisablePush();
-                }
-              }}
-            />
-          </div>
-
-          {/* Permission Status */}
-          {permission === 'denied' && (
-            <div className="rounded-lg bg-destructive/10 p-4">
-              <p className="text-sm text-destructive">
-                Benachrichtigungen wurden blockiert. Bitte ändern Sie die Berechtigungen in Ihren Browser-Einstellungen.
-              </p>
-            </div>
-          )}
-
-          {/* Test Notification Button */}
-          {permission === 'granted' && (
-            <Button
-              onClick={handleTestNotification}
-              variant="outline"
-              className="w-full"
-            >
-              Test-Benachrichtigung senden
-            </Button>
-          )}
-
-          {/* Info */}
-          <div className="rounded-lg bg-muted p-4">
             <p className="text-sm text-muted-foreground">
-              <strong>Hinweis:</strong> Sie erhalten Benachrichtigungen für:
+              Erhalten Sie Benachrichtigungen auch wenn der Browser geschlossen ist
             </p>
-            <ul className="mt-2 text-sm text-muted-foreground list-disc list-inside space-y-1">
-              <li>Fällige Aufgaben (1 Tag vorher und am Tag selbst)</li>
-              <li>Neue Aufgabenzuweisungen</li>
-              <li>Kommentare auf Ihren Aufgaben</li>
-              <li>Wichtige Haushaltsereignisse</li>
-            </ul>
+            {permissionStatus === "denied" && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Benachrichtigungen wurden blockiert. Bitte aktivieren Sie sie in den Browser-Einstellungen.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
+
+          <div className="border-t pt-4 space-y-4">
+            <h3 className="text-sm font-medium">Benachrichtigungstypen</h3>
+
+            {/* Task Assigned */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="task-assigned" className="text-sm">
+                Aufgabenzuweisungen
+              </Label>
+              <Switch
+                id="task-assigned"
+                checked={taskAssignedEnabled}
+                onCheckedChange={(checked) => {
+                  setTaskAssignedEnabled(checked);
+                  handlePreferenceToggle("enableTaskAssigned", checked);
+                }}
+              />
+            </div>
+
+            {/* Task Due */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="task-due" className="text-sm">
+                Fällige Aufgaben
+              </Label>
+              <Switch
+                id="task-due"
+                checked={taskDueEnabled}
+                onCheckedChange={(checked) => {
+                  setTaskDueEnabled(checked);
+                  handlePreferenceToggle("enableTaskDue", checked);
+                }}
+              />
+            </div>
+
+            {/* Task Completed */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="task-completed" className="text-sm">
+                Erledigte Aufgaben
+              </Label>
+              <Switch
+                id="task-completed"
+                checked={taskCompletedEnabled}
+                onCheckedChange={(checked) => {
+                  setTaskCompletedEnabled(checked);
+                  handlePreferenceToggle("enableTaskCompleted", checked);
+                }}
+              />
+            </div>
+
+            {/* Comments */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="comments" className="text-sm">
+                Kommentare
+              </Label>
+              <Switch
+                id="comments"
+                checked={commentsEnabled}
+                onCheckedChange={(checked) => {
+                  setCommentsEnabled(checked);
+                  handlePreferenceToggle("enableComments", checked);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Do Not Disturb */}
+          <div className="border-t pt-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <h3 className="text-sm font-medium">Nicht stören</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Keine Benachrichtigungen während dieser Zeit
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="dnd-start" className="text-xs">
+                  Von
+                </Label>
+                <Input
+                  id="dnd-start"
+                  type="time"
+                  value={dndStartTime}
+                  onChange={(e) => setDndStartTime(e.target.value)}
+                  onBlur={handleDndTimeChange}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dnd-end" className="text-xs">
+                  Bis
+                </Label>
+                <Input
+                  id="dnd-end"
+                  type="time"
+                  value={dndEndTime}
+                  onChange={(e) => setDndEndTime(e.target.value)}
+                  onBlur={handleDndTimeChange}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            {dndStartTime && dndEndTime && (
+              <p className="text-xs text-muted-foreground">
+                Aktiv von {dndStartTime} bis {dndEndTime} Uhr
+              </p>
+            )}
+          </div>
+
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              Einstellungen werden automatisch gespeichert
+            </AlertDescription>
+          </Alert>
+        </div>
+
+        <div className="flex justify-end">
+          <Button onClick={() => onOpenChange(false)}>Schließen</Button>
         </div>
       </DialogContent>
     </Dialog>

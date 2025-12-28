@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS notification_preferences (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  householdId INT NOT NULL,\n  memberId INT NOT NULL,\n  enableTaskAssigned BOOLEAN DEFAULT TRUE,\n  enableTaskDue BOOLEAN DEFAULT TRUE,\n  enableTaskCompleted BOOLEAN DEFAULT TRUE,\n  enableComments BOOLEAN DEFAULT TRUE,\n  enableBrowserPush BOOLEAN DEFAULT FALSE,\n  dndStartTime VARCHAR(5) DEFAULT NULL,\n  dndEndTime VARCHAR(5) DEFAULT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  UNIQUE KEY unique_member_prefs (householdId, memberId),\n  FOREIGN KEY (householdId) REFERENCES households(id) ON DELETE CASCADE,\n  FOREIGN KEY (memberId) REFERENCES household_members(id) ON DELETE CASCADE\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE IF NOT EXISTS notification_preferences (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  householdId INT NOT NULL,\n  memberId INT NOT NULL,\n  enableTaskAssigned BOOLEAN DEFAULT TRUE,\n  enableTaskDue BOOLEAN DEFAULT TRUE,\n  enableTaskCompleted BOOLEAN DEFAULT TRUE,\n  enableComments BOOLEAN DEFAULT TRUE,\n  enableBrowserPush BOOLEAN DEFAULT FALSE,\n  dndStartTime VARCHAR(5) DEFAULT NULL,\n  dndEndTime VARCHAR(5) DEFAULT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  UNIQUE KEY unique_member_prefs (householdId, memberId),\n  FOREIGN KEY (householdId) REFERENCES households(id) ON DELETE CASCADE,\n  FOREIGN KEY (memberId) REFERENCES household_members(id) ON DELETE CASCADE\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 268
+}

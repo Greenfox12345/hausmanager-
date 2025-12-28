@@ -298,3 +298,13 @@
 - [ ] Backend: Add notification triggers for comments (future)
 - [ ] Backend: Daily cron job for due date reminders (future)
 - [ ] Service worker for offline push notifications (future)
+
+## Notification Preferences Extension
+- [x] Extend database schema with notification_preferences table
+- [x] Add per-type notification toggles (task_assigned, task_due, task_completed, comments)
+- [x] Add Do Not Disturb time window (start time, end time)
+- [x] Backend: Create getPreferences, updatePreferences procedures
+- [x] Frontend: Extend NotificationSettings dialog with per-type toggles
+- [x] Frontend: Add time picker for DND window
+- [ ] Backend: Check DND window before sending notifications (future enhancement)
+- [x] Test notification preferences functionality

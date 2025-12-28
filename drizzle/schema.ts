@@ -55,6 +55,21 @@ export type InsertHouseholdMember = typeof householdMembers.$inferInsert;
 /**
  * Notifications table - stores in-app and push notifications for household members
  */
+export const notificationPreferences = mysqlTable("notification_preferences", {
+  id: int("id").primaryKey().autoincrement(),
+  householdId: int("householdId").notNull(),
+  memberId: int("memberId").notNull(),
+  enableTaskAssigned: boolean("enableTaskAssigned").default(true),
+  enableTaskDue: boolean("enableTaskDue").default(true),
+  enableTaskCompleted: boolean("enableTaskCompleted").default(true),
+  enableComments: boolean("enableComments").default(true),
+  enableBrowserPush: boolean("enableBrowserPush").default(false),
+  dndStartTime: varchar("dndStartTime", { length: 5 }),
+  dndEndTime: varchar("dndEndTime", { length: 5 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
 export const notifications = mysqlTable("notifications", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),

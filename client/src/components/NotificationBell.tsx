@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,10 +13,11 @@ import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { X, Check } from "lucide-react";
+import { X, Check, Settings } from "lucide-react";
 
 export function NotificationBell() {
   const { household, member } = useHouseholdAuth();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const utils = trpc.useUtils();
 
   // Get unread count
@@ -111,6 +113,7 @@ export function NotificationBell() {
   if (!household || !member) return null;
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -126,7 +129,14 @@ export function NotificationBell() {
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">Benachrichtigungen</h3>
           <div className="flex items-center gap-2">
-            <NotificationSettings />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
             {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -198,5 +208,7 @@ export function NotificationBell() {
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
+    <NotificationSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { notifications } from "../../drizzle/schema";
+import { notifications, notificationPreferences } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export const notificationsRouter = router({
@@ -162,5 +162,111 @@ export const notificationsRouter = router({
       });
 
       return notification;
+    }),
+
+  /**
+   * Get notification preferences
+   */
+  getPreferences: publicProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const prefs = await db
+        .select()
+        .from(notificationPreferences)
+        .where(
+          and(
+            eq(notificationPreferences.householdId, input.householdId),
+            eq(notificationPreferences.memberId, input.memberId)
+          )
+        )
+        .limit(1);
+
+      // Return default preferences if none exist
+      if (prefs.length === 0) {
+        return {
+          enableTaskAssigned: true,
+          enableTaskDue: true,
+          enableTaskCompleted: true,
+          enableComments: true,
+          enableBrowserPush: false,
+          dndStartTime: null,
+          dndEndTime: null,
+        };
+      }
+
+      return prefs[0];
+    }),
+
+  /**
+   * Update notification preferences
+   */
+  updatePreferences: publicProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+        enableTaskAssigned: z.boolean().optional(),
+        enableTaskDue: z.boolean().optional(),
+        enableTaskCompleted: z.boolean().optional(),
+        enableComments: z.boolean().optional(),
+        enableBrowserPush: z.boolean().optional(),
+        dndStartTime: z.string().nullable().optional(),
+        dndEndTime: z.string().nullable().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Check if preferences exist
+      const existing = await db
+        .select()
+        .from(notificationPreferences)
+        .where(
+          and(
+            eq(notificationPreferences.householdId, input.householdId),
+            eq(notificationPreferences.memberId, input.memberId)
+          )
+        )
+        .limit(1);
+
+      const updateData: any = {};
+      if (input.enableTaskAssigned !== undefined) updateData.enableTaskAssigned = input.enableTaskAssigned;
+      if (input.enableTaskDue !== undefined) updateData.enableTaskDue = input.enableTaskDue;
+      if (input.enableTaskCompleted !== undefined) updateData.enableTaskCompleted = input.enableTaskCompleted;
+      if (input.enableComments !== undefined) updateData.enableComments = input.enableComments;
+      if (input.enableBrowserPush !== undefined) updateData.enableBrowserPush = input.enableBrowserPush;
+      if (input.dndStartTime !== undefined) updateData.dndStartTime = input.dndStartTime;
+      if (input.dndEndTime !== undefined) updateData.dndEndTime = input.dndEndTime;
+
+      if (existing.length > 0) {
+        // Update existing preferences
+        await db
+          .update(notificationPreferences)
+          .set(updateData)
+          .where(
+            and(
+              eq(notificationPreferences.householdId, input.householdId),
+              eq(notificationPreferences.memberId, input.memberId)
+            )
+          );
+      } else {
+        // Insert new preferences
+        await db.insert(notificationPreferences).values({
+          householdId: input.householdId,
+          memberId: input.memberId,
+          ...updateData,
+        });
+      }
+
+      return { success: true };
     }),
 });
