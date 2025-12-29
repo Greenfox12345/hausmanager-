@@ -483,3 +483,6 @@
 - [x] Implement future occurrence updates when editing recurring tasks
 - [x] Test interval storage with different units (days, weeks, months)
 - [x] Verified database storage: repeatInterval=3, repeatUnit="days"
+
+## Visual Edits
+- [x] Remove numbering from next occurrences display in TaskDetailDialog

@@ -518,7 +518,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         
                         return dates.map((date, idx) => (
                           <div key={idx}>
-                            {idx + 1}. {format(date, "PPP 'um' HH:mm 'Uhr'", { locale: de })}
+                            {format(date, "PPP 'um' HH:mm 'Uhr'", { locale: de })}
                           </div>
                         ));
                       })()}
