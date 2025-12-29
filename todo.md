@@ -516,3 +516,15 @@
 - [x] Fix project link to navigate to /projects#project-{id} instead of query parameter
 - [x] Test dependencies display (no dependencies in current household to test with)
 - [x] Test project link navigation
+
+## Dialog Overlay Bug Fixes (URGENT)
+- [x] Fix CompleteTaskDialog photo upload overlay issue (dialog behind main dialog)
+- [x] Fix MilestoneDialog photo upload overlay issue (dialog behind main dialog)
+- [x] Added modal={false} to both dialogs
+- [ ] Test both dialogs with photo upload (needs user testing)
+- [x] Verify z-index or portal rendering fix
+
+## Task Action Button Bug Fix (URGENT)
+- [x] Fix action buttons (Abschließen, Zwischenziel, Erinnern) opening detail dialog
+- [x] Add stopPropagation to all action button click handlers (Complete, Milestone, Reminder, Delete)
+- [ ] Test all action buttons (needs user testing)

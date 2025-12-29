@@ -751,7 +751,8 @@ export default function Tasks() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedTask(task);
                               setCompleteDialogOpen(true);
                             }}
@@ -763,7 +764,8 @@ export default function Tasks() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedTask(task);
                               setMilestoneDialogOpen(true);
                             }}
@@ -775,7 +777,8 @@ export default function Tasks() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedTask(task);
                               setReminderDialogOpen(true);
                             }}
@@ -789,7 +792,10 @@ export default function Tasks() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(task.id);
+                        }}
                         className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
                         title="Aufgabe löschen"
                       >
