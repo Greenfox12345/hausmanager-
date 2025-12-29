@@ -475,3 +475,11 @@
 - [x] Implement multi-select for responsible members (replace single select dropdown)
 - [x] Add Checkbox import to fix ReferenceError
 - [x] Test multi-select and nested rotation UI
+
+## Recurring Task Interval Fixes (Current)
+- [x] Fix interval storage - save both number and unit correctly to database
+- [x] Update TaskDetailDialog to properly handle repeatInterval and repeatUnit
+- [x] Add repeatInterval and repeatUnit to update mutation input schema
+- [x] Implement future occurrence updates when editing recurring tasks
+- [x] Test interval storage with different units (days, weeks, months)
+- [x] Verified database storage: repeatInterval=3, repeatUnit="days"

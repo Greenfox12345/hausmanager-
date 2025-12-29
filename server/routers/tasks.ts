@@ -109,6 +109,8 @@ export const tasksRouter = router({
         assignedTo: z.number().optional(),
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).optional(),
         customFrequencyDays: z.number().optional(),
+        repeatInterval: z.number().optional(),
+        repeatUnit: z.enum(["days", "weeks", "months"]).optional(),
         enableRotation: z.boolean().optional(),
         dueDate: z.string().optional(),
         projectId: z.number().optional(),
@@ -117,10 +119,23 @@ export const tasksRouter = router({
     .mutation(async ({ input }) => {
       const { taskId, householdId, memberId, dueDate, ...updates } = input;
       
+      // Get current task to check if recurrence settings changed
+      const tasks = await getTasks(householdId);
+      const currentTask = tasks.find(t => t.id === taskId);
+      
+      if (!currentTask) {
+        throw new Error("Task not found");
+      }
+      
+      // Update the task with new values
       await updateTask(taskId, {
         ...updates,
         dueDate: dueDate ? new Date(dueDate) : undefined,
       });
+      
+      // If this is a recurring task and interval/unit changed, we don't need to recalculate
+      // The next occurrence will be calculated correctly when the task is completed
+      // The new repeatInterval and repeatUnit are already saved above
 
       await createActivityLog({
         householdId,

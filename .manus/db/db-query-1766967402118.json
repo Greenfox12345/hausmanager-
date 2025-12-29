@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, repeatInterval, repeatUnit, frequency FROM tasks WHERE name = 'Test Aufgabe für Dialog' LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, repeatInterval, repeatUnit, frequency FROM tasks WHERE name = 'Test Aufgabe für Dialog' LIMIT 1",
+  "rows": [
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "repeatInterval": "3",
+      "repeatUnit": "days",
+      "frequency": "custom"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trepeatInterval\trepeatUnit\tfrequency\n600005\tTest Aufgabe für Dialog\t3\tdays\tcustom\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}
