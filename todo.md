@@ -528,3 +528,10 @@
 - [x] Fix action buttons (Abschließen, Zwischenziel, Erinnern) opening detail dialog
 - [x] Add stopPropagation to all action button click handlers (Complete, Milestone, Reminder, Delete)
 - [ ] Test all action buttons (needs user testing)
+
+## Dialog Auto-Close and Summary Issues (URGENT)
+- [x] Fix CompleteTaskDialog auto-closing after opening (removed modal={false})
+- [x] Fix MilestoneDialog auto-closing after opening (removed modal={false})
+- [x] Add task summary (name, description) to CompleteTaskDialog
+- [x] Add task summary (name, description) to MilestoneDialog
+- [ ] Test both dialogs stay open and show summary (needs user testing)

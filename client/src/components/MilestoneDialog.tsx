@@ -65,7 +65,7 @@ export function MilestoneDialog({
   if (!task) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -78,8 +78,22 @@ export function MilestoneDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Task Summary */}
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <div>
+              <Label className="text-xs text-muted-foreground">Aufgabe</Label>
+              <p className="font-medium">{task.name}</p>
+            </div>
+            {task.description && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Beschreibung</Label>
+                <p className="text-sm text-muted-foreground">{task.description}</p>
+              </div>
+            )}
+          </div>
+
           {/* Task details */}
-          {task.description && (
+          {false && task.description && (
             <div className="space-y-2">
               <Label>Aufgabenbeschreibung:</Label>
               <div className="text-sm text-muted-foreground border rounded-lg p-3">
