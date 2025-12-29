@@ -468,3 +468,10 @@
 - [ ] Pre-select rotation checkbox when editing rotation tasks
 - [ ] Pre-select project checkbox when editing project tasks
 - [ ] Test all features on both /tasks and /calendar pages
+
+## Task Detail Dialog - Step 2 (Current)
+- [x] Rename "Rotation aktivieren" to "Verantwortung rotieren"
+- [x] Nest "Verantwortung rotieren" under "Wiederholung aktivieren" (only show when repeat is enabled)
+- [x] Implement multi-select for responsible members (replace single select dropdown)
+- [x] Add Checkbox import to fix ReferenceError
+- [x] Test multi-select and nested rotation UI

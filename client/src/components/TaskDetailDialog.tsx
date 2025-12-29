@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, Repeat, Users, Edit, X, Check } from "lucide-react";
@@ -54,6 +55,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
+  const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
+
+  const toggleAssignee = (memberId: number) => {
+    setSelectedAssignees(prev =>
+      prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
+  };
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [frequency, setFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
@@ -70,6 +80,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setName(task.name || "");
       setDescription(task.description || "");
       setAssignedTo(task.assignedTo || null);
+      setSelectedAssignees(task.assignedTo ? [task.assignedTo] : []);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -126,7 +137,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
 
   const handleSave = () => {
-    if (!task || !household) return;
+    if (!household || !task) return;
+    
+    if (selectedAssignees.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      return;
+    }
 
     const dueDateTimeString = dueDate && dueTime 
       ? `${dueDate}T${dueTime}:00`
@@ -158,7 +174,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       taskId: task.id,
       name: name || undefined,
       description: description || undefined,
-      assignedTo: assignedTo || undefined,
+      assignedTo: selectedAssignees[0] || undefined,
       dueDate: dueDateTimeString || undefined,
       frequency: frequency,
       customFrequencyDays: customFrequencyDays,
@@ -174,6 +190,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setName(task.name || "");
       setDescription(task.description || "");
       setAssignedTo(task.assignedTo || null);
+      setSelectedAssignees(task.assignedTo ? [task.assignedTo] : []);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -273,23 +290,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task-assignee">Verantwortlich</Label>
-                <Select
-                  value={assignedTo?.toString() || "none"}
-                  onValueChange={(value) => setAssignedTo(value === "none" ? null : parseInt(value))}
-                >
-                  <SelectTrigger id="task-assignee">
-                    <SelectValue placeholder="Niemand zugewiesen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Niemand zugewiesen</SelectItem>
-                    {members.map((member) => (
-                      <SelectItem key={member.memberId} value={member.memberId.toString()}>
-                        {member.memberName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Verantwortliche *</Label>
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  {members.map((m) => (
+                    <div key={m.memberId} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <Checkbox
+                        id={`edit-assignee-${m.memberId}`}
+                        checked={selectedAssignees.includes(m.memberId)}
+                        onCheckedChange={() => toggleAssignee(m.memberId)}
+                      />
+                      <Label htmlFor={`edit-assignee-${m.memberId}`} className="cursor-pointer flex-1">
+                        {m.memberName}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {selectedAssignees.length === 0 && (
+                  <p className="text-xs text-destructive">Bitte wählen Sie mindestens einen Verantwortlichen</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -350,31 +368,33 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         </Select>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
 
-              <div className="space-y-4 border-t pt-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="task-rotation">Rotation aktivieren</Label>
-                  <Switch
-                    id="task-rotation"
-                    checked={enableRotation}
-                    onCheckedChange={setEnableRotation}
-                  />
-                </div>
+                    {/* Rotation checkbox - nested under repeat */}
+                    <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
+                      <Switch
+                        id="enableRotation"
+                        checked={enableRotation}
+                        onCheckedChange={(checked) => setEnableRotation(checked)}
+                      />
+                      <Label htmlFor="enableRotation" className="cursor-pointer flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Verantwortung rotieren
+                      </Label>
+                    </div>
 
-                {enableRotation && (
-                  <div className="space-y-2 pl-4">
-                    <Label htmlFor="required-persons">Benötigte Personen</Label>
-                    <Input
-                      id="required-persons"
-                      type="number"
-                      min="1"
-                      max={members.length}
-                      value={requiredPersons}
-                      onChange={(e) => setRequiredPersons(parseInt(e.target.value) || 1)}
-                    />
+                    {enableRotation && (
+                      <div className="space-y-2">
+                        <Label htmlFor="required-persons">Anzahl Personen pro Durchgang</Label>
+                        <Input
+                          id="required-persons"
+                          type="number"
+                          min="1"
+                          max={members.length}
+                          value={requiredPersons}
+                          onChange={(e) => setRequiredPersons(parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
