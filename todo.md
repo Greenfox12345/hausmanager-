@@ -486,3 +486,14 @@
 
 ## Visual Edits
 - [x] Remove numbering from next occurrences display in TaskDetailDialog
+
+## Task Detail Dialog - Project Features (Current)
+- [x] Add "Projektaufgabe" checkbox to TaskDetailDialog
+- [x] Show project assignment dropdown when checkbox is enabled
+- [x] Add prerequisites (Voraussetzungen) selection
+- [x] Add follow-up tasks (Folgeaufgaben) selection
+- [x] Implement automatic pre-selection when editing project tasks
+- [x] Update backend mutation to handle project-related fields
+- [x] Fix state declaration order (isProjectTask before queries)
+- [x] Remove duplicate state declarations
+- [x] Test project features in both view and edit modes

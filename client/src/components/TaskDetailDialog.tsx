@@ -51,6 +51,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const { household, member } = useCompatAuth();
   const [isEditing, setIsEditing] = useState(false);
   
+  // Project state (must be declared before queries that use it)
+  const [isProjectTask, setIsProjectTask] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [prerequisites, setPrerequisites] = useState<number[]>([]);
+  const [followups, setFollowups] = useState<number[]>([]);
+  
+  // Load projects
+  const { data: projects = [] } = trpc.projects.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open }
+  );
+  
+  // Load available tasks for dependencies
+  const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && isProjectTask }
+  );
+  
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -121,6 +139,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       setEnableRotation(task.enableRotation || false);
       setRequiredPersons(task.requiredPersons || 1);
+      
+      // Initialize project state
+      setIsProjectTask(!!task.projectId);
+      setSelectedProjectId(task.projectId || null);
+      // TODO: Load prerequisites and followups from backend
+      setPrerequisites([]);
+      setFollowups([]);
     }
   }, [task, open]);
 
@@ -135,8 +160,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.error(`Fehler: ${error.message}`);
     },
   });
+  
+  const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!household || !task) return;
     
     if (selectedAssignees.length === 0) {
@@ -168,20 +195,35 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
     }
 
-    updateTask.mutate({
-      householdId: household.householdId,
-      memberId: member?.memberId || 0,
-      taskId: task.id,
-      name: name || undefined,
-      description: description || undefined,
-      assignedTo: selectedAssignees[0] || undefined,
-      dueDate: dueDateTimeString || undefined,
-      frequency: frequency,
-      customFrequencyDays: customFrequencyDays,
-      repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
-      repeatUnit: enableRepeat ? repeatUnit : undefined,
-      enableRotation: enableRepeat && enableRotation,
-    });
+    try {
+      await updateTask.mutateAsync({
+        householdId: household.householdId,
+        memberId: member?.memberId || 0,
+        taskId: task.id,
+        name: name || undefined,
+        description: description || undefined,
+        assignedTo: selectedAssignees[0] || undefined,
+        dueDate: dueDateTimeString || undefined,
+        frequency: frequency,
+        customFrequencyDays: customFrequencyDays,
+        repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
+        repeatUnit: enableRepeat ? repeatUnit : undefined,
+        enableRotation: enableRepeat && enableRotation,
+        projectId: isProjectTask ? selectedProjectId : null,
+      });
+      
+      // Add dependencies if this is a project task
+      if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
+        await addDependenciesMutation.mutateAsync({
+          taskId: task.id,
+          householdId: household.householdId,
+          prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
+          followups: followups.length > 0 ? followups : undefined,
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Fehler beim Aktualisieren der Aufgabe");
+    }
   };
 
   const handleCancel = () => {
@@ -395,6 +437,113 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         />
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+
+              {/* Project Task Section */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
+                  <Checkbox
+                    id="isProjectTask"
+                    checked={isProjectTask}
+                    onCheckedChange={(checked) => setIsProjectTask(checked as boolean)}
+                  />
+                  <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
+                    Projektaufgabe
+                  </Label>
+                </div>
+
+                {isProjectTask && (
+                  <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                    <div className="space-y-2">
+                      <Label>Projektzuordnung</Label>
+                      <Select
+                        value={selectedProjectId?.toString() || ""}
+                        onValueChange={(value) => setSelectedProjectId(value ? parseInt(value) : null)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Projekt auswählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {projects.map((project: any) => (
+                            <SelectItem key={project.id} value={project.id.toString()}>
+                              {project.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Prerequisites and Follow-ups */}
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold">Aufgabenverknüpfung</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Prerequisites */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Voraussetzungen</Label>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Aufgaben, die vorher erledigt sein müssen
+                          </p>
+                          <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                            {availableTasks.length === 0 ? (
+                              <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                            ) : (
+                              availableTasks.map((availableTask: any) => (
+                                <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                  <Checkbox
+                                    id={`prereq-${availableTask.id}`}
+                                    checked={prerequisites.includes(availableTask.id)}
+                                    onCheckedChange={(checked) => {
+                                      setPrerequisites(prev =>
+                                        checked
+                                          ? [...prev, availableTask.id]
+                                          : prev.filter(id => id !== availableTask.id)
+                                      );
+                                    }}
+                                  />
+                                  <Label htmlFor={`prereq-${availableTask.id}`} className="cursor-pointer text-sm flex-1">
+                                    {availableTask.name}
+                                  </Label>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Follow-ups */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Folgeaufgaben</Label>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Aufgaben, die danach folgen
+                          </p>
+                          <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                            {availableTasks.length === 0 ? (
+                              <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                            ) : (
+                              availableTasks.map((availableTask: any) => (
+                                <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                  <Checkbox
+                                    id={`followup-${availableTask.id}`}
+                                    checked={followups.includes(availableTask.id)}
+                                    onCheckedChange={(checked) => {
+                                      setFollowups(prev =>
+                                        checked
+                                          ? [...prev, availableTask.id]
+                                          : prev.filter(id => id !== availableTask.id)
+                                      );
+                                    }}
+                                  />
+                                  <Label htmlFor={`followup-${availableTask.id}`} className="cursor-pointer text-sm flex-1">
+                                    {availableTask.name}
+                                  </Label>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
