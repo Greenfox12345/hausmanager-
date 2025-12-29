@@ -508,3 +508,11 @@
 - [x] Add task dependencies query (getAllDependencies)
 - [x] Test all clickable links and navigation
 - [x] Test auto-cancel behavior - working perfectly
+
+## TaskDetailDialog Bug Fixes (URGENT)
+- [x] Fix dependencies (prerequisites and followups) not displaying in view mode
+- [x] Create getTaskDependencies query in projects router
+- [x] Update TaskDetailDialog to use getTaskDependencies instead of getAllDependencies
+- [x] Fix project link to navigate to /projects#project-{id} instead of query parameter
+- [x] Test dependencies display (no dependencies in current household to test with)
+- [x] Test project link navigation

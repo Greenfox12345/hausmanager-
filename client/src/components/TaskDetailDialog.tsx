@@ -70,9 +70,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
   
   // Load task dependencies
-  const { data: taskDependencies } = trpc.projects.getAllDependencies.useQuery(
+  const { data: taskDependencies } = trpc.projects.getTaskDependencies.useQuery(
     { taskId: task?.id ?? 0 },
-    { enabled: !!task && open }
+    { enabled: !!task?.id }
   );
   
   // Form state
@@ -658,7 +658,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         className="h-auto p-0 text-sm"
                         onClick={() => {
                           onOpenChange(false);
-                          window.location.href = `/projects?id=${task.projectId}`;
+                          // Navigate to projects page - the page will need to handle opening the project
+                          // For now, just navigate to the projects page
+                          window.location.href = `/projects#project-${task.projectId}`;
                         }}
                       >
                         → {projects.find(p => p.id === task.projectId)?.name}

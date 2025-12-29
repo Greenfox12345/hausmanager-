@@ -185,6 +185,39 @@ export const projectsRouter = router({
 
       return deps;
     }),
+  
+  // Get dependencies for a specific task
+  getTaskDependencies: protectedProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get prerequisites (tasks that must be completed before this task)
+      const prerequisiteDeps = await db
+        .select({
+          id: tasks.id,
+          name: tasks.name,
+        })
+        .from(taskDependencies)
+        .innerJoin(tasks, eq(taskDependencies.dependsOnTaskId, tasks.id))
+        .where(eq(taskDependencies.taskId, input.taskId));
+
+      // Get followups (tasks that depend on this task)
+      const followupDeps = await db
+        .select({
+          id: tasks.id,
+          name: tasks.name,
+        })
+        .from(taskDependencies)
+        .innerJoin(tasks, eq(taskDependencies.taskId, tasks.id))
+        .where(eq(taskDependencies.dependsOnTaskId, input.taskId));
+
+      return {
+        prerequisites: prerequisiteDeps,
+        followups: followupDeps,
+      };
+    }),
 
   // Add household to project (multi-household collaboration)
   addHouseholdToProject: protectedProcedure

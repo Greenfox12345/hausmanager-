@@ -1,0 +1,9 @@
+{
+  "query": "SELECT t.id, t.name, COUNT(td.id) as dep_count \nFROM tasks t \nLEFT JOIN task_dependencies td ON t.id = td.taskId \nWHERE t.householdId = (SELECT id FROM households WHERE name = 'Test Invite Code')\nGROUP BY t.id, t.name\nHAVING dep_count > 0\nLIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT t.id, t.name, COUNT(td.id) as dep_count \nFROM tasks t \nLEFT JOIN task_dependencies td ON t.id = td.taskId \nWHERE t.householdId = (SELECT id FROM households WHERE name = 'Test Invite Code')\nGROUP BY t.id, t.name\nHAVING dep_count > 0\nLIMIT 5",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 63
+}

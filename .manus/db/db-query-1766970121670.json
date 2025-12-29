@@ -1,0 +1,80 @@
+{
+  "query": "SELECT * FROM task_dependencies LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT * FROM task_dependencies LIMIT 10",
+  "rows": [
+    {
+      "id": "390001",
+      "taskId": "600004",
+      "dependsOnTaskId": "600001",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-28 23:38:11"
+    },
+    {
+      "id": "390002",
+      "taskId": "600003",
+      "dependsOnTaskId": "600004",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-28 23:38:11"
+    },
+    {
+      "id": "390003",
+      "taskId": "600003",
+      "dependsOnTaskId": "600004",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:36:07"
+    },
+    {
+      "id": "390004",
+      "taskId": "600003",
+      "dependsOnTaskId": "600003",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:36:07"
+    },
+    {
+      "id": "390005",
+      "taskId": "600001",
+      "dependsOnTaskId": "600003",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-29 00:36:07"
+    },
+    {
+      "id": "390006",
+      "taskId": "600003",
+      "dependsOnTaskId": "600004",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:36:13"
+    },
+    {
+      "id": "390007",
+      "taskId": "600003",
+      "dependsOnTaskId": "600003",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:36:13"
+    },
+    {
+      "id": "390008",
+      "taskId": "600001",
+      "dependsOnTaskId": "600003",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-29 00:36:13"
+    },
+    {
+      "id": "390009",
+      "taskId": "600003",
+      "dependsOnTaskId": "600004",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:37:06"
+    },
+    {
+      "id": "390010",
+      "taskId": "600003",
+      "dependsOnTaskId": "600003",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-29 00:37:06"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\tdependsOnTaskId\tdependencyType\tcreatedAt\n390001\t600004\t600001\tprerequisite\t2025-12-28 23:38:11\n390002\t600003\t600004\tfollowup\t2025-12-28 23:38:11\n390003\t600003\t600004\tprerequisite\t2025-12-29 00:36:07\n390004\t600003\t600003\tprerequisite\t2025-12-29 00:36:07\n390005\t600001\t600003\tfollowup\t2025-12-29 00:36:07\n390006\t600003\t600004\tprerequisite\t2025-12-29 00:36:13\n390007\t600003\t600003\tprerequisite\t2025-12-29 00:36:13\n390008\t600001\t600003\tfollowup\t2025-12-29 00:36:13\n390009\t600003\t600004\tprerequisite\t2025-12-29 00:37:06\n390010\t600003\t600003\tprerequisite\t2025-12-29 00:37:06\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}
