@@ -69,6 +69,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!household && open && isProjectTask }
   );
   
+  // Load task dependencies
+  const { data: taskDependencies } = trpc.projects.getAllDependencies.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task && open }
+  );
+  
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -91,7 +97,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
+  const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
 
+  // Reset edit mode when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setIsEditing(false);
+    }
+  }, [open]);
+  
   // Load task data when dialog opens or task changes
   useEffect(() => {
     if (task && open) {
@@ -209,6 +223,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
         repeatUnit: enableRepeat ? repeatUnit : undefined,
         enableRotation: enableRepeat && enableRotation,
+        requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
+        excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
         projectId: isProjectTask ? selectedProjectId : null,
       });
       
@@ -425,16 +441,45 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     </div>
 
                     {enableRotation && (
-                      <div className="space-y-2">
-                        <Label htmlFor="required-persons">Anzahl Personen pro Durchgang</Label>
-                        <Input
-                          id="required-persons"
-                          type="number"
-                          min="1"
-                          max={members.length}
-                          value={requiredPersons}
-                          onChange={(e) => setRequiredPersons(parseInt(e.target.value) || 1)}
-                        />
+                      <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                        <div className="space-y-2">
+                          <Label htmlFor="required-persons">Anzahl Personen pro Durchgang</Label>
+                          <Input
+                            id="required-persons"
+                            type="number"
+                            min="1"
+                            max={members.length}
+                            value={requiredPersons}
+                            onChange={(e) => setRequiredPersons(parseInt(e.target.value) || 1)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Freistellen</Label>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Mitglieder, die von der Rotation ausgeschlossen werden
+                          </p>
+                          <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                            {members.map((m) => (
+                              <div key={m.memberId} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                <Checkbox
+                                  id={`exclude-${m.memberId}`}
+                                  checked={excludedMembers.includes(m.memberId)}
+                                  onCheckedChange={(checked) => {
+                                    setExcludedMembers(prev =>
+                                      checked
+                                        ? [...prev, m.memberId]
+                                        : prev.filter(id => id !== m.memberId)
+                                    );
+                                  }}
+                                />
+                                <Label htmlFor={`exclude-${m.memberId}`} className="cursor-pointer text-sm flex-1">
+                                  {m.memberName}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -606,6 +651,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {task.projectId && (
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">Projektaufgabe</Badge>
+                    {projects.find(p => p.id === task.projectId) && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-sm"
+                        onClick={() => {
+                          onOpenChange(false);
+                          window.location.href = `/projects?id=${task.projectId}`;
+                        }}
+                      >
+                        → {projects.find(p => p.id === task.projectId)?.name}
+                      </Button>
+                    )}
                   </div>
                 )}
 
@@ -633,6 +691,71 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+                
+                {/* Dependencies */}
+                {taskDependencies && (taskDependencies.prerequisites.length > 0 || taskDependencies.followups.length > 0) && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3">Aufgabenverknüpfungen</h4>
+                    
+                    {taskDependencies.prerequisites.length > 0 && (
+                      <div className="mb-3">
+                        <Label className="text-xs text-muted-foreground">Voraussetzungen</Label>
+                        <div className="space-y-1 mt-1">
+                          {taskDependencies.prerequisites.map((prereq: any) => (
+                            <Button
+                              key={prereq.id}
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto py-1 px-2 text-xs justify-start w-full"
+                              onClick={() => {
+                                onOpenChange(false);
+                                // Re-open dialog with the prerequisite task
+                                setTimeout(() => {
+                                  const prereqTask = availableTasks.find((t: any) => t.id === prereq.id);
+                                  if (prereqTask) {
+                                    onOpenChange(true);
+                                    // This will need to be handled by parent component
+                                  }
+                                }, 100);
+                              }}
+                            >
+                              → {prereq.name}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {taskDependencies.followups.length > 0 && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Folgeaufgaben</Label>
+                        <div className="space-y-1 mt-1">
+                          {taskDependencies.followups.map((followup: any) => (
+                            <Button
+                              key={followup.id}
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto py-1 px-2 text-xs justify-start w-full"
+                              onClick={() => {
+                                onOpenChange(false);
+                                // Re-open dialog with the followup task
+                                setTimeout(() => {
+                                  const followupTask = availableTasks.find((t: any) => t.id === followup.id);
+                                  if (followupTask) {
+                                    onOpenChange(true);
+                                    // This will need to be handled by parent component
+                                  }
+                                }, 100);
+                              }}
+                            >
+                              → {followup.name}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

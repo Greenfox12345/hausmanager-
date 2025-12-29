@@ -497,3 +497,14 @@
 - [x] Fix state declaration order (isProjectTask before queries)
 - [x] Remove duplicate state declarations
 - [x] Test project features in both view and edit modes
+
+## TaskDetailDialog Enhancements (Current)
+- [x] Add rotation exclusion (Freistellen) member selection in edit mode
+- [x] Make prerequisites clickable to open their task details
+- [x] Make followups clickable to open their task details
+- [x] Make project name clickable to navigate to project page
+- [x] Implement auto-cancel edit mode when dialog closes
+- [x] Add excludedMembers and requiredPersons to backend update mutation
+- [x] Add task dependencies query (getAllDependencies)
+- [x] Test all clickable links and navigation
+- [x] Test auto-cancel behavior - working perfectly

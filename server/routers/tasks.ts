@@ -112,6 +112,8 @@ export const tasksRouter = router({
         repeatInterval: z.number().optional(),
         repeatUnit: z.enum(["days", "weeks", "months"]).optional(),
         enableRotation: z.boolean().optional(),
+        requiredPersons: z.number().optional(),
+        excludedMembers: z.array(z.number()).optional(),
         dueDate: z.string().optional(),
         projectId: z.number().optional(),
       })
