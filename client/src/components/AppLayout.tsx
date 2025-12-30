@@ -38,7 +38,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
-  const { currentHousehold, logout: userLogout } = useUserAuth();
+  const { user, currentHousehold, logout: userLogout } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Use new user-based auth system
@@ -51,8 +51,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   // Query user's households for switcher
   const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
-    undefined,
-    { enabled: !!currentHousehold } // Only load when user is logged in
+    { userId: user?.id },
+    { enabled: !!user?.id } // Only load when user is logged in
   );
 
   // Mutation to switch household
@@ -155,10 +155,45 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold">Haushaltsmanager</h2>
           <NotificationBell />
         </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              disabled={switchHouseholdMutation.isPending}
+            >
+              <span className="text-sm font-medium truncate">
+                {household?.householdName || "Haushalt wählen"}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[280px]" align="start">
+            <DropdownMenuLabel>Haushalt wechseln</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {userHouseholds.map((h) => (
+              <DropdownMenuItem
+                key={h.householdId}
+                onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center gap-2 w-full">
+                  {household?.householdId === h.householdId && (
+                    <Check className="h-4 w-4" />
+                  )}
+                  <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
+                    {h.householdName}
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

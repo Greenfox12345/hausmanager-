@@ -564,3 +564,11 @@
 - [x] Add "Profil" link in sidebar that navigates to /household-selection
 - [x] Ensure user stays authenticated when navigating to household selection
 - [ ] Test complete flow: switch household from header, navigate via Profil link (ready for user testing)
+
+## Household Dropdown Bugs (URGENT)
+- [x] Fix household dropdown - no households shown, only "Haushalt wechseln" label
+- [x] Investigate listUserHouseholds query - not loading data correctly
+- [x] Fixed by passing userId: user?.id to listUserHouseholds query
+- [x] Add household switcher dropdown to desktop sidebar (currently only in mobile header)
+- [x] Desktop sidebar should show dropdown under "Haushaltsmanager" title
+- [ ] Test dropdown on both mobile and desktop layouts (ready for user testing)
