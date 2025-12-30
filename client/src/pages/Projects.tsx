@@ -606,20 +606,20 @@ export default function Projects() {
                 {/* Project Header */}
                 <Card className="shadow-md">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="flex items-center gap-2">
-                          <FolderKanban className="h-5 w-5 text-primary" />
-                          {selectedProject.name}
-                        </CardTitle>
-                        {selectedProject.description && (
-                          <CardDescription className="mt-2">
-                            {selectedProject.description}
-                          </CardDescription>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {/* First row: Task buttons and Archive */}
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <FolderKanban className="h-5 w-5 text-primary" />
+                        {selectedProject.name}
+                      </CardTitle>
+                      {selectedProject.description && (
+                        <CardDescription className="mt-2">
+                          {selectedProject.description}
+                        </CardDescription>
+                      )}
+                      
+                      {/* Button rows below project name */}
+                      <div className="flex flex-col gap-2 mt-4">
+                        {/* First row: Task buttons */}
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
@@ -637,35 +637,8 @@ export default function Projects() {
                             <Plus className="h-4 w-4 mr-1" />
                             Bestehende zuordnen
                           </Button>
-                          {selectedProject.status === "completed" && !selectedProject.isArchived && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                if (confirm("Möchten Sie dieses Projekt archivieren?")) {
-                                  archiveProjectMutation.mutate({ id: selectedProject.id });
-                                }
-                              }}
-                              title="Archivieren"
-                            >
-                              <Archive className="h-4 w-4 mr-1" />
-                              Archivieren
-                            </Button>
-                          )}
-                          {selectedProject.isArchived && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                unarchiveProjectMutation.mutate({ id: selectedProject.id });
-                              }}
-                              title="Wiederherstellen"
-                            >
-                              <CheckCircle2 className="h-4 w-4 mr-1" />
-                              Wiederherstellen
-                            </Button>
-                          )}
                         </div>
+                        
                         {/* Second row: Edit and Delete */}
                         <div className="flex items-center gap-2">
                           <Button
@@ -698,6 +671,40 @@ export default function Projects() {
                             Löschen
                           </Button>
                         </div>
+                        
+                        {/* Third row: Archive/Restore */}
+                        {(selectedProject.status === "completed" && !selectedProject.isArchived) && (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm("Möchten Sie dieses Projekt archivieren?")) {
+                                  archiveProjectMutation.mutate({ id: selectedProject.id });
+                                }
+                              }}
+                              title="Archivieren"
+                            >
+                              <Archive className="h-4 w-4 mr-1" />
+                              Archivieren
+                            </Button>
+                          </div>
+                        )}
+                        {selectedProject.isArchived && (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                unarchiveProjectMutation.mutate({ id: selectedProject.id });
+                              }}
+                              title="Wiederherstellen"
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              Wiederherstellen
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-4 flex-wrap">

@@ -626,3 +626,10 @@
 - [x] Second row: Edit and Delete buttons
 - [x] Archive button only visible for completed, non-archived projects
 - [x] Restore button only visible for archived projects
+
+## Project Detail Button Layout Change
+- [x] Move buttons from header to below project name
+- [x] First row: Task buttons (Neue Aufgabe, Bestehende zuordnen)
+- [x] Second row: Project management (Bearbeiten, Löschen)
+- [x] Third row: Archive/Restore button
+- [x] Buttons now flow vertically below project title and description
