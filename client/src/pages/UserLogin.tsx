@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Home } from "lucide-react";
 
 export default function UserLogin() {
   const [, setLocation] = useLocation();
+  const { login } = useUserAuth();
 
   
   const [formData, setFormData] = useState({
@@ -19,8 +21,8 @@ export default function UserLogin() {
 
   const loginMutation = trpc.userAuth.login.useMutation({
     onSuccess: (data) => {
-      // Store JWT token
-      localStorage.setItem("auth_token", data.token);
+      // Update auth context with token
+      login(data.token);
       
       toast.success(`Willkommen zurück, ${data.user.name}!`);
       

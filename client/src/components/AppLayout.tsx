@@ -26,7 +26,8 @@ import {
   ChevronRight,
   ChevronsUpDown,
   Check,
-  Calendar
+  Calendar,
+  UserCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -154,53 +155,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Haushaltsmanager</h2>
           <NotificationBell />
         </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              disabled={switchHouseholdMutation.isPending}
-            >
-              <div className="flex flex-col items-start overflow-hidden">
-                <span className="text-sm font-medium truncate w-full">
-                  {household?.householdName}
-                </span>
-                <span className="text-xs text-muted-foreground truncate w-full">
-                  {member?.memberName}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[280px]" align="start">
-            <DropdownMenuLabel>Haushalte wechseln</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {userHouseholds.map((h) => (
-              <DropdownMenuItem
-                key={h.householdId}
-                onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
-                className="cursor-pointer"
-              >
-                <div className="flex items-center gap-2 w-full">
-                  {household?.householdId === h.householdId && (
-                    <Check className="h-4 w-4" />
-                  )}
-                  <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
-                    {h.householdName}
-                  </span>
-                  <span className="text-xs text-muted-foreground ml-auto">
-                    als {h.memberName}
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -229,7 +187,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
         })}
       </nav>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-2">
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-3"
+          onClick={() => {
+            setLocation("/household-selection");
+            setSidebarOpen(false);
+          }}
+        >
+          <UserCircle className="h-4 w-4" />
+          Profil
+        </Button>
         <Button
           variant="outline"
           className="w-full justify-start gap-3"
@@ -258,7 +227,38 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </SheetContent>
           </Sheet>
           
-          <h1 className="text-lg font-bold">Haushaltsmanager</h1>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="text-lg font-bold hover:bg-transparent"
+                disabled={switchHouseholdMutation.isPending}
+              >
+                {household?.householdName || "Haushaltsmanager"}
+                <ChevronsUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-64">
+              <DropdownMenuLabel>Haushalt wechseln</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {userHouseholds.map((h) => (
+                <DropdownMenuItem
+                  key={h.householdId}
+                  onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    {household?.householdId === h.householdId && (
+                      <Check className="h-4 w-4" />
+                    )}
+                    <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
+                      {h.householdName}
+                    </span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           <NotificationBell />
         </div>

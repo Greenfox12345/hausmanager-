@@ -548,3 +548,19 @@
 - [x] Added key={selectedTask?.id} to CompleteTaskDialog
 - [x] Added key={selectedTask?.id} to MilestoneDialog
 - [ ] Test photo upload and duplicate dialog fix (needs user testing)
+
+## Login Redirect Bug After Logout (CRITICAL)
+- [x] Investigate why login succeeds but redirect doesn't work after logout
+- [x] Check authentication state management after login
+- [x] Fix redirect logic to household selection or dashboard
+- [x] Test complete logout → login → redirect flow
+- [x] Fixed by calling login() from UserAuthContext in UserLogin component
+
+## Household Switcher Relocation
+- [x] Move household switcher dropdown from sidebar to header
+- [x] Display current household name in header dropdown
+- [x] Show all user's households in dropdown
+- [x] Remove dropdown from sidebar
+- [x] Add "Profil" link in sidebar that navigates to /household-selection
+- [x] Ensure user stays authenticated when navigating to household selection
+- [ ] Test complete flow: switch household from header, navigate via Profil link (ready for user testing)
