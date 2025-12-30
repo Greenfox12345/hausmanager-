@@ -38,6 +38,7 @@ export default function Projects() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [projectView, setProjectView] = useState<"active" | "archived">("active");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
@@ -129,6 +130,29 @@ export default function Projects() {
     },
   });
 
+  const archiveProjectMutation = trpc.projects.archive.useMutation({
+    onSuccess: () => {
+      toast.success("Projekt erfolgreich archiviert");
+      refetchProjects();
+      if (selectedProjectId) {
+        setSelectedProjectId(null);
+      }
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Archivieren des Projekts: " + error.message);
+    },
+  });
+
+  const unarchiveProjectMutation = trpc.projects.unarchive.useMutation({
+    onSuccess: () => {
+      toast.success("Projekt erfolgreich wiederhergestellt");
+      refetchProjects();
+    },
+    onError: (error) => {
+      toast.error("Fehler beim Wiederherstellen des Projekts: " + error.message);
+    },
+  });
+
   const resetForm = () => {
     setProjectName("");
     setProjectDescription("");
@@ -188,6 +212,12 @@ export default function Projects() {
     setIsNeighborhoodProject(project.isNeighborhoodProject || false);
     setIsEditDialogOpen(true);
   };
+
+  // Filter projects based on archive status
+  const filteredProjects = useMemo(
+    () => projects.filter(p => projectView === "archived" ? p.isArchived : !p.isArchived),
+    [projects, projectView]
+  );
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const projectTasks = useMemo(
@@ -439,13 +469,21 @@ export default function Projects() {
               Projektliste
             </h2>
 
+            {/* Archive Tabs */}
+            <Tabs value={projectView} onValueChange={(v) => setProjectView(v as "active" | "archived")} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="active">Aktiv</TabsTrigger>
+                <TabsTrigger value="archived">Archiv</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             {projectsLoading ? (
               <Card className="shadow-sm">
                 <CardContent className="p-4">
                   <p className="text-sm text-muted-foreground">Lade Projekte...</p>
                 </CardContent>
               </Card>
-            ) : projects.length === 0 ? (
+            ) : filteredProjects.length === 0 ? (
               <Card className="shadow-sm">
                 <CardContent className="p-4">
                   <p className="text-sm text-muted-foreground">
@@ -454,7 +492,7 @@ export default function Projects() {
                 </CardContent>
               </Card>
             ) : (
-              projects.map((project) => {
+              filteredProjects.map((project) => {
                 const projectTaskCount = tasks.filter(t => t.projectId === project.id).length;
                 const completedTaskCount = tasks.filter(t => t.projectId === project.id && t.isCompleted).length;
                 const statusBadge = getStatusBadge(project.status);
@@ -487,28 +525,61 @@ export default function Projects() {
                           </p>
                         </div>
                         <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openEditDialog(project);
-                            }}
-                          >
-                            <Edit2 className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(project.id);
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          {projectView === "active" ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEditDialog(project);
+                                }}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              {project.status === "completed" && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (confirm("Möchten Sie dieses Projekt archivieren?")) {
+                                      archiveProjectMutation.mutate({ id: project.id });
+                                    }
+                                  }}
+                                  title="Archivieren"
+                                >
+                                  <Target className="h-3 w-3" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteProject(project.id);
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                unarchiveProjectMutation.mutate({ id: project.id });
+                              }}
+                              title="Wiederherstellen"
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>

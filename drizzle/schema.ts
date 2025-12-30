@@ -175,6 +175,7 @@ export const projects = mysqlTable("projects", {
   endDate: datetime("endDate"),
   status: mysqlEnum("status", ["planning", "active", "completed", "cancelled"]).default("planning").notNull(),
   isNeighborhoodProject: boolean("isNeighborhoodProject").default(false).notNull(),
+  isArchived: boolean("isArchived").default(false).notNull(),
   createdBy: int("createdBy").notNull().references(() => householdMembers.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

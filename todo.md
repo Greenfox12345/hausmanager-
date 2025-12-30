@@ -607,3 +607,14 @@
 - [x] Moved conditional check to after all hooks, before main return
 - [x] Now shows loading state without violating hooks rules
 - [ ] Test Projects page after fix (ready for user testing)
+
+## Project Archiving Feature
+- [x] Add isArchived boolean field to projects table schema
+- [x] Create archive project backend procedure
+- [x] Create unarchive project backend procedure
+- [x] Update list projects query to filter by isArchived
+- [x] Add "Archiv" tab to Projects page
+- [x] Add archive button for completed projects (only visible for completed status)
+- [x] Add restore button for archived projects
+- [x] Frontend filters projects based on projectView state (active/archived)
+- [ ] Test archiving and restoring projects (ready for user testing)

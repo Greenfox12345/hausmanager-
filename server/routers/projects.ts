@@ -303,4 +303,28 @@ export const projectsRouter = router({
 
       return { success: true };
     }),
+
+  // Archive project
+  archive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(projects).set({ isArchived: true }).where(eq(projects.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Unarchive project
+  unarchive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(projects).set({ isArchived: false }).where(eq(projects.id, input.id));
+
+      return { success: true };
+    }),
 });
