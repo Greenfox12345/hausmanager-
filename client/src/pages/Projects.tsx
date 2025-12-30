@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Clock,
   Target,
+  Archive,
   Calendar as CalendarIcon,
   Users
 } from "lucide-react";
@@ -551,7 +552,7 @@ export default function Projects() {
                                   }}
                                   title="Archivieren"
                                 >
-                                  <Target className="h-3 w-3" />
+                                  <Archive className="h-3 w-3" />
                                 </Button>
                               )}
                               <Button
@@ -617,52 +618,86 @@ export default function Projects() {
                           </CardDescription>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsAddTaskDialogOpen(true)}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Neue Aufgabe
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsAssignTaskDialogOpen(true)}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Bestehende zuordnen
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingProject(selectedProject);
-                            setProjectName(selectedProject.name);
-                            setProjectDescription(selectedProject.description || "");
-                            setProjectStatus(selectedProject.status);
-                            setProjectStartDate(selectedProject.startDate ? format(new Date(selectedProject.startDate), "yyyy-MM-dd") : "");
-                            setProjectEndDate(selectedProject.endDate ? format(new Date(selectedProject.endDate), "yyyy-MM-dd") : "");
-                            setIsNeighborhoodProject(selectedProject.isNeighborhoodProject || false);
-                            setIsEditDialogOpen(true);
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4 mr-1" />
-                          Bearbeiten
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
-                              deleteProjectMutation.mutate({ id: selectedProject.id });
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Löschen
-                        </Button>
+                      <div className="flex flex-col gap-2">
+                        {/* First row: Task buttons and Archive */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsAddTaskDialogOpen(true)}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Neue Aufgabe
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsAssignTaskDialogOpen(true)}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Bestehende zuordnen
+                          </Button>
+                          {selectedProject.status === "completed" && !selectedProject.isArchived && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm("Möchten Sie dieses Projekt archivieren?")) {
+                                  archiveProjectMutation.mutate({ id: selectedProject.id });
+                                }
+                              }}
+                              title="Archivieren"
+                            >
+                              <Archive className="h-4 w-4 mr-1" />
+                              Archivieren
+                            </Button>
+                          )}
+                          {selectedProject.isArchived && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                unarchiveProjectMutation.mutate({ id: selectedProject.id });
+                              }}
+                              title="Wiederherstellen"
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              Wiederherstellen
+                            </Button>
+                          )}
+                        </div>
+                        {/* Second row: Edit and Delete */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingProject(selectedProject);
+                              setProjectName(selectedProject.name);
+                              setProjectDescription(selectedProject.description || "");
+                              setProjectStatus(selectedProject.status);
+                              setProjectStartDate(selectedProject.startDate ? format(new Date(selectedProject.startDate), "yyyy-MM-dd") : "");
+                              setProjectEndDate(selectedProject.endDate ? format(new Date(selectedProject.endDate), "yyyy-MM-dd") : "");
+                              setIsNeighborhoodProject(selectedProject.isNeighborhoodProject || false);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit2 className="h-4 w-4 mr-1" />
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
+                                deleteProjectMutation.mutate({ id: selectedProject.id });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Löschen
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-4 flex-wrap">

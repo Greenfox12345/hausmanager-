@@ -618,3 +618,11 @@
 - [x] Add restore button for archived projects
 - [x] Frontend filters projects based on projectView state (active/archived)
 - [ ] Test archiving and restoring projects (ready for user testing)
+
+## Project UI Improvements
+- [x] Change archive icon from Target to Archive (box icon)
+- [x] Reorganize project detail buttons into two rows
+- [x] First row: Task buttons + Archive/Restore button
+- [x] Second row: Edit and Delete buttons
+- [x] Archive button only visible for completed, non-archived projects
+- [x] Restore button only visible for archived projects
