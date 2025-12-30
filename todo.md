@@ -645,3 +645,17 @@
 - [x] Implemented task mutations and handlers
 - [x] Buttons only visible for incomplete tasks (except delete)
 - [ ] Test task actions on /projects page (ready for user testing)
+
+## Bidirectional Task Dependency Confirmation
+- [x] Create confirmation dialog after clicking "Erstellen" or "Speichern"
+- [x] For each prerequisite: Ask "Möchten Sie [Task A] auch als Folgeaufgabe für [Task B] speichern?"
+- [x] For each followup: Ask "Möchten Sie [Task A] auch als Voraussetzung für [Task B] speichern?"
+- [x] Allow individual Yes/No choice for each linked task
+- [x] Backend procedure to update bidirectional dependencies (updateBidirectionalDependencies)
+- [x] Integrate into Tasks page task creation
+- [x] Integrate into Projects page task creation
+- [x] Created DependencyConfirmationDialog component with checkbox selection
+- [x] Shows visual arrows indicating dependency direction
+- [x] "Auswählte Verknüpfungen erstellen" button shows count
+- [x] "Überspringen" option to skip bidirectional linking
+- [ ] Test bidirectional linking with multiple dependencies (ready for user testing)

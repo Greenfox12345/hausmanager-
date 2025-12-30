@@ -38,6 +38,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { DependencyConfirmationDialog } from "@/components/DependencyConfirmationDialog";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
@@ -53,6 +54,8 @@ export default function Projects() {
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [dependencyConfirmOpen, setDependencyConfirmOpen] = useState(false);
+  const [pendingTaskData, setPendingTaskData] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [selectedExistingTasks, setSelectedExistingTasks] = useState<number[]>([]);
 
@@ -163,6 +166,17 @@ export default function Projects() {
 
   // Task mutations
   const utils = trpc.useUtils();
+  
+  const updateBidirectionalDependenciesMutation = trpc.projects.updateBidirectionalDependencies.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      utils.projects.getAllDependencies.invalidate();
+      toast.success("Bidirektionale Verknüpfungen erstellt");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
   
   const completeTaskMutation = trpc.tasks.complete.useMutation({
     onSuccess: () => {
@@ -383,6 +397,36 @@ export default function Projects() {
           prerequisites: taskPrerequisites.length > 0 ? taskPrerequisites : undefined,
           followups: taskFollowups.length > 0 ? taskFollowups : undefined,
         });
+
+        // Prepare dependency links for confirmation dialog
+        const dependencyLinks = [
+          ...taskPrerequisites.map((taskId) => {
+            const task = tasks.find((t) => t.id === taskId);
+            return {
+              taskId,
+              taskName: task?.name || `Aufgabe ${taskId}`,
+              type: "prerequisite" as const,
+            };
+          }),
+          ...taskFollowups.map((taskId) => {
+            const task = tasks.find((t) => t.id === taskId);
+            return {
+              taskId,
+              taskName: task?.name || `Aufgabe ${taskId}`,
+              type: "followup" as const,
+            };
+          }),
+        ];
+
+        // Show confirmation dialog if there are dependencies
+        if (dependencyLinks.length > 0) {
+          setPendingTaskData({
+            taskId: result.id,
+            taskName: taskName.trim(),
+            dependencies: dependencyLinks,
+          });
+          setDependencyConfirmOpen(true);
+        }
       }
     } catch (error) {
       console.error("Error adding task:", error);
@@ -1497,6 +1541,23 @@ export default function Projects() {
               message: data.message,
             });
           }
+        }}
+      />
+
+      <DependencyConfirmationDialog
+        open={dependencyConfirmOpen}
+        onOpenChange={setDependencyConfirmOpen}
+        currentTaskName={pendingTaskData?.taskName || ""}
+        dependencies={pendingTaskData?.dependencies || []}
+        onConfirm={(selectedDependencies) => {
+          if (selectedDependencies.length > 0 && pendingTaskData) {
+            updateBidirectionalDependenciesMutation.mutate({
+              householdId: household!.householdId,
+              currentTaskId: pendingTaskData.taskId,
+              dependencies: selectedDependencies,
+            });
+          }
+          setPendingTaskData(null);
         }}
       />
     </AppLayout>

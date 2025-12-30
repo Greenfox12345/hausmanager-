@@ -327,4 +327,54 @@ export const projectsRouter = router({
 
       return { success: true };
     }),
+
+  // Update bidirectional dependencies
+  updateBidirectionalDependencies: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        dependencies: z.array(
+          z.object({
+            taskId: z.number(),
+            type: z.enum(["prerequisite", "followup"]),
+          })
+        ),
+        currentTaskId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Validate all tasks belong to household
+      const allTaskIds = [input.currentTaskId, ...input.dependencies.map((d) => d.taskId)];
+      const taskRecords = await db.select().from(tasks).where(inArray(tasks.id, allTaskIds));
+      
+      if (taskRecords.some((t) => t.householdId !== input.householdId)) {
+        throw new Error("Unauthorized: Some tasks do not belong to your household");
+      }
+
+      // Add bidirectional dependencies
+      for (const dep of input.dependencies) {
+        if (dep.type === "prerequisite") {
+          // Current task has dep.taskId as prerequisite
+          // So dep.taskId should have current task as followup
+          await db.insert(taskDependencies).values({
+            taskId: dep.taskId,
+            dependsOnTaskId: input.currentTaskId,
+            dependencyType: "followup",
+          });
+        } else {
+          // Current task has dep.taskId as followup
+          // So dep.taskId should have current task as prerequisite
+          await db.insert(taskDependencies).values({
+            taskId: dep.taskId,
+            dependsOnTaskId: input.currentTaskId,
+            dependencyType: "prerequisite",
+          });
+        }
+      }
+
+      return { success: true };
+    }),
 });
