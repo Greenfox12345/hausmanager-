@@ -38,7 +38,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
-  const { user, currentHousehold, logout: userLogout } = useUserAuth();
+  const { user, currentHousehold, logout: userLogout, setCurrentHousehold } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Use new user-based auth system
@@ -56,23 +56,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   );
 
   // Mutation to switch household
-  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation({
-    onSuccess: (data) => {
-      // Update localStorage with new household
-      localStorage.setItem('current_household', JSON.stringify({
-        householdId: data.householdId,
-        householdName: data.householdName,
-        memberId: data.memberId,
-        memberName: data.memberName,
-      }));
-      toast.success(`Zu "${data.householdName}" gewechselt`);
-      // Reload page to refresh all data
-      window.location.reload();
-    },
-    onError: (error) => {
-      toast.error(`Fehler beim Wechseln: ${error.message}`);
-    },
-  });
+  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
 
   const navigationItems = [
     {
@@ -134,19 +118,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
     try {
       const result = await switchHouseholdMutation.mutateAsync({ householdId });
       
-      // Update localStorage with new household data
+      // Update UserAuthContext with new household data
       const newHouseholdData = {
         householdId: result.householdId,
         householdName: result.householdName,
         memberId: result.memberId,
         memberName: result.memberName,
+        inviteCode: result.inviteCode,
       };
-      localStorage.setItem('current_household', JSON.stringify(newHouseholdData));
+      setCurrentHousehold(newHouseholdData);
       
       toast.success(`Zu Haushalt "${householdName}" gewechselt`);
       
-      // Reload page to apply changes
-      window.location.href = "/";
+      // Reload current page to refresh data
+      window.location.reload();
     } catch (error: any) {
       toast.error(error.message || "Wechsel fehlgeschlagen");
     }

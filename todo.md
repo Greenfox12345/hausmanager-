@@ -572,3 +572,11 @@
 - [x] Add household switcher dropdown to desktop sidebar (currently only in mobile header)
 - [x] Desktop sidebar should show dropdown under "Haushaltsmanager" title
 - [ ] Test dropdown on both mobile and desktop layouts (ready for user testing)
+
+## Household Switcher Redirect Bug (URGENT)
+- [x] Clicking household in dropdown redirects to /login instead of staying on current page
+- [x] Need to update UserAuthContext state before page reload
+- [x] Use setCurrentHousehold from UserAuthContext
+- [x] Fixed by calling setCurrentHousehold() before window.location.reload()
+- [x] Changed from window.location.href = "/" to window.location.reload() to stay on current page
+- [ ] Test switching households from different pages (ready for user testing)
