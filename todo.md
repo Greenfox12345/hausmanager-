@@ -535,3 +535,16 @@
 - [x] Add task summary (name, description) to CompleteTaskDialog
 - [x] Add task summary (name, description) to MilestoneDialog
 - [ ] Test both dialogs stay open and show summary (needs user testing)
+
+## Dialog Overlay Fix - Proper Solution (URGENT)
+- [ ] Add modal={false} back to CompleteTaskDialog
+- [ ] Add modal={false} back to MilestoneDialog
+- [ ] Add onInteractOutside handler to prevent auto-closing
+- [ ] Test photo upload with dialog overlay
+
+## Photo Preview in Dialogs (URGENT)
+- [x] Investigated photo preview - already implemented in PhotoUpload component
+- [x] Fixed duplicate dialog issue by adding key prop to force re-mount
+- [x] Added key={selectedTask?.id} to CompleteTaskDialog
+- [x] Added key={selectedTask?.id} to MilestoneDialog
+- [ ] Test photo upload and duplicate dialog fix (needs user testing)
