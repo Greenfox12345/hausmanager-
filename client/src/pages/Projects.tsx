@@ -129,11 +129,6 @@ export default function Projects() {
     },
   });
 
-  // Auth check removed - causing redirect loops
-  if (!household || !member) {
-    return <div>Loading...</div>;
-  }
-
   const resetForm = () => {
     setProjectName("");
     setProjectDescription("");
@@ -321,6 +316,19 @@ export default function Projects() {
     };
     return statusMap[status as keyof typeof statusMap] || statusMap.planning;
   };
+
+  // Show loading state if household or member not loaded
+  if (!household || !member) {
+    return (
+      <AppLayout>
+        <div className="container py-6 max-w-6xl">
+          <div className="text-center py-12 text-muted-foreground">
+            Lädt Projekte...
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

@@ -598,3 +598,12 @@
 - [x] Updated useAuth hook to use /login as default redirectPath
 - [x] All OAuth references removed from client code
 - [ ] Test all pages to ensure no OAuth redirects occur (ready for user testing)
+
+## Projects Page React Hooks Error (CRITICAL)
+- [x] Error: Rendered more hooks than during the previous render
+- [x] React detected change in order of Hooks called by Projects
+- [x] Line 102 shows undefined -> useMemo (extra hook added)
+- [x] Fixed by removing early return after hooks (line 133-135)
+- [x] Moved conditional check to after all hooks, before main return
+- [x] Now shows loading state without violating hooks rules
+- [ ] Test Projects page after fix (ready for user testing)
