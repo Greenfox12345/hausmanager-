@@ -580,3 +580,10 @@
 - [x] Fixed by calling setCurrentHousehold() before window.location.reload()
 - [x] Changed from window.location.href = "/" to window.location.reload() to stay on current page
 - [ ] Test switching households from different pages (ready for user testing)
+
+## History Page Null Reference Error (CRITICAL)
+- [x] TypeError: Cannot read properties of null (reading 'householdName')
+- [x] Error occurs on /history page
+- [x] Added optional chaining and fallback text for household?.householdName
+- [x] Fixed by using household?.householdName || "Kein Haushalt ausgewählt"
+- [ ] Test History page after fix (ready for user testing)

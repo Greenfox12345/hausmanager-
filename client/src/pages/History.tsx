@@ -94,7 +94,7 @@ export default function History() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Aktivitätsverlauf</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+            <p className="text-muted-foreground">{household?.householdName || "Kein Haushalt ausgewählt"}</p>
           </div>
         </div>
 
