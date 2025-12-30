@@ -633,3 +633,15 @@
 - [x] Second row: Project management (Bearbeiten, Löschen)
 - [x] Third row: Archive/Restore button
 - [x] Buttons now flow vertically below project title and description
+
+## Task Action Buttons on Projects Page
+- [x] Add four action buttons to each task in project task list (same as /tasks)
+- [x] Aufgabe Abschließen (checkmark icon) - mark task as completed
+- [x] Zwischenziel dokumentieren (flag/target icon) - add milestone/intermediate goal
+- [x] Erinnerung senden (bell icon) - send reminder to assigned person
+- [x] Aufgabe löschen (trash icon) - delete task
+- [x] Match button styling and behavior from /tasks page
+- [x] Added CompleteTaskDialog, MilestoneDialog, and ReminderDialog
+- [x] Implemented task mutations and handlers
+- [x] Buttons only visible for incomplete tasks (except delete)
+- [ ] Test task actions on /projects page (ready for user testing)

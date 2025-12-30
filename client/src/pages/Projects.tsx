@@ -25,6 +25,7 @@ import {
   Clock,
   Target,
   Archive,
+  Bell,
   Calendar as CalendarIcon,
   Users
 } from "lucide-react";
@@ -34,6 +35,9 @@ import { toast } from "sonner";
 import GanttChartView from "@/components/GanttChartView";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
+import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
+import { MilestoneDialog } from "@/components/MilestoneDialog";
+import { ReminderDialog } from "@/components/ReminderDialog";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
@@ -46,6 +50,9 @@ export default function Projects() {
   const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false);
   const [isTaskDetailDialogOpen, setIsTaskDetailDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [selectedExistingTasks, setSelectedExistingTasks] = useState<number[]>([]);
 
@@ -153,6 +160,72 @@ export default function Projects() {
       toast.error("Fehler beim Wiederherstellen des Projekts: " + error.message);
     },
   });
+
+  // Task mutations
+  const utils = trpc.useUtils();
+  
+  const completeTaskMutation = trpc.tasks.complete.useMutation({
+    onSuccess: () => {
+      toast.success("Aufgabe erfolgreich abgeschlossen!");
+      utils.tasks.list.invalidate();
+      setCompleteDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const milestoneMutation = trpc.tasks.addMilestone.useMutation({
+    onSuccess: () => {
+      toast.success("Zwischensieg gespeichert!");
+      utils.tasks.list.invalidate();
+      setMilestoneDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const reminderMutation = trpc.tasks.sendReminder.useMutation({
+    onSuccess: () => {
+      toast.success("Erinnerung gesendet!");
+      setReminderDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteTaskMutation = trpc.tasks.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Aufgabe erfolgreich gelöscht");
+      utils.tasks.list.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleDeleteTask = (taskId: number) => {
+    if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
+      deleteTaskMutation.mutate({
+        taskId,
+        householdId: household!.householdId,
+        memberId: member!.memberId,
+      });
+    }
+  };
+
+  const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
+    if (!selectedTask) return;
+    await completeTaskMutation.mutateAsync({
+      taskId: selectedTask.id,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
+      comment: data.comment,
+      photoUrls: data.photoUrls,
+    });
+  };
 
   const resetForm = () => {
     setProjectName("");
@@ -816,6 +889,65 @@ export default function Projects() {
                                           )}
                                         </div>
                                       </div>
+                                      
+                                      {/* Task Action Buttons */}
+                                      <div className="flex items-center gap-1">
+                                        {!task.isCompleted && (
+                                          <>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedTask(task);
+                                                setCompleteDialogOpen(true);
+                                              }}
+                                              className="touch-target text-green-600 hover:text-green-600 hover:bg-green-50"
+                                              title="Aufgabe abschließen"
+                                            >
+                                              <CheckCircle2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedTask(task);
+                                                setMilestoneDialogOpen(true);
+                                              }}
+                                              className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+                                              title="Zwischenziel dokumentieren"
+                                            >
+                                              <Target className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedTask(task);
+                                                setReminderDialogOpen(true);
+                                              }}
+                                              className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
+                                              title="Erinnerung senden"
+                                            >
+                                              <Bell className="h-4 w-4" />
+                                            </Button>
+                                          </>
+                                        )}
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteTask(task.id);
+                                          }}
+                                          className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
+                                          title="Aufgabe löschen"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
                                     </div>
                                   </CardContent>
                                 </Card>
@@ -1322,6 +1454,49 @@ export default function Projects() {
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
         onTaskUpdated={() => {
           window.location.reload();
+        }}
+      />
+
+      <CompleteTaskDialog
+        key={selectedTask?.id || 'complete-dialog'}
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        task={selectedTask}
+        onComplete={handleCompleteTask}
+      />
+
+      <MilestoneDialog
+        key={selectedTask?.id || 'milestone-dialog'}
+        open={milestoneDialogOpen}
+        onOpenChange={setMilestoneDialogOpen}
+        task={selectedTask}
+        onSave={(data) => {
+          if (selectedTask) {
+            milestoneMutation.mutate({
+              taskId: selectedTask.id,
+              householdId: household!.householdId,
+              memberId: member!.memberId,
+              description: data.description,
+              photoUrls: data.photoUrls,
+            });
+          }
+        }}
+      />
+
+      <ReminderDialog
+        key={selectedTask?.id || 'reminder-dialog'}
+        open={reminderDialogOpen}
+        onOpenChange={setReminderDialogOpen}
+        task={selectedTask}
+        onSend={(data) => {
+          if (selectedTask) {
+            reminderMutation.mutate({
+              taskId: selectedTask.id,
+              householdId: household!.householdId,
+              memberId: member!.memberId,
+              message: data.message,
+            });
+          }
         }}
       />
     </AppLayout>
