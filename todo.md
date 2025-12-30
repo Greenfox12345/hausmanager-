@@ -587,3 +587,14 @@
 - [x] Added optional chaining and fallback text for household?.householdName
 - [x] Fixed by using household?.householdName || "Kein Haushalt ausgewählt"
 - [ ] Test History page after fix (ready for user testing)
+
+## Remove OAuth Integration (CRITICAL)
+- [x] User redirected to Manus OAuth page from /projects
+- [x] Remove all OAuth redirects from the app
+- [x] Ensure only internal user auth system is used
+- [x] Removed getLoginUrl() function from const.ts
+- [x] Updated main.tsx to redirect to /login instead of OAuth
+- [x] Updated DashboardLayout.tsx to redirect to /login instead of OAuth
+- [x] Updated useAuth hook to use /login as default redirectPath
+- [x] All OAuth references removed from client code
+- [ ] Test all pages to ensure no OAuth redirects occur (ready for user testing)
