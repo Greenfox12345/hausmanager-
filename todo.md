@@ -659,3 +659,14 @@
 - [x] "Auswählte Verknüpfungen erstellen" button shows count
 - [x] "Überspringen" option to skip bidirectional linking
 - [ ] Test bidirectional linking with multiple dependencies (ready for user testing)
+
+## Dependency Linking Bugs (CRITICAL)
+- [x] addDependencies creates automatic mirrored links (should not)
+- [x] When creating task B with task A as prerequisite, A automatically gets B as followup
+- [x] Fixed: Changed followup insertion from taskId: depId to taskId: input.taskId
+- [x] Now only direct link is created, mirror only after dialog confirmation
+- [x] Dependency display inconsistent - sometimes shows, sometimes doesn't
+- [x] Fixed backend addDependencies to only create direct links
+- [x] Fixed TaskDependencies followups filter: taskId === taskId (not dependsOnTaskId)
+- [x] Fixed followup display to show dep.dependsOnTaskId (not dep.taskId)
+- [ ] Test dependency creation and display (ready for user testing)

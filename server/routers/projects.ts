@@ -127,8 +127,8 @@ export const projectsRouter = router({
       if (input.followups && input.followups.length > 0) {
         await db.insert(taskDependencies).values(
           input.followups.map((depId) => ({
-            taskId: depId, // The followup task depends on this task
-            dependsOnTaskId: input.taskId,
+            taskId: input.taskId, // This task has followup tasks
+            dependsOnTaskId: depId,
             dependencyType: "followup" as const,
           }))
         );

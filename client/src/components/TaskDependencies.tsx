@@ -44,9 +44,9 @@ export default function TaskDependencies({
     (dep) => dep.taskId === taskId && dep.dependencyType === "prerequisite"
   );
 
-  // Get followups (tasks that depend on this task)
+  // Get followups (tasks that should follow this task)
   const followups = dependencies.filter(
-    (dep) => dep.dependsOnTaskId === taskId && dep.dependencyType === "followup"
+    (dep) => dep.taskId === taskId && dep.dependencyType === "followup"
   );
 
   if (prerequisites.length === 0 && followups.length === 0) {
@@ -108,7 +108,7 @@ export default function TaskDependencies({
             {followups.map((dep) => (
               <div key={dep.id} className="flex items-center gap-2">
                 <Link2 className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs">{getTaskName(dep.taskId)}</span>
+                <span className="text-xs">{getTaskName(dep.dependsOnTaskId)}</span>
               </div>
             ))}
           </div>
