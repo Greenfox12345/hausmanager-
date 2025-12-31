@@ -163,12 +163,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
     if (taskDependencies && task) {
-      const prereqIds = taskDependencies
-        .filter(dep => dep.dependencyType === "prerequisite")
-        .map(dep => dep.dependsOnTaskId);
-      const followupIds = taskDependencies
-        .filter(dep => dep.dependencyType === "followup")
-        .map(dep => dep.dependsOnTaskId);
+      // taskDependencies is an object with { prerequisites: [], followups: [] }
+      const prereqIds = taskDependencies.prerequisites?.map(dep => dep.id) || [];
+      const followupIds = taskDependencies.followups?.map(dep => dep.id) || [];
       
       setPrerequisites(prereqIds);
       setFollowups(followupIds);
