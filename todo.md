@@ -683,9 +683,9 @@
 
 ## Duplicate React Key Error on /tasks (CRITICAL)
 - [x] Error: "Encountered two children with the same key, `690009`"
-- [x] Task with ID 690009 appears multiple times in the rendered list
-- [x] Investigated - task exists only once in database
-- [x] Found root cause: availableTasks rendered twice (prerequisites + followups lists)
-- [x] Both lists used key={task.id}, causing duplicate keys
-- [x] Fixed by adding unique prefixes: key={`prereq-${task.id}`} and key={`followup-${task.id}`}
-- [ ] Test /tasks page after fix (ready for user testing)
+- [x] Fixed prerequisites and followups lists with unique prefixes
+- [x] NEW ERROR: Task ID 600009 still has duplicate keys
+- [x] Found root cause: Dialog components (CompleteTaskDialog, MilestoneDialog) used same key
+- [x] Fixed by adding unique prefixes: key={`complete-${task.id}`} and key={`milestone-${task.id}`}
+- [x] All duplicate key issues resolved
+- [ ] Test /tasks page after complete fix (ready for user testing)
