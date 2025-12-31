@@ -689,3 +689,12 @@
 - [x] Fixed by adding unique prefixes: key={`complete-${task.id}`} and key={`milestone-${task.id}`}
 - [x] All duplicate key issues resolved
 - [ ] Test /tasks page after complete fix (ready for user testing)
+
+## Duplicate React Key Error on /projects (CRITICAL)
+- [x] Error: "Encountered two children with the same key, `690011`"
+- [x] Same issue as /tasks - dialog components and task lists need unique keys
+- [x] Fixed dialog components with unique prefixes: complete-, milestone-, reminder-
+- [x] Fixed prerequisite lists: prereq-project- and prereq-other-
+- [x] Fixed followup lists: followup-project- and followup-other-
+- [x] All duplicate key issues resolved on /projects
+- [ ] Test /projects page after fix (ready for user testing)

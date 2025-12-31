@@ -1197,7 +1197,7 @@ export default function Projects() {
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
                           {projectTasks.filter(t => !t.isCompleted).map((task) => (
-                            <div key={task.id} className="flex items-center gap-2 py-1">
+                            <div key={`prereq-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`prereq-${task.id}`}
                                 checked={taskPrerequisites.includes(task.id)}
@@ -1221,7 +1221,7 @@ export default function Projects() {
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
                           {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
-                            <div key={task.id} className="flex items-center gap-2 py-1">
+                            <div key={`prereq-other-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`prereq-${task.id}`}
                                 checked={taskPrerequisites.includes(task.id)}
@@ -1257,7 +1257,7 @@ export default function Projects() {
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
                           {projectTasks.filter(t => !t.isCompleted).map((task) => (
-                            <div key={task.id} className="flex items-center gap-2 py-1">
+                            <div key={`followup-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`followup-${task.id}`}
                                 checked={taskFollowups.includes(task.id)}
@@ -1281,7 +1281,7 @@ export default function Projects() {
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
                           {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
-                            <div key={task.id} className="flex items-center gap-2 py-1">
+                            <div key={`followup-other-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`followup-${task.id}`}
                                 checked={taskFollowups.includes(task.id)}
@@ -1502,7 +1502,7 @@ export default function Projects() {
       />
 
       <CompleteTaskDialog
-        key={selectedTask?.id || 'complete-dialog'}
+        key={`complete-${selectedTask?.id || 'none'}`}
         open={completeDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         task={selectedTask}
@@ -1510,7 +1510,7 @@ export default function Projects() {
       />
 
       <MilestoneDialog
-        key={selectedTask?.id || 'milestone-dialog'}
+        key={`milestone-${selectedTask?.id || 'none'}`}
         open={milestoneDialogOpen}
         onOpenChange={setMilestoneDialogOpen}
         task={selectedTask}
@@ -1528,7 +1528,7 @@ export default function Projects() {
       />
 
       <ReminderDialog
-        key={selectedTask?.id || 'reminder-dialog'}
+        key={`reminder-${selectedTask?.id || 'none'}`}
         open={reminderDialogOpen}
         onOpenChange={setReminderDialogOpen}
         task={selectedTask}
