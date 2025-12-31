@@ -680,3 +680,12 @@
 - [x] Now checks Authorization header first, falls back to cookies
 - [x] Fix applies to all pages: /tasks, /calendar, /projects, etc.
 - [ ] Test complete login → /tasks → /calendar → /projects flow (ready for user testing)
+
+## Duplicate React Key Error on /tasks (CRITICAL)
+- [x] Error: "Encountered two children with the same key, `690009`"
+- [x] Task with ID 690009 appears multiple times in the rendered list
+- [x] Investigated - task exists only once in database
+- [x] Found root cause: availableTasks rendered twice (prerequisites + followups lists)
+- [x] Both lists used key={task.id}, causing duplicate keys
+- [x] Fixed by adding unique prefixes: key={`prereq-${task.id}`} and key={`followup-${task.id}`}
+- [ ] Test /tasks page after fix (ready for user testing)

@@ -639,7 +639,7 @@ export default function Tasks() {
                             <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
                           ) : (
                             availableTasks.map((task) => (
-                              <div key={task.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                              <div key={`prereq-${task.id}`} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
                                 <Checkbox
                                   id={`prereq-${task.id}`}
                                   checked={prerequisites.includes(task.id)}
@@ -671,7 +671,7 @@ export default function Tasks() {
                             <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
                           ) : (
                             availableTasks.map((task) => (
-                              <div key={task.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                              <div key={`followup-${task.id}`} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
                                 <Checkbox
                                   id={`followup-${task.id}`}
                                   checked={followups.includes(task.id)}

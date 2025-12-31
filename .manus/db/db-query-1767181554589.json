@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, householdId, isCompleted, projectId FROM tasks WHERE id = 690009;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, householdId, isCompleted, projectId FROM tasks WHERE id = 690009;",
+  "rows": [
+    {
+      "id": "690009",
+      "name": "Mach",
+      "householdId": "390009",
+      "isCompleted": "0",
+      "projectId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\thouseholdId\tisCompleted\tprojectId\n690009\tMach\t390009\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 71
+}
