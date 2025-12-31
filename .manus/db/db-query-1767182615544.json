@@ -1,0 +1,91 @@
+{
+  "query": "SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  td.createdAt\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nORDER BY td.createdAt DESC, td.taskId",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  td.createdAt\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nORDER BY td.createdAt DESC, td.taskId",
+  "rows": [
+    {
+      "id": "450012",
+      "taskId": "690013",
+      "task_name": "Registrierung abschließen",
+      "dependsOnTaskId": "690014",
+      "depends_on_name": "Login testen",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-31 11:58:50"
+    },
+    {
+      "id": "450011",
+      "taskId": "690014",
+      "task_name": "Login testen",
+      "dependsOnTaskId": "690013",
+      "depends_on_name": "Registrierung abschließen",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:58:47"
+    },
+    {
+      "id": "450010",
+      "taskId": "690013",
+      "task_name": "Registrierung abschließen",
+      "dependsOnTaskId": "690012",
+      "depends_on_name": "Passwort bestätigen",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:58:14"
+    },
+    {
+      "id": "450009",
+      "taskId": "690012",
+      "task_name": "Passwort bestätigen",
+      "dependsOnTaskId": "690011",
+      "depends_on_name": "Passwort eingeben",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:55:59"
+    },
+    {
+      "id": "450008",
+      "taskId": "690011",
+      "task_name": "Passwort eingeben",
+      "dependsOnTaskId": "690010",
+      "depends_on_name": "Passwort ausdenken",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:51:10"
+    },
+    {
+      "id": "420008",
+      "taskId": "660007",
+      "task_name": "Spähne ausleeren",
+      "dependsOnTaskId": "660005",
+      "depends_on_name": "Holz Hobeln",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:33:01"
+    },
+    {
+      "id": "420007",
+      "taskId": "660004",
+      "task_name": "Holz Zuschneiden",
+      "dependsOnTaskId": "660005",
+      "depends_on_name": "Holz Hobeln",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-30 23:20:21"
+    },
+    {
+      "id": "420006",
+      "taskId": "660005",
+      "task_name": "Holz Hobeln",
+      "dependsOnTaskId": "660004",
+      "depends_on_name": "Holz Zuschneiden",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:20:08"
+    },
+    {
+      "id": "420005",
+      "taskId": "660004",
+      "task_name": "Holz Zuschneiden",
+      "dependsOnTaskId": "660003",
+      "depends_on_name": "Holz holen",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:19:15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\ttask_name\tdependsOnTaskId\tdepends_on_name\tdependencyType\tcreatedAt\n450012\t690013\tRegistrierung abschließen\t690014\tLogin testen\tfollowup\t2025-12-31 11:58:50\n450011\t690014\tLogin testen\t690013\tRegistrierung abschließen\tprerequisite\t2025-12-31 11:58:47\n450010\t690013\tRegistrierung abschließen\t690012\tPasswort bestätigen\tprerequisite\t2025-12-31 11:58:14\n450009\t690012\tPasswort bestätigen\t690011\tPasswort eingeben\tprerequisite\t2025-12-31 11:55:59\n450008\t690011\tPasswort eingeben\t690010\tPasswort ausdenken\tprerequisite\t2025-12-31 11:51:10\n420008\t660007\tSpähne ausleeren\t660005\tHolz Hobeln\tprerequisite\t2025-12-30 23:33:01\n420007\t660004\tHolz Zuschneiden\t660005\tHolz Hobeln\tfollowup\t2025-12-30 23:20:21\n420006\t660005\tHolz Hobeln\t660004\tHolz Zuschneiden\tprerequisite\t2025-12-30 23:20:08\n420005\t660004\tHolz Zuschneiden\t660003\tHolz holen\tprerequisite\t2025-12-30 23:19:15\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

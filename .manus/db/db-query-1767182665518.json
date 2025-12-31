@@ -1,0 +1,100 @@
+{
+  "query": "SELECT \n  td.id as dep_id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  CONCAT(t1.name, ' (', td.taskId, ')') as task_full,\n  CONCAT(t2.name, ' (', td.dependsOnTaskId, ')') as depends_full\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nORDER BY td.taskId, td.dependencyType",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td.id as dep_id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  CONCAT(t1.name, ' (', td.taskId, ')') as task_full,\n  CONCAT(t2.name, ' (', td.dependsOnTaskId, ')') as depends_full\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nORDER BY td.taskId, td.dependencyType",
+  "rows": [
+    {
+      "dep_id": "420005",
+      "taskId": "660004",
+      "task_name": "Holz Zuschneiden",
+      "dependsOnTaskId": "660003",
+      "depends_on_name": "Holz holen",
+      "dependencyType": "prerequisite",
+      "task_full": "Holz Zuschneiden (660004)",
+      "depends_full": "Holz holen (660003)"
+    },
+    {
+      "dep_id": "420007",
+      "taskId": "660004",
+      "task_name": "Holz Zuschneiden",
+      "dependsOnTaskId": "660005",
+      "depends_on_name": "Holz Hobeln",
+      "dependencyType": "followup",
+      "task_full": "Holz Zuschneiden (660004)",
+      "depends_full": "Holz Hobeln (660005)"
+    },
+    {
+      "dep_id": "420006",
+      "taskId": "660005",
+      "task_name": "Holz Hobeln",
+      "dependsOnTaskId": "660004",
+      "depends_on_name": "Holz Zuschneiden",
+      "dependencyType": "prerequisite",
+      "task_full": "Holz Hobeln (660005)",
+      "depends_full": "Holz Zuschneiden (660004)"
+    },
+    {
+      "dep_id": "420008",
+      "taskId": "660007",
+      "task_name": "Spähne ausleeren",
+      "dependsOnTaskId": "660005",
+      "depends_on_name": "Holz Hobeln",
+      "dependencyType": "prerequisite",
+      "task_full": "Spähne ausleeren (660007)",
+      "depends_full": "Holz Hobeln (660005)"
+    },
+    {
+      "dep_id": "450008",
+      "taskId": "690011",
+      "task_name": "Passwort eingeben",
+      "dependsOnTaskId": "690010",
+      "depends_on_name": "Passwort ausdenken",
+      "dependencyType": "prerequisite",
+      "task_full": "Passwort eingeben (690011)",
+      "depends_full": "Passwort ausdenken (690010)"
+    },
+    {
+      "dep_id": "450009",
+      "taskId": "690012",
+      "task_name": "Passwort bestätigen",
+      "dependsOnTaskId": "690011",
+      "depends_on_name": "Passwort eingeben",
+      "dependencyType": "prerequisite",
+      "task_full": "Passwort bestätigen (690012)",
+      "depends_full": "Passwort eingeben (690011)"
+    },
+    {
+      "dep_id": "450010",
+      "taskId": "690013",
+      "task_name": "Registrierung abschließen",
+      "dependsOnTaskId": "690012",
+      "depends_on_name": "Passwort bestätigen",
+      "dependencyType": "prerequisite",
+      "task_full": "Registrierung abschließen (690013)",
+      "depends_full": "Passwort bestätigen (690012)"
+    },
+    {
+      "dep_id": "450012",
+      "taskId": "690013",
+      "task_name": "Registrierung abschließen",
+      "dependsOnTaskId": "690014",
+      "depends_on_name": "Login testen",
+      "dependencyType": "followup",
+      "task_full": "Registrierung abschließen (690013)",
+      "depends_full": "Login testen (690014)"
+    },
+    {
+      "dep_id": "450011",
+      "taskId": "690014",
+      "task_name": "Login testen",
+      "dependsOnTaskId": "690013",
+      "depends_on_name": "Registrierung abschließen",
+      "dependencyType": "prerequisite",
+      "task_full": "Login testen (690014)",
+      "depends_full": "Registrierung abschließen (690013)"
+    }
+  ],
+  "messages": [],
+  "stdout": "dep_id\ttaskId\ttask_name\tdependsOnTaskId\tdepends_on_name\tdependencyType\ttask_full\tdepends_full\n420005\t660004\tHolz Zuschneiden\t660003\tHolz holen\tprerequisite\tHolz Zuschneiden (660004)\tHolz holen (660003)\n420007\t660004\tHolz Zuschneiden\t660005\tHolz Hobeln\tfollowup\tHolz Zuschneiden (660004)\tHolz Hobeln (660005)\n420006\t660005\tHolz Hobeln\t660004\tHolz Zuschneiden\tprerequisite\tHolz Hobeln (660005)\tHolz Zuschneiden (660004)\n420008\t660007\tSpähne ausleeren\t660005\tHolz Hobeln\tprerequisite\tSpähne ausleeren (660007)\tHolz Hobeln (660005)\n450008\t690011\tPasswort eingeben\t690010\tPasswort ausdenken\tprerequisite\tPasswort eingeben (690011)\tPasswort ausdenken (690010)\n450009\t690012\tPasswort bestätigen\t690011\tPasswort eingeben\tprerequisite\tPasswort bestätigen (690012)\tPasswort eingeben (690011)\n450010\t690013\tRegistrierung abschließen\t690012\tPasswort bestätigen\tprerequisite\tRegistrierung abschließen (690013)\tPasswort bestätigen (690012)\n450012\t690013\tRegistrierung abschließen\t690014\tLogin testen\tfollowup\tRegistrierung abschließen (690013)\tLogin testen (690014)\n450011\t690014\tLogin testen\t690013\tRegistrierung abschließen\tprerequisite\tLogin testen (690014)\tRegistrierung abschließen (690013)\n",
+  "stderr": "",
+  "execution_time_ms": 81
+}

@@ -1,0 +1,91 @@
+{
+  "query": "SELECT td.*, t1.name as task_name, t2.name as depends_on_name \nFROM task_dependencies td \nJOIN tasks t1 ON td.taskId = t1.id \nJOIN tasks t2 ON td.dependsOnTaskId = t2.id \nORDER BY td.taskId, td.dependencyType \nLIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT td.*, t1.name as task_name, t2.name as depends_on_name \nFROM task_dependencies td \nJOIN tasks t1 ON td.taskId = t1.id \nJOIN tasks t2 ON td.dependsOnTaskId = t2.id \nORDER BY td.taskId, td.dependencyType \nLIMIT 20",
+  "rows": [
+    {
+      "id": "420005",
+      "taskId": "660004",
+      "dependsOnTaskId": "660003",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:19:15",
+      "task_name": "Holz Zuschneiden",
+      "depends_on_name": "Holz holen"
+    },
+    {
+      "id": "420007",
+      "taskId": "660004",
+      "dependsOnTaskId": "660005",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-30 23:20:21",
+      "task_name": "Holz Zuschneiden",
+      "depends_on_name": "Holz Hobeln"
+    },
+    {
+      "id": "420006",
+      "taskId": "660005",
+      "dependsOnTaskId": "660004",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:20:08",
+      "task_name": "Holz Hobeln",
+      "depends_on_name": "Holz Zuschneiden"
+    },
+    {
+      "id": "420008",
+      "taskId": "660007",
+      "dependsOnTaskId": "660005",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-30 23:33:01",
+      "task_name": "Spähne ausleeren",
+      "depends_on_name": "Holz Hobeln"
+    },
+    {
+      "id": "450008",
+      "taskId": "690011",
+      "dependsOnTaskId": "690010",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:51:10",
+      "task_name": "Passwort eingeben",
+      "depends_on_name": "Passwort ausdenken"
+    },
+    {
+      "id": "450009",
+      "taskId": "690012",
+      "dependsOnTaskId": "690011",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:55:59",
+      "task_name": "Passwort bestätigen",
+      "depends_on_name": "Passwort eingeben"
+    },
+    {
+      "id": "450010",
+      "taskId": "690013",
+      "dependsOnTaskId": "690012",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:58:14",
+      "task_name": "Registrierung abschließen",
+      "depends_on_name": "Passwort bestätigen"
+    },
+    {
+      "id": "450012",
+      "taskId": "690013",
+      "dependsOnTaskId": "690014",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-31 11:58:50",
+      "task_name": "Registrierung abschließen",
+      "depends_on_name": "Login testen"
+    },
+    {
+      "id": "450011",
+      "taskId": "690014",
+      "dependsOnTaskId": "690013",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 11:58:47",
+      "task_name": "Login testen",
+      "depends_on_name": "Registrierung abschließen"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\tdependsOnTaskId\tdependencyType\tcreatedAt\ttask_name\tdepends_on_name\n420005\t660004\t660003\tprerequisite\t2025-12-30 23:19:15\tHolz Zuschneiden\tHolz holen\n420007\t660004\t660005\tfollowup\t2025-12-30 23:20:21\tHolz Zuschneiden\tHolz Hobeln\n420006\t660005\t660004\tprerequisite\t2025-12-30 23:20:08\tHolz Hobeln\tHolz Zuschneiden\n420008\t660007\t660005\tprerequisite\t2025-12-30 23:33:01\tSpähne ausleeren\tHolz Hobeln\n450008\t690011\t690010\tprerequisite\t2025-12-31 11:51:10\tPasswort eingeben\tPasswort ausdenken\n450009\t690012\t690011\tprerequisite\t2025-12-31 11:55:59\tPasswort bestätigen\tPasswort eingeben\n450010\t690013\t690012\tprerequisite\t2025-12-31 11:58:14\tRegistrierung abschließen\tPasswort bestätigen\n450012\t690013\t690014\tfollowup\t2025-12-31 11:58:50\tRegistrierung abschließen\tLogin testen\n450011\t690014\t690013\tprerequisite\t2025-12-31 11:58:47\tLogin testen\tRegistrierung abschließen\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

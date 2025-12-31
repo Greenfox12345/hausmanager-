@@ -123,15 +123,12 @@ export const projectsRouter = router({
         );
       }
 
-      // Add followups
+      // Add followups - REMOVED automatic creation
+      // Followups should only be created via bidirectional confirmation dialog
+      // The frontend will call updateBidirectionalDependencies after user confirms
       if (input.followups && input.followups.length > 0) {
-        await db.insert(taskDependencies).values(
-          input.followups.map((depId) => ({
-            taskId: input.taskId, // This task has followup tasks
-            dependsOnTaskId: depId,
-            dependencyType: "followup" as const,
-          }))
-        );
+        // Store followup IDs for the confirmation dialog, but don't create dependencies yet
+        // The dialog will handle creating the reverse dependencies
       }
 
       return { success: true };

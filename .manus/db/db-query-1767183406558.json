@@ -1,0 +1,64 @@
+{
+  "query": "SELECT \n  td.id as dep_id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  td.createdAt\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE t1.name IN ('Login erfolgreich', 'Plattform nutzen', 'oasdk')\n   OR t2.name IN ('Login erfolgreich', 'Plattform nutzen', 'oasdk')\nORDER BY td.createdAt ASC",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td.id as dep_id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType,\n  td.createdAt\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE t1.name IN ('Login erfolgreich', 'Plattform nutzen', 'oasdk')\n   OR t2.name IN ('Login erfolgreich', 'Plattform nutzen', 'oasdk')\nORDER BY td.createdAt ASC",
+  "rows": [
+    {
+      "dep_id": "450014",
+      "taskId": "690015",
+      "task_name": "Login erfolgreich",
+      "dependsOnTaskId": "690013",
+      "depends_on_name": "Registrierung abschließen",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 12:05:23"
+    },
+    {
+      "dep_id": "450013",
+      "taskId": "690015",
+      "task_name": "Login erfolgreich",
+      "dependsOnTaskId": "690014",
+      "depends_on_name": "Login testen",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 12:05:23"
+    },
+    {
+      "dep_id": "450015",
+      "taskId": "690014",
+      "task_name": "Login testen",
+      "dependsOnTaskId": "690015",
+      "depends_on_name": "Login erfolgreich",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-31 12:05:30"
+    },
+    {
+      "dep_id": "450016",
+      "taskId": "690016",
+      "task_name": "Plattform nutzen",
+      "dependsOnTaskId": "690015",
+      "depends_on_name": "Login erfolgreich",
+      "dependencyType": "prerequisite",
+      "createdAt": "2025-12-31 12:07:42"
+    },
+    {
+      "dep_id": "450017",
+      "taskId": "690015",
+      "task_name": "Login erfolgreich",
+      "dependsOnTaskId": "690016",
+      "depends_on_name": "Plattform nutzen",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-31 12:07:47"
+    },
+    {
+      "dep_id": "450018",
+      "taskId": "690017",
+      "task_name": "oasdk",
+      "dependsOnTaskId": "690015",
+      "depends_on_name": "Login erfolgreich",
+      "dependencyType": "followup",
+      "createdAt": "2025-12-31 12:09:35"
+    }
+  ],
+  "messages": [],
+  "stdout": "dep_id\ttaskId\ttask_name\tdependsOnTaskId\tdepends_on_name\tdependencyType\tcreatedAt\n450014\t690015\tLogin erfolgreich\t690013\tRegistrierung abschließen\tprerequisite\t2025-12-31 12:05:23\n450013\t690015\tLogin erfolgreich\t690014\tLogin testen\tprerequisite\t2025-12-31 12:05:23\n450015\t690014\tLogin testen\t690015\tLogin erfolgreich\tfollowup\t2025-12-31 12:05:30\n450016\t690016\tPlattform nutzen\t690015\tLogin erfolgreich\tprerequisite\t2025-12-31 12:07:42\n450017\t690015\tLogin erfolgreich\t690016\tPlattform nutzen\tfollowup\t2025-12-31 12:07:47\n450018\t690017\toasdk\t690015\tLogin erfolgreich\tfollowup\t2025-12-31 12:09:35\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

@@ -1,0 +1,9 @@
+{
+  "query": "SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE (t1.name LIKE '%Einkaufen%' OR t2.name LIKE '%Einkaufen%'\n   OR t1.name LIKE '%Suppe%' OR t2.name LIKE '%Suppe%')\nORDER BY td.id",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE (t1.name LIKE '%Einkaufen%' OR t2.name LIKE '%Einkaufen%'\n   OR t1.name LIKE '%Suppe%' OR t2.name LIKE '%Suppe%')\nORDER BY td.id",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 57
+}

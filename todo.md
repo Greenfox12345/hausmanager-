@@ -698,3 +698,23 @@
 - [x] Fixed followup lists: followup-project- and followup-other-
 - [x] All duplicate key issues resolved on /projects
 - [ ] Test /projects page after fix (ready for user testing)
+
+## Dependency Linking Still Broken (CRITICAL)
+- [x] Investigated backend addDependencies - NO auto-mirroring (correct)
+- [x] Investigated TaskDependencies display logic - filter conditions correct
+- [x] Checked database - found 9 dependencies, 4 are mirrored pairs
+- [x] Found issue: Old dependencies from before fix still exist
+- [x] updateBidirectionalDependencies logic is correct
+- [ ] Problem: Display shows ALL dependencies (direct + mirrored) causing confusion
+- [ ] Solution needed: Either clean old data OR improve display logic
+- [ ] User chose: Keep existing data, improve display/logic
+
+
+## Task Dependency Mirroring Bug (CRITICAL - Current Issue)
+- [x] Bug 1: addDependencies creates automatic mirroring BEFORE dialog confirmation
+- [x] Bug 2: When dialog is confirmed, updateBidirectionalDependencies creates wrong types (both prerequisite AND followup)
+- [x] Root cause: Followup creation in addDependencies (lines 127-135) creates reverse dependencies automatically
+- [x] Fix: Remove automatic followup mirroring from addDependencies
+- [x] Fix: Verify updateBidirectionalDependencies creates correct reverse dependencies
+- [ ] Test: Create task with prerequisite + decline dialog = no mirroring (ready for user testing)
+- [ ] Test: Create task with prerequisite + confirm dialog = correct bidirectional link (ready for user testing)

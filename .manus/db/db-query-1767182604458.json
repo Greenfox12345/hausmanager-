@@ -1,0 +1,58 @@
+{
+  "query": "SELECT \n  td1.id as dep1_id,\n  td1.taskId as task1,\n  td1.dependsOnTaskId as depends1,\n  td1.dependencyType as type1,\n  td2.id as dep2_id,\n  td2.taskId as task2,\n  td2.dependsOnTaskId as depends2,\n  td2.dependencyType as type2,\n  t1.name as task1_name,\n  t2.name as task2_name\nFROM task_dependencies td1\nLEFT JOIN task_dependencies td2 \n  ON td1.taskId = td2.dependsOnTaskId \n  AND td1.dependsOnTaskId = td2.taskId\nJOIN tasks t1 ON td1.taskId = t1.id\nJOIN tasks t2 ON td1.dependsOnTaskId = t2.id\nWHERE td2.id IS NOT NULL\nORDER BY td1.taskId",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td1.id as dep1_id,\n  td1.taskId as task1,\n  td1.dependsOnTaskId as depends1,\n  td1.dependencyType as type1,\n  td2.id as dep2_id,\n  td2.taskId as task2,\n  td2.dependsOnTaskId as depends2,\n  td2.dependencyType as type2,\n  t1.name as task1_name,\n  t2.name as task2_name\nFROM task_dependencies td1\nLEFT JOIN task_dependencies td2 \n  ON td1.taskId = td2.dependsOnTaskId \n  AND td1.dependsOnTaskId = td2.taskId\nJOIN tasks t1 ON td1.taskId = t1.id\nJOIN tasks t2 ON td1.dependsOnTaskId = t2.id\nWHERE td2.id IS NOT NULL\nORDER BY td1.taskId",
+  "rows": [
+    {
+      "dep1_id": "420007",
+      "task1": "660004",
+      "depends1": "660005",
+      "type1": "followup",
+      "dep2_id": "420006",
+      "task2": "660005",
+      "depends2": "660004",
+      "type2": "prerequisite",
+      "task1_name": "Holz Zuschneiden",
+      "task2_name": "Holz Hobeln"
+    },
+    {
+      "dep1_id": "420006",
+      "task1": "660005",
+      "depends1": "660004",
+      "type1": "prerequisite",
+      "dep2_id": "420007",
+      "task2": "660004",
+      "depends2": "660005",
+      "type2": "followup",
+      "task1_name": "Holz Hobeln",
+      "task2_name": "Holz Zuschneiden"
+    },
+    {
+      "dep1_id": "450012",
+      "task1": "690013",
+      "depends1": "690014",
+      "type1": "followup",
+      "dep2_id": "450011",
+      "task2": "690014",
+      "depends2": "690013",
+      "type2": "prerequisite",
+      "task1_name": "Registrierung abschließen",
+      "task2_name": "Login testen"
+    },
+    {
+      "dep1_id": "450011",
+      "task1": "690014",
+      "depends1": "690013",
+      "type1": "prerequisite",
+      "dep2_id": "450012",
+      "task2": "690013",
+      "depends2": "690014",
+      "type2": "followup",
+      "task1_name": "Login testen",
+      "task2_name": "Registrierung abschließen"
+    }
+  ],
+  "messages": [],
+  "stdout": "dep1_id\ttask1\tdepends1\ttype1\tdep2_id\ttask2\tdepends2\ttype2\ttask1_name\ttask2_name\n420007\t660004\t660005\tfollowup\t420006\t660005\t660004\tprerequisite\tHolz Zuschneiden\tHolz Hobeln\n420006\t660005\t660004\tprerequisite\t420007\t660004\t660005\tfollowup\tHolz Hobeln\tHolz Zuschneiden\n450012\t690013\t690014\tfollowup\t450011\t690014\t690013\tprerequisite\tRegistrierung abschließen\tLogin testen\n450011\t690014\t690013\tprerequisite\t450012\t690013\t690014\tfollowup\tLogin testen\tRegistrierung abschließen\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}
