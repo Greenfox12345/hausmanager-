@@ -718,3 +718,15 @@
 - [x] Fix: Verify updateBidirectionalDependencies creates correct reverse dependencies
 - [ ] Test: Create task with prerequisite + decline dialog = no mirroring (ready for user testing)
 - [ ] Test: Create task with prerequisite + confirm dialog = correct bidirectional link (ready for user testing)
+
+
+## Task Dependency Bugs - New Issues Found (CRITICAL)
+- [x] Bug 1: API Error when editing tasks - projectId cannot be null (must be optional or undefined)
+- [x] Bug 2: TaskDetailDialog edit mode doesn't pre-select existing prerequisites/followups
+- [ ] Bug 3: Automatic mirroring still happening - confirmed dependencies show as BOTH prerequisite AND followup
+- [ ] Bug 4: List view doesn't show dependencies when "Überspringen" is clicked (only shows when confirmed)
+- [ ] Root cause analysis: Need to check where automatic mirroring is still being created
+- [x] Fix: Make projectId optional in tasks.update mutation input schema
+- [x] Fix: Load existing dependencies in TaskDetailDialog and pre-select checkboxes
+- [ ] Fix: Verify no automatic mirroring in backend (check all dependency creation points)
+- [ ] Fix: Correct TaskDependencies display logic for list view

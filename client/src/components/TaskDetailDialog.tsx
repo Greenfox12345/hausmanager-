@@ -157,11 +157,23 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // Initialize project state
       setIsProjectTask(!!task.projectId);
       setSelectedProjectId(task.projectId || null);
-      // TODO: Load prerequisites and followups from backend
-      setPrerequisites([]);
-      setFollowups([]);
     }
   }, [task, open]);
+  
+  // Load existing dependencies when taskDependencies are fetched
+  useEffect(() => {
+    if (taskDependencies && task) {
+      const prereqIds = taskDependencies
+        .filter(dep => dep.dependencyType === "prerequisite")
+        .map(dep => dep.dependsOnTaskId);
+      const followupIds = taskDependencies
+        .filter(dep => dep.dependencyType === "followup")
+        .map(dep => dep.dependsOnTaskId);
+      
+      setPrerequisites(prereqIds);
+      setFollowups(followupIds);
+    }
+  }, [taskDependencies, task]);
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({
@@ -225,7 +237,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         enableRotation: enableRepeat && enableRotation,
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
-        projectId: isProjectTask ? selectedProjectId : null,
+        projectId: isProjectTask ? selectedProjectId : undefined,
       });
       
       // Add dependencies if this is a project task
