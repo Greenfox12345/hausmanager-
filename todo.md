@@ -670,3 +670,13 @@
 - [x] Fixed TaskDependencies followups filter: taskId === taskId (not dependsOnTaskId)
 - [x] Fixed followup display to show dep.dependsOnTaskId (not dep.taskId)
 - [ ] Test dependency creation and display (ready for user testing)
+
+## Auth Redirect Bug on /tasks (CRITICAL)
+- [x] User gets redirected from /tasks to /login despite successful login
+- [x] Auth check fails even though token is stored
+- [x] Root cause: Backend only checked cookies, ignored Authorization header
+- [x] Fixed by adding Bearer token authentication to context.ts
+- [x] Added getUserById function to db.ts
+- [x] Now checks Authorization header first, falls back to cookies
+- [x] Fix applies to all pages: /tasks, /calendar, /projects, etc.
+- [ ] Test complete login → /tasks → /calendar → /projects flow (ready for user testing)
