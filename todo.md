@@ -760,3 +760,10 @@
 - [x] Implement automatic bidirectional mirroring without dialog
 - [x] Add getTaskDependencies invalidation after task creation
 - [x] Ensure dependencies display updates automatically without manual refresh
+
+
+## Make Dependency Links Clickable
+- [x] Make prerequisite links in TaskDetailDialog clickable
+- [x] Make followup links in TaskDetailDialog clickable
+- [x] Clicking a dependency link should open that task's details
+- [x] Ensure smooth navigation between task details

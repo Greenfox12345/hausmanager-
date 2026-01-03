@@ -894,6 +894,12 @@ export default function Tasks() {
         onTaskUpdated={() => {
           utils.tasks.list.invalidate();
         }}
+        onNavigateToTask={(taskId) => {
+          const targetTask = tasks.find(t => t.id === taskId);
+          if (targetTask) {
+            setSelectedTask(targetTask);
+          }
+        }}
       />
 
 

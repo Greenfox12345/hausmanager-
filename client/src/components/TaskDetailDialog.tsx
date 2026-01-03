@@ -45,9 +45,10 @@ interface TaskDetailDialogProps {
   onOpenChange: (open: boolean) => void;
   members: Member[];
   onTaskUpdated?: () => void;
+  onNavigateToTask?: (taskId: number) => void;
 }
 
-export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated }: TaskDetailDialogProps) {
+export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask }: TaskDetailDialogProps) {
   const { household, member } = useCompatAuth();
   const [isEditing, setIsEditing] = useState(false);
   
@@ -721,15 +722,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               size="sm"
                               className="h-auto py-1 px-2 text-xs justify-start w-full"
                               onClick={() => {
-                                onOpenChange(false);
-                                // Re-open dialog with the prerequisite task
-                                setTimeout(() => {
-                                  const prereqTask = availableTasks.find((t: any) => t.id === prereq.id);
-                                  if (prereqTask) {
-                                    onOpenChange(true);
-                                    // This will need to be handled by parent component
-                                  }
-                                }, 100);
+                                if (onNavigateToTask) {
+                                  onNavigateToTask(prereq.id);
+                                }
                               }}
                             >
                               → {prereq.name}
@@ -750,15 +745,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               size="sm"
                               className="h-auto py-1 px-2 text-xs justify-start w-full"
                               onClick={() => {
-                                onOpenChange(false);
-                                // Re-open dialog with the followup task
-                                setTimeout(() => {
-                                  const followupTask = availableTasks.find((t: any) => t.id === followup.id);
-                                  if (followupTask) {
-                                    onOpenChange(true);
-                                    // This will need to be handled by parent component
-                                  }
-                                }, 100);
+                                if (onNavigateToTask) {
+                                  onNavigateToTask(followup.id);
+                                }
                               }}
                             >
                               → {followup.name}

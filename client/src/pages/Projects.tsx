@@ -1508,6 +1508,12 @@ export default function Projects() {
         onTaskUpdated={() => {
           window.location.reload();
         }}
+        onNavigateToTask={(taskId) => {
+          const targetTask = projectTasks.find(t => t.id === taskId);
+          if (targetTask) {
+            setSelectedTask(targetTask);
+          }
+        }}
       />
 
       <CompleteTaskDialog
