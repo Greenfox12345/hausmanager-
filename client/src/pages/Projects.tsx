@@ -66,6 +66,7 @@ export default function Projects() {
   const [taskAssignees, setTaskAssignees] = useState<number[]>([]);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
+  const [additionalProjectIds, setAdditionalProjectIds] = useState<number[]>([]);
   const [isRepeating, setIsRepeating] = useState(false);
   const [repeatInterval, setRepeatInterval] = useState("");
   const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("days");
@@ -308,7 +309,7 @@ export default function Projects() {
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const projectTasks = useMemo(
-    () => selectedProjectId ? tasks.filter(t => t.projectId === selectedProjectId) : [],
+    () => selectedProjectId ? tasks.filter(t => t.projectIds && t.projectIds.includes(selectedProjectId)) : [],
     [selectedProjectId, tasks]
   );
 
@@ -340,6 +341,7 @@ export default function Projects() {
     setTaskAssignees([]);
     setTaskPrerequisites([]);
     setTaskFollowups([]);
+    setAdditionalProjectIds([]);
   };
 
   const handleAddTask = async () => {
@@ -372,7 +374,7 @@ export default function Projects() {
         description: taskDescription || undefined,
         assignedTo: taskAssignees.length > 0 ? taskAssignees[0] : undefined,
         dueDate: dueDateTime ? dueDateTime.toISOString() : undefined,
-        projectId: selectedProjectId,
+        projectIds: selectedProjectId ? [selectedProjectId, ...additionalProjectIds] : undefined,
         frequency: isRepeating && repeatInterval ? (
           repeatUnit === "days" ? "daily" : repeatUnit === "weeks" ? "weekly" : "monthly"
         ) : undefined,
@@ -621,8 +623,8 @@ export default function Projects() {
               </Card>
             ) : (
               filteredProjects.map((project) => {
-                const projectTaskCount = tasks.filter(t => t.projectId === project.id).length;
-                const completedTaskCount = tasks.filter(t => t.projectId === project.id && t.isCompleted).length;
+                const projectTaskCount = tasks.filter(t => t.projectIds && t.projectIds.includes(project.id)).length;
+                const completedTaskCount = tasks.filter(t => t.projectIds && t.projectIds.includes(project.id) && t.isCompleted).length;
                 const statusBadge = getStatusBadge(project.status);
 
                 return (
@@ -1046,12 +1048,12 @@ export default function Projects() {
               <div className="space-y-2">
                 <Label>Verfügbare Aufgaben (ohne Projektzuordnung)</Label>
                 <div className="border rounded-md p-3 max-h-96 overflow-y-auto">
-                  {tasks.filter(t => !t.projectId && !t.isCompleted).length === 0 ? (
+                  {tasks.filter(t => (!t.projectIds || t.projectIds.length === 0) && !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
                       Keine verfügbaren Aufgaben ohne Projektzuordnung
                     </p>
                   ) : (
-                    tasks.filter(t => !t.projectId && !t.isCompleted).map((task) => (
+                    tasks.filter(t => (!t.projectIds || t.projectIds.length === 0) && !t.isCompleted).map((task) => (
                       <div key={task.id} className="flex items-start gap-3 py-2 border-b last:border-0">
                         <Checkbox
                           id={`assign-task-${task.id}`}
@@ -1106,7 +1108,7 @@ export default function Projects() {
                         taskId: taskId,
                         householdId: household!.householdId,
                         memberId: member!.memberId,
-                        projectId: selectedProjectId,
+                        projectIds: selectedProjectId ? [selectedProjectId] : undefined,
                       });
                     }
                   } catch (error) {
@@ -1315,6 +1317,40 @@ export default function Projects() {
                 </div>
               </div>
 
+              {/* Additional Projects Section */}
+              <div className="space-y-3 pt-4 border-t">
+                <Label className="text-base font-semibold">Auch anderen Projekten zuordnen</Label>
+                <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+                  {projects.filter(p => p.id !== selectedProjectId && !p.isArchived).length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Keine weiteren Projekte verfügbar
+                    </p>
+                  ) : (
+                    projects.filter(p => p.id !== selectedProjectId && !p.isArchived).map((project) => (
+                      <div key={project.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`additional-project-${project.id}`}
+                          checked={additionalProjectIds.includes(project.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setAdditionalProjectIds([...additionalProjectIds, project.id]);
+                            } else {
+                              setAdditionalProjectIds(additionalProjectIds.filter(id => id !== project.id));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`additional-project-${project.id}`}
+                          className="cursor-pointer flex-1"
+                        >
+                          {project.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
               {/* Repeat Section */}
               <div className="space-y-2 pt-4 border-t">
                 <div className="flex items-center gap-2">
@@ -1328,37 +1364,36 @@ export default function Projects() {
                   </Label>
                 </div>
                 {isRepeating && (
-                  <div className="grid grid-cols-2 gap-4 mt-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="repeat-interval">Intervall</Label>
-                      <Input
-                        id="repeat-interval"
-                        type="number"
-                        min="1"
-                        value={repeatInterval}
-                        onChange={(e) => setRepeatInterval(e.target.value)}
-                        placeholder="z.B. 7"
-                      />
+                  <>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="repeat-interval">Intervall</Label>
+                        <Input
+                          id="repeat-interval"
+                          type="number"
+                          min="1"
+                          value={repeatInterval}
+                          onChange={(e) => setRepeatInterval(e.target.value)}
+                          placeholder="z.B. 7"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="repeat-unit">Einheit</Label>
+                        <Select value={repeatUnit} onValueChange={(value: any) => setRepeatUnit(value)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="days">Tage</SelectItem>
+                            <SelectItem value="weeks">Wochen</SelectItem>
+                            <SelectItem value="months">Monate</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="repeat-unit">Einheit</Label>
-                      <Select value={repeatUnit} onValueChange={(value: any) => setRepeatUnit(value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="days">Tage</SelectItem>
-                          <SelectItem value="weeks">Wochen</SelectItem>
-                          <SelectItem value="months">Monate</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </div>
 
-              {/* Rotation Section */}
-              <div className="space-y-2 pt-4 border-t">
+                    {/* Rotation Section (nested under Repeat) */}
+                    <div className="space-y-2 pt-4 border-t mt-4">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="task-rotation"
@@ -1410,6 +1445,9 @@ export default function Projects() {
                       </div>
                     </div>
                   </div>
+                )}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

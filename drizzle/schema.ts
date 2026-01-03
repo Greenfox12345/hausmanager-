@@ -125,7 +125,7 @@ export const tasks = mysqlTable("tasks", {
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),
-  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
+  projectIds: json("projectIds").$type<number[]>().default('[]'),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),

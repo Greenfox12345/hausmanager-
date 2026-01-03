@@ -83,7 +83,7 @@ export const projectsRouter = router({
           id: tasks.id,
           name: tasks.name,
           dueDate: tasks.dueDate,
-          projectId: tasks.projectId,
+          projectIds: tasks.projectIds,
         })
         .from(tasks)
         .where(eq(tasks.householdId, input.householdId))

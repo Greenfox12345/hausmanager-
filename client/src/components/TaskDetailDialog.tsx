@@ -26,7 +26,7 @@ interface Task {
   repeatUnit?: string | null;
   enableRotation?: boolean | null;
   requiredPersons?: number | null;
-  projectId?: number | null;
+  projectIds?: number[] | null;
   completed?: boolean;
   createdBy?: number | null;
   createdAt?: string | null;
@@ -55,7 +55,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Project state (must be declared before queries that use it)
   const [isProjectTask, setIsProjectTask] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
   const [prerequisites, setPrerequisites] = useState<number[]>([]);
   const [followups, setFollowups] = useState<number[]>([]);
   
@@ -160,8 +160,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setRequiredPersons(task.requiredPersons || 1);
       
       // Initialize project state
-      setIsProjectTask(!!task.projectId);
-      setSelectedProjectId(task.projectId || null);
+      setIsProjectTask(!!task.projectIds && task.projectIds.length > 0);
+      setSelectedProjectIds(task.projectIds || []);
     }
   }, [task, open]);
   
@@ -241,7 +241,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         enableRotation: enableRepeat && enableRotation,
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
-        projectId: isProjectTask ? selectedProjectId : undefined,
+        projectIds: isProjectTask && selectedProjectIds.length > 0 ? selectedProjectIds : undefined,
       });
       
       // Step 2: Update dependencies (BEFORE invalidating)
@@ -543,22 +543,36 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {isProjectTask && (
                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                     <div className="space-y-2">
-                      <Label>Projektzuordnung</Label>
-                      <Select
-                        value={selectedProjectId?.toString() || ""}
-                        onValueChange={(value) => setSelectedProjectId(value ? parseInt(value) : null)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Projekt auswählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {projects.map((project: any) => (
-                            <SelectItem key={project.id} value={project.id.toString()}>
-                              {project.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label>Projekte wählen (Mehrfachauswahl möglich)</Label>
+                      <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+                        {projects.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Keine Projekte verfügbar
+                          </p>
+                        ) : (
+                          projects.map((project: any) => (
+                            <div key={project.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`edit-project-${project.id}`}
+                                checked={selectedProjectIds.includes(project.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedProjectIds([...selectedProjectIds, project.id]);
+                                  } else {
+                                    setSelectedProjectIds(selectedProjectIds.filter(id => id !== project.id));
+                                  }
+                                }}
+                              />
+                              <Label
+                                htmlFor={`edit-project-${project.id}`}
+                                className="cursor-pointer flex-1"
+                              >
+                                {project.name}
+                              </Label>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
 
                     {/* Prerequisites and Follow-ups */}
@@ -689,24 +703,27 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
-                {task.projectId && (
-                  <div className="flex items-center gap-2">
+                             {task.projectIds && task.projectIds.length > 0 && (
+                  <div className="space-y-2">
                     <Badge variant="outline">Projektaufgabe</Badge>
-                    {projects.find(p => p.id === task.projectId) && (
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0 text-sm"
-                        onClick={() => {
-                          onOpenChange(false);
-                          // Navigate to projects page - the page will need to handle opening the project
-                          // For now, just navigate to the projects page
-                          window.location.href = `/projects#project-${task.projectId}`;
-                        }}
-                      >
-                        → {projects.find(p => p.id === task.projectId)?.name}
-                      </Button>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {task.projectIds.map(projectId => {
+                        const project = projects.find(p => p.id === projectId);
+                        return project ? (
+                          <Button
+                            key={projectId}
+                            variant="link"
+                            className="p-0 h-auto text-sm"
+                            onClick={() => {
+                              onClose();
+                              window.location.href = `/projects#project-${projectId}`;
+                            }}
+                          >
+                            → {project.name}
+                          </Button>
+                        ) : null;
+                      })}
+                    </div>
                   </div>
                 )}
 

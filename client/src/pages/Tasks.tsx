@@ -43,7 +43,7 @@ export default function Tasks() {
   
   // Project options
   const [isProjectTask, setIsProjectTask] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
   const [createNewProject, setCreateNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
@@ -182,7 +182,7 @@ export default function Tasks() {
     }
 
     try {
-      let finalProjectId = selectedProjectId;
+      let finalProjectIds = [...selectedProjectIds];
 
       // Create new project if requested
       if (isProjectTask && createNewProject) {
@@ -195,7 +195,7 @@ export default function Tasks() {
           endDate: dueDate || undefined,
           isNeighborhoodProject: false,
         });
-        finalProjectId = projectResult.projectId;
+        finalProjectIds = [projectResult.projectId];
       }
 
       // Create task
@@ -213,7 +213,7 @@ export default function Tasks() {
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
         assignedTo: selectedAssignees[0], // First assignee
-        projectId: isProjectTask && finalProjectId ? finalProjectId : undefined,
+        projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
       });
 
       // Add dependencies if this is a project task
@@ -283,7 +283,7 @@ export default function Tasks() {
       const newTask = refreshedTasks.find(t => t.id === taskResult.id);
       if (newTask) {
         // Prefetch dependencies for the new task before opening dialog
-        if (newTask.projectId) {
+        if (newTask.projectIds && newTask.projectIds.length > 0) {
           await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
         }
         setSelectedTask(newTask);
@@ -571,67 +571,79 @@ export default function Tasks() {
                   <div className="space-y-3">
                     <Label className="text-base font-semibold">Projektzuordnung</Label>
                     
-                    {/* Toggle between existing and new project */}
-                    <div className="flex items-center space-x-2 p-2 rounded-lg bg-muted/30">
-                      <Checkbox
-                        id="createNewProject"
-                        checked={createNewProject}
-                        onCheckedChange={(checked) => {
-                          setCreateNewProject(checked as boolean);
-                          if (checked) setSelectedProjectId(null);
-                        }}
-                      />
-                      <Label htmlFor="createNewProject" className="cursor-pointer text-sm">
-                        Neues Projekt erstellen (diese Aufgabe wird zur Hauptaufgabe)
-                      </Label>
+                    {/* Multi-select existing projects */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Bestehende Projekte wählen</Label>
+                      <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+                        {projects.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Keine Projekte verfügbar
+                          </p>
+                        ) : (
+                          projects.map((project) => (
+                            <div key={project.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`project-${project.id}`}
+                                checked={selectedProjectIds.includes(project.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedProjectIds([...selectedProjectIds, project.id]);
+                                  } else {
+                                    setSelectedProjectIds(selectedProjectIds.filter(id => id !== project.id));
+                                  }
+                                }}
+                              />
+                              <Label
+                                htmlFor={`project-${project.id}`}
+                                className="cursor-pointer flex-1"
+                              >
+                                {project.name}
+                              </Label>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
 
-                    {createNewProject ? (
-                      <div className="space-y-3 pl-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="newProjectName">Projektname *</Label>
-                          <Input
-                            id="newProjectName"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
-                            placeholder="Name wird von Aufgabe übernommen"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="newProjectDescription">Projektbeschreibung</Label>
-                          <Textarea
-                            id="newProjectDescription"
-                            value={newProjectDescription}
-                            onChange={(e) => setNewProjectDescription(e.target.value)}
-                            placeholder="Optionale Projektbeschreibung"
-                            rows={2}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Hinweis: Zieltermin und Verantwortliche werden automatisch von der Aufgabe übernommen.
-                        </p>
+                    {/* Create new project inline */}
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="createNewProject"
+                          checked={createNewProject}
+                          onCheckedChange={(checked) => setCreateNewProject(checked as boolean)}
+                        />
+                        <Label htmlFor="createNewProject" className="cursor-pointer text-sm font-medium">
+                          Neues Projekt erstellen
+                        </Label>
                       </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Label htmlFor="selectProject">Bestehendes Projekt wählen</Label>
-                        <Select
-                          value={selectedProjectId?.toString() || "none"}
-                          onValueChange={(v) => setSelectedProjectId(v === "none" ? null : parseInt(v))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Projekt auswählen" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Kein Projekt</SelectItem>
-                            {projects.map((p) => (
-                              <SelectItem key={p.id} value={p.id.toString()}>
-                                {p.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+                      {createNewProject && (
+                        <div className="space-y-3 pl-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="newProjectName" className="text-sm">Projektname *</Label>
+                            <Input
+                              id="newProjectName"
+                              value={newProjectName}
+                              onChange={(e) => setNewProjectName(e.target.value)}
+                              placeholder="Name wird von Aufgabe übernommen"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="newProjectDescription" className="text-sm">Projektbeschreibung</Label>
+                            <Textarea
+                              id="newProjectDescription"
+                              value={newProjectDescription}
+                              onChange={(e) => setNewProjectDescription(e.target.value)}
+                              placeholder="Optionale Projektbeschreibung"
+                              rows={2}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Das neue Projekt wird automatisch ausgewählt. Zieltermin und Verantwortliche werden von der Aufgabe übernommen.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Task dependencies section */}

@@ -61,11 +61,11 @@ export default function Calendar() {
   // Group tasks by project
   const tasksByProject = useMemo(() => {
     const grouped: Record<string, typeof tasks> = {
-      "no-project": tasks.filter(t => !t.projectId),
+      "no-project": tasks.filter(t => !t.projectIds || t.projectIds.length === 0),
     };
     
     projects.forEach(project => {
-      grouped[`project-${project.id}`] = tasks.filter(t => t.projectId === project.id);
+      grouped[`project-${project.id}`] = tasks.filter(t => t.projectIds && t.projectIds.includes(project.id));
     });
     
     return grouped;
@@ -88,9 +88,10 @@ export default function Calendar() {
     return memberData?.memberName || "Unbekannt";
   };
 
-  const getProjectName = (projectId: number | null) => {
-    if (!projectId) return null;
-    const project = projects.find(p => p.id === projectId);
+  const getProjectName = (projectIds: number[] | null) => {
+    if (!projectIds || projectIds.length === 0) return null;
+    // Return first project name if multiple projects
+    const project = projects.find(p => p.id === projectIds[0]);
     return project?.name;
   };
 
@@ -218,7 +219,7 @@ export default function Calendar() {
                     ) : (
                       <div className="space-y-2">
                         {selectedDateTasks.map(task => {
-                          const projectName = getProjectName(task.projectId);
+                          const projectName = getProjectName(task.projectIds);
                           const frequency = getFrequencyBadge(task);
                           
                           return (

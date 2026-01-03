@@ -278,7 +278,7 @@ export async function createTask(data: {
   enableRotation?: boolean;
   requiredPersons?: number;
   dueDate?: Date;
-  projectId?: number;
+  projectIds?: number[];
   createdBy: number;
 }) {
   const db = await getDb();

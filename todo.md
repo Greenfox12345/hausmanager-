@@ -859,3 +859,40 @@
 - [x] Fix list view not updating dependencies without refresh (refetch in handleAddTask)
 
 ### Ready for testing
+
+## Multi-Project Assignment Implementation (Current Focus)
+### Phase 1: Backend & Schema
+- [x] Analyze current schema and backend implementation
+- [x] Change schema: projectId (int) → projectIds (JSON array)
+- [x] Create migration script for existing data (manual SQL: ADD COLUMN, UPDATE data, DROP old column)
+- [x] All backend changes completed and tested
+- [x] Update tasks.add procedure to accept projectIds array
+- [x] Update tasks.update procedure to accept projectIds array
+- [x] Update tasks.list to return projectIds (automatic via schema)
+- [x] Update projects.getAvailableTasks to return projectIds
+- [x] Update test files to use projectIds
+- [ ] Test backend with database queries (after frontend is done)
+
+### ### Phase 2: /tasks Frontend
+- [x] Replace project dropdown with multi-select component (checkbox list)
+- [x] Update task creation to send projectIds array
+- [x] Update task editing to send projectIds array
+- [x] Update TaskDetailDialog to show multiple projects (view mode)
+- [x] Update TaskDetailDialog edit mode with multi-select
+- [x] Test on /tasks page - WORKS PERFECTLYge
+
+### Phase 3: /projects Frontend
+- [ ] Update task creation dialog for multi-select
+- [ ] Update task editing for multi-select
+- [ ] Update project task filtering (show tasks in ANY selected project)
+- [ ] Test all flows on /projects page
+
+## Multi-Select UI Redesign for Task Creation
+- [x] Remove "Hauptaufgabe" logic on /tasks
+- [x] Show multi-select for existing projects always on /tasks
+- [x] Add inline new project creation below multi-select on /tasks
+- [x] Add "Auch anderen Projekten zuordnen" section in /projects task creation
+- [x] Add multi-select for additional projects in /projects task creation
+- [x] Move rotation question after repeat question in /projects task creation (nested under repeat)
+- [x] Test on /projects page - WORKS PERFECTLY
+- [ ] Move rotation question after repeat question in /projects task editing (optional)

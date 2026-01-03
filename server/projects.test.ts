@@ -54,20 +54,20 @@ describe("Project Management Features", () => {
       description: "Task linked to project",
       assignedTo: testMemberId,
       frequency: "once",
-      projectId: testProjectId,
+      projectIds: [testProjectId],
       createdBy: testMemberId,
     });
 
     expect(taskId).toBeGreaterThan(0);
 
-    // Verify task has projectId
+    // Verify task has projectIds
     const [task] = await db
       .select()
       .from(tasks)
       .where(eq(tasks.id, taskId));
 
     expect(task).toBeDefined();
-    expect(task.projectId).toBe(testProjectId);
+    expect(task.projectIds).toEqual([testProjectId]);
     expect(task.name).toBe("Project Task 1");
 
     testTaskId = taskId;
@@ -83,7 +83,7 @@ describe("Project Management Features", () => {
       name: "Prerequisite Task",
       assignedTo: testMemberId,
       frequency: "once",
-      projectId: testProjectId,
+      projectIds: [testProjectId],
       createdBy: testMemberId,
     });
 
@@ -93,7 +93,7 @@ describe("Project Management Features", () => {
       name: "Followup Task",
       assignedTo: testMemberId,
       frequency: "once",
-      projectId: testProjectId,
+      projectIds: [testProjectId],
       createdBy: testMemberId,
     });
 
@@ -191,17 +191,22 @@ describe("Project Management Features", () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
-    const projectTasks = await db
+    // Get all tasks and filter by projectIds in JavaScript
+    const allTasks = await db
       .select()
       .from(tasks)
-      .where(eq(tasks.projectId, testProjectId));
+      .where(eq(tasks.householdId, testHouseholdId));
+    
+    const projectTasks = allTasks.filter(task => 
+      Array.isArray(task.projectIds) && task.projectIds.includes(testProjectId)
+    );
 
     // Should have at least 3 tasks (main task + prerequisite + followup)
     expect(projectTasks.length).toBeGreaterThanOrEqual(3);
     
     // All tasks should belong to the project
     projectTasks.forEach(task => {
-      expect(task.projectId).toBe(testProjectId);
+      expect(task.projectIds).toContain(testProjectId);
     });
   });
 
@@ -239,7 +244,7 @@ describe("Project Management Features", () => {
       assignedTo: testMemberId,
       frequency: "once",
       dueDate: dueDate,
-      projectId: newProjectId,
+      projectIds: [newProjectId],
       createdBy: testMemberId,
     });
 
@@ -255,7 +260,7 @@ describe("Project Management Features", () => {
       .where(eq(tasks.id, mainTaskId));
 
     expect(project.name).toBe(taskName);
-    expect(task.projectId).toBe(newProjectId);
+    expect(task.projectIds).toEqual([newProjectId]);
     expect(task.name).toBe(taskName);
   });
 });
