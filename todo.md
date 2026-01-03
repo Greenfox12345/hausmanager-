@@ -767,3 +767,10 @@
 - [x] Make followup links in TaskDetailDialog clickable
 - [x] Clicking a dependency link should open that task's details
 - [x] Ensure smooth navigation between task details
+
+
+## Fix Dependency Duplication on Edit
+- [x] Bug: Editing a task with dependencies duplicates them instead of updating
+- [x] Root cause: addDependencies adds new dependencies without removing old ones
+- [x] Solution: Create updateDependencies procedure that replaces all dependencies
+- [x] Alternative: Delete old dependencies before calling addDependencies

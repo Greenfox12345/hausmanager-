@@ -186,6 +186,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
+  const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
 
   const handleSave = async () => {
     if (!household || !task) return;
@@ -238,9 +239,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         projectId: isProjectTask ? selectedProjectId : undefined,
       });
       
-      // Add dependencies if this is a project task
-      if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
-        await addDependenciesMutation.mutateAsync({
+      // Update dependencies if this is a project task (replaces all existing)
+      if (isProjectTask) {
+        await updateDependenciesMutation.mutateAsync({
           taskId: task.id,
           householdId: household.householdId,
           prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
