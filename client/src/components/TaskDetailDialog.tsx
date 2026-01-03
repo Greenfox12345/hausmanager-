@@ -50,6 +50,7 @@ interface TaskDetailDialogProps {
 
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask }: TaskDetailDialogProps) {
   const { household, member } = useCompatAuth();
+  const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
   
   // Project state (must be declared before queries that use it)
@@ -248,6 +249,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           followups: followups.length > 0 ? followups : undefined,
         });
       }
+      
+      // Invalidate queries to refresh display immediately
+      await utils.tasks.list.invalidate();
+      await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+      await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Aktualisieren der Aufgabe");
     }

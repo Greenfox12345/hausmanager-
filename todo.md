@@ -774,3 +774,9 @@
 - [x] Root cause: addDependencies adds new dependencies without removing old ones
 - [x] Solution: Create updateDependencies procedure that replaces all dependencies
 - [x] Alternative: Delete old dependencies before calling addDependencies
+
+
+## Refresh Task Display After Edit
+- [x] Bug: Task details don't refresh after editing - need to close and reopen dialog
+- [x] Solution: Invalidate task queries after successful edit in TaskDetailDialog
+- [x] Ensure all data (name, description, assignee, due date, dependencies) updates immediately
