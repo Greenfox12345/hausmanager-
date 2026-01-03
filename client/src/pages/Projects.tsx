@@ -38,7 +38,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
-import { DependencyConfirmationDialog } from "@/components/DependencyConfirmationDialog";
+
 
 export default function Projects() {
   const [, setLocation] = useLocation();
@@ -54,8 +54,7 @@ export default function Projects() {
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
-  const [dependencyConfirmOpen, setDependencyConfirmOpen] = useState(false);
-  const [pendingTaskData, setPendingTaskData] = useState<any>(null);
+
   const [editingProject, setEditingProject] = useState<any>(null);
   const [selectedExistingTasks, setSelectedExistingTasks] = useState<number[]>([]);
 
@@ -316,6 +315,7 @@ export default function Projects() {
   const addTaskMutation = trpc.tasks.add.useMutation({
     onSuccess: async (data) => {
       await refetchTasks();
+      await utils.projects.getTaskDependencies.invalidate();
       setIsAddTaskDialogOpen(false);
       resetTaskForm();
       
@@ -1553,22 +1553,7 @@ export default function Projects() {
         }}
       />
 
-      <DependencyConfirmationDialog
-        open={dependencyConfirmOpen}
-        onOpenChange={setDependencyConfirmOpen}
-        currentTaskName={pendingTaskData?.taskName || ""}
-        dependencies={pendingTaskData?.dependencies || []}
-        onConfirm={(selectedDependencies) => {
-          if (selectedDependencies.length > 0 && pendingTaskData) {
-            updateBidirectionalDependenciesMutation.mutate({
-              householdId: household!.householdId,
-              currentTaskId: pendingTaskData.taskId,
-              dependencies: selectedDependencies,
-            });
-          }
-          setPendingTaskData(null);
-        }}
-      />
+
     </AppLayout>
   );
 }

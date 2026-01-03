@@ -16,7 +16,7 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
-import { DependencyConfirmationDialog } from "@/components/DependencyConfirmationDialog";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 
@@ -56,8 +56,7 @@ export default function Tasks() {
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
-  const [dependencyConfirmOpen, setDependencyConfirmOpen] = useState(false);
-  const [pendingTaskData, setPendingTaskData] = useState<any>(null);
+
 
   const utils = trpc.useUtils();
   const { data: tasks = [], isLoading } = trpc.tasks.list.useQuery(
@@ -104,6 +103,7 @@ export default function Tasks() {
       await utils.tasks.list.invalidate();
       await utils.projects.list.invalidate();
       await utils.projects.getAvailableTasks.invalidate();
+      await utils.projects.getTaskDependencies.invalidate();
       
       // Reset form
       setNewTaskName("");
@@ -896,22 +896,7 @@ export default function Tasks() {
         }}
       />
 
-      <DependencyConfirmationDialog
-        open={dependencyConfirmOpen}
-        onOpenChange={setDependencyConfirmOpen}
-        currentTaskName={pendingTaskData?.taskName || ""}
-        dependencies={pendingTaskData?.dependencies || []}
-        onConfirm={(selectedDependencies) => {
-          if (selectedDependencies.length > 0 && pendingTaskData) {
-            updateBidirectionalDependenciesMutation.mutate({
-              householdId: household!.householdId,
-              currentTaskId: pendingTaskData.taskId,
-              dependencies: selectedDependencies,
-            });
-          }
-          setPendingTaskData(null);
-        }}
-      />
+
     </AppLayout>
   );
 }

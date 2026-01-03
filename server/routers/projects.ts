@@ -134,7 +134,40 @@ export const projectsRouter = router({
         );
       }
 
-      return { success: true };
+      // Automatically create bidirectional mirrors
+      const mirroredDependencies: Array<{ taskId: number; taskName: string; type: string }> = [];
+      
+      // For each prerequisite, create reverse followup
+      if (input.prerequisites && input.prerequisites.length > 0) {
+        for (const depId of input.prerequisites) {
+          await db.insert(taskDependencies).values({
+            taskId: depId,
+            dependsOnTaskId: input.taskId,
+            dependencyType: "followup" as const,
+          });
+          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
+          if (depTask[0]) {
+            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "prerequisite" });
+          }
+        }
+      }
+      
+      // For each followup, create reverse prerequisite
+      if (input.followups && input.followups.length > 0) {
+        for (const depId of input.followups) {
+          await db.insert(taskDependencies).values({
+            taskId: depId,
+            dependsOnTaskId: input.taskId,
+            dependencyType: "prerequisite" as const,
+          });
+          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
+          if (depTask[0]) {
+            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "followup" });
+          }
+        }
+      }
+
+      return { success: true, mirroredDependencies };
     }),
 
   // Get task dependencies

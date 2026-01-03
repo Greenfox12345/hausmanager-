@@ -752,3 +752,11 @@
 - [x] Replace toast "Aufgabe hinzugefügt" with task details dialog
 - [x] Implement in Tasks.tsx
 - [x] Implement in Projects.tsx
+
+
+## Remove Dependency Confirmation Dialog and Fix Auto-Refresh
+- [x] Remove DependencyConfirmationDialog component completely
+- [x] Remove all references to DependencyConfirmationDialog in Tasks.tsx and Projects.tsx
+- [x] Implement automatic bidirectional mirroring without dialog
+- [x] Add getTaskDependencies invalidation after task creation
+- [x] Ensure dependencies display updates automatically without manual refresh
