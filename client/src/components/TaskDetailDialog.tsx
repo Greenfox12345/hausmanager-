@@ -250,6 +250,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         });
       }
       
+      // Wait a bit for database to fully commit changes before invalidating
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
       // Invalidate queries to refresh display immediately
       await utils.tasks.list.invalidate();
       await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });

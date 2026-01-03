@@ -780,3 +780,10 @@
 - [x] Bug: Task details don't refresh after editing - need to close and reopen dialog
 - [x] Solution: Invalidate task queries after successful edit in TaskDetailDialog
 - [x] Ensure all data (name, description, assignee, due date, dependencies) updates immediately
+
+
+## Fix Race Condition in Task Detail Refresh
+- [x] Bug: Task details still don't update immediately after edit - need to close and reopen
+- [x] Root cause: Query invalidation happens before database updates complete (race condition)
+- [x] Solution: Add small delay (150ms) after mutations before invalidating queries
+- [x] Alternative: Ensure all mutations complete with proper await before invalidation
