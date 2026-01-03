@@ -16,7 +16,7 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
-
+import { DependencyConfirmationDialog } from "@/components/DependencyConfirmationDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 
@@ -56,7 +56,8 @@ export default function Tasks() {
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
-
+  const [dependencyConfirmOpen, setDependencyConfirmOpen] = useState(false);
+  const [pendingTaskData, setPendingTaskData] = useState<any>(null);
 
   const utils = trpc.useUtils();
   const { data: tasks = [], isLoading } = trpc.tasks.list.useQuery(
@@ -250,7 +251,7 @@ export default function Tasks() {
           followups: followups.length > 0 ? followups : undefined,
         });
 
-        // Automatically create bidirectional dependencies
+        // Prepare dependency links for confirmation dialog
         const dependencyLinks = [
           ...prerequisites.map((taskId) => {
             const task = tasks.find((t) => t.id === taskId);
@@ -270,27 +271,14 @@ export default function Tasks() {
           }),
         ];
 
-        // Create bidirectional links automatically
+        // Show confirmation dialog if there are dependencies
         if (dependencyLinks.length > 0) {
-          await updateBidirectionalDependenciesMutation.mutateAsync({
-            householdId: household!.householdId,
-            currentTaskId: taskResult.id,
+          setPendingTaskData({
+            taskId: taskResult.id,
+            taskName: newTaskName.trim(),
             dependencies: dependencyLinks,
           });
-
-          // Show informative toast about what was mirrored
-          const currentTaskName = newTaskName.trim();
-          dependencyLinks.forEach((dep) => {
-            if (dep.type === "prerequisite") {
-              toast.success(
-                `Nachdem ${currentTaskName} die Voraussetzung ${dep.taskName} hat, wurde ${dep.taskName} auch zur Folgeaufgabe für ${currentTaskName}`
-              );
-            } else {
-              toast.success(
-                `Nachdem ${currentTaskName} die Folgeaufgabe für ${dep.taskName} ist, wurde ${dep.taskName} auch zur Voraussetzung für ${currentTaskName}`
-              );
-            }
-          });
+          setDependencyConfirmOpen(true);
         }
       }
     } catch (error: any) {
@@ -898,7 +886,22 @@ export default function Tasks() {
         }}
       />
 
-
+      <DependencyConfirmationDialog
+        open={dependencyConfirmOpen}
+        onOpenChange={setDependencyConfirmOpen}
+        currentTaskName={pendingTaskData?.taskName || ""}
+        dependencies={pendingTaskData?.dependencies || []}
+        onConfirm={(selectedDependencies) => {
+          if (selectedDependencies.length > 0 && pendingTaskData) {
+            updateBidirectionalDependenciesMutation.mutate({
+              householdId: household!.householdId,
+              currentTaskId: pendingTaskData.taskId,
+              dependencies: selectedDependencies,
+            });
+          }
+          setPendingTaskData(null);
+        }}
+      />
     </AppLayout>
   );
 }
