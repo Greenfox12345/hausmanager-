@@ -66,10 +66,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
   
   // Load available tasks for dependencies
-  const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
+  const { data: allAvailableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household && open && isProjectTask }
   );
+  
+  // Exclude current task from available tasks (can't depend on itself)
+  const availableTasks = allAvailableTasks.filter((t: any) => t.id !== task?.id);
   
   // Load task dependencies
   const { data: taskDependencies } = trpc.projects.getTaskDependencies.useQuery(
@@ -239,15 +242,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         projectId: isProjectTask ? selectedProjectId : undefined,
       });
       
-      // Step 2: Update dependencies if this is a project task (BEFORE invalidating)
-      if (isProjectTask) {
-        await updateDependenciesMutation.mutateAsync({
-          taskId: task.id,
-          householdId: household.householdId,
-          prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
-          followups: followups.length > 0 ? followups : undefined,
-        });
-      }
+      // Step 2: Update dependencies (BEFORE invalidating)
+      // If isProjectTask is false, clear all dependencies
+      // If isProjectTask is true, update with current selections
+      await updateDependenciesMutation.mutateAsync({
+        taskId: task.id,
+        householdId: household.householdId,
+        prerequisites: isProjectTask && prerequisites.length > 0 ? prerequisites : undefined,
+        followups: isProjectTask && followups.length > 0 ? followups : undefined,
+      });
       
       // Step 3: Invalidate all queries ONCE (after both mutations complete)
       await utils.tasks.list.invalidate();

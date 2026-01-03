@@ -100,11 +100,16 @@ export default function Tasks() {
 
   const addMutation = trpc.tasks.add.useMutation({
     onSuccess: async (data) => {
+      // Invalidate and refetch all dependency-related queries
       await utils.tasks.list.invalidate();
       await utils.projects.list.invalidate();
       await utils.projects.getAvailableTasks.invalidate();
       await utils.projects.getTaskDependencies.invalidate();
       await utils.projects.getAllDependencies.invalidate();
+      
+      // Refetch to ensure UI updates immediately
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
       
       // Reset form
       setNewTaskName("");
@@ -126,8 +131,7 @@ export default function Tasks() {
       setPrerequisites([]);
       setFollowups([]);
       
-      // Wait for tasks to be refreshed, then open detail dialog
-      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      // Find and open detail dialog for new task
       const newTask = refreshedTasks.find(t => t.id === data.id);
       if (newTask) {
         // Prefetch dependencies for the new task before opening dialog
@@ -565,7 +569,7 @@ export default function Tasks() {
                 />
                 <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
                   <Target className="h-4 w-4" />
-                  Projektaufgabe
+                  Aufgabenverknüpfung
                 </Label>
               </div>
 

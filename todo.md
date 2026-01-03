@@ -835,3 +835,13 @@
 - [x] Fix listed task dependencies not refreshing after create (added getAllDependencies.invalidate)
 - [x] Fix new task dialog not showing dependencies after creation (added prefetch before opening dialog)
 - [ ] Test all fixes thoroughly
+
+## Critical Fixes Needed (Current Focus)
+- [x] Rename "Projektaufgabe" to "Aufgabenverknüpfung" in task creation form on /tasks
+- [x] Fix new task dependencies not showing in list/details on /projects after creation (added refetch)
+- [ ] Implement multi-project selection (task can belong to multiple projects) - DEFERRED
+- [x] Fix project deselection not working (updateDependencies always called, clears when isProjectTask=false)
+- [x] Fix new task dependencies not showing in list/details on /tasks after creation (added refetch)
+- [x] Fix Aufgabenverknüpfung checkbox deselection - clears all dependencies when isProjectTask=false
+- [x] Exclude current task from its own prerequisite/followup lists (filtered in TaskDetailDialog)
+- [ ] Test all fixes
