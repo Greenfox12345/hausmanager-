@@ -176,9 +176,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Aufgabe aktualisiert");
       setIsEditing(false);
+      
+      // Invalidate queries after successful update
+      if (task) {
+        await utils.tasks.list.invalidate();
+        if (household) {
+          await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+          await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+        }
+      }
+      
       if (onTaskUpdated) onTaskUpdated();
     },
     onError: (error) => {
@@ -248,15 +258,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
           followups: followups.length > 0 ? followups : undefined,
         });
+        
+        // Invalidate dependency queries after updating dependencies
+        await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+        await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
       }
-      
-      // Wait a bit for database to fully commit changes before invalidating
-      await new Promise(resolve => setTimeout(resolve, 150));
-      
-      // Invalidate queries to refresh display immediately
-      await utils.tasks.list.invalidate();
-      await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-      await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Aktualisieren der Aufgabe");
     }

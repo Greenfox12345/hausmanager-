@@ -787,3 +787,10 @@
 - [x] Root cause: Query invalidation happens before database updates complete (race condition)
 - [x] Solution: Add small delay (150ms) after mutations before invalidating queries
 - [x] Alternative: Ensure all mutations complete with proper await before invalidation
+
+
+## Revert Delay Approach and Implement Proper Solution
+- [x] Revert: Remove 150ms delay from handleSave
+- [x] Better solution: Move query invalidation to updateTask.onSuccess callback
+- [x] This ensures invalidation happens after mutation completes AND UI updates
+- [x] Also invalidate after updateDependencies completes
