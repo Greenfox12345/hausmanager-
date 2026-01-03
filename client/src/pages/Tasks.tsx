@@ -104,6 +104,7 @@ export default function Tasks() {
       await utils.projects.list.invalidate();
       await utils.projects.getAvailableTasks.invalidate();
       await utils.projects.getTaskDependencies.invalidate();
+      await utils.projects.getAllDependencies.invalidate();
       
       // Reset form
       setNewTaskName("");
@@ -129,6 +130,10 @@ export default function Tasks() {
       const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
       const newTask = refreshedTasks.find(t => t.id === data.id);
       if (newTask) {
+        // Prefetch dependencies for the new task before opening dialog
+        if (newTask.projectId) {
+          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
+        }
         setSelectedTask(newTask);
         setDetailDialogOpen(true);
       } else {
@@ -891,15 +896,9 @@ export default function Tasks() {
         onOpenChange={setDetailDialogOpen}
         task={selectedTask}
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
-        onTaskUpdated={async () => {
-          // Fetch updated task list and update selectedTask with fresh data
-          if (selectedTask && household) {
-            const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-            const updatedTask = refreshedTasks.find(t => t.id === selectedTask.id);
-            if (updatedTask) {
-              setSelectedTask(updatedTask);
-            }
-          }
+        onTaskUpdated={(updatedTask) => {
+          // Receive updated task directly from dialog
+          setSelectedTask(updatedTask);
         }}
         onNavigateToTask={(taskId) => {
           const targetTask = tasks.find(t => t.id === taskId);

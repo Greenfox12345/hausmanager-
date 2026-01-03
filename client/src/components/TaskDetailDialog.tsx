@@ -44,7 +44,7 @@ interface TaskDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   members: Member[];
-  onTaskUpdated?: () => void;
+  onTaskUpdated?: (updatedTask: Task) => void;
   onNavigateToTask?: (taskId: number) => void;
 }
 
@@ -73,8 +73,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Load task dependencies
   const { data: taskDependencies } = trpc.projects.getTaskDependencies.useQuery(
-    { taskId: task?.id ?? 0 },
-    { enabled: !!task?.id }
+    { taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 },
+    { enabled: !!task?.id && !!household && open }
   );
   
   // Form state
@@ -176,19 +176,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({
-    onSuccess: async () => {
-      toast.success("Aufgabe aktualisiert");
-      setIsEditing(false);
-      
-      // Fetch updated task data and notify parent to refresh
-      if (task && household && onTaskUpdated) {
-        await utils.tasks.list.invalidate();
-        await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-        await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-        
-        // Trigger parent to fetch and update selectedTask
-        onTaskUpdated();
-      }
+    onSuccess: async (data, variables) => {
+      // All coordination happens in handleSave
     },
     onError: (error) => {
       toast.error(`Fehler: ${error.message}`);
@@ -231,12 +220,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
 
     try {
+      // Step 1: Update task
       await updateTask.mutateAsync({
         householdId: household.householdId,
         memberId: member?.memberId || 0,
         taskId: task.id,
         name: name || undefined,
-        description: description || undefined,
+        description: description !== undefined ? description : undefined,
         assignedTo: selectedAssignees[0] || undefined,
         dueDate: dueDateTimeString || undefined,
         frequency: frequency,
@@ -249,7 +239,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         projectId: isProjectTask ? selectedProjectId : undefined,
       });
       
-      // Update dependencies if this is a project task (replaces all existing)
+      // Step 2: Update dependencies if this is a project task (BEFORE invalidating)
       if (isProjectTask) {
         await updateDependenciesMutation.mutateAsync({
           taskId: task.id,
@@ -257,11 +247,32 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
           followups: followups.length > 0 ? followups : undefined,
         });
-        
-        // Invalidate dependency queries after updating dependencies
-        await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-        await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
       }
+      
+      // Step 3: Invalidate all queries ONCE (after both mutations complete)
+      await utils.tasks.list.invalidate();
+      await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+      await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+      await utils.projects.getAllDependencies.invalidate({ householdId: household.householdId });
+      
+      // Step 4: Refetch dependencies to update dialog UI
+      const updatedDependencies = await utils.projects.getTaskDependencies.fetch({ taskId: task.id, householdId: household.householdId });
+      if (updatedDependencies) {
+        setPrerequisites(updatedDependencies.prerequisites?.map(dep => dep.id) || []);
+        setFollowups(updatedDependencies.followups?.map(dep => dep.id) || []);
+      }
+      
+      // Step 5: Fetch fresh task and notify parent
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      const updatedTask = refreshedTasks.find(t => t.id === task.id);
+      
+      if (updatedTask && onTaskUpdated) {
+        onTaskUpdated(updatedTask);
+      }
+      
+      // Step 6: Update UI state
+      setIsEditing(false);
+      toast.success("Aufgabe aktualisiert");
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Aktualisieren der Aufgabe");
     }
@@ -520,7 +531,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     onCheckedChange={(checked) => setIsProjectTask(checked as boolean)}
                   />
                   <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
-                    Projektaufgabe
+                    Aufgabenverknüpfung
                   </Label>
                 </div>
 

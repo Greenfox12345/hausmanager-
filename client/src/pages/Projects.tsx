@@ -314,8 +314,9 @@ export default function Projects() {
 
   const addTaskMutation = trpc.tasks.add.useMutation({
     onSuccess: async (data) => {
-      await refetchTasks();
+      await utils.tasks.list.invalidate();
       await utils.projects.getTaskDependencies.invalidate();
+      await utils.projects.getAllDependencies.invalidate();
       setIsAddTaskDialogOpen(false);
       resetTaskForm();
       
@@ -323,6 +324,10 @@ export default function Projects() {
       const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
       const newTask = refreshedTasks.find(t => t.id === data.id);
       if (newTask) {
+        // Prefetch dependencies for the new task before opening dialog
+        if (newTask.projectId) {
+          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
+        }
         setSelectedTask(newTask);
         setIsTaskDetailDialogOpen(true);
       } else {
@@ -339,7 +344,7 @@ export default function Projects() {
   const updateTaskMutation = trpc.tasks.update.useMutation({
     onSuccess: () => {
       toast.success("Aufgaben erfolgreich zugeordnet");
-      refetchTasks();
+      utils.tasks.list.invalidate();
       setIsAssignTaskDialogOpen(false);
       setSelectedExistingTasks([]);
     },
@@ -1505,15 +1510,9 @@ export default function Projects() {
         onOpenChange={setIsTaskDetailDialogOpen}
         task={selectedTask}
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
-        onTaskUpdated={async () => {
-          // Fetch updated task list and update selectedTask with fresh data
-          if (selectedTask && household && selectedProject) {
-            const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-            const updatedTask = refreshedTasks.find(t => t.id === selectedTask.id);
-            if (updatedTask) {
-              setSelectedTask(updatedTask);
-            }
-          }
+        onTaskUpdated={(updatedTask) => {
+          // Receive updated task directly from dialog
+          setSelectedTask(updatedTask);
         }}
         onNavigateToTask={(taskId) => {
           const targetTask = projectTasks.find(t => t.id === taskId);

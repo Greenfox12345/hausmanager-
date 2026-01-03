@@ -802,3 +802,36 @@
 - [x] Update Projects.tsx onTaskUpdated to fetch and update selectedTask (remove page reload)
 - [x] Test on /tasks page - verify all fields update immediately after edit
 - [x] Test on /projects page - verify dialog stays open and updates without reload
+
+## Fix Unreliable Task Updates (Current Focus)
+- [x] Analyze all mutation flows in TaskDetailDialog (updateTask, updateDependencies)
+- [x] Analyze Tasks.tsx mutation flows (addMutation, onTaskUpdated callback)
+- [x] Analyze Projects.tsx mutation flows (addTaskMutation, onTaskUpdated callback)
+- [x] Identify redundant query invalidations
+- [x] Identify race conditions or timing issues
+- [x] Ask user about removing redundant code
+- [x] Implement consolidated solution
+- [x] Remove redundant dependency query invalidations in handleSave
+- [x] Move dependency update before query invalidation (sequential flow)
+- [x] Change onTaskUpdated callback to pass updated task directly
+- [x] Replace refetchTasks() with utils.tasks.list.invalidate() in Projects.tsx
+- [ ] Test detail dialog updates reliably after edit
+- [ ] Test list view updates reliably after edit
+- [ ] Test thoroughly on both /tasks and /projects pages
+
+## Task Editing Bugs (URGENT)
+- [x] Fix projectId typo in handleSave (projectld → projectId) causing API error (not found - may be fixed)
+- [x] Fix Projektaufgabe checkbox not showing checked state when task has projectId (works via useEffect line 160)
+- [x] Fix project selection dropdown not pre-selecting current project (works via useEffect line 161)
+- [x] Fix prerequisites/followups not pre-selecting when opening edit dialog (works via useEffect line 166-175)
+- [x] Fix dependencies not refreshing in UI after editing on /projects page (added refetch in handleSave)
+- [x] Fix taskDependencies query to include householdId parameter
+- [ ] Test all fixes thoroughly
+
+## Remaining Task Editing Issues (Current Focus)
+- [x] Fix empty description cannot be saved (allow empty string in handleSave)
+- [x] Rename "Projektaufgabe" label to "Aufgabenverknüpfung" in TaskDetailDialog
+- [x] Fix listed task dependencies not refreshing after edit (added getAllDependencies.invalidate)
+- [x] Fix listed task dependencies not refreshing after create (added getAllDependencies.invalidate)
+- [x] Fix new task dialog not showing dependencies after creation (added prefetch before opening dialog)
+- [ ] Test all fixes thoroughly
