@@ -99,51 +99,6 @@ export default function Tasks() {
   });
 
   const addMutation = trpc.tasks.add.useMutation({
-    onSuccess: async (data) => {
-      // Invalidate and refetch all dependency-related queries
-      await utils.tasks.list.invalidate();
-      await utils.projects.list.invalidate();
-      await utils.projects.getAvailableTasks.invalidate();
-      await utils.projects.getTaskDependencies.invalidate();
-      await utils.projects.getAllDependencies.invalidate();
-      
-      // Refetch to ensure UI updates immediately
-      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
-      
-      // Reset form
-      setNewTaskName("");
-      setNewTaskDescription("");
-      setDueDate("");
-      setDueTime("");
-      setSelectedAssignees([]);
-      setEnableRepeat(false);
-      setRepeatInterval("1");
-      setRepeatUnit("weeks");
-      setEnableRotation(false);
-      setRequiredPersons("1");
-      setExcludedMembers([]);
-      setIsProjectTask(false);
-      setSelectedProjectId(null);
-      setCreateNewProject(false);
-      setNewProjectName("");
-      setNewProjectDescription("");
-      setPrerequisites([]);
-      setFollowups([]);
-      
-      // Find and open detail dialog for new task
-      const newTask = refreshedTasks.find(t => t.id === data.id);
-      if (newTask) {
-        // Prefetch dependencies for the new task before opening dialog
-        if (newTask.projectId) {
-          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
-        }
-        setSelectedTask(newTask);
-        setDetailDialogOpen(true);
-      } else {
-        toast.success("Aufgabe hinzugefügt");
-      }
-    },
     onError: (error) => {
       toast.error(error.message);
     },
@@ -258,7 +213,7 @@ export default function Tasks() {
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
         assignedTo: selectedAssignees[0], // First assignee
-        projectId: isProjectTask ? finalProjectId || undefined : undefined,
+        projectId: isProjectTask && finalProjectId ? finalProjectId : undefined,
       });
 
       // Add dependencies if this is a project task
@@ -290,15 +245,51 @@ export default function Tasks() {
           }),
         ];
 
-        // Show confirmation dialog if there are dependencies
-        if (dependencyLinks.length > 0) {
-          setPendingTaskData({
-            taskId: taskResult.id,
-            taskName: newTaskName.trim(),
-            dependencies: dependencyLinks,
-          });
-          setDependencyConfirmOpen(true);
+        // Dependencies are already created
+      }
+      
+      // Now invalidate and refetch all queries
+      await utils.tasks.list.invalidate();
+      await utils.projects.list.invalidate();
+      await utils.projects.getAvailableTasks.invalidate();
+      await utils.projects.getTaskDependencies.invalidate();
+      await utils.projects.getAllDependencies.invalidate();
+      
+      // Refetch to ensure UI updates immediately
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
+      
+      // Reset form
+      setNewTaskName("");
+      setNewTaskDescription("");
+      setDueDate("");
+      setDueTime("");
+      setSelectedAssignees([]);
+      setEnableRepeat(false);
+      setRepeatInterval("1");
+      setRepeatUnit("weeks");
+      setEnableRotation(false);
+      setRequiredPersons("1");
+      setExcludedMembers([]);
+      setIsProjectTask(false);
+      setSelectedProjectId(null);
+      setCreateNewProject(false);
+      setNewProjectName("");
+      setNewProjectDescription("");
+      setPrerequisites([]);
+      setFollowups([]);
+      
+      // Find and open detail dialog for new task
+      const newTask = refreshedTasks.find(t => t.id === taskResult.id);
+      if (newTask) {
+        // Prefetch dependencies for the new task before opening dialog
+        if (newTask.projectId) {
+          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
         }
+        setSelectedTask(newTask);
+        setDetailDialogOpen(true);
+      } else {
+        toast.success("Aufgabe hinzugefügt");
       }
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Erstellen der Aufgabe");

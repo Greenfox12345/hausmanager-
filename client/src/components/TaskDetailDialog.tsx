@@ -167,15 +167,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
-    if (taskDependencies && task) {
+    if (taskDependencies && task && open) {
       // taskDependencies is an object with { prerequisites: [], followups: [] }
       const prereqIds = taskDependencies.prerequisites?.map(dep => dep.id) || [];
       const followupIds = taskDependencies.followups?.map(dep => dep.id) || [];
       
+      console.log('[TaskDetailDialog] Loading dependencies:', { prereqIds, followupIds, taskDependencies });
+      
       setPrerequisites(prereqIds);
       setFollowups(followupIds);
     }
-  }, [taskDependencies, task]);
+  }, [taskDependencies, task, open]);
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({

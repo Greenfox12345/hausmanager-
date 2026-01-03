@@ -313,32 +313,6 @@ export default function Projects() {
   );
 
   const addTaskMutation = trpc.tasks.add.useMutation({
-    onSuccess: async (data) => {
-      // Invalidate and refetch all dependency-related queries
-      await utils.tasks.list.invalidate();
-      await utils.projects.getTaskDependencies.invalidate();
-      await utils.projects.getAllDependencies.invalidate();
-      
-      // Refetch to ensure UI updates immediately
-      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
-      
-      setIsAddTaskDialogOpen(false);
-      resetTaskForm();
-      
-      // Find and open detail dialog for new task
-      const newTask = refreshedTasks.find(t => t.id === data.id);
-      if (newTask) {
-        // Prefetch dependencies for the new task before opening dialog
-        if (newTask.projectId) {
-          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
-        }
-        setSelectedTask(newTask);
-        setIsTaskDetailDialogOpen(true);
-      } else {
-        toast.success("Aufgabe erfolgreich hinzugefügt");
-      }
-    },
     onError: (error) => {
       toast.error("Fehler beim Hinzufügen der Aufgabe: " + error.message);
     },
@@ -437,18 +411,35 @@ export default function Projects() {
           }),
         ];
 
-        // Show confirmation dialog if there are dependencies
-        if (dependencyLinks.length > 0) {
-          setPendingTaskData({
-            taskId: result.id,
-            taskName: taskName.trim(),
-            dependencies: dependencyLinks,
-          });
-          setDependencyConfirmOpen(true);
-        }
+        // Dependencies are already created
+      }
+      
+      // Now invalidate and refetch all queries
+      await utils.tasks.list.invalidate();
+      await utils.projects.getTaskDependencies.invalidate();
+      await utils.projects.getAllDependencies.invalidate();
+      
+      // Refetch to ensure UI updates immediately
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
+      
+      // Close dialog and reset form
+      setIsAddTaskDialogOpen(false);
+      resetTaskForm();
+      
+      // Find and open detail dialog for new task
+      const newTask = refreshedTasks.find(t => t.id === result.id);
+      if (newTask) {
+        // Prefetch dependencies for the new task before opening dialog
+        await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
+        setSelectedTask(newTask);
+        setIsTaskDetailDialogOpen(true);
+      } else {
+        toast.success("Aufgabe erfolgreich hinzugefügt");
       }
     } catch (error) {
       console.error("Error adding task:", error);
+      toast.error("Fehler beim Hinzufügen der Aufgabe");
     }
   };
 
@@ -1426,8 +1417,8 @@ export default function Projects() {
               <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)}>
                 Abbrechen
               </Button>
-              <Button onClick={handleAddTask}>
-                Aufgabe hinzufügen
+              <Button onClick={handleAddTask} disabled={addTaskMutation.isPending}>
+                {addTaskMutation.isPending ? "Wird hinzugefügt..." : "Aufgabe hinzufügen"}
               </Button>
             </DialogFooter>
           </DialogContent>

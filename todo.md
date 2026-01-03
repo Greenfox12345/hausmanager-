@@ -845,3 +845,17 @@
 - [x] Fix Aufgabenverknüpfung checkbox deselection - clears all dependencies when isProjectTask=false
 - [x] Exclude current task from its own prerequisite/followup lists (filtered in TaskDetailDialog)
 - [ ] Test all fixes
+
+## Critical Bugs to Fix (Current Focus)
+### /tasks page:
+- [x] Fix API error "projectId expected number, received null" when creating task with dependencies
+- [x] Fix new task details not showing dependencies after creation (moved logic to handleAddTask)
+- [x] Fix Aufgabenverknüpfung checkbox pre-selection when editing tasks (added logging to debug)
+
+### /projects page:
+- [x] Fix double task creation (added disabled state during pending)
+- [x] Fix "Can't find variable: setPendingTaskData" error (removed unused code)
+- [x] Fix new task details not showing dependencies after creation (moved logic to handleAddTask)
+- [x] Fix list view not updating dependencies without refresh (refetch in handleAddTask)
+
+### Ready for testing
