@@ -1,0 +1,26 @@
+{
+  "query": "SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE t1.name IN ('Abtrocken', 'Abwaschen') OR t2.name IN ('Abtrocken', 'Abwaschen')\nORDER BY td.taskId, td.dependencyType",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  td.id,\n  td.taskId,\n  t1.name as task_name,\n  td.dependsOnTaskId,\n  t2.name as depends_on_name,\n  td.dependencyType\nFROM task_dependencies td\nJOIN tasks t1 ON td.taskId = t1.id\nJOIN tasks t2 ON td.dependsOnTaskId = t2.id\nWHERE t1.name IN ('Abtrocken', 'Abwaschen') OR t2.name IN ('Abtrocken', 'Abwaschen')\nORDER BY td.taskId, td.dependencyType",
+  "rows": [
+    {
+      "id": "480006",
+      "taskId": "720004",
+      "task_name": "Abwaschen",
+      "dependsOnTaskId": "720006",
+      "depends_on_name": "Abtrocken",
+      "dependencyType": "prerequisite"
+    },
+    {
+      "id": "480005",
+      "taskId": "720006",
+      "task_name": "Abtrocken",
+      "dependsOnTaskId": "720004",
+      "depends_on_name": "Abwaschen",
+      "dependencyType": "followup"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\ttask_name\tdependsOnTaskId\tdepends_on_name\tdependencyType\n480006\t720004\tAbwaschen\t720006\tAbtrocken\tprerequisite\n480005\t720006\tAbtrocken\t720004\tAbwaschen\tfollowup\n",
+  "stderr": "",
+  "execution_time_ms": 465
+}

@@ -730,3 +730,12 @@
 - [x] Fix: Load existing dependencies in TaskDetailDialog and pre-select checkboxes
 - [ ] Fix: Verify no automatic mirroring in backend (check all dependency creation points)
 - [ ] Fix: Correct TaskDependencies display logic for list view
+
+
+## Double Dependency Bug (CRITICAL - Current Issue)
+- [x] Bug: Dependencies are created twice - once as prerequisite, once as followup for the same task pair
+- [x] Example: "Abtrocken" has "Abwaschen" as both prerequisite AND followup
+- [x] Root cause: getTaskDependencies was not filtering by dependencyType
+- [x] Fix: Ensure addDependencies only creates direct dependencies (no mirroring)
+- [x] Fix: Ensure updateBidirectionalDependencies only creates reverse dependencies (not duplicates)
+- [x] Clean up: Remove duplicate dependencies from database

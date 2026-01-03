@@ -201,7 +201,12 @@ export const projectsRouter = router({
         })
         .from(taskDependencies)
         .innerJoin(tasks, eq(taskDependencies.dependsOnTaskId, tasks.id))
-        .where(eq(taskDependencies.taskId, input.taskId));
+        .where(
+          and(
+            eq(taskDependencies.taskId, input.taskId),
+            eq(taskDependencies.dependencyType, "prerequisite")
+          )
+        );
 
       // Get followups (tasks that depend on this task)
       const followupDeps = await db
@@ -211,7 +216,12 @@ export const projectsRouter = router({
         })
         .from(taskDependencies)
         .innerJoin(tasks, eq(taskDependencies.taskId, tasks.id))
-        .where(eq(taskDependencies.dependsOnTaskId, input.taskId));
+        .where(
+          and(
+            eq(taskDependencies.dependsOnTaskId, input.taskId),
+            eq(taskDependencies.dependencyType, "followup")
+          )
+        );
 
       return {
         prerequisites: prerequisiteDeps,
