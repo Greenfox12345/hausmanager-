@@ -180,16 +180,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.success("Aufgabe aktualisiert");
       setIsEditing(false);
       
-      // Invalidate queries after successful update
-      if (task) {
+      // Fetch updated task data and notify parent to refresh
+      if (task && household && onTaskUpdated) {
         await utils.tasks.list.invalidate();
-        if (household) {
-          await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-          await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
-        }
+        await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+        await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+        
+        // Trigger parent to fetch and update selectedTask
+        onTaskUpdated();
       }
-      
-      if (onTaskUpdated) onTaskUpdated();
     },
     onError: (error) => {
       toast.error(`Fehler: ${error.message}`);

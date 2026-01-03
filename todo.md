@@ -794,3 +794,11 @@
 - [x] Better solution: Move query invalidation to updateTask.onSuccess callback
 - [x] This ensures invalidation happens after mutation completes AND UI updates
 - [x] Also invalidate after updateDependencies completes
+
+## Task Detail Dialog Refresh Bug (Current Focus)
+- [x] Analyze working solution from task creation (uses fetch + setSelectedTask)
+- [x] Modify TaskDetailDialog to call onTaskUpdated after successful save
+- [x] Update Tasks.tsx onTaskUpdated to fetch and update selectedTask
+- [x] Update Projects.tsx onTaskUpdated to fetch and update selectedTask (remove page reload)
+- [x] Test on /tasks page - verify all fields update immediately after edit
+- [x] Test on /projects page - verify dialog stays open and updates without reload

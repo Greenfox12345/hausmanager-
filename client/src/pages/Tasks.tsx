@@ -891,8 +891,15 @@ export default function Tasks() {
         onOpenChange={setDetailDialogOpen}
         task={selectedTask}
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
-        onTaskUpdated={() => {
-          utils.tasks.list.invalidate();
+        onTaskUpdated={async () => {
+          // Fetch updated task list and update selectedTask with fresh data
+          if (selectedTask && household) {
+            const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+            const updatedTask = refreshedTasks.find(t => t.id === selectedTask.id);
+            if (updatedTask) {
+              setSelectedTask(updatedTask);
+            }
+          }
         }}
         onNavigateToTask={(taskId) => {
           const targetTask = tasks.find(t => t.id === taskId);
