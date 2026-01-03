@@ -739,3 +739,9 @@
 - [x] Fix: Ensure addDependencies only creates direct dependencies (no mirroring)
 - [x] Fix: Ensure updateBidirectionalDependencies only creates reverse dependencies (not duplicates)
 - [x] Clean up: Remove duplicate dependencies from database
+
+
+## TaskDetailDialog Shows Duplicate Dependencies
+- [x] Bug: List view shows dependencies correctly, but TaskDetailDialog shows duplicates
+- [x] Root cause: getTaskDependencies followups query used wrong WHERE clause (dependsOnTaskId instead of taskId)
+- [x] Fix: Changed followups query to use taskId and join on dependsOnTaskId
