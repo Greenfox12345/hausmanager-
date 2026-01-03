@@ -745,3 +745,10 @@
 - [x] Bug: List view shows dependencies correctly, but TaskDetailDialog shows duplicates
 - [x] Root cause: getTaskDependencies followups query used wrong WHERE clause (dependsOnTaskId instead of taskId)
 - [x] Fix: Changed followups query to use taskId and join on dependsOnTaskId
+
+
+## Show Task Details After Creation
+- [x] Feature: Open TaskDetailDialog immediately after creating a new task
+- [x] Replace toast "Aufgabe hinzugefügt" with task details dialog
+- [x] Implement in Tasks.tsx
+- [x] Implement in Projects.tsx

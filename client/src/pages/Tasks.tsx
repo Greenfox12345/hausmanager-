@@ -100,10 +100,11 @@ export default function Tasks() {
   });
 
   const addMutation = trpc.tasks.add.useMutation({
-    onSuccess: () => {
-      utils.tasks.list.invalidate();
-      utils.projects.list.invalidate();
-      utils.projects.getAvailableTasks.invalidate();
+    onSuccess: async (data) => {
+      await utils.tasks.list.invalidate();
+      await utils.projects.list.invalidate();
+      await utils.projects.getAvailableTasks.invalidate();
+      
       // Reset form
       setNewTaskName("");
       setNewTaskDescription("");
@@ -123,7 +124,16 @@ export default function Tasks() {
       setNewProjectDescription("");
       setPrerequisites([]);
       setFollowups([]);
-      toast.success("Aufgabe hinzugefügt");
+      
+      // Wait for tasks to be refreshed, then open detail dialog
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      const newTask = refreshedTasks.find(t => t.id === data.id);
+      if (newTask) {
+        setSelectedTask(newTask);
+        setDetailDialogOpen(true);
+      } else {
+        toast.success("Aufgabe hinzugefügt");
+      }
     },
     onError: (error) => {
       toast.error(error.message);

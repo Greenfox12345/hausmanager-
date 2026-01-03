@@ -314,11 +314,20 @@ export default function Projects() {
   );
 
   const addTaskMutation = trpc.tasks.add.useMutation({
-    onSuccess: () => {
-      toast.success("Aufgabe erfolgreich hinzugefügt");
-      refetchTasks();
+    onSuccess: async (data) => {
+      await refetchTasks();
       setIsAddTaskDialogOpen(false);
       resetTaskForm();
+      
+      // Wait for tasks to be refreshed, then open detail dialog
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+      const newTask = refreshedTasks.find(t => t.id === data.id);
+      if (newTask) {
+        setSelectedTask(newTask);
+        setIsTaskDetailDialogOpen(true);
+      } else {
+        toast.success("Aufgabe erfolgreich hinzugefügt");
+      }
     },
     onError: (error) => {
       toast.error("Fehler beim Hinzufügen der Aufgabe: " + error.message);
