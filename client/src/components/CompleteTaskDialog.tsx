@@ -87,17 +87,17 @@ export function CompleteTaskDialog({
             {task.description && (
               <div>
                 <Label className="text-xs text-muted-foreground">Beschreibung</Label>
-                <p className="text-sm text-muted-foreground">{task.description}</p>
+                <p className="text-sm text-muted-foreground">{task?.description}</p>
               </div>
             )}
           </div>
 
           {/* Task details */}
-          {false && task.description && (
+          {false && task?.description && (
             <div className="space-y-2">
               <Label>Aufgabenbeschreibung:</Label>
               <div className="text-sm text-muted-foreground border rounded-lg p-3">
-                {task.description}
+                {task?.description}
               </div>
             </div>
           )}

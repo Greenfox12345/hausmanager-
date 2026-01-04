@@ -896,3 +896,18 @@
 - [x] Move rotation question after repeat question in /projects task creation (nested under repeat)
 - [x] Test on /projects page - WORKS PERFECTLY
 - [ ] Move rotation question after repeat question in /projects task editing (optional)
+
+## Database Cleanup: Redundante Tabellen entfernen
+- [x] project_tasks Tabelle entfernen (redundant - tasks hat projectIds)
+- [x] project_task_dependencies Tabelle entfernen (redundant - task_dependencies wird verwendet)
+- [x] Schema-Relationen bereinigen
+- [x] db.ts Imports bereinigen
+- [x] Datenbank-Migration durchführen
+
+## TypeScript-Fehler beheben
+- [x] Kategorie 1: Nullable Typ-Konflikte (email, passwordHash)
+- [x] Kategorie 2: Fehlende/Falsche tRPC Prozeduren
+- [x] Kategorie 3: Possibly Null/Undefined Zugriffe
+- [x] Kategorie 4: Schema-Fehler (projectIds default)
+- [x] Kategorie 5: Komponenten-Props Fehler
+- [x] Kategorie 6: Variablen-Fehler

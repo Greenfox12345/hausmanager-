@@ -43,6 +43,20 @@
       "when": 1767478615790,
       "tag": "0005_groovy_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767567512560,
+      "tag": "0006_lyrical_swordsman",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767568856760,
+      "tag": "0007_dusty_arachne",
+      "breakpoints": true
     }
   ]
 }

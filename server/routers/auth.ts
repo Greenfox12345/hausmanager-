@@ -64,6 +64,9 @@ export const authRouter = router({
         throw new Error("Household not found");
       }
 
+      if (!household.passwordHash) {
+        throw new Error("Household has no password set");
+      }
       const isValid = await bcrypt.compare(input.password, household.passwordHash);
       if (!isValid) {
         throw new Error("Invalid password");
@@ -136,6 +139,9 @@ export const authRouter = router({
         throw new Error("Member not found");
       }
 
+      if (!member.passwordHash) {
+        throw new Error("Member has no password set");
+      }
       const isValid = await bcrypt.compare(input.password, member.passwordHash);
       if (!isValid) {
         throw new Error("Invalid password");

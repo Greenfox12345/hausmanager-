@@ -20,7 +20,7 @@ interface Task {
   name: string;
   description?: string | null;
   assignedTo?: number | null;
-  dueDate?: string | null;
+  dueDate?: string | Date | null;
   enableRepeat?: boolean | null;
   repeatInterval?: number | null;
   repeatUnit?: string | null;
@@ -28,8 +28,9 @@ interface Task {
   requiredPersons?: number | null;
   projectIds?: number[] | null;
   completed?: boolean;
+  isCompleted?: boolean;
   createdBy?: number | null;
-  createdAt?: string | null;
+  createdAt?: string | Date | null;
   frequency?: string | null;
   customFrequencyDays?: number | null;
 }
@@ -76,8 +77,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Load task dependencies
   const { data: taskDependencies } = trpc.projects.getTaskDependencies.useQuery(
-    { taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 },
-    { enabled: !!task?.id && !!household && open }
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open }
   );
   
   // Form state
@@ -129,8 +130,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       // Map task data to repeat fields
-      const hasRepeat = task.enableRepeat || (task.frequency && task.frequency !== "once");
-      setEnableRepeat(hasRepeat);
+      const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
+      setEnableRepeat(Boolean(hasRepeat));
       
       if (hasRepeat) {
         // Use new frequency field if available, otherwise map old repeat fields
@@ -256,12 +257,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       // Step 3: Invalidate all queries ONCE (after both mutations complete)
       await utils.tasks.list.invalidate();
-      await utils.projects.getTaskDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
+      await utils.projects.getTaskDependencies.invalidate({ taskId: task.id });
       await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
       await utils.projects.getAllDependencies.invalidate({ householdId: household.householdId });
       
       // Step 4: Refetch dependencies to update dialog UI
-      const updatedDependencies = await utils.projects.getTaskDependencies.fetch({ taskId: task.id, householdId: household.householdId });
+      const updatedDependencies = await utils.projects.getTaskDependencies.fetch({ taskId: task.id });
       if (updatedDependencies) {
         setPrerequisites(updatedDependencies.prerequisites?.map(dep => dep.id) || []);
         setFollowups(updatedDependencies.followups?.map(dep => dep.id) || []);
@@ -301,8 +302,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       // Map task data to repeat fields
-      const hasRepeat = task.enableRepeat || (task.frequency && task.frequency !== "once");
-      setEnableRepeat(hasRepeat);
+      const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
+      setEnableRepeat(Boolean(hasRepeat));
       
       if (hasRepeat) {
         // Use new frequency field if available, otherwise map old repeat fields
@@ -715,7 +716,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             variant="link"
                             className="p-0 h-auto text-sm"
                             onClick={() => {
-                              onClose();
+                              onOpenChange(false);
                               window.location.href = `/projects#project-${projectId}`;
                             }}
                           >

@@ -3,8 +3,9 @@ import { trpc } from "@/lib/trpc";
 
 interface User {
   id: number;
-  email: string;
+  email: string | null;
   name: string;
+  role?: "user" | "admin";
 }
 
 interface CurrentHousehold {
@@ -12,7 +13,7 @@ interface CurrentHousehold {
   householdName: string;
   memberId: number;
   memberName: string;
-  inviteCode?: string;
+  inviteCode?: string | null;
 }
 
 interface UserAuthContextType {

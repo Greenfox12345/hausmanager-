@@ -25,7 +25,7 @@ export default function Neighborhood() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Nachbarschaft</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+            <p className="text-muted-foreground">{household?.householdName}</p>
           </div>
         </div>
 

@@ -1,0 +1,58 @@
+{
+  "query": "SHOW TABLES",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SHOW TABLES",
+  "rows": [
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "activity_history"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "dependency_proposals"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "household_members"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "households"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "notification_preferences"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "notification_settings"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "notifications"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "project_households"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "projects"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "shopping_items"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "task_dependencies"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "task_edit_proposals"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "task_rotation_exclusions"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "tasks"
+    },
+    {
+      "Tables_in_5dPSLyh58e9tDjPvGLCuzX": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_5dPSLyh58e9tDjPvGLCuzX\n__drizzle_migrations\nactivity_history\ndependency_proposals\nhousehold_members\nhouseholds\nnotification_preferences\nnotification_settings\nnotifications\nproject_households\nprojects\nshopping_items\ntask_dependencies\ntask_edit_proposals\ntask_rotation_exclusions\ntasks\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

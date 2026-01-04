@@ -178,7 +178,7 @@ export default function Projects() {
     },
   });
   
-  const completeTaskMutation = trpc.tasks.complete.useMutation({
+  const completeTaskMutation = trpc.tasks.completeTask.useMutation({
     onSuccess: () => {
       toast.success("Aufgabe erfolgreich abgeschlossen!");
       utils.tasks.list.invalidate();
@@ -257,8 +257,8 @@ export default function Projects() {
     }
 
     createProjectMutation.mutate({
-      householdId: household.householdId,
-      memberId: member.memberId,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
       name: projectName,
       description: projectDescription || undefined,
       startDate: projectStartDate || undefined,
@@ -433,7 +433,7 @@ export default function Projects() {
       const newTask = refreshedTasks.find(t => t.id === result.id);
       if (newTask) {
         // Prefetch dependencies for the new task before opening dialog
-        await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
+        await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id });
         setSelectedTask(newTask);
         setIsTaskDetailDialogOpen(true);
       } else {
@@ -1394,58 +1394,58 @@ export default function Projects() {
 
                     {/* Rotation Section (nested under Repeat) */}
                     <div className="space-y-2 pt-4 border-t mt-4">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="task-rotation"
-                    checked={hasRotation}
-                    onCheckedChange={(checked) => setHasRotation(checked === true)}
-                  />
-                  <Label htmlFor="task-rotation" className="cursor-pointer">
-                    Rotation zwischen Haushaltsmitgliedern
-                  </Label>
-                </div>
-                {hasRotation && (
-                  <div className="space-y-4 mt-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="rotation-required">Erforderliche Anzahl Personen</Label>
-                      <Input
-                        id="rotation-required"
-                        type="number"
-                        min="1"
-                        value={rotationRequired}
-                        onChange={(e) => setRotationRequired(e.target.value)}
-                        placeholder="z.B. 2"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Ausgeschlossene Mitglieder</Label>
-                      <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                        {members.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">Keine Mitglieder verfügbar</p>
-                        ) : (
-                          members.map((m) => (
-                            <div key={m.id} className="flex items-center gap-2 py-1">
-                              <Checkbox
-                                id={`excluded-${m.id}`}
-                                checked={rotationExcluded.includes(m.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setRotationExcluded([...rotationExcluded, m.id]);
-                                  } else {
-                                    setRotationExcluded(rotationExcluded.filter(id => id !== m.id));
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`excluded-${m.id}`} className="text-sm font-normal cursor-pointer">
-                                {m.memberName}
-                              </Label>
-                            </div>
-                          ))
-                        )}
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="task-rotation"
+                          checked={hasRotation}
+                          onCheckedChange={(checked) => setHasRotation(checked === true)}
+                        />
+                        <Label htmlFor="task-rotation" className="cursor-pointer">
+                          Rotation zwischen Haushaltsmitgliedern
+                        </Label>
                       </div>
-                    </div>
-                  </div>
-                )}
+                      {hasRotation && (
+                        <div className="space-y-4 mt-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="rotation-required">Erforderliche Anzahl Personen</Label>
+                            <Input
+                              id="rotation-required"
+                              type="number"
+                              min="1"
+                              value={rotationRequired}
+                              onChange={(e) => setRotationRequired(e.target.value)}
+                              placeholder="z.B. 2"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Ausgeschlossene Mitglieder</Label>
+                            <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                              {members.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">Keine Mitglieder verfügbar</p>
+                              ) : (
+                                members.map((m) => (
+                                  <div key={m.id} className="flex items-center gap-2 py-1">
+                                    <Checkbox
+                                      id={`excluded-${m.id}`}
+                                      checked={rotationExcluded.includes(m.id)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setRotationExcluded([...rotationExcluded, m.id]);
+                                        } else {
+                                          setRotationExcluded(rotationExcluded.filter(id => id !== m.id));
+                                        }
+                                      }}
+                                    />
+                                    <Label htmlFor={`excluded-${m.id}`} className="text-sm font-normal cursor-pointer">
+                                      {m.memberName}
+                                    </Label>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
@@ -1569,13 +1569,13 @@ export default function Projects() {
         open={milestoneDialogOpen}
         onOpenChange={setMilestoneDialogOpen}
         task={selectedTask}
-        onSave={(data) => {
+        onAddMilestone={async (data) => {
           if (selectedTask) {
-            milestoneMutation.mutate({
+            await milestoneMutation.mutateAsync({
               taskId: selectedTask.id,
               householdId: household!.householdId,
               memberId: member!.memberId,
-              description: data.description,
+              comment: data.comment,
               photoUrls: data.photoUrls,
             });
           }
@@ -1587,13 +1587,13 @@ export default function Projects() {
         open={reminderDialogOpen}
         onOpenChange={setReminderDialogOpen}
         task={selectedTask}
-        onSend={(data) => {
+        onSendReminder={async (data) => {
           if (selectedTask) {
-            reminderMutation.mutate({
+            await reminderMutation.mutateAsync({
               taskId: selectedTask.id,
               householdId: household!.householdId,
               memberId: member!.memberId,
-              message: data.message,
+              comment: data.comment,
             });
           }
         }}

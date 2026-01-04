@@ -64,7 +64,7 @@ export default function Members() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold">Haushaltsmitglieder</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
+            <p className="text-muted-foreground">{household?.householdName}</p>
           </div>
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
@@ -94,7 +94,7 @@ export default function Members() {
                   <div
                     key={m.id}
                     className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                      m.id === member.memberId
+                      m.id === member?.memberId
                         ? "bg-primary/5 border-primary/30"
                         : "bg-card border-border hover:bg-accent/5"
                     }`}
@@ -108,7 +108,7 @@ export default function Members() {
                     <div className="flex-1">
                       <div className="font-semibold flex items-center gap-2">
                         {m.memberName}
-                        {m.id === member.memberId && (
+                        {m.id === member?.memberId && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                             Sie
                           </span>

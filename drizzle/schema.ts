@@ -111,6 +111,7 @@ export type InsertShoppingItem = typeof shoppingItems.$inferInsert;
 
 /**
  * Tasks - household tasks with rotation and recurring schedules
+ * Tasks can be linked to multiple projects via projectIds JSON array
  */
 export const tasks = mysqlTable("tasks", {
   id: int("id").autoincrement().primaryKey(),
@@ -125,7 +126,7 @@ export const tasks = mysqlTable("tasks", {
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),
-  projectIds: json("projectIds").$type<number[]>().default('[]'),
+  projectIds: json("projectIds").$type<number[]>(),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
@@ -152,6 +153,7 @@ export type InsertTaskRotationExclusion = typeof taskRotationExclusions.$inferIn
 
 /**
  * Task dependencies - relationships between household tasks
+ * Used for both regular tasks and project-linked tasks
  */
 export const taskDependencies = mysqlTable("task_dependencies", {
   id: int("id").autoincrement().primaryKey(),
@@ -166,6 +168,7 @@ export type InsertTaskDependency = typeof taskDependencies.$inferInsert;
 
 /**
  * Projects - multi-household collaborative projects
+ * Tasks are linked to projects via tasks.projectIds JSON array
  */
 export const projects = mysqlTable("projects", {
   id: int("id").autoincrement().primaryKey(),
@@ -196,41 +199,6 @@ export const projectHouseholds = mysqlTable("project_households", {
 
 export type ProjectHousehold = typeof projectHouseholds.$inferSelect;
 export type InsertProjectHousehold = typeof projectHouseholds.$inferInsert;
-
-/**
- * Project tasks - tasks within projects with dependencies
- */
-export const projectTasks = mysqlTable("project_tasks", {
-  id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  assignedTo: int("assignedTo").references(() => householdMembers.id),
-  dueDate: datetime("dueDate"),
-  isCompleted: boolean("isCompleted").default(false).notNull(),
-  completedBy: int("completedBy").references(() => householdMembers.id),
-  completedAt: timestamp("completedAt"),
-  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type ProjectTask = typeof projectTasks.$inferSelect;
-export type InsertProjectTask = typeof projectTasks.$inferInsert;
-
-/**
- * Project task dependencies - relationships between project tasks
- */
-export const projectTaskDependencies = mysqlTable("project_task_dependencies", {
-  id: int("id").autoincrement().primaryKey(),
-  taskId: int("taskId").notNull().references(() => projectTasks.id, { onDelete: "cascade" }),
-  dependsOnTaskId: int("dependsOnTaskId").notNull().references(() => projectTasks.id, { onDelete: "cascade" }),
-  dependencyType: mysqlEnum("dependencyType", ["prerequisite", "followup", "parallel"]).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type ProjectTaskDependency = typeof projectTaskDependencies.$inferSelect;
-export type InsertProjectTaskDependency = typeof projectTaskDependencies.$inferInsert;
 
 /**
  * Activity history - comprehensive tracking of all actions
@@ -282,9 +250,6 @@ export const householdMembersRelations = relations(householdMembers, ({ one, man
   tasksAssigned: many(tasks, { relationName: "assignedTo" }),
   tasksCompleted: many(tasks, { relationName: "completedBy" }),
   tasksCreated: many(tasks, { relationName: "createdBy" }),
-  projectTasksAssigned: many(projectTasks, { relationName: "assignedTo" }),
-  projectTasksCompleted: many(projectTasks, { relationName: "completedBy" }),
-  projectTasksCreated: many(projectTasks, { relationName: "createdBy" }),
   projectsCreated: many(projects),
   activityHistory: many(activityHistory),
   taskRotationExclusions: many(taskRotationExclusions),
@@ -296,26 +261,4 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     references: [householdMembers.id],
   }),
   projectHouseholds: many(projectHouseholds),
-  projectTasks: many(projectTasks),
-}));
-
-export const projectTasksRelations = relations(projectTasks, ({ one, many }) => ({
-  project: one(projects, {
-    fields: [projectTasks.projectId],
-    references: [projects.id],
-  }),
-  assignedMember: one(householdMembers, {
-    fields: [projectTasks.assignedTo],
-    references: [householdMembers.id],
-  }),
-  completedByMember: one(householdMembers, {
-    fields: [projectTasks.completedBy],
-    references: [householdMembers.id],
-  }),
-  createdByMember: one(householdMembers, {
-    fields: [projectTasks.createdBy],
-    references: [householdMembers.id],
-  }),
-  dependencies: many(projectTaskDependencies, { relationName: "taskDependencies" }),
-  dependents: many(projectTaskDependencies, { relationName: "dependentTasks" }),
 }));

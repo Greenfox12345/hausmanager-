@@ -272,7 +272,7 @@ export default function Tasks() {
       setRequiredPersons("1");
       setExcludedMembers([]);
       setIsProjectTask(false);
-      setSelectedProjectId(null);
+      setSelectedProjectIds([]);
       setCreateNewProject(false);
       setNewProjectName("");
       setNewProjectDescription("");
@@ -284,7 +284,7 @@ export default function Tasks() {
       if (newTask) {
         // Prefetch dependencies for the new task before opening dialog
         if (newTask.projectIds && newTask.projectIds.length > 0) {
-          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id, householdId: household.householdId });
+          await utils.projects.getTaskDependencies.fetch({ taskId: newTask.id });
         }
         setSelectedTask(newTask);
         setDetailDialogOpen(true);

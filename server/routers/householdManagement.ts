@@ -303,6 +303,9 @@ export const householdManagementRouter = router({
       }
 
       // Verify member password
+      if (!member.passwordHash) {
+        throw new Error("Member has no password set");
+      }
       const isValid = await bcrypt.compare(
         input.memberPassword,
         member.passwordHash

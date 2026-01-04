@@ -8,17 +8,14 @@ import {
   shoppingItems,
   tasks,
   projects,
-  projectTasks,
   projectHouseholds,
   activityHistory,
   taskRotationExclusions,
-  projectTaskDependencies,
   type Household,
   type HouseholdMember,
   type ShoppingItem,
   type Task,
   type Project,
-  type ProjectTask,
   type ActivityHistory
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -37,7 +34,7 @@ export async function getDb() {
   return _db;
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
+export async function upsertUser(user: Partial<InsertUser> & { openId: string }): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
   }
@@ -49,23 +46,31 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
+    // name is required for insert, use empty string as default if not provided
     const values: InsertUser = {
       openId: user.openId,
+      name: user.name ?? "",
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = ["email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
 
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
       const normalized = value ?? null;
-      values[field] = normalized;
+      (values as any)[field] = normalized;
       updateSet[field] = normalized;
     };
 
     textFields.forEach(assignNullable);
+    
+    // Handle name separately since it's required
+    if (user.name !== undefined) {
+      values.name = user.name;
+      updateSet.name = user.name;
+    }
 
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
