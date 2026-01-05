@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,12 @@ export function MilestoneDialog({
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const prevOpenRef = useRef(open);
+
+  // Stable callback for PhotoUpload
+  const handlePhotosChange = useCallback((newPhotos: string[]) => {
+    console.log('[MilestoneDialog] onPhotosChange called with:', newPhotos);
+    setPhotos(newPhotos);
+  }, []);
 
   // Reset form only when dialog closes (open changes from true to false)
   useEffect(() => {
@@ -129,7 +135,7 @@ export function MilestoneDialog({
           {/* Photo upload */}
           <div className="space-y-2">
             <Label>Fotos (optional)</Label>
-            <PhotoUpload photos={photos} onPhotosChange={setPhotos} maxPhotos={5} />
+            <PhotoUpload photos={photos} onPhotosChange={handlePhotosChange} maxPhotos={5} />
           </div>
         </div>
 

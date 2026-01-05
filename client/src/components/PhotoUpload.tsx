@@ -19,15 +19,22 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
   const uploadMutation = trpc.upload.uploadPhoto.useMutation();
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[PhotoUpload] handleFileSelect called');
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      console.log('[PhotoUpload] No files selected');
+      return;
+    }
+    console.log('[PhotoUpload] Files selected:', files.length);
 
     if (photos.length + files.length > maxPhotos) {
       toast.error(`Maximal ${maxPhotos} Fotos erlaubt`);
       return;
     }
 
+    console.log('[PhotoUpload] Current photos:', photos);
     setUploading(true);
+    console.log('[PhotoUpload] Upload started');
     setUploadProgress(0);
     const newPhotos: string[] = [];
     const fileArray = Array.from(files);
@@ -59,18 +66,23 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
         });
 
         // Upload to server via tRPC
+        console.log('[PhotoUpload] Uploading file:', file.name);
         const { url } = await uploadMutation.mutateAsync({
           photo: base64,
           filename: file.name,
         });
+        console.log('[PhotoUpload] Upload successful, URL:', url);
         newPhotos.push(url);
         
         // Update progress
         setUploadProgress(Math.round(((i + 1) / fileArray.length) * 100));
       }
 
-      onPhotosChange([...photos, ...newPhotos]);
+      const updatedPhotos = [...photos, ...newPhotos];
+      console.log('[PhotoUpload] Calling onPhotosChange with:', updatedPhotos);
+      onPhotosChange(updatedPhotos);
       toast.success(`${newPhotos.length} Foto(s) hochgeladen`);
+      console.log('[PhotoUpload] Upload complete');
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Fehler beim Hochladen der Fotos");

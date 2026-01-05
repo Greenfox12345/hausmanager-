@@ -937,3 +937,9 @@
 - [x] Upload erfolgreich (Toast erscheint) aber Vorschau bleibt leer
 - [x] onPhotosChange wird aufgerufen aber State ändert sich nicht
 - [x] Alternative Lösung: useEffect mit prevOpenRef - Reset nur beim Schließen
+
+## Foto-Upload Debug (Vorschau und Fortschrittsbalken funktionieren nicht)
+- [x] Debug-Logs in PhotoUpload hinzufügen
+- [x] Debug-Logs in CompleteTaskDialog hinzufügen
+- [x] Problem identifizieren: onPhotosChange kam nicht im Dialog an (veraltete Referenz)
+- [x] Lösung: useCallback für stabile Callback-Referenz

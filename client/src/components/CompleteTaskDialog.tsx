@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +37,24 @@ export function CompleteTaskDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const prevOpenRef = useRef(open);
 
+  // Debug: Log photos state changes
+  useEffect(() => {
+    console.log('[CompleteTaskDialog] photos state changed:', photos);
+  }, [photos]);
+
+  // Stable callback for PhotoUpload
+  const handlePhotosChange = useCallback((newPhotos: string[]) => {
+    console.log('[CompleteTaskDialog] onPhotosChange called with:', newPhotos);
+    setPhotos(newPhotos);
+    console.log('[CompleteTaskDialog] setPhotos called');
+  }, []);
+
   // Reset form only when dialog closes (open changes from true to false)
   useEffect(() => {
+    console.log('[CompleteTaskDialog] open changed:', { prev: prevOpenRef.current, current: open });
     if (prevOpenRef.current && !open) {
       // Dialog was just closed
+      console.log('[CompleteTaskDialog] Resetting form');
       setComment("");
       setPhotos([]);
     }
@@ -128,7 +142,11 @@ export function CompleteTaskDialog({
           {/* Photo upload */}
           <div className="space-y-2">
             <Label>Fotos (optional)</Label>
-            <PhotoUpload photos={photos} onPhotosChange={setPhotos} maxPhotos={5} />
+            <PhotoUpload 
+              photos={photos} 
+              onPhotosChange={handlePhotosChange} 
+              maxPhotos={5} 
+            />
           </div>
         </div>
 
