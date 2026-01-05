@@ -35,6 +35,7 @@ export function MilestoneDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
 
   // Stable callback for PhotoUpload
@@ -81,8 +82,17 @@ export function MilestoneDialog({
 
   if (!task) return null;
 
+  // Prevent closing dialog while uploading
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isUploading) {
+      console.log('[MilestoneDialog] Prevented closing during upload');
+      return;
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -135,7 +145,12 @@ export function MilestoneDialog({
           {/* Photo upload */}
           <div className="space-y-2">
             <Label>Fotos (optional)</Label>
-            <PhotoUpload photos={photos} onPhotosChange={handlePhotosChange} maxPhotos={5} />
+            <PhotoUpload 
+              photos={photos} 
+              onPhotosChange={handlePhotosChange} 
+              onUploadingChange={setIsUploading}
+              maxPhotos={5} 
+            />
           </div>
         </div>
 

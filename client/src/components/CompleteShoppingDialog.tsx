@@ -35,6 +35,7 @@ export function CompleteShoppingDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
 
   // Stable callback for PhotoUpload
@@ -77,8 +78,17 @@ export function CompleteShoppingDialog({
     onOpenChange(false);
   };
 
+  // Prevent closing dialog while uploading
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isUploading) {
+      console.log('[CompleteShoppingDialog] Prevented closing during upload');
+      return;
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Einkauf abschließen</DialogTitle>
@@ -116,7 +126,12 @@ export function CompleteShoppingDialog({
           {/* Photo upload */}
           <div className="space-y-2">
             <Label>Fotos (optional)</Label>
-            <PhotoUpload photos={photos} onPhotosChange={handlePhotosChange} maxPhotos={3} />
+            <PhotoUpload 
+              photos={photos} 
+              onPhotosChange={handlePhotosChange} 
+              onUploadingChange={setIsUploading}
+              maxPhotos={3} 
+            />
           </div>
         </div>
 

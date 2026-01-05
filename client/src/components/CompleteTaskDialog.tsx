@@ -35,6 +35,7 @@ export function CompleteTaskDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
 
   // Debug: Log photos state changes
@@ -89,8 +90,17 @@ export function CompleteTaskDialog({
 
   if (!task) return null;
 
+  // Prevent closing dialog while uploading
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isUploading) {
+      console.log('[CompleteTaskDialog] Prevented closing during upload');
+      return;
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -145,6 +155,7 @@ export function CompleteTaskDialog({
             <PhotoUpload 
               photos={photos} 
               onPhotosChange={handlePhotosChange} 
+              onUploadingChange={setIsUploading}
               maxPhotos={5} 
             />
           </div>

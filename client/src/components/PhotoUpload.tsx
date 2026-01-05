@@ -10,9 +10,10 @@ interface PhotoUploadProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
   maxPhotos?: number;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUploadProps) {
+export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFileName, setCurrentFileName] = useState("");
@@ -34,6 +35,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
 
     console.log('[PhotoUpload] Current photos:', photos);
     setUploading(true);
+    onUploadingChange?.(true);
     console.log('[PhotoUpload] Upload started');
     setUploadProgress(0);
     const newPhotos: string[] = [];
@@ -88,6 +90,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
       toast.error("Fehler beim Hochladen der Fotos");
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
       setUploadProgress(0);
       setCurrentFileName("");
       // Reset input

@@ -943,3 +943,7 @@
 - [x] Debug-Logs in CompleteTaskDialog hinzufügen
 - [x] Problem identifizieren: onPhotosChange kam nicht im Dialog an (veraltete Referenz)
 - [x] Lösung: useCallback für stabile Callback-Referenz
+
+## Dialog schließt sich automatisch nach Foto-Upload
+- [x] Ursache identifizieren (onOpenChange wird aufgerufen durch Klick außerhalb)
+- [x] Problem beheben (isUploading State + handleOpenChange verhindert Schließen während Upload)
