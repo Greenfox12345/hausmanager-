@@ -1023,3 +1023,7 @@
 
 ## Bug-Fixes
 - [x] React Hooks Ordering Error in Tasks.tsx beheben (Alle Hooks werden jetzt immer ausgeführt, bedingtes Rendering am Ende)
+
+## Calendar Action-Buttons in zwei Spalten
+- [x] Action-Buttons in Kalenderansicht (unten) in zwei Spalten organisieren
+- [x] Action-Buttons in "Alle Aufgaben"-Liste in zwei Spalten organisieren

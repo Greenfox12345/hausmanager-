@@ -7,11 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Milestone, Bell, Trash2 } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
+import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
+import { MilestoneDialog } from "@/components/MilestoneDialog";
+import { ReminderDialog } from "@/components/ReminderDialog";
+import { toast } from "sonner";
 
 export default function Calendar() {
   const [, setLocation] = useLocation();
@@ -19,6 +23,12 @@ export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [actionTask, setActionTask] = useState<any | null>(null);
+
+  const utils = trpc.useUtils();
 
   const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -40,6 +50,40 @@ export default function Calendar() {
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
+
+  // Mutations
+  const deleteMutation = trpc.tasks.delete.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      toast.success("Aufgabe gel\u00f6scht");
+    },
+  });
+
+  const completeTaskMutation = trpc.tasks.toggleComplete.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      setCompleteDialogOpen(false);
+      setActionTask(null);
+      toast.success("Aufgabe abgeschlossen!");
+    },
+  });
+
+  const milestoneMutation = trpc.tasks.addMilestone.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      setMilestoneDialogOpen(false);
+      setActionTask(null);
+      toast.success("Zwischenziel vermerkt!");
+    },
+  });
+
+  const reminderMutation = trpc.tasks.sendReminder.useMutation({
+    onSuccess: () => {
+      setReminderDialogOpen(false);
+      setActionTask(null);
+      toast.success("Erinnerung gesendet!");
+    },
+  });
 
   // Auth check removed - AppLayout handles this
 
@@ -102,13 +146,67 @@ export default function Calendar() {
     const unit = task.repeatUnit;
     
     if (interval === 1) {
-      if (unit === "days") return "Täglich";
-      if (unit === "weeks") return "Wöchentlich";
+      if (unit === "days") return "T\u00e4glich";
+      if (unit === "weeks") return "W\u00f6chentlich";
       if (unit === "months") return "Monatlich";
     }
     
     const unitText = unit === "days" ? "Tag" : unit === "weeks" ? "Woche" : "Monat";
     return `Alle ${interval} ${unitText}${interval > 1 ? "e" : ""}`;
+  };
+
+  const handleDelete = (task: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!household || !member) return;
+    if (confirm("M\u00f6chten Sie diese Aufgabe wirklich l\u00f6schen?")) {
+      deleteMutation.mutate({
+        taskId: task.id,
+        householdId: household.householdId,
+        memberId: member.memberId,
+      });
+    }
+  };
+
+  const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
+    if (!actionTask || !household || !member) return;
+    // First toggle complete
+    await completeTaskMutation.mutateAsync({
+      taskId: actionTask.id,
+      householdId: household.householdId,
+      memberId: member.memberId,
+      isCompleted: true,
+    });
+    // Then add milestone if there's a comment or photo
+    if (data.comment || data.photoUrls.length > 0) {
+      await milestoneMutation.mutateAsync({
+        taskId: actionTask.id,
+        householdId: household.householdId,
+        memberId: member.memberId,
+        comment: data.comment,
+        photoUrls: data.photoUrls,
+      });
+    }
+  };
+
+  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[] }) => {
+    if (!actionTask || !household || !member) return;
+    await milestoneMutation.mutateAsync({
+      taskId: actionTask.id,
+      householdId: household.householdId,
+      memberId: member.memberId,
+      comment: data.comment,
+      photoUrls: data.photoUrls,
+    });
+  };
+
+  const handleSendReminder = async (data: { comment?: string }) => {
+    if (!actionTask || !household || !member) return;
+    await reminderMutation.mutateAsync({
+      taskId: actionTask.id,
+      householdId: household.householdId,
+      memberId: member.memberId,
+      comment: data.comment,
+    });
   };
 
   return (
@@ -280,6 +378,62 @@ export default function Calendar() {
                                         </Badge>
                                       )}
                                     </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="grid grid-cols-2 gap-2 mt-3">
+                                      {!task.isCompleted && (
+                                        <>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setActionTask(task);
+                                              setCompleteDialogOpen(true);
+                                            }}
+                                          >
+                                            <Check className="h-4 w-4 mr-1" />
+                                            Abschlie\u00dfen
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setActionTask(task);
+                                              setMilestoneDialogOpen(true);
+                                            }}
+                                          >
+                                            <Milestone className="h-4 w-4 mr-1" />
+                                            Zwischenziel
+                                          </Button>
+                                        </>
+                                      )}
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setActionTask(task);
+                                          setReminderDialogOpen(true);
+                                        }}
+                                      >
+                                        <Bell className="h-4 w-4 mr-1" />
+                                        Erinnern
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                        onClick={(e) => handleDelete(task, e)}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        L\u00f6schen
+                                      </Button>
+                                    </div>
                                   </div>
                                 </div>
                               </CardContent>
@@ -356,6 +510,62 @@ export default function Calendar() {
                                       Rotation
                                     </Badge>
                                   )}
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-2 gap-2 mt-3">
+                                  {!task.isCompleted && (
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setActionTask(task);
+                                          setCompleteDialogOpen(true);
+                                        }}
+                                      >
+                                        <Check className="h-4 w-4 mr-1" />
+                                        Abschlie\u00dfen
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setActionTask(task);
+                                          setMilestoneDialogOpen(true);
+                                        }}
+                                      >
+                                        <Milestone className="h-4 w-4 mr-1" />
+                                        Zwischenziel
+                                      </Button>
+                                    </>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActionTask(task);
+                                      setReminderDialogOpen(true);
+                                    }}
+                                  >
+                                    <Bell className="h-4 w-4 mr-1" />
+                                    Erinnern
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                    onClick={(e) => handleDelete(task, e)}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-1" />
+                                    L\u00f6schen
+                                  </Button>
                                 </div>
                               </div>
                             </div>
@@ -436,6 +646,62 @@ export default function Calendar() {
                                       </Badge>
                                     )}
                                   </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="grid grid-cols-2 gap-2 mt-3">
+                                    {!task.isCompleted && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionTask(task);
+                                            setCompleteDialogOpen(true);
+                                          }}
+                                        >
+                                          <Check className="h-4 w-4 mr-1" />
+                                          Abschlie\u00dfen
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionTask(task);
+                                            setMilestoneDialogOpen(true);
+                                          }}
+                                        >
+                                          <Milestone className="h-4 w-4 mr-1" />
+                                          Zwischenziel
+                                        </Button>
+                                      </>
+                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActionTask(task);
+                                        setReminderDialogOpen(true);
+                                      }}
+                                    >
+                                      <Bell className="h-4 w-4 mr-1" />
+                                      Erinnern
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                      onClick={(e) => handleDelete(task, e)}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-1" />
+                                      L\u00f6schen
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                             </CardContent>
@@ -482,6 +748,30 @@ export default function Calendar() {
           window.location.reload(); // Simple approach for now
         }}
       />
+
+      {/* Action Dialogs */}
+      {actionTask && (
+        <>
+          <CompleteTaskDialog
+            open={completeDialogOpen}
+            onOpenChange={setCompleteDialogOpen}
+            task={actionTask}
+            onComplete={handleCompleteTask}
+          />
+          <MilestoneDialog
+            open={milestoneDialogOpen}
+            onOpenChange={setMilestoneDialogOpen}
+            task={actionTask}
+            onAddMilestone={handleAddMilestone}
+          />
+          <ReminderDialog
+            open={reminderDialogOpen}
+            onOpenChange={setReminderDialogOpen}
+            task={actionTask}
+            onSendReminder={handleSendReminder}
+          />
+        </>
+      )}
     </AppLayout>
   );
 }
