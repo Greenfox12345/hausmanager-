@@ -955,3 +955,9 @@
 ## Toast öffnet Dialog über Hauptdialog
 - [x] Toast entfernen oder durch Inline-Feedback ersetzen (Toast entfernt)
 - [x] Nur Foto-Vorschau aktualisieren, Eingaben erhalten (automatisch durch State-Update)
+
+## KRITISCH: Zweiter Dialog öffnet sich im Hintergrund beim Foto-Upload
+- [x] Root Cause gefunden: React erstellt neue Dialog-Instanz wegen fehlendem key
+- [x] Dialog-Duplikation verhindert durch key={`dialog-${taskId}-${open}`}
+- [x] Keys zu allen Dialogen hinzugefügt (CompleteTaskDialog, MilestoneDialog, CompleteShoppingDialog)
+- [ ] Verifizieren: Nur ein Dialog, Foto erscheint darin

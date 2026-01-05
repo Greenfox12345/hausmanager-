@@ -1562,6 +1562,7 @@ export default function Projects() {
       />
 
       <CompleteTaskDialog
+        key={`complete-${selectedTask?.id}-${completeDialogOpen}`}
         open={completeDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         task={selectedTask}
@@ -1569,6 +1570,7 @@ export default function Projects() {
       />
 
       <MilestoneDialog
+        key={`milestone-${selectedTask?.id}-${milestoneDialogOpen}`}
         open={milestoneDialogOpen}
         onOpenChange={setMilestoneDialogOpen}
         task={selectedTask}

@@ -299,6 +299,7 @@ export default function Shopping() {
       </div>
 
       <CompleteShoppingDialog
+        key={`complete-shopping-${showCompleteDialog}`}
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}
         items={completedItems.map((item) => ({
