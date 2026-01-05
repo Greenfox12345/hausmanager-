@@ -169,50 +169,88 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
-      await updateTask(input.taskId, {
-        isCompleted: input.isCompleted,
-        completedBy: input.isCompleted ? input.memberId : null,
-        completedAt: input.isCompleted ? new Date() : null,
-      });
+      // Store original due date for activity log
+      const originalDueDate = task.dueDate;
 
-      // Handle rotation if enabled and task is completed
-      if (input.isCompleted && task.enableRotation && task.assignedTo) {
-        const members = await getHouseholdMembers(input.householdId);
-        const activeMembers = members.filter(m => m.isActive);
-        
-        if (activeMembers.length > 1) {
-          const currentIndex = activeMembers.findIndex(m => m.id === task.assignedTo);
-          const nextIndex = (currentIndex + 1) % activeMembers.length;
-          const nextMember = activeMembers[nextIndex];
+      // Check if task is recurring
+      const isRecurring = task.repeatInterval && task.repeatUnit;
+
+      if (input.isCompleted && isRecurring) {
+        // For recurring tasks: move to next occurrence instead of marking as completed
+        const currentDueDate = task.dueDate ? new Date(task.dueDate) : new Date();
+        let nextDueDate = new Date(currentDueDate);
+
+        // Calculate next due date based on repeat interval
+        if (task.repeatUnit === "days") {
+          nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval || 1));
+        } else if (task.repeatUnit === "weeks") {
+          nextDueDate.setDate(nextDueDate.getDate() + ((task.repeatInterval || 1) * 7));
+        } else if (task.repeatUnit === "months") {
+          nextDueDate.setMonth(nextDueDate.getMonth() + (task.repeatInterval || 1));
+        }
+
+        // Handle rotation if enabled
+        let nextAssignee = task.assignedTo;
+        if (task.enableRotation && task.assignedTo) {
+          const members = await getHouseholdMembers(input.householdId);
+          const activeMembers = members.filter(m => m.isActive);
           
-          if (nextMember) {
-            await updateTask(input.taskId, {
-              assignedTo: nextMember.id,
-              isCompleted: false,
-              completedBy: null,
-              completedAt: null,
-            });
-
-            await createActivityLog({
-              householdId: input.householdId,
-              memberId: input.memberId,
-              activityType: "task",
-              action: "rotated",
-              description: `Task rotated to ${nextMember.memberName}`,
-              relatedItemId: input.taskId,
-            });
+          if (activeMembers.length > 1) {
+            const currentIndex = activeMembers.findIndex(m => m.id === task.assignedTo);
+            const nextIndex = (currentIndex + 1) % activeMembers.length;
+            const nextMember = activeMembers[nextIndex];
+            
+            if (nextMember) {
+              nextAssignee = nextMember.id;
+              
+              await createActivityLog({
+                householdId: input.householdId,
+                memberId: input.memberId,
+                activityType: "task",
+                action: "rotated",
+                description: `Task rotated to ${nextMember.memberName}`,
+                relatedItemId: input.taskId,
+              });
+            }
           }
         }
-      }
 
-      await createActivityLog({
-        householdId: input.householdId,
-        memberId: input.memberId,
-        activityType: "task",
-        action: input.isCompleted ? "completed" : "uncompleted",
-        description: `${input.isCompleted ? "Completed" : "Uncompleted"} task`,
-        relatedItemId: input.taskId,
-      });
+        // Update task to next occurrence (NOT completed)
+        await updateTask(input.taskId, {
+          dueDate: nextDueDate,
+          assignedTo: nextAssignee,
+          isCompleted: false,
+          completedBy: null,
+          completedAt: null,
+        });
+
+        // Log completion of THIS occurrence with ORIGINAL due date
+        await createActivityLog({
+          householdId: input.householdId,
+          memberId: input.memberId,
+          activityType: "task",
+          action: "completed",
+          description: `Completed recurring task occurrence`,
+          relatedItemId: input.taskId,
+          metadata: { originalDueDate: originalDueDate?.toString() },
+        });
+      } else {
+        // For non-recurring tasks: normal completion logic
+        await updateTask(input.taskId, {
+          isCompleted: input.isCompleted,
+          completedBy: input.isCompleted ? input.memberId : null,
+          completedAt: input.isCompleted ? new Date() : null,
+        });
+
+        await createActivityLog({
+          householdId: input.householdId,
+          memberId: input.memberId,
+          activityType: "task",
+          action: input.isCompleted ? "completed" : "uncompleted",
+          description: `${input.isCompleted ? "Completed" : "Uncompleted"} task`,
+          relatedItemId: input.taskId,
+        });
+      }
 
       return { success: true };
     }),

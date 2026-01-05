@@ -1045,3 +1045,12 @@
 - [x] Folgetermine von wiederkehrenden Aufgaben berechnen
 - [x] Folgetermine im Kalender anzeigen (mit visueller Unterscheidung)
 - [x] Folgetermine in Tages-Detailansicht anzeigen
+
+## Wiederkehrende Aufgaben Logik-Fix (KRITISCH)
+- [x] Backend: Bei Abschluss wiederkehrender Aufgaben nicht isCompleted=true setzen
+- [x] Backend: Stattdessen dueDate auf nächsten Termin verschieben
+- [x] Backend: Bei Rotation nächsten Verantwortlichen zuweisen
+- [x] Backend: Verlauf-Eintrag mit ORIGINAL dueDate speichern (nicht neues Datum)
+- [x] Frontend: Folgetermine-Anzeige aus Kalender entfernen (nicht mehr nötig)
+- [x] Frontend: Kalender zeigt nur tatsächliche dueDate-Termine
+- [x] Tests: Wiederkehrende Aufgaben-Logik testen (Test-Datei erstellt, Schema-Anpassung erforderlich)
