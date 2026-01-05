@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { publicProcedure, router } from "../_core/trpc";
 import {
   getTasks,
@@ -12,7 +12,7 @@ import {
   getDb,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
-import { taskRotationExclusions } from "../../drizzle/schema";
+import { taskRotationExclusions, activityHistory } from "../../drizzle/schema";
 
 export const tasksRouter = router({
   // Get all tasks for a household
@@ -576,5 +576,97 @@ export const tasksRouter = router({
 
       const successCount = completedCount.reduce((a: number, b: number) => a + b, 0);
       return { success: true, completedCount: successCount };
+    }),
+
+  // Undo completion of a recurring task occurrence
+  undoRecurringCompletion: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        activityId: z.number(), // ID of the activity log entry to reference
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get the activity log entry to find original due date
+      const activities = await db
+        .select()
+        .from(activityHistory)
+        .where(
+          and(
+            eq(activityHistory.id, input.activityId),
+            eq(activityHistory.householdId, input.householdId),
+            eq(activityHistory.relatedItemId, input.taskId),
+            eq(activityHistory.action, "completed")
+          )
+        )
+        .limit(1);
+
+      const activity = activities[0];
+      if (!activity) {
+        throw new Error("Activity log entry not found");
+      }
+
+      // Get original due date from metadata
+      const metadata = activity.metadata as { originalDueDate?: string } | null;
+      const originalDueDate = metadata?.originalDueDate
+        ? new Date(metadata.originalDueDate)
+        : null;
+
+      if (!originalDueDate) {
+        throw new Error("Original due date not found in activity metadata");
+      }
+
+      // Get the task
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find((t: any) => t.id === input.taskId);
+
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Check if task is recurring
+      const isRecurring = task.repeatInterval && task.repeatUnit;
+      if (!isRecurring) {
+        throw new Error("Task is not recurring");
+      }
+
+      // Revert rotation if enabled
+      let previousAssignee = task.assignedTo;
+      if (task.enableRotation && task.assignedTo) {
+        const members = await getHouseholdMembers(input.householdId);
+        const activeMembers = members.filter((m: any) => m.isActive);
+
+        if (activeMembers.length > 1) {
+          const currentIndex = activeMembers.findIndex(
+            (m: any) => m.id === task.assignedTo
+          );
+          // Go back one in rotation
+          const previousIndex =
+            (currentIndex - 1 + activeMembers.length) % activeMembers.length;
+          const previousMember = activeMembers[previousIndex];
+
+          if (previousMember) {
+            previousAssignee = previousMember.id;
+          }
+        }
+      }
+
+      // Revert task to original due date and previous assignee
+      await updateTask(input.taskId, {
+        dueDate: originalDueDate,
+        assignedTo: previousAssignee,
+        isCompleted: false,
+        completedBy: null,
+        completedAt: null,
+      });
+
+      // NOTE: We do NOT delete the activity log entry - it stays as history
+
+      return { success: true };
     }),
 });

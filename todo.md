@@ -1054,3 +1054,15 @@
 - [x] Frontend: Folgetermine-Anzeige aus Kalender entfernen (nicht mehr nötig)
 - [x] Frontend: Kalender zeigt nur tatsächliche dueDate-Termine
 - [x] Tests: Wiederkehrende Aufgaben-Logik testen (Test-Datei erstellt, Schema-Anpassung erforderlich)
+
+## Wiederkehrende Aufgaben: Folgetermine und Verlauf im Kalender
+- [x] Frontend: Folgetermine von wiederkehrenden Aufgaben im Kalender anzeigen
+- [x] Frontend: Berechnung zukünftiger Termine basierend auf repeatInterval/repeatUnit
+- [x] Frontend: Visuelle Unterscheidung (aktuell=blau, zukünftig=lila/transparent, erledigt=grün)
+- [x] Frontend: Activity-History im Kalender abrufen und anzeigen
+- [x] Frontend: Erledigte Termine aus Activity-Log als separate Einträge darstellen
+- [x] Backend: Mutation zum Rückgängigmachen (Verlauf bleibt erhalten!)
+- [x] Backend: Bei Undo Aufgabe auf ursprüngliches Datum zurücksetzen
+- [x] Backend: Bei Undo Rotation rückgängig machen (vorheriger Verantwortlicher)
+- [x] Frontend: "Rückgängig"-Button in Tages-Detailansicht für erledigte Termine
+- [x] Frontend: Undo-Funktion mit Bestätigungs-Dialog

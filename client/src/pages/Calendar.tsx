@@ -52,6 +52,12 @@ export default function Calendar() {
     { enabled: !!household }
   );
 
+  // Get activity history for completed recurring tasks
+  const { data: activityHistory = [] } = trpc.activities.list.useQuery(
+    { householdId: household?.householdId ?? 0, limit: 200 },
+    { enabled: !!household }
+  );
+
   // Mutations
   const deleteMutation = trpc.tasks.delete.useMutation({
     onSuccess: () => {
@@ -86,6 +92,14 @@ export default function Calendar() {
     },
   });
 
+  const undoCompletionMutation = trpc.tasks.undoRecurringCompletion.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      utils.activities.list.invalidate();
+      toast.success("Abschluss rückgängig gemacht!");
+    },
+  });
+
   // Auth check removed - AppLayout handles this
 
   // Get current month days for calendar
@@ -93,10 +107,46 @@ export default function Calendar() {
   const monthEnd = endOfMonth(currentMonth);
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Group tasks by date
+  // Calculate future occurrences for recurring tasks
+  const calculateFutureOccurrences = (task: any, maxOccurrences: number = 12) => {
+    if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) {
+      return [];
+    }
+
+    const occurrences: Array<{ date: Date; isOriginal: boolean }> = [];
+    let currentDate = new Date(task.dueDate);
+
+    for (let i = 0; i < maxOccurrences; i++) {
+      // Calculate next occurrence
+      const nextDate = new Date(currentDate);
+      if (task.repeatUnit === "days") {
+        nextDate.setDate(nextDate.getDate() + task.repeatInterval);
+      } else if (task.repeatUnit === "weeks") {
+        nextDate.setDate(nextDate.getDate() + (task.repeatInterval * 7));
+      } else if (task.repeatUnit === "months") {
+        nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
+      }
+
+      // Only include if within current month view
+      if (nextDate >= monthStart && nextDate <= monthEnd) {
+        occurrences.push({ date: nextDate, isOriginal: false });
+      }
+
+      currentDate = nextDate;
+
+      // Stop if we're way past the current month
+      if (nextDate > monthEnd) break;
+    }
+
+    return occurrences;
+  };
+
+  // Group tasks by date (including future occurrences and completed history)
   const tasksByDate = useMemo(() => {
-    const grouped: Record<string, typeof tasks> = {};
+    const grouped: Record<string, Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }>> = {};
+    
     tasks.forEach(task => {
+      // Add current task
       if (task.dueDate) {
         const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
         if (!grouped[dateKey]) {
@@ -104,9 +154,46 @@ export default function Calendar() {
         }
         grouped[dateKey].push(task);
       }
+
+      // Add future occurrences for recurring tasks
+      if (task.repeatInterval && task.repeatUnit) {
+        const futureOccurrences = calculateFutureOccurrences(task);
+        futureOccurrences.forEach(occurrence => {
+          const dateKey = format(occurrence.date, "yyyy-MM-dd");
+          if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+          }
+          grouped[dateKey].push({ ...task, isFutureOccurrence: true });
+        });
+      }
     });
+
+    // Add completed occurrences from activity history
+    const activities = Array.isArray(activityHistory) ? activityHistory : activityHistory?.activities || [];
+    activities.forEach((activity: any) => {
+      if (activity.action === "completed" && activity.relatedItemId && activity.metadata?.originalDueDate) {
+        const task = tasks.find(t => t.id === activity.relatedItemId);
+        if (task && task.repeatInterval && task.repeatUnit) {
+          const originalDate = new Date(activity.metadata.originalDueDate);
+          // Only show if within current month view
+          if (originalDate >= monthStart && originalDate <= monthEnd) {
+            const dateKey = format(originalDate, "yyyy-MM-dd");
+            if (!grouped[dateKey]) {
+              grouped[dateKey] = [];
+            }
+            grouped[dateKey].push({ 
+              ...task, 
+              isCompletedOccurrence: true, 
+              activityId: activity.id,
+              dueDate: originalDate 
+            });
+          }
+        }
+      }
+    });
+    
     return grouped;
-  }, [tasks]);
+  }, [tasks, activityHistory, monthStart, monthEnd]);
   // Group tasks by project
   const tasksByProject = useMemo(() => {
     const grouped: Record<string, typeof tasks> = {
@@ -326,12 +413,23 @@ export default function Calendar() {
                               <div
                                 key={i}
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  task.isCompleted
+                                  task.isCompletedOccurrence
+                                    ? "bg-green-500"
+                                    : task.isFutureOccurrence
+                                    ? "bg-purple-400 opacity-60"
+                                    : task.isCompleted
                                     ? "bg-green-500"
                                     : isPast(new Date(task.dueDate!))
                                     ? "bg-red-500"
                                     : "bg-blue-500"
                                 }`}
+                                title={
+                                  task.isCompletedOccurrence
+                                    ? "Erledigter Termin"
+                                    : task.isFutureOccurrence
+                                    ? "Folgetermin"
+                                    : ""
+                                }
                               />
                             ))}
                             {dayTasks.length > 3 && (
@@ -383,6 +481,17 @@ export default function Calendar() {
                                           Erledigt
                                         </Badge>
                                       )}
+                                      {task.isCompletedOccurrence && (
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                                          Erledigter Termin
+                                        </Badge>
+                                      )}
+                                      {task.isFutureOccurrence && (
+                                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                          Folgetermin
+                                        </Badge>
+                                      )}
                                       {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
                                         <Badge variant="destructive" className="text-xs">
                                           Überfällig
@@ -422,7 +531,28 @@ export default function Calendar() {
 
                                     {/* Action Buttons */}
                                     <div className="grid grid-cols-2 gap-2 mt-3">
-                                      {!task.isCompleted && (
+                                      {task.isCompletedOccurrence && task.activityId && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.")) {
+                                              undoCompletionMutation.mutate({
+                                                taskId: task.id,
+                                                householdId: household?.householdId ?? 0,
+                                                memberId: member?.memberId ?? 0,
+                                                activityId: task.activityId!,
+                                              });
+                                            }
+                                          }}
+                                        >
+                                          <ArrowLeft className="h-4 w-4 mr-1" />
+                                          Rückgängig machen
+                                        </Button>
+                                      )}
+                                      {!task.isCompleted && !task.isCompletedOccurrence && (
                                         <>
                                           <Button
                                             size="sm"
