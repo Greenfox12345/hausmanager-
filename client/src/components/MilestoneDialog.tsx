@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,17 @@ export function MilestoneDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const prevOpenRef = useRef(open);
+
+  // Reset form only when dialog closes (open changes from true to false)
+  useEffect(() => {
+    if (prevOpenRef.current && !open) {
+      // Dialog was just closed
+      setComment("");
+      setPhotos([]);
+    }
+    prevOpenRef.current = open;
+  }, [open]);
 
   const handleSubmit = async () => {
     if (!task) return;

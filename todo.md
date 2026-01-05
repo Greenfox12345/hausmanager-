@@ -932,3 +932,8 @@
 - [x] PhotoUpload: State wird nicht aktualisiert nach Upload (Toast erscheint, aber keine Vorschau)
 - [x] Debugging: onPhotosChange wird aufgerufen aber Parent-State ändert sich nicht
 - [x] Lösung implementieren und testen (useEffect entfernt, Key-Props mit open-State)
+
+## Foto-Upload State-Problem (persistent)
+- [x] Upload erfolgreich (Toast erscheint) aber Vorschau bleibt leer
+- [x] onPhotosChange wird aufgerufen aber State ändert sich nicht
+- [x] Alternative Lösung: useEffect mit prevOpenRef - Reset nur beim Schließen
