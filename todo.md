@@ -986,3 +986,16 @@
 - [x] Button "Wiederherstellen" für abgeschlossene Aufgaben hinzufügen
 - [x] Buttons nur anzeigen wenn Aufgabe nicht im Edit-Mode ist
 - [x] Nach Aktion automatisch Verlauf-Tab aktualisieren
+
+## Batch-Operationen für Aufgabenliste
+- [x] Mehrfachauswahl-Modus mit Checkboxen in der Aufgabenliste
+- [x] "Auswählen"-Button zum Aktivieren des Mehrfachauswahl-Modus
+- [x] Batch-Action-Toolbar mit Aktionszähler (z.B. "3 Aufgaben ausgewählt")
+- [x] Batch-Löschen: Mehrere Aufgaben gleichzeitig löschen
+- [x] Batch-Zuweisen: Mehrere Aufgaben einem Mitglied zuweisen
+- [x] Batch-Abschließen: Mehrere Aufgaben gleichzeitig als erledigt markieren
+- [x] Backend: Batch-Delete Mutation erstellen
+- [x] Backend: Batch-Assign Mutation erstellen
+- [x] Backend: Batch-Complete Mutation erstellen
+- [x] "Alle auswählen" / "Alle abwählen" Funktion
+- [x] Bestätigungsdialog vor destruktiven Batch-Operationen

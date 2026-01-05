@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
@@ -56,6 +57,35 @@ export default function Tasks() {
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  
+  // Batch selection states
+  const [batchMode, setBatchMode] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  const [showBatchAssignDialog, setShowBatchAssignDialog] = useState(false);
+  const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false);
+  const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null);
+  
+  const toggleTaskSelection = (taskId: number) => {
+    setSelectedTaskIds(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
+  };
+  
+  const selectAllTasks = () => {
+    const incompleteTasks = tasks.filter(t => !t.isCompleted);
+    setSelectedTaskIds(incompleteTasks.map(t => t.id));
+  };
+  
+  const deselectAllTasks = () => {
+    setSelectedTaskIds([]);
+  };
+  
+  const exitBatchMode = () => {
+    setBatchMode(false);
+    setSelectedTaskIds([]);
+  };
 
 
   const utils = trpc.useUtils();
@@ -108,6 +138,40 @@ export default function Tasks() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       toast.success("Aufgabe gelöscht");
+    },
+  });
+  
+  // Batch mutations
+  const batchDeleteMutation = trpc.tasks.batchDelete.useMutation({
+    onSuccess: (data) => {
+      utils.tasks.list.invalidate();
+      toast.success(`${data.deletedCount} Aufgabe(n) gelöscht`);
+      exitBatchMode();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+  
+  const batchAssignMutation = trpc.tasks.batchAssign.useMutation({
+    onSuccess: (data) => {
+      utils.tasks.list.invalidate();
+      toast.success(`${data.updatedCount} Aufgabe(n) zugewiesen`);
+      exitBatchMode();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+  
+  const batchCompleteMutation = trpc.tasks.batchComplete.useMutation({
+    onSuccess: (data) => {
+      utils.tasks.list.invalidate();
+      toast.success(`${data.completedCount} Aufgabe(n) abgeschlossen`);
+      exitBatchMode();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
     },
   });
 
@@ -731,6 +795,83 @@ export default function Tasks() {
         </Card>
 
         {/* Task list */}
+        {!isLoading && tasks.length > 0 && (
+          <div className="flex flex-col gap-3 mb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {batchMode ? (
+                  <>
+                    <Button variant="outline" size="sm" onClick={exitBatchMode}>
+                      Abbrechen
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {selectedTaskIds.length} {selectedTaskIds.length === 1 ? 'Aufgabe' : 'Aufgaben'} ausgewählt
+                    </span>
+                    {selectedTaskIds.length > 0 && (
+                      <Button variant="ghost" size="sm" onClick={deselectAllTasks}>
+                        Alle abwählen
+                      </Button>
+                    )}
+                    {selectedTaskIds.length < tasks.filter(t => !t.isCompleted).length && (
+                      <Button variant="ghost" size="sm" onClick={selectAllTasks}>
+                        Alle auswählen
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => setBatchMode(true)}>
+                    Auswählen
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Batch Action Toolbar */}
+            {batchMode && selectedTaskIds.length > 0 && (
+              <Card className="bg-muted/50 border-primary/20">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        if (!household || !member) return;
+                        batchCompleteMutation.mutate({
+                          taskIds: selectedTaskIds,
+                          householdId: household.householdId,
+                          memberId: member.memberId,
+                        });
+                      }}
+                      disabled={batchCompleteMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                      Abschließen
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowBatchAssignDialog(true)}
+                    >
+                      <User className="h-4 w-4 mr-1" />
+                      Zuweisen
+                    </Button>
+                    
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowBatchDeleteDialog(true)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Löschen
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+        
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
             Lädt Aufgaben...
@@ -746,16 +887,39 @@ export default function Tasks() {
             {tasks.map((task) => (
               <Card
                 key={task.id}
-                className={`shadow-sm transition-all duration-200 cursor-pointer ${
-                  task.isCompleted ? "opacity-60" : "hover:shadow-md"
+                className={`shadow-sm transition-all duration-200 ${
+                  batchMode ? "" : "cursor-pointer"
+                } ${
+                  task.isCompleted ? "opacity-60" : batchMode ? "" : "hover:shadow-md"
+                } ${
+                  selectedTaskIds.includes(task.id) ? "ring-2 ring-primary" : ""
                 }`}
-                onClick={() => {
-                  setSelectedTask(task);
-                  setDetailDialogOpen(true);
+                onClick={(e) => {
+                  if (batchMode) {
+                    e.stopPropagation();
+                    if (!task.isCompleted) {
+                      toggleTaskSelection(task.id);
+                    }
+                  } else {
+                    setSelectedTask(task);
+                    setDetailDialogOpen(true);
+                  }
                 }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
+                    {batchMode && (
+                      <Checkbox
+                        checked={selectedTaskIds.includes(task.id)}
+                        disabled={task.isCompleted}
+                        onCheckedChange={() => {
+                          if (!task.isCompleted) {
+                            toggleTaskSelection(task.id);
+                          }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
                         {task.name}
@@ -916,7 +1080,85 @@ export default function Tasks() {
           }
         }}
       />
-
+      
+      {/* Batch Assign Dialog */}
+      <Dialog open={showBatchAssignDialog} onOpenChange={setShowBatchAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aufgaben zuweisen</DialogTitle>
+            <DialogDescription>
+              {selectedTaskIds.length} Aufgabe(n) einem Mitglied zuweisen
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label>Mitglied auswählen</Label>
+            <Select value={batchAssignTo?.toString() || ""} onValueChange={(value) => setBatchAssignTo(Number(value))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Mitglied auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id.toString()}>
+                    {m.memberName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBatchAssignDialog(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              onClick={() => {
+                if (!household || !member || !batchAssignTo) return;
+                batchAssignMutation.mutate({
+                  taskIds: selectedTaskIds,
+                  householdId: household.householdId,
+                  memberId: member.memberId,
+                  assignedTo: batchAssignTo,
+                });
+                setShowBatchAssignDialog(false);
+              }}
+              disabled={!batchAssignTo || batchAssignMutation.isPending}
+            >
+              Zuweisen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Batch Delete Dialog */}
+      <Dialog open={showBatchDeleteDialog} onOpenChange={setShowBatchDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aufgaben löschen</DialogTitle>
+            <DialogDescription>
+              Möchten Sie wirklich {selectedTaskIds.length} Aufgabe(n) löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBatchDeleteDialog(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!household || !member) return;
+                batchDeleteMutation.mutate({
+                  taskIds: selectedTaskIds,
+                  householdId: household.householdId,
+                  memberId: member.memberId,
+                });
+                setShowBatchDeleteDialog(false);
+              }}
+              disabled={batchDeleteMutation.isPending}
+            >
+              Löschen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </AppLayout>
   );

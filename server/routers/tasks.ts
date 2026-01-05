@@ -440,4 +440,103 @@ export const tasksRouter = router({
 
       return { success: true };
     }),
+
+  // Batch delete tasks
+  batchDelete: publicProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.number()),
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const deletedCount = await Promise.all(
+        input.taskIds.map(async (taskId) => {
+          try {
+            await deleteTask(taskId);
+            return 1;
+          } catch (error) {
+            console.error(`Failed to delete task ${taskId}:`, error);
+            return 0;
+          }
+        })
+      );
+
+      const successCount = deletedCount.reduce((a: number, b: number) => a + b, 0);
+      return { success: true, deletedCount: successCount };
+    }),
+
+  // Batch assign tasks
+  batchAssign: publicProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.number()),
+        householdId: z.number(),
+        memberId: z.number(),
+        assignedTo: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const updatedCount = await Promise.all(
+        input.taskIds.map(async (taskId) => {
+          try {
+            await updateTask(taskId, {
+              assignedTo: input.assignedTo,
+            });
+            return 1;
+          } catch (error) {
+            console.error(`Failed to assign task ${taskId}:`, error);
+            return 0;
+          }
+        })
+      );
+
+      const successCount = updatedCount.reduce((a: number, b: number) => a + b, 0);
+      return { success: true, updatedCount: successCount };
+    }),
+
+  // Batch complete tasks
+  batchComplete: publicProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.number()),
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const completedCount = await Promise.all(
+        input.taskIds.map(async (taskId) => {
+          try {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return 0;
+
+            await updateTask(taskId, {
+              isCompleted: true,
+              completedBy: input.memberId,
+              completedAt: new Date(),
+            });
+
+            await createActivityLog({
+              householdId: input.householdId,
+              memberId: input.memberId,
+              activityType: "task",
+              action: "completed",
+              description: `Aufgabe abgeschlossen: ${task.name}`,
+              relatedItemId: taskId,
+            });
+
+            return 1;
+          } catch (error) {
+            console.error(`Failed to complete task ${taskId}:`, error);
+            return 0;
+          }
+        })
+      );
+
+      const successCount = completedCount.reduce((a: number, b: number) => a + b, 0);
+      return { success: true, completedCount: successCount };
+    }),
 });
