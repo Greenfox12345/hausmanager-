@@ -1072,3 +1072,10 @@
 - [x] Folgetermine in chronologischer Liste anzeigen
 - [x] Sortierung nach Fälligkeitsdatum (älteste zuerst)
 - [x] Visuelle Unterscheidung für Folgetermine beibehalten
+
+## Kalender: Aufgaben ohne Termine
+- [x] Separate Sektion unter chronologischer Liste für Aufgaben ohne dueDate
+- [x] Filter nach Verantwortlichem (Dropdown mit allen Haushaltsmitgliedern)
+- [x] Sortierung nach Erstellungsdatum (auf-/absteigend)
+- [x] Sortierung nach Name (alphabetisch auf-/absteigend)
+- [x] UI mit Filter- und Sortier-Controls

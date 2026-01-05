@@ -6,8 +6,9 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -28,6 +29,11 @@ export default function Calendar() {
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [actionTask, setActionTask] = useState<any | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  
+  // Filter and sort state for tasks without dates
+  const [filterAssignee, setFilterAssignee] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<"createdAt" | "name">("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const utils = trpc.useUtils();
 
@@ -219,6 +225,31 @@ export default function Calendar() {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
   }, [tasks, monthStart, monthEnd]);
+
+  // Tasks without due dates - filtered and sorted
+  const tasksWithoutDates = useMemo(() => {
+    let filtered = tasks.filter(task => !task.dueDate);
+    
+    // Apply assignee filter
+    if (filterAssignee !== null) {
+      filtered = filtered.filter(task => task.assignedTo === filterAssignee);
+    }
+    
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === "createdAt") {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        comparison = aDate - bDate;
+      } else if (sortBy === "name") {
+        comparison = a.name.localeCompare(b.name);
+      }
+      
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+  }, [tasks, filterAssignee, sortBy, sortOrder]);
 
   // Navigation functions
   const goToPreviousMonth = () => {
@@ -804,6 +835,191 @@ export default function Calendar() {
                                         </Button>
                                       </>
                                     )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Tasks Without Due Dates */}
+            <Card className="shadow-md">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <List className="h-5 w-5" />
+                    Aufgaben ohne Termine ({tasksWithoutDates.length})
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    {/* Assignee Filter */}
+                    <Select
+                      value={filterAssignee?.toString() ?? "all"}
+                      onValueChange={(value) => setFilterAssignee(value === "all" ? null : parseInt(value))}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Alle Mitglieder" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle Mitglieder</SelectItem>
+                        {members.map(m => (
+                          <SelectItem key={m.id} value={m.id.toString()}>
+                            {m.memberName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Sort By */}
+                    <Select
+                      value={sortBy}
+                      onValueChange={(value: "createdAt" | "name") => setSortBy(value)}
+                    >
+                      <SelectTrigger className="w-[160px]">
+                        <ArrowUpDown className="h-4 w-4 mr-2" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="createdAt">Erstellungsdatum</SelectItem>
+                        <SelectItem value="name">Name</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {/* Sort Order */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
+                      title={sortOrder === "asc" ? "Aufsteigend" : "Absteigend"}
+                    >
+                      <ArrowUpDown className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {tasksWithoutDates.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    {filterAssignee !== null
+                      ? "Keine Aufgaben ohne Termine für dieses Mitglied"
+                      : "Keine Aufgaben ohne Termine"}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tasksWithoutDates.map(task => {
+                      const frequency = getFrequencyBadge(task);
+                      const projectName = getProjectName(task.projectIds);
+                      
+                      return (
+                        <Card 
+                          key={task.id}
+                          className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${
+                            task.isCompleted ? "opacity-60" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setTaskDialogOpen(true);
+                          }}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`font-medium ${
+                                    task.isCompleted ? "line-through" : ""
+                                  }`}>
+                                    {task.name}
+                                  </span>
+                                  {task.isCompleted && (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                                      Erledigt
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
+                                  <span>{getMemberName(task.assignedTo)}</span>
+                                  {task.createdAt && (
+                                    <span>• Erstellt: {format(new Date(task.createdAt), "dd.MM.yyyy")}</span>
+                                  )}
+                                  {projectName && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <FolderKanban className="h-3 w-3 mr-1" />
+                                      {projectName}
+                                    </Badge>
+                                  )}
+                                  {frequency && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <Clock className="h-3 w-3 mr-1" />
+                                      {frequency}
+                                    </Badge>
+                                  )}
+                                  {task.enableRotation && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <Target className="h-3 w-3 mr-1" />
+                                      Rotation
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                {/* Action Buttons */}
+                                {!task.isCompleted && (
+                                  <div className="grid grid-cols-2 gap-2 mt-3">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActionTask(task);
+                                        setCompleteDialogOpen(true);
+                                      }}
+                                    >
+                                      <Check className="h-4 w-4 mr-1" />
+                                      Abschließen
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActionTask(task);
+                                        setMilestoneDialogOpen(true);
+                                      }}
+                                    >
+                                      <Target className="h-4 w-4 mr-1" />
+                                      Zwischenziel
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActionTask(task);
+                                        setReminderDialogOpen(true);
+                                      }}
+                                    >
+                                      <Bell className="h-4 w-4 mr-1" />
+                                      Erinnern
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                      onClick={(e) => handleDelete(task, e)}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-1" />
+                                      Löschen
+                                    </Button>
                                   </div>
                                 )}
                               </div>
