@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -16,6 +16,9 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState as useStateForTabs } from "react";
+import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
+import { MilestoneDialog } from "@/components/MilestoneDialog";
+import { ReminderDialog } from "@/components/ReminderDialog";
 
 interface Task {
   id: number;
@@ -56,6 +59,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+  
+  // Action dialog states
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
+  const [showReminderDialog, setShowReminderDialog] = useState(false);
   
   // Load task history
   const { data: taskHistory = [] } = trpc.activities.getByTaskId.useQuery(
@@ -201,6 +209,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
+  
+  // Restore task mutation
+  const restoreTask = trpc.tasks.toggleComplete.useMutation({
+    onSuccess: () => {
+      toast.success("Aufgabe wiederhergestellt");
+      utils.tasks.list.invalidate();
+      utils.activities.getByTaskId.invalidate();
+      if (onTaskUpdated && task) {
+        onTaskUpdated({ ...task, isCompleted: false, completed: false });
+      }
+    },
+    onError: () => {
+      toast.error("Fehler beim Wiederherstellen der Aufgabe");
+    },
+  });
 
   const handleSave = async () => {
     if (!household || !task) return;
@@ -354,6 +377,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const assignedMember = members.find(m => m.memberId === task.assignedTo);
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -862,7 +886,62 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       })()}
                     </div>
                   </div>
-                 )}
+                )}
+                
+                {/* Action Buttons */}
+                {!isEditing && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3">Aktionen</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {task.isCompleted || task.completed ? (
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            if (!household || !member) return;
+                            restoreTask.mutate({
+                              taskId: task.id,
+                              householdId: household.householdId,
+                              memberId: member.memberId,
+                              isCompleted: false,
+                            });
+                          }}
+                          disabled={restoreTask.isPending}
+                        >
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Wiederherstellen
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="default"
+                            className="w-full"
+                            onClick={() => setShowCompleteDialog(true)}
+                          >
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Abschließen
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setShowMilestoneDialog(true)}
+                          >
+                            <Target className="h-4 w-4 mr-2" />
+                            Zwischenziel
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full col-span-2"
+                            onClick={() => setShowReminderDialog(true)}
+                          >
+                            <Bell className="h-4 w-4 mr-2" />
+                            Erinnerung senden
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </TabsContent>
               
               <TabsContent value="history" className="space-y-4 mt-4">
@@ -943,5 +1022,87 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    
+    {/* Action Dialogs */}
+    {task && household && member && (
+      <>
+        <CompleteTaskDialog
+          open={showCompleteDialog}
+          onOpenChange={setShowCompleteDialog}
+          task={{
+            id: task.id,
+            name: task.name,
+            description: task.description || undefined,
+          }}
+          onComplete={async (data) => {
+            if (!household || !member) return;
+            await utils.client.tasks.completeTask.mutate({
+              taskId: task.id,
+              householdId: household.householdId,
+              memberId: member.memberId,
+              comment: data.comment,
+              photoUrls: data.photoUrls,
+            });
+            setShowCompleteDialog(false);
+            setActiveTab("history");
+            utils.tasks.list.invalidate();
+            utils.activities.getByTaskId.invalidate();
+            if (onTaskUpdated) {
+              onTaskUpdated({ ...task, isCompleted: true, completed: true });
+            }
+            toast.success("Aufgabe abgeschlossen");
+          }}
+        />
+        
+        <MilestoneDialog
+          open={showMilestoneDialog}
+          onOpenChange={setShowMilestoneDialog}
+          task={{
+            id: task.id,
+            name: task.name,
+            description: task.description || undefined,
+          }}
+          onAddMilestone={async (data) => {
+            if (!household || !member) return;
+            await utils.client.tasks.addMilestone.mutate({
+              taskId: task.id,
+              householdId: household.householdId,
+              memberId: member.memberId,
+              comment: data.comment,
+              photoUrls: data.photoUrls,
+            });
+            setShowMilestoneDialog(false);
+            setActiveTab("history");
+            utils.activities.getByTaskId.invalidate();
+            toast.success("Zwischenziel dokumentiert");
+          }}
+        />
+        
+        <ReminderDialog
+          open={showReminderDialog}
+          onOpenChange={setShowReminderDialog}
+          task={{
+            id: task.id,
+            name: task.name,
+            description: task.description || undefined,
+            assignedTo: task.assignedTo?.toString(),
+          }}
+          onSendReminder={async (data) => {
+            if (!household || !member) return;
+            await utils.client.tasks.sendReminder.mutate({
+              taskId: task.id,
+              householdId: household.householdId,
+              memberId: member.memberId,
+              comment: data.comment,
+            });
+            setShowReminderDialog(false);
+            setActiveTab("history");
+            utils.activities.getByTaskId.invalidate();
+            toast.success("Erinnerung gesendet");
+          }}
+        />
+      </>
+    )}
+  </>
   );
 }

@@ -978,3 +978,11 @@
 - [x] Frontend: Verlaufseinträge mit Fotos, Kommentaren und Zeitstempel anzeigen
 - [x] Frontend: Foto-Lightbox für Verlaufsfotos integrieren
 - [x] Testen mit verschiedenen Aktivitätstypen (Abschluss, Zwischenziel, Erinnerung)
+
+## Action-Buttons in Aufgaben-Detailansicht
+- [x] Button "Aufgabe abschließen" im Details-Tab hinzufügen (mit Foto + Kommentar Dialog)
+- [x] Button "Zwischenziel vermerken" im Details-Tab hinzufügen (mit Foto + Kommentar Dialog)
+- [x] Button "Erinnerung senden" im Details-Tab hinzufügen (mit optionalem Kommentar)
+- [x] Button "Wiederherstellen" für abgeschlossene Aufgaben hinzufügen
+- [x] Buttons nur anzeigen wenn Aufgabe nicht im Edit-Mode ist
+- [x] Nach Aktion automatisch Verlauf-Tab aktualisieren
