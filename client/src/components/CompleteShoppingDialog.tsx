@@ -156,4 +156,4 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
   );
 };
 
-export const CompleteShoppingDialog = memo(CompleteShoppingDialogComponent);
+export const CompleteShoppingDialog = CompleteShoppingDialogComponent;

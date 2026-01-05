@@ -181,4 +181,4 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   );
 };
 
-export const CompleteTaskDialog = memo(CompleteTaskDialogComponent);
+export const CompleteTaskDialog = CompleteTaskDialogComponent;

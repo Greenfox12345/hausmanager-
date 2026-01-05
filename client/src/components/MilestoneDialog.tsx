@@ -32,6 +32,8 @@ const MilestoneDialogComponent = function MilestoneDialog({
   task,
   onAddMilestone,
 }: MilestoneDialogProps) {
+  const instanceId = useRef(Math.random().toString(36).substr(2, 9));
+  console.log('[MilestoneDialog] Component rendered', { instanceId: instanceId.current, open, taskId: task?.id });
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,9 +42,9 @@ const MilestoneDialogComponent = function MilestoneDialog({
 
   // Callback for PhotoUpload with logging
   const handlePhotosChange = (newPhotos: string[]) => {
-    console.log('[MilestoneDialog] onPhotosChange called with:', newPhotos);
+    console.log(`[MilestoneDialog ${instanceId.current}] onPhotosChange called with:`, newPhotos);
     setPhotos(newPhotos);
-    console.log('[MilestoneDialog] setPhotos called');
+    console.log(`[MilestoneDialog ${instanceId.current}] setPhotos called`);
   };
 
   // Reset form only when dialog closes (open changes from true to false)
@@ -92,6 +94,8 @@ const MilestoneDialogComponent = function MilestoneDialog({
     onOpenChange(newOpen);
   };
 
+  console.log(`[MilestoneDialog ${instanceId.current}] Rendering Dialog`, { open, photos: photos.length });
+  
   return (
     <Dialog open={open} onOpenChange={handleOpenChange} modal={true}>
       <DialogContent key={`milestone-content-${task?.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -178,4 +182,4 @@ const MilestoneDialogComponent = function MilestoneDialog({
   );
 };
 
-export const MilestoneDialog = memo(MilestoneDialogComponent);
+export const MilestoneDialog = MilestoneDialogComponent;

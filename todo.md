@@ -957,9 +957,7 @@
 - [x] Nur Foto-Vorschau aktualisieren, Eingaben erhalten (automatisch durch State-Update)
 
 ## KRITISCH: Zweiter Dialog öffnet sich im Hintergrund beim Foto-Upload
-- [x] Root Cause gefunden: Dialog wird während State-Update neu gemountet
-- [x] Keys zu allen Dialogen hinzugefügt - funktioniert NICHT
-- [x] React.memo hinzugefügt - funktioniert NICHT
-- [x] DialogContent mit key versehen - funktioniert NICHT
-- [x] Conditional Rendering implementiert: {open && <Dialog />}
-- [ ] Testen ob conditional rendering das Problem löst
+- [x] Root Cause gefunden: React.memo verursacht Dialog-Duplikation!
+- [x] Console-Logs zeigen zwei verschiedene instanceIds (rwovakisx mit Foto, ktv5evzt0 ohne)
+- [x] React.memo aus allen Dialogen entfernt (MilestoneDialog, CompleteTaskDialog, CompleteShoppingDialog)
+- [ ] Testen ob Problem behoben ist
