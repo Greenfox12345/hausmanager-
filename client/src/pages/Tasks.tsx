@@ -26,11 +26,6 @@ export default function Tasks() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   
-  // Early return BEFORE any other hooks
-  if (!household || !member) {
-    return <div>Loading...</div>;
-  }
-  
   // Form state
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -229,6 +224,10 @@ export default function Tasks() {
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!household || !member) {
+      toast.error("Haushaltsdaten nicht verfügbar");
+      return;
+    }
     if (!newTaskName.trim()) {
       toast.error("Bitte geben Sie einen Aufgabennamen ein");
       return;
@@ -329,8 +328,8 @@ export default function Tasks() {
       await utils.projects.getAllDependencies.invalidate();
       
       // Refetch to ensure UI updates immediately
-      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-      await utils.projects.getAllDependencies.fetch({ householdId: household.householdId });
+      const refreshedTasks = await utils.tasks.list.fetch({ householdId: household!.householdId });
+      await utils.projects.getAllDependencies.fetch({ householdId: household!.householdId });
       
       // Reset form
       setNewTaskName("");
@@ -370,6 +369,7 @@ export default function Tasks() {
   };
 
   const handleDelete = (taskId: number) => {
+    if (!household || !member) return;
     if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
       deleteMutation.mutate({
         taskId,
@@ -380,7 +380,7 @@ export default function Tasks() {
   };
 
   const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
-    if (!selectedTask) return;
+    if (!selectedTask || !household || !member) return;
     await completeTaskMutation.mutateAsync({
       taskId: selectedTask.id,
       householdId: household.householdId,
@@ -391,7 +391,7 @@ export default function Tasks() {
   };
 
   const handleAddMilestone = async (data: { comment?: string; photoUrls: string[] }) => {
-    if (!selectedTask) return;
+    if (!selectedTask || !household || !member) return;
     await milestoneMutation.mutateAsync({
       taskId: selectedTask.id,
       householdId: household.householdId,
@@ -402,7 +402,7 @@ export default function Tasks() {
   };
 
   const handleSendReminder = async (data: { comment?: string }) => {
-    if (!selectedTask) return;
+    if (!selectedTask || !household || !member) return;
     await reminderMutation.mutateAsync({
       taskId: selectedTask.id,
       householdId: household.householdId,
@@ -505,6 +505,19 @@ export default function Tasks() {
     setSortBy("dueDate");
     setSortDirection("asc");
   };
+
+  // Loading state if household or member not available
+  if (!household || !member) {
+    return (
+      <AppLayout>
+        <div className="container py-6 max-w-4xl">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Lade Haushaltsdaten...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
