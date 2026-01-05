@@ -921,3 +921,9 @@
 - [x] MilestoneDialog: Foto-URLs korrekt übergeben
 - [x] Hochgeladene Fotos im Dialog anzeigen
 - [x] Fotos im Aktivitätsverlauf anzeigen
+
+## Foto-Upload UI-Verbesserungen
+- [x] PhotoUpload: Fortschrittsbalken während Upload anzeigen
+- [x] PhotoUpload: Foto-Vorschau direkt im Dialog anzeigen
+- [x] PhotoUpload: Versteckten Browser-Dialog-Problem beheben
+- [x] Alle Dialoge mit Foto-Upload aktualisieren (CompleteTask, Milestone, Shopping)

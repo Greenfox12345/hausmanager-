@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,14 @@ export function CompleteShoppingDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setComment("");
+      setPhotos([]);
+    }
+  }, [open]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);

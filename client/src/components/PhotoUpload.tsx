@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { Progress } from "@/components/ui/progress";
 
 interface PhotoUploadProps {
   photos: string[];
@@ -13,6 +14,8 @@ interface PhotoUploadProps {
 
 export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFileName, setCurrentFileName] = useState("");
   const uploadMutation = trpc.upload.uploadPhoto.useMutation();
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,10 +28,16 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
     }
 
     setUploading(true);
+    setUploadProgress(0);
     const newPhotos: string[] = [];
+    const fileArray = Array.from(files);
 
     try {
-      for (const file of Array.from(files)) {
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i];
+        setCurrentFileName(file.name);
+        setUploadProgress(Math.round((i / fileArray.length) * 100));
+
         // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast.error(`${file.name} ist zu groß (max. 5MB)`);
@@ -55,15 +64,20 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
           filename: file.name,
         });
         newPhotos.push(url);
+        
+        // Update progress
+        setUploadProgress(Math.round(((i + 1) / fileArray.length) * 100));
       }
 
       onPhotosChange([...photos, ...newPhotos]);
-      // Toast removed to prevent dialog overlay issues
+      toast.success(`${newPhotos.length} Foto(s) hochgeladen`);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Fehler beim Hochladen der Fotos");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
+      setCurrentFileName("");
       // Reset input
       e.target.value = "";
     }
@@ -76,6 +90,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
 
   return (
     <div className="space-y-3">
+      {/* Upload Button */}
       <div className="flex items-center gap-2">
         <Input
           type="file"
@@ -92,6 +107,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
           size="sm"
           onClick={() => document.getElementById("photo-upload")?.click()}
           disabled={uploading || photos.length >= maxPhotos}
+          className="w-full"
         >
           {uploading ? (
             <>
@@ -107,24 +123,50 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5 }: PhotoUplo
         </Button>
       </div>
 
+      {/* Upload Progress */}
+      {uploading && (
+        <div className="space-y-2 p-3 bg-muted/50 rounded-lg border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="truncate">{currentFileName}</span>
+          </div>
+          <Progress value={uploadProgress} className="h-2" />
+          <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
+        </div>
+      )}
+
+      {/* Photo Preview Grid */}
       {photos.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-3">
           {photos.map((photo, index) => (
-            <div key={index} className="relative group">
+            <div key={index} className="relative group aspect-square">
               <img
                 src={photo}
                 alt={`Foto ${index + 1}`}
-                className="w-full h-24 object-cover rounded-lg border"
+                className="w-full h-full object-cover rounded-lg border border-border"
               />
               <button
                 type="button"
                 onClick={() => removePhoto(index)}
-                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                title="Foto entfernen"
               >
                 <X className="h-3 w-3" />
               </button>
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 px-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                Foto {index + 1}
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {photos.length === 0 && !uploading && (
+        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+          <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">Noch keine Fotos hochgeladen</p>
+          <p className="text-xs text-muted-foreground mt-1">Klicken Sie auf "Fotos hinzufügen"</p>
         </div>
       )}
     </div>
