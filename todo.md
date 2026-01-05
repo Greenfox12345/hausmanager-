@@ -1097,3 +1097,22 @@
 
 - [x] Backend: restoreSkippedDate Mutation implementiert
 - [x] Frontend: Skipped Dates Liste in TaskDetailDialog mit Restore-Buttons
+
+## Kalender & Folgetermine Bugs (Aktuell)
+- [x] "Zum Termin springen" Button springt zum falschen Datum (heute statt zum Termin)
+- [x] "Erinnern"-Button bei Folgeterminen entfernen (ergibt keinen Sinn)
+- [x] "Auslassen"-Button funktioniert nicht zuverlässig
+- [x] Wiederherstellung ausgelassener Termine in Aufgabendetails nicht sichtbar/auffindbar
+- [x] Folgetermine laden nicht beim Durchscrollen der Monate im Kalender
+- [x] Chronologische Liste zeigt zu wenige Folgetermine
+- [x] Chronologische Liste: Standardansicht auf 3 Monate ab heute begrenzen
+- [x] Chronologische Liste: Überfällige Aufgaben von davor hervorheben und oben anzeigen
+- [x] Chronologische Liste: Zeitraum-Filter für angezeigte Aufgaben hinzufügen
+- [x] "Zum Termin springen" Button verwendet jetzt occurrenceDate statt dueDate
+- [x] "Erinnern"-Button bei Folgeterminen entfernt
+- [x] "Auslassen"-Button verwendet jetzt occurrenceDate statt dueDate
+- [x] Skipped Dates Wiederherstellung in TaskDetailDialog verifiziert (bereits implementiert)
+- [x] Folgetermine-Berechnung erweitert um alle Monate zu unterstützen (nicht nur aktuellen Monat)
+- [x] Chronologische Liste: 3-Monats-Standardansicht implementiert
+- [x] Chronologische Liste: Überfällige Aufgaben hervorgehoben und oben angezeigt
+- [x] Chronologische Liste: Zeitraum-Filter (1/3/6/12 Monate) hinzugefügt

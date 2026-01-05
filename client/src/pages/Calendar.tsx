@@ -34,6 +34,9 @@ export default function Calendar() {
   const [filterAssignee, setFilterAssignee] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<"createdAt" | "name">("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  
+  // Chronological list time range filter (in months from today)
+  const [chronologicalRange, setChronologicalRange] = useState<number>(3);
 
   const utils = trpc.useUtils();
 
@@ -121,7 +124,7 @@ export default function Calendar() {
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Calculate future occurrences for recurring tasks
-  const calculateFutureOccurrences = (task: typeof tasks[0], maxOccurrences: number = 12) => {
+  const calculateFutureOccurrences = (task: typeof tasks[0], maxMonths: number = 12) => {
     if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) {
       return [];
     }
@@ -129,8 +132,15 @@ export default function Calendar() {
     const occurrences: Array<{ date: Date; isOriginal: boolean }> = [];
     let currentDate = new Date(task.dueDate);
     const skippedDates = task.skippedDates || [];
+    
+    // Calculate max date (12 months from current month view)
+    const maxDate = new Date(monthEnd);
+    maxDate.setMonth(maxDate.getMonth() + maxMonths);
+    
+    let iterations = 0;
+    const maxIterations = 365; // Safety limit
 
-    for (let i = 0; i < maxOccurrences; i++) {
+    while (currentDate <= maxDate && iterations < maxIterations) {
       // Calculate next occurrence
       const nextDate = new Date(currentDate);
       if (task.repeatUnit === "days") {
@@ -151,9 +161,7 @@ export default function Calendar() {
       }
 
       currentDate = nextDate;
-
-      // Stop if we're way past the current month
-      if (nextDate > monthEnd) break;
+      iterations++;
     }
 
     return occurrences;
@@ -181,7 +189,7 @@ export default function Calendar() {
           if (!grouped[dateKey]) {
             grouped[dateKey] = [];
           }
-          grouped[dateKey].push({ ...task, isFutureOccurrence: true });
+          grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date } as any);
         });
       }
     });
@@ -214,29 +222,60 @@ export default function Calendar() {
   }, [tasks, activityHistory, monthStart, monthEnd]);
   // Create chronological task list with future occurrences
   const chronologicalTasks = useMemo(() => {
-    const allTasks: Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }> = [];
+    const allTasks: Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number; isOverdue?: boolean }> = [];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(today);
+    endDate.setMonth(endDate.getMonth() + chronologicalRange);
     
     // Add current tasks
     tasks.forEach(task => {
       if (task.dueDate) {
-        allTasks.push(task);
+        const taskDate = new Date(task.dueDate);
+        taskDate.setHours(0, 0, 0, 0);
+        
+        // Include if within range OR overdue (and not completed)
+        if ((taskDate <= endDate) || (taskDate < today && !task.isCompleted)) {
+          allTasks.push({
+            ...task,
+            isOverdue: taskDate < today && !task.isCompleted
+          });
+        }
       }
       
       // Add future occurrences for recurring tasks
       if (task.repeatInterval && task.repeatUnit) {
-        const futureOccurrences = calculateFutureOccurrences(task, 50); // Show more occurrences in list view
+        const futureOccurrences = calculateFutureOccurrences(task, chronologicalRange);
         futureOccurrences.forEach(occurrence => {
-          allTasks.push({ ...task, dueDate: occurrence.date, isFutureOccurrence: true });
+          const occurrenceDate = new Date(occurrence.date);
+          occurrenceDate.setHours(0, 0, 0, 0);
+          
+          if (occurrenceDate <= endDate) {
+            allTasks.push({ 
+              ...task, 
+              dueDate: occurrence.date, 
+              isFutureOccurrence: true,
+              occurrenceDate: occurrence.date,
+              isOverdue: false
+            } as any);
+          }
         });
       }
     });
     
-    // Sort by due date (oldest first)
+    // Sort: overdue first, then by due date (oldest first)
     return allTasks.sort((a, b) => {
       if (!a.dueDate || !b.dueDate) return 0;
+      
+      // Overdue tasks come first
+      if (a.isOverdue && !b.isOverdue) return -1;
+      if (!a.isOverdue && b.isOverdue) return 1;
+      
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
-  }, [tasks, monthStart, monthEnd]);
+  }, [tasks, chronologicalRange]);
 
   // Tasks without due dates - filtered and sorted
   const tasksWithoutDates = useMemo(() => {
@@ -715,10 +754,25 @@ export default function Calendar() {
           <TabsContent value="all" className="space-y-4">
             <Card className="shadow-md">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <List className="h-5 w-5" />
-                  Alle Aufgaben (chronologisch)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <List className="h-5 w-5" />
+                    Alle Aufgaben (chronologisch)
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm text-muted-foreground">Zeitraum:</label>
+                    <select 
+                      className="border rounded px-2 py-1 text-sm"
+                      value={chronologicalRange}
+                      onChange={(e) => setChronologicalRange(Number(e.target.value))}
+                    >
+                      <option value={1}>1 Monat</option>
+                      <option value={3}>3 Monate</option>
+                      <option value={6}>6 Monate</option>
+                      <option value={12}>12 Monate</option>
+                    </select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {chronologicalTasks.length === 0 ? (
@@ -737,6 +791,7 @@ export default function Calendar() {
                           key={`${task.id}-${index}`}
                           className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${
                             task.isCompletedOccurrence ? "opacity-60" :
+                            (task as any).isOverdue ? "border-red-300 bg-red-50" :
                             task.isFutureOccurrence ? "border-purple-200" :
                             task.isCompleted ? "opacity-60" : ""
                           }`}
@@ -754,6 +809,11 @@ export default function Calendar() {
                                   }`}>
                                     {task.name}
                                   </span>
+                                  {(task as any).isOverdue && (
+                                    <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300 text-xs font-semibold">
+                                      Überfällig
+                                    </Badge>
+                                  )}
                                   {task.isFutureOccurrence && (
                                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
                                       Folgetermin
@@ -834,7 +894,8 @@ export default function Calendar() {
                                           className="w-full"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            setCurrentMonth(new Date(task.dueDate!));
+                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                            setCurrentMonth(targetDate);
                                             toast.info("Zum Termin gesprungen");
                                           }}
                                         >
@@ -848,11 +909,12 @@ export default function Calendar() {
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                               skipOccurrenceMutation.mutate({
                                                 taskId: task.id,
                                                 householdId: household?.householdId ?? 0,
                                                 memberId: member?.memberId ?? 0,
-                                                dateToSkip: format(new Date(task.dueDate!), "yyyy-MM-dd"),
+                                                dateToSkip: format(targetDate, "yyyy-MM-dd"),
                                               });
                                             }
                                           }}
@@ -892,7 +954,7 @@ export default function Calendar() {
                                         </Button>
                                       </>
                                     )}
-                                    {!task.isCompletedOccurrence && (
+                                    {!task.isCompletedOccurrence && !task.isFutureOccurrence && (
                                       <>
                                         <Button
                                           size="sm"
@@ -907,16 +969,18 @@ export default function Calendar() {
                                           <Bell className="h-4 w-4 mr-1" />
                                           Erinnern
                                         </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                          onClick={(e) => handleDelete(task, e)}
-                                        >
-                                          <Trash2 className="h-4 w-4 mr-1" />
-                                          Löschen
-                                        </Button>
                                       </>
+                                    )}
+                                    {!task.isCompletedOccurrence && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                        onClick={(e) => handleDelete(task, e)}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Löschen
+                                      </Button>
                                     )}
                                   </div>
                               </div>
