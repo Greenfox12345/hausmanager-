@@ -11,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
@@ -66,6 +67,7 @@ export default function Tasks() {
   const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null);
   
   // Filter and sorting states
+  const [filterExpanded, setFilterExpanded] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "completed">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<number | "all">("all");
   const [dueDateFilter, setDueDateFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
@@ -876,17 +878,26 @@ export default function Tasks() {
         {/* Filter and Sort Controls */}
         {!isLoading && tasks.length > 0 && (
           <Card className="shadow-sm mb-3">
-            <CardContent className="p-4">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium">Filter & Sortierung</h3>
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    Zurücksetzen
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <Collapsible open={filterExpanded} onOpenChange={setFilterExpanded}>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="flex items-center gap-2 p-0 h-auto hover:bg-transparent">
+                        <h3 className="text-sm font-medium">Filter & Sortierung</h3>
+                        <ChevronDown className={`h-4 w-4 transition-transform ${filterExpanded ? 'rotate-180' : ''}`} />
+                      </Button>
+                    </CollapsibleTrigger>
+                    {filterExpanded && (
+                      <Button variant="ghost" size="sm" onClick={resetFilters}>
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Zurücksetzen
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <CollapsibleContent>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2">
                   {/* Status Filter */}
                   <div>
                     <Label className="text-xs">Status</Label>
@@ -961,13 +972,15 @@ export default function Tasks() {
                       </Button>
                     </div>
                   </div>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground mt-2">
+                      {filteredAndSortedTasks.length} von {tasks.length} Aufgabe(n)
+                    </div>
+                  </CollapsibleContent>
                 </div>
-                
-                <div className="text-xs text-muted-foreground">
-                  {filteredAndSortedTasks.length} von {tasks.length} Aufgabe(n)
-                </div>
-              </div>
-            </CardContent>
+              </CardContent>
+            </Collapsible>
           </Card>
         )}
         
@@ -1151,7 +1164,7 @@ export default function Tasks() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1 shrink-0">
+                    <div className="grid grid-cols-2 gap-1 shrink-0">
                       {!task.isCompleted && (
                         <>
                           <Button
@@ -1173,12 +1186,12 @@ export default function Tasks() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedTask(task);
-                              setMilestoneDialogOpen(true);
+                              setReminderDialogOpen(true);
                             }}
-                            className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                            title="Zwischensieg dokumentieren"
+                            className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
+                            title="Erinnerung senden"
                           >
-                            <Target className="h-4 w-4" />
+                            <Bell className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -1186,12 +1199,12 @@ export default function Tasks() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedTask(task);
-                              setReminderDialogOpen(true);
+                              setMilestoneDialogOpen(true);
                             }}
-                            className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
-                            title="Erinnerung senden"
+                            className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+                            title="Zwischensieg dokumentieren"
                           >
-                            <Bell className="h-4 w-4" />
+                            <Target className="h-4 w-4" />
                           </Button>
                         </>
                       )}

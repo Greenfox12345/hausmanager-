@@ -952,7 +952,7 @@ export default function Projects() {
                                       </div>
                                       
                                       {/* Task Action Buttons */}
-                                      <div className="flex items-center gap-1">
+                                      <div className="grid grid-cols-2 gap-1 shrink-0">
                                         {!task.isCompleted && (
                                           <>
                                             <Button
@@ -974,12 +974,12 @@ export default function Projects() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSelectedTask(task);
-                                                setMilestoneDialogOpen(true);
+                                                setReminderDialogOpen(true);
                                               }}
-                                              className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                                              title="Zwischenziel dokumentieren"
+                                              className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
+                                              title="Erinnerung senden"
                                             >
-                                              <Target className="h-4 w-4" />
+                                              <Bell className="h-4 w-4" />
                                             </Button>
                                             <Button
                                               variant="ghost"
@@ -987,12 +987,12 @@ export default function Projects() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSelectedTask(task);
-                                                setReminderDialogOpen(true);
+                                                setMilestoneDialogOpen(true);
                                               }}
-                                              className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
-                                              title="Erinnerung senden"
+                                              className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+                                              title="Zwischenziel dokumentieren"
                                             >
-                                              <Bell className="h-4 w-4" />
+                                              <Target className="h-4 w-4" />
                                             </Button>
                                           </>
                                         )}

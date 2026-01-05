@@ -1015,3 +1015,8 @@
 - [x] Frontend: Pagination UI mit Seitenzahlen und Vor/Zurück-Buttons
 - [x] Frontend: 30 Einträge pro Seite im Verlauf anzeigen
 - [x] Loading State während Seitenwechsel
+
+## UI-Verbesserungen
+- [x] Filter & Sortierung als zusammenklappbares Feld (Collapsible)
+- [x] Action-Buttons in Aufgabenliste in zwei Spalten organisieren (Abschließen über Zwischenziel, Erinnerung über Löschen)
+- [x] Action-Buttons auch bei /projects in zwei Spalten organisieren
