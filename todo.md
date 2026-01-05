@@ -1066,3 +1066,9 @@
 - [x] Backend: Bei Undo Rotation rückgängig machen (vorheriger Verantwortlicher)
 - [x] Frontend: "Rückgängig"-Button in Tages-Detailansicht für erledigte Termine
 - [x] Frontend: Undo-Funktion mit Bestätigungs-Dialog
+
+## Kalender: Chronologische Aufgabenliste
+- [x] "Alle Aufgaben"-Tab von Projekt-Gruppierung auf chronologische Liste umstellen
+- [x] Folgetermine in chronologischer Liste anzeigen
+- [x] Sortierung nach Fälligkeitsdatum (älteste zuerst)
+- [x] Visuelle Unterscheidung für Folgetermine beibehalten

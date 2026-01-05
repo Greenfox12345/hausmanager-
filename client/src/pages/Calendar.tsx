@@ -194,18 +194,31 @@ export default function Calendar() {
     
     return grouped;
   }, [tasks, activityHistory, monthStart, monthEnd]);
-  // Group tasks by project
-  const tasksByProject = useMemo(() => {
-    const grouped: Record<string, typeof tasks> = {
-      "no-project": tasks.filter(t => !t.projectIds || t.projectIds.length === 0),
-    };
+  // Create chronological task list with future occurrences
+  const chronologicalTasks = useMemo(() => {
+    const allTasks: Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }> = [];
     
-    projects.forEach(project => {
-      grouped[`project-${project.id}`] = tasks.filter(t => t.projectIds && t.projectIds.includes(project.id));
+    // Add current tasks
+    tasks.forEach(task => {
+      if (task.dueDate) {
+        allTasks.push(task);
+      }
+      
+      // Add future occurrences for recurring tasks
+      if (task.repeatInterval && task.repeatUnit) {
+        const futureOccurrences = calculateFutureOccurrences(task, 50); // Show more occurrences in list view
+        futureOccurrences.forEach(occurrence => {
+          allTasks.push({ ...task, dueDate: occurrence.date, isFutureOccurrence: true });
+        });
+      }
     });
     
-    return grouped;
-  }, [tasks, projects]);
+    // Sort by due date (oldest first)
+    return allTasks.sort((a, b) => {
+      if (!a.dueDate || !b.dueDate) return 0;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+  }, [tasks, monthStart, monthEnd]);
 
   // Navigation functions
   const goToPreviousMonth = () => {
@@ -619,26 +632,35 @@ export default function Calendar() {
             </Card>
           </TabsContent>
 
-          {/* All Tasks View */}
+          {/* All Tasks View - Chronological */}
           <TabsContent value="all" className="space-y-4">
-            {/* Tasks without project */}
-            {tasksByProject["no-project"].length > 0 && (
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <List className="h-5 w-5" />
-                    Aufgaben ohne Projekt
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <List className="h-5 w-5" />
+                  Alle Aufgaben (chronologisch)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {chronologicalTasks.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+                    <p className="text-muted-foreground">Keine Aufgaben vorhanden</p>
+                  </div>
+                ) : (
                   <div className="space-y-2">
-                    {tasksByProject["no-project"].map(task => {
+                    {chronologicalTasks.map((task, index) => {
                       const frequency = getFrequencyBadge(task);
+                      const projectName = getProjectName(task.projectIds);
                       
                       return (
                         <Card 
-                          key={task.id} 
-                          className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
+                          key={`${task.id}-${index}`}
+                          className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${
+                            task.isCompletedOccurrence ? "opacity-60" :
+                            task.isFutureOccurrence ? "border-purple-200" :
+                            task.isCompleted ? "opacity-60" : ""
+                          }`}
                           onClick={() => {
                             setSelectedTask(task);
                             setTaskDialogOpen(true);
@@ -648,16 +670,29 @@ export default function Calendar() {
                             <div className="flex items-start gap-3">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
+                                  <span className={`font-medium ${
+                                    task.isCompleted || task.isCompletedOccurrence ? "line-through" : ""
+                                  }`}>
                                     {task.name}
                                   </span>
-                                  {task.isCompleted && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                  {task.isFutureOccurrence && (
+                                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                                      Folgetermin
+                                    </Badge>
+                                  )}
+                                  {task.isCompletedOccurrence && (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                                      Erledigter Termin
+                                    </Badge>
+                                  )}
+                                  {task.isCompleted && !task.isCompletedOccurrence && (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
                                       <CheckCircle2 className="h-3 w-3 mr-1" />
                                       Erledigt
                                     </Badge>
                                   )}
-                                  {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
+                                  {!task.isCompleted && !task.isFutureOccurrence && task.dueDate && isPast(new Date(task.dueDate)) && (
                                     <Badge variant="destructive" className="text-xs">
                                       Überfällig
                                     </Badge>
@@ -668,6 +703,12 @@ export default function Calendar() {
                                   <span>{getMemberName(task.assignedTo)}</span>
                                   {task.dueDate && (
                                     <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
+                                  )}
+                                  {projectName && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <FolderKanban className="h-3 w-3 mr-1" />
+                                      {projectName}
+                                    </Badge>
                                   )}
                                   {frequency && (
                                     <Badge variant="outline" className="text-xs">
@@ -683,144 +724,31 @@ export default function Calendar() {
                                   )}
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-2 gap-2 mt-3">
-                                  {!task.isCompleted && (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActionTask(task);
-                                          setCompleteDialogOpen(true);
-                                        }}
-                                      >
-                                        <Check className="h-4 w-4 mr-1" />
-                                        Abschließen
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActionTask(task);
-                                          setMilestoneDialogOpen(true);
-                                        }}
-                                      >
-                                        <Target className="h-4 w-4 mr-1" />
-                                        Zwischenziel
-                                      </Button>
-                                    </>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActionTask(task);
-                                      setReminderDialogOpen(true);
-                                    }}
-                                  >
-                                    <Bell className="h-4 w-4 mr-1" />
-                                    Erinnern
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                    onClick={(e) => handleDelete(task, e)}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-1" />
-                                    Löschen
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Projects with tasks */}
-            {projects.map(project => {
-              const projectTasks = tasksByProject[`project-${project.id}`] || [];
-              if (projectTasks.length === 0) return null;
-              
-              return (
-                <Card key={project.id} className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FolderKanban className="h-5 w-5 text-primary" />
-                      {project.name}
-                    </CardTitle>
-                    {project.description && (
-                      <p className="text-sm text-muted-foreground">{project.description}</p>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {projectTasks.map(task => {
-                        const frequency = getFrequencyBadge(task);
-                        
-                        return (
-                          <Card 
-                            key={task.id} 
-                            className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
-                            onClick={() => {
-                              setSelectedTask(task);
-                              setTaskDialogOpen(true);
-                            }}
-                          >
-                            <CardContent className="p-3">
-                              <div className="flex items-start gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                                      {task.name}
-                                    </span>
-                                    {task.isCompleted && (
-                                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                        Erledigt
-                                      </Badge>
-                                    )}
-                                    {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
-                                      <Badge variant="destructive" className="text-xs">
-                                        Überfällig
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                    <span>{getMemberName(task.assignedTo)}</span>
-                                    {task.dueDate && (
-                                      <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
-                                    )}
-                                    {frequency && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <Clock className="h-3 w-3 mr-1" />
-                                        {frequency}
-                                      </Badge>
-                                    )}
-                                    {task.enableRotation && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <Target className="h-3 w-3 mr-1" />
-                                        Rotation
-                                      </Badge>
-                                    )}
-                                  </div>
-
-                                  {/* Action Buttons */}
+                                {/* Action Buttons - Only for non-future tasks */}
+                                {!task.isFutureOccurrence && (
                                   <div className="grid grid-cols-2 gap-2 mt-3">
-                                    {!task.isCompleted && (
+                                    {task.isCompletedOccurrence && task.activityId && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.")) {
+                                            undoCompletionMutation.mutate({
+                                              taskId: task.id,
+                                              householdId: household?.householdId ?? 0,
+                                              memberId: member?.memberId ?? 0,
+                                              activityId: task.activityId!,
+                                            });
+                                          }
+                                        }}
+                                      >
+                                        <ArrowLeft className="h-4 w-4 mr-1" />
+                                        Rückgängig machen
+                                      </Button>
+                                    )}
+                                    {!task.isCompleted && !task.isCompletedOccurrence && (
                                       <>
                                         <Button
                                           size="sm"
@@ -850,61 +778,47 @@ export default function Calendar() {
                                         </Button>
                                       </>
                                     )}
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="w-full"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActionTask(task);
-                                        setReminderDialogOpen(true);
-                                      }}
-                                    >
-                                      <Bell className="h-4 w-4 mr-1" />
-                                      Erinnern
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                      onClick={(e) => handleDelete(task, e)}
-                                    >
-                                      <Trash2 className="h-4 w-4 mr-1" />
-                                      Löschen
-                                    </Button>
+                                    {!task.isCompletedOccurrence && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionTask(task);
+                                            setReminderDialogOpen(true);
+                                          }}
+                                        >
+                                          <Bell className="h-4 w-4 mr-1" />
+                                          Erinnern
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                          onClick={(e) => handleDelete(task, e)}
+                                        >
+                                          <Trash2 className="h-4 w-4 mr-1" />
+                                          Löschen
+                                        </Button>
+                                      </>
+                                    )}
                                   </div>
-                                </div>
+                                )}
                               </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-
-            {/* No projects message */}
-            {projects.length === 0 && tasksByProject["no-project"].length === 0 && (
-              <Card className="shadow-sm">
-                <CardContent className="py-16 text-center">
-                  <FolderKanban className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="text-lg font-semibold mb-2">Keine Projekte vorhanden</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto mb-4">
-                    Erstellen Sie Projektaufgaben auf der Aufgabenseite, um sie hier zu sehen.
-                  </p>
-                  <Button onClick={() => setLocation("/tasks")}>
-                    Zur Aufgabenseite
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
-
       {/* Task Detail Dialog */}
       <TaskDetailDialog
         task={selectedTask}
