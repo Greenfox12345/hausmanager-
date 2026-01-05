@@ -83,7 +83,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
       const updatedPhotos = [...photos, ...newPhotos];
       console.log('[PhotoUpload] Calling onPhotosChange with:', updatedPhotos);
       onPhotosChange(updatedPhotos);
-      toast.success(`${newPhotos.length} Foto(s) hochgeladen`);
+      // Toast removed to prevent dialog overlay
       console.log('[PhotoUpload] Upload complete');
     } catch (error) {
       console.error("Upload error:", error);

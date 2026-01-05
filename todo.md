@@ -951,3 +951,7 @@
 ## useCallback verhindert State-Update
 - [x] useCallback mit leerer Dependency-Liste hat veraltete Closure
 - [x] Direkt setPhotos verwenden statt useCallback (normale Funktion)
+
+## Toast öffnet Dialog über Hauptdialog
+- [x] Toast entfernen oder durch Inline-Feedback ersetzen (Toast entfernt)
+- [x] Nur Foto-Vorschau aktualisieren, Eingaben erhalten (automatisch durch State-Update)
