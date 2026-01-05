@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, RefreshCw } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -27,6 +27,7 @@ export default function Calendar() {
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [actionTask, setActionTask] = useState<any | null>(null);
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   const utils = trpc.useUtils();
 
@@ -87,21 +88,74 @@ export default function Calendar() {
 
   // Auth check removed - AppLayout handles this
 
-  // Group tasks by due date for calendar view
+  // Get current month days for calendar
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  // Calculate future occurrences for recurring tasks
+  const calculateFutureOccurrences = (task: any, maxOccurrences: number = 12) => {
+    if (!task.dueDate || !task.repeatInterval || !task.repeatUnit || task.isCompleted) {
+      return [];
+    }
+
+    const occurrences: Array<{ date: Date; isOriginal: boolean }> = [];
+    let currentDate = new Date(task.dueDate);
+
+    for (let i = 0; i < maxOccurrences; i++) {
+      // Calculate next occurrence
+      const nextDate = new Date(currentDate);
+      if (task.repeatUnit === "days") {
+        nextDate.setDate(nextDate.getDate() + task.repeatInterval);
+      } else if (task.repeatUnit === "weeks") {
+        nextDate.setDate(nextDate.getDate() + (task.repeatInterval * 7));
+      } else if (task.repeatUnit === "months") {
+        nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
+      }
+
+      // Only include if within current month view (or near future)
+      if (nextDate >= monthStart && nextDate <= monthEnd) {
+        occurrences.push({ date: nextDate, isOriginal: false });
+      }
+
+      currentDate = nextDate;
+
+      // Stop if we're way past the current month
+      if (nextDate > monthEnd) break;
+    }
+
+    return occurrences;
+  };
+
+  // Group tasks by date (including future occurrences)
   const tasksByDate = useMemo(() => {
-    const grouped: Record<string, typeof tasks> = {};
+    const grouped: Record<string, Array<typeof tasks[0] & { isOriginal?: boolean; isFutureOccurrence?: boolean }>> = {};
+    
     tasks.forEach(task => {
+      // Add original task
       if (task.dueDate) {
         const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
         if (!grouped[dateKey]) {
           grouped[dateKey] = [];
         }
-        grouped[dateKey].push(task);
+        grouped[dateKey].push({ ...task, isOriginal: true });
+      }
+
+      // Add future occurrences for recurring tasks
+      if (task.repeatInterval && task.repeatUnit && !task.isCompleted) {
+        const futureOccurrences = calculateFutureOccurrences(task);
+        futureOccurrences.forEach(occurrence => {
+          const dateKey = format(occurrence.date, "yyyy-MM-dd");
+          if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+          }
+          grouped[dateKey].push({ ...task, isFutureOccurrence: true, isOriginal: false });
+        });
       }
     });
+    
     return grouped;
-  }, [tasks]);
-
+  }, [tasks, monthStart, monthEnd]);
   // Group tasks by project
   const tasksByProject = useMemo(() => {
     const grouped: Record<string, typeof tasks> = {
@@ -115,11 +169,18 @@ export default function Calendar() {
     return grouped;
   }, [tasks, projects]);
 
-  // Get current month days for calendar
-  const currentMonth = new Date();
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  // Navigation functions
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentMonth(new Date());
+  };
 
   // Get tasks for selected date
   const selectedDateTasks = selectedDate
@@ -243,10 +304,35 @@ export default function Calendar() {
           <TabsContent value="calendar" className="space-y-4">
             <Card className="shadow-md">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  {format(currentMonth, "MMMM yyyy", { locale: de })}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    {format(currentMonth, "MMMM yyyy", { locale: de })}
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToPreviousMonth}
+                    >
+                      ← Zurück
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToToday}
+                    >
+                      Heute
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToNextMonth}
+                    >
+                      Weiter →
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {/* Calendar Grid */}
@@ -289,8 +375,15 @@ export default function Calendar() {
                               <div
                                 key={i}
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  task.isCompleted ? "bg-green-500" : isPast(new Date(task.dueDate!)) ? "bg-red-500" : "bg-blue-500"
+                                  task.isFutureOccurrence
+                                    ? "bg-purple-400 opacity-60"
+                                    : task.isCompleted
+                                    ? "bg-green-500"
+                                    : isPast(new Date(task.dueDate!))
+                                    ? "bg-red-500"
+                                    : "bg-blue-500"
                                 }`}
+                                title={task.isFutureOccurrence ? "Folgetermin" : ""}
                               />
                             ))}
                             {dayTasks.length > 3 && (
@@ -336,13 +429,19 @@ export default function Calendar() {
                                       <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
                                         {task.name}
                                       </span>
+                                      {task.isFutureOccurrence && (
+                                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                          <RefreshCw className="h-3 w-3 mr-1" />
+                                          Folgetermin
+                                        </Badge>
+                                      )}
                                       {task.isCompleted && (
                                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                           <CheckCircle2 className="h-3 w-3 mr-1" />
                                           Erledigt
                                         </Badge>
                                       )}
-                                      {!task.isCompleted && isPast(new Date(task.dueDate!)) && (
+                                      {!task.isCompleted && !task.isFutureOccurrence && isPast(new Date(task.dueDate!)) && (
                                         <Badge variant="destructive" className="text-xs">
                                           Überfällig
                                         </Badge>

@@ -1038,3 +1038,10 @@
 - [x] Milestone-Icon auf Calendar-Seite durch Target-Icon ersetzen
 - [x] Milestone-Icon auf Tasks-Seite durch Target-Icon ersetzen (bereits korrekt)
 - [x] Milestone-Icon auf Projects-Seite durch Target-Icon ersetzen (bereits korrekt)
+
+## Kalender-Erweiterungen
+- [x] Monat/Jahr-Navigation zum Kalender hinzufügen (Vor/Zurück-Buttons)
+- [x] Aktuellen Monat/Jahr im Kalender-Header anzeigen
+- [x] Folgetermine von wiederkehrenden Aufgaben berechnen
+- [x] Folgetermine im Kalender anzeigen (mit visueller Unterscheidung)
+- [x] Folgetermine in Tages-Detailansicht anzeigen
