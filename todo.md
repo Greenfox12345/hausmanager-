@@ -1022,4 +1022,4 @@
 - [x] Action-Buttons auch bei /projects in zwei Spalten organisieren
 
 ## Bug-Fixes
-- [x] React Hooks Ordering Error in Tasks.tsx beheben (useMemo wird bei Haushaltswechsel fehlerhaft aufgerufen)
+- [x] React Hooks Ordering Error in Tasks.tsx beheben (Early Return vor alle Hooks verschoben)

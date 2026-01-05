@@ -26,6 +26,11 @@ export default function Tasks() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   
+  // Early return BEFORE any other hooks
+  if (!household || !member) {
+    return <div>Loading...</div>;
+  }
+  
   // Form state
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -211,11 +216,6 @@ export default function Tasks() {
       toast.error(error.message);
     },
   });
-
-  // Auth check removed - causing redirect loops
-  if (!household || !member) {
-    return <div>Loading...</div>;
-  }
 
   // Calculate available members for rotation
   const availableMembers = members.filter(m => !excludedMembers.includes(m.id));
