@@ -130,6 +130,7 @@ export const tasks = mysqlTable("tasks", {
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
+  skippedDates: json("skippedDates").$type<string[]>(), // ISO date strings of skipped occurrences for recurring tasks
   createdBy: int("createdBy").notNull().references(() => householdMembers.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

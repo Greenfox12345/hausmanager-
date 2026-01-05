@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "09c7c353-4a69-4219-bfc2-3452c448e060",
+  "id": "578beaad-0463-44af-9153-75140ef80c2b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "activity_history": {
@@ -168,7 +168,7 @@
           "name": "passwordHash",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "photoUrl": {
@@ -265,7 +265,14 @@
           "name": "passwordHash",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "inviteCode": {
+          "name": "inviteCode",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "createdBy": {
@@ -312,6 +319,122 @@
       "compositePrimaryKeys": {
         "households_id": {
           "name": "households_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "households_inviteCode_unique": {
+          "name": "households_inviteCode_unique",
+          "columns": [
+            "inviteCode"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "notification_preferences": {
+      "name": "notification_preferences",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "householdId": {
+          "name": "householdId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "memberId": {
+          "name": "memberId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "enableTaskAssigned": {
+          "name": "enableTaskAssigned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
+        },
+        "enableTaskDue": {
+          "name": "enableTaskDue",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
+        },
+        "enableTaskCompleted": {
+          "name": "enableTaskCompleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
+        },
+        "enableComments": {
+          "name": "enableComments",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
+        },
+        "enableBrowserPush": {
+          "name": "enableBrowserPush",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "dndStartTime": {
+          "name": "dndStartTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dndEndTime": {
+          "name": "dndEndTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "notification_preferences_id": {
+          "name": "notification_preferences_id",
           "columns": [
             "id"
           ]
@@ -509,244 +632,6 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "project_task_dependencies": {
-      "name": "project_task_dependencies",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "taskId": {
-          "name": "taskId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "dependsOnTaskId": {
-          "name": "dependsOnTaskId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "dependencyType": {
-          "name": "dependencyType",
-          "type": "enum('prerequisite','followup','parallel')",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "project_task_dependencies_taskId_project_tasks_id_fk": {
-          "name": "project_task_dependencies_taskId_project_tasks_id_fk",
-          "tableFrom": "project_task_dependencies",
-          "tableTo": "project_tasks",
-          "columnsFrom": [
-            "taskId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "project_task_dependencies_dependsOnTaskId_project_tasks_id_fk": {
-          "name": "project_task_dependencies_dependsOnTaskId_project_tasks_id_fk",
-          "tableFrom": "project_task_dependencies",
-          "tableTo": "project_tasks",
-          "columnsFrom": [
-            "dependsOnTaskId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "project_task_dependencies_id": {
-          "name": "project_task_dependencies_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "project_tasks": {
-      "name": "project_tasks",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "projectId": {
-          "name": "projectId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "assignedTo": {
-          "name": "assignedTo",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dueDate": {
-          "name": "dueDate",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "isCompleted": {
-          "name": "isCompleted",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "completedBy": {
-          "name": "completedBy",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "completedAt": {
-          "name": "completedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "onUpdate": true,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "project_tasks_projectId_projects_id_fk": {
-          "name": "project_tasks_projectId_projects_id_fk",
-          "tableFrom": "project_tasks",
-          "tableTo": "projects",
-          "columnsFrom": [
-            "projectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "project_tasks_assignedTo_household_members_id_fk": {
-          "name": "project_tasks_assignedTo_household_members_id_fk",
-          "tableFrom": "project_tasks",
-          "tableTo": "household_members",
-          "columnsFrom": [
-            "assignedTo"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "project_tasks_completedBy_household_members_id_fk": {
-          "name": "project_tasks_completedBy_household_members_id_fk",
-          "tableFrom": "project_tasks",
-          "tableTo": "household_members",
-          "columnsFrom": [
-            "completedBy"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "project_tasks_createdBy_household_members_id_fk": {
-          "name": "project_tasks_createdBy_household_members_id_fk",
-          "tableFrom": "project_tasks",
-          "tableTo": "household_members",
-          "columnsFrom": [
-            "createdBy"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "project_tasks_id": {
-          "name": "project_tasks_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
     "projects": {
       "name": "projects",
       "columns": {
@@ -795,6 +680,14 @@
         },
         "isNeighborhoodProject": {
           "name": "isNeighborhoodProject",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "isArchived": {
+          "name": "isArchived",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -1240,9 +1133,9 @@
           "notNull": false,
           "autoincrement": false
         },
-        "projectId": {
-          "name": "projectId",
-          "type": "int",
+        "projectIds": {
+          "name": "projectIds",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1265,6 +1158,13 @@
         "completedAt": {
           "name": "completedAt",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skippedDates": {
+          "name": "skippedDates",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1322,19 +1222,6 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "tasks_projectId_projects_id_fk": {
-          "name": "tasks_projectId_projects_id_fk",
-          "tableFrom": "tasks",
-          "tableTo": "projects",
-          "columnsFrom": [
-            "projectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
         "tasks_completedBy_household_members_id_fk": {
           "name": "tasks_completedBy_household_members_id_fk",
           "tableFrom": "tasks",
@@ -1387,14 +1274,14 @@
           "name": "openId",
           "type": "varchar(64)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "email": {
@@ -1404,12 +1291,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "loginMethod": {
           "name": "loginMethod",
           "type": "varchar(64)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'email'"
         },
         "role": {
           "name": "role",
@@ -1460,6 +1355,12 @@
           "name": "users_openId_unique",
           "columns": [
             "openId"
+          ]
+        },
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "columns": [
+            "email"
           ]
         }
       },

@@ -379,6 +379,7 @@ export async function createActivityLog(data: {
   photoUrl?: string;
   photoUrls?: string[];
   metadata?: Record<string, any>;
+  completedDate?: Date; // For recurring tasks: the actual date this occurrence was completed
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

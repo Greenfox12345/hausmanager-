@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -106,6 +106,13 @@ export default function Calendar() {
     },
   });
 
+  const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      toast.success("Termin ausgelassen!");
+    },
+  });
+
   // Auth check removed - AppLayout handles this
 
   // Get current month days for calendar
@@ -114,13 +121,14 @@ export default function Calendar() {
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Calculate future occurrences for recurring tasks
-  const calculateFutureOccurrences = (task: any, maxOccurrences: number = 12) => {
+  const calculateFutureOccurrences = (task: typeof tasks[0], maxOccurrences: number = 12) => {
     if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) {
       return [];
     }
 
     const occurrences: Array<{ date: Date; isOriginal: boolean }> = [];
     let currentDate = new Date(task.dueDate);
+    const skippedDates = task.skippedDates || [];
 
     for (let i = 0; i < maxOccurrences; i++) {
       // Calculate next occurrence
@@ -133,8 +141,12 @@ export default function Calendar() {
         nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
       }
 
-      // Only include if within current month view
-      if (nextDate >= monthStart && nextDate <= monthEnd) {
+      // Check if this date is skipped
+      const dateKey = format(nextDate, "yyyy-MM-dd");
+      const isSkipped = skippedDates.includes(dateKey);
+
+      // Only include if within current month view AND not skipped
+      if (nextDate >= monthStart && nextDate <= monthEnd && !isSkipped) {
         occurrences.push({ date: nextDate, isOriginal: false });
       }
 
@@ -177,13 +189,13 @@ export default function Calendar() {
     // Add completed occurrences from activity history
     const activities = Array.isArray(activityHistory) ? activityHistory : activityHistory?.activities || [];
     activities.forEach((activity: any) => {
-      if (activity.action === "completed" && activity.relatedItemId && activity.metadata?.originalDueDate) {
+      if (activity.action === "completed" && activity.relatedItemId && activity.completedDate) {
         const task = tasks.find(t => t.id === activity.relatedItemId);
         if (task && task.repeatInterval && task.repeatUnit) {
-          const originalDate = new Date(activity.metadata.originalDueDate);
+          const completedDate = new Date(activity.completedDate);
           // Only show if within current month view
-          if (originalDate >= monthStart && originalDate <= monthEnd) {
-            const dateKey = format(originalDate, "yyyy-MM-dd");
+          if (completedDate >= monthStart && completedDate <= monthEnd) {
+            const dateKey = format(completedDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) {
               grouped[dateKey] = [];
             }
@@ -191,7 +203,7 @@ export default function Calendar() {
               ...task, 
               isCompletedOccurrence: true, 
               activityId: activity.id,
-              dueDate: originalDate 
+              dueDate: completedDate 
             });
           }
         }
@@ -596,7 +608,43 @@ export default function Calendar() {
                                           Rückgängig machen
                                         </Button>
                                       )}
-                                      {!task.isCompleted && !task.isCompletedOccurrence && (
+                                      {task.isFutureOccurrence && (
+                                        <>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setCurrentMonth(new Date(task.dueDate!));
+                                              toast.info("Zum Termin gesprungen");
+                                            }}
+                                          >
+                                            <ArrowRight className="h-4 w-4 mr-1" />
+                                            Zum Termin
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full text-orange-600 hover:bg-orange-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                                skipOccurrenceMutation.mutate({
+                                                  taskId: task.id,
+                                                  householdId: household?.householdId ?? 0,
+                                                  memberId: member?.memberId ?? 0,
+                                                  dateToSkip: format(new Date(task.dueDate!), "yyyy-MM-dd"),
+                                                });
+                                              }
+                                            }}
+                                          >
+                                            <X className="h-4 w-4 mr-1" />
+                                            Auslassen
+                                          </Button>
+                                        </>
+                                      )}
+                                      {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
                                         <>
                                           <Button
                                             size="sm"
@@ -755,9 +803,8 @@ export default function Calendar() {
                                   )}
                                 </div>
 
-                                {/* Action Buttons - Only for non-future tasks */}
-                                {!task.isFutureOccurrence && (
-                                  <div className="grid grid-cols-2 gap-2 mt-3">
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-2 gap-2 mt-3">
                                     {task.isCompletedOccurrence && task.activityId && (
                                       <Button
                                         size="sm"
@@ -779,7 +826,43 @@ export default function Calendar() {
                                         Rückgängig machen
                                       </Button>
                                     )}
-                                    {!task.isCompleted && !task.isCompletedOccurrence && (
+                                    {task.isFutureOccurrence && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCurrentMonth(new Date(task.dueDate!));
+                                            toast.info("Zum Termin gesprungen");
+                                          }}
+                                        >
+                                          <ArrowRight className="h-4 w-4 mr-1" />
+                                          Zum Termin
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full text-orange-600 hover:bg-orange-50"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                              skipOccurrenceMutation.mutate({
+                                                taskId: task.id,
+                                                householdId: household?.householdId ?? 0,
+                                                memberId: member?.memberId ?? 0,
+                                                dateToSkip: format(new Date(task.dueDate!), "yyyy-MM-dd"),
+                                              });
+                                            }
+                                          }}
+                                        >
+                                          <X className="h-4 w-4 mr-1" />
+                                          Auslassen
+                                        </Button>
+                                      </>
+                                    )}
+                                    {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
                                       <>
                                         <Button
                                           size="sm"
@@ -836,7 +919,6 @@ export default function Calendar() {
                                       </>
                                     )}
                                   </div>
-                                )}
                               </div>
                             </div>
                           </CardContent>

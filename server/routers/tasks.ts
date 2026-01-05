@@ -232,6 +232,7 @@ export const tasksRouter = router({
           action: "completed",
           description: `Completed recurring task occurrence`,
           relatedItemId: input.taskId,
+          completedDate: originalDueDate || new Date(), // Store the actual completion date
           metadata: { originalDueDate: originalDueDate?.toString() },
         });
       } else {
@@ -666,6 +667,46 @@ export const tasksRouter = router({
       });
 
       // NOTE: We do NOT delete the activity log entry - it stays as history
+
+      return { success: true };
+    }),
+
+  // Skip a specific occurrence of a recurring task
+  skipOccurrence: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        dateToSkip: z.string(), // ISO date string
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find(t => t.id === input.taskId);
+      
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Add date to skippedDates array
+      const currentSkippedDates = task.skippedDates || [];
+      const updatedSkippedDates = [...currentSkippedDates, input.dateToSkip];
+
+      await updateTask(input.taskId, {
+        skippedDates: updatedSkippedDates,
+      });
+
+      // Log the skip action
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "skipped",
+        description: `Skipped occurrence on ${new Date(input.dateToSkip).toLocaleDateString('de-DE')}`,
+        relatedItemId: input.taskId,
+        metadata: { skippedDate: input.dateToSkip },
+      });
 
       return { success: true };
     }),

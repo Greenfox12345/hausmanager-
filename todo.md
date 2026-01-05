@@ -1079,3 +1079,13 @@
 - [x] Sortierung nach Erstellungsdatum (auf-/absteigend)
 - [x] Sortierung nach Name (alphabetisch auf-/absteigend)
 - [x] UI mit Filter- und Sortier-Controls
+
+## Wiederkehrende Aufgaben: Erledigte Termine und Auslassen
+- [x] Schema: completedDate zu activityHistory hinzufügen
+- [x] Schema: skippedDates Array (JSON) zu tasks hinzufügen
+- [x] Backend: completedDate beim Abschließen in Activity-Log speichern
+- [x] Backend: skipOccurrence Mutation (fügt Datum zu skippedDates hinzu)
+- [x] Frontend: Kalender filtert skippedDates aus Folgeterminen
+- [x] Frontend: Kalender zeigt erledigte Termine aus Activity-History
+- [x] Frontend: Folgetermine nur mit "Zum Termin springen" und "Auslassen"
+- [x] Frontend: Aktuelle Termine mit allen Aktionen (Abschließen, etc.)
