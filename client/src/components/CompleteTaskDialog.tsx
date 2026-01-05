@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -43,12 +43,12 @@ export function CompleteTaskDialog({
     console.log('[CompleteTaskDialog] photos state changed:', photos);
   }, [photos]);
 
-  // Stable callback for PhotoUpload
-  const handlePhotosChange = useCallback((newPhotos: string[]) => {
+  // Callback for PhotoUpload with logging
+  const handlePhotosChange = (newPhotos: string[]) => {
     console.log('[CompleteTaskDialog] onPhotosChange called with:', newPhotos);
     setPhotos(newPhotos);
     console.log('[CompleteTaskDialog] setPhotos called');
-  }, []);
+  };
 
   // Reset form only when dialog closes (open changes from true to false)
   useEffect(() => {

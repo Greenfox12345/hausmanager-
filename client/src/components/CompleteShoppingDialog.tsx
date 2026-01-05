@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -38,11 +38,12 @@ export function CompleteShoppingDialog({
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
 
-  // Stable callback for PhotoUpload
-  const handlePhotosChange = useCallback((newPhotos: string[]) => {
+  // Callback for PhotoUpload with logging
+  const handlePhotosChange = (newPhotos: string[]) => {
     console.log('[CompleteShoppingDialog] onPhotosChange called with:', newPhotos);
     setPhotos(newPhotos);
-  }, []);
+    console.log('[CompleteShoppingDialog] setPhotos called');
+  };
 
   // Reset form only when dialog closes (open changes from true to false)
   useEffect(() => {

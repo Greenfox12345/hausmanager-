@@ -947,3 +947,7 @@
 ## Dialog schließt sich automatisch nach Foto-Upload
 - [x] Ursache identifizieren (onOpenChange wird aufgerufen durch Klick außerhalb)
 - [x] Problem beheben (isUploading State + handleOpenChange verhindert Schließen während Upload)
+
+## useCallback verhindert State-Update
+- [x] useCallback mit leerer Dependency-Liste hat veraltete Closure
+- [x] Direkt setPhotos verwenden statt useCallback (normale Funktion)
