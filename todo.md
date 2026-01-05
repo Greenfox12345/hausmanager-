@@ -911,3 +911,13 @@
 - [x] Kategorie 4: Schema-Fehler (projectIds default)
 - [x] Kategorie 5: Komponenten-Props Fehler
 - [x] Kategorie 6: Variablen-Fehler
+
+## Aufgabendialog-Verbesserungen
+- [x] /projects: Verantwortlicher als Pflichtfeld validieren (Fehlermeldung wenn leer)
+
+## Foto-Upload-Probleme beheben
+- [x] PhotoUpload-Komponente: State-Synchronisation mit Parent-Komponente reparieren
+- [x] CompleteTaskDialog: Foto-URLs korrekt übergeben
+- [x] MilestoneDialog: Foto-URLs korrekt übergeben
+- [x] Hochgeladene Fotos im Dialog anzeigen
+- [x] Fotos im Aktivitätsverlauf anzeigen

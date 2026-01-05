@@ -350,6 +350,11 @@ export default function Projects() {
       return;
     }
 
+    if (taskAssignees.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen aus");
+      return;
+    }
+
     if (!household || !selectedProjectId) {
       toast.error("Kein Projekt ausgewählt");
       return;

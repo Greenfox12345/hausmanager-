@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,14 @@ export function CompleteTaskDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form when dialog opens or task changes
+  useEffect(() => {
+    if (open && task) {
+      setComment("");
+      setPhotos([]);
+    }
+  }, [open, task]);
 
   const handleSubmit = async () => {
     if (!task) return;
