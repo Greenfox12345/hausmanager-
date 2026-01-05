@@ -202,15 +202,23 @@ export const authRouter = router({
 
   // Get activity history for household
   getActivityHistory: publicProcedure
-    .input(z.object({ householdId: z.number() }))
+    .input(z.object({ 
+      householdId: z.number(),
+      limit: z.number().optional(),
+      offset: z.number().optional()
+    }))
     .query(async ({ input }) => {
-      const activities = await getActivityHistory(input.householdId, 100);
+      const { activities, total } = await getActivityHistory(
+        input.householdId, 
+        input.limit || 30, 
+        input.offset || 0
+      );
       
       // Get member names
       const members = await getHouseholdMembers(input.householdId);
       const memberMap = new Map(members.map(m => [m.id, m.memberName]));
       
-      return activities.map((activity: any) => {
+      const enrichedActivities = activities.map((activity: any) => {
         const result: any = {
           ...activity,
           memberName: memberMap.get(activity.memberId) || "Unbekannt",
@@ -226,5 +234,7 @@ export const authRouter = router({
         
         return result;
       });
+      
+      return { activities: enrichedActivities, total };
     }),
 });

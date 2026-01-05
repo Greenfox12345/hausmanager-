@@ -27,11 +27,21 @@ export default function History() {
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
 
-  const { data: activities = [], isLoading } = trpc.household.getActivityHistory.useQuery(
-    { householdId: household?.householdId ?? 0 },
+  const { data, isLoading } = trpc.household.getActivityHistory.useQuery(
+    { 
+      householdId: household?.householdId ?? 0,
+      limit: itemsPerPage,
+      offset: (currentPage - 1) * itemsPerPage
+    },
     { enabled: !!household }
   );
+  
+  const activities = data?.activities || [];
+  const totalItems = data?.total || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   // Auth check removed - AppLayout handles this
 
@@ -266,6 +276,61 @@ export default function History() {
               className="w-full h-full object-contain rounded-lg"
             />
           </div>
+        </div>
+      )}
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1 || isLoading}
+          >
+            Zurück
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(pageNum)}
+                  disabled={isLoading}
+                  className="w-9"
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages || isLoading}
+          >
+            Weiter
+          </Button>
+          
+          <span className="text-sm text-muted-foreground ml-2">
+            Seite {currentPage} von {totalPages}
+          </span>
         </div>
       )}
     </AppLayout>

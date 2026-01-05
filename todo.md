@@ -999,3 +999,19 @@
 - [x] Backend: Batch-Complete Mutation erstellen
 - [x] "Alle auswählen" / "Alle abwählen" Funktion
 - [x] Bestätigungsdialog vor destruktiven Batch-Operationen
+
+## Aufgaben-Filter und Sortierung
+- [x] Filter-Dropdown für Status (Alle/Offen/Erledigt)
+- [x] Filter-Dropdown für Verantwortlichen (Alle Mitglieder)
+- [x] Filter-Dropdown für Fälligkeit (Alle/Überfällig/Heute/Diese Woche/Diesen Monat)
+- [x] Sortier-Dropdown (Fälligkeitsdatum/Name/Erstellungsdatum)
+- [x] Sortierrichtung umkehrbar (aufsteigend/absteigend)
+- [x] Filter-Reset-Button zum Zurücksetzen aller Filter
+- [x] Anzahl gefilterter Aufgaben anzeigen
+
+## Pagination für Verlauf
+- [x] Backend: Pagination Parameter für getActivityHistory (limit, offset)
+- [x] Backend: Total Count für Pagination zurückgeben
+- [x] Frontend: Pagination UI mit Seitenzahlen und Vor/Zurück-Buttons
+- [x] Frontend: 30 Einträge pro Seite im Verlauf anzeigen
+- [x] Loading State während Seitenwechsel

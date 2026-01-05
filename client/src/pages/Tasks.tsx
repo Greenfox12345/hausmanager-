@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -64,6 +64,13 @@ export default function Tasks() {
   const [showBatchAssignDialog, setShowBatchAssignDialog] = useState(false);
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false);
   const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null);
+  
+  // Filter and sorting states
+  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "completed">("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<number | "all">("all");
+  const [dueDateFilter, setDueDateFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
+  const [sortBy, setSortBy] = useState<"dueDate" | "name" | "createdAt">("dueDate");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
   const toggleTaskSelection = (taskId: number) => {
     setSelectedTaskIds(prev => 
@@ -422,6 +429,78 @@ export default function Tasks() {
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
+  };
+  
+  // Filter and sort tasks
+  const filteredAndSortedTasks = useMemo(() => {
+    let filtered = [...tasks];
+    
+    // Status filter
+    if (statusFilter === "open") {
+      filtered = filtered.filter(t => !t.isCompleted);
+    } else if (statusFilter === "completed") {
+      filtered = filtered.filter(t => t.isCompleted);
+    }
+    
+    // Assignee filter
+    if (assigneeFilter !== "all") {
+      filtered = filtered.filter(t => t.assignedTo === assigneeFilter);
+    }
+    
+    // Due date filter
+    if (dueDateFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekFromNow = new Date(today);
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      const monthFromNow = new Date(today);
+      monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+      
+      filtered = filtered.filter(t => {
+        if (!t.dueDate) return false;
+        const dueDate = new Date(t.dueDate);
+        
+        if (dueDateFilter === "overdue") {
+          return dueDate < today && !t.isCompleted;
+        } else if (dueDateFilter === "today") {
+          return dueDate.toDateString() === today.toDateString();
+        } else if (dueDateFilter === "week") {
+          return dueDate >= today && dueDate <= weekFromNow;
+        } else if (dueDateFilter === "month") {
+          return dueDate >= today && dueDate <= monthFromNow;
+        }
+        return true;
+      });
+    }
+    
+    // Sort
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === "dueDate") {
+        const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+        const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        comparison = aDate - bDate;
+      } else if (sortBy === "name") {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortBy === "createdAt") {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        comparison = aDate - bDate;
+      }
+      
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+    
+    return filtered;
+  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection]);
+  
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setAssigneeFilter("all");
+    setDueDateFilter("all");
+    setSortBy("dueDate");
+    setSortDirection("asc");
   };
 
   return (
@@ -794,6 +873,104 @@ export default function Tasks() {
           </CardContent>
         </Card>
 
+        {/* Filter and Sort Controls */}
+        {!isLoading && tasks.length > 0 && (
+          <Card className="shadow-sm mb-3">
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium">Filter & Sortierung</h3>
+                  <Button variant="ghost" size="sm" onClick={resetFilters}>
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Zurücksetzen
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  {/* Status Filter */}
+                  <div>
+                    <Label className="text-xs">Status</Label>
+                    <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle</SelectItem>
+                        <SelectItem value="open">Offen</SelectItem>
+                        <SelectItem value="completed">Erledigt</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Assignee Filter */}
+                  <div>
+                    <Label className="text-xs">Verantwortlicher</Label>
+                    <Select value={assigneeFilter.toString()} onValueChange={(v) => setAssigneeFilter(v === "all" ? "all" : Number(v))}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle</SelectItem>
+                        {members.map((m) => (
+                          <SelectItem key={m.id} value={m.id.toString()}>
+                            {m.memberName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Due Date Filter */}
+                  <div>
+                    <Label className="text-xs">Fälligkeit</Label>
+                    <Select value={dueDateFilter} onValueChange={(v: any) => setDueDateFilter(v)}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle</SelectItem>
+                        <SelectItem value="overdue">Überfällig</SelectItem>
+                        <SelectItem value="today">Heute</SelectItem>
+                        <SelectItem value="week">Diese Woche</SelectItem>
+                        <SelectItem value="month">Diesen Monat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Sort By */}
+                  <div>
+                    <Label className="text-xs">Sortieren nach</Label>
+                    <div className="flex gap-1">
+                      <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                        <SelectTrigger className="h-9 flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dueDate">Fälligkeitsdatum</SelectItem>
+                          <SelectItem value="name">Name</SelectItem>
+                          <SelectItem value="createdAt">Erstellungsdatum</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={() => setSortDirection(prev => prev === "asc" ? "desc" : "asc")}
+                      >
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-muted-foreground">
+                  {filteredAndSortedTasks.length} von {tasks.length} Aufgabe(n)
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Task list */}
         {!isLoading && tasks.length > 0 && (
           <div className="flex flex-col gap-3 mb-3">
@@ -884,7 +1061,7 @@ export default function Tasks() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {tasks.map((task) => (
+            {filteredAndSortedTasks.map((task) => (
               <Card
                 key={task.id}
                 className={`shadow-sm transition-all duration-200 ${

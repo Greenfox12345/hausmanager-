@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -387,15 +387,21 @@ export async function createActivityLog(data: {
   return Number(result[0].insertId);
 }
 
-export async function getActivityHistory(householdId: number, limit: number = 50) {
+export async function getActivityHistory(householdId: number, limit: number = 30, offset: number = 0) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { activities: [], total: 0 };
+
+  // Get total count
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(activityHistory)
+    .where(eq(activityHistory.householdId, householdId));
+  const total = Number(countResult[0]?.count || 0);
 
   // Get activities with task details if relatedItemId exists and activityType is 'task'
   const activities = await db.select().from(activityHistory)
     .where(eq(activityHistory.householdId, householdId))
     .orderBy(desc(activityHistory.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
 
   // Enrich activities with task details
   const enrichedActivities = await Promise.all(
@@ -422,7 +428,7 @@ export async function getActivityHistory(householdId: number, limit: number = 50
     })
   );
 
-  return enrichedActivities;
+  return { activities: enrichedActivities, total };
 }
 
 export async function getActivityHistoryByTaskId(taskId: number, householdId: number) {
