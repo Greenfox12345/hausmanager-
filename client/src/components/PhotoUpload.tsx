@@ -5,6 +5,7 @@ import { X, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Progress } from "@/components/ui/progress";
+import imageCompression from "browser-image-compression";
 
 interface PhotoUploadProps {
   photos: string[];
@@ -42,24 +43,41 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         setCurrentFileName(file.name);
         setUploadProgress(Math.round((i / fileArray.length) * 100));
 
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name} ist zu groß (max. 5MB)`);
-          continue;
-        }
-
         // Check file type
         if (!file.type.startsWith("image/")) {
           toast.error(`${file.name} ist kein Bild`);
           continue;
         }
 
-        // Convert to base64 for upload
+        // Compress image before upload
+        const options = {
+          maxSizeMB: 1, // Max file size in MB
+          maxWidthOrHeight: 1920, // Max width or height
+          useWebWorker: true, // Use web worker for better performance
+          fileType: file.type as any, // Preserve original file type
+        };
+        
+        let compressedFile: File;
+        try {
+          compressedFile = await imageCompression(file, options);
+        } catch (compressionError) {
+          console.error("Compression error:", compressionError);
+          toast.error(`Fehler beim Komprimieren von ${file.name}`);
+          continue;
+        }
+
+        // Check compressed file size (max 5MB as fallback)
+        if (compressedFile.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} ist zu groß (max. 5MB)`);
+          continue;
+        }
+
+        // Convert compressed file to base64 for upload
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve, reject) => {
           reader.onload = () => resolve(reader.result as string);
           reader.onerror = reject;
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(compressedFile);
         });
 
         // Upload to server via tRPC

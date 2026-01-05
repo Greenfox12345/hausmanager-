@@ -965,3 +965,9 @@
 - [x] Nur EINE Version wird gerendert (isDesktop ? Desktop : Mobile)
 - [x] Alle Debug-Logs entfernt
 - [x] Problem behoben - Foto-Upload funktioniert jetzt korrekt!
+
+## Client-seitige Bildkompression
+- [x] browser-image-compression Library installiert
+- [x] Kompression in PhotoUpload.tsx integriert
+- [x] Kompressionseinstellungen konfiguriert (max 1920px, max 1MB)
+- [x] Testen mit verschiedenen Bildgrößen - funktioniert!
