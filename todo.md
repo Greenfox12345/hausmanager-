@@ -1020,3 +1020,6 @@
 - [x] Filter & Sortierung als zusammenklappbares Feld (Collapsible)
 - [x] Action-Buttons in Aufgabenliste in zwei Spalten organisieren (Abschließen über Zwischenziel, Erinnerung über Löschen)
 - [x] Action-Buttons auch bei /projects in zwei Spalten organisieren
+
+## Bug-Fixes
+- [x] React Hooks Ordering Error in Tasks.tsx beheben (useMemo wird bei Haushaltswechsel fehlerhaft aufgerufen)

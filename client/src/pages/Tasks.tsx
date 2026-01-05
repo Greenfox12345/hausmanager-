@@ -435,6 +435,7 @@ export default function Tasks() {
   
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
+    if (!tasks || tasks.length === 0) return [];
     let filtered = [...tasks];
     
     // Status filter
