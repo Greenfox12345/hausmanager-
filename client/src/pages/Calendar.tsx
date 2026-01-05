@@ -55,7 +55,7 @@ export default function Calendar() {
   const deleteMutation = trpc.tasks.delete.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
-      toast.success("Aufgabe gel\u00f6scht");
+      toast.success("Aufgabe gelöscht");
     },
   });
 
@@ -146,8 +146,8 @@ export default function Calendar() {
     const unit = task.repeatUnit;
     
     if (interval === 1) {
-      if (unit === "days") return "T\u00e4glich";
-      if (unit === "weeks") return "W\u00f6chentlich";
+      if (unit === "days") return "Täglich";
+      if (unit === "weeks") return "Wöchentlich";
       if (unit === "months") return "Monatlich";
     }
     
@@ -158,7 +158,7 @@ export default function Calendar() {
   const handleDelete = (task: any, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!household || !member) return;
-    if (confirm("M\u00f6chten Sie diese Aufgabe wirklich l\u00f6schen?")) {
+    if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
       deleteMutation.mutate({
         taskId: task.id,
         householdId: household.householdId,
@@ -394,7 +394,7 @@ export default function Calendar() {
                                             }}
                                           >
                                             <Check className="h-4 w-4 mr-1" />
-                                            Abschlie\u00dfen
+                                            Abschließen
                                           </Button>
                                           <Button
                                             size="sm"
@@ -431,7 +431,7 @@ export default function Calendar() {
                                         onClick={(e) => handleDelete(task, e)}
                                       >
                                         <Trash2 className="h-4 w-4 mr-1" />
-                                        L\u00f6schen
+                                        Löschen
                                       </Button>
                                     </div>
                                   </div>
@@ -527,7 +527,7 @@ export default function Calendar() {
                                         }}
                                       >
                                         <Check className="h-4 w-4 mr-1" />
-                                        Abschlie\u00dfen
+                                        Abschließen
                                       </Button>
                                       <Button
                                         size="sm"
@@ -564,7 +564,7 @@ export default function Calendar() {
                                     onClick={(e) => handleDelete(task, e)}
                                   >
                                     <Trash2 className="h-4 w-4 mr-1" />
-                                    L\u00f6schen
+                                    Löschen
                                   </Button>
                                 </div>
                               </div>
@@ -662,7 +662,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <Check className="h-4 w-4 mr-1" />
-                                          Abschlie\u00dfen
+                                          Abschließen
                                         </Button>
                                         <Button
                                           size="sm"
@@ -699,7 +699,7 @@ export default function Calendar() {
                                       onClick={(e) => handleDelete(task, e)}
                                     >
                                       <Trash2 className="h-4 w-4 mr-1" />
-                                      L\u00f6schen
+                                      Löschen
                                     </Button>
                                   </div>
                                 </div>

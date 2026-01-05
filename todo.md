@@ -1027,3 +1027,9 @@
 ## Calendar Action-Buttons in zwei Spalten
 - [x] Action-Buttons in Kalenderansicht (unten) in zwei Spalten organisieren
 - [x] Action-Buttons in "Alle Aufgaben"-Liste in zwei Spalten organisieren
+
+## Umlaut-Fixes und Icon-Konsistenz
+- [x] Scharfes ß in "Abschließen" auf Calendar-Seite reparieren
+- [x] Umlaut ö in "Löschen" auf Calendar-Seite reparieren
+- [x] Milestone-Icon (Target) auf Tasks-Seite anwenden (bereits vorhanden)
+- [x] Milestone-Icon (Target) auf Projects-Seite anwenden (bereits vorhanden)
