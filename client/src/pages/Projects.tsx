@@ -1570,24 +1570,22 @@ export default function Projects() {
         />
       )}
 
-      {milestoneDialogOpen && selectedTask && (
-        <MilestoneDialog
-          open={milestoneDialogOpen}
-          onOpenChange={setMilestoneDialogOpen}
-          task={selectedTask}
-          onAddMilestone={async (data) => {
-            if (selectedTask) {
-              await milestoneMutation.mutateAsync({
-                taskId: selectedTask.id,
-                householdId: household!.householdId,
-                memberId: member!.memberId,
-                comment: data.comment,
-                photoUrls: data.photoUrls,
-              });
-            }
-          }}
-        />
-      )}
+      <MilestoneDialog
+        open={milestoneDialogOpen && !!selectedTask}
+        onOpenChange={setMilestoneDialogOpen}
+        task={selectedTask}
+        onAddMilestone={async (data) => {
+          if (selectedTask) {
+            await milestoneMutation.mutateAsync({
+              taskId: selectedTask.id,
+              householdId: household!.householdId,
+              memberId: member!.memberId,
+              comment: data.comment,
+              photoUrls: data.photoUrls,
+            });
+          }
+        }}
+      />
 
       <ReminderDialog
         key={`reminder-${selectedTask?.id || 'none'}`}

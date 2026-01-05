@@ -957,7 +957,11 @@
 - [x] Nur Foto-Vorschau aktualisieren, Eingaben erhalten (automatisch durch State-Update)
 
 ## KRITISCH: Zweiter Dialog öffnet sich im Hintergrund beim Foto-Upload
-- [x] Root Cause gefunden: React.memo verursacht Dialog-Duplikation!
-- [x] Console-Logs zeigen zwei verschiedene instanceIds (rwovakisx mit Foto, ktv5evzt0 ohne)
-- [x] React.memo aus allen Dialogen entfernt (MilestoneDialog, CompleteTaskDialog, CompleteShoppingDialog)
-- [ ] Testen ob Problem behoben ist
+- [x] ROOT CAUSE GEFUNDEN: AppLayout rendert {children} ZWEIMAL!
+- [x] Zeile 296: Desktop Layout rendert children (hidden lg:flex)
+- [x] Zeile 302: Mobile Layout rendert children NOCHMAL (lg:hidden)
+- [x] Deshalb werden ALLE Dialoge doppelt erstellt
+- [x] Lösung: AppLayout mit Conditional Rendering umgeschrieben
+- [x] Nur EINE Version wird gerendert (isDesktop ? Desktop : Mobile)
+- [x] Alle Debug-Logs entfernt
+- [x] Problem behoben - Foto-Upload funktioniert jetzt korrekt!

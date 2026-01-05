@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { trpc } from "@/lib/trpc";
@@ -40,6 +40,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
   const { user, currentHousehold, logout: userLogout, setCurrentHousehold } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Detect desktop/mobile for conditional rendering
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Use new user-based auth system
   const household = currentHousehold ? { householdId: currentHousehold.householdId, householdName: currentHousehold.householdName } : null;
@@ -284,23 +293,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
       </div>
 
-      {/* Desktop Layout with Sidebar */}
-      <div className="hidden lg:flex h-screen">
-        {/* Desktop Sidebar */}
-        <aside className="w-80 border-r bg-card">
-          <SidebarContent />
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+      {/* Conditional Rendering: Only render ONE version based on screen size */}
+      {isDesktop ? (
+        /* Desktop Layout with Sidebar */
+        <div className="flex h-screen">
+          <aside className="w-80 border-r bg-card">
+            <SidebarContent />
+          </aside>
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
+      ) : (
+        /* Mobile Content */
+        <main>
           {children}
         </main>
-      </div>
-
-      {/* Mobile Content */}
-      <div className="lg:hidden">
-        {children}
-      </div>
+      )}
     </div>
   );
 }

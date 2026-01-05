@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,29 +32,24 @@ const MilestoneDialogComponent = function MilestoneDialog({
   task,
   onAddMilestone,
 }: MilestoneDialogProps) {
-  const instanceId = useRef(Math.random().toString(36).substr(2, 9));
-  console.log('[MilestoneDialog] Component rendered', { instanceId: instanceId.current, open, taskId: task?.id });
+
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const prevOpenRef = useRef(open);
 
-  // Callback for PhotoUpload with logging
+  // Callback for PhotoUpload
   const handlePhotosChange = (newPhotos: string[]) => {
-    console.log(`[MilestoneDialog ${instanceId.current}] onPhotosChange called with:`, newPhotos);
     setPhotos(newPhotos);
-    console.log(`[MilestoneDialog ${instanceId.current}] setPhotos called`);
   };
 
-  // Reset form only when dialog closes (open changes from true to false)
+  // Reset form when dialog closes
   useEffect(() => {
-    if (prevOpenRef.current && !open) {
+    if (!open) {
       // Dialog was just closed
       setComment("");
       setPhotos([]);
     }
-    prevOpenRef.current = open;
   }, [open]);
 
   const handleSubmit = async () => {
@@ -88,14 +83,12 @@ const MilestoneDialogComponent = function MilestoneDialog({
   // Prevent closing dialog while uploading
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && isUploading) {
-      console.log('[MilestoneDialog] Prevented closing during upload');
       return;
     }
     onOpenChange(newOpen);
   };
 
-  console.log(`[MilestoneDialog ${instanceId.current}] Rendering Dialog`, { open, photos: photos.length });
-  
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange} modal={true}>
       <DialogContent key={`milestone-content-${task?.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
