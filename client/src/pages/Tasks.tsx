@@ -876,7 +876,7 @@ export default function Tasks() {
       </div>
 
       <CompleteTaskDialog
-        key={`complete-${selectedTask?.id || 'none'}`}
+        key={`complete-${selectedTask?.id || 'none'}-${completeDialogOpen}`}
         open={completeDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         task={selectedTask}
@@ -884,7 +884,7 @@ export default function Tasks() {
       />
 
       <MilestoneDialog
-        key={`milestone-${selectedTask?.id || 'none'}`}
+        key={`milestone-${selectedTask?.id || 'none'}-${milestoneDialogOpen}`}
         open={milestoneDialogOpen}
         onOpenChange={setMilestoneDialogOpen}
         task={selectedTask}

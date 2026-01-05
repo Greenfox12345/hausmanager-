@@ -927,3 +927,8 @@
 - [x] PhotoUpload: Foto-Vorschau direkt im Dialog anzeigen
 - [x] PhotoUpload: Versteckten Browser-Dialog-Problem beheben
 - [x] Alle Dialoge mit Foto-Upload aktualisieren (CompleteTask, Milestone, Shopping)
+
+## Foto-Upload State-Update Problem
+- [x] PhotoUpload: State wird nicht aktualisiert nach Upload (Toast erscheint, aber keine Vorschau)
+- [x] Debugging: onPhotosChange wird aufgerufen aber Parent-State ändert sich nicht
+- [x] Lösung implementieren und testen (useEffect entfernt, Key-Props mit open-State)
