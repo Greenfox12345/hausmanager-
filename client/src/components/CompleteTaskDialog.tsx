@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ interface CompleteTaskDialogProps {
   onComplete: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
 }
 
-export function CompleteTaskDialog({
+const CompleteTaskDialogComponent = function CompleteTaskDialog({
   open,
   onOpenChange,
   task,
@@ -101,7 +101,7 @@ export function CompleteTaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent key={`complete-content-${task?.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -179,4 +179,6 @@ export function CompleteTaskDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export const CompleteTaskDialog = memo(CompleteTaskDialogComponent);

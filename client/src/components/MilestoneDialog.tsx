@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ interface MilestoneDialogProps {
   onAddMilestone: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
 }
 
-export function MilestoneDialog({
+const MilestoneDialogComponent = function MilestoneDialog({
   open,
   onOpenChange,
   task,
@@ -93,8 +93,8 @@ export function MilestoneDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleOpenChange} modal={true}>
+      <DialogContent key={`milestone-content-${task?.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Target className="h-5 w-5 text-blue-600" />
@@ -176,4 +176,6 @@ export function MilestoneDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export const MilestoneDialog = memo(MilestoneDialogComponent);

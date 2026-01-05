@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ interface CompleteShoppingDialogProps {
   onComplete: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
 }
 
-export function CompleteShoppingDialog({
+const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
   open,
   onOpenChange,
   items,
@@ -90,7 +90,7 @@ export function CompleteShoppingDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent key="complete-shopping-content" className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Einkauf abschließen</DialogTitle>
           <DialogDescription>
@@ -154,4 +154,6 @@ export function CompleteShoppingDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export const CompleteShoppingDialog = memo(CompleteShoppingDialogComponent);

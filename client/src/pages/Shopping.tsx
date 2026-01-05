@@ -298,17 +298,18 @@ export default function Shopping() {
         )}
       </div>
 
-      <CompleteShoppingDialog
-        key={`complete-shopping-${showCompleteDialog}`}
-        open={showCompleteDialog}
-        onOpenChange={setShowCompleteDialog}
-        items={completedItems.map((item) => ({
-          id: item.id,
-          name: item.name,
-          category: item.category,
-        }))}
-        onComplete={handleCompleteShopping}
-      />
+      {showCompleteDialog && completedItems.length > 0 && (
+        <CompleteShoppingDialog
+          open={showCompleteDialog}
+          onOpenChange={setShowCompleteDialog}
+          items={completedItems.map((item) => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+          }))}
+          onComplete={handleCompleteShopping}
+        />
+      )}
     </AppLayout>
   );
 }

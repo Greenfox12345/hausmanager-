@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -875,21 +875,23 @@ export default function Tasks() {
         )}
       </div>
 
-      <CompleteTaskDialog
-        key={`complete-${selectedTask?.id}-${completeDialogOpen}`}
-        open={completeDialogOpen}
-        onOpenChange={setCompleteDialogOpen}
-        task={selectedTask}
-        onComplete={handleCompleteTask}
-      />
+      {completeDialogOpen && selectedTask && (
+        <CompleteTaskDialog
+          open={completeDialogOpen}
+          onOpenChange={setCompleteDialogOpen}
+          task={selectedTask}
+          onComplete={handleCompleteTask}
+        />
+      )}
 
-      <MilestoneDialog
-        key={`milestone-${selectedTask?.id}-${milestoneDialogOpen}`}
-        open={milestoneDialogOpen}
-        onOpenChange={setMilestoneDialogOpen}
-        task={selectedTask}
-        onAddMilestone={handleAddMilestone}
-      />
+      {milestoneDialogOpen && selectedTask && (
+        <MilestoneDialog
+          open={milestoneDialogOpen}
+          onOpenChange={setMilestoneDialogOpen}
+          task={selectedTask}
+          onAddMilestone={handleAddMilestone}
+        />
+      )}
 
       <ReminderDialog
         open={reminderDialogOpen}
