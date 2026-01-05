@@ -669,11 +669,12 @@ export default function Calendar() {
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                                const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                                 skipOccurrenceMutation.mutate({
                                                   taskId: task.id,
                                                   householdId: household?.householdId ?? 0,
                                                   memberId: member?.memberId ?? 0,
-                                                  dateToSkip: format(new Date(task.dueDate!), "yyyy-MM-dd"),
+                                                  dateToSkip: format(targetDate, "yyyy-MM-dd"),
                                                 });
                                               }
                                             }}
@@ -713,19 +714,21 @@ export default function Calendar() {
                                           </Button>
                                         </>
                                       )}
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActionTask(task);
-                                          setReminderDialogOpen(true);
-                                        }}
-                                      >
-                                        <Bell className="h-4 w-4 mr-1" />
-                                        Erinnern
-                                      </Button>
+                                      {!task.isFutureOccurrence && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActionTask(task);
+                                            setReminderDialogOpen(true);
+                                          }}
+                                        >
+                                          <Bell className="h-4 w-4 mr-1" />
+                                          Erinnern
+                                        </Button>
+                                      )}
                                       <Button
                                         size="sm"
                                         variant="outline"

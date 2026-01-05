@@ -1116,3 +1116,9 @@
 - [x] Chronologische Liste: 3-Monats-Standardansicht implementiert
 - [x] Chronologische Liste: Überfällige Aufgaben hervorgehoben und oben angezeigt
 - [x] Chronologische Liste: Zeitraum-Filter (1/3/6/12 Monate) hinzugefügt
+
+## Kalenderansicht Grid-View Bugs (Aktuell)
+- [x] "Auslassen"-Button in Kalender-Grid funktioniert nicht (trotz Erfolgsmeldung)
+- [x] "Erinnern"-Button wird noch bei Folgeterminen in Kalender-Grid angezeigt
+- [x] "Auslassen"-Button in Kalender-Grid verwendet jetzt occurrenceDate
+- [x] "Erinnern"-Button bei Folgeterminen in Kalender-Grid entfernt
