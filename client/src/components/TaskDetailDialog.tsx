@@ -8,12 +8,14 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState as useStateForTabs } from "react";
 
 interface Task {
   id: number;
@@ -53,6 +55,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
+  
+  // Load task history
+  const { data: taskHistory = [] } = trpc.activities.getByTaskId.useQuery(
+    { taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 },
+    { enabled: !!task?.id && !!household && open && activeTab === "history" }
+  );
   
   // Project state (must be declared before queries that use it)
   const [isProjectTask, setIsProjectTask] = useState(false);
@@ -646,13 +655,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     </div>
                   </div>
-                )}
+                 )}
               </div>
             </>
           ) : (
-            // View Mode
-            <>
-              <div className="space-y-4">
+            // View Mode with Tabs
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="history">
+                  <HistoryIcon className="h-4 w-4 mr-2" />
+                  Verlauf ({taskHistory.length})
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="details" className="space-y-4 mt-4">
                 <div>
                   <h3 className="text-lg font-semibold">{task.name}</h3>
                   {task.description && (
@@ -845,9 +862,64 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       })()}
                     </div>
                   </div>
+                 )}
+              </TabsContent>
+              
+              <TabsContent value="history" className="space-y-4 mt-4">
+                {taskHistory.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <HistoryIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Noch keine Aktivitäten für diese Aufgabe</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {taskHistory.map((activity: any) => {
+                      const activityMember = members.find(m => m.memberId === activity.memberId);
+                      return (
+                        <div key={activity.id} className="border rounded-lg p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {activity.action}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(activity.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}
+                                </span>
+                              </div>
+                              <p className="text-sm">{activity.description}</p>
+                              {activity.comment && (
+                                <p className="text-sm text-muted-foreground mt-2 italic">"{activity.comment}"</p>
+                              )}
+                              {activityMember && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  von {activityMember.memberName}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {activity.photoUrls && activity.photoUrls.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2 mt-3">
+                              {activity.photoUrls.map((url: string, idx: number) => (
+                                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
+                                  <img
+                                    src={url}
+                                    alt={`Foto ${idx + 1}`}
+                                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => window.open(url, '_blank')}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-              </div>
-            </>
+              </TabsContent>
+            </Tabs>
           )}
         </div>
 

@@ -971,3 +971,10 @@
 - [x] Kompression in PhotoUpload.tsx integriert
 - [x] Kompressionseinstellungen konfiguriert (max 1920px, max 1MB)
 - [x] Testen mit verschiedenen Bildgrößen - funktioniert!
+
+## Aufgaben-spezifischer Verlauf in Detailansicht
+- [x] Backend: Query für aufgaben-spezifische Historie erstellen (activities.getByTaskId)
+- [x] Frontend: Verlauf-Tab in TaskDetailDialog hinzufügen
+- [x] Frontend: Verlaufseinträge mit Fotos, Kommentaren und Zeitstempel anzeigen
+- [x] Frontend: Foto-Lightbox für Verlaufsfotos integrieren
+- [x] Testen mit verschiedenen Aktivitätstypen (Abschluss, Zwischenziel, Erinnerung)

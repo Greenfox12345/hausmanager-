@@ -10,6 +10,7 @@ import { projectsRouter } from "./routers/projects";
 import { notificationsRouter } from "./routers/notifications";
 import { userAuthRouter } from "./routers/userAuth";
 import { householdManagementRouter } from "./routers/householdManagement";
+import { activitiesRouter } from "./routers/activities";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -35,6 +36,7 @@ export const appRouter = router({
   upload: uploadRouter,
   projects: projectsRouter,
   notifications: notificationsRouter,
+  activities: activitiesRouter,
 
   // Admin router
   admin: router({

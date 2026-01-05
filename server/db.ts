@@ -425,6 +425,24 @@ export async function getActivityHistory(householdId: number, limit: number = 50
   return enrichedActivities;
 }
 
+export async function getActivityHistoryByTaskId(taskId: number, householdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all activities related to this specific task
+  const activities = await db.select().from(activityHistory)
+    .where(
+      and(
+        eq(activityHistory.householdId, householdId),
+        eq(activityHistory.relatedItemId, taskId),
+        eq(activityHistory.activityType, 'task')
+      )
+    )
+    .orderBy(desc(activityHistory.createdAt));
+
+  return activities;
+}
+
 // Admin function to delete household and all related data
 export async function deleteHousehold(householdId: number) {
   const db = await getDb();
