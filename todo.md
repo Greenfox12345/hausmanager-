@@ -1089,3 +1089,11 @@
 - [x] Frontend: Kalender zeigt erledigte Termine aus Activity-History
 - [x] Frontend: Folgetermine nur mit "Zum Termin springen" und "Auslassen"
 - [x] Frontend: Aktuelle Termine mit allen Aktionen (Abschließen, etc.)
+
+## Skipped Dates Bugs (Current Focus)
+- [x] Skipped dates werden nicht im Kalender gefiltert - Folgetermine erscheinen auch wenn sie ausgelassen wurden
+- [x] Fehlende Anzeige ausgelassener Termine in Aufgaben-Detailansicht
+- [x] Fehlende Wiederherstellungs-Funktion für ausgelassene Termine
+
+- [x] Backend: restoreSkippedDate Mutation implementiert
+- [x] Frontend: Skipped Dates Liste in TaskDetailDialog mit Restore-Buttons

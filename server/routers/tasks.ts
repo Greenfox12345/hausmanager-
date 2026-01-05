@@ -710,4 +710,44 @@ export const tasksRouter = router({
 
       return { success: true };
     }),
+
+  // Restore a skipped occurrence of a recurring task
+  restoreSkippedDate: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        dateToRestore: z.string(), // ISO date string
+      })
+    )
+    .mutation(async ({ input }) => {
+      const tasks = await getTasks(input.householdId);
+      const task = tasks.find(t => t.id === input.taskId);
+      
+      if (!task) {
+        throw new Error("Task not found");
+      }
+
+      // Remove date from skippedDates array
+      const currentSkippedDates = task.skippedDates || [];
+      const updatedSkippedDates = currentSkippedDates.filter(date => date !== input.dateToRestore);
+
+      await updateTask(input.taskId, {
+        skippedDates: updatedSkippedDates,
+      });
+
+      // Log the restore action
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "restored",
+        description: `Restored skipped occurrence on ${new Date(input.dateToRestore).toLocaleDateString('de-DE')}`,
+        relatedItemId: input.taskId,
+        metadata: { restoredDate: input.dateToRestore },
+      });
+
+      return { success: true };
+    }),
 });
