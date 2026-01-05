@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Milestone, Bell, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2 } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -406,7 +406,7 @@ export default function Calendar() {
                                               setMilestoneDialogOpen(true);
                                             }}
                                           >
-                                            <Milestone className="h-4 w-4 mr-1" />
+                                            <Target className="h-4 w-4 mr-1" />
                                             Zwischenziel
                                           </Button>
                                         </>
@@ -539,7 +539,7 @@ export default function Calendar() {
                                           setMilestoneDialogOpen(true);
                                         }}
                                       >
-                                        <Milestone className="h-4 w-4 mr-1" />
+                                        <Target className="h-4 w-4 mr-1" />
                                         Zwischenziel
                                       </Button>
                                     </>
@@ -674,7 +674,7 @@ export default function Calendar() {
                                             setMilestoneDialogOpen(true);
                                           }}
                                         >
-                                          <Milestone className="h-4 w-4 mr-1" />
+                                          <Target className="h-4 w-4 mr-1" />
                                           Zwischenziel
                                         </Button>
                                       </>

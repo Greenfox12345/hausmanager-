@@ -1033,3 +1033,8 @@
 - [x] Umlaut ö in "Löschen" auf Calendar-Seite reparieren
 - [x] Milestone-Icon (Target) auf Tasks-Seite anwenden (bereits vorhanden)
 - [x] Milestone-Icon (Target) auf Projects-Seite anwenden (bereits vorhanden)
+
+## Milestone-Icon Korrektur
+- [x] Milestone-Icon auf Calendar-Seite durch Target-Icon ersetzen
+- [x] Milestone-Icon auf Tasks-Seite durch Target-Icon ersetzen (bereits korrekt)
+- [x] Milestone-Icon auf Projects-Seite durch Target-Icon ersetzen (bereits korrekt)
