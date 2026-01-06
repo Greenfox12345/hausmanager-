@@ -167,6 +167,33 @@ export default function Calendar() {
     return occurrences;
   };
 
+  // Find next open occurrence for a recurring task
+  const findNextOpenOccurrence = (task: typeof tasks[0]) => {
+    if (!task.repeatInterval || !task.repeatUnit || !task.dueDate) {
+      return new Date(task.dueDate!);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const skippedDates = task.skippedDates || [];
+    
+    // Get all future occurrences up to 12 months ahead
+    const allOccurrences = calculateFutureOccurrences(task, 12);
+    
+    // Find first occurrence that is today or in the future and not skipped
+    for (const occurrence of allOccurrences) {
+      const occDate = new Date(occurrence.date);
+      occDate.setHours(0, 0, 0, 0);
+      
+      if (occDate >= today) {
+        return occurrence.date;
+      }
+    }
+    
+    // If no future occurrence found, return current due date
+    return new Date(task.dueDate);
+  };
+
   // Group tasks by date (including future occurrences and completed history)
   const tasksByDate = useMemo(() => {
     const grouped: Record<string, Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }>> = {};
@@ -655,12 +682,13 @@ export default function Calendar() {
                                             className="w-full"
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setCurrentMonth(new Date(task.dueDate!));
-                                              toast.info("Zum Termin gesprungen");
+                                              const nextDate = findNextOpenOccurrence(task);
+                                              setCurrentMonth(nextDate);
+                                              toast.info("Zu aktuellem Termin gesprungen");
                                             }}
                                           >
                                             <ArrowRight className="h-4 w-4 mr-1" />
-                                            Zum Termin
+                                            Zu aktuellem Termin
                                           </Button>
                                           <Button
                                             size="sm"
@@ -715,29 +743,31 @@ export default function Calendar() {
                                         </>
                                       )}
                                       {!task.isFutureOccurrence && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="w-full"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActionTask(task);
-                                            setReminderDialogOpen(true);
-                                          }}
-                                        >
-                                          <Bell className="h-4 w-4 mr-1" />
-                                          Erinnern
-                                        </Button>
+                                        <>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setActionTask(task);
+                                              setReminderDialogOpen(true);
+                                            }}
+                                          >
+                                            <Bell className="h-4 w-4 mr-1" />
+                                            Erinnern
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                            onClick={(e) => handleDelete(task, e)}
+                                          >
+                                            <Trash2 className="h-4 w-4 mr-1" />
+                                            Löschen
+                                          </Button>
+                                        </>
                                       )}
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                        onClick={(e) => handleDelete(task, e)}
-                                      >
-                                        <Trash2 className="h-4 w-4 mr-1" />
-                                        Löschen
-                                      </Button>
                                     </div>
                                   </div>
                                 </div>
@@ -897,13 +927,13 @@ export default function Calendar() {
                                           className="w-full"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                            setCurrentMonth(targetDate);
-                                            toast.info("Zum Termin gesprungen");
+                                            const nextDate = findNextOpenOccurrence(task);
+                                            setCurrentMonth(nextDate);
+                                            toast.info("Zu aktuellem Termin gesprungen");
                                           }}
                                         >
                                           <ArrowRight className="h-4 w-4 mr-1" />
-                                          Zum Termin
+                                          Zu aktuellem Termin
                                         </Button>
                                         <Button
                                           size="sm"
@@ -974,7 +1004,7 @@ export default function Calendar() {
                                         </Button>
                                       </>
                                     )}
-                                    {!task.isCompletedOccurrence && (
+                                    {!task.isCompletedOccurrence && !task.isFutureOccurrence && (
                                       <Button
                                         size="sm"
                                         variant="outline"

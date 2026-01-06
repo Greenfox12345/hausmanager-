@@ -1122,3 +1122,10 @@
 - [x] "Erinnern"-Button wird noch bei Folgeterminen in Kalender-Grid angezeigt
 - [x] "Auslassen"-Button in Kalender-Grid verwendet jetzt occurrenceDate
 - [x] "Erinnern"-Button bei Folgeterminen in Kalender-Grid entfernt
+
+## Kalenderansicht Folgetermine Verbesserungen (Aktuell)
+- [x] "Zum Termin" Button bei Folgeterminen umbenennen in "Zu aktuellem Termin"
+- [x] "Zu aktuellem Termin" springt zum nächsten offenen Termin (nicht erledigt, nicht ausgelassen)
+- [x] "Löschen" Button bei Folgeterminen in Kalenderansicht entfernen
+- [x] "Zum Termin" Button umbenannt in "Zu aktuellem Termin" bei Folgeterminen
+- [x] Funktion findNextOpenOccurrence implementiert (springt zu nächstem offenen Termin)
