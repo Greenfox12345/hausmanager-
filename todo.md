@@ -1129,3 +1129,7 @@
 - [x] "Löschen" Button bei Folgeterminen in Kalenderansicht entfernen
 - [x] "Zum Termin" Button umbenannt in "Zu aktuellem Termin" bei Folgeterminen
 - [x] Funktion findNextOpenOccurrence implementiert (springt zu nächstem offenen Termin)
+
+## "Zu aktuellem Termin" Button Bug
+- [x] Button springt nicht zum nächsten offenen Termin ab heute - bleibt beim angeklickten Datum
+- [x] findNextOpenOccurrence berechnet jetzt alle zukünftigen Termine ab dueDate, nicht nur im aktuellen Monat

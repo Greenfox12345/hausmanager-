@@ -177,21 +177,43 @@ export default function Calendar() {
     today.setHours(0, 0, 0, 0);
     const skippedDates = task.skippedDates || [];
     
-    // Get all future occurrences up to 12 months ahead
-    const allOccurrences = calculateFutureOccurrences(task, 12);
+    // Calculate all future occurrences manually (not limited to current month)
+    let currentDate = new Date(task.dueDate);
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + 12); // Look 12 months ahead
     
-    // Find first occurrence that is today or in the future and not skipped
-    for (const occurrence of allOccurrences) {
-      const occDate = new Date(occurrence.date);
+    let iterations = 0;
+    const maxIterations = 365;
+    
+    while (currentDate <= maxDate && iterations < maxIterations) {
+      // Calculate next occurrence
+      const nextDate = new Date(currentDate);
+      if (task.repeatUnit === "days") {
+        nextDate.setDate(nextDate.getDate() + task.repeatInterval);
+      } else if (task.repeatUnit === "weeks") {
+        nextDate.setDate(nextDate.getDate() + (task.repeatInterval * 7));
+      } else if (task.repeatUnit === "months") {
+        nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
+      }
+      
+      // Check if this date is skipped
+      const dateKey = format(nextDate, "yyyy-MM-dd");
+      const isSkipped = skippedDates.includes(dateKey);
+      
+      // Check if this is today or in the future and not skipped
+      const occDate = new Date(nextDate);
       occDate.setHours(0, 0, 0, 0);
       
-      if (occDate >= today) {
-        return occurrence.date;
+      if (occDate >= today && !isSkipped) {
+        return nextDate;
       }
+      
+      currentDate = nextDate;
+      iterations++;
     }
     
-    // If no future occurrence found, return current due date
-    return new Date(task.dueDate);
+    // If no future occurrence found, return today
+    return today;
   };
 
   // Group tasks by date (including future occurrences and completed history)
