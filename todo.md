@@ -1133,3 +1133,9 @@
 ## "Zu aktuellem Termin" Button Bug
 - [x] Button springt nicht zum nächsten offenen Termin ab heute - bleibt beim angeklickten Datum
 - [x] findNextOpenOccurrence berechnet jetzt alle zukünftigen Termine ab dueDate, nicht nur im aktuellen Monat
+
+## Rebranding zu NoChat
+- [x] Neues Logo generiert: Fünf Hände im Kreis mit Hammer, Sichel, Stift, Laute, Computermaus
+- [x] Logo in dunkelrot mit Transparenz neu generiert
+- [x] Logo-Datei ersetzt (client/public/logo.png)
+- [ ] App-Titel zu "NoChat" ändern (manuell im Management UI unter Settings → General)
