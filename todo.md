@@ -1139,3 +1139,9 @@
 - [x] Logo in dunkelrot mit Transparenz neu generiert
 - [x] Logo-Datei ersetzt (client/public/logo.png)
 - [ ] App-Titel zu "NoChat" ändern (manuell im Management UI unter Settings → General)
+
+## Farbschema-Anpassung für NoChat
+- [x] CSS-Variablen in index.css auf dunkelrot/burgundy angepasst
+- [x] Primärfarbe von blau zu dunkelrot geändert (oklch 0.45 0.15 20)
+- [x] Akzentfarben angepasst (secondary, accent, charts)
+- [x] Dark Mode mit burgundy Akzenten angepasst
