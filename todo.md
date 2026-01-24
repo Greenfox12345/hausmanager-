@@ -1153,3 +1153,15 @@
 - [x] UI: Kategorie löschen mit Bestätigung (nur wenn keine Artikel in Kategorie)
 - [x] UI: Kategorienverwaltungs-Sektion am Ende der Shopping-Seite
 - [x] Alle Änderungen getestet und Server läuft ohne Fehler
+## Kategorie-Farben Feature
+- [ ] Schema: color Feld zu shoppingCategories hinzufügen
+- [ ] Datenbank-Migration: Standardfarben für bestehende Kategorien setzen
+- [ ] Backend: color Parameter zu createCategory und renameCategory hinzufügen
+- [ ] Frontend: Farbauswahl im Kategorie-Dialog
+- [ ] Frontend: Farben in der Kategorienliste und bei Artikeln## Kategorie-Farben Feature
+- [x] Schema: color Feld zu shoppingCategories hinzugefügt
+- [x] Datenbank-Migration: Standardfarben für bestehende Kategorien gesetzt
+- [x] Backend: color Parameter zu createCategory und renameCategory hinzugefügt
+- [x] Frontend: Farbauswahl im Kategorie-Dialog mit Vorschau
+- [x] Frontend: Farben in der Kategorienliste und bei Artikeln mit inline styles anzeigen
+- [x] Alle Änderungen getestet und Server läuft ohne Fehler

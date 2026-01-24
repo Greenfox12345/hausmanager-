@@ -27,6 +27,7 @@ export default function Shopping() {
   const [categoryDialogMode, setCategoryDialogMode] = useState<"create" | "rename">("create");
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [categoryName, setCategoryName] = useState("");
+  const [categoryColor, setCategoryColor] = useState("#6B7280");
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
@@ -199,15 +200,21 @@ export default function Shopping() {
 
   const getCategoryColor = (categoryId: number) => {
     const category = categories.find((c) => c.id === categoryId);
-    if (!category) return "bg-muted text-muted-foreground border-border";
+    if (!category || !category.color) return "bg-muted text-muted-foreground border-border";
 
-    // Use consistent colors based on category name
-    const colors: Record<string, string> = {
-      Lebensmittel: "bg-primary/10 text-primary border-primary/20",
-      Haushalt: "bg-secondary/10 text-secondary border-secondary/20",
-      Pflege: "bg-accent/10 text-accent border-accent/20",
+    // Convert hex color to inline style
+    return "";
+  };
+
+  const getCategoryStyle = (categoryId: number) => {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category || !category.color) return {};
+
+    return {
+      backgroundColor: `${category.color}20`,
+      color: category.color,
+      borderColor: `${category.color}40`,
     };
-    return colors[category.name] || "bg-muted text-muted-foreground border-border";
   };
 
   const getCategoryName = (categoryId: number) => {
@@ -217,13 +224,15 @@ export default function Shopping() {
   const handleOpenCreateCategory = () => {
     setCategoryDialogMode("create");
     setCategoryName("");
+    setCategoryColor("#6B7280");
     setEditingCategoryId(null);
     setShowCategoryDialog(true);
   };
 
-  const handleOpenRenameCategory = (categoryId: number, currentName: string) => {
+  const handleOpenRenameCategory = (categoryId: number, currentName: string, currentColor: string) => {
     setCategoryDialogMode("rename");
     setCategoryName(currentName);
+    setCategoryColor(currentColor || "#6B7280");
     setEditingCategoryId(categoryId);
     setShowCategoryDialog(true);
   };
@@ -237,6 +246,7 @@ export default function Shopping() {
         householdId: household.householdId,
         memberId: member.memberId,
         name: categoryName.trim(),
+        color: categoryColor,
       });
     } else {
       if (!editingCategoryId) return;
@@ -245,6 +255,7 @@ export default function Shopping() {
         householdId: household.householdId,
         memberId: member.memberId,
         name: categoryName.trim(),
+        color: categoryColor,
       });
     }
   };
@@ -388,7 +399,10 @@ export default function Shopping() {
                         {item.name}
                       </div>
                       <div className="mt-1">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${getCategoryColor(item.categoryId)}`}>
+                        <span 
+                          className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
+                          style={getCategoryStyle(item.categoryId)}
+                        >
                           {getCategoryName(item.categoryId)}
                         </span>
                       </div>
@@ -438,7 +452,10 @@ export default function Shopping() {
                       className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(category.id)}`}>
+                        <span 
+                          className="inline-block px-3 py-1 rounded-full text-sm font-medium border"
+                          style={getCategoryStyle(category.id)}
+                        >
                           {category.name}
                         </span>
                         <span className="text-sm text-muted-foreground">
@@ -449,7 +466,7 @@ export default function Shopping() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleOpenRenameCategory(category.id, category.name)}
+                          onClick={() => handleOpenRenameCategory(category.id, category.name, category.color || "#6B7280")}
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -504,6 +521,29 @@ export default function Shopping() {
                   onChange={(e) => setCategoryName(e.target.value)}
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="categoryColor">Farbe</Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    id="categoryColor"
+                    type="color"
+                    value={categoryColor}
+                    onChange={(e) => setCategoryColor(e.target.value)}
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground font-mono">{categoryColor.toUpperCase()}</span>
+                  <div
+                    className="px-3 py-1 rounded-full text-sm font-medium border"
+                    style={{
+                      backgroundColor: `${categoryColor}20`,
+                      color: categoryColor,
+                      borderColor: `${categoryColor}40`,
+                    }}
+                  >
+                    Vorschau
+                  </div>
+                </div>
               </div>
             </div>
             <DialogFooter>

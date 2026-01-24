@@ -276,6 +276,7 @@ export async function getShoppingCategories(householdId: number): Promise<Shoppi
 export async function createShoppingCategory(data: {
   householdId: number;
   name: string;
+  color?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -284,7 +285,7 @@ export async function createShoppingCategory(data: {
   return Number(result[0].insertId);
 }
 
-export async function updateShoppingCategory(id: number, data: { name: string }) {
+export async function updateShoppingCategory(id: number, data: { name?: string; color?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 

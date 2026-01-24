@@ -95,6 +95,7 @@ export const shoppingCategories = mysqlTable("shopping_categories", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 100 }).notNull(),
+  color: varchar("color", { length: 7 }).default("#6B7280").notNull(), // Hex color code
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

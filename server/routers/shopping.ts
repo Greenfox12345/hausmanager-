@@ -186,12 +186,14 @@ export const shoppingRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         name: z.string().min(1),
+        color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
       })
     )
     .mutation(async ({ input }) => {
       const categoryId = await createShoppingCategory({
         householdId: input.householdId,
         name: input.name,
+        color: input.color,
       });
 
       await createActivityLog({
@@ -212,10 +214,14 @@ export const shoppingRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         name: z.string().min(1),
+        color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
       })
     )
     .mutation(async ({ input }) => {
-      await updateShoppingCategory(input.categoryId, { name: input.name });
+      await updateShoppingCategory(input.categoryId, { 
+        name: input.name,
+        color: input.color,
+      });
 
       await createActivityLog({
         householdId: input.householdId,

@@ -15,6 +15,13 @@
       "when": 1769165674258,
       "tag": "0001_careless_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769222210222,
+      "tag": "0002_colossal_sphinx",
+      "breakpoints": true
     }
   ]
 }
