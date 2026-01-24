@@ -6,6 +6,7 @@ import {
   households, 
   householdMembers,
   shoppingItems,
+  shoppingCategories,
   tasks,
   projects,
   projectHouseholds,
@@ -14,6 +15,7 @@ import {
   type Household,
   type HouseholdMember,
   type ShoppingItem,
+  type ShoppingCategory,
   type Task,
   type Project,
   type ActivityHistory
@@ -235,7 +237,7 @@ export async function getShoppingItems(householdId: number): Promise<ShoppingIte
 export async function createShoppingItem(data: {
   householdId: number;
   name: string;
-  category: "Lebensmittel" | "Haushalt" | "Pflege" | "Sonstiges";
+  categoryId: number;
   quantity?: string;
   notes?: string;
   addedBy: number;
@@ -259,6 +261,41 @@ export async function deleteShoppingItem(id: number) {
   if (!db) throw new Error("Database not available");
 
   await db.delete(shoppingItems).where(eq(shoppingItems.id, id));
+}
+
+// Shopping categories management
+export async function getShoppingCategories(householdId: number): Promise<ShoppingCategory[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(shoppingCategories)
+    .where(eq(shoppingCategories.householdId, householdId))
+    .orderBy(shoppingCategories.name);
+}
+
+export async function createShoppingCategory(data: {
+  householdId: number;
+  name: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(shoppingCategories).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function updateShoppingCategory(id: number, data: { name: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(shoppingCategories).set(data).where(eq(shoppingCategories.id, id));
+}
+
+export async function deleteShoppingCategory(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(shoppingCategories).where(eq(shoppingCategories.id, id));
 }
 
 // Tasks management

@@ -1133,3 +1133,23 @@
 ## "Zu aktuellem Termin" Button Bug
 - [x] Button springt nicht zum nächsten offenen Termin ab heute - bleibt beim angeklickten Datum
 - [x] findNextOpenOccurrence berechnet jetzt alle zukünftigen Termine ab dueDate, nicht nur im aktuellen Monat
+
+## Shopping Kategorienverwaltung
+- [ ] Backend: createCategory Mutation
+- [ ] Backend: renameCategory Mutation
+- [ ] Backend: deleteCategory Mutation
+- [ ] Frontend: Kategorienverwaltungs-Sektion am Ende der Shopping-Seite
+- [ ] UI: Kategorie erstellen Dialog
+- [ ] UI: Kategorie umbenennen Dialog
+- [ ] UI: Kategorie löschen mit Bestät## Shopping Kategorienverwaltung
+- [x] Backend: createCategory Mutation
+- [x] Backend: renameCategory Mutation
+- [x] Backend: deleteCategory Mutation
+- [x] Backend: listCategories Query
+- [x] Datenbank-Migration erfolgreich durchgeführt
+- [x] Frontend: Shopping.tsx komplett umgebaut mit dynamischen Kategorien
+- [x] UI: Kategorie erstellen Dialog
+- [x] UI: Kategorie umbenennen Dialog
+- [x] UI: Kategorie löschen mit Bestätigung (nur wenn keine Artikel in Kategorie)
+- [x] UI: Kategorienverwaltungs-Sektion am Ende der Shopping-Seite
+- [x] Alle Änderungen getestet und Server läuft ohne Fehler

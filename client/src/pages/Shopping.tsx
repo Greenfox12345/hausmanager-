@@ -9,22 +9,32 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from "lucide-react";
 import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
-
-const CATEGORIES = ["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"] as const;
 
 export default function Shopping() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [newItemName, setNewItemName] = useState("");
-  const [newItemCategory, setNewItemCategory] = useState<typeof CATEGORIES[number]>("Lebensmittel");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  
+  // Category management state
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [categoryDialogMode, setCategoryDialogMode] = useState<"create" | "rename">("create");
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [categoryName, setCategoryName] = useState("");
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: categories = [] } = trpc.shopping.listCategories.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -83,6 +93,41 @@ export default function Shopping() {
     },
   });
 
+  const createCategoryMutation = trpc.shopping.createCategory.useMutation({
+    onSuccess: () => {
+      utils.shopping.listCategories.invalidate();
+      setShowCategoryDialog(false);
+      setCategoryName("");
+      toast.success("Kategorie erstellt");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const renameCategoryMutation = trpc.shopping.renameCategory.useMutation({
+    onSuccess: () => {
+      utils.shopping.listCategories.invalidate();
+      setShowCategoryDialog(false);
+      setCategoryName("");
+      setEditingCategoryId(null);
+      toast.success("Kategorie umbenannt");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteCategoryMutation = trpc.shopping.deleteCategory.useMutation({
+    onSuccess: () => {
+      utils.shopping.listCategories.invalidate();
+      toast.success("Kategorie gelöscht");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
   // Auth check removed - AppLayout handles this
 
   if (!household || !member) {
@@ -95,15 +140,20 @@ export default function Shopping() {
     );
   }
 
+  // Set default category when categories load
+  if (categories.length > 0 && newItemCategoryId === null) {
+    setNewItemCategoryId(categories[0].id);
+  }
+
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName.trim()) return;
+    if (!newItemName.trim() || !newItemCategoryId) return;
 
     addMutation.mutate({
       householdId: household.householdId,
       memberId: member.memberId,
       name: newItemName.trim(),
-      category: newItemCategory,
+      categoryId: newItemCategoryId,
     });
   };
 
@@ -126,9 +176,9 @@ export default function Shopping() {
     }
   };
 
-  const filteredItems = filterCategory === "all"
+  const filteredItems = filterCategoryId === "all"
     ? items
-    : items.filter((item) => item.category === filterCategory);
+    : items.filter((item) => item.categoryId === Number(filterCategoryId));
 
   const completedItems = items.filter((item) => item.isCompleted);
 
@@ -147,14 +197,72 @@ export default function Shopping() {
     });
   };
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (categoryId: number) => {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return "bg-muted text-muted-foreground border-border";
+
+    // Use consistent colors based on category name
     const colors: Record<string, string> = {
       Lebensmittel: "bg-primary/10 text-primary border-primary/20",
       Haushalt: "bg-secondary/10 text-secondary border-secondary/20",
       Pflege: "bg-accent/10 text-accent border-accent/20",
-      Sonstiges: "bg-muted text-muted-foreground border-border",
     };
-    return colors[category] || colors.Sonstiges;
+    return colors[category.name] || "bg-muted text-muted-foreground border-border";
+  };
+
+  const getCategoryName = (categoryId: number) => {
+    return categories.find((c) => c.id === categoryId)?.name || "Unbekannt";
+  };
+
+  const handleOpenCreateCategory = () => {
+    setCategoryDialogMode("create");
+    setCategoryName("");
+    setEditingCategoryId(null);
+    setShowCategoryDialog(true);
+  };
+
+  const handleOpenRenameCategory = (categoryId: number, currentName: string) => {
+    setCategoryDialogMode("rename");
+    setCategoryName(currentName);
+    setEditingCategoryId(categoryId);
+    setShowCategoryDialog(true);
+  };
+
+  const handleCategoryDialogSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryName.trim()) return;
+
+    if (categoryDialogMode === "create") {
+      createCategoryMutation.mutate({
+        householdId: household.householdId,
+        memberId: member.memberId,
+        name: categoryName.trim(),
+      });
+    } else {
+      if (!editingCategoryId) return;
+      renameCategoryMutation.mutate({
+        categoryId: editingCategoryId,
+        householdId: household.householdId,
+        memberId: member.memberId,
+        name: categoryName.trim(),
+      });
+    }
+  };
+
+  const handleDeleteCategory = (categoryId: number) => {
+    const itemsInCategory = items.filter((item) => item.categoryId === categoryId);
+    if (itemsInCategory.length > 0) {
+      toast.error(`Kategorie kann nicht gelöscht werden: ${itemsInCategory.length} Artikel verwenden sie noch`);
+      return;
+    }
+
+    if (confirm("Möchten Sie diese Kategorie wirklich löschen?")) {
+      deleteCategoryMutation.mutate({
+        categoryId,
+        householdId: household.householdId,
+        memberId: member.memberId,
+      });
+    }
   };
 
   return (
@@ -193,14 +301,17 @@ export default function Shopping() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="itemCategory">Kategorie</Label>
-                <Select value={newItemCategory} onValueChange={(value: any) => setNewItemCategory(value)}>
+                <Select 
+                  value={newItemCategoryId?.toString() || ""} 
+                  onValueChange={(value) => setNewItemCategoryId(Number(value))}
+                >
                   <SelectTrigger id="itemCategory">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -216,15 +327,15 @@ export default function Shopping() {
 
         <div className="mb-4 flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
             <SelectTrigger className="w-[200px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Alle Kategorien</SelectItem>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -251,9 +362,9 @@ export default function Shopping() {
         ) : filteredItems.length === 0 ? (
           <Card className="shadow-sm">
             <CardContent className="py-12 text-center text-muted-foreground">
-              {filterCategory === "all"
+              {filterCategoryId === "all"
                 ? "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!"
-                : `Keine Artikel in der Kategorie "${filterCategory}".`}
+                : `Keine Artikel in dieser Kategorie.`}
             </CardContent>
           </Card>
         ) : (
@@ -277,8 +388,8 @@ export default function Shopping() {
                         {item.name}
                       </div>
                       <div className="mt-1">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${getCategoryColor(item.category)}`}>
-                          {item.category}
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${getCategoryColor(item.categoryId)}`}>
+                          {getCategoryName(item.categoryId)}
                         </span>
                       </div>
                     </div>
@@ -296,6 +407,69 @@ export default function Shopping() {
             ))}
           </div>
         )}
+
+        {/* Category Management Section */}
+        <Card className="mt-8 shadow-md">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Kategorien verwalten</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOpenCreateCategory}
+              >
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Neue Kategorie
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {categories.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">
+                Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {categories.map((category) => {
+                  const itemCount = items.filter((item) => item.categoryId === category.id).length;
+                  return (
+                    <div
+                      key={category.id}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(category.id)}`}>
+                          {category.name}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {itemCount} {itemCount === 1 ? "Artikel" : "Artikel"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenRenameCategory(category.id, category.name)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteCategory(category.id)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          disabled={itemCount > 0}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {showCompleteDialog && completedItems.length > 0 && (
@@ -305,11 +479,51 @@ export default function Shopping() {
           items={completedItems.map((item) => ({
             id: item.id,
             name: item.name,
-            category: item.category,
+            category: getCategoryName(item.categoryId),
           }))}
           onComplete={handleCompleteShopping}
         />
       )}
+
+      {/* Category Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {categoryDialogMode === "create" ? "Neue Kategorie erstellen" : "Kategorie umbenennen"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCategoryDialogSubmit}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="categoryName">Kategoriename</Label>
+                <Input
+                  id="categoryName"
+                  placeholder="z.B. Getränke, Tierfutter..."
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowCategoryDialog(false)}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                type="submit"
+                disabled={createCategoryMutation.isPending || renameCategoryMutation.isPending}
+              >
+                {categoryDialogMode === "create" ? "Erstellen" : "Umbenennen"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

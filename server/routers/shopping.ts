@@ -5,6 +5,10 @@ import {
   createShoppingItem,
   updateShoppingItem,
   deleteShoppingItem,
+  getShoppingCategories,
+  createShoppingCategory,
+  updateShoppingCategory,
+  deleteShoppingCategory,
   createActivityLog,
 } from "../db";
 
@@ -23,7 +27,7 @@ export const shoppingRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         name: z.string().min(1),
-        category: z.enum(["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"]),
+        categoryId: z.number(),
         quantity: z.string().optional(),
         notes: z.string().optional(),
       })
@@ -32,7 +36,7 @@ export const shoppingRouter = router({
       const itemId = await createShoppingItem({
         householdId: input.householdId,
         name: input.name,
-        category: input.category,
+        categoryId: input.categoryId,
         quantity: input.quantity,
         notes: input.notes,
         addedBy: input.memberId,
@@ -59,7 +63,7 @@ export const shoppingRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         name: z.string().optional(),
-        category: z.enum(["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"]).optional(),
+        categoryId: z.number().optional(),
         quantity: z.string().optional(),
         notes: z.string().optional(),
       })
@@ -164,6 +168,83 @@ export const shoppingRouter = router({
           itemCount: input.itemIds.length,
           items: completedItemNames,
         },
+      });
+
+      return { success: true };
+    }),
+
+  // Category management
+  listCategories: publicProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      return await getShoppingCategories(input.householdId);
+    }),
+
+  createCategory: publicProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+        name: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const categoryId = await createShoppingCategory({
+        householdId: input.householdId,
+        name: input.name,
+      });
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "added",
+        description: `Created shopping category: ${input.name}`,
+      });
+
+      return { categoryId };
+    }),
+
+  renameCategory: publicProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        name: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await updateShoppingCategory(input.categoryId, { name: input.name });
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "updated",
+        description: `Renamed shopping category to: ${input.name}`,
+      });
+
+      return { success: true };
+    }),
+
+  deleteCategory: publicProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await deleteShoppingCategory(input.categoryId);
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "deleted",
+        description: `Deleted shopping category`,
       });
 
       return { success: true };

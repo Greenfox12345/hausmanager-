@@ -89,13 +89,27 @@ export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
 
 /**
+ * Shopping categories - customizable categories for shopping items
+ */
+export const shoppingCategories = mysqlTable("shopping_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ShoppingCategory = typeof shoppingCategories.$inferSelect;
+export type InsertShoppingCategory = typeof shoppingCategories.$inferInsert;
+
+/**
  * Shopping items - household shopping list with categories
  */
 export const shoppingItems = mysqlTable("shopping_items", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
-  category: mysqlEnum("category", ["Lebensmittel", "Haushalt", "Pflege", "Sonstiges"]).notNull(),
+  categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
   quantity: varchar("quantity", { length: 100 }),
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
