@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
   const [, setLocation] = useLocation();
@@ -92,7 +93,7 @@ export default function History() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-4xl">
+      <div className="container py-6 max-w-4xl pb-24">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -333,6 +334,7 @@ export default function History() {
           </span>
         </div>
       )}
+      <BottomNav />
     </AppLayout>
   );
 }

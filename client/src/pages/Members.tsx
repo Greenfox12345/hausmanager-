@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Users, LogOut, Plus, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function Members() {
   const [, setLocation] = useLocation();
@@ -52,7 +53,7 @@ export default function Members() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-4xl">
+      <div className="container py-6 max-w-4xl pb-24">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -190,6 +191,7 @@ export default function Members() {
           </CardContent>
         </Card>
       </div>
+      <BottomNav />
     </AppLayout>
   );
 }

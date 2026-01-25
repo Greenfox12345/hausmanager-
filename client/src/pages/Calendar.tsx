@@ -16,6 +16,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 
 export default function Calendar() {
@@ -454,7 +455,7 @@ export default function Calendar() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-6xl">
+      <div className="container py-6 max-w-6xl pb-24">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -1274,6 +1275,7 @@ export default function Calendar() {
           />
         </>
       )}
+      <BottomNav />
     </AppLayout>
   );
 }

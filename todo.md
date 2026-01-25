@@ -1165,3 +1165,12 @@
 - [x] Frontend: Farbauswahl im Kategorie-Dialog mit Vorschau
 - [x] Frontend: Farben in der Kategorienliste und bei Artikeln mit inline styles anzeigen
 - [x] Alle Änderungen getestet und Server läuft ohne Fehler
+## Bottom Navigation Bar
+- [ ] BottomNav Component## Bottom Navigation Bar
+- [x] BottomNav Component erstellt mit Icons und Dropdown
+- [x] Reiter: Einkaufen (/shopping), Aufgaben (/tasks), Termine (/calendar), Weiteres (Dropdown)
+- [x] Weiteres-Dropdown mit Projekte (/projects), Verlauf (/history), Haushalt (/members)
+- [x] BottomNav zu allen 6 Seiten hinzugefügt (Shopping, Tasks, Calendar, Projects, History, Members)
+- [x] Aktiven Reiter hervorheben (primary color für aktive, muted-foreground für inaktive)
+- [x] Padding am unteren Rand (pb-24) hinzugefügt damit Inhalt nicht verdeckt wird
+- [x] Server läuft ohne Fehler

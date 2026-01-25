@@ -38,6 +38,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { BottomNav } from "@/components/BottomNav";
 
 
 export default function Projects() {
@@ -497,7 +498,7 @@ export default function Projects() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-6xl">
+      <div className="container py-6 max-w-6xl pb-24">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -1603,8 +1604,7 @@ export default function Projects() {
           }
         }}
       />
-
-
+      <BottomNav />
     </AppLayout>
   );
 }

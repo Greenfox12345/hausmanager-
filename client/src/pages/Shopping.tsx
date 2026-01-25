@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from "lucide-react";
 import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function Shopping() {
   const [, setLocation] = useLocation();
@@ -278,7 +279,7 @@ export default function Shopping() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-4xl">
+      <div className="container py-6 max-w-4xl pb-24">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -564,6 +565,7 @@ export default function Shopping() {
           </form>
         </DialogContent>
       </Dialog>
+      <BottomNav />
     </AppLayout>
   );
 }

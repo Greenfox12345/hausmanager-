@@ -18,6 +18,7 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
+import { BottomNav } from "@/components/BottomNav";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -521,7 +522,7 @@ export default function Tasks() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-4xl">
+      <div className="container py-6 max-w-4xl pb-24">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -1363,7 +1364,7 @@ export default function Tasks() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+      <BottomNav />
     </AppLayout>
   );
 }
