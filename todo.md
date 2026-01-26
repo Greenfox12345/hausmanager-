@@ -1174,3 +1174,10 @@
 - [x] Aktiven Reiter hervorheben (primary color für aktive, muted-foreground für inaktive)
 - [x] Padding am unteren Rand (pb-24) hinzugefügt damit Inhalt nicht verdeckt wird
 - [x] Server läuft ohne Fehler
+
+## Shopping-Item Bearbeitung
+- [x] Backend: updateShoppingItem bereits vorhanden (update Mutation)
+- [x] Frontend: Edit-Button bei jedem Artikel hinzugefügt
+- [x] Frontend: Edit-Dialog mit vorausgefüllten Werten erstellt
+- [x] Frontend: updateMutation mit Query-Invalidierung
+- [x] Server läuft ohne Fehler

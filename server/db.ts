@@ -249,11 +249,21 @@ export async function createShoppingItem(data: {
   return Number(result[0].insertId);
 }
 
-export async function updateShoppingItem(id: number, data: Partial<ShoppingItem>) {
+export async function updateShoppingItem(id: number, data: {
+  name?: string;
+  categoryId?: number;
+  quantity?: string;
+  notes?: string;
+  isCompleted?: boolean;
+  completedBy?: number | null;
+  completedAt?: Date | null;
+}) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.update(shoppingItems).set(data).where(eq(shoppingItems.id, id));
+  await db.update(shoppingItems)
+    .set(data)
+    .where(eq(shoppingItems.id, id));
 }
 
 export async function deleteShoppingItem(id: number) {

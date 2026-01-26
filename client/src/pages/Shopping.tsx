@@ -23,6 +23,13 @@ export default function Shopping() {
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   
+  // Item edit state
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editItemName, setEditItemName] = useState("");
+  const [editItemCategoryId, setEditItemCategoryId] = useState<number | null>(null);
+  const [editItemQuantity, setEditItemQuantity] = useState("");
+  
   // Category management state
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [categoryDialogMode, setCategoryDialogMode] = useState<"create" | "rename">("create");
@@ -75,6 +82,17 @@ export default function Shopping() {
     },
     onSettled: () => {
       utils.shopping.list.invalidate();
+    },
+  });
+
+  const updateMutation = trpc.shopping.update.useMutation({
+    onSuccess: () => {
+      utils.shopping.list.invalidate();
+      setShowEditDialog(false);
+      toast.success("Artikel aktualisiert");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
     },
   });
 
@@ -156,6 +174,28 @@ export default function Shopping() {
       memberId: member.memberId,
       name: newItemName.trim(),
       categoryId: newItemCategoryId,
+    });
+  };
+
+  const handleOpenEditDialog = (item: any) => {
+    setEditingItemId(item.id);
+    setEditItemName(item.name);
+    setEditItemCategoryId(item.categoryId);
+    setEditItemQuantity(item.quantity || "");
+    setShowEditDialog(true);
+  };
+
+  const handleEditItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editItemName.trim() || !editItemCategoryId || !editingItemId) return;
+
+    updateMutation.mutate({
+      itemId: editingItemId,
+      householdId: household.householdId,
+      memberId: member.memberId,
+      name: editItemName.trim(),
+      categoryId: editItemCategoryId,
+      quantity: editItemQuantity.trim() || undefined,
     });
   };
 
@@ -411,6 +451,14 @@ export default function Shopping() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => handleOpenEditDialog(item)}
+                      className="shrink-0 hover:bg-primary/10 touch-target"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleDelete(item.id)}
                       className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-target"
                     >
@@ -504,6 +552,76 @@ export default function Shopping() {
       )}
 
       {/* Category Dialog */}
+      {/* Edit Item Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Artikel bearbeiten</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditItem}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="editItemName">Artikelname</Label>
+                <Input
+                  id="editItemName"
+                  placeholder="z.B. Milch, Brot..."
+                  value={editItemName}
+                  onChange={(e) => setEditItemName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editItemCategory">Kategorie</Label>
+                <Select
+                  value={editItemCategoryId?.toString() || ""}
+                  onValueChange={(value) => setEditItemCategoryId(Number(value))}
+                >
+                  <SelectTrigger id="editItemCategory">
+                    <SelectValue placeholder="Kategorie wählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        <span
+                          className="inline-block w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: cat.color }}
+                        />
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editItemQuantity">Menge (optional)</Label>
+                <Input
+                  id="editItemQuantity"
+                  placeholder="z.B. 2x, 500g..."
+                  value={editItemQuantity}
+                  onChange={(e) => setEditItemQuantity(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowEditDialog(false)}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateMutation.isPending}
+              >
+                Speichern
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Management Dialog */}
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
         <DialogContent>
           <DialogHeader>
