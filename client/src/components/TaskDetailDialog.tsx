@@ -249,11 +249,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       return;
     }
 
-    const dueDateTimeString = dueDate && dueTime 
-      ? `${dueDate}T${dueTime}:00`
-      : dueDate 
-      ? `${dueDate}T00:00:00`
-      : null;
+    // Send date and time separately to avoid timezone issues
+    const dueDateString = dueDate || null;
+    const dueTimeString = dueTime || null;
 
     // Determine frequency based on repeat settings
     let frequency: "once" | "daily" | "weekly" | "monthly" | "custom" = "once";
@@ -282,7 +280,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         name: name || undefined,
         description: description !== undefined ? description : undefined,
         assignedTo: selectedAssignees[0] || undefined,
-        dueDate: dueDateTimeString || undefined,
+        dueDate: dueDateString || undefined,
+        dueTime: dueTimeString || undefined,
         frequency: frequency,
         customFrequencyDays: customFrequencyDays,
         repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,

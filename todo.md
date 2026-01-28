@@ -1181,3 +1181,13 @@
 - [x] Frontend: Edit-Dialog mit vorausgefüllten Werten erstellt
 - [x] Frontend: updateMutation mit Query-Invalidierung
 - [x] Server läuft ohne Fehler
+
+## Zeitzonenproblem bei Aufgaben
+- [x] Eingegebene Uhrzeit wird 1 Stunde später gespeichert (7:15 → 8:15)
+- [x] Zeitkonvertierung in Task-Erstellung/Bearbeitung geprüft
+- [x] Timezone-Handling korrigiert
+- [x] Backend: add Mutation - Zeit wird jetzt als lokale Zeit geparst (ohne UTC-Konvertierung)
+- [x] Backend: update Mutation - dueTime Parameter hinzugefügt und Zeit korrekt geparst
+- [x] Frontend: TaskDetailDialog sendet dueDate und dueTime separat
+- [x] Frontend: Tasks.tsx sendet bereits dueDate und dueTime separat
+- [x] Server läuft ohne Fehler

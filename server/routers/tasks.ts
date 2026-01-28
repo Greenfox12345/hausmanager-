@@ -48,7 +48,10 @@ export const tasksRouter = router({
       let dueDatetime: Date | undefined;
       if (input.dueDate) {
         if (input.dueTime) {
-          dueDatetime = new Date(`${input.dueDate}T${input.dueTime}`);
+          // Parse date and time components to avoid timezone conversion
+          const [year, month, day] = input.dueDate.split('-').map(Number);
+          const [hours, minutes] = input.dueTime.split(':').map(Number);
+          dueDatetime = new Date(year, month - 1, day, hours, minutes);
         } else {
           dueDatetime = new Date(input.dueDate);
         }
@@ -115,11 +118,12 @@ export const tasksRouter = router({
         requiredPersons: z.number().optional(),
         excludedMembers: z.array(z.number()).optional(),
         dueDate: z.string().optional(),
+        dueTime: z.string().optional(),
         projectIds: z.array(z.number()).optional(),
       })
     )
     .mutation(async ({ input }) => {
-      const { taskId, householdId, memberId, dueDate, ...updates } = input;
+      const { taskId, householdId, memberId, dueDate, dueTime, ...updates } = input;
       
       // Get current task to check if recurrence settings changed
       const tasks = await getTasks(householdId);
@@ -129,10 +133,23 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
       
+      // Combine date and time if both provided
+      let dueDatetime: Date | undefined;
+      if (dueDate) {
+        if (dueTime) {
+          // Parse date and time components to avoid timezone conversion
+          const [year, month, day] = dueDate.split('-').map(Number);
+          const [hours, minutes] = dueTime.split(':').map(Number);
+          dueDatetime = new Date(year, month - 1, day, hours, minutes);
+        } else {
+          dueDatetime = new Date(dueDate);
+        }
+      }
+      
       // Update the task with new values
       await updateTask(taskId, {
         ...updates,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
+        dueDate: dueDatetime,
       });
       
       // If this is a recurring task and interval/unit changed, we don't need to recalculate
