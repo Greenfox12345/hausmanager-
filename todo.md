@@ -1191,3 +1191,24 @@
 - [x] Frontend: TaskDetailDialog sendet dueDate und dueTime separat
 - [x] Frontend: Tasks.tsx sendet bereits dueDate und dueTime separat
 - [x] Server läuft ohne Fehler
+
+## Shopping Items zu Aufgaben verknüpfen - Phase 1
+- [x] Datenbank: taskId Spalte in shopping_items Tabelle vorhanden
+- [x] Backend: linkItemsToTask und unlinkItemsFromTask Funktionen erstellt
+- [x] Backend: tRPC Mutations für linking hinzugefügt
+- [x] Frontend: Auswahl-Checkbox zu jedem Shopping-Item hinzugefügt
+- [x] Frontend: "Ausgewählte Items zu Aufgabe hinzufügen" Button implementiert
+- [x] Frontend: Dialog zur Aufgabenerstellung aus Items erstellt
+- [x] Frontend: Einkaufswagen-Icon bei verlinkten Items anzeigen
+- [x] Frontend: Sortierung - Items ohne taskId zuerst, dann Items mit taskId
+- [x] Frontend: "Erledigt" Button zu jedem Item hinzugefügt
+- [ ] Frontend: Verlinkte Items in TaskDetailDialog anzeigen
+- [ ] Frontend: Verlinkte Items in Calendar-Ansicht anzeigen
+- [ ] Frontend: Verlinkte Items in Projects-Ansicht anzeigen
+- [ ] Test: Kompletter Flow (Items auswählen → Aufgabe erstellen → Icon sichtbar)
+- [ ] Test: Aufgabe öffnen und verlinkte Items sehen
+
+## Shopping Items zu Aufgaben verknüpfen - Phase 2 (Zukünftig)
+- [ ] "Items verknüpfen" Checkbox zu allen Aufgaben-Erstellungsformularen hinzufügen
+- [ ] Shopping-Items-Auswahl-Dialog bei Aufgabenerstellung
+- [ ] Haushalts-Inventar-Verwaltung für Verleih-Feature
