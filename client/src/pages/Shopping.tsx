@@ -36,6 +36,14 @@ export default function Shopping() {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [categoryColor, setCategoryColor] = useState("#6B7280");
+  
+  // Task creation from items state
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set());
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const [taskName, setTaskName] = useState("");
+  const [taskDueDate, setTaskDueDate] = useState("");
+  const [taskDueTime, setTaskDueTime] = useState("");
+  const [taskAssignedTo, setTaskAssignedTo] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
@@ -44,6 +52,11 @@ export default function Shopping() {
   );
 
   const { data: categories = [] } = trpc.shopping.listCategories.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -148,6 +161,41 @@ export default function Shopping() {
     },
   });
 
+  const createTaskMutation = trpc.tasks.add.useMutation({
+    onSuccess: async (data) => {
+      // Link selected items to the newly created task
+      if (selectedItemIds.size > 0) {
+        await linkItemsMutation.mutateAsync({
+          itemIds: Array.from(selectedItemIds),
+          taskId: data.id,
+          householdId: household?.householdId ?? 0,
+          memberId: member?.memberId ?? 0,
+        });
+      }
+      
+      utils.shopping.list.invalidate();
+      setShowTaskDialog(false);
+      setSelectedItemIds(new Set());
+      setTaskName("");
+      setTaskDueDate("");
+      setTaskDueTime("");
+      setTaskAssignedTo(null);
+      toast.success("Aufgabe erstellt und Artikel verknüpft");
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const linkItemsMutation = trpc.shopping.linkItemsToTask.useMutation({
+    onSuccess: () => {
+      utils.shopping.list.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error("Fehler beim Verknüpfen der Artikel");
+    },
+  });
+
   // Auth check removed - AppLayout handles this
 
   if (!household || !member) {
@@ -218,9 +266,15 @@ export default function Shopping() {
     }
   };
 
-  const filteredItems = filterCategoryId === "all"
+  const filteredItems = (filterCategoryId === "all"
     ? items
-    : items.filter((item) => item.categoryId === Number(filterCategoryId));
+    : items.filter((item) => item.categoryId === Number(filterCategoryId)))
+    .sort((a, b) => {
+      // Items without taskId (no shopping cart) come first
+      if (!a.taskId && b.taskId) return -1;
+      if (a.taskId && !b.taskId) return 1;
+      return 0;
+    });
 
   const completedItems = items.filter((item) => item.isCompleted);
 
@@ -317,6 +371,44 @@ export default function Shopping() {
     }
   };
 
+  const handleToggleItemSelection = (itemId: number) => {
+    setSelectedItemIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleOpenTaskDialog = () => {
+    if (selectedItemIds.size === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Artikel aus");
+      return;
+    }
+    
+    // Pre-fill task name with selected item count
+    const selectedCount = selectedItemIds.size;
+    setTaskName(`${selectedCount} Artikel einkaufen`);
+    setShowTaskDialog(true);
+  };
+
+  const handleCreateTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!taskName.trim()) return;
+
+    createTaskMutation.mutate({
+      householdId: household.householdId,
+      memberId: member.memberId,
+      name: taskName.trim(),
+      dueDate: taskDueDate || undefined,
+      dueTime: taskDueTime || undefined,
+      assignedTo: taskAssignedTo || member.memberId,
+    });
+  };
+
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-24">
@@ -377,21 +469,33 @@ export default function Shopping() {
           </CardContent>
         </Card>
 
-        <div className="mb-4 flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle Kategorien</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Kategorien</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {selectedItemIds.size > 0 && (
+            <Button
+              onClick={handleOpenTaskDialog}
+              variant="outline"
+              className="shrink-0"
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Einkauf als Aufgabe organisieren ({selectedItemIds.size})
+            </Button>
+          )}
         </div>
 
         {completedItems.length > 0 && (
@@ -431,13 +535,16 @@ export default function Shopping() {
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <Checkbox
-                      checked={item.isCompleted}
-                      onCheckedChange={() => handleToggleComplete(item.id, item.isCompleted)}
+                      checked={selectedItemIds.has(item.id)}
+                      onCheckedChange={() => handleToggleItemSelection(item.id)}
                       className="mt-1 touch-target"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className={`font-medium ${item.isCompleted ? "line-through" : ""}`}>
+                      <div className={`font-medium flex items-center gap-2 ${item.isCompleted ? "line-through" : ""}`}>
                         {item.name}
+                        {item.taskId && (
+                          <ShoppingCart className="h-4 w-4 text-primary" />
+                        )}
                       </div>
                       <div className="mt-1">
                         <span 
@@ -448,6 +555,14 @@ export default function Shopping() {
                         </span>
                       </div>
                     </div>
+                    <Button
+                      variant={item.isCompleted ? "outline" : "default"}
+                      size="sm"
+                      onClick={() => handleToggleComplete(item.id, item.isCompleted)}
+                      className="shrink-0 touch-target"
+                    >
+                      {item.isCompleted ? "Rückgängig" : "Erledigt"}
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -683,6 +798,92 @@ export default function Shopping() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Task Creation Dialog */}
+      <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aufgabe aus Artikeln erstellen</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateTask} className="space-y-4">
+            <div>
+              <Label htmlFor="taskName">Aufgabenname</Label>
+              <Input
+                id="taskName"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+                placeholder="z.B. Einkauf erledigen"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="taskDueDate">Fälligkeitsdatum (optional)</Label>
+              <Input
+                id="taskDueDate"
+                type="date"
+                value={taskDueDate}
+                onChange={(e) => setTaskDueDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="taskDueTime">Uhrzeit (optional)</Label>
+              <Input
+                id="taskDueTime"
+                type="time"
+                value={taskDueTime}
+                onChange={(e) => setTaskDueTime(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="taskAssignedTo">Zuständig</Label>
+              <Select
+                value={taskAssignedTo?.toString() || member.memberId.toString()}
+                onValueChange={(value) => setTaskAssignedTo(Number(value))}
+              >
+                <SelectTrigger id="taskAssignedTo">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id.toString()}>
+                      {m.memberName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="pt-2">
+              <p className="text-sm text-muted-foreground mb-2">
+                Ausgewählte Artikel ({selectedItemIds.size}):
+              </p>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {Array.from(selectedItemIds).map((itemId) => {
+                  const item = items.find((i) => i.id === itemId);
+                  return item ? (
+                    <div key={itemId} className="text-sm flex items-center gap-2">
+                      <ShoppingCart className="h-3 w-3 text-primary" />
+                      {item.name}
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowTaskDialog(false)}
+              >
+                Abbrechen
+              </Button>
+              <Button type="submit" disabled={createTaskMutation.isPending}>
+                Aufgabe erstellen
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </AppLayout>
   );

@@ -114,6 +114,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   quantity: varchar("quantity", { length: 100 }),
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
+  taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
   addedBy: int("addedBy").notNull().references(() => householdMembers.id),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),

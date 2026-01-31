@@ -1,0 +1,2 @@
+ALTER TABLE `shopping_items` ADD `taskId` int;--> statement-breakpoint
+ALTER TABLE `shopping_items` ADD CONSTRAINT `shopping_items_taskId_tasks_id_fk` FOREIGN KEY (`taskId`) REFERENCES `tasks`(`id`) ON DELETE set null ON UPDATE no action;

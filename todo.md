@@ -1212,3 +1212,7 @@
 - [ ] "Items verknüpfen" Checkbox zu allen Aufgaben-Erstellungsformularen hinzufügen
 - [ ] Shopping-Items-Auswahl-Dialog bei Aufgabenerstellung
 - [ ] Haushalts-Inventar-Verwaltung für Verleih-Feature
+
+## Button-Text und Sichtbarkeit
+- [x] Button-Text ändern von "Ausgewählte Items zu Aufgabe hinzufügen" zu "Einkauf als Aufgabe organisieren"
+- [x] Sicherstellen dass Button sichtbar ist auf der Shopping-Seite

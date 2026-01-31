@@ -309,6 +309,30 @@ export async function deleteShoppingCategory(id: number) {
   await db.delete(shoppingCategories).where(eq(shoppingCategories.id, id));
 }
 
+export async function linkItemsToTask(itemIds: number[], taskId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Update all items to link them to the task
+  for (const itemId of itemIds) {
+    await db.update(shoppingItems)
+      .set({ taskId })
+      .where(eq(shoppingItems.id, itemId));
+  }
+}
+
+export async function unlinkItemsFromTask(itemIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Update all items to unlink them from tasks
+  for (const itemId of itemIds) {
+    await db.update(shoppingItems)
+      .set({ taskId: null })
+      .where(eq(shoppingItems.id, itemId));
+  }
+}
+
 // Tasks management
 export async function getTasks(householdId: number): Promise<Task[]> {
   const db = await getDb();

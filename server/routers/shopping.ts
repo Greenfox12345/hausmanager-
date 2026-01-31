@@ -10,6 +10,8 @@ import {
   updateShoppingCategory,
   deleteShoppingCategory,
   createActivityLog,
+  linkItemsToTask,
+  unlinkItemsFromTask,
 } from "../db";
 
 export const shoppingRouter = router({
@@ -251,6 +253,53 @@ export const shoppingRouter = router({
         activityType: "shopping",
         action: "deleted",
         description: `Deleted shopping category`,
+      });
+
+      return { success: true };
+    }),
+
+  // Link shopping items to a task
+  linkItemsToTask: publicProcedure
+    .input(
+      z.object({
+        itemIds: z.array(z.number()),
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await linkItemsToTask(input.itemIds, input.taskId);
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "linked",
+        description: `Linked ${input.itemIds.length} shopping items to task`,
+      });
+
+      return { success: true };
+    }),
+
+  // Unlink shopping items from a task
+  unlinkItemsFromTask: publicProcedure
+    .input(
+      z.object({
+        itemIds: z.array(z.number()),
+        householdId: z.number(),
+        memberId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await unlinkItemsFromTask(input.itemIds);
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "shopping",
+        action: "unlinked",
+        description: `Unlinked ${input.itemIds.length} shopping items from task`,
       });
 
       return { success: true };

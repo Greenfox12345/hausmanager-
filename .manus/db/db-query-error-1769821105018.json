@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `shopping_items` ADD `taskId` int;\nALTER TABLE `shopping_items` ADD CONSTRAINT `shopping_items_taskId_tasks_id_fk` FOREIGN KEY (`taskId`) REFERENCES `tasks`(`id`) ON DELETE set null ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE `shopping_items` ADD `taskId` int;\nALTER TABLE `shopping_items` ADD CONSTRAINT `shopping_items_taskId_tasks_id_fk` FOREIGN KEY (`taskId`) REFERENCES `tasks`(`id`) ON DELETE set null ON UPDATE no action;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1060 (42S21) at line 1: Duplicate column name 'taskId'"
+  ]
+}
