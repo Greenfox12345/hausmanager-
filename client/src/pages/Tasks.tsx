@@ -27,6 +27,10 @@ export default function Tasks() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   
+  // Get URL search params
+  const urlParams = new URLSearchParams(window.location.search);
+  const taskIdFromUrl = urlParams.get('taskId');
+  
   // Form state
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -103,6 +107,19 @@ export default function Tasks() {
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
+  
+  // Open task detail dialog if taskId is in URL
+  useEffect(() => {
+    if (taskIdFromUrl && tasks.length > 0 && !isLoading) {
+      const task = tasks.find(t => t.id === parseInt(taskIdFromUrl));
+      if (task) {
+        setSelectedTask(task);
+        setDetailDialogOpen(true);
+        // Clear URL parameter after opening
+        window.history.replaceState({}, '', '/tasks');
+      }
+    }
+  }, [taskIdFromUrl, tasks, isLoading]);
 
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },

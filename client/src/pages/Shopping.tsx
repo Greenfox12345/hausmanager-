@@ -1077,7 +1077,7 @@ export default function Shopping() {
                     className="w-full justify-start mt-1"
                     onClick={() => {
                       setShowDetailDialog(false);
-                      setLocation("/tasks");
+                      setLocation(`/tasks?taskId=${detailItem.taskId}`);
                     }}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2 text-primary" />

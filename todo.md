@@ -1237,3 +1237,7 @@
 - [x] "Menge" zu "Details" im Bearbeitungs-Dialog umbenennen
 - [x] Details-Feld beim Erstellen aktivieren sobald Item-Name ausgefüllt ist
 - [x] Verknüpfte Aufgabe in Detailansicht anzeigen und verlinken
+
+## Verknüpfte Aufgabe direkt öffnen
+- [x] URL-Parameter für Task-ID zur Tasks-Seite hinzufügen
+- [x] Tasks-Seite: Task-Detail-Dialog automatisch öffnen wenn taskId im URL-Parameter vorhanden
