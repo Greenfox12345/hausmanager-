@@ -44,6 +44,15 @@ export default function Shopping() {
   const [taskDueDate, setTaskDueDate] = useState("");
   const [taskDueTime, setTaskDueTime] = useState("");
   const [taskAssignedTo, setTaskAssignedTo] = useState<number | null>(null);
+  const [taskEnableRepeat, setTaskEnableRepeat] = useState(false);
+  const [taskRepeatInterval, setTaskRepeatInterval] = useState("1");
+  const [taskRepeatUnit, setTaskRepeatUnit] = useState<"days" | "weeks" | "months">("days");
+  const [taskEnableRotation, setTaskEnableRotation] = useState(false);
+  const [taskRequiredPersons, setTaskRequiredPersons] = useState("1");
+  const [taskExcludedMembers, setTaskExcludedMembers] = useState<number[]>([]);
+  const [taskEnableDependencies, setTaskEnableDependencies] = useState(false);
+  const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
+  const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
@@ -57,6 +66,11 @@ export default function Shopping() {
   );
 
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: allTasks = [] } = trpc.tasks.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -173,13 +187,22 @@ export default function Shopping() {
         });
       }
       
-      utils.shopping.list.invalidate();
+      // Invalidate and refetch to ensure UI updates
+      await utils.shopping.list.invalidate();
+      await utils.tasks.list.invalidate();
+      
       setShowTaskDialog(false);
       setSelectedItemIds(new Set());
       setTaskName("");
       setTaskDueDate("");
       setTaskDueTime("");
       setTaskAssignedTo(null);
+      setTaskEnableRepeat(false);
+      setTaskRepeatInterval("1");
+      setTaskRepeatUnit("days");
+      setTaskEnableRotation(false);
+      setTaskRequiredPersons("1");
+      setTaskExcludedMembers([]);
       toast.success("Aufgabe erstellt und Artikel verknüpft");
     },
     onError: (error: any) => {
@@ -276,18 +299,18 @@ export default function Shopping() {
       return 0;
     });
 
-  const completedItems = items.filter((item) => item.isCompleted);
+  const selectedItems = items.filter((item) => selectedItemIds.has(item.id));
 
   const handleCompleteShopping = async (data: { comment?: string; photoUrls: string[] }) => {
-    if (completedItems.length === 0) {
-      toast.error("Keine abgehakten Artikel zum Abschließen");
+    if (selectedItemIds.size === 0) {
+      toast.error("Keine ausgewählten Artikel zum Abschließen");
       return;
     }
 
     await completeMutation.mutateAsync({
       householdId: household.householdId,
       memberId: member.memberId,
-      itemIds: completedItems.map((item) => item.id),
+      itemIds: Array.from(selectedItemIds),
       comment: data.comment,
       photoUrls: data.photoUrls,
     });
@@ -406,6 +429,12 @@ export default function Shopping() {
       dueDate: taskDueDate || undefined,
       dueTime: taskDueTime || undefined,
       assignedTo: taskAssignedTo || member.memberId,
+      frequency: taskEnableRepeat ? "custom" : "once",
+      repeatInterval: taskEnableRepeat ? Number(taskRepeatInterval) : undefined,
+      repeatUnit: taskEnableRepeat ? taskRepeatUnit : undefined,
+      enableRotation: taskEnableRotation,
+      requiredPersons: taskEnableRotation ? Number(taskRequiredPersons) : undefined,
+      excludedMembers: taskEnableRotation ? taskExcludedMembers : undefined,
     });
   };
 
@@ -498,7 +527,7 @@ export default function Shopping() {
           )}
         </div>
 
-        {completedItems.length > 0 && (
+        {selectedItemIds.size > 0 && (
           <div className="mb-6">
             <Button
               onClick={() => setShowCompleteDialog(true)}
@@ -506,7 +535,7 @@ export default function Shopping() {
               size="lg"
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Einkauf abschließen ({completedItems.length} Artikel)
+              Einkauf abschließen ({selectedItemIds.size} Artikel)
             </Button>
           </div>
         )}
@@ -555,14 +584,6 @@ export default function Shopping() {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant={item.isCompleted ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => handleToggleComplete(item.id, item.isCompleted)}
-                      className="shrink-0 touch-target"
-                    >
-                      {item.isCompleted ? "Rückgängig" : "Erledigt"}
-                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -653,11 +674,11 @@ export default function Shopping() {
         </Card>
       </div>
 
-      {showCompleteDialog && completedItems.length > 0 && (
+      {showCompleteDialog && selectedItems.length > 0 && (
         <CompleteShoppingDialog
           open={showCompleteDialog}
           onOpenChange={setShowCompleteDialog}
-          items={completedItems.map((item) => ({
+          items={selectedItems.map((item) => ({
             id: item.id,
             name: item.name,
             category: getCategoryName(item.categoryId),
@@ -852,6 +873,92 @@ export default function Shopping() {
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Wiederholung aktivieren */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="taskEnableRepeat"
+                checked={taskEnableRepeat}
+                onCheckedChange={(checked) => setTaskEnableRepeat(checked as boolean)}
+              />
+              <Label htmlFor="taskEnableRepeat" className="cursor-pointer">
+                Wiederholung aktivieren
+              </Label>
+            </div>
+            
+            {taskEnableRepeat && (
+              <div className="space-y-3 pl-6 border-l-2 border-primary/20">
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={taskRepeatInterval}
+                    onChange={(e) => setTaskRepeatInterval(e.target.value)}
+                    className="w-20"
+                  />
+                  <Select value={taskRepeatUnit} onValueChange={(v) => setTaskRepeatUnit(v as "days" | "weeks" | "months")}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="days">Tage</SelectItem>
+                      <SelectItem value="weeks">Wochen</SelectItem>
+                      <SelectItem value="months">Monate</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="taskEnableRotation"
+                    checked={taskEnableRotation}
+                    onCheckedChange={(checked) => setTaskEnableRotation(checked as boolean)}
+                  />
+                  <Label htmlFor="taskEnableRotation" className="cursor-pointer">
+                    Verantwortung rotieren
+                  </Label>
+                </div>
+                
+                {taskEnableRotation && (
+                  <div className="space-y-3 pl-6">
+                    <div>
+                      <Label>Benötigte Personen</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={taskRequiredPersons}
+                        onChange={(e) => setTaskRequiredPersons(e.target.value)}
+                        className="w-20"
+                      />
+                    </div>
+                    <div>
+                      <Label>Ausgeschlossene Mitglieder</Label>
+                      <div className="space-y-1 mt-1">
+                        {members.map((m) => (
+                          <div key={m.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`exclude-${m.id}`}
+                              checked={taskExcludedMembers.includes(m.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setTaskExcludedMembers([...taskExcludedMembers, m.id]);
+                                } else {
+                                  setTaskExcludedMembers(taskExcludedMembers.filter((id) => id !== m.id));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`exclude-${m.id}`} className="cursor-pointer text-sm">
+                              {m.memberName}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div className="pt-2">
               <p className="text-sm text-muted-foreground mb-2">
                 Ausgewählte Artikel ({selectedItemIds.size}):

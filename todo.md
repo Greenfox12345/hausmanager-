@@ -1216,3 +1216,10 @@
 ## Button-Text und Sichtbarkeit
 - [x] Button-Text ändern von "Ausgewählte Items zu Aufgabe hinzufügen" zu "Einkauf als Aufgabe organisieren"
 - [x] Sicherstellen dass Button sichtbar ist auf der Shopping-Seite
+
+## Checkbox doppelt nutzbar und Aufgabenerstellung erweitern
+- [x] Erledigt-Button entfernen - nur eine Checkbox für beide Funktionen
+- [x] Checkbox-Logik: ausgewählte Items für "Einkauf abschließen" UND "Einkauf als Aufgabe organisieren"
+- [x] Aufgabenerstellung: "Wiederholung aktivieren" Checkbox mit ausklappbaren Feldern hinzufügen
+- [x] Aufgabenerstellung: Rotation mit benötigten Personen und ausgeschlossenen Mitgliedern
+- [x] Bug Fix: UI-Aktualisierung nach Verknüpfung verbessert mit invalidate
