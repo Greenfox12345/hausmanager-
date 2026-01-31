@@ -1251,3 +1251,24 @@
 - [x] Mehrere Verantwortliche auswählen können (Checkbox-Liste)
 - [x] Neue Projekte direkt im Dialog erstellen können
 - [x] Dialog scrollbar machen für lange Formulare (max-h-[90vh] overflow-y-auto)
+
+## Inventar-Verwaltung (neue Seite)
+- [ ] Datenbank-Schema: inventoryItems Tabelle mit Name, Details, Kategorie, Fotos (bis zu 5), Eigentumsverhältnisse
+- [ ] Datenbank-Schema: inventoryOwnership Tabelle für Zuordnung von Items zu Usern
+- [ ] Backend: tRPC-Routen für Inventar (list, add, update, delete, getById)
+- [ ] Frontend: /inventory Seite mit Item-Liste und Filter
+- [ ] Frontend: Item-Erstellungs-Dialog mit Foto-Upload (bis zu 5)
+- [ ] Frontend: Eigentumsverhältnisse (persönlich/Haushalt) mit User-Auswahl
+- [ ] Frontend: Item-Detail-Ansicht mit allen Informationen
+- [ ] Frontend: Kategorien-Verwaltung (gleicher Pool wie /Shopping)
+- [ ] Navigation: Link zur Inventar-Seite in BottomNav
+
+## Inventar-Verwaltung (neue Seite)
+- [x] Datenbank-Schema für Inventar erstellen (inventoryItems, inventoryOwnership)
+- [x] Backend: tRPC-Routen für Inventar implementieren (inventory router)
+- [x] Frontend: Inventar-Seite mit Item-Liste und Filter
+- [x] Item-Erstellung mit Name, Fotos (bis 5), Details, Kategorie, Eigentum
+- [x] Eigentum: Persönlich (einzelne/mehrere User) oder Haushaltseigentum
+- [x] Kategorien-Verwaltung (gleicher Pool wie /Shopping)
+- [x] Item-Detail-Ansicht mit Bearbeitung
+- [x] Navigation: Link in BottomNav unter "Weiteres"

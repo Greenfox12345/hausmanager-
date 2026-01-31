@@ -218,7 +218,39 @@ export type ProjectHousehold = typeof projectHouseholds.$inferSelect;
 export type InsertProjectHousehold = typeof projectHouseholds.$inferInsert;
 
 /**
- * Activity history - comprehensive tracking of all actions
+ * Inventory items - household inventory management
+ */
+export const inventoryItems = mysqlTable("inventory_items", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  details: text("details"),
+  categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
+  photoUrls: json("photoUrls").$type<string[]>().default([]),
+  ownershipType: mysqlEnum("ownershipType", ["personal", "household"]).default("household").notNull(),
+  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type InsertInventoryItem = typeof inventoryItems.$inferInsert;
+
+/**
+ * Inventory ownership - tracks personal ownership of inventory items
+ */
+export const inventoryOwnership = mysqlTable("inventory_ownership", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InventoryOwnership = typeof inventoryOwnership.$inferSelect;
+export type InsertInventoryOwnership = typeof inventoryOwnership.$inferInsert;
+
+/**
+ * Activity history for tracking actions across the household
  */
 export const activityHistory = mysqlTable("activity_history", {
   id: int("id").autoincrement().primaryKey(),

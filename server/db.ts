@@ -12,13 +12,17 @@ import {
   projectHouseholds,
   activityHistory,
   taskRotationExclusions,
+  inventoryItems,
+  inventoryOwnership,
   type Household,
   type HouseholdMember,
   type ShoppingItem,
   type ShoppingCategory,
   type Task,
   type Project,
-  type ActivityHistory
+  type ActivityHistory,
+  type InventoryItem,
+  type InventoryOwnership
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -554,4 +558,183 @@ export async function deleteHousehold(householdId: number) {
     console.error("[Database] Failed to delete household:", error);
     return false;
   }
+}
+
+// ===== Inventory Functions =====
+
+export async function getInventoryItems(householdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const items = await db.select({
+    id: inventoryItems.id,
+    name: inventoryItems.name,
+    details: inventoryItems.details,
+    categoryId: inventoryItems.categoryId,
+    categoryName: shoppingCategories.name,
+    categoryColor: shoppingCategories.color,
+    photoUrls: inventoryItems.photoUrls,
+    ownershipType: inventoryItems.ownershipType,
+    createdBy: inventoryItems.createdBy,
+    creatorName: householdMembers.memberName,
+    createdAt: inventoryItems.createdAt,
+    updatedAt: inventoryItems.updatedAt,
+  })
+    .from(inventoryItems)
+    .leftJoin(shoppingCategories, eq(inventoryItems.categoryId, shoppingCategories.id))
+    .leftJoin(householdMembers, eq(inventoryItems.createdBy, householdMembers.id))
+    .where(eq(inventoryItems.householdId, householdId))
+    .orderBy(desc(inventoryItems.createdAt));
+
+  // Get owners for each item
+  const itemsWithOwners = await Promise.all(items.map(async (item) => {
+    const owners = await db.select({
+      memberId: inventoryOwnership.memberId,
+      memberName: householdMembers.memberName,
+    })
+      .from(inventoryOwnership)
+      .leftJoin(householdMembers, eq(inventoryOwnership.memberId, householdMembers.id))
+      .where(eq(inventoryOwnership.inventoryItemId, item.id));
+
+    return {
+      ...item,
+      owners: owners.map(o => ({ memberId: o.memberId, memberName: o.memberName || '' })),
+    };
+  }));
+
+  return itemsWithOwners;
+}
+
+export async function getInventoryItemById(itemId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [item] = await db.select({
+    id: inventoryItems.id,
+    householdId: inventoryItems.householdId,
+    name: inventoryItems.name,
+    details: inventoryItems.details,
+    categoryId: inventoryItems.categoryId,
+    categoryName: shoppingCategories.name,
+    categoryColor: shoppingCategories.color,
+    photoUrls: inventoryItems.photoUrls,
+    ownershipType: inventoryItems.ownershipType,
+    createdBy: inventoryItems.createdBy,
+    creatorName: householdMembers.memberName,
+    createdAt: inventoryItems.createdAt,
+    updatedAt: inventoryItems.updatedAt,
+  })
+    .from(inventoryItems)
+    .leftJoin(shoppingCategories, eq(inventoryItems.categoryId, shoppingCategories.id))
+    .leftJoin(householdMembers, eq(inventoryItems.createdBy, householdMembers.id))
+    .where(eq(inventoryItems.id, itemId));
+
+  if (!item) return null;
+
+  // Get owners
+  const owners = await db.select({
+    memberId: inventoryOwnership.memberId,
+    memberName: householdMembers.memberName,
+  })
+    .from(inventoryOwnership)
+    .leftJoin(householdMembers, eq(inventoryOwnership.memberId, householdMembers.id))
+    .where(eq(inventoryOwnership.inventoryItemId, item.id));
+
+  return {
+    ...item,
+    owners: owners.map(o => ({ memberId: o.memberId, memberName: o.memberName || '' })),
+  };
+}
+
+export async function addInventoryItem(data: {
+  householdId: number;
+  memberId: number;
+  name: string;
+  details?: string;
+  categoryId: number;
+  photoUrls?: string[];
+  ownershipType: 'personal' | 'household';
+  ownerIds?: number[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [newItem] = await db.insert(inventoryItems).values({
+    householdId: data.householdId,
+    name: data.name,
+    details: data.details,
+    categoryId: data.categoryId,
+    photoUrls: data.photoUrls || [],
+    ownershipType: data.ownershipType,
+    createdBy: data.memberId,
+  });
+
+  const itemId = newItem.insertId;
+
+  // Add owners if personal ownership
+  if (data.ownershipType === 'personal' && data.ownerIds && data.ownerIds.length > 0) {
+    await Promise.all(data.ownerIds.map(ownerId =>
+      db.insert(inventoryOwnership).values({
+        inventoryItemId: itemId,
+        memberId: ownerId,
+      })
+    ));
+  }
+
+  return { id: itemId };
+}
+
+export async function updateInventoryItem(data: {
+  itemId: number;
+  name?: string;
+  details?: string;
+  categoryId?: number;
+  photoUrls?: string[];
+  ownershipType?: 'personal' | 'household';
+  ownerIds?: number[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.details !== undefined) updateData.details = data.details;
+  if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
+  if (data.photoUrls !== undefined) updateData.photoUrls = data.photoUrls;
+  if (data.ownershipType !== undefined) updateData.ownershipType = data.ownershipType;
+
+  await db.update(inventoryItems)
+    .set(updateData)
+    .where(eq(inventoryItems.id, data.itemId));
+
+  // Update owners if provided
+  if (data.ownerIds !== undefined) {
+    // Delete existing owners
+    await db.delete(inventoryOwnership).where(eq(inventoryOwnership.inventoryItemId, data.itemId));
+
+    // Add new owners if personal ownership
+    if (data.ownershipType === 'personal' && data.ownerIds.length > 0) {
+      await Promise.all(data.ownerIds.map(ownerId =>
+        db.insert(inventoryOwnership).values({
+          inventoryItemId: data.itemId,
+          memberId: ownerId,
+        })
+      ));
+    }
+  }
+
+  return { success: true };
+}
+
+export async function deleteInventoryItem(itemId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Delete ownership records first (cascade should handle this, but explicit is safer)
+  await db.delete(inventoryOwnership).where(eq(inventoryOwnership.inventoryItemId, itemId));
+  
+  // Delete the item
+  await db.delete(inventoryItems).where(eq(inventoryItems.id, itemId));
+
+  return { success: true };
 }

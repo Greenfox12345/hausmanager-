@@ -17,6 +17,8 @@ import Projects from "./pages/Projects";
 import History from "./pages/History";
 import Neighborhood from "./pages/Neighborhood";
 import Members from "./pages/Members";
+import Inventory from "./pages/Inventory";
+import InventoryDetail from "./pages/InventoryDetail";
 
 function Router() {
   return (
@@ -33,6 +35,8 @@ function Router() {
       <Route path="/history" component={History} />
       <Route path="/neighborhood" component={Neighborhood} />
       <Route path="/members" component={Members} />
+      <Route path="/inventory" component={Inventory} />
+      <Route path="/inventory/:id" component={InventoryDetail} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
