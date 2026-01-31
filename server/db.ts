@@ -659,15 +659,20 @@ export async function addInventoryItem(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [newItem] = await db.insert(inventoryItems).values({
+  const insertData: any = {
     householdId: data.householdId,
     name: data.name,
-    details: data.details,
     categoryId: data.categoryId,
     photoUrls: data.photoUrls || [],
     ownershipType: data.ownershipType,
     createdBy: data.memberId,
-  });
+  };
+
+  if (data.details) {
+    insertData.details = data.details;
+  }
+
+  const [newItem] = await db.insert(inventoryItems).values(insertData);
 
   const itemId = newItem.insertId;
 

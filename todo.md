@@ -1272,3 +1272,7 @@
 - [x] Kategorien-Verwaltung (gleicher Pool wie /Shopping)
 - [x] Item-Detail-Ansicht mit Bearbeitung
 - [x] Navigation: Link in BottomNav unter "Weiteres"
+
+## Inventar Bug-Fix
+- [x] Backend createInventoryItem: details-Feld wird nicht korrekt gespeichert
+- [x] SQL-Query zeigt "default" statt Wert für details (behoben: details nur hinzufügen wenn vorhanden)
