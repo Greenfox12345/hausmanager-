@@ -111,7 +111,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
-  quantity: varchar("quantity", { length: 100 }),
+  details: varchar("details", { length: 100 }),
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),

@@ -215,6 +215,7 @@ export default function Projects() {
     onSuccess: () => {
       toast.success("Aufgabe erfolgreich gelöscht");
       utils.tasks.list.invalidate();
+      utils.shopping.list.invalidate();
     },
     onError: (error: any) => {
       toast.error(error.message);

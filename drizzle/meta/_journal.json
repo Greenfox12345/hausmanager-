@@ -29,6 +29,13 @@
       "when": 1769821091104,
       "tag": "0003_even_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1769822798597,
+      "tag": "0004_faulty_kronos",
+      "breakpoints": true
     }
   ]
 }

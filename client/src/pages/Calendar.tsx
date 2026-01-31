@@ -72,6 +72,7 @@ export default function Calendar() {
   const deleteMutation = trpc.tasks.delete.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
+      utils.shopping.list.invalidate();
       toast.success("Aufgabe gelöscht");
     },
   });

@@ -53,6 +53,10 @@ export default function Shopping() {
   const [taskEnableDependencies, setTaskEnableDependencies] = useState(false);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
+  
+  // Detail view state
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [detailItem, setDetailItem] = useState<any>(null);
 
   const utils = trpc.useUtils();
   const { data: items = [], isLoading } = trpc.shopping.list.useQuery(
@@ -210,6 +214,15 @@ export default function Shopping() {
     },
   });
 
+  const updateTaskMutation = trpc.tasks.update.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error("Fehler beim Verknüpfen der Aufgaben");
+    },
+  });
+
   const linkItemsMutation = trpc.shopping.linkItemsToTask.useMutation({
     onSuccess: () => {
       utils.shopping.list.invalidate();
@@ -252,7 +265,7 @@ export default function Shopping() {
     setEditingItemId(item.id);
     setEditItemName(item.name);
     setEditItemCategoryId(item.categoryId);
-    setEditItemQuantity(item.quantity || "");
+    setEditItemQuantity(item.details || "");
     setShowEditDialog(true);
   };
 
@@ -266,7 +279,7 @@ export default function Shopping() {
       memberId: member.memberId,
       name: editItemName.trim(),
       categoryId: editItemCategoryId,
-      quantity: editItemQuantity.trim() || undefined,
+      details: editItemQuantity.trim() || undefined,
     });
   };
 
@@ -568,7 +581,7 @@ export default function Shopping() {
                       onCheckedChange={() => handleToggleItemSelection(item.id)}
                       className="mt-1 touch-target"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setDetailItem(item); setShowDetailDialog(true); }}>
                       <div className={`font-medium flex items-center gap-2 ${item.isCompleted ? "line-through" : ""}`}>
                         {item.name}
                         {item.taskId && (
@@ -988,6 +1001,74 @@ export default function Shopping() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Item Detail Dialog */}
+      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Artikel-Details</DialogTitle>
+          </DialogHeader>
+          {detailItem && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{detailItem.name}</h3>
+                <div className="mt-1">
+                  <span 
+                    className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
+                    style={getCategoryStyle(detailItem.categoryId)}
+                  >
+                    {getCategoryName(detailItem.categoryId)}
+                  </span>
+                </div>
+              </div>
+              
+              {detailItem.details && (
+                <div>
+                  <Label className="text-muted-foreground">Details</Label>
+                  <p className="text-sm">{detailItem.details}</p>
+                </div>
+              )}
+              
+              <div>
+                <Label className="text-muted-foreground">Erstellt von</Label>
+                <p className="text-sm">
+                  {members.find(m => m.id === detailItem.addedBy)?.memberName || "Unbekannt"}
+                </p>
+              </div>
+              
+              <div>
+                <Label className="text-muted-foreground">Erstellt am</Label>
+                <p className="text-sm">
+                  {new Date(detailItem.createdAt).toLocaleString("de-DE", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </p>
+              </div>
+              
+              {detailItem.taskId && (
+                <div>
+                  <Label className="text-muted-foreground">Verknüpfte Aufgabe</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <ShoppingCart className="h-4 w-4 text-primary" />
+                    <p className="text-sm">
+                      {allTasks.find(t => t.id === detailItem.taskId)?.name || `Aufgabe #${detailItem.taskId}`}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setShowDetailDialog(false)}>
+              Schließen
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

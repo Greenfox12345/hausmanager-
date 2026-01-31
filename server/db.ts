@@ -238,7 +238,7 @@ export async function createShoppingItem(data: {
   householdId: number;
   name: string;
   categoryId: number;
-  quantity?: string;
+  details?: string;
   notes?: string;
   addedBy: number;
 }) {
@@ -252,7 +252,7 @@ export async function createShoppingItem(data: {
 export async function updateShoppingItem(id: number, data: {
   name?: string;
   categoryId?: number;
-  quantity?: string;
+  details?: string;
   notes?: string;
   isCompleted?: boolean;
   completedBy?: number | null;

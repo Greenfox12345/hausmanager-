@@ -30,7 +30,7 @@ export const shoppingRouter = router({
         memberId: z.number(),
         name: z.string().min(1),
         categoryId: z.number(),
-        quantity: z.string().optional(),
+        details: z.string().optional(),
         notes: z.string().optional(),
       })
     )
@@ -39,7 +39,7 @@ export const shoppingRouter = router({
         householdId: input.householdId,
         name: input.name,
         categoryId: input.categoryId,
-        quantity: input.quantity,
+        details: input.details,
         notes: input.notes,
         addedBy: input.memberId,
       });
@@ -66,7 +66,7 @@ export const shoppingRouter = router({
         memberId: z.number(),
         name: z.string().optional(),
         categoryId: z.number().optional(),
-        quantity: z.string().optional(),
+        details: z.string().optional(),
         notes: z.string().optional(),
       })
     )

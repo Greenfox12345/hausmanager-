@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE shopping_items CHANGE COLUMN quantity details VARCHAR(100);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE shopping_items CHANGE COLUMN quantity details VARCHAR(100);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 605
+}

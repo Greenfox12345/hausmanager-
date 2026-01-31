@@ -1223,3 +1223,11 @@
 - [x] Aufgabenerstellung: "Wiederholung aktivieren" Checkbox mit ausklappbaren Feldern hinzufügen
 - [x] Aufgabenerstellung: Rotation mit benötigten Personen und ausgeschlossenen Mitgliedern
 - [x] Bug Fix: UI-Aktualisierung nach Verknüpfung verbessert mit invalidate
+
+### Aufgabenverküpfung und Detailansicht für Shopping-Items
+- [x] Detailansicht-Dialog für Shopping-Items erstellen
+- [x] Detailansicht: Ersteller und Erstellungsdatum anzeigen
+- [x] Detailansicht: Verknüpfte Aufgaben mit Link anzeigen
+- [x] Schema: "quantity" zu "details" umbenannt
+- [x] Bug Fix: Einkaufswagen-Icon beim Löschen von Aufgaben automatisch aktualisieren
+- [-] "Aufgabe verknüpfen" Checkbox (Backend unterstützt noch keine Aufgabenverküpfung beim Erstellen)
