@@ -1231,3 +1231,9 @@
 - [x] Schema: "quantity" zu "details" umbenannt
 - [x] Bug Fix: Einkaufswagen-Icon beim Löschen von Aufgaben automatisch aktualisieren
 - [-] "Aufgabe verknüpfen" Checkbox (Backend unterstützt noch keine Aufgabenverküpfung beim Erstellen)
+
+## Details in Einkaufsliste verbessern
+- [x] Details dezent unter Item-Namen in der Einkaufsliste anzeigen
+- [x] "Menge" zu "Details" im Bearbeitungs-Dialog umbenennen
+- [x] Details-Feld beim Erstellen aktivieren sobald Item-Name ausgefüllt ist
+- [x] Verknüpfte Aufgabe in Detailansicht anzeigen und verlinken

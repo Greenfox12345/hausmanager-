@@ -19,6 +19,7 @@ export default function Shopping() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [newItemName, setNewItemName] = useState("");
+  const [newItemDetails, setNewItemDetails] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -83,6 +84,7 @@ export default function Shopping() {
     onSuccess: () => {
       utils.shopping.list.invalidate();
       setNewItemName("");
+      setNewItemDetails("");
       toast.success("Artikel hinzugefügt");
     },
     onError: (error: any) => {
@@ -258,6 +260,7 @@ export default function Shopping() {
       memberId: member.memberId,
       name: newItemName.trim(),
       categoryId: newItemCategoryId,
+      details: newItemDetails.trim() || undefined,
     });
   };
 
@@ -486,6 +489,16 @@ export default function Shopping() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="itemDetails">Details (optional)</Label>
+                <Input
+                  id="itemDetails"
+                  placeholder="z.B. 2x, 500g, Bio..."
+                  value={newItemDetails}
+                  onChange={(e) => setNewItemDetails(e.target.value)}
+                  disabled={!newItemName.trim()}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="itemCategory">Kategorie</Label>
                 <Select 
                   value={newItemCategoryId?.toString() || ""} 
@@ -588,6 +601,11 @@ export default function Shopping() {
                           <ShoppingCart className="h-4 w-4 text-primary" />
                         )}
                       </div>
+                      {item.details && (
+                        <div className="text-sm text-muted-foreground mt-0.5">
+                          {item.details}
+                        </div>
+                      )}
                       <div className="mt-1">
                         <span 
                           className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
@@ -742,7 +760,7 @@ export default function Shopping() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editItemQuantity">Menge (optional)</Label>
+                <Label htmlFor="editItemQuantity">Details (optional)</Label>
                 <Input
                   id="editItemQuantity"
                   placeholder="z.B. 2x, 500g..."
@@ -1054,12 +1072,17 @@ export default function Shopping() {
               {detailItem.taskId && (
                 <div>
                   <Label className="text-muted-foreground">Verknüpfte Aufgabe</Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <ShoppingCart className="h-4 w-4 text-primary" />
-                    <p className="text-sm">
-                      {allTasks.find(t => t.id === detailItem.taskId)?.name || `Aufgabe #${detailItem.taskId}`}
-                    </p>
-                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start mt-1"
+                    onClick={() => {
+                      setShowDetailDialog(false);
+                      setLocation("/tasks");
+                    }}
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2 text-primary" />
+                    {allTasks.find(t => t.id === detailItem.taskId)?.name || `Aufgabe #${detailItem.taskId}`}
+                  </Button>
                 </div>
               )}
             </div>
