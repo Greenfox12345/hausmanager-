@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_householdId_fk \nFOREIGN KEY (householdId) REFERENCES households(id) ON DELETE CASCADE;\n\nALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_categoryId_fk \nFOREIGN KEY (categoryId) REFERENCES shopping_categories(id) ON DELETE RESTRICT;\n\nALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_createdBy_fk \nFOREIGN KEY (createdBy) REFERENCES household_members(id) ON DELETE NO ACTION;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_householdId_fk \nFOREIGN KEY (householdId) REFERENCES households(id) ON DELETE CASCADE;\n\nALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_categoryId_fk \nFOREIGN KEY (categoryId) REFERENCES shopping_categories(id) ON DELETE RESTRICT;\n\nALTER TABLE inventory_items \nADD CONSTRAINT inventory_items_createdBy_fk \nFOREIGN KEY (createdBy) REFERENCES household_members(id) ON DELETE NO ACTION;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2912
+}

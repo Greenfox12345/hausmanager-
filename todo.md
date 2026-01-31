@@ -1281,3 +1281,9 @@
 - [x] SQL-Query schlägt fehl trotz korrekter Parameter
 - [x] Prüfe Schema-Definition und Datenbank-Struktur (Tabellen fehlten komplett)
 - [x] Identifiziere Constraint-Verletzung oder Datentyp-Problem (Tabellen manuell erstellt)
+
+## Inventar Löschen-Button Bug
+- [x] Löschen-Button für Inventar-Items funktioniert nicht
+- [x] Prüfe handleDeleteItem Implementierung (korrekt)
+- [x] Prüfe deleteItemMutation (korrekt)
+- [x] Foreign Key Constraints hinzugefügt für CASCADE DELETE
