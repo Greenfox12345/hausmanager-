@@ -1,0 +1,14 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS inventory_items (\n\tid int AUTO_INCREMENT NOT NULL,\n\thouseholdId int NOT NULL,\n\tname varchar(255) NOT NULL,\n\tdetails text,\n\tcategoryId int NOT NULL,\n\tphotoUrls json DEFAULT ('[]'),\n\townershipType enum('personal','household') NOT NULL DEFAULT 'household',\n\tcreatedBy int NOT NULL,\n\tcreatedAt timestamp NOT NULL DEFAULT (now()),\n\tupdatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT inventory_items_id PRIMARY KEY(id)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE IF NOT EXISTS inventory_items (\n\tid int AUTO_INCREMENT NOT NULL,\n\thouseholdId int NOT NULL,\n\tname varchar(255) NOT NULL,\n\tdetails text,\n\tcategoryId int NOT NULL,\n\tphotoUrls json DEFAULT ('[]'),\n\townershipType enum('personal','household') NOT NULL DEFAULT 'household',\n\tcreatedBy int NOT NULL,\n\tcreatedAt timestamp NOT NULL DEFAULT (now()),\n\tupdatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT inventory_items_id PRIMARY KEY(id)\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 7 column 30 near \"'[]'),",
+    "\townershipType enum('personal','household') NOT NULL DEFAULT 'household',",
+    "\tcreatedBy int NOT NULL,",
+    "\tcreatedAt timestamp NOT NULL DEFAULT (now()),",
+    "\tupdatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,",
+    "\tCONSTRAINT inventory_items_id PRIMARY KEY(id)",
+    ")\""
+  ]
+}

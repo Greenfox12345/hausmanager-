@@ -1276,3 +1276,8 @@
 ## Inventar Bug-Fix
 - [x] Backend createInventoryItem: details-Feld wird nicht korrekt gespeichert
 - [x] SQL-Query zeigt "default" statt Wert für details (behoben: details nur hinzufügen wenn vorhanden)
+
+## Inventar-Erstellung SQL-Fehler
+- [x] SQL-Query schlägt fehl trotz korrekter Parameter
+- [x] Prüfe Schema-Definition und Datenbank-Struktur (Tabellen fehlten komplett)
+- [x] Identifiziere Constraint-Verletzung oder Datentyp-Problem (Tabellen manuell erstellt)
