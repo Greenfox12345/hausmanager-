@@ -1241,3 +1241,8 @@
 ## Verknüpfte Aufgabe direkt öffnen
 - [x] URL-Parameter für Task-ID zur Tasks-Seite hinzufügen
 - [x] Tasks-Seite: Task-Detail-Dialog automatisch öffnen wenn taskId im URL-Parameter vorhanden
+
+## Projekt- und Aufgaben-Verknüpfung in Shopping Task-Dialog
+- [x] Projekt-Verknüpfung: Checkbox "Mit Projekt verknüpfen" mit ausklappbarer Projekt-Auswahl
+- [x] Aufgaben-Verknüpfung: Checkbox "Aufgabe verknüpfen" mit Voraussetzungen und Folgeaufgaben
+- [x] Backend-Logik: Verknüpfungen nach Task-Erstellung speichern mit addDependenciesMutation

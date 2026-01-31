@@ -54,6 +54,8 @@ export default function Shopping() {
   const [taskEnableDependencies, setTaskEnableDependencies] = useState(false);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
+  const [taskEnableProject, setTaskEnableProject] = useState(false);
+  const [taskSelectedProjects, setTaskSelectedProjects] = useState<number[]>([]);
   
   // Detail view state
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -79,6 +81,13 @@ export default function Shopping() {
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
+  
+  const { data: projects = [] } = trpc.projects.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+  
+  const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
 
   const addMutation = trpc.shopping.add.useMutation({
     onSuccess: () => {
@@ -193,9 +202,30 @@ export default function Shopping() {
         });
       }
       
+      // Add dependencies if enabled
+      if ((taskEnableProject && taskSelectedProjects.length > 0) || (taskEnableDependencies && (taskPrerequisites.length > 0 || taskFollowups.length > 0))) {
+        await addDependenciesMutation.mutateAsync({
+          taskId: data.id,
+          householdId: household?.householdId ?? 0,
+          prerequisites: taskEnableDependencies && taskPrerequisites.length > 0 ? taskPrerequisites : undefined,
+          followups: taskEnableDependencies && taskFollowups.length > 0 ? taskFollowups : undefined,
+        });
+      }
+      
+      // Link task to projects via update if needed
+      if (taskEnableProject && taskSelectedProjects.length > 0) {
+        await updateTaskMutation.mutateAsync({
+          taskId: data.id,
+          householdId: household?.householdId ?? 0,
+          memberId: member?.memberId ?? 0,
+          projectIds: taskSelectedProjects,
+        });
+      }
+      
       // Invalidate and refetch to ensure UI updates
       await utils.shopping.list.invalidate();
       await utils.tasks.list.invalidate();
+      await utils.projects.list.invalidate();
       
       setShowTaskDialog(false);
       setSelectedItemIds(new Set());
@@ -209,7 +239,12 @@ export default function Shopping() {
       setTaskEnableRotation(false);
       setTaskRequiredPersons("1");
       setTaskExcludedMembers([]);
-      toast.success("Aufgabe erstellt und Artikel verknüpft");
+      setTaskEnableProject(false);
+      setTaskSelectedProjects([]);
+      setTaskEnableDependencies(false);
+      setTaskPrerequisites([]);
+      setTaskFollowups([]);
+      toast.success("Aufgabe erstellt und verknüpft");
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -987,6 +1022,109 @@ export default function Shopping() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {/* Project Linkage */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="taskEnableProject"
+                checked={taskEnableProject}
+                onCheckedChange={(checked) => setTaskEnableProject(checked as boolean)}
+              />
+              <Label htmlFor="taskEnableProject" className="cursor-pointer">
+                Mit Projekt verknüpfen
+              </Label>
+            </div>
+            
+            {taskEnableProject && (
+              <div className="space-y-3 pl-6">
+                <div>
+                  <Label>Projekte auswählen</Label>
+                  <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
+                    {projects.map((project) => (
+                      <div key={project.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`project-${project.id}`}
+                          checked={taskSelectedProjects.includes(project.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setTaskSelectedProjects([...taskSelectedProjects, project.id]);
+                            } else {
+                              setTaskSelectedProjects(taskSelectedProjects.filter((id) => id !== project.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`project-${project.id}`} className="cursor-pointer text-sm">
+                          {project.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Task Dependencies */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="taskEnableDependencies"
+                checked={taskEnableDependencies}
+                onCheckedChange={(checked) => setTaskEnableDependencies(checked as boolean)}
+              />
+              <Label htmlFor="taskEnableDependencies" className="cursor-pointer">
+                Aufgabe verknüpfen
+              </Label>
+            </div>
+            
+            {taskEnableDependencies && (
+              <div className="space-y-3 pl-6">
+                <div>
+                  <Label>Voraussetzungen (muss vorher erledigt sein)</Label>
+                  <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
+                    {allTasks.map((task) => (
+                      <div key={task.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`prereq-${task.id}`}
+                          checked={taskPrerequisites.includes(task.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setTaskPrerequisites([...taskPrerequisites, task.id]);
+                            } else {
+                              setTaskPrerequisites(taskPrerequisites.filter((id) => id !== task.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`prereq-${task.id}`} className="cursor-pointer text-sm">
+                          {task.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>Folgeaufgaben (muss danach erledigt werden)</Label>
+                  <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
+                    {allTasks.map((task) => (
+                      <div key={task.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`followup-${task.id}`}
+                          checked={taskFollowups.includes(task.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setTaskFollowups([...taskFollowups, task.id]);
+                            } else {
+                              setTaskFollowups(taskFollowups.filter((id) => id !== task.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`followup-${task.id}`} className="cursor-pointer text-sm">
+                          {task.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
             
