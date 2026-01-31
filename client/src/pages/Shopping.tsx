@@ -6,6 +6,7 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,7 +45,7 @@ export default function Shopping() {
   const [taskName, setTaskName] = useState("");
   const [taskDueDate, setTaskDueDate] = useState("");
   const [taskDueTime, setTaskDueTime] = useState("");
-  const [taskAssignedTo, setTaskAssignedTo] = useState<number | null>(null);
+  const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
   const [taskEnableRepeat, setTaskEnableRepeat] = useState(false);
   const [taskRepeatInterval, setTaskRepeatInterval] = useState("1");
   const [taskRepeatUnit, setTaskRepeatUnit] = useState<"days" | "weeks" | "months">("days");
@@ -56,6 +57,9 @@ export default function Shopping() {
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
   const [taskEnableProject, setTaskEnableProject] = useState(false);
   const [taskSelectedProjects, setTaskSelectedProjects] = useState<number[]>([]);
+  const [taskCreateNewProject, setTaskCreateNewProject] = useState(false);
+  const [taskNewProjectName, setTaskNewProjectName] = useState("");
+  const [taskNewProjectDescription, setTaskNewProjectDescription] = useState("");
   
   // Detail view state
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -88,6 +92,7 @@ export default function Shopping() {
   );
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
+  const createProjectMutation = trpc.projects.create.useMutation();
 
   const addMutation = trpc.shopping.add.useMutation({
     onSuccess: () => {
@@ -232,7 +237,7 @@ export default function Shopping() {
       setTaskName("");
       setTaskDueDate("");
       setTaskDueTime("");
-      setTaskAssignedTo(null);
+      setSelectedAssignees([]);
       setTaskEnableRepeat(false);
       setTaskRepeatInterval("1");
       setTaskRepeatUnit("days");
@@ -241,6 +246,9 @@ export default function Shopping() {
       setTaskExcludedMembers([]);
       setTaskEnableProject(false);
       setTaskSelectedProjects([]);
+      setTaskCreateNewProject(false);
+      setTaskNewProjectName("");
+      setTaskNewProjectDescription("");
       setTaskEnableDependencies(false);
       setTaskPrerequisites([]);
       setTaskFollowups([]);
@@ -469,24 +477,51 @@ export default function Shopping() {
     setShowTaskDialog(true);
   };
 
-  const handleCreateTask = (e: React.FormEvent) => {
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskName.trim()) return;
-
-    createTaskMutation.mutate({
-      householdId: household.householdId,
-      memberId: member.memberId,
-      name: taskName.trim(),
-      dueDate: taskDueDate || undefined,
-      dueTime: taskDueTime || undefined,
-      assignedTo: taskAssignedTo || member.memberId,
-      frequency: taskEnableRepeat ? "custom" : "once",
-      repeatInterval: taskEnableRepeat ? Number(taskRepeatInterval) : undefined,
-      repeatUnit: taskEnableRepeat ? taskRepeatUnit : undefined,
-      enableRotation: taskEnableRotation,
-      requiredPersons: taskEnableRotation ? Number(taskRequiredPersons) : undefined,
-      excludedMembers: taskEnableRotation ? taskExcludedMembers : undefined,
-    });
+    
+    if (selectedAssignees.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      return;
+    }
+    
+    try {
+      let finalProjectIds = [...taskSelectedProjects];
+      
+      // Create new project if requested
+      if (taskEnableProject && taskCreateNewProject) {
+        const projectName = taskNewProjectName.trim() || taskName.trim();
+        const projectResult = await createProjectMutation.mutateAsync({
+          householdId: household.householdId,
+          memberId: member.memberId,
+          name: projectName,
+          description: taskNewProjectDescription.trim() || undefined,
+          endDate: taskDueDate || undefined,
+          isNeighborhoodProject: false,
+        });
+        finalProjectIds = [projectResult.projectId];
+      }
+      
+      // Create task with final project IDs
+      createTaskMutation.mutate({
+        householdId: household.householdId,
+        memberId: member.memberId,
+        name: taskName.trim(),
+        dueDate: taskDueDate || undefined,
+        dueTime: taskDueTime || undefined,
+        assignedTo: selectedAssignees[0],
+        frequency: taskEnableRepeat ? "custom" : "once",
+        repeatInterval: taskEnableRepeat ? Number(taskRepeatInterval) : undefined,
+        repeatUnit: taskEnableRepeat ? taskRepeatUnit : undefined,
+        enableRotation: taskEnableRotation,
+        requiredPersons: taskEnableRotation ? Number(taskRequiredPersons) : undefined,
+        excludedMembers: taskEnableRotation ? taskExcludedMembers : undefined,
+        projectIds: taskEnableProject && finalProjectIds.length > 0 ? finalProjectIds : undefined,
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Fehler beim Erstellen der Aufgabe");
+    }
   };
 
   return (
@@ -888,7 +923,7 @@ export default function Shopping() {
 
       {/* Task Creation Dialog */}
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Aufgabe aus Artikeln erstellen</DialogTitle>
           </DialogHeader>
@@ -922,22 +957,27 @@ export default function Shopping() {
               />
             </div>
             <div>
-              <Label htmlFor="taskAssignedTo">Zuständig</Label>
-              <Select
-                value={taskAssignedTo?.toString() || member.memberId.toString()}
-                onValueChange={(value) => setTaskAssignedTo(Number(value))}
-              >
-                <SelectTrigger id="taskAssignedTo">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.map((m) => (
-                    <SelectItem key={m.id} value={m.id.toString()}>
+              <Label>Verantwortliche *</Label>
+              <div className="space-y-2 mt-2">
+                {members.map((m) => (
+                  <div key={m.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`assignee-${m.id}`}
+                      checked={selectedAssignees.includes(m.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedAssignees([...selectedAssignees, m.id]);
+                        } else {
+                          setSelectedAssignees(selectedAssignees.filter((id) => id !== m.id));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`assignee-${m.id}`} className="cursor-pointer text-sm">
                       {m.memberName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
             
             {/* Wiederholung aktivieren */}
@@ -1062,6 +1102,41 @@ export default function Shopping() {
                     ))}
                   </div>
                 </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="taskCreateNewProject"
+                    checked={taskCreateNewProject}
+                    onCheckedChange={(checked) => setTaskCreateNewProject(checked as boolean)}
+                  />
+                  <Label htmlFor="taskCreateNewProject" className="cursor-pointer text-sm">
+                    Neues Projekt erstellen
+                  </Label>
+                </div>
+                
+                {taskCreateNewProject && (
+                  <div className="space-y-2 pl-6">
+                    <div>
+                      <Label htmlFor="taskNewProjectName">Projektname</Label>
+                      <Input
+                        id="taskNewProjectName"
+                        value={taskNewProjectName}
+                        onChange={(e) => setTaskNewProjectName(e.target.value)}
+                        placeholder="Name des neuen Projekts"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="taskNewProjectDescription">Beschreibung (optional)</Label>
+                      <Textarea
+                        id="taskNewProjectDescription"
+                        value={taskNewProjectDescription}
+                        onChange={(e) => setTaskNewProjectDescription(e.target.value)}
+                        placeholder="Projektbeschreibung"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             

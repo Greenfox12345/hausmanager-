@@ -1246,3 +1246,8 @@
 - [x] Projekt-Verknüpfung: Checkbox "Mit Projekt verknüpfen" mit ausklappbarer Projekt-Auswahl
 - [x] Aufgaben-Verknüpfung: Checkbox "Aufgabe verknüpfen" mit Voraussetzungen und Folgeaufgaben
 - [x] Backend-Logik: Verknüpfungen nach Task-Erstellung speichern mit addDependenciesMutation
+
+## Shopping Task-Dialog Verbesserungen
+- [x] Mehrere Verantwortliche auswählen können (Checkbox-Liste)
+- [x] Neue Projekte direkt im Dialog erstellen können
+- [x] Dialog scrollbar machen für lange Formulare (max-h-[90vh] overflow-y-auto)
