@@ -1291,3 +1291,8 @@
 ## Inventar-Navigation hinzufügen
 - [x] Inventar-Link zur Home-Seite hinzufügen (Package Icon, orange)
 - [x] Inventar-Link zur Sidebar hinzufügen (AppLayout navigationItems)
+
+## Shopping-Liste Sortierung und Durchstreichung
+- [x] Sortierung: unausgewählt → ausgewählt → verknüpft (ausgewählte verknüpfte zuerst)
+- [x] Durchstreichung für ausgewählte Items (line-through + text-muted-foreground)
+- [x] Ausgewählte Items ans Ende der unausgewählten verschieben

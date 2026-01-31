@@ -352,9 +352,27 @@ export default function Shopping() {
     ? items
     : items.filter((item) => item.categoryId === Number(filterCategoryId)))
     .sort((a, b) => {
-      // Items without taskId (no shopping cart) come first
-      if (!a.taskId && b.taskId) return -1;
-      if (a.taskId && !b.taskId) return 1;
+      const aSelected = selectedItemIds.has(a.id);
+      const bSelected = selectedItemIds.has(b.id);
+      const aLinked = !!a.taskId;
+      const bLinked = !!b.taskId;
+      
+      // Priority: unselected (not linked) → selected (not linked) → linked (selected first, then unselected)
+      
+      // Both not linked
+      if (!aLinked && !bLinked) {
+        if (!aSelected && bSelected) return -1; // unselected before selected
+        if (aSelected && !bSelected) return 1;
+        return 0;
+      }
+      
+      // One linked, one not → not linked comes first
+      if (!aLinked && bLinked) return -1;
+      if (aLinked && !bLinked) return 1;
+      
+      // Both linked → selected linked before unselected linked
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
       return 0;
     });
 
@@ -665,7 +683,9 @@ export default function Shopping() {
                       className="mt-1 touch-target"
                     />
                     <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setDetailItem(item); setShowDetailDialog(true); }}>
-                      <div className={`font-medium flex items-center gap-2 ${item.isCompleted ? "line-through" : ""}`}>
+                      <div className={`font-medium flex items-center gap-2 ${
+                        selectedItemIds.has(item.id) ? "line-through text-muted-foreground" : ""
+                      }`}>
                         {item.name}
                         {item.taskId && (
                           <ShoppingCart className="h-4 w-4 text-primary" />
