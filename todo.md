@@ -1296,3 +1296,17 @@
 - [x] Sortierung: unausgewählt → ausgewählt → verknüpft (ausgewählte verknüpfte zuerst)
 - [x] Durchstreichung für ausgewählte Items (line-through + text-muted-foreground)
 - [x] Ausgewählte Items ans Ende der unausgewählten verschieben
+
+## Foto-Upload für Shopping-Items
+- [ ] Schema erweitern: photoUrls zu shoppingItems hinzufügen
+- [ ] Backend: add und update Mutations für photoUrls anpassen
+- [ ] Frontend: Foto-Upload bei Item-Erstellung (bis zu 5 Fotos)
+- [ ] Frontend: Foto-Upload bei Item-Bearbeitung
+- [ ] Fotos in Detailansicht anzeigen
+
+## Foto-Upload für Shopping-Items
+- [x] Schema: photoUrls zu shoppingItems hinzugefügt
+- [x] Backend: photoUrls zu add/update Mutations hinzugefügt
+- [x] Frontend: Foto-Upload bei Item-Erstellung (bis 5 Fotos, multiple upload)
+- [x] Frontend: Foto-Upload bei Item-Bearbeitung (bis 5 Fotos, multiple upload)
+- [x] Fotos in Detailansicht anzeigen (klickbar für Vollbild)

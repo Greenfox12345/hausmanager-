@@ -22,6 +22,8 @@ export default function Shopping() {
   const [newItemName, setNewItemName] = useState("");
   const [newItemDetails, setNewItemDetails] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
+  const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<string[]>([]);
+  const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   
@@ -31,6 +33,8 @@ export default function Shopping() {
   const [editItemName, setEditItemName] = useState("");
   const [editItemCategoryId, setEditItemCategoryId] = useState<number | null>(null);
   const [editItemQuantity, setEditItemQuantity] = useState("");
+  const [editItemPhotoUrls, setEditItemPhotoUrls] = useState<string[]>([]);
+  const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
   // Category management state
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
@@ -94,11 +98,14 @@ export default function Shopping() {
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const createProjectMutation = trpc.projects.create.useMutation();
 
+  const uploadPhotoMutation = trpc.upload.uploadPhoto.useMutation();
+
   const addMutation = trpc.shopping.add.useMutation({
     onSuccess: () => {
       utils.shopping.list.invalidate();
       setNewItemName("");
       setNewItemDetails("");
+      setNewItemPhotoUrls([]);
       toast.success("Artikel hinzugefügt");
     },
     onError: (error: any) => {
@@ -304,7 +311,47 @@ export default function Shopping() {
       name: newItemName.trim(),
       categoryId: newItemCategoryId,
       details: newItemDetails.trim() || undefined,
+      photoUrls: newItemPhotoUrls.length > 0 ? newItemPhotoUrls : undefined,
     });
+  };
+
+  const handleNewItemPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    if (newItemPhotoUrls.length + files.length > 5) {
+      toast.error("Maximal 5 Fotos erlaubt");
+      return;
+    }
+
+    setIsUploadingNewItemPhoto(true);
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+
+        const result = await uploadPhotoMutation.mutateAsync({
+          photo: base64,
+          filename: file.name,
+        });
+
+        uploadedUrls.push(result.url);
+      } catch (error) {
+        toast.error("Foto-Upload fehlgeschlagen");
+      }
+    }
+
+    setNewItemPhotoUrls([...newItemPhotoUrls, ...uploadedUrls]);
+    setIsUploadingNewItemPhoto(false);
+    e.target.value = "";
+  };
+
+  const handleRemoveNewItemPhoto = (index: number) => {
+    setNewItemPhotoUrls(newItemPhotoUrls.filter((_, i) => i !== index));
   };
 
   const handleOpenEditDialog = (item: any) => {
@@ -312,7 +359,47 @@ export default function Shopping() {
     setEditItemName(item.name);
     setEditItemCategoryId(item.categoryId);
     setEditItemQuantity(item.details || "");
+    setEditItemPhotoUrls(item.photoUrls || []);
     setShowEditDialog(true);
+  };
+
+  const handleEditItemPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    if (editItemPhotoUrls.length + files.length > 5) {
+      toast.error("Maximal 5 Fotos erlaubt");
+      return;
+    }
+
+    setIsUploadingEditItemPhoto(true);
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+
+        const result = await uploadPhotoMutation.mutateAsync({
+          photo: base64,
+          filename: file.name,
+        });
+
+        uploadedUrls.push(result.url);
+      } catch (error) {
+        toast.error("Foto-Upload fehlgeschlagen");
+      }
+    }
+
+    setEditItemPhotoUrls([...editItemPhotoUrls, ...uploadedUrls]);
+    setIsUploadingEditItemPhoto(false);
+    e.target.value = "";
+  };
+
+  const handleRemoveEditItemPhoto = (index: number) => {
+    setEditItemPhotoUrls(editItemPhotoUrls.filter((_, i) => i !== index));
   };
 
   const handleEditItem = (e: React.FormEvent) => {
@@ -326,6 +413,7 @@ export default function Shopping() {
       name: editItemName.trim(),
       categoryId: editItemCategoryId,
       details: editItemQuantity.trim() || undefined,
+      photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
     });
   };
 
@@ -604,6 +692,36 @@ export default function Shopping() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="newItemPhotos">Fotos (optional, max. 5)</Label>
+                <Input
+                  id="newItemPhotos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleNewItemPhotoUpload}
+                  disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
+                />
+                {isUploadingNewItemPhoto && (
+                  <p className="text-sm text-muted-foreground">Fotos werden hochgeladen...</p>
+                )}
+                {newItemPhotoUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {newItemPhotoUrls.map((url, index) => (
+                      <div key={index} className="relative">
+                        <img src={url} alt={`Foto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewItemPhoto(index)}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Button type="submit" className="w-full" disabled={addMutation.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
                 {addMutation.isPending ? "Wird hinzugefügt..." : "Artikel hinzufügen"}
@@ -857,6 +975,36 @@ export default function Shopping() {
                   value={editItemQuantity}
                   onChange={(e) => setEditItemQuantity(e.target.value)}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editItemPhotos">Fotos (optional, max. 5)</Label>
+                <Input
+                  id="editItemPhotos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleEditItemPhotoUpload}
+                  disabled={isUploadingEditItemPhoto || editItemPhotoUrls.length >= 5}
+                />
+                {isUploadingEditItemPhoto && (
+                  <p className="text-sm text-muted-foreground">Fotos werden hochgeladen...</p>
+                )}
+                {editItemPhotoUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {editItemPhotoUrls.map((url, index) => (
+                      <div key={index} className="relative">
+                        <img src={url} alt={`Foto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditItemPhoto(index)}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter>
@@ -1279,6 +1427,23 @@ export default function Shopping() {
                 <div>
                   <Label className="text-muted-foreground">Details</Label>
                   <p className="text-sm">{detailItem.details}</p>
+                </div>
+              )}
+              
+              {detailItem.photoUrls && detailItem.photoUrls.length > 0 && (
+                <div>
+                  <Label className="text-muted-foreground">Fotos</Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {detailItem.photoUrls.map((url: string, index: number) => (
+                      <img 
+                        key={index} 
+                        src={url} 
+                        alt={`Foto ${index + 1}`} 
+                        className="w-24 h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                        onClick={() => window.open(url, '_blank')}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               

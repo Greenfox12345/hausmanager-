@@ -43,6 +43,13 @@
       "when": 1769825819952,
       "tag": "0005_living_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1769830572708,
+      "tag": "0006_smooth_red_ghost",
+      "breakpoints": true
     }
   ]
 }

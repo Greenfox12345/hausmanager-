@@ -112,6 +112,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   name: varchar("name", { length: 255 }).notNull(),
   categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
   details: varchar("details", { length: 100 }),
+  photoUrls: json("photoUrls").$type<string[]>().default([]),
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),

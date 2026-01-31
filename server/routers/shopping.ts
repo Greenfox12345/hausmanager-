@@ -31,6 +31,7 @@ export const shoppingRouter = router({
         name: z.string().min(1),
         categoryId: z.number(),
         details: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
         notes: z.string().optional(),
       })
     )
@@ -40,6 +41,7 @@ export const shoppingRouter = router({
         name: input.name,
         categoryId: input.categoryId,
         details: input.details,
+        photoUrls: input.photoUrls,
         notes: input.notes,
         addedBy: input.memberId,
       });
@@ -67,6 +69,7 @@ export const shoppingRouter = router({
         name: z.string().optional(),
         categoryId: z.number().optional(),
         details: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
         notes: z.string().optional(),
       })
     )

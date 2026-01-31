@@ -243,13 +243,19 @@ export async function createShoppingItem(data: {
   name: string;
   categoryId: number;
   details?: string;
+  photoUrls?: string[];
   notes?: string;
   addedBy: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(shoppingItems).values(data);
+  const insertData: any = { ...data };
+  if (data.photoUrls) {
+    insertData.photoUrls = JSON.stringify(data.photoUrls);
+  }
+
+  const result = await db.insert(shoppingItems).values(insertData);
   return Number(result[0].insertId);
 }
 
@@ -257,6 +263,7 @@ export async function updateShoppingItem(id: number, data: {
   name?: string;
   categoryId?: number;
   details?: string;
+  photoUrls?: string[];
   notes?: string;
   isCompleted?: boolean;
   completedBy?: number | null;
@@ -265,8 +272,13 @@ export async function updateShoppingItem(id: number, data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  const updateData: any = { ...data };
+  if (data.photoUrls) {
+    updateData.photoUrls = JSON.stringify(data.photoUrls);
+  }
+
   await db.update(shoppingItems)
-    .set(data)
+    .set(updateData)
     .where(eq(shoppingItems.id, id));
 }
 
