@@ -1287,3 +1287,7 @@
 - [x] Prüfe handleDeleteItem Implementierung (korrekt)
 - [x] Prüfe deleteItemMutation (korrekt)
 - [x] Foreign Key Constraints hinzugefügt für CASCADE DELETE
+
+## Inventar-Navigation hinzufügen
+- [x] Inventar-Link zur Home-Seite hinzufügen (Package Icon, orange)
+- [x] Inventar-Link zur Sidebar hinzufügen (AppLayout navigationItems)

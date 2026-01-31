@@ -27,7 +27,8 @@ import {
   ChevronsUpDown,
   Check,
   Calendar,
-  UserCircle
+  UserCircle,
+  Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -97,6 +98,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: FolderKanban,
       href: "/projects",
       color: "text-accent",
+    },
+    {
+      title: "Inventar",
+      icon: Package,
+      href: "/inventory",
+      color: "text-orange-600",
     },
     {
       title: "Verlauf",

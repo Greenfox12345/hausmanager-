@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
@@ -62,6 +62,14 @@ export default function Home() {
       href: "/projects",
       color: "text-accent",
       bgColor: "bg-accent/10",
+    },
+    {
+      title: "Inventar",
+      description: "Haushaltsgegenstände verwalten und organisieren",
+      icon: Package,
+      href: "/inventory",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
     },
     {
       title: "Verlauf",
