@@ -16,7 +16,8 @@ import {
   MessageSquare,
   Image as ImageIcon,
   Filter,
-  Search
+  Search,
+  FileText
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -87,6 +88,22 @@ export default function History() {
       }
     } catch (error) {
       console.error("Error parsing photoUrls:", error);
+    }
+    return [];
+  };
+
+  const parseFileUrls = (activity: any): string[] => {
+    try {
+      if (activity.fileUrls) {
+        if (typeof activity.fileUrls === "string") {
+          return JSON.parse(activity.fileUrls);
+        }
+        if (Array.isArray(activity.fileUrls)) {
+          return activity.fileUrls;
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing fileUrls:", error);
     }
     return [];
   };
@@ -254,6 +271,35 @@ export default function History() {
                             </div>
                           </div>
                         )}
+
+                        {/* PDFs */}
+                        {(() => {
+                          const fileUrls = parseFileUrls(activity);
+                          return fileUrls.length > 0 && (
+                            <div className="mt-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">
+                                  {fileUrls.length} PDF{fileUrls.length > 1 ? "s" : ""}
+                                </span>
+                              </div>
+                              <div className="space-y-2">
+                                {fileUrls.map((url, index) => (
+                                  <a
+                                    key={index}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors"
+                                  >
+                                    <FileText className="h-5 w-5 text-red-600 shrink-0" />
+                                    <span className="text-sm truncate">Dokument {index + 1}.pdf</span>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </CardContent>

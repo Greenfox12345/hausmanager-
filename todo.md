@@ -1336,3 +1336,8 @@
 ## Bug-Fixes: PDF-Upload
 - [x] PDF-Upload funktioniert nicht (nur Fotos werden akzeptiert) - useId für eindeutige Input-IDs hinzugefügt
 - [x] Vorschaufelder für Fotos und PDFs nur anzeigen wenn tatsächlich Dateien hochgeladen wurden - Empty State entfernt
+
+## PDF-Anzeige in Verlauf und Aufgabendetails
+- [x] PDFs in Verlaufseinträgen auf /history Seite anzeigen
+- [x] PDFs in Aufgabendetails (TaskDetailDialog) anzeigen
+- [x] Download-Links für PDFs implementieren

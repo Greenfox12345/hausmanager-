@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -1038,6 +1038,23 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     onClick={() => window.open(url, '_blank')}
                                   />
                                 </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {activity.fileUrls && activity.fileUrls.length > 0 && (
+                            <div className="space-y-2 mt-3">
+                              {activity.fileUrls.map((url: string, idx: number) => (
+                                <a
+                                  key={idx}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors"
+                                >
+                                  <FileText className="h-5 w-5 text-red-600 shrink-0" />
+                                  <span className="text-sm truncate">Dokument {idx + 1}.pdf</span>
+                                </a>
                               ))}
                             </div>
                           )}
