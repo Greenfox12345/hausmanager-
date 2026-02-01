@@ -306,6 +306,7 @@ export const tasksRouter = router({
         memberId: z.number(),
         comment: z.string().optional(),
         photoUrls: z.array(z.string()).optional(),
+        fileUrls: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -324,6 +325,8 @@ export const tasksRouter = router({
         isCompleted: true,
         completedBy: input.memberId,
         completedAt: new Date(),
+        completionPhotoUrls: input.photoUrls || [],
+        completionFileUrls: input.fileUrls || [],
       });
 
       // Update due date if recurring
@@ -440,6 +443,7 @@ export const tasksRouter = router({
         memberId: z.number(),
         comment: z.string().optional(),
         photoUrls: z.array(z.string()).optional(),
+        fileUrls: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -460,6 +464,7 @@ export const tasksRouter = router({
         relatedItemId: input.taskId,
         comment: input.comment,
         photoUrls: input.photoUrls,
+        fileUrls: input.fileUrls,
       });
 
       return { success: true };

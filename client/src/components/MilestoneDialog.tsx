@@ -23,7 +23,7 @@ interface MilestoneDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onAddMilestone: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
+  onAddMilestone: (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => Promise<void>;
 }
 
 const MilestoneDialogComponent = function MilestoneDialog({
@@ -35,6 +35,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
 
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [files, setFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -49,6 +50,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
       // Dialog was just closed
       setComment("");
       setPhotos([]);
+      setFiles([]);
     }
   }, [open]);
 
@@ -60,10 +62,12 @@ const MilestoneDialogComponent = function MilestoneDialog({
       await onAddMilestone({
         comment: comment.trim() || undefined,
         photoUrls: photos,
+        fileUrls: files,
       });
       // Reset form
       setComment("");
       setPhotos([]);
+      setFiles([]);
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding milestone:", error);
@@ -75,6 +79,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
   const handleCancel = () => {
     setComment("");
     setPhotos([]);
+    setFiles([]);
     onOpenChange(false);
   };
 
@@ -148,6 +153,19 @@ const MilestoneDialogComponent = function MilestoneDialog({
               onPhotosChange={handlePhotosChange} 
               onUploadingChange={setIsUploading}
               maxPhotos={5} 
+            />
+          </div>
+
+          {/* PDF upload */}
+          <div className="space-y-2">
+            <Label>PDFs (optional)</Label>
+            <PhotoUpload 
+              photos={files} 
+              onPhotosChange={setFiles} 
+              onUploadingChange={setIsUploading}
+              maxPhotos={5}
+              acceptedFileTypes=".pdf"
+              fileTypeLabel="PDF"
             />
           </div>
         </div>

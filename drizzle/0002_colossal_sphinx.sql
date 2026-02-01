@@ -1,1 +1,0 @@
-ALTER TABLE `shopping_categories` ADD `color` varchar(7) DEFAULT '#6B7280' NOT NULL;

@@ -1310,3 +1310,25 @@
 - [x] Frontend: Foto-Upload bei Item-Erstellung (bis 5 Fotos, multiple upload)
 - [x] Frontend: Foto-Upload bei Item-Bearbeitung (bis 5 Fotos, multiple upload)
 - [x] Fotos in Detailansicht anzeigen (klickbar für Vollbild)
+
+## PDF-Upload bei Aufgabenabschluss und Zwischenzielen
+- [ ] Schema erweitern: completionFileUrls zu tasks und milestones hinzufügen
+- [ ] Backend: PDF-Upload-Unterstützung in complete-Mutations
+- [ ] Tasks-Seite: PDF-Upload bei Aufgabenabschluss hinzufügen
+- [ ] Calendar-Seite: PDF-Upload bei Aufgabenabschluss hinzufügen
+- [ ] Projects-Seite: PDF-Upload bei Aufgaben- und Zwischenziel-Abschluss hinzufügen
+
+## PDF-Upload bei Aufgabenabschluss und Zwischenzielen
+- [x] completionPhotoUrls Feld zur tasks Tabelle hinzugefügt
+- [x] completionFileUrls Feld zur tasks Tabelle hinzugefügt (bereits vorhanden)
+- [x] fileUrls Feld zur activity_history Tabelle hinzugefügt
+- [x] PhotoUpload Komponente erweitert um PDF-Upload zu unterstützen
+- [x] CompleteTaskDialog erweitert mit PDF-Upload Feld
+- [x] MilestoneDialog erweitert mit PDF-Upload Feld
+- [x] Backend completeTask Mutation aktualisiert um photoUrls und fileUrls zu speichern
+- [x] Backend addMilestone Mutation aktualisiert um photoUrls und fileUrls zu speichern
+- [x] handleAddMilestone in Tasks.tsx aktualisiert
+- [x] handleAddMilestone in Calendar.tsx aktualisiert
+- [x] handleAddMilestone in Projects.tsx aktualisiert
+- [x] Tests für PDF-Upload geschrieben (tasks.completion.test.ts)
+- [ ] Tests ausführen und beheben (Foreign Key Constraint Problem mit bestehenden Tests)

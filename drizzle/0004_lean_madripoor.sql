@@ -1,1 +1,0 @@
-ALTER TABLE `projects` ADD `isArchived` boolean DEFAULT false NOT NULL;

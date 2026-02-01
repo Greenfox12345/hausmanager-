@@ -1584,6 +1584,7 @@ export default function Projects() {
               memberId: member!.memberId,
               comment: data.comment,
               photoUrls: data.photoUrls,
+              fileUrls: data.fileUrls,
             });
           }
         }}

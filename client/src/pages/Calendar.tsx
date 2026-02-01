@@ -433,7 +433,7 @@ export default function Calendar() {
     }
   };
 
-  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[] }) => {
+  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => {
     if (!actionTask || !household || !member) return;
     await milestoneMutation.mutateAsync({
       taskId: actionTask.id,
@@ -441,6 +441,7 @@ export default function Calendar() {
       memberId: member.memberId,
       comment: data.comment,
       photoUrls: data.photoUrls,
+      fileUrls: data.fileUrls,
     });
   };
 

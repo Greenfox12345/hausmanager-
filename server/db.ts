@@ -466,6 +466,7 @@ export async function createActivityLog(data: {
   comment?: string;
   photoUrl?: string;
   photoUrls?: string[];
+  fileUrls?: string[];
   metadata?: Record<string, any>;
   completedDate?: Date; // For recurring tasks: the actual date this occurrence was completed
 }) {

@@ -12,9 +12,11 @@ interface PhotoUploadProps {
   onPhotosChange: (photos: string[]) => void;
   maxPhotos?: number;
   onUploadingChange?: (uploading: boolean) => void;
+  acceptedFileTypes?: string;
+  fileTypeLabel?: string;
 }
 
-export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange }: PhotoUploadProps) {
+export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange, acceptedFileTypes = "image/*", fileTypeLabel = "Foto" }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFileName, setCurrentFileName] = useState("");
@@ -27,7 +29,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
     }
 
     if (photos.length + files.length > maxPhotos) {
-      toast.error(`Maximal ${maxPhotos} Fotos erlaubt`);
+      toast.error(`Maximal ${maxPhotos} ${fileTypeLabel}s erlaubt`);
       return;
     }
 
@@ -44,35 +46,42 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         setUploadProgress(Math.round((i / fileArray.length) * 100));
 
         // Check file type
-        if (!file.type.startsWith("image/")) {
+        const isPDF = acceptedFileTypes === ".pdf";
+        if (isPDF && file.type !== "application/pdf") {
+          toast.error(`${file.name} ist kein PDF`);
+          continue;
+        } else if (!isPDF && !file.type.startsWith("image/")) {
           toast.error(`${file.name} ist kein Bild`);
           continue;
         }
 
-        // Compress image before upload
-        const options = {
-          maxSizeMB: 1, // Max file size in MB
-          maxWidthOrHeight: 1920, // Max width or height
-          useWebWorker: true, // Use web worker for better performance
-          fileType: file.type as any, // Preserve original file type
-        };
-        
-        let compressedFile: File;
-        try {
-          compressedFile = await imageCompression(file, options);
-        } catch (compressionError) {
-          console.error("Compression error:", compressionError);
-          toast.error(`Fehler beim Komprimieren von ${file.name}`);
+        // Compress image before upload (skip for PDFs)
+        let compressedFile: File = file;
+        if (!isPDF) {
+          const options = {
+            maxSizeMB: 1, // Max file size in MB
+            maxWidthOrHeight: 1920, // Max width or height
+            useWebWorker: true, // Use web worker for better performance
+            fileType: file.type as any, // Preserve original file type
+          };
+          
+          try {
+            compressedFile = await imageCompression(file, options);
+          } catch (compressionError) {
+            console.error("Compression error:", compressionError);
+            toast.error(`Fehler beim Komprimieren von ${file.name}`);
+            continue;
+          }
+        }
+
+        // Check file size (max 5MB for images, 10MB for PDFs)
+        const maxSize = isPDF ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (compressedFile.size > maxSize) {
+          toast.error(`${file.name} ist zu groß (max. ${isPDF ? '10MB' : '5MB'})`);
           continue;
         }
 
-        // Check compressed file size (max 5MB as fallback)
-        if (compressedFile.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name} ist zu groß (max. 5MB)`);
-          continue;
-        }
-
-        // Convert compressed file to base64 for upload
+        // Convert file to base64 for upload
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve, reject) => {
           reader.onload = () => resolve(reader.result as string);
@@ -96,7 +105,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
       // Toast removed to prevent dialog overlay
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Fehler beim Hochladen der Fotos");
+      toast.error(`Fehler beim Hochladen der ${fileTypeLabel}s`);
     } finally {
       setUploading(false);
       onUploadingChange?.(false);
@@ -118,7 +127,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
       <div className="flex items-center gap-2">
         <Input
           type="file"
-          accept="image/*"
+          accept={acceptedFileTypes}
           multiple
           onChange={handleFileSelect}
           disabled={uploading || photos.length >= maxPhotos}
@@ -141,7 +150,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
           ) : (
             <>
               <Upload className="h-4 w-4 mr-2" />
-              Fotos hinzufügen ({photos.length}/{maxPhotos})
+              {fileTypeLabel}s hinzufügen ({photos.length}/{maxPhotos})
             </>
           )}
         </Button>
@@ -164,21 +173,29 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         <div className="grid grid-cols-3 gap-3">
           {photos.map((photo, index) => (
             <div key={index} className="relative group aspect-square">
-              <img
-                src={photo}
-                alt={`Foto ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg border border-border"
-              />
+              {acceptedFileTypes === ".pdf" ? (
+                <div className="w-full h-full flex items-center justify-center bg-muted rounded-lg border border-border">
+                  <svg className="h-12 w-12 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18.5,9L13,3.5L13,9H18.5Z" />
+                  </svg>
+                </div>
+              ) : (
+                <img
+                  src={photo}
+                  alt={`${fileTypeLabel} ${index + 1}`}
+                  className="w-full h-full object-cover rounded-lg border border-border"
+                />
+              )}
               <button
                 type="button"
                 onClick={() => removePhoto(index)}
                 className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                title="Foto entfernen"
+                title={`${fileTypeLabel} entfernen`}
               >
                 <X className="h-3 w-3" />
               </button>
               <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 px-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                Foto {index + 1}
+                {fileTypeLabel} {index + 1}
               </div>
             </div>
           ))}
@@ -189,8 +206,8 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
       {photos.length === 0 && !uploading && (
         <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
           <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-sm text-muted-foreground">Noch keine Fotos hochgeladen</p>
-          <p className="text-xs text-muted-foreground mt-1">Klicken Sie auf "Fotos hinzufügen"</p>
+          <p className="text-sm text-muted-foreground">Noch keine {fileTypeLabel}s hochgeladen</p>
+          <p className="text-xs text-muted-foreground mt-1">Klicken Sie auf "{fileTypeLabel}s hinzufügen"</p>
         </div>
       )}
     </div>

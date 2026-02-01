@@ -1,1 +1,0 @@
-ALTER TABLE `household_members` MODIFY COLUMN `passwordHash` text;

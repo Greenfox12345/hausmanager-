@@ -1,1 +1,0 @@
-ALTER TABLE `tasks` MODIFY COLUMN `projectIds` json;

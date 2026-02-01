@@ -1,1 +1,0 @@
-ALTER TABLE `shopping_items` ADD `photoUrls` json DEFAULT ('[]');

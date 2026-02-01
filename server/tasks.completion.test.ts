@@ -98,6 +98,31 @@ describe("tasks.completeTask", () => {
 
     expect(result).toEqual({ success: true });
   });
+
+  it("accepts task completion with photos and PDFs", async () => {
+    const { ctx } = createTestContext();
+    const caller = appRouter.createCaller(ctx);
+
+    // Create another task for this test
+    const pdfTaskId = await createTask({
+      householdId: testHouseholdId,
+      name: "Task with PDF",
+      assignedTo: testMemberId,
+      frequency: "once",
+      createdBy: testMemberId,
+    });
+
+    const result = await caller.tasks.completeTask({
+      taskId: pdfTaskId,
+      householdId: testHouseholdId,
+      memberId: testMemberId,
+      comment: "Task completed with documentation",
+      photoUrls: ["https://example.com/photo1.jpg"],
+      fileUrls: ["https://example.com/document.pdf", "https://example.com/report.pdf"],
+    });
+
+    expect(result).toEqual({ success: true });
+  });
 });
 
 describe("tasks.addMilestone", () => {
@@ -140,6 +165,22 @@ describe("tasks.addMilestone", () => {
       memberId: testMemberId,
       comment: "Erste Hälfte erledigt",
       photoUrls: ["https://example.com/progress.jpg"],
+    });
+
+    expect(result).toEqual({ success: true });
+  });
+
+  it("accepts milestone with photos and PDFs", async () => {
+    const { ctx } = createTestContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.tasks.addMilestone({
+      taskId: testTaskId,
+      householdId: testHouseholdId,
+      memberId: testMemberId,
+      comment: "Fortschritt mit Dokumentation",
+      photoUrls: ["https://example.com/progress.jpg"],
+      fileUrls: ["https://example.com/milestone-report.pdf"],
     });
 
     expect(result).toEqual({ success: true });

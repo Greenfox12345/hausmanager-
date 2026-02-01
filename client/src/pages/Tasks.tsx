@@ -409,7 +409,7 @@ export default function Tasks() {
     });
   };
 
-  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[] }) => {
+  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => {
     if (!selectedTask || !household || !member) return;
     await milestoneMutation.mutateAsync({
       taskId: selectedTask.id,
@@ -417,6 +417,7 @@ export default function Tasks() {
       memberId: member.memberId,
       comment: data.comment,
       photoUrls: data.photoUrls,
+      fileUrls: data.fileUrls,
     });
   };
 

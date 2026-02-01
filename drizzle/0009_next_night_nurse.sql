@@ -1,0 +1,1 @@
+ALTER TABLE `activity_history` ADD `fileUrls` json;

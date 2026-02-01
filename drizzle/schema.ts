@@ -147,6 +147,8 @@ export const tasks = mysqlTable("tasks", {
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
+  completionPhotoUrls: json("completionPhotoUrls").$type<string[]>(),
+  completionFileUrls: json("completionFileUrls").$type<string[]>(),
   skippedDates: json("skippedDates").$type<string[]>(), // ISO date strings of skipped occurrences for recurring tasks
   createdBy: int("createdBy").notNull().references(() => householdMembers.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -264,6 +266,7 @@ export const activityHistory = mysqlTable("activity_history", {
   comment: text("comment"),
   photoUrl: text("photoUrl"),
   photoUrls: json("photoUrls").$type<string[]>(),
+  fileUrls: json("fileUrls").$type<string[]>(),
   metadata: json("metadata").$type<Record<string, any>>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

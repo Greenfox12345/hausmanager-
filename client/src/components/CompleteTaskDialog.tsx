@@ -23,7 +23,7 @@ interface CompleteTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onComplete: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
+  onComplete: (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => Promise<void>;
 }
 
 const CompleteTaskDialogComponent = function CompleteTaskDialog({
@@ -34,6 +34,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 }: CompleteTaskDialogProps) {
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [files, setFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
@@ -58,6 +59,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
       console.log('[CompleteTaskDialog] Resetting form');
       setComment("");
       setPhotos([]);
+      setFiles([]);
     }
     prevOpenRef.current = open;
   }, [open]);
@@ -70,10 +72,12 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
       await onComplete({
         comment: comment.trim() || undefined,
         photoUrls: photos,
+        fileUrls: files,
       });
       // Reset form
       setComment("");
       setPhotos([]);
+      setFiles([]);
       onOpenChange(false);
     } catch (error) {
       console.error("Error completing task:", error);
@@ -85,6 +89,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const handleCancel = () => {
     setComment("");
     setPhotos([]);
+    setFiles([]);
     onOpenChange(false);
   };
 
@@ -157,6 +162,19 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               onPhotosChange={handlePhotosChange} 
               onUploadingChange={setIsUploading}
               maxPhotos={5} 
+            />
+          </div>
+
+          {/* PDF upload */}
+          <div className="space-y-2">
+            <Label>PDFs (optional)</Label>
+            <PhotoUpload 
+              photos={files} 
+              onPhotosChange={setFiles} 
+              onUploadingChange={setIsUploading}
+              maxPhotos={5}
+              acceptedFileTypes=".pdf"
+              fileTypeLabel="PDF"
             />
           </div>
         </div>
