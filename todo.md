@@ -1332,3 +1332,7 @@
 - [x] handleAddMilestone in Projects.tsx aktualisiert
 - [x] Tests für PDF-Upload geschrieben (tasks.completion.test.ts)
 - [ ] Tests ausführen und beheben (Foreign Key Constraint Problem mit bestehenden Tests)
+
+## Bug-Fixes: PDF-Upload
+- [x] PDF-Upload funktioniert nicht (nur Fotos werden akzeptiert) - useId für eindeutige Input-IDs hinzugefügt
+- [x] Vorschaufelder für Fotos und PDFs nur anzeigen wenn tatsächlich Dateien hochgeladen wurden - Empty State entfernt

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Upload, Loader2, Image as ImageIcon } from "lucide-react";
@@ -17,6 +17,7 @@ interface PhotoUploadProps {
 }
 
 export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange, acceptedFileTypes = "image/*", fileTypeLabel = "Foto" }: PhotoUploadProps) {
+  const uploadId = useId();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFileName, setCurrentFileName] = useState("");
@@ -132,13 +133,13 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
           onChange={handleFileSelect}
           disabled={uploading || photos.length >= maxPhotos}
           className="hidden"
-          id="photo-upload"
+          id={uploadId}
         />
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => document.getElementById("photo-upload")?.click()}
+          onClick={() => document.getElementById(uploadId)?.click()}
           disabled={uploading || photos.length >= maxPhotos}
           className="w-full"
         >
@@ -202,14 +203,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         </div>
       )}
 
-      {/* Empty State */}
-      {photos.length === 0 && !uploading && (
-        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-          <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-          <p className="text-sm text-muted-foreground">Noch keine {fileTypeLabel}s hochgeladen</p>
-          <p className="text-xs text-muted-foreground mt-1">Klicken Sie auf "{fileTypeLabel}s hinzufügen"</p>
-        </div>
-      )}
+
     </div>
   );
 }
