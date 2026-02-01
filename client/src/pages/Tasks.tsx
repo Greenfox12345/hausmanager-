@@ -398,7 +398,7 @@ export default function Tasks() {
     }
   };
 
-  const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
+  const handleCompleteTask = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
     if (!selectedTask || !household || !member) return;
     await completeTaskMutation.mutateAsync({
       taskId: selectedTask.id,
@@ -409,7 +409,7 @@ export default function Tasks() {
     });
   };
 
-  const handleAddMilestone = async (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => {
+  const handleAddMilestone = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
     if (!selectedTask || !household || !member) return;
     await milestoneMutation.mutateAsync({
       taskId: selectedTask.id,

@@ -23,7 +23,7 @@ interface MilestoneDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onAddMilestone: (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => Promise<void>;
+  onAddMilestone: (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => Promise<void>;
 }
 
 const MilestoneDialogComponent = function MilestoneDialog({
@@ -34,13 +34,13 @@ const MilestoneDialogComponent = function MilestoneDialog({
 }: MilestoneDialogProps) {
 
   const [comment, setComment] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [files, setFiles] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
+  const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   // Callback for PhotoUpload
-  const handlePhotosChange = (newPhotos: string[]) => {
+  const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
     setPhotos(newPhotos);
   };
 

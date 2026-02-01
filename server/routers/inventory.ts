@@ -29,7 +29,7 @@ export const inventoryRouter = router({
         name: z.string(),
         details: z.string().optional(),
         categoryId: z.number(),
-        photoUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         ownershipType: z.enum(["personal", "household"]),
         ownerIds: z.array(z.number()).optional(),
       })
@@ -45,7 +45,7 @@ export const inventoryRouter = router({
         name: z.string().optional(),
         details: z.string().optional(),
         categoryId: z.number().optional(),
-        photoUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         ownershipType: z.enum(["personal", "household"]).optional(),
         ownerIds: z.array(z.number()).optional(),
       })

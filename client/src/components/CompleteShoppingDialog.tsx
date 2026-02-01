@@ -23,7 +23,7 @@ interface CompleteShoppingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   items: ShoppingItem[];
-  onComplete: (data: { comment?: string; photoUrls: string[] }) => Promise<void>;
+  onComplete: (data: { comment?: string; photoUrls: {url: string, filename: string}[] }) => Promise<void>;
 }
 
 const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
@@ -33,13 +33,13 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
   onComplete,
 }: CompleteShoppingDialogProps) {
   const [comment, setComment] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
 
   // Callback for PhotoUpload with logging
-  const handlePhotosChange = (newPhotos: string[]) => {
+  const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
     console.log('[CompleteShoppingDialog] onPhotosChange called with:', newPhotos);
     setPhotos(newPhotos);
     console.log('[CompleteShoppingDialog] setPhotos called');

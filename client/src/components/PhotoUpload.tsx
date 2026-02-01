@@ -8,8 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import imageCompression from "browser-image-compression";
 
 interface PhotoUploadProps {
-  photos: string[];
-  onPhotosChange: (photos: string[]) => void;
+  photos: {url: string, filename: string}[];
+  onPhotosChange: (photos: {url: string, filename: string}[]) => void;
   maxPhotos?: number;
   onUploadingChange?: (uploading: boolean) => void;
   acceptedFileTypes?: string;
@@ -37,7 +37,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
     setUploading(true);
     onUploadingChange?.(true);
     setUploadProgress(0);
-    const newPhotos: string[] = [];
+    const newPhotos: {url: string, filename: string}[] = [];
     const fileArray = Array.from(files);
 
     try {
@@ -91,11 +91,11 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         });
 
         // Upload to server via tRPC
-        const { url } = await uploadMutation.mutateAsync({
+        const { url, filename } = await uploadMutation.mutateAsync({
           photo: base64,
           filename: file.name,
         });
-        newPhotos.push(url);
+        newPhotos.push({ url, filename });
         
         // Update progress
         setUploadProgress(Math.round(((i + 1) / fileArray.length) * 100));
@@ -182,8 +182,8 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
                 </div>
               ) : (
                 <img
-                  src={photo}
-                  alt={`${fileTypeLabel} ${index + 1}`}
+                  src={photo.url}
+                  alt={photo.filename}
                   className="w-full h-full object-cover rounded-lg border border-border"
                 />
               )}
@@ -195,8 +195,8 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
               >
                 <X className="h-3 w-3" />
               </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 px-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                {fileTypeLabel} {index + 1}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 px-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity truncate">
+                {photo.filename}
               </div>
             </div>
           ))}

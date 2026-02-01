@@ -25,7 +25,7 @@ export default function InventoryDetail() {
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editOwnershipType, setEditOwnershipType] = useState<"personal" | "household">("household");
   const [editOwnerIds, setEditOwnerIds] = useState<number[]>([]);
-  const [editPhotos, setEditPhotos] = useState<string[]>([]);
+  const [editPhotos, setEditPhotos] = useState<{url: string, filename: string}[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const utils = trpc.useUtils();
@@ -45,8 +45,8 @@ export default function InventoryDetail() {
   );
 
   const uploadMutation = trpc.upload.uploadPhoto.useMutation({
-    onSuccess: (data: { url: string }) => {
-      setEditPhotos([...editPhotos, data.url]);
+    onSuccess: (data: { url: string, filename: string }) => {
+      setEditPhotos([...editPhotos, { url: data.url, filename: data.filename }]);
       setUploadingPhoto(false);
       toast.success("Foto hochgeladen");
     },
@@ -85,7 +85,12 @@ export default function InventoryDetail() {
       setEditCategoryId(item.categoryId);
       setEditOwnershipType(item.ownershipType);
       setEditOwnerIds(item.owners.map((o: any) => o.memberId));
-      setEditPhotos(item.photoUrls || []);
+      // Convert string[] to object[] if needed
+      const photos = item.photoUrls || [];
+      const convertedPhotos = photos.map((p: any) => 
+        typeof p === 'string' ? { url: p, filename: 'Foto' } : p
+      );
+      setEditPhotos(convertedPhotos);
     }
   }, [item]);
 
@@ -253,7 +258,7 @@ export default function InventoryDetail() {
                 <div className="space-y-2">
                   {editPhotos.map((photo, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <img src={photo} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                      <img src={photo.url} alt={photo.filename} className="w-16 h-16 object-cover rounded" />
                       <Button
                         type="button"
                         variant="ghost"
@@ -370,11 +375,11 @@ export default function InventoryDetail() {
                   <div>
                     <Label className="text-muted-foreground mb-2 block">Fotos</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {item.photoUrls.map((photo: string, index: number) => (
+                      {item.photoUrls.map((photo: string | {url: string, filename: string}, index: number) => (
                         <img
                           key={index}
-                          src={photo}
-                          alt={`${item.name} ${index + 1}`}
+                          src={typeof photo === 'string' ? photo : photo.url}
+                          alt={typeof photo === 'string' ? `${item.name} ${index + 1}` : photo.filename}
                           className="w-full h-48 object-cover rounded-lg"
                         />
                       ))}

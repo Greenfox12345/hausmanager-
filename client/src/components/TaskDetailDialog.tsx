@@ -1029,13 +1029,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           
                           {activity.photoUrls && activity.photoUrls.length > 0 && (
                             <div className="grid grid-cols-3 gap-2 mt-3">
-                              {activity.photoUrls.map((url: string, idx: number) => (
+                              {activity.photoUrls.map((photo: {url: string, filename: string}, idx: number) => (
                                 <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
                                   <img
-                                    src={url}
-                                    alt={`Foto ${idx + 1}`}
+                                    src={photo.url}
+                                    alt={photo.filename}
                                     className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => window.open(url, '_blank')}
+                                    onClick={() => window.open(photo.url, '_blank')}
                                   />
                                 </div>
                               ))}
@@ -1044,16 +1044,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
                           {activity.fileUrls && activity.fileUrls.length > 0 && (
                             <div className="space-y-2 mt-3">
-                              {activity.fileUrls.map((url: string, idx: number) => (
+                              {activity.fileUrls.map((file: {url: string, filename: string}, idx: number) => (
                                 <a
                                   key={idx}
-                                  href={url}
+                                  href={file.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors"
                                 >
                                   <FileText className="h-5 w-5 text-red-600 shrink-0" />
-                                  <span className="text-sm truncate">Dokument {idx + 1}.pdf</span>
+                                  <span className="text-sm truncate">{file.filename}</span>
                                 </a>
                               ))}
                             </div>

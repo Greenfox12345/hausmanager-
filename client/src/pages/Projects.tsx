@@ -232,7 +232,7 @@ export default function Projects() {
     }
   };
 
-  const handleCompleteTask = async (data: { comment?: string; photoUrls: string[] }) => {
+  const handleCompleteTask = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
     if (!selectedTask) return;
     await completeTaskMutation.mutateAsync({
       taskId: selectedTask.id,

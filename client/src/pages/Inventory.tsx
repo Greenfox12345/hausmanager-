@@ -34,7 +34,7 @@ export default function Inventory() {
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [newItemOwnershipType, setNewItemOwnershipType] = useState<"personal" | "household">("household");
   const [newItemOwnerIds, setNewItemOwnerIds] = useState<number[]>([]);
-  const [newItemPhotos, setNewItemPhotos] = useState<string[]>([]);
+  const [newItemPhotos, setNewItemPhotos] = useState<{url: string, filename: string}[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const utils = trpc.useUtils();
@@ -87,8 +87,8 @@ export default function Inventory() {
   });
 
   const uploadMutation = trpc.upload.uploadPhoto.useMutation({
-    onSuccess: (data: { url: string }) => {
-      setNewItemPhotos([...newItemPhotos, data.url]);
+    onSuccess: (data: { url: string, filename: string }) => {
+      setNewItemPhotos([...newItemPhotos, { url: data.url, filename: data.filename }]);
       setUploadingPhoto(false);
       toast.success("Foto hochgeladen");
     },
@@ -546,7 +546,7 @@ export default function Inventory() {
               <div className="space-y-2">
                 {newItemPhotos.map((photo, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <img src={photo} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    <img src={photo.url} alt={photo.filename} className="w-16 h-16 object-cover rounded" />
                     <Button
                       type="button"
                       variant="ghost"

@@ -31,7 +31,7 @@ export const shoppingRouter = router({
         name: z.string().min(1),
         categoryId: z.number(),
         details: z.string().optional(),
-        photoUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
       })
     )
@@ -69,7 +69,7 @@ export const shoppingRouter = router({
         name: z.string().optional(),
         categoryId: z.number().optional(),
         details: z.string().optional(),
-        photoUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
       })
     )
@@ -144,7 +144,7 @@ export const shoppingRouter = router({
         memberId: z.number(),
         itemIds: z.array(z.number()),
         comment: z.string().optional(),
-        photoUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
       })
     )
     .mutation(async ({ input }) => {

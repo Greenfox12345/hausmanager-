@@ -72,7 +72,7 @@ export default function History() {
     return "text-gray-600 bg-gray-50";
   };
 
-  const parsePhotoUrls = (activity: any): string[] => {
+  const parsePhotoUrls = (activity: any): {url: string, filename: string}[] => {
     try {
       if (activity.photoUrls) {
         if (typeof activity.photoUrls === "string") {
@@ -82,9 +82,9 @@ export default function History() {
           return activity.photoUrls;
         }
       }
-      // Fallback to single photoUrl
+      // Fallback to single photoUrl (old format)
       if (activity.photoUrl) {
-        return [activity.photoUrl];
+        return [{url: activity.photoUrl, filename: "Foto"}];
       }
     } catch (error) {
       console.error("Error parsing photoUrls:", error);
@@ -92,7 +92,7 @@ export default function History() {
     return [];
   };
 
-  const parseFileUrls = (activity: any): string[] => {
+  const parseFileUrls = (activity: any): {url: string, filename: string}[] => {
     try {
       if (activity.fileUrls) {
         if (typeof activity.fileUrls === "string") {
@@ -255,15 +255,15 @@ export default function History() {
                               </span>
                             </div>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                              {photoUrls.map((url, index) => (
+                              {photoUrls.map((photo, index) => (
                                 <button
                                   key={index}
-                                  onClick={() => setSelectedImage(url)}
+                                  onClick={() => setSelectedImage(photo.url)}
                                   className="relative aspect-square rounded-lg overflow-hidden border hover:border-primary transition-colors"
                                 >
                                   <img
-                                    src={url}
-                                    alt={`Foto ${index + 1}`}
+                                    src={photo.url}
+                                    alt={photo.filename}
                                     className="w-full h-full object-cover"
                                   />
                                 </button>
@@ -284,16 +284,16 @@ export default function History() {
                                 </span>
                               </div>
                               <div className="space-y-2">
-                                {fileUrls.map((url, index) => (
+                                {fileUrls.map((file, index) => (
                                   <a
                                     key={index}
-                                    href={url}
+                                    href={file.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors"
                                   >
                                     <FileText className="h-5 w-5 text-red-600 shrink-0" />
-                                    <span className="text-sm truncate">Dokument {index + 1}.pdf</span>
+                                    <span className="text-sm truncate">{file.filename}</span>
                                   </a>
                                 ))}
                               </div>

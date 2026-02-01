@@ -1341,3 +1341,16 @@
 - [x] PDFs in Verlaufseinträgen auf /history Seite anzeigen
 - [x] PDFs in Aufgabendetails (TaskDetailDialog) anzeigen
 - [x] Download-Links für PDFs implementieren
+
+## Originale Dateinamen bei PDF-Upload beibehalten
+- [ ] Datenstruktur analysieren (wie werden URLs und Dateinamen gespeichert)
+- [ ] Backend: Dateinamen-Metadaten speichern (neue Spalte oder JSON-Struktur)
+- [ ] Frontend: Originale Dateinamen beim Upload mitschicken
+- [ ] Frontend: Originale Dateinamen in History und TaskDetailDialog anzeigen
+
+## Originale Dateinamen bei PDF-Upload beibehalten
+- [x] Datenstruktur von String-Arrays zu Objekt-Arrays mit url und filename geändert
+- [x] Backend angepasst um Dateinamen zu speichern und zurückzugeben
+- [x] Frontend angepasst um Dateinamen anzuzeigen
+- [x] Alle Seiten (Tasks, Projects, Calendar, Shopping, Inventory) aktualisiert
+- [x] Alle TypeScript-Fehler behoben

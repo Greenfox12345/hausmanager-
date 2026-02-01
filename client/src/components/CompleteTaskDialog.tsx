@@ -23,7 +23,7 @@ interface CompleteTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onComplete: (data: { comment?: string; photoUrls: string[]; fileUrls?: string[] }) => Promise<void>;
+  onComplete: (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => Promise<void>;
 }
 
 const CompleteTaskDialogComponent = function CompleteTaskDialog({
@@ -33,8 +33,8 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   onComplete,
 }: CompleteTaskDialogProps) {
   const [comment, setComment] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [files, setFiles] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
+  const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
@@ -45,7 +45,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   }, [photos]);
 
   // Callback for PhotoUpload with logging
-  const handlePhotosChange = (newPhotos: string[]) => {
+  const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
     console.log('[CompleteTaskDialog] onPhotosChange called with:', newPhotos);
     setPhotos(newPhotos);
     console.log('[CompleteTaskDialog] setPhotos called');

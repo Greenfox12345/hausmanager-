@@ -30,7 +30,7 @@ export const uploadRouter = router({
         // Upload to S3
         const { url } = await storagePut(uniqueFilename, buffer, mimeType);
 
-        return { url };
+        return { url, filename: input.filename };
       } catch (error) {
         console.error("Photo upload error:", error);
         throw new Error("Failed to upload photo");

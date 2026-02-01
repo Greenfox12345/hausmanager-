@@ -22,7 +22,7 @@ export default function Shopping() {
   const [newItemName, setNewItemName] = useState("");
   const [newItemDetails, setNewItemDetails] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
-  const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<string[]>([]);
+  const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -33,7 +33,7 @@ export default function Shopping() {
   const [editItemName, setEditItemName] = useState("");
   const [editItemCategoryId, setEditItemCategoryId] = useState<number | null>(null);
   const [editItemQuantity, setEditItemQuantity] = useState("");
-  const [editItemPhotoUrls, setEditItemPhotoUrls] = useState<string[]>([]);
+  const [editItemPhotoUrls, setEditItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
   // Category management state
@@ -324,7 +324,7 @@ export default function Shopping() {
     }
 
     setIsUploadingNewItemPhoto(true);
-    const uploadedUrls: string[] = [];
+    const uploadedFiles: {url: string, filename: string}[] = [];
 
     for (const file of Array.from(files)) {
       try {
@@ -339,13 +339,13 @@ export default function Shopping() {
           filename: file.name,
         });
 
-        uploadedUrls.push(result.url);
+        uploadedFiles.push({ url: result.url, filename: result.filename });
       } catch (error) {
         toast.error("Foto-Upload fehlgeschlagen");
       }
     }
 
-    setNewItemPhotoUrls([...newItemPhotoUrls, ...uploadedUrls]);
+    setNewItemPhotoUrls([...newItemPhotoUrls, ...uploadedFiles]);
     setIsUploadingNewItemPhoto(false);
     e.target.value = "";
   };
@@ -372,7 +372,7 @@ export default function Shopping() {
     }
 
     setIsUploadingEditItemPhoto(true);
-    const uploadedUrls: string[] = [];
+    const uploadedFiles: {url: string, filename: string}[] = [];
 
     for (const file of Array.from(files)) {
       try {
@@ -387,13 +387,13 @@ export default function Shopping() {
           filename: file.name,
         });
 
-        uploadedUrls.push(result.url);
+        uploadedFiles.push({ url: result.url, filename: result.filename });
       } catch (error) {
         toast.error("Foto-Upload fehlgeschlagen");
       }
     }
 
-    setEditItemPhotoUrls([...editItemPhotoUrls, ...uploadedUrls]);
+    setEditItemPhotoUrls([...editItemPhotoUrls, ...uploadedFiles]);
     setIsUploadingEditItemPhoto(false);
     e.target.value = "";
   };
@@ -466,7 +466,7 @@ export default function Shopping() {
 
   const selectedItems = items.filter((item) => selectedItemIds.has(item.id));
 
-  const handleCompleteShopping = async (data: { comment?: string; photoUrls: string[] }) => {
+  const handleCompleteShopping = async (data: { comment?: string; photoUrls: {url: string, filename: string}[] }) => {
     if (selectedItemIds.size === 0) {
       toast.error("Keine ausgewählten Artikel zum Abschließen");
       return;
@@ -707,9 +707,9 @@ export default function Shopping() {
                 )}
                 {newItemPhotoUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {newItemPhotoUrls.map((url, index) => (
+                    {newItemPhotoUrls.map((photo, index) => (
                       <div key={index} className="relative">
-                        <img src={url} alt={`Foto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                        <img src={photo.url} alt={photo.filename} className="w-20 h-20 object-cover rounded" />
                         <button
                           type="button"
                           onClick={() => handleRemoveNewItemPhoto(index)}
@@ -991,9 +991,9 @@ export default function Shopping() {
                 )}
                 {editItemPhotoUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {editItemPhotoUrls.map((url, index) => (
+                    {editItemPhotoUrls.map((photo, index) => (
                       <div key={index} className="relative">
-                        <img src={url} alt={`Foto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                        <img src={photo.url} alt={photo.filename} className="w-20 h-20 object-cover rounded" />
                         <button
                           type="button"
                           onClick={() => handleRemoveEditItemPhoto(index)}

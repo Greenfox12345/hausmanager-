@@ -243,7 +243,7 @@ export async function createShoppingItem(data: {
   name: string;
   categoryId: number;
   details?: string;
-  photoUrls?: string[];
+  photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
   addedBy: number;
 }) {
@@ -263,7 +263,7 @@ export async function updateShoppingItem(id: number, data: {
   name?: string;
   categoryId?: number;
   details?: string;
-  photoUrls?: string[];
+  photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
   isCompleted?: boolean;
   completedBy?: number | null;
@@ -465,8 +465,8 @@ export async function createActivityLog(data: {
   relatedItemId?: number;
   comment?: string;
   photoUrl?: string;
-  photoUrls?: string[];
-  fileUrls?: string[];
+  photoUrls?: string[] | {url: string, filename: string}[];
+  fileUrls?: string[] | {url: string, filename: string}[];
   metadata?: Record<string, any>;
   completedDate?: Date; // For recurring tasks: the actual date this occurrence was completed
 }) {
@@ -665,7 +665,7 @@ export async function addInventoryItem(data: {
   name: string;
   details?: string;
   categoryId: number;
-  photoUrls?: string[];
+  photoUrls?: string[] | {url: string, filename: string}[];
   ownershipType: 'personal' | 'household';
   ownerIds?: number[];
 }) {
@@ -707,7 +707,7 @@ export async function updateInventoryItem(data: {
   name?: string;
   details?: string;
   categoryId?: number;
-  photoUrls?: string[];
+  photoUrls?: string[] | {url: string, filename: string}[];
   ownershipType?: 'personal' | 'household';
   ownerIds?: number[];
 }) {

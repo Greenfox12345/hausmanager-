@@ -305,8 +305,8 @@ export const tasksRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         comment: z.string().optional(),
-        photoUrls: z.array(z.string()).optional(),
-        fileUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+        fileUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -442,8 +442,8 @@ export const tasksRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         comment: z.string().optional(),
-        photoUrls: z.array(z.string()).optional(),
-        fileUrls: z.array(z.string()).optional(),
+        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+        fileUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
       })
     )
     .mutation(async ({ input }) => {
