@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Upload, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/imageCompression";
 
 interface BorrowReturnDialogProps {
   open: boolean;
@@ -131,14 +132,17 @@ export function BorrowReturnDialog({
       
       for (const [reqId, photo] of Object.entries(photoState)) {
         if (photo.file) {
-          const arrayBuffer = await photo.file.arrayBuffer();
+          // Compress image
+          const compressedFile = await compressImage(photo.file);
+          
+          const arrayBuffer = await compressedFile.arrayBuffer();
           const buffer = new Uint8Array(arrayBuffer);
           const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
 
           const result = await uploadMutation.mutateAsync({
-            key: `borrow-returns/${borrowRequestId}/${reqId}-${photo.file.name}`,
+            key: `borrow-returns/${borrowRequestId}/${reqId}-${compressedFile.name}`,
             data: base64,
-            contentType: photo.file.type,
+            contentType: compressedFile.type,
           });
 
           uploadedPhotos.push({

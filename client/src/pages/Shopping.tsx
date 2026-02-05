@@ -16,6 +16,7 @@ import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
+import { compressImage } from "@/lib/imageCompression";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -348,10 +349,13 @@ export default function Shopping() {
 
     for (const file of Array.from(files)) {
       try {
+        // Compress image
+        const compressedFile = await compressImage(file);
+        
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(compressedFile);
         });
 
         const result = await uploadPhotoMutation.mutateAsync({
@@ -396,10 +400,13 @@ export default function Shopping() {
 
     for (const file of Array.from(files)) {
       try {
+        // Compress image
+        const compressedFile = await compressImage(file);
+        
         const reader = new FileReader();
         const base64 = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(compressedFile);
         });
 
         const result = await uploadPhotoMutation.mutateAsync({

@@ -1514,3 +1514,11 @@
 - [x] Prüfe BorrowReturnDialog auf storagePut Verwendung und fixe falls nötig
 - [x] Füge Foto-Vorschau Thumbnails im Guidelines-Editor hinzu
 - [x] Test: Foto-Upload und Vorschau in Guidelines-Editor
+
+## Foto-Kompression
+- [x] Installiere browser-image-compression Library
+- [x] Erstelle wiederverwendbare Foto-Kompression Utility
+- [x] Integriere Kompression in BorrowGuidelinesEditor
+- [x] Integriere Kompression in BorrowReturnDialog
+- [x] Integriere Kompression in alle anderen Foto-Upload Komponenten
+- [x] Test: Foto-Kompression in allen Upload-Flows

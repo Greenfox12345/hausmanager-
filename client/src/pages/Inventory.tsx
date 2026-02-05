@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { Plus, Trash2, Filter, Edit2, FolderPlus, Package } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { compressImage } from "@/lib/imageCompression";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -189,7 +190,7 @@ export default function Inventory() {
     }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -199,15 +200,25 @@ export default function Inventory() {
     }
 
     setUploadingPhoto(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      uploadMutation.mutate({
-        photo: base64,
-        filename: file.name,
-      });
-    };
-    reader.readAsDataURL(file);
+    
+    try {
+      // Compress image
+      const compressedFile = await compressImage(file);
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        uploadMutation.mutate({
+          photo: base64,
+          filename: compressedFile.name,
+        });
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('Compression error:', error);
+      toast.error('Fehler beim Komprimieren des Bildes');
+      setUploadingPhoto(false);
+    }
   };
 
   const handleRemovePhoto = (index: number) => {

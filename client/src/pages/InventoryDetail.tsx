@@ -15,6 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
 import { BorrowReturnDialog } from "@/components/BorrowReturnDialog";
+import { compressImage } from "@/lib/imageCompression";
 
 export default function InventoryDetail() {
   const params = useParams<{ id: string }>();
@@ -193,7 +194,7 @@ export default function InventoryDetail() {
     );
   }
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -203,15 +204,25 @@ export default function InventoryDetail() {
     }
 
     setUploadingPhoto(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      uploadMutation.mutate({
-        photo: base64,
-        filename: file.name,
-      });
-    };
-    reader.readAsDataURL(file);
+    
+    try {
+      // Compress image
+      const compressedFile = await compressImage(file);
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        uploadMutation.mutate({
+          photo: base64,
+          filename: compressedFile.name,
+        });
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('Compression error:', error);
+      toast.error('Fehler beim Komprimieren des Bildes');
+      setUploadingPhoto(false);
+    }
   };
 
   const handleRemovePhoto = (index: number) => {

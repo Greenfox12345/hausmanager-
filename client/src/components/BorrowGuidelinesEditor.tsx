@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X, Plus, Upload, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/imageCompression";
 
 
 interface BorrowGuidelinesEditorProps {
@@ -94,15 +95,18 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
       const previewUrl = URL.createObjectURL(file);
       updatePhotoRequirement(reqId, { examplePhotoUrl: previewUrl });
       
+      // Compress image
+      const compressedFile = await compressImage(file);
+      
       // Upload to S3
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await compressedFile.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
       const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
       
       const { url } = await uploadMutation.mutateAsync({
-        key: `borrow-examples/${itemId}/${reqId}-${file.name}`,
+        key: `borrow-examples/${itemId}/${reqId}-${compressedFile.name}`,
         data: base64,
-        contentType: file.type,
+        contentType: compressedFile.type,
       });
 
       // Replace preview with actual URL
