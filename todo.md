@@ -1354,3 +1354,14 @@
 - [x] Frontend angepasst um Dateinamen anzuzeigen
 - [x] Alle Seiten (Tasks, Projects, Calendar, Shopping, Inventory) aktualisiert
 - [x] Alle TypeScript-Fehler behoben
+
+## Einkaufsaufgaben-Verknüpfung Erweiterung
+- [x] Verknüpfte Einkaufslisten-Items in TaskDetailDialog anzeigen (alle Seiten)
+- [x] Backend: Endpoint zum Abrufen verknüpfter Shopping-Items für eine Aufgabe
+- [x] Beim Aufgabenabschluss: Verknüpfte Items automatisch von Einkaufsliste entfernen
+- [x] CompleteTaskDialog erweitern: "Ins Inventar aufnehmen?" Option für jedes Item
+- [ ] Erweiterbares Inventar-Formular im Abschluss-Dialog (Kategorie, Details, Besitz, Fotos) - Für spätere Iteration
+- [x] Backend: Batch-Inventar-Erstellung beim Aufgabenabschluss (mit Standardwerten)
+- [ ] Test: Items werden in Aufgabendetails angezeigt - Manuell zu testen
+- [ ] Test: Items verschwinden nach Abschluss von Einkaufsliste - Manuell zu testen
+- [ ] Test: Inventar-Aufnahme funktioniert korrekt - Manuell zu testen

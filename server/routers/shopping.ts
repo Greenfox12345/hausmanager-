@@ -307,4 +307,12 @@ export const shoppingRouter = router({
 
       return { success: true };
     }),
+
+  // Get shopping items linked to a specific task
+  getLinkedItems: publicProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const { getLinkedShoppingItems } = await import("../db");
+      return await getLinkedShoppingItems(input.taskId);
+    }),
 });

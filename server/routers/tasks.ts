@@ -307,6 +307,14 @@ export const tasksRouter = router({
         comment: z.string().optional(),
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         fileUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+        shoppingItemsToInventory: z.array(z.object({
+          itemId: z.number(),
+          categoryId: z.number(),
+          details: z.string().optional(),
+          photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+          ownershipType: z.enum(["personal", "household"]),
+          ownerIds: z.array(z.number()).optional(),
+        })).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -428,6 +436,34 @@ export const tasksRouter = router({
             task.name,
             completer.memberName
           );
+        }
+      }
+
+      // Process linked shopping items
+      const { getLinkedShoppingItems, deleteShoppingItem, addInventoryItem } = await import("../db");
+      const linkedItems = await getLinkedShoppingItems(input.taskId);
+      
+      // Delete all linked shopping items from the list
+      for (const item of linkedItems) {
+        await deleteShoppingItem(item.id);
+      }
+
+      // Add selected items to inventory
+      if (input.shoppingItemsToInventory && input.shoppingItemsToInventory.length > 0) {
+        for (const inventoryData of input.shoppingItemsToInventory) {
+          const originalItem = linkedItems.find(item => item.id === inventoryData.itemId);
+          if (originalItem) {
+            await addInventoryItem({
+              householdId: input.householdId,
+              memberId: input.memberId,
+              name: originalItem.name,
+              details: inventoryData.details,
+              categoryId: inventoryData.categoryId,
+              photoUrls: inventoryData.photoUrls,
+              ownershipType: inventoryData.ownershipType,
+              ownerIds: inventoryData.ownerIds,
+            });
+          }
         }
       }
 

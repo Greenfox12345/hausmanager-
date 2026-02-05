@@ -756,3 +756,11 @@ export async function deleteInventoryItem(itemId: number) {
 
   return { success: true };
 }
+
+export async function getLinkedShoppingItems(taskId: number): Promise<ShoppingItem[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(shoppingItems)
+    .where(eq(shoppingItems.taskId, taskId));
+}

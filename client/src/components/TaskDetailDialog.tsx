@@ -99,6 +99,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!task?.id && open }
   );
   
+  // Load linked shopping items
+  const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open }
+  );
+  
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -844,6 +850,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     </div>
                   </div>
                 )}
+
+                {/* Linked Shopping Items */}
+                {linkedShoppingItems.length > 0 && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</h4>
+                    <div className="space-y-2">
+                      {linkedShoppingItems.map((item: any) => (
+                        <div key={item.id} className="flex items-center gap-2 text-sm p-2 bg-muted rounded">
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <span className="font-medium">{item.name}</span>
+                          {item.details && <span className="text-muted-foreground">• {item.details}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Dependencies */}
                 {taskDependencies && (taskDependencies.prerequisites.length > 0 || taskDependencies.followups.length > 0) && (
@@ -1100,6 +1122,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             name: task.name,
             description: task.description || undefined,
           }}
+          taskId={task.id}
+          linkedShoppingItems={linkedShoppingItems}
           onComplete={async (data) => {
             if (!household || !member) return;
             await utils.client.tasks.completeTask.mutate({
@@ -1108,6 +1132,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               memberId: member.memberId,
               comment: data.comment,
               photoUrls: data.photoUrls,
+              fileUrls: data.fileUrls,
+              shoppingItemsToInventory: data.shoppingItemsToInventory,
             });
             setShowCompleteDialog(false);
             setActiveTab("history");

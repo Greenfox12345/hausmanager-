@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronDown, ChevronRight, ShoppingBag } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { trpc } from "@/lib/trpc";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 
 interface Task {
   id: number;
@@ -23,13 +29,29 @@ interface CompleteTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onComplete: (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => Promise<void>;
+  taskId?: number;
+  linkedShoppingItems?: any[];
+  onComplete: (data: { 
+    comment?: string; 
+    photoUrls: {url: string, filename: string}[]; 
+    fileUrls?: {url: string, filename: string}[];
+    shoppingItemsToInventory?: {
+      itemId: number;
+      categoryId: number;
+      details?: string;
+      photoUrls?: {url: string, filename: string}[];
+      ownershipType: "personal" | "household";
+      ownerIds?: number[];
+    }[];
+  }) => Promise<void>;
 }
 
 const CompleteTaskDialogComponent = function CompleteTaskDialog({
   open,
   onOpenChange,
   task,
+  taskId,
+  linkedShoppingItems = [],
   onComplete,
 }: CompleteTaskDialogProps) {
   const [comment, setComment] = useState("");
@@ -38,6 +60,31 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
+  
+  const { household } = useCompatAuth();
+  
+  // Load shopping categories (use as inventory categories)
+  const { data: inventoryCategories = [] } = trpc.shopping.listCategories.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && linkedShoppingItems.length > 0 }
+  );
+  
+  // Load household members
+  const { data: householdMembers = [] } = trpc.household.getHouseholdMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && linkedShoppingItems.length > 0 }
+  );
+  
+  // Shopping items to inventory state
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+  const [inventoryData, setInventoryData] = useState<Record<number, {
+    categoryId: number;
+    details: string;
+    photoUrls: {url: string, filename: string}[];
+    ownershipType: "personal" | "household";
+    ownerIds: number[];
+  }>>({});
 
   // Debug: Log photos state changes
   useEffect(() => {
@@ -60,6 +107,9 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
       setComment("");
       setPhotos([]);
       setFiles([]);
+      setSelectedItems(new Set());
+      setExpandedItems(new Set());
+      setInventoryData({});
     }
     prevOpenRef.current = open;
   }, [open]);
@@ -69,15 +119,25 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
     setIsSubmitting(true);
     try {
+      // Build shopping items to inventory array
+      const shoppingItemsToInventory = Array.from(selectedItems).map(itemId => ({
+        itemId,
+        ...inventoryData[itemId],
+      }));
+
       await onComplete({
         comment: comment.trim() || undefined,
         photoUrls: photos,
         fileUrls: files,
+        shoppingItemsToInventory: shoppingItemsToInventory.length > 0 ? shoppingItemsToInventory : undefined,
       });
       // Reset form
       setComment("");
       setPhotos([]);
       setFiles([]);
+      setSelectedItems(new Set());
+      setExpandedItems(new Set());
+      setInventoryData({});
       onOpenChange(false);
     } catch (error) {
       console.error("Error completing task:", error);
@@ -177,6 +237,67 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               fileTypeLabel="PDF"
             />
           </div>
+
+          {/* Linked Shopping Items */}
+          {linkedShoppingItems.length > 0 && (
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-base font-semibold">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Diese Items werden von der Einkaufsliste entfernt. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:
+              </p>
+              <div className="space-y-2">
+                {linkedShoppingItems.map((item: any) => (
+                  <div key={item.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                    <Checkbox
+                      id={`item-${item.id}`}
+                      checked={selectedItems.has(item.id)}
+                      onCheckedChange={(checked) => {
+                        const newSelected = new Set(selectedItems);
+                        if (checked) {
+                          newSelected.add(item.id);
+                          // Initialize inventory data with defaults
+                          setInventoryData(prev => ({
+                            ...prev,
+                            [item.id]: {
+                              categoryId: item.categoryId,
+                              details: item.details || "",
+                              photoUrls: [],
+                              ownershipType: "household",
+                              ownerIds: [],
+                            }
+                          }));
+                        } else {
+                          newSelected.delete(item.id);
+                          setInventoryData(prev => {
+                            const newData = { ...prev };
+                            delete newData[item.id];
+                            return newData;
+                          });
+                        }
+                        setSelectedItems(newSelected);
+                      }}
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor={`item-${item.id}`} className="font-medium cursor-pointer">
+                        {item.name}
+                      </Label>
+                      {item.details && (
+                        <p className="text-sm text-muted-foreground mt-1">{item.details}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedItems.size > 0 && (
+                <p className="text-sm text-green-600 font-medium">
+                  {selectedItems.size} Item(s) werden ins Inventar aufgenommen
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <DialogFooter>
