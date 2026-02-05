@@ -1396,3 +1396,8 @@
   - [x] Beim Auswählen eines Items: Vorhandene Fotos automatisch ins Inventar-Formular übernehmen
   - [x] Hinweis implizit durch Anzeige der Fotos im Formular
   - [x] Benutzer kann übernommene Fotos entfernen oder weitere hinzufügen (PhotoUpload-Komponente)
+
+## Bug: Aufgabenabschluss mit verknüpften Shopping-Items
+- [x] Backend-Schema-Validierung schlägt fehl: photoUrls erwartet Array, erhält String
+- [x] Problem: Shopping-Items können altes Format (String-Array) oder neues Format (Objekt-Array) haben
+- [x] Lösung: normalizePhotoUrls Funktion konvertiert beide Formate automatisch zu Objekt-Arrays

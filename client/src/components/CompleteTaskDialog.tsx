@@ -19,6 +19,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 
+// Helper function to normalize photoUrls to object format
+const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
+  if (!photoUrls || !Array.isArray(photoUrls)) return [];
+  
+  return photoUrls.map((item: any) => {
+    // If already in object format
+    if (typeof item === 'object' && item.url && item.filename) {
+      return item;
+    }
+    // If in old string format, convert to object format
+    if (typeof item === 'string') {
+      const filename = item.split('/').pop() || 'unknown.jpg';
+      return { url: item, filename };
+    }
+    // Fallback
+    return { url: String(item), filename: 'unknown.jpg' };
+  });
+};
+
 interface Task {
   id: number;
   name: string;
@@ -278,7 +297,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                           newInventoryData[item.id] = {
                             categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                             details: item.details || "",
-                            photoUrls: item.photoUrls || [], // Copy photos from shopping item
+                            photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
                             ownershipType: "household",
                             ownerIds: [],
                           };
@@ -304,7 +323,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         newInventoryData[item.id] = {
                           categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                           details: item.details || "",
-                          photoUrls: item.photoUrls || [], // Copy photos from shopping item
+                          photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
                           ownershipType: "household",
                           ownerIds: [],
                         };
@@ -338,7 +357,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                               [item.id]: {
                                 categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                                 details: item.details || "",
-                                photoUrls: item.photoUrls || [], // Copy photos from shopping item
+                                photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
                                 ownershipType: "household",
                                 ownerIds: [],
                               }
