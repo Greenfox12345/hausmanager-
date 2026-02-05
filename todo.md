@@ -1439,3 +1439,8 @@
   - [x] Verknüpfte Shopping-Items klickbar machen (Button statt Div)
   - [x] Navigation zur Shopping-Seite beim Klick
   - [x] Hover-Effekt für bessere UX (hover:bg-muted/80)
+
+## Bug: Foto-Anzeige in Shopping-Liste und Detail-Dialog
+- [x] Shopping-Liste zeigt falsches Bild (hellgrauer Kasten mit +144 Counter) - Foto-Counter verwendet jetzt normalisierte Array-Länge
+- [x] Detail-Dialog zeigt keine Fotos - normalizePhotoUrls wird korrekt verwendet
+- [x] Problem: normalizePhotoUrls oder Foto-URL-Extraktion funktioniert nicht korrekt - Behoben durch Verwendung des normalisierten Arrays beim Zählen
