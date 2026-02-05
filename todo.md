@@ -1479,3 +1479,19 @@
 - [ ] Test: Request personal item (requires owner approval)
 - [ ] Test: Approve/reject workflow
 - [ ] Test: Return item workflow
+
+## Ausleihvorgaben und Rückgabe-Workflow
+- [x] Fix: Genehmigungsberechtigung nur für tatsächliche Eigentümer
+- [x] Backend: Validierung der Eigentümerschaft bei approve/reject
+- [x] Database: borrowGuidelines Tabelle (text, checklist, photo requirements)
+- [x] Backend: API für Guidelines CRUD (create, read, update, delete)
+- [ ] Backend: Return workflow mit Checklist- und Foto-Validierung
+- [ ] Frontend: Guidelines Editor in Inventar-Details (Text, Checkliste, Foto-Anforderungen)
+- [ ] Frontend: Beispielfoto-Upload für Guidelines
+- [ ] Frontend: Return Dialog mit Checklist-Validierung
+- [ ] Frontend: Pflicht-Fotos mit Beispielfoto-Vergleich
+- [ ] Frontend: Zustandsbericht bei Rückgabe
+- [ ] Test: Nur Eigentümer können genehmigen
+- [ ] Test: Guidelines werden bei Ausleihe angezeigt
+- [ ] Test: Return workflow mit Checklist-Validierung
+- [ ] Test: Pflicht-Fotos bei Rückgabe

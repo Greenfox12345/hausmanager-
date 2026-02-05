@@ -302,6 +302,41 @@ export type BorrowRequest = typeof borrowRequests.$inferSelect;
 export type InsertBorrowRequest = typeof borrowRequests.$inferInsert;
 
 /**
+ * Borrow guidelines for inventory items
+ * Defines rules, checklists, and photo requirements for borrowing
+ */
+export const borrowGuidelines = mysqlTable("borrow_guidelines", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  instructionsText: text("instructionsText"), // Free-text instructions (e.g., "Vollgetankt zurückgeben")
+  checklistItems: json("checklistItems").$type<Array<{id: string, label: string, required: boolean}>>(), // Checklist items as JSON
+  photoRequirements: json("photoRequirements").$type<Array<{id: string, label: string, examplePhotoUrl?: string, required: boolean}>>(), // Photo requirements with optional example
+  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BorrowGuideline = typeof borrowGuidelines.$inferSelect;
+export type InsertBorrowGuideline = typeof borrowGuidelines.$inferInsert;
+
+/**
+ * Photos taken during borrow return process
+ * Links to borrow request and guideline photo requirement
+ */
+export const borrowReturnPhotos = mysqlTable("borrow_return_photos", {
+  id: int("id").autoincrement().primaryKey(),
+  borrowRequestId: int("borrowRequestId").notNull().references(() => borrowRequests.id, { onDelete: "cascade" }),
+  photoRequirementId: varchar("photoRequirementId", { length: 255 }), // ID from borrowGuidelines.photoRequirements
+  photoUrl: text("photoUrl").notNull(),
+  filename: varchar("filename", { length: 255 }),
+  uploadedBy: int("uploadedBy").notNull().references(() => householdMembers.id),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+
+export type BorrowReturnPhoto = typeof borrowReturnPhotos.$inferSelect;
+export type InsertBorrowReturnPhoto = typeof borrowReturnPhotos.$inferInsert;
+
+/**
  * Relations for better query experience
  */
 export const householdsRelations = relations(households, ({ many, one }) => ({

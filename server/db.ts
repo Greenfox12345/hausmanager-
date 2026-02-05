@@ -15,6 +15,8 @@ import {
   inventoryItems,
   inventoryOwnership,
   borrowRequests,
+  borrowGuidelines,
+  borrowReturnPhotos,
   type Household,
   type HouseholdMember,
   type ShoppingItem,
@@ -24,7 +26,9 @@ import {
   type ActivityHistory,
   type InventoryItem,
   type InventoryOwnership,
-  type BorrowRequest
+  type BorrowRequest,
+  type BorrowGuideline,
+  type BorrowReturnPhoto
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -874,4 +878,95 @@ export async function updateBorrowRequestStatus(data: {
     .where(eq(borrowRequests.id, data.requestId));
 
   return { success: true };
+}
+
+// ===== Borrow Guidelines Functions =====
+
+export async function createBorrowGuideline(data: {
+  inventoryItemId: number;
+  instructionsText?: string;
+  checklistItems?: Array<{id: string, label: string, required: boolean}>;
+  photoRequirements?: Array<{id: string, label: string, examplePhotoUrl?: string, required: boolean}>;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(borrowGuidelines).values({
+    inventoryItemId: data.inventoryItemId,
+    instructionsText: data.instructionsText,
+    checklistItems: data.checklistItems as any,
+    photoRequirements: data.photoRequirements as any,
+    createdBy: data.createdBy,
+  });
+
+  return result.insertId;
+}
+
+export async function getBorrowGuidelineByItemId(itemId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [guideline] = await db.select().from(borrowGuidelines)
+    .where(eq(borrowGuidelines.inventoryItemId, itemId));
+
+  return guideline || null;
+}
+
+export async function updateBorrowGuideline(data: {
+  id: number;
+  instructionsText?: string;
+  checklistItems?: Array<{id: string, label: string, required: boolean}>;
+  photoRequirements?: Array<{id: string, label: string, examplePhotoUrl?: string, required: boolean}>;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = {};
+  if (data.instructionsText !== undefined) updateData.instructionsText = data.instructionsText;
+  if (data.checklistItems !== undefined) updateData.checklistItems = data.checklistItems as any;
+  if (data.photoRequirements !== undefined) updateData.photoRequirements = data.photoRequirements as any;
+
+  await db.update(borrowGuidelines)
+    .set(updateData)
+    .where(eq(borrowGuidelines.id, data.id));
+}
+
+export async function deleteBorrowGuideline(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(borrowGuidelines).where(eq(borrowGuidelines.id, id));
+}
+
+// ===== Borrow Return Photos Functions =====
+
+export async function createBorrowReturnPhoto(data: {
+  borrowRequestId: number;
+  photoRequirementId?: string;
+  photoUrl: string;
+  filename?: string;
+  uploadedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(borrowReturnPhotos).values({
+    borrowRequestId: data.borrowRequestId,
+    photoRequirementId: data.photoRequirementId,
+    photoUrl: data.photoUrl,
+    filename: data.filename,
+    uploadedBy: data.uploadedBy,
+  });
+
+  return result.insertId;
+}
+
+export async function getBorrowReturnPhotosByRequestId(requestId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(borrowReturnPhotos)
+    .where(eq(borrowReturnPhotos.borrowRequestId, requestId))
+    .orderBy(borrowReturnPhotos.uploadedAt);
 }

@@ -119,6 +119,20 @@ export const borrowRouter = router({
         throw new Error("Request not found");
       }
 
+      // Get item details to validate ownership
+      const item = await getInventoryItemById(request.inventoryItemId);
+      if (!item) {
+        throw new Error("Item not found");
+      }
+
+      // Validate that approver is an owner (for personal items)
+      if (item.ownershipType === 'personal') {
+        const isOwner = item.owners?.some((owner: any) => owner.memberId === input.approverId);
+        if (!isOwner) {
+          throw new Error("Nur Eigentümer können diese Anfrage genehmigen");
+        }
+      }
+
       await updateBorrowRequestStatus({
         requestId: input.requestId,
         status: "approved",
@@ -127,8 +141,7 @@ export const borrowRouter = router({
         responseMessage: input.responseMessage,
       });
 
-      // Get item details for activity log
-      const item = await getInventoryItemById(request.inventoryItemId);
+      // Item already fetched above for validation
       
       // Create activity log
       await createActivityLog({
@@ -161,6 +174,20 @@ export const borrowRouter = router({
         throw new Error("Request not found");
       }
 
+      // Get item details to validate ownership
+      const item = await getInventoryItemById(request.inventoryItemId);
+      if (!item) {
+        throw new Error("Item not found");
+      }
+
+      // Validate that approver is an owner (for personal items)
+      if (item.ownershipType === 'personal') {
+        const isOwner = item.owners?.some((owner: any) => owner.memberId === input.approverId);
+        if (!isOwner) {
+          throw new Error("Nur Eigentümer können diese Anfrage ablehnen");
+        }
+      }
+
       await updateBorrowRequestStatus({
         requestId: input.requestId,
         status: "rejected",
@@ -169,8 +196,7 @@ export const borrowRouter = router({
         responseMessage: input.responseMessage,
       });
 
-      // Get item details for activity log
-      const item = await getInventoryItemById(request.inventoryItemId);
+      // Item already fetched above for validation
       
       // Create activity log
       await createActivityLog({
@@ -210,14 +236,16 @@ export const borrowRouter = router({
         throw new Error("Request not found");
       }
 
+      // Get item details for activity log
+      const item = await getInventoryItemById(request.inventoryItemId);
+
       await updateBorrowRequestStatus({
         requestId: input.requestId,
         status: "completed",
         returnedAt: new Date(),
       });
 
-      // Get item details for activity log
-      const item = await getInventoryItemById(request.inventoryItemId);
+      // Item already fetched above for validation
       
       // Create activity log
       await createActivityLog({
