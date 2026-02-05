@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from "lucide-react";
 import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
+import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
 
 // Helper function to normalize photoUrls to object format
@@ -695,21 +696,29 @@ export default function Shopping() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="itemCategory">Kategorie</Label>
-                <Select 
-                  value={newItemCategoryId?.toString() || ""} 
-                  onValueChange={(value) => setNewItemCategoryId(Number(value))}
-                >
-                  <SelectTrigger id="itemCategory">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Select 
+                    value={newItemCategoryId?.toString() || ""} 
+                    onValueChange={(value) => setNewItemCategoryId(Number(value))}
+                  >
+                    <SelectTrigger id="itemCategory">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <QuickCategoryCreate
+                    householdId={household.householdId}
+                    memberId={member.memberId}
+                    onCategoryCreated={(categoryId) => setNewItemCategoryId(categoryId)}
+                    type="shopping"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newItemPhotos">Fotos (optional, max. 5)</Label>

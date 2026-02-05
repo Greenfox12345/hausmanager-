@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,7 @@ interface TaskDetailDialogProps {
 }
 
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask }: TaskDetailDialogProps) {
+  const [, setLocation] = useLocation();
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
@@ -857,11 +859,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <h4 className="text-sm font-semibold mb-3">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</h4>
                     <div className="space-y-2">
                       {linkedShoppingItems.map((item: any) => (
-                        <div key={item.id} className="flex items-center gap-2 text-sm p-2 bg-muted rounded">
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setLocation("/shopping");
+                            onOpenChange(false);
+                          }}
+                          className="flex items-center gap-2 text-sm p-2 bg-muted rounded w-full text-left hover:bg-muted/80 transition-colors cursor-pointer"
+                        >
                           <CheckCircle2 className="h-4 w-4 text-green-500" />
                           <span className="font-medium">{item.name}</span>
                           {item.details && <span className="text-muted-foreground">• {item.details}</span>}
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </div>

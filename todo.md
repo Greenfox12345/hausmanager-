@@ -1411,3 +1411,31 @@
 - [x] Fotos werden in der Einkaufsliste (Shopping-Seite) nicht angezeigt - Foto-Vorschau in Liste hinzugefügt (max. 3 Fotos + Counter)
 - [x] Details von Shopping-Items können nicht bearbeitet werden - Details-Feld existiert bereits im Edit-Dialog
 - [x] Fotos gehen bei der Übernahme von Shopping-Items ins Inventar verloren - Foto-Übernahme funktioniert korrekt (normalizePhotoUrls)
+
+## Kategorieerstellung und Item-Navigation
+- [ ] Kategorieerstellung im Aufgabenabschluss-Dialog
+  - [ ] "+" Icon neben Kategorie-Dropdown im Inventar-Formular
+  - [ ] Inline-Dialog zum Erstellen neuer Inventar-Kategorien
+  - [ ] Automatische Auswahl der neu erstellten Kategorie
+- [ ] Kategorieerstellung im Shopping-Item-Erstellungs-Dialog
+  - [ ] "+" Icon neben Kategorie-Dropdown
+  - [ ] Inline-Dialog zum Erstellen neuer Shopping-Kategorien
+  - [ ] Automatische Auswahl der neu erstellten Kategorie
+- [ ] Item-Link in Aufgabendetails
+  - [ ] Verknüpfte Shopping-Items sind klickbar
+  - [ ] Navigation zur Shopping-Seite mit Fokus auf das Item
+  - [ ] Visuelles Feedback (Hover-Effekt, Cursor-Pointer)
+
+## Kategorieerstellung und Item-Links
+- [x] Kategorieerstellung im Aufgabenabschluss-Dialog (QuickCategoryCreate Komponente)
+  - [x] "+" Icon neben Kategorie-Dropdown im Inventar-Formular
+  - [x] Inline-Dialog zum Erstellen neuer Inventar-Kategorien mit Farbauswahl
+  - [x] Automatische Auswahl der neu erstellten Kategorie
+- [x] Kategorieerstellung im Shopping-Item-Erstellungs-Dialog
+  - [x] "+" Icon neben Kategorie-Dropdown
+  - [x] Inline-Dialog zum Erstellen neuer Shopping-Kategorien mit Farbauswahl
+  - [x] Automatische Auswahl der neu erstellten Kategorie
+- [x] Item-Link in Aufgabendetails zur Shopping-Seite
+  - [x] Verknüpfte Shopping-Items klickbar machen (Button statt Div)
+  - [x] Navigation zur Shopping-Seite beim Klick
+  - [x] Hover-Effekt für bessere UX (hover:bg-muted/80)

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
+import { QuickCategoryCreate } from "./QuickCategoryCreate";
 import { Loader2, CheckCircle2, ChevronDown, ChevronRight, ShoppingBag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -80,7 +81,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
   
-  const { household } = useCompatAuth();
+  const { household, member } = useCompatAuth();
   
   // Load shopping categories (use as inventory categories)
   const { data: inventoryCategories = [] } = trpc.shopping.listCategories.useQuery(
@@ -416,29 +417,47 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         {/* Category */}
                         <div className="space-y-2">
                           <Label>Kategorie *</Label>
-                          <Select
-                            value={inventoryData[item.id]?.categoryId?.toString() || ""}
-                            onValueChange={(value) => {
-                              setInventoryData(prev => ({
-                                ...prev,
-                                [item.id]: {
-                                  ...prev[item.id],
-                                  categoryId: parseInt(value),
-                                }
-                              }));
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Kategorie wählen" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {inventoryCategories.map((cat: any) => (
-                                <SelectItem key={cat.id} value={cat.id.toString()}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select
+                              value={inventoryData[item.id]?.categoryId?.toString() || ""}
+                              onValueChange={(value) => {
+                                setInventoryData(prev => ({
+                                  ...prev,
+                                  [item.id]: {
+                                    ...prev[item.id],
+                                    categoryId: parseInt(value),
+                                  }
+                                }));
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Kategorie wählen" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {inventoryCategories.map((cat: any) => (
+                                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                                    {cat.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {household && member && (
+                              <QuickCategoryCreate
+                                householdId={household.householdId}
+                                memberId={member.memberId}
+                                onCategoryCreated={(categoryId) => {
+                                  setInventoryData(prev => ({
+                                    ...prev,
+                                    [item.id]: {
+                                      ...prev[item.id],
+                                      categoryId,
+                                    }
+                                  }));
+                                }}
+                                type="inventory"
+                              />
+                            )}
+                          </div>
                         </div>
                         
                         {/* Details */}
