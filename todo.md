@@ -1505,3 +1505,7 @@
 - [x] Zustandsbericht-Textfeld im Return-Dialog
 - [x] "Zurückgeben"-Button in Inventar-Details für aktive Ausleihen
 - [x] Test: Return-Dialog mit Guidelines-Validierung
+
+## Foto-Upload Bug-Fix
+- [x] Fix storage.ts React Hook misuse causing stack overflow
+- [x] Test photo upload in BorrowGuidelinesEditor

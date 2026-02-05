@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X, Plus, Upload, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { storagePut } from "@/lib/storage";
+
 
 interface BorrowGuidelinesEditorProps {
   itemId: number;
@@ -38,6 +38,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
   // Load existing guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery({ itemId });
   const saveMutation = trpc.borrow.saveGuidelines.useMutation();
+  const uploadMutation = trpc.storage.upload.useMutation();
 
   useEffect(() => {
     if (guidelines) {
@@ -92,11 +93,13 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
       // Upload to S3
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
-      const { url } = await storagePut(
-        `borrow-examples/${itemId}/${reqId}-${file.name}`,
-        buffer,
-        file.type
-      );
+      const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
+      
+      const { url } = await uploadMutation.mutateAsync({
+        key: `borrow-examples/${itemId}/${reqId}-${file.name}`,
+        data: base64,
+        contentType: file.type,
+      });
 
       updatePhotoRequirement(reqId, { examplePhotoUrl: url });
       toast.success("Beispielfoto hochgeladen");
