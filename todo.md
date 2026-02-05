@@ -1488,6 +1488,7 @@
 - [x] Backend: Return workflow mit Checklist- und Foto-Validierung
 - [x] Frontend: Guidelines Editor in Inventar-Details (Text, Checkliste, Foto-Anforderungen)
 - [x] Frontend: Beispielfoto-Upload für Guidelines
+- [x] Integration: Guidelines-Editor in InventoryDetail.tsx eingefügt
 - [ ] Frontend: Return Dialog mit Checklist-Validierung
 - [ ] Frontend: Pflicht-Fotos mit Beispielfoto-Vergleich
 - [ ] Frontend: Zustandsbericht bei Rückgabe

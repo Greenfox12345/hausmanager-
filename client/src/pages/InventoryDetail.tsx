@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Edit2, Trash2, Plus, Calendar } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
+import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
 
 export default function InventoryDetail() {
   const params = useParams<{ id: string }>();
@@ -551,6 +552,32 @@ export default function InventoryDetail() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Guidelines Editor - Only for owners */}
+            {item && item.ownershipType === 'personal' && item.owners?.some((owner: any) => owner.memberId === member?.memberId) && (
+              <div className="mb-6">
+                <BorrowGuidelinesEditor
+                  itemId={itemId}
+                  memberId={member?.memberId ?? 0}
+                  onSave={() => {
+                    toast.success("Ausleihvorgaben gespeichert");
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Guidelines Editor - For household items, any member can edit */}
+            {item && item.ownershipType === 'household' && (
+              <div className="mb-6">
+                <BorrowGuidelinesEditor
+                  itemId={itemId}
+                  memberId={member?.memberId ?? 0}
+                  onSave={() => {
+                    toast.success("Ausleihvorgaben gespeichert");
+                  }}
+                />
+              </div>
             )}
           </>
         )}
