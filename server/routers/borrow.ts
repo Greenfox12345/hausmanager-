@@ -49,7 +49,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: input.borrowerHouseholdId,
         memberId: input.borrowerMemberId,
-        activityType: "other",
+        activityType: "inventory",
         action: "borrow_requested",
         description: `Ausleih-Anfrage für "${item.name}"`,
         metadata: {
@@ -134,7 +134,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "other",
+        activityType: "inventory",
         action: "borrow_approved",
         description: `Ausleih-Anfrage für "${item?.name}" wurde genehmigt`,
         metadata: {
@@ -176,7 +176,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "other",
+        activityType: "inventory",
         action: "borrow_rejected",
         description: `Ausleih-Anfrage für "${item?.name}" wurde abgelehnt`,
         metadata: {
@@ -223,7 +223,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "other",
+        activityType: "inventory",
         action: "borrow_returned",
         description: `"${item?.name}" wurde zurückgegeben`,
         metadata: {
