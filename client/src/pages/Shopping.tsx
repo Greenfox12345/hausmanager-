@@ -16,6 +16,25 @@ import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from
 import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
 import { BottomNav } from "@/components/BottomNav";
 
+// Helper function to normalize photoUrls to object format
+const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
+  if (!photoUrls || !Array.isArray(photoUrls)) return [];
+  
+  return photoUrls.map((item: any) => {
+    // If already in object format
+    if (typeof item === 'object' && item.url && item.filename) {
+      return item;
+    }
+    // If in old string format, convert to object format
+    if (typeof item === 'string') {
+      const filename = item.split('/').pop() || 'unknown.jpg';
+      return { url: item, filename };
+    }
+    // Fallback
+    return { url: String(item), filename: 'unknown.jpg' };
+  });
+};
+
 export default function Shopping() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
@@ -359,7 +378,7 @@ export default function Shopping() {
     setEditItemName(item.name);
     setEditItemCategoryId(item.categoryId);
     setEditItemQuantity(item.details || "");
-    setEditItemPhotoUrls(item.photoUrls || []);
+    setEditItemPhotoUrls(normalizePhotoUrls(item.photoUrls));
     setShowEditDialog(true);
   };
 
@@ -1434,13 +1453,13 @@ export default function Shopping() {
                 <div>
                   <Label className="text-muted-foreground">Fotos</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {detailItem.photoUrls.map((url: string, index: number) => (
+                    {normalizePhotoUrls(detailItem.photoUrls).map((photo, index) => (
                       <img 
                         key={index} 
-                        src={url} 
-                        alt={`Foto ${index + 1}`} 
+                        src={photo.url} 
+                        alt={photo.filename} 
                         className="w-24 h-24 object-cover rounded cursor-pointer hover:opacity-80"
-                        onClick={() => window.open(url, '_blank')}
+                        onClick={() => window.open(photo.url, '_blank')}
                       />
                     ))}
                   </div>

@@ -1401,3 +1401,8 @@
 - [x] Backend-Schema-Validierung schlägt fehl: photoUrls erwartet Array, erhält String
 - [x] Problem: Shopping-Items können altes Format (String-Array) oder neues Format (Objekt-Array) haben
 - [x] Lösung: normalizePhotoUrls Funktion konvertiert beide Formate automatisch zu Objekt-Arrays
+
+## Bug: Shopping-Seite Absturz bei Items mit Fotos
+- [x] Fehler in Shopping.tsx Zeile 1456: Absturz beim Anzeigen von Items mit Fotos im Detail-Dialog
+- [x] Problem: photoUrls wird als Objekt-Array erwartet, aber alte Items haben String-Arrays
+- [x] Lösung: normalizePhotoUrls Funktion in Shopping.tsx implementiert und verwendet (Detail-Dialog, Edit-Dialog)
