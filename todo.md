@@ -1385,3 +1385,14 @@
   - [x] Aufklapp-Animation für Inventar-Formulare (ChevronDown/ChevronRight Icons)
   - [x] Visuelles Feedback für ausgewählte Items (Border, bg-muted/30)
   - [x] Validierung: Kategorie ist Pflichtfeld für Inventar-Aufnahme (Standardwert wird gesetzt)
+
+## Validierung und Foto-Übernahme im Aufgabenabschluss
+- [x] Validierung vor Abschluss
+  - [x] Prüfung: Alle ausgewählten Items haben eine gültige Kategorie
+  - [x] Warnung anzeigen bei fehlenden Kategorien (rote Alert-Box)
+  - [x] "Abschließen"-Button deaktivieren wenn Validierung fehlschlägt
+  - [x] Fehlerhafte Items in der Liste markieren (roter Border)
+- [x] Foto-Übernahme von Shopping-Items
+  - [x] Beim Auswählen eines Items: Vorhandene Fotos automatisch ins Inventar-Formular übernehmen
+  - [x] Hinweis implizit durch Anzeige der Fotos im Formular
+  - [x] Benutzer kann übernommene Fotos entfernen oder weitere hinzufügen (PhotoUpload-Komponente)

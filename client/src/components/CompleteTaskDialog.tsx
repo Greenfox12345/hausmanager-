@@ -117,6 +117,17 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const handleSubmit = async () => {
     if (!task) return;
 
+    // Validate: Check if all selected items have a valid category
+    const invalidItems = Array.from(selectedItems).filter(itemId => {
+      const data = inventoryData[itemId];
+      return !data || !data.categoryId || data.categoryId === 0;
+    });
+
+    if (invalidItems.length > 0) {
+      // Validation failed - this should not happen as button is disabled
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Build shopping items to inventory array
@@ -261,13 +272,13 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         // Select all
                         const allIds = new Set(linkedShoppingItems.map((item: any) => item.id));
                         setSelectedItems(allIds);
-                        // Initialize inventory data for all
+                        // Initialize inventory data for all with photos from shopping items
                         const newInventoryData: typeof inventoryData = {};
                         linkedShoppingItems.forEach((item: any) => {
                           newInventoryData[item.id] = {
                             categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                             details: item.details || "",
-                            photoUrls: [],
+                            photoUrls: item.photoUrls || [], // Copy photos from shopping item
                             ownershipType: "household",
                             ownerIds: [],
                           };
@@ -287,13 +298,13 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                       const allIds = new Set(linkedShoppingItems.map((item: any) => item.id));
                       setSelectedItems(allIds);
                       setExpandedItems(allIds);
-                      // Initialize inventory data for all
+                      // Initialize inventory data for all with photos from shopping items
                       const newInventoryData: typeof inventoryData = {};
                       linkedShoppingItems.forEach((item: any) => {
                         newInventoryData[item.id] = {
                           categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                           details: item.details || "",
-                          photoUrls: [],
+                          photoUrls: item.photoUrls || [], // Copy photos from shopping item
                           ownershipType: "household",
                           ownerIds: [],
                         };
@@ -309,8 +320,10 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                 Diese Items werden von der Einkaufsliste entfernt. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:
               </p>
               <div className="space-y-3">
-                {linkedShoppingItems.map((item: any) => (
-                  <div key={item.id} className="border rounded-lg overflow-hidden">
+                {linkedShoppingItems.map((item: any) => {
+                  const isInvalid = selectedItems.has(item.id) && (!inventoryData[item.id] || !inventoryData[item.id].categoryId || inventoryData[item.id].categoryId === 0);
+                  return (
+                  <div key={item.id} className={`border rounded-lg overflow-hidden ${isInvalid ? 'border-red-500 border-2' : ''}`}>
                     <div className="flex items-start gap-3 p-3 bg-muted/30">
                       <Checkbox
                         id={`item-${item.id}`}
@@ -319,13 +332,13 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                           const newSelected = new Set(selectedItems);
                           if (checked) {
                             newSelected.add(item.id);
-                            // Initialize inventory data with defaults
+                            // Initialize inventory data with defaults and copy photos from shopping item
                             setInventoryData(prev => ({
                               ...prev,
                               [item.id]: {
                                 categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                                 details: item.details || "",
-                                photoUrls: [],
+                                photoUrls: item.photoUrls || [], // Copy photos from shopping item
                                 ownershipType: "household",
                                 ownerIds: [],
                               }
@@ -515,7 +528,8 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
               
               {/* Summary */}
@@ -545,11 +559,42 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           )}
         </div>
 
+        {/* Validation Warning */}
+        {(() => {
+          const invalidItems = Array.from(selectedItems).filter(itemId => {
+            const data = inventoryData[itemId];
+            return !data || !data.categoryId || data.categoryId === 0;
+          });
+          
+          if (invalidItems.length > 0) {
+            return (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-semibold text-red-800">
+                  ⚠️ Fehlende Kategorien
+                </p>
+                <p className="text-xs text-red-700">
+                  {invalidItems.length} Item(s) haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Items eine Kategorie aus.
+                </p>
+              </div>
+            );
+          }
+          return null;
+        })()}
+
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
             Abbrechen
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting || isUploading || (() => {
+              const invalidItems = Array.from(selectedItems).filter(itemId => {
+                const data = inventoryData[itemId];
+                return !data || !data.categoryId || data.categoryId === 0;
+              });
+              return invalidItems.length > 0;
+            })()}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
