@@ -1444,3 +1444,9 @@
 - [x] Shopping-Liste zeigt falsches Bild (hellgrauer Kasten mit +144 Counter) - Foto-Counter verwendet jetzt normalisierte Array-Länge
 - [x] Detail-Dialog zeigt keine Fotos - normalizePhotoUrls wird korrekt verwendet
 - [x] Problem: normalizePhotoUrls oder Foto-URL-Extraktion funktioniert nicht korrekt - Behoben durch Verwendung des normalisierten Arrays beim Zählen
+
+## Probleme: Foto-Upload und Shopping-Item-Link
+- [ ] Fotos werden nicht in Shopping-Liste angezeigt (weder Kasten noch Fotos)
+- [ ] Fotos werden nicht in Shopping-Item-Details angezeigt
+- [ ] Problem: Foto-Upload oder Foto-Speicherung funktioniert möglicherweise nicht
+- [ ] Shopping-Item-Link aus Aufgabendetails soll Detail-Dialog öffnen statt nur zur Seite zu navigieren

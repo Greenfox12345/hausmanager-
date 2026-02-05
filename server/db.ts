@@ -233,9 +233,15 @@ export async function getShoppingItems(householdId: number): Promise<ShoppingIte
   const db = await getDb();
   if (!db) return [];
 
-  return db.select().from(shoppingItems)
+  const items = await db.select().from(shoppingItems)
     .where(eq(shoppingItems.householdId, householdId))
     .orderBy(shoppingItems.isCompleted, desc(shoppingItems.createdAt));
+  
+  // Deserialize photoUrls from JSON string
+  return items.map(item => ({
+    ...item,
+    photoUrls: item.photoUrls ? JSON.parse(item.photoUrls as any) : undefined
+  }));
 }
 
 export async function createShoppingItem(data: {
@@ -761,6 +767,12 @@ export async function getLinkedShoppingItems(taskId: number): Promise<ShoppingIt
   const db = await getDb();
   if (!db) return [];
 
-  return db.select().from(shoppingItems)
+  const items = await db.select().from(shoppingItems)
     .where(eq(shoppingItems.taskId, taskId));
+  
+  // Deserialize photoUrls from JSON string
+  return items.map(item => ({
+    ...item,
+    photoUrls: item.photoUrls ? JSON.parse(item.photoUrls as any) : undefined
+  }));
 }

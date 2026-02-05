@@ -67,6 +67,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
   const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [showShoppingItemDetail, setShowShoppingItemDetail] = useState(false);
+  const [selectedShoppingItem, setSelectedShoppingItem] = useState<any>(null);
   
   // Load task history
   const { data: taskHistory = [] } = trpc.activities.getByTaskId.useQuery(
@@ -862,8 +864,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         <button
                           key={item.id}
                           onClick={() => {
-                            setLocation("/shopping");
-                            onOpenChange(false);
+                            setSelectedShoppingItem(item);
+                            setShowShoppingItemDetail(true);
                           }}
                           className="flex items-center gap-2 text-sm p-2 bg-muted rounded w-full text-left hover:bg-muted/80 transition-colors cursor-pointer"
                         >
@@ -1203,6 +1205,66 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           }}
         />
       </>
+    )}
+    
+    {/* Shopping Item Detail Dialog */}
+    {showShoppingItemDetail && selectedShoppingItem && (
+      <Dialog open={showShoppingItemDetail} onOpenChange={setShowShoppingItemDetail}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Artikel-Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-lg">{selectedShoppingItem.name}</h3>
+            </div>
+            
+            {selectedShoppingItem.details && (
+              <div>
+                <Label className="text-muted-foreground">Details</Label>
+                <p className="text-sm">{selectedShoppingItem.details}</p>
+              </div>
+            )}
+            
+            {selectedShoppingItem.photoUrls && selectedShoppingItem.photoUrls.length > 0 && (
+              <div>
+                <Label className="text-muted-foreground">Fotos</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {(() => {
+                    const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
+                      if (!photoUrls || !Array.isArray(photoUrls)) return [];
+                      return photoUrls.map((item: any) => {
+                        if (typeof item === 'object' && item.url && item.filename) {
+                          return item;
+                        }
+                        if (typeof item === 'string') {
+                          const filename = item.split('/').pop() || 'unknown.jpg';
+                          return { url: item, filename };
+                        }
+                        return { url: String(item), filename: 'unknown.jpg' };
+                      });
+                    };
+                    return normalizePhotoUrls(selectedShoppingItem.photoUrls).map((photo, index) => (
+                      <img 
+                        key={index} 
+                        src={photo.url} 
+                        alt={photo.filename} 
+                        className="w-24 h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                        onClick={() => window.open(photo.url, '_blank')}
+                      />
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowShoppingItemDetail(false)}>
+              Schließen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     )}
   </>
   );
