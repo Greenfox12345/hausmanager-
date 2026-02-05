@@ -10,8 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Edit2, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, Plus, Calendar } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 
 export default function InventoryDetail() {
   const params = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export default function InventoryDetail() {
   const [editOwnerIds, setEditOwnerIds] = useState<number[]>([]);
   const [editPhotos, setEditPhotos] = useState<{url: string, filename: string}[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showBorrowDialog, setShowBorrowDialog] = useState(false);
 
   const utils = trpc.useUtils();
   const { data: item, isLoading } = trpc.inventory.getById.useQuery(
@@ -42,6 +44,11 @@ export default function InventoryDetail() {
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
+  );
+
+  const { data: borrowRequests = [] } = trpc.borrow.listByItem.useQuery(
+    { itemId },
+    { enabled: !!itemId }
   );
 
   const uploadMutation = trpc.upload.uploadPhoto.useMutation({
@@ -77,6 +84,70 @@ export default function InventoryDetail() {
       toast.error(error.message);
     },
   });
+
+  const borrowRequestMutation = trpc.borrow.request.useMutation({
+    onSuccess: (data) => {
+      setShowBorrowDialog(false);
+      if (data.autoApproved) {
+        toast.success("Ausleih-Anfrage automatisch genehmigt (Haushaltseigentum)");
+      } else {
+        toast.success("Ausleih-Anfrage gesendet. Warte auf Genehmigung.");
+      }
+      utils.borrow.listByItem.invalidate({ itemId });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const approveMutation = trpc.borrow.approve.useMutation({
+    onSuccess: () => {
+      toast.success("Anfrage genehmigt");
+      utils.borrow.listByItem.invalidate({ itemId });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const rejectMutation = trpc.borrow.reject.useMutation({
+    onSuccess: () => {
+      toast.success("Anfrage abgelehnt");
+      utils.borrow.listByItem.invalidate({ itemId });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleBorrowRequest = (data: { startDate: Date; endDate: Date; message?: string }) => {
+    if (!household || !member) return;
+
+    borrowRequestMutation.mutate({
+      inventoryItemId: itemId,
+      borrowerHouseholdId: household.householdId,
+      borrowerMemberId: member.memberId,
+      startDate: data.startDate.toISOString(),
+      endDate: data.endDate.toISOString(),
+      requestMessage: data.message,
+    });
+  };
+
+  const handleApprove = (requestId: number) => {
+    if (!member) return;
+    approveMutation.mutate({
+      requestId,
+      approverId: member.memberId,
+    });
+  };
+
+  const handleReject = (requestId: number) => {
+    if (!member) return;
+    rejectMutation.mutate({
+      requestId,
+      approverId: member.memberId,
+    });
+  };
 
   useEffect(() => {
     if (item) {
@@ -198,6 +269,10 @@ export default function InventoryDetail() {
           <div className="flex-1" />
           {!isEditing && (
             <>
+              <Button variant="default" onClick={() => setShowBorrowDialog(true)}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Ausleihen
+              </Button>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit2 className="h-4 w-4 mr-2" />
                 Bearbeiten
@@ -388,9 +463,107 @@ export default function InventoryDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Borrow Requests */}
+            {borrowRequests.length > 0 && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Ausleih-Anfragen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {borrowRequests.map((request: any) => {
+                      const isPending = request.status === 'pending';
+                      const isApproved = request.status === 'approved';
+                      const isActive = request.status === 'active';
+                      const isCompleted = request.status === 'completed';
+                      const isRejected = request.status === 'rejected';
+
+                      return (
+                        <div key={request.id} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="font-medium">
+                                {members.find(m => m.id === request.borrowerMemberId)?.memberName || 'Unbekannt'}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(request.startDate).toLocaleDateString('de-DE')} - {new Date(request.endDate).toLocaleDateString('de-DE')}
+                              </div>
+                            </div>
+                            <div>
+                              {isPending && (
+                                <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                  Ausstehend
+                                </span>
+                              )}
+                              {isApproved && (
+                                <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                  Genehmigt
+                                </span>
+                              )}
+                              {isActive && (
+                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                  Ausgeliehen
+                                </span>
+                              )}
+                              {isCompleted && (
+                                <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                  Zurückgegeben
+                                </span>
+                              )}
+                              {isRejected && (
+                                <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                  Abgelehnt
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {request.requestMessage && (
+                            <div className="text-sm text-muted-foreground mb-3">
+                              "{request.requestMessage}"
+                            </div>
+                          )}
+
+                          {isPending && item.ownershipType === 'personal' && (
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleApprove(request.id)}
+                                disabled={approveMutation.isPending}
+                              >
+                                Genehmigen
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleReject(request.id)}
+                                disabled={rejectMutation.isPending}
+                              >
+                                Ablehnen
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
       </div>
+
+      <BorrowRequestDialog
+        open={showBorrowDialog}
+        onOpenChange={setShowBorrowDialog}
+        itemName={item.name}
+        itemId={itemId}
+        onSubmit={handleBorrowRequest}
+        isSubmitting={borrowRequestMutation.isPending}
+      />
 
       <BottomNav />
     </AppLayout>

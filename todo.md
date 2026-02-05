@@ -1467,11 +1467,11 @@
 - [x] Database schema: borrowRequests table with status workflow
 - [x] Backend: Create borrow request API (request, approve, reject, return)
 - [x] Backend: Get borrow requests (by item, by user, by owner)
-- [ ] Frontend: "Ausleihen" button in inventory item details
-- [ ] Frontend: Borrow request dialog with date range picker
-- [ ] Frontend: Owner notification for pending requests
-- [ ] Frontend: Approve/reject UI in inventory item details
-- [ ] Frontend: Active borrows display in inventory list and details
+- [x] Frontend: "Ausleihen" button in inventory item details
+- [x] Frontend: Borrow request dialog with date range picker
+- [x] Frontend: Owner notification for pending requests
+- [x] Frontend: Approve/reject UI in inventory item details
+- [x] Frontend: Active borrows display in inventory list and details
 - [ ] Calendar: Create events for borrow periods
 - [ ] Calendar: Reminders for return dates
 - [ ] Status tracking: pending → approved → active → completed → rejected
