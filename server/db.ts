@@ -14,6 +14,7 @@ import {
   taskRotationExclusions,
   inventoryItems,
   inventoryOwnership,
+  borrowRequests,
   type Household,
   type HouseholdMember,
   type ShoppingItem,
@@ -22,7 +23,8 @@ import {
   type Project,
   type ActivityHistory,
   type InventoryItem,
-  type InventoryOwnership
+  type InventoryOwnership,
+  type BorrowRequest
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -775,4 +777,101 @@ export async function getLinkedShoppingItems(taskId: number): Promise<ShoppingIt
     ...item,
     photoUrls: item.photoUrls ? JSON.parse(item.photoUrls as any) : undefined
   }));
+}
+
+// ============================================
+// Borrow Requests
+// ============================================
+
+export async function createBorrowRequest(data: {
+  inventoryItemId: number;
+  borrowerHouseholdId: number;
+  borrowerMemberId: number;
+  ownerHouseholdId: number;
+  startDate: Date;
+  endDate: Date;
+  requestMessage?: string;
+  status?: "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(borrowRequests).values({
+    inventoryItemId: data.inventoryItemId,
+    borrowerHouseholdId: data.borrowerHouseholdId,
+    borrowerMemberId: data.borrowerMemberId,
+    ownerHouseholdId: data.ownerHouseholdId,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    requestMessage: data.requestMessage,
+    status: data.status || "pending",
+  });
+
+  return result.insertId;
+}
+
+export async function getBorrowRequestById(requestId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [request] = await db.select().from(borrowRequests)
+    .where(eq(borrowRequests.id, requestId));
+
+  return request || null;
+}
+
+export async function getBorrowRequestsByItem(itemId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(borrowRequests)
+    .where(eq(borrowRequests.inventoryItemId, itemId))
+    .orderBy(borrowRequests.createdAt);
+}
+
+export async function getBorrowRequestsByBorrower(memberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(borrowRequests)
+    .where(eq(borrowRequests.borrowerMemberId, memberId))
+    .orderBy(borrowRequests.createdAt);
+}
+
+export async function getBorrowRequestsByOwner(householdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(borrowRequests)
+    .where(eq(borrowRequests.ownerHouseholdId, householdId))
+    .orderBy(borrowRequests.createdAt);
+}
+
+export async function updateBorrowRequestStatus(data: {
+  requestId: number;
+  status: "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
+  approvedBy?: number;
+  approvedAt?: Date;
+  borrowedAt?: Date;
+  returnedAt?: Date;
+  responseMessage?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = {
+    status: data.status,
+  };
+
+  if (data.approvedBy !== undefined) updateData.approvedBy = data.approvedBy;
+  if (data.approvedAt !== undefined) updateData.approvedAt = data.approvedAt;
+  if (data.borrowedAt !== undefined) updateData.borrowedAt = data.borrowedAt;
+  if (data.returnedAt !== undefined) updateData.returnedAt = data.returnedAt;
+  if (data.responseMessage !== undefined) updateData.responseMessage = data.responseMessage;
+
+  await db.update(borrowRequests)
+    .set(updateData)
+    .where(eq(borrowRequests.id, data.requestId));
+
+  return { success: true };
 }

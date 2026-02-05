@@ -259,7 +259,7 @@ export const activityHistory = mysqlTable("activity_history", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   memberId: int("memberId").notNull().references(() => householdMembers.id),
-  activityType: mysqlEnum("activityType", ["shopping", "task", "project", "member", "other"]).notNull(),
+  activityType: mysqlEnum("activityType", ["shopping", "task", "project", "member", "inventory", "other"]).notNull(),
   action: varchar("action", { length: 100 }).notNull(),
   description: text("description").notNull(),
   relatedItemId: int("relatedItemId"),
@@ -273,6 +273,33 @@ export const activityHistory = mysqlTable("activity_history", {
 
 export type ActivityHistory = typeof activityHistory.$inferSelect;
 export type InsertActivityHistory = typeof activityHistory.$inferInsert;
+
+/**
+ * Borrow requests for inventory items
+ * Supports both household-internal and future cross-household borrowing
+ */
+export const borrowRequests = mysqlTable("borrow_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  borrowerHouseholdId: int("borrowerHouseholdId").notNull().references(() => households.id),
+  borrowerMemberId: int("borrowerMemberId").notNull().references(() => householdMembers.id),
+  ownerHouseholdId: int("ownerHouseholdId").notNull().references(() => households.id),
+  status: mysqlEnum("status", ["pending", "approved", "active", "completed", "rejected", "cancelled"]).default("pending").notNull(),
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate").notNull(),
+  requestMessage: text("requestMessage"),
+  responseMessage: text("responseMessage"),
+  approvedBy: int("approvedBy").references(() => householdMembers.id),
+  approvedAt: timestamp("approvedAt"),
+  borrowedAt: timestamp("borrowedAt"), // When item was actually picked up
+  returnedAt: timestamp("returnedAt"), // When item was actually returned
+  calendarEventId: int("calendarEventId"), // Link to calendar event (future)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BorrowRequest = typeof borrowRequests.$inferSelect;
+export type InsertBorrowRequest = typeof borrowRequests.$inferInsert;
 
 /**
  * Relations for better query experience

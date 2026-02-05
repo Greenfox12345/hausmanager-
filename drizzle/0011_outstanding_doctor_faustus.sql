@@ -1,0 +1,1 @@
+ALTER TABLE `activity_history` MODIFY COLUMN `activityType` enum('shopping','task','project','member','inventory','other') NOT NULL;

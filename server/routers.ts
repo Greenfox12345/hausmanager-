@@ -12,6 +12,7 @@ import { userAuthRouter } from "./routers/userAuth";
 import { householdManagementRouter } from "./routers/householdManagement";
 import { activitiesRouter } from "./routers/activities";
 import { inventoryRouter } from "./routers/inventory";
+import { borrowRouter } from "./routers/borrow";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -39,6 +40,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   activities: activitiesRouter,
   inventory: inventoryRouter,
+  borrow: borrowRouter,
 
   // Admin router
   admin: router({

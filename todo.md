@@ -1462,3 +1462,20 @@
 - [x] Add photo thumbnails to inventory list view (similar to shopping list)
 - [x] Show max 3 photos with "+X" indicator for additional photos
 - [x] Use normalizePhotoUrls helper for compatibility
+
+## Inventar Ausleihen-Feature
+- [x] Database schema: borrowRequests table with status workflow
+- [x] Backend: Create borrow request API (request, approve, reject, return)
+- [x] Backend: Get borrow requests (by item, by user, by owner)
+- [ ] Frontend: "Ausleihen" button in inventory item details
+- [ ] Frontend: Borrow request dialog with date range picker
+- [ ] Frontend: Owner notification for pending requests
+- [ ] Frontend: Approve/reject UI in inventory item details
+- [ ] Frontend: Active borrows display in inventory list and details
+- [ ] Calendar: Create events for borrow periods
+- [ ] Calendar: Reminders for return dates
+- [ ] Status tracking: pending → approved → active → completed → rejected
+- [ ] Test: Request household item (auto-approve)
+- [ ] Test: Request personal item (requires owner approval)
+- [ ] Test: Approve/reject workflow
+- [ ] Test: Return item workflow
