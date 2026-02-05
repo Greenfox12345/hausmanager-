@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from "lucide-react";
-import { CompleteShoppingDialog } from "@/components/CompleteShoppingDialog";
+import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -486,7 +486,18 @@ export default function Shopping() {
 
   const selectedItems = items.filter((item) => selectedItemIds.has(item.id));
 
-  const handleCompleteShopping = async (data: { comment?: string; photoUrls: {url: string, filename: string}[] }) => {
+  const handleCompleteShopping = async (data: { 
+    itemIds: number[];
+    itemsToInventory?: {
+      itemId: number;
+      name: string;
+      categoryId: number;
+      details?: string;
+      photoUrls?: {url: string, filename: string}[];
+      ownershipType: "personal" | "household";
+      ownerIds?: number[];
+    }[];
+  }) => {
     if (selectedItemIds.size === 0) {
       toast.error("Keine ausgewählten Artikel zum Abschließen");
       return;
@@ -495,9 +506,8 @@ export default function Shopping() {
     await completeMutation.mutateAsync({
       householdId: household.householdId,
       memberId: member.memberId,
-      itemIds: Array.from(selectedItemIds),
-      comment: data.comment,
-      photoUrls: data.photoUrls,
+      itemIds: data.itemIds,
+      itemsToInventory: data.itemsToInventory,
     });
   };
 
@@ -962,14 +972,10 @@ export default function Shopping() {
       </div>
 
       {showCompleteDialog && selectedItems.length > 0 && (
-        <CompleteShoppingDialog
+        <CompleteShoppingItemDialog
           open={showCompleteDialog}
           onOpenChange={setShowCompleteDialog}
-          items={selectedItems.map((item) => ({
-            id: item.id,
-            name: item.name,
-            category: getCategoryName(item.categoryId),
-          }))}
+          items={selectedItems}
           onComplete={handleCompleteShopping}
         />
       )}

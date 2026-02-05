@@ -1450,3 +1450,10 @@
 - [ ] Fotos werden nicht in Shopping-Item-Details angezeigt
 - [ ] Problem: Foto-Upload oder Foto-Speicherung funktioniert möglicherweise nicht
 - [ ] Shopping-Item-Link aus Aufgabendetails soll Detail-Dialog öffnen statt nur zur Seite zu navigieren
+
+## Inventar-Transfer Verbesserungen
+- [x] Fix inventory preview in CompleteTaskDialog - zeigt aktuell falsche Daten an
+- [x] Implement inventory transfer in shopping list completion dialog
+- [x] Add expandable form for each item (name, details, category, photos, ownership)
+- [x] Test inventory transfer from task completion
+- [x] Test inventory transfer from shopping list completion

@@ -12,6 +12,7 @@ import {
   createActivityLog,
   linkItemsToTask,
   unlinkItemsFromTask,
+  addInventoryItem,
 } from "../db";
 
 export const shoppingRouter = router({
@@ -145,6 +146,15 @@ export const shoppingRouter = router({
         itemIds: z.array(z.number()),
         comment: z.string().optional(),
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+        itemsToInventory: z.array(z.object({
+          itemId: z.number(),
+          name: z.string(),
+          categoryId: z.number(),
+          details: z.string().optional(),
+          photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+          ownershipType: z.enum(["personal", "household"]),
+          ownerIds: z.array(z.number()).optional(),
+        })).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -153,6 +163,23 @@ export const shoppingRouter = router({
       const completedItemNames = items
         .filter((item) => input.itemIds.includes(item.id))
         .map((item) => item.name);
+
+      // Transfer items to inventory if requested
+      if (input.itemsToInventory && input.itemsToInventory.length > 0) {
+        for (const invItem of input.itemsToInventory) {
+          // Create inventory item (addInventoryItem handles ownership automatically)
+          await addInventoryItem({
+            householdId: input.householdId,
+            memberId: input.memberId,
+            name: invItem.name,
+            categoryId: invItem.categoryId,
+            details: invItem.details,
+            photoUrls: invItem.photoUrls,
+            ownershipType: invItem.ownershipType,
+            ownerIds: invItem.ownerIds,
+          });
+        }
+      }
 
       // Delete completed items
       for (const itemId of input.itemIds) {
@@ -172,6 +199,7 @@ export const shoppingRouter = router({
         metadata: {
           itemCount: input.itemIds.length,
           items: completedItemNames,
+          inventoryCount: input.itemsToInventory?.length || 0,
         },
       });
 
