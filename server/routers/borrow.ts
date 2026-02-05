@@ -235,7 +235,14 @@ export const borrowRouter = router({
 
   // Mark item as returned
   markReturned: publicProcedure
-    .input(z.object({ requestId: z.number() }))
+    .input(z.object({
+      requestId: z.number(),
+      returnPhotos: z.array(z.object({
+        requirementId: z.string(),
+        photoUrl: z.string(),
+      })).optional(),
+      conditionReport: z.string().optional(),
+    }))
     .mutation(async ({ input }) => {
       const request = await getBorrowRequestById(input.requestId);
       if (!request) {
@@ -250,6 +257,18 @@ export const borrowRouter = router({
         status: "completed",
         returnedAt: new Date(),
       });
+
+      // Save return photos if provided
+      if (input.returnPhotos && input.returnPhotos.length > 0) {
+        for (const photo of input.returnPhotos) {
+          await createBorrowReturnPhoto({
+            borrowRequestId: input.requestId,
+            photoRequirementId: photo.requirementId,
+            photoUrl: photo.photoUrl,
+            uploadedBy: request.borrowerMemberId,
+          });
+        }
+      }
 
       // Item already fetched above for validation
       

@@ -14,6 +14,7 @@ import { ArrowLeft, Edit2, Trash2, Plus, Calendar } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
+import { BorrowReturnDialog } from "@/components/BorrowReturnDialog";
 
 export default function InventoryDetail() {
   const params = useParams<{ id: string }>();
@@ -30,6 +31,8 @@ export default function InventoryDetail() {
   const [editPhotos, setEditPhotos] = useState<{url: string, filename: string}[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showBorrowDialog, setShowBorrowDialog] = useState(false);
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [selectedReturnRequest, setSelectedReturnRequest] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
   const { data: item, isLoading } = trpc.inventory.getById.useQuery(
@@ -546,6 +549,21 @@ export default function InventoryDetail() {
                               </Button>
                             </div>
                           )}
+
+                          {isActive && request.borrowerMemberId === member?.memberId && (
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => {
+                                  setSelectedReturnRequest(request.id);
+                                  setShowReturnDialog(true);
+                                }}
+                              >
+                                Zurückgeben
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -591,6 +609,21 @@ export default function InventoryDetail() {
         onSubmit={handleBorrowRequest}
         isSubmitting={borrowRequestMutation.isPending}
       />
+
+      {selectedReturnRequest && (
+        <BorrowReturnDialog
+          open={showReturnDialog}
+          onOpenChange={setShowReturnDialog}
+          borrowRequestId={selectedReturnRequest}
+          itemId={itemId}
+          itemName={item.name}
+          onSuccess={() => {
+            utils.borrow.listByItem.invalidate({ itemId });
+            setShowReturnDialog(false);
+            setSelectedReturnRequest(null);
+          }}
+        />
+      )}
 
       <BottomNav />
     </AppLayout>

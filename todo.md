@@ -1496,3 +1496,12 @@
 - [ ] Test: Guidelines werden bei Ausleihe angezeigt
 - [ ] Test: Return workflow mit Checklist-Validierung
 - [ ] Test: Pflicht-Fotos bei Rückgabe
+
+## Guidelines-Anzeige und Return-Dialog
+- [x] Guidelines-Anzeige im BorrowRequestDialog vor der Anfrage
+- [x] BorrowReturnDialog Komponente erstellen
+- [x] Checklist-Validierung im Return-Dialog (alle Pflichtpunkte müssen abgehakt sein)
+- [x] Foto-Upload mit Beispielfoto-Vergleich im Return-Dialog
+- [x] Zustandsbericht-Textfeld im Return-Dialog
+- [x] "Zurückgeben"-Button in Inventar-Details für aktive Ausleihen
+- [x] Test: Return-Dialog mit Guidelines-Validierung
