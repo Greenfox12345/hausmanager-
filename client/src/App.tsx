@@ -19,6 +19,7 @@ import Neighborhood from "./pages/Neighborhood";
 import Members from "./pages/Members";
 import Inventory from "./pages/Inventory";
 import InventoryDetail from "./pages/InventoryDetail";
+import Borrows from "./pages/Borrows";
 
 function Router() {
   return (
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/members" component={Members} />
       <Route path="/inventory" component={Inventory} />
       <Route path="/inventory/:id" component={InventoryDetail} />
+      <Route path="/borrows" component={Borrows} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

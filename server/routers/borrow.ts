@@ -462,4 +462,55 @@ export const borrowRouter = router({
     .query(async ({ input }) => {
       return await getBorrowReturnPhotosByRequestId(input.requestId);
     }),
+
+  // Get all borrows as borrower
+  getMyBorrows: publicProcedure
+    .input(z.object({ householdId: z.number(), borrowerId: z.number() }))
+    .query(async ({ input }) => {
+      const requests = await getBorrowRequestsByBorrower(input.borrowerId);
+      
+      // Enrich with item and owner names
+      const enriched = await Promise.all(
+        requests.map(async (req) => {
+          const item = await getInventoryItemById(req.inventoryItemId);
+          return {
+            id: req.id,
+            itemId: req.inventoryItemId,
+            itemName: item?.name || "Unknown",
+            ownerName: "Eigentümer", // TODO: Get actual owner name from member table
+            status: req.status,
+            startDate: req.startDate,
+            endDate: req.endDate,
+            responseMessage: req.responseMessage,
+          };
+        })
+      );
+      
+      return enriched;
+    }),
+
+  // Get all lent items as owner
+  getLentItems: publicProcedure
+    .input(z.object({ householdId: z.number(), ownerId: z.number() }))
+    .query(async ({ input }) => {
+      const requests = await getBorrowRequestsByOwner(input.householdId);
+      
+      // Enrich with item and borrower names
+      const enriched = await Promise.all(
+        requests.map(async (req) => {
+          const item = await getInventoryItemById(req.inventoryItemId);
+          return {
+            id: req.id,
+            itemId: req.inventoryItemId,
+            itemName: item?.name || "Unknown",
+            borrowerName: "Ausleiher", // TODO: Get actual borrower name from member table
+            status: req.status,
+            startDate: req.startDate,
+            endDate: req.endDate,
+          };
+        })
+      );
+      
+      return enriched;
+    }),
 });

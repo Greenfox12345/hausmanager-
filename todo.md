@@ -1522,3 +1522,18 @@
 - [x] Integriere Kompression in BorrowReturnDialog
 - [x] Integriere Kompression in alle anderen Foto-Upload Komponenten
 - [x] Test: Foto-Kompression in allen Upload-Flows
+
+## Ausleihen-Übersichtsseite
+- [ ] Erstelle /borrows Seite mit Tab-Layout
+- [ ] Tab "Meine Ausleihen": Zeige alle Ausleihen als Ausleiher
+- [ ] Tab "Verliehene Items": Zeige alle verliehenen Items als Eigentümer
+- [ ] Status-Filter: Pending, Active, Completed
+- [ ] Navigation: Füge Link zu Borrows-Seite in BottomNav/Sidebar hinzu
+- [ ] Test: Borrows-Seite mit verschiedenen Status
+
+## Ausleihen-Übersichtsseite
+- [x] Backend: getMyBorrows und getLentItems API-Endpunkte
+- [x] Frontend: Borrows-Seite mit Tabs ("Meine Ausleihen" und "Verliehene Items")
+- [x] Frontend: Status-Filter (Pending, Active, Completed)
+- [x] Frontend: Klick auf Item öffnet Inventar-Details
+- [x] Navigation: Link in BottomNav Dropdown hinzugefügt
