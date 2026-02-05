@@ -1509,3 +1509,8 @@
 ## Foto-Upload Bug-Fix
 - [x] Fix storage.ts React Hook misuse causing stack overflow
 - [x] Test photo upload in BorrowGuidelinesEditor
+
+## Foto-Upload Verbesserungen
+- [x] Prüfe BorrowReturnDialog auf storagePut Verwendung und fixe falls nötig
+- [x] Füge Foto-Vorschau Thumbnails im Guidelines-Editor hinzu
+- [x] Test: Foto-Upload und Vorschau in Guidelines-Editor

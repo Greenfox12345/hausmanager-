@@ -50,6 +50,7 @@ export function BorrowReturnDialog({
   );
 
   const returnMutation = trpc.borrow.markReturned.useMutation();
+  const uploadMutation = trpc.storage.upload.useMutation();
 
   // Initialize checklist state
   useEffect(() => {
@@ -134,7 +135,7 @@ export function BorrowReturnDialog({
           const buffer = new Uint8Array(arrayBuffer);
           const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
 
-          const result = await trpc.useUtils().client.storage.upload.mutate({
+          const result = await uploadMutation.mutateAsync({
             key: `borrow-returns/${borrowRequestId}/${reqId}-${photo.file.name}`,
             data: base64,
             contentType: photo.file.type,

@@ -90,6 +90,10 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
     try {
       setUploadingExample(reqId);
       
+      // Show immediate preview
+      const previewUrl = URL.createObjectURL(file);
+      updatePhotoRequirement(reqId, { examplePhotoUrl: previewUrl });
+      
       // Upload to S3
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
@@ -101,6 +105,8 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
         contentType: file.type,
       });
 
+      // Replace preview with actual URL
+      URL.revokeObjectURL(previewUrl);
       updatePhotoRequirement(reqId, { examplePhotoUrl: url });
       toast.success("Beispielfoto hochgeladen");
     } catch (error) {
