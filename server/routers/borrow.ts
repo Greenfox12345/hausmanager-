@@ -9,6 +9,12 @@ import {
   updateBorrowRequestStatus,
   getInventoryItemById,
   createActivityLog,
+  createBorrowGuideline,
+  getBorrowGuidelineByItemId,
+  updateBorrowGuideline,
+  deleteBorrowGuideline,
+  createBorrowReturnPhoto,
+  getBorrowReturnPhotosByRequestId,
 } from "../db";
 import { notifyOwner } from "../_core/notification";
 
@@ -273,5 +279,168 @@ export const borrowRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // ===== Guidelines Management =====
+
+  // Create or update guidelines for an item
+  saveGuidelines: publicProcedure
+    .input(
+      z.object({
+        inventoryItemId: z.number(),
+        instructionsText: z.string().optional(),
+        checklistItems: z.array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            required: z.boolean(),
+          })
+        ).optional(),
+        photoRequirements: z.array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            examplePhotoUrl: z.string().optional(),
+            required: z.boolean(),
+          })
+        ).optional(),
+        createdBy: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Check if guidelines already exist
+      const existing = await getBorrowGuidelineByItemId(input.inventoryItemId);
+
+      if (existing) {
+        // Update existing guidelines
+        await updateBorrowGuideline({
+          id: existing.id,
+          instructionsText: input.instructionsText,
+          checklistItems: input.checklistItems,
+          photoRequirements: input.photoRequirements,
+        });
+        return { success: true, id: existing.id };
+      } else {
+        // Create new guidelines
+        const id = await createBorrowGuideline({
+          inventoryItemId: input.inventoryItemId,
+          instructionsText: input.instructionsText,
+          checklistItems: input.checklistItems,
+          photoRequirements: input.photoRequirements,
+          createdBy: input.createdBy,
+        });
+        return { success: true, id };
+      }
+    }),
+
+  // Get guidelines for an item
+  getGuidelines: publicProcedure
+    .input(z.object({ itemId: z.number() }))
+    .query(async ({ input }) => {
+      return await getBorrowGuidelineByItemId(input.itemId);
+    }),
+
+  // Delete guidelines
+  deleteGuidelines: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await deleteBorrowGuideline(input.id);
+      return { success: true };
+    }),
+
+  // ===== Return Workflow =====
+
+  // Complete return with checklist and photos
+  completeReturn: publicProcedure
+    .input(
+      z.object({
+        requestId: z.number(),
+        returnerId: z.number(),
+        checklistCompleted: z.record(z.string(), z.boolean()), // { checklistItemId: completed }
+        photos: z.array(
+          z.object({
+            photoRequirementId: z.string().optional(),
+            photoUrl: z.string(),
+            filename: z.string().optional(),
+          })
+        ),
+        conditionReport: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) {
+        throw new Error("Request not found");
+      }
+
+      // Get guidelines to validate checklist and photos
+      const guidelines = await getBorrowGuidelineByItemId(request.inventoryItemId);
+
+      if (guidelines) {
+        // Validate required checklist items
+        if (guidelines.checklistItems) {
+          const requiredItems = (guidelines.checklistItems as any[]).filter(item => item.required);
+          for (const item of requiredItems) {
+            if (!input.checklistCompleted[item.id]) {
+              throw new Error(`Pflicht-Checklistenpunkt nicht erfüllt: ${item.label}`);
+            }
+          }
+        }
+
+        // Validate required photos
+        if (guidelines.photoRequirements) {
+          const requiredPhotos = (guidelines.photoRequirements as any[]).filter(req => req.required);
+          for (const req of requiredPhotos) {
+            const hasPhoto = input.photos.some(p => p.photoRequirementId === req.id);
+            if (!hasPhoto) {
+              throw new Error(`Pflicht-Foto fehlt: ${req.label}`);
+            }
+          }
+        }
+      }
+
+      // Save return photos
+      for (const photo of input.photos) {
+        await createBorrowReturnPhoto({
+          borrowRequestId: input.requestId,
+          photoRequirementId: photo.photoRequirementId,
+          photoUrl: photo.photoUrl,
+          filename: photo.filename,
+          uploadedBy: input.returnerId,
+        });
+      }
+
+      // Update request status to completed
+      await updateBorrowRequestStatus({
+        requestId: input.requestId,
+        status: "completed",
+        returnedAt: new Date(),
+      });
+
+      // Get item details for activity log
+      const item = await getInventoryItemById(request.inventoryItemId);
+
+      // Create activity log
+      await createActivityLog({
+        householdId: request.borrowerHouseholdId,
+        memberId: request.borrowerMemberId,
+        activityType: "inventory",
+        action: "borrow_returned",
+        description: `"${item?.name}" wurde zurückgegeben`,
+        metadata: {
+          itemId: request.inventoryItemId,
+          requestId: input.requestId,
+          conditionReport: input.conditionReport,
+        },
+      });
+
+      return { success: true };
+    }),
+
+  // Get return photos for a request
+  getReturnPhotos: publicProcedure
+    .input(z.object({ requestId: z.number() }))
+    .query(async ({ input }) => {
+      return await getBorrowReturnPhotosByRequestId(input.requestId);
     }),
 });

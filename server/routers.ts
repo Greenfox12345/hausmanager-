@@ -13,6 +13,7 @@ import { householdManagementRouter } from "./routers/householdManagement";
 import { activitiesRouter } from "./routers/activities";
 import { inventoryRouter } from "./routers/inventory";
 import { borrowRouter } from "./routers/borrow";
+import { storageRouter } from "./routers/storage";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -32,6 +33,7 @@ export const appRouter = router({
   // Feature routers
   userAuth: userAuthRouter,
   householdManagement: householdManagementRouter,
+  storage: storageRouter,
   household: authRouter,
   shopping: shoppingRouter,
   tasks: tasksRouter,

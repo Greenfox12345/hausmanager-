@@ -1485,9 +1485,9 @@
 - [x] Backend: Validierung der Eigentümerschaft bei approve/reject
 - [x] Database: borrowGuidelines Tabelle (text, checklist, photo requirements)
 - [x] Backend: API für Guidelines CRUD (create, read, update, delete)
-- [ ] Backend: Return workflow mit Checklist- und Foto-Validierung
-- [ ] Frontend: Guidelines Editor in Inventar-Details (Text, Checkliste, Foto-Anforderungen)
-- [ ] Frontend: Beispielfoto-Upload für Guidelines
+- [x] Backend: Return workflow mit Checklist- und Foto-Validierung
+- [x] Frontend: Guidelines Editor in Inventar-Details (Text, Checkliste, Foto-Anforderungen)
+- [x] Frontend: Beispielfoto-Upload für Guidelines
 - [ ] Frontend: Return Dialog mit Checklist-Validierung
 - [ ] Frontend: Pflicht-Fotos mit Beispielfoto-Vergleich
 - [ ] Frontend: Zustandsbericht bei Rückgabe
