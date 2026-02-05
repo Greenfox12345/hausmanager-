@@ -1537,3 +1537,9 @@
 - [x] Frontend: Status-Filter (Pending, Active, Completed)
 - [x] Frontend: Klick auf Item öffnet Inventar-Details
 - [x] Navigation: Link in BottomNav Dropdown hinzugefügt
+
+## Ausleihen-Übersicht Verbesserungen
+- [x] Backend: Member-Namen in getMyBorrows und getLentItems laden
+- [x] Frontend: Eigentümer- und Ausleiher-Namen anzeigen statt Platzhalter
+- [x] Backend: getPendingRequestsCount Query erstellen
+- [x] Frontend: Badge mit Anzahl offener Anfragen im BottomNav "Weiteres"-Button

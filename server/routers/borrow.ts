@@ -8,6 +8,7 @@ import {
   getBorrowRequestById,
   updateBorrowRequestStatus,
   getInventoryItemById,
+  getHouseholdMemberById,
   createActivityLog,
   createBorrowGuideline,
   getBorrowGuidelineByItemId,
@@ -473,11 +474,18 @@ export const borrowRouter = router({
       const enriched = await Promise.all(
         requests.map(async (req) => {
           const item = await getInventoryItemById(req.inventoryItemId);
+          
+          // Get owner names from inventory item
+          let ownerName = "Haushalt";
+          if (item?.owners && item.owners.length > 0) {
+            ownerName = item.owners.map(o => o.memberName).join(", ");
+          }
+          
           return {
             id: req.id,
             itemId: req.inventoryItemId,
             itemName: item?.name || "Unknown",
-            ownerName: "Eigentümer", // TODO: Get actual owner name from member table
+            ownerName,
             status: req.status,
             startDate: req.startDate,
             endDate: req.endDate,
@@ -499,11 +507,16 @@ export const borrowRouter = router({
       const enriched = await Promise.all(
         requests.map(async (req) => {
           const item = await getInventoryItemById(req.inventoryItemId);
+          
+          // Get borrower name
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          const borrowerName = borrower?.memberName || "Unbekannt";
+          
           return {
             id: req.id,
             itemId: req.inventoryItemId,
             itemName: item?.name || "Unknown",
-            borrowerName: "Ausleiher", // TODO: Get actual borrower name from member table
+            borrowerName,
             status: req.status,
             startDate: req.startDate,
             endDate: req.endDate,
@@ -512,5 +525,14 @@ export const borrowRouter = router({
       );
       
       return enriched;
+    }),
+
+  // Get count of pending borrow requests for owner
+  getPendingRequestsCount: publicProcedure
+    .input(z.object({ householdId: z.number(), ownerId: z.number() }))
+    .query(async ({ input }) => {
+      const requests = await getBorrowRequestsByOwner(input.householdId);
+      const pendingCount = requests.filter(req => req.status === "pending").length;
+      return { count: pendingCount };
     }),
 });
