@@ -240,61 +240,306 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
           {/* Linked Shopping Items */}
           {linkedShoppingItems.length > 0 && (
-            <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-                <Label className="text-base font-semibold">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</Label>
+            <div className="space-y-4 border-t pt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+                  <Label className="text-base font-semibold">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedItems.size === linkedShoppingItems.length) {
+                        // Deselect all
+                        setSelectedItems(new Set());
+                        setExpandedItems(new Set());
+                        setInventoryData({});
+                      } else {
+                        // Select all
+                        const allIds = new Set(linkedShoppingItems.map((item: any) => item.id));
+                        setSelectedItems(allIds);
+                        // Initialize inventory data for all
+                        const newInventoryData: typeof inventoryData = {};
+                        linkedShoppingItems.forEach((item: any) => {
+                          newInventoryData[item.id] = {
+                            categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
+                            details: item.details || "",
+                            photoUrls: [],
+                            ownershipType: "household",
+                            ownerIds: [],
+                          };
+                        });
+                        setInventoryData(newInventoryData);
+                      }
+                    }}
+                  >
+                    {selectedItems.size === linkedShoppingItems.length ? "Alle abwählen" : "Alle auswählen"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      // Select all and expand all
+                      const allIds = new Set(linkedShoppingItems.map((item: any) => item.id));
+                      setSelectedItems(allIds);
+                      setExpandedItems(allIds);
+                      // Initialize inventory data for all
+                      const newInventoryData: typeof inventoryData = {};
+                      linkedShoppingItems.forEach((item: any) => {
+                        newInventoryData[item.id] = {
+                          categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
+                          details: item.details || "",
+                          photoUrls: [],
+                          ownershipType: "household",
+                          ownerIds: [],
+                        };
+                      });
+                      setInventoryData(newInventoryData);
+                    }}
+                  >
+                    Alle ins Inventar
+                  </Button>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground">
                 Diese Items werden von der Einkaufsliste entfernt. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:
               </p>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {linkedShoppingItems.map((item: any) => (
-                  <div key={item.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                    <Checkbox
-                      id={`item-${item.id}`}
-                      checked={selectedItems.has(item.id)}
-                      onCheckedChange={(checked) => {
-                        const newSelected = new Set(selectedItems);
-                        if (checked) {
-                          newSelected.add(item.id);
-                          // Initialize inventory data with defaults
-                          setInventoryData(prev => ({
-                            ...prev,
-                            [item.id]: {
-                              categoryId: item.categoryId,
-                              details: item.details || "",
-                              photoUrls: [],
-                              ownershipType: "household",
-                              ownerIds: [],
+                  <div key={item.id} className="border rounded-lg overflow-hidden">
+                    <div className="flex items-start gap-3 p-3 bg-muted/30">
+                      <Checkbox
+                        id={`item-${item.id}`}
+                        checked={selectedItems.has(item.id)}
+                        onCheckedChange={(checked) => {
+                          const newSelected = new Set(selectedItems);
+                          if (checked) {
+                            newSelected.add(item.id);
+                            // Initialize inventory data with defaults
+                            setInventoryData(prev => ({
+                              ...prev,
+                              [item.id]: {
+                                categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
+                                details: item.details || "",
+                                photoUrls: [],
+                                ownershipType: "household",
+                                ownerIds: [],
+                              }
+                            }));
+                          } else {
+                            newSelected.delete(item.id);
+                            const newExpanded = new Set(expandedItems);
+                            newExpanded.delete(item.id);
+                            setExpandedItems(newExpanded);
+                            setInventoryData(prev => {
+                              const newData = { ...prev };
+                              delete newData[item.id];
+                              return newData;
+                            });
+                          }
+                          setSelectedItems(newSelected);
+                        }}
+                      />
+                      <div className="flex-1">
+                        <Label htmlFor={`item-${item.id}`} className="font-medium cursor-pointer">
+                          {item.name}
+                        </Label>
+                        {item.details && (
+                          <p className="text-sm text-muted-foreground mt-1">{item.details}</p>
+                        )}
+                      </div>
+                      {selectedItems.has(item.id) && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const newExpanded = new Set(expandedItems);
+                            if (expandedItems.has(item.id)) {
+                              newExpanded.delete(item.id);
+                            } else {
+                              newExpanded.add(item.id);
                             }
-                          }));
-                        } else {
-                          newSelected.delete(item.id);
-                          setInventoryData(prev => {
-                            const newData = { ...prev };
-                            delete newData[item.id];
-                            return newData;
-                          });
-                        }
-                        setSelectedItems(newSelected);
-                      }}
-                    />
-                    <div className="flex-1">
-                      <Label htmlFor={`item-${item.id}`} className="font-medium cursor-pointer">
-                        {item.name}
-                      </Label>
-                      {item.details && (
-                        <p className="text-sm text-muted-foreground mt-1">{item.details}</p>
+                            setExpandedItems(newExpanded);
+                          }}
+                        >
+                          {expandedItems.has(item.id) ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </Button>
                       )}
                     </div>
+                    
+                    {/* Expandable Inventory Form */}
+                    {selectedItems.has(item.id) && expandedItems.has(item.id) && (
+                      <div className="p-4 space-y-4 bg-background border-t">
+                        <p className="text-sm font-medium text-muted-foreground">Inventar-Details</p>
+                        
+                        {/* Category */}
+                        <div className="space-y-2">
+                          <Label>Kategorie *</Label>
+                          <Select
+                            value={inventoryData[item.id]?.categoryId?.toString() || ""}
+                            onValueChange={(value) => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: {
+                                  ...prev[item.id],
+                                  categoryId: parseInt(value),
+                                }
+                              }));
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Kategorie wählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {inventoryCategories.map((cat: any) => (
+                                <SelectItem key={cat.id} value={cat.id.toString()}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Details */}
+                        <div className="space-y-2">
+                          <Label>Zusätzliche Details (optional)</Label>
+                          <Textarea
+                            placeholder="z.B. Farbe, Größe, Zustand..."
+                            value={inventoryData[item.id]?.details || ""}
+                            onChange={(e) => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: {
+                                  ...prev[item.id],
+                                  details: e.target.value,
+                                }
+                              }));
+                            }}
+                            rows={2}
+                          />
+                        </div>
+                        
+                        {/* Ownership Type */}
+                        <div className="space-y-2">
+                          <Label>Besitz</Label>
+                          <RadioGroup
+                            value={inventoryData[item.id]?.ownershipType || "household"}
+                            onValueChange={(value: "personal" | "household") => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: {
+                                  ...prev[item.id],
+                                  ownershipType: value,
+                                  ownerIds: value === "household" ? [] : prev[item.id]?.ownerIds || [],
+                                }
+                              }));
+                            }}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="household" id={`household-${item.id}`} />
+                              <Label htmlFor={`household-${item.id}`} className="font-normal cursor-pointer">
+                                Haushalt
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="personal" id={`personal-${item.id}`} />
+                              <Label htmlFor={`personal-${item.id}`} className="font-normal cursor-pointer">
+                                Persönlich
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                        
+                        {/* Owner Selection (only for personal) */}
+                        {inventoryData[item.id]?.ownershipType === "personal" && (
+                          <div className="space-y-2">
+                            <Label>Besitzer</Label>
+                            <div className="space-y-2">
+                              {householdMembers.map((member: any) => (
+                                <div key={member.memberId} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`owner-${item.id}-${member.memberId}`}
+                                    checked={inventoryData[item.id]?.ownerIds?.includes(member.memberId) || false}
+                                    onCheckedChange={(checked) => {
+                                      setInventoryData(prev => {
+                                        const currentOwners = prev[item.id]?.ownerIds || [];
+                                        const newOwners = checked
+                                          ? [...currentOwners, member.memberId]
+                                          : currentOwners.filter(id => id !== member.memberId);
+                                        return {
+                                          ...prev,
+                                          [item.id]: {
+                                            ...prev[item.id],
+                                            ownerIds: newOwners,
+                                          }
+                                        };
+                                      });
+                                    }}
+                                  />
+                                  <Label htmlFor={`owner-${item.id}-${member.memberId}`} className="font-normal cursor-pointer">
+                                    {member.memberName}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Photo Upload */}
+                        <div className="space-y-2">
+                          <Label>Fotos (optional)</Label>
+                          <PhotoUpload
+                            photos={inventoryData[item.id]?.photoUrls || []}
+                            onPhotosChange={(newPhotos) => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: {
+                                  ...prev[item.id],
+                                  photoUrls: newPhotos,
+                                }
+                              }));
+                            }}
+                            onUploadingChange={setIsUploading}
+                            maxPhotos={5}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
+              
+              {/* Summary */}
               {selectedItems.size > 0 && (
-                <p className="text-sm text-green-600 font-medium">
-                  {selectedItems.size} Item(s) werden ins Inventar aufgenommen
-                </p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-semibold text-green-800">
+                    {selectedItems.size} Item(s) werden ins Inventar aufgenommen
+                  </p>
+                  <div className="text-xs text-green-700 space-y-1">
+                    {Array.from(selectedItems).map(itemId => {
+                      const item = linkedShoppingItems.find((i: any) => i.id === itemId);
+                      const data = inventoryData[itemId];
+                      const category = inventoryCategories.find((c: any) => c.id === data?.categoryId);
+                      return (
+                        <div key={itemId} className="flex items-center justify-between">
+                          <span>• {item?.name}</span>
+                          <span className="text-muted-foreground">
+                            {category?.name || "Keine Kategorie"} • {data?.ownershipType === "household" ? "Haushalt" : "Persönlich"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           )}

@@ -1365,3 +1365,23 @@
 - [ ] Test: Items werden in Aufgabendetails angezeigt - Manuell zu testen
 - [ ] Test: Items verschwinden nach Abschluss von Einkaufsliste - Manuell zu testen
 - [ ] Test: Inventar-Aufnahme funktioniert korrekt - Manuell zu testen
+
+## CompleteTaskDialog Inventar-Integration Vollständig
+- [x] Erweiterbares Inventar-Formular für jedes Shopping-Item (aufklappbar)
+  - [x] Kategorie-Auswahl (Dropdown mit allen Inventar-Kategorien)
+  - [x] Details-Feld (Textarea für zusätzliche Informationen)
+  - [x] Besitz-Typ (Radio: Haushalt / Persönlich)
+  - [x] Besitzer-Auswahl (Multi-Select für Haushaltsmitglieder, nur bei "Persönlich")
+  - [x] Foto-Upload (PhotoUpload-Komponente)
+- [x] Bulk-Aktionen
+  - [x] "Alle auswählen" Button (wählt alle Shopping-Items für Inventar aus)
+  - [x] "Alle abwählen" Button (entfernt alle Auswahlen)
+  - [x] "Alle ins Inventar" Button (wählt alle aus UND klappt alle Formulare auf)
+- [x] Inventar-Vorschau
+  - [x] Zusammenfassung der zu erstellenden Inventareinträge
+  - [x] Anzeige: Name, Kategorie, Besitz-Typ
+  - [x] Warnung bei fehlenden Pflichtfeldern (Kategorie) - Kategorie wird mit Standardwert initialisiert
+- [x] UI/UX Verbesserungen
+  - [x] Aufklapp-Animation für Inventar-Formulare (ChevronDown/ChevronRight Icons)
+  - [x] Visuelles Feedback für ausgewählte Items (Border, bg-muted/30)
+  - [x] Validierung: Kategorie ist Pflichtfeld für Inventar-Aufnahme (Standardwert wird gesetzt)
