@@ -1457,3 +1457,8 @@
 - [x] Add expandable form for each item (name, details, category, photos, ownership)
 - [x] Test inventory transfer from task completion
 - [x] Test inventory transfer from shopping list completion
+
+## Inventar-Liste Foto-Anzeige
+- [x] Add photo thumbnails to inventory list view (similar to shopping list)
+- [x] Show max 3 photos with "+X" indicator for additional photos
+- [x] Use normalizePhotoUrls helper for compatibility

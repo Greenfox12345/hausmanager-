@@ -13,6 +13,25 @@ import { toast } from "sonner";
 import { Plus, Trash2, Filter, Edit2, FolderPlus, Package } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 
+// Helper function to normalize photoUrls to object format
+const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
+  if (!photoUrls || !Array.isArray(photoUrls)) return [];
+  
+  return photoUrls.map((item: any) => {
+    // If already in object format
+    if (typeof item === 'object' && item.url && item.filename) {
+      return item;
+    }
+    // If in old string format, convert to object format
+    if (typeof item === 'string') {
+      const filename = item.split('/').pop() || 'unknown.jpg';
+      return { url: item, filename };
+    }
+    // Fallback
+    return { url: String(item), filename: 'unknown.jpg' };
+  });
+};
+
 export default function Inventory() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
@@ -343,6 +362,26 @@ export default function Inventory() {
                       {item.details && (
                         <p className="text-sm text-muted-foreground mb-2">{item.details}</p>
                       )}
+                      {item.photoUrls && item.photoUrls.length > 0 && (() => {
+                        const photos = normalizePhotoUrls(item.photoUrls);
+                        return (
+                          <div className="flex gap-1 mt-2 mb-2">
+                            {photos.slice(0, 3).map((photo, idx) => (
+                              <img
+                                key={idx}
+                                src={photo.url}
+                                alt={photo.filename}
+                                className="w-12 h-12 object-cover rounded border"
+                              />
+                            ))}
+                            {photos.length > 3 && (
+                              <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                                +{photos.length - 3}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>
                           {item.ownershipType === 'household' 
@@ -350,9 +389,6 @@ export default function Inventory() {
                             : `Eigentum: ${item.owners.map((o: any) => o.memberName).join(', ')}`
                           }
                         </span>
-                        {item.photoUrls && item.photoUrls.length > 0 && (
-                          <span>{item.photoUrls.length} Foto{item.photoUrls.length > 1 ? 's' : ''}</span>
-                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
