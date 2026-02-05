@@ -833,6 +833,23 @@ export default function Shopping() {
                           {item.details}
                         </div>
                       )}
+                      {item.photoUrls && item.photoUrls.length > 0 && (
+                        <div className="flex gap-1 mt-2">
+                          {normalizePhotoUrls(item.photoUrls).slice(0, 3).map((photo, idx) => (
+                            <img
+                              key={idx}
+                              src={photo.url}
+                              alt={photo.filename}
+                              className="w-12 h-12 object-cover rounded border"
+                            />
+                          ))}
+                          {item.photoUrls.length > 3 && (
+                            <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                              +{item.photoUrls.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className="mt-1">
                         <span 
                           className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"

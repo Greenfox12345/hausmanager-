@@ -1406,3 +1406,8 @@
 - [x] Fehler in Shopping.tsx Zeile 1456: Absturz beim Anzeigen von Items mit Fotos im Detail-Dialog
 - [x] Problem: photoUrls wird als Objekt-Array erwartet, aber alte Items haben String-Arrays
 - [x] Lösung: normalizePhotoUrls Funktion in Shopping.tsx implementiert und verwendet (Detail-Dialog, Edit-Dialog)
+
+## Bugs: Einkaufsliste und Inventar-Übernahme
+- [x] Fotos werden in der Einkaufsliste (Shopping-Seite) nicht angezeigt - Foto-Vorschau in Liste hinzugefügt (max. 3 Fotos + Counter)
+- [x] Details von Shopping-Items können nicht bearbeitet werden - Details-Feld existiert bereits im Edit-Dialog
+- [x] Fotos gehen bei der Übernahme von Shopping-Items ins Inventar verloren - Foto-Übernahme funktioniert korrekt (normalizePhotoUrls)
