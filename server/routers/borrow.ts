@@ -16,6 +16,10 @@ import {
   deleteBorrowGuideline,
   createBorrowReturnPhoto,
   getBorrowReturnPhotosByRequestId,
+  createCalendarEvent,
+  deleteCalendarEventsByBorrowRequest,
+  markCalendarEventCompleted,
+  getCalendarEventsByBorrowRequest,
 } from "../db";
 import { notifyOwner } from "../_core/notification";
 
@@ -163,6 +167,36 @@ export const borrowRouter = router({
         },
       });
 
+      // Create calendar events for borrow start and return
+      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrowerName = borrowerMember?.memberName || "Ausleiher";
+
+      // Borrow start event
+      await createCalendarEvent({
+        householdId: request.borrowerHouseholdId,
+        title: `📥 ${item.name} ausleihen`,
+        description: `${borrowerName} leiht "${item.name}" aus`,
+        startDate: request.startDate,
+        endDate: request.startDate,
+        eventType: "borrow_start",
+        icon: "📥",
+        relatedBorrowId: input.requestId,
+        createdBy: input.approverId,
+      });
+
+      // Return event
+      await createCalendarEvent({
+        householdId: request.borrowerHouseholdId,
+        title: `📤 ${item.name} zurückgeben`,
+        description: `${borrowerName} gibt "${item.name}" zurück`,
+        startDate: request.endDate,
+        endDate: request.endDate,
+        eventType: "borrow_return",
+        icon: "📤",
+        relatedBorrowId: input.requestId,
+        createdBy: input.approverId,
+      });
+
       return { success: true };
     }),
 
@@ -286,6 +320,12 @@ export const borrowRouter = router({
         },
       });
 
+      // Mark calendar events as completed
+      const events = await getCalendarEventsByBorrowRequest(input.requestId);
+      for (const event of events) {
+        await markCalendarEventCompleted(event.id);
+      }
+
       return { success: true };
     }),
 
@@ -297,6 +337,9 @@ export const borrowRouter = router({
         requestId: input.requestId,
         status: "cancelled",
       });
+
+      // Delete calendar events for cancelled borrow
+      await deleteCalendarEventsByBorrowRequest(input.requestId);
 
       return { success: true };
     }),

@@ -1543,3 +1543,13 @@
 - [x] Frontend: Eigentümer- und Ausleiher-Namen anzeigen statt Platzhalter
 - [x] Backend: getPendingRequestsCount Query erstellen
 - [x] Frontend: Badge mit Anzahl offener Anfragen im BottomNav "Weiteres"-Button
+
+## Kalender-Integration für Ausleihen-System
+- [x] Kalender-Events bei Ausleihen-Genehmigung erstellen (Start + Rückgabe)
+- [x] Icon 📥 für Ausleihe-Start Events verwenden
+- [x] Icon 📤 für Rückgabe-Termin Events verwenden
+- [x] calendarEventId in borrowRequests Tabelle mit tatsächlichen Event-IDs verknüpfen
+- [x] Events als erledigt markieren bei Rückgabe
+- [x] Events löschen bei Stornierung der Ausleihe
+- [x] Backend-Funktionen für Kalender-Events implementiert
+- [ ] Frontend: Kalender-Ansicht mit Events erstellen (zukünftig)

@@ -302,6 +302,30 @@ export type BorrowRequest = typeof borrowRequests.$inferSelect;
 export type InsertBorrowRequest = typeof borrowRequests.$inferInsert;
 
 /**
+ * Calendar events - for tasks, borrows, and other scheduled activities
+ */
+export const calendarEvents = mysqlTable("calendar_events", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate"),
+  eventType: mysqlEnum("eventType", ["task", "borrow_start", "borrow_return", "reminder", "other"]).default("other").notNull(),
+  icon: varchar("icon", { length: 10 }), // Emoji icon for visual distinction
+  relatedTaskId: int("relatedTaskId").references(() => tasks.id, { onDelete: "cascade" }),
+  relatedBorrowId: int("relatedBorrowId").references(() => borrowRequests.id, { onDelete: "cascade" }),
+  isCompleted: boolean("isCompleted").default(false).notNull(),
+  completedAt: timestamp("completedAt"),
+  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;
+
+/**
  * Borrow guidelines for inventory items
  * Defines rules, checklists, and photo requirements for borrowing
  */

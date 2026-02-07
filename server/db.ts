@@ -17,6 +17,7 @@ import {
   borrowRequests,
   borrowGuidelines,
   borrowReturnPhotos,
+  calendarEvents,
   type Household,
   type HouseholdMember,
   type ShoppingItem,
@@ -28,7 +29,9 @@ import {
   type InventoryOwnership,
   type BorrowRequest,
   type BorrowGuideline,
-  type BorrowReturnPhoto
+  type BorrowReturnPhoto,
+  type CalendarEvent,
+  type InsertCalendarEvent
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -969,4 +972,67 @@ export async function getBorrowReturnPhotosByRequestId(requestId: number) {
   return db.select().from(borrowReturnPhotos)
     .where(eq(borrowReturnPhotos.borrowRequestId, requestId))
     .orderBy(borrowReturnPhotos.uploadedAt);
+}
+
+// ==================== Calendar Events ====================
+
+export async function createCalendarEvent(data: InsertCalendarEvent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(calendarEvents).values(data);
+  return result.insertId;
+}
+
+export async function getCalendarEventById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [event] = await db.select().from(calendarEvents).where(eq(calendarEvents.id, id));
+  return event || null;
+}
+
+export async function getCalendarEventsByHousehold(householdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(calendarEvents)
+    .where(eq(calendarEvents.householdId, householdId))
+    .orderBy(calendarEvents.startDate);
+}
+
+export async function getCalendarEventsByBorrowRequest(borrowRequestId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(calendarEvents)
+    .where(eq(calendarEvents.relatedBorrowId, borrowRequestId))
+    .orderBy(calendarEvents.startDate);
+}
+
+export async function markCalendarEventCompleted(eventId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(calendarEvents)
+    .set({ 
+      isCompleted: true, 
+      completedAt: new Date() 
+    })
+    .where(eq(calendarEvents.id, eventId));
+}
+
+export async function deleteCalendarEvent(eventId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(calendarEvents).where(eq(calendarEvents.id, eventId));
+}
+
+export async function deleteCalendarEventsByBorrowRequest(borrowRequestId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(calendarEvents)
+    .where(eq(calendarEvents.relatedBorrowId, borrowRequestId));
 }
