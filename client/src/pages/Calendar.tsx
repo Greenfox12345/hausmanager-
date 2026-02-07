@@ -130,6 +130,18 @@ export default function Calendar() {
     },
   });
 
+  const markReturnedMutation = trpc.borrow.markReturned.useMutation({
+    onSuccess: () => {
+      utils.calendar.getEvents.invalidate();
+      setEventDetailDialogOpen(false);
+      setSelectedEvent(null);
+      toast.success("Als zurückgegeben markiert!");
+    },
+    onError: (error) => {
+      toast.error("Fehler: " + error.message);
+    },
+  });
+
   // Auth check removed - AppLayout handles this
 
   // Get current month days for calendar
@@ -1394,9 +1406,10 @@ export default function Calendar() {
         onOpenChange={setEventDetailDialogOpen}
         event={selectedEvent}
         onMarkReturned={(borrowRequestId) => {
-          // TODO: Implement mark returned mutation
-          toast.success("Rückgabe wird verarbeitet...");
-          utils.calendar.getEvents.invalidate();
+          if (!household || !member) return;
+          markReturnedMutation.mutate({
+            requestId: borrowRequestId,
+          });
         }}
       />
       

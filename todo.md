@@ -1563,3 +1563,9 @@
 - [x] Klick auf Event öffnet Detail-Dialog
 - [x] Direkter Link zum Inventar-Item aus Event-Dialog
 - [x] Rückgabe-Button im Event-Dialog (nur für aktive Ausleihen)
+
+## Rückgabe-Mutation im Event-Dialog
+- [x] markReturned Mutation in Calendar.tsx hinzufügen
+- [x] Event-Dialog Button mit Mutation verbinden
+- [x] Nach erfolgreicher Rückgabe: Event als completed markieren (automatisch via Backend)
+- [x] Kalender-Events aktualisieren nach Rückgabe
