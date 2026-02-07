@@ -1553,3 +1553,13 @@
 - [x] Events löschen bei Stornierung der Ausleihe
 - [x] Backend-Funktionen für Kalender-Events implementiert
 - [ ] Frontend: Kalender-Ansicht mit Events erstellen (zukünftig)
+
+## Kalender-Ansicht für Ausleihen-Events
+- [x] Backend: tRPC Query für Kalender-Events nach Haushalt
+- [x] Frontend: Events in Terminübersicht-Seite anzeigen
+- [x] Event-Filterung nach Typ (Aufgaben, Ausleihen-Start, Rückgabe)
+- [x] Farbliche Kennzeichnung nach Event-Typ (Orange für Ausleihe, Amber für Rückgabe)
+- [x] Event-Detail-Dialog mit Item-Link und Rückgabe-Button
+- [x] Klick auf Event öffnet Detail-Dialog
+- [x] Direkter Link zum Inventar-Item aus Event-Dialog
+- [x] Rückgabe-Button im Event-Dialog (nur für aktive Ausleihen)

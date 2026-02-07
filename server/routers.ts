@@ -14,6 +14,7 @@ import { activitiesRouter } from "./routers/activities";
 import { inventoryRouter } from "./routers/inventory";
 import { borrowRouter } from "./routers/borrow";
 import { storageRouter } from "./routers/storage";
+import { calendarRouter } from "./routers/calendar";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -43,6 +44,7 @@ export const appRouter = router({
   activities: activitiesRouter,
   inventory: inventoryRouter,
   borrow: borrowRouter,
+  calendar: calendarRouter,
 
   // Admin router
   admin: router({

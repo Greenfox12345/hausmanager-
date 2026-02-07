@@ -16,6 +16,7 @@ import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { EventDetailDialog } from "@/components/EventDetailDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 
@@ -28,6 +29,8 @@ export default function Calendar() {
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [eventDetailDialogOpen, setEventDetailDialogOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [actionTask, setActionTask] = useState<any | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   
@@ -38,6 +41,9 @@ export default function Calendar() {
   
   // Chronological list time range filter (in months from today)
   const [chronologicalRange, setChronologicalRange] = useState<number>(3);
+  
+  // Event type filter for calendar view
+  const [eventTypeFilter, setEventTypeFilter] = useState<"all" | "tasks" | "borrow_events">("all");
 
   const utils = trpc.useUtils();
 
@@ -65,6 +71,12 @@ export default function Calendar() {
   // Get activity history for completed recurring tasks
   const { data: activityHistory = [] } = trpc.activities.list.useQuery(
     { householdId: household?.householdId ?? 0, limit: 200 },
+    { enabled: !!household }
+  );
+
+  // Get calendar events (borrow events)
+  const { data: calendarEvents = [] } = trpc.calendar.getEvents.useQuery(
+    { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
 
@@ -218,9 +230,9 @@ export default function Calendar() {
     return today;
   };
 
-  // Group tasks by date (including future occurrences and completed history)
+  // Group tasks and events by date (including future occurrences and completed history)
   const tasksByDate = useMemo(() => {
-    const grouped: Record<string, Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }>> = {};
+    const grouped: Record<string, Array<(typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }) | (typeof calendarEvents[0] & { isCalendarEvent: true })>> = {};
     
     tasks.forEach(task => {
       // Add current task
@@ -268,9 +280,20 @@ export default function Calendar() {
         }
       }
     });
+
+    // Add calendar events (borrow events)
+    calendarEvents.forEach((event: any) => {
+      if (event.startDate) {
+        const dateKey = format(new Date(event.startDate), "yyyy-MM-dd");
+        if (!grouped[dateKey]) {
+          grouped[dateKey] = [];
+        }
+        grouped[dateKey].push({ ...event, isCalendarEvent: true } as any);
+      }
+    });
     
     return grouped;
-  }, [tasks, activityHistory, monthStart, monthEnd]);
+  }, [tasks, activityHistory, calendarEvents, monthStart, monthEnd]);
   // Create chronological task list with future occurrences
   const chronologicalTasks = useMemo(() => {
     const allTasks: Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number; isOverdue?: boolean }> = [];
@@ -489,12 +512,22 @@ export default function Calendar() {
           <TabsContent value="calendar" className="space-y-4">
             <Card className="shadow-md">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
                     {format(currentMonth, "MMMM yyyy", { locale: de })}
                   </CardTitle>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Select value={eventTypeFilter} onValueChange={(value: any) => setEventTypeFilter(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle Einträge</SelectItem>
+                        <SelectItem value="tasks">Nur Aufgaben</SelectItem>
+                        <SelectItem value="borrow_events">Nur Ausleihen</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Button
                       variant="outline"
                       size="sm"
@@ -536,7 +569,15 @@ export default function Calendar() {
                   {/* Month days */}
                   {monthDays.map(day => {
                     const dateKey = format(day, "yyyy-MM-dd");
-                    const dayTasks = tasksByDate[dateKey] || [];
+                    let dayTasks = tasksByDate[dateKey] || [];
+                    
+                    // Apply event type filter
+                    if (eventTypeFilter === "tasks") {
+                      dayTasks = dayTasks.filter((item: any) => !item.isCalendarEvent);
+                    } else if (eventTypeFilter === "borrow_events") {
+                      dayTasks = dayTasks.filter((item: any) => item.isCalendarEvent);
+                    }
+                    
                     const isSelected = selectedDate && isSameDay(day, selectedDate);
                     const isCurrentDay = isToday(day);
                     const hasTasks = dayTasks.length > 0;
@@ -556,29 +597,42 @@ export default function Calendar() {
                         </span>
                         {hasTasks && (
                           <div className="flex flex-wrap gap-0.5 mt-1">
-                            {dayTasks.slice(0, 3).map((task, i) => (
-                              <div
-                                key={i}
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  task.isCompletedOccurrence
-                                    ? "bg-green-500"
-                                    : task.isFutureOccurrence
-                                    ? "bg-purple-400 opacity-60"
-                                    : task.isCompleted
-                                    ? "bg-green-500"
-                                    : isPast(new Date(task.dueDate!))
-                                    ? "bg-red-500"
-                                    : "bg-blue-500"
-                                }`}
-                                title={
-                                  task.isCompletedOccurrence
-                                    ? "Erledigter Termin"
-                                    : task.isFutureOccurrence
-                                    ? "Folgetermin"
-                                    : ""
+                            {dayTasks.slice(0, 3).map((item: any, i) => {
+                              const isCalendarEvent = item.isCalendarEvent;
+                              const eventType = isCalendarEvent ? item.eventType : null;
+                              
+                              return (
+                                <div
+                                  key={i}
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    isCalendarEvent
+                                      ? eventType === "borrow_start"
+                                        ? "bg-orange-500"
+                                        : eventType === "borrow_return"
+                                        ? "bg-amber-500"
+                                        : "bg-gray-500"
+                                      : item.isCompletedOccurrence
+                                      ? "bg-green-500"
+                                      : item.isFutureOccurrence
+                                      ? "bg-purple-400 opacity-60"
+                                      : item.isCompleted
+                                      ? "bg-green-500"
+                                      : isPast(new Date(item.dueDate!))
+                                      ? "bg-red-500"
+                                      : "bg-blue-500"
+                                  }`}
+                                  title={
+                                    isCalendarEvent
+                                      ? item.icon + " " + item.title
+                                      : item.isCompletedOccurrence
+                                      ? "Erledigter Termin"
+                                      : item.isFutureOccurrence
+                                      ? "Folgetermin"
+                                      : ""
                                 }
                               />
-                            ))}
+                              );
+                            })}
                             {dayTasks.length > 3 && (
                               <span className="text-[10px] ml-0.5">+{dayTasks.length - 3}</span>
                             )}
@@ -602,7 +656,63 @@ export default function Calendar() {
                       </p>
                     ) : (
                       <div className="space-y-2">
-                        {selectedDateTasks.map(task => {
+                        {selectedDateTasks.map((item: any) => {
+                          // Check if this is a calendar event or task
+                          const isCalendarEvent = item.isCalendarEvent;
+                          
+                          if (isCalendarEvent) {
+                            // Render calendar event
+                            return (
+                              <Card 
+                                key={`event-${item.id}`} 
+                                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                                onClick={() => {
+                                  setSelectedEvent(item);
+                                  setEventDetailDialogOpen(true);
+                                }}
+                              >
+                                <CardContent className="p-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="text-2xl">{item.icon}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-medium">{item.title}</span>
+                                        <Badge 
+                                          variant="outline" 
+                                          className={
+                                            item.eventType === "borrow_start"
+                                              ? "bg-orange-50 text-orange-700 border-orange-200"
+                                              : item.eventType === "borrow_return"
+                                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                                              : "bg-gray-50 text-gray-700 border-gray-200"
+                                          }
+                                        >
+                                          {item.eventType === "borrow_start" ? "Ausleihe" : item.eventType === "borrow_return" ? "Rückgabe" : "Event"}
+                                        </Badge>
+                                        {item.isCompleted && (
+                                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                                            Erledigt
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      {item.description && (
+                                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                                      )}
+                                      {item.relatedData?.item && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Item: {item.relatedData.item.name}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          }
+                          
+                          // Render task
+                          const task = item;
                           const projectName = getProjectName(task.projectIds);
                           const frequency = getFrequencyBadge(task);
                           
@@ -1277,6 +1387,19 @@ export default function Calendar() {
           />
         </>
       )}
+      
+      {/* Event Detail Dialog */}
+      <EventDetailDialog
+        open={eventDetailDialogOpen}
+        onOpenChange={setEventDetailDialogOpen}
+        event={selectedEvent}
+        onMarkReturned={(borrowRequestId) => {
+          // TODO: Implement mark returned mutation
+          toast.success("Rückgabe wird verarbeitet...");
+          utils.calendar.getEvents.invalidate();
+        }}
+      />
+      
       <BottomNav />
     </AppLayout>
   );
