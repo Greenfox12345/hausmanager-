@@ -1569,3 +1569,18 @@
 - [x] Event-Dialog Button mit Mutation verbinden
 - [x] Nach erfolgreicher Rückgabe: Event als completed markieren (automatisch via Backend)
 - [x] Kalender-Events aktualisieren nach Rückgabe
+
+## Nachbarschafts-Netzwerk System
+- [x] Datenbank-Schema: householdConnections Tabelle (Einladungen & Verbindungen)
+- [x] Datenbank-Schema: sharedTasks Tabelle (haushaltsübergreifende Aufgaben)
+- [x] Backend: Einladungen senden/empfangen/akzeptieren/ablehnen
+- [x] Backend: Verbundene Haushalte auflisten
+- [x] Backend: Mitglieder aus verbundenen Haushalten laden
+- [x] Frontend: Nachbarschaft-Seite erstellen
+- [x] Frontend: Einladungssystem UI (senden/empfangen)
+- [x] Frontend: Liste verbundener Haushalte anzeigen
+- [ ] Backend: Geteilte Aufgaben erstellen und verwalten (nächster Schritt)
+- [ ] Frontend: Aufgaben-Erstellung erweitern (Haushalte auswählen)
+- [ ] Frontend: Mitglieder-Auswahl erweitern (haushaltsübergreifend)
+- [ ] Frontend: Geteilte Aufgaben in Task-Listen kennzeichnen
+- [ ] Berechtigungen: Alle Mitglieder verbundener Haushalte können geteilte Aufgaben verwalten

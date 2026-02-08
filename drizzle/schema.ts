@@ -401,3 +401,68 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   }),
   projectHouseholds: many(projectHouseholds),
 }));
+
+
+/**
+ * Household connections - represents relationships between households (neighborhood network)
+ * Status: pending (invitation sent), accepted (connected), rejected
+ */
+export const householdConnections = mysqlTable("household_connections", {
+  id: int("id").autoincrement().primaryKey(),
+  requestingHouseholdId: int("requestingHouseholdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  targetHouseholdId: int("targetHouseholdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  requestedBy: int("requestedBy").notNull().references(() => householdMembers.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type HouseholdConnection = typeof householdConnections.$inferSelect;
+export type InsertHouseholdConnection = typeof householdConnections.$inferInsert;
+
+/**
+ * Shared tasks - links tasks to multiple households for cross-household collaboration
+ */
+export const sharedTasks = mysqlTable("shared_tasks", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SharedTask = typeof sharedTasks.$inferSelect;
+export type InsertSharedTask = typeof sharedTasks.$inferInsert;
+
+/**
+ * Relations for household connections
+ */
+export const householdConnectionsRelations = relations(householdConnections, ({ one }) => ({
+  requestingHousehold: one(households, {
+    fields: [householdConnections.requestingHouseholdId],
+    references: [households.id],
+    relationName: "requestingHousehold",
+  }),
+  targetHousehold: one(households, {
+    fields: [householdConnections.targetHouseholdId],
+    references: [households.id],
+    relationName: "targetHousehold",
+  }),
+  requester: one(householdMembers, {
+    fields: [householdConnections.requestedBy],
+    references: [householdMembers.id],
+  }),
+}));
+
+/**
+ * Relations for shared tasks
+ */
+export const sharedTasksRelations = relations(sharedTasks, ({ one }) => ({
+  task: one(tasks, {
+    fields: [sharedTasks.taskId],
+    references: [tasks.id],
+  }),
+  household: one(households, {
+    fields: [sharedTasks.householdId],
+    references: [households.id],
+  }),
+}));
