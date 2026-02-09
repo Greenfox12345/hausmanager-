@@ -56,7 +56,11 @@ export default function Tasks() {
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [prerequisites, setPrerequisites] = useState<number[]>([]);
   const [followups, setFollowups] = useState<number[]>([]);
-  
+
+  // Sharing with neighbors states
+  const [shareWithNeighbors, setShareWithNeighbors] = useState(false);
+  const [sharedHouseholdIds, setSharedHouseholdIds] = useState<number[]>([]);
+
   // Dialog states
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
@@ -129,6 +133,16 @@ export default function Tasks() {
   const { data: projects = [] } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
+  );
+
+  const { data: connectedHouseholds = [] } = trpc.neighborhood.getConnectedHouseholds.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: connectedMembers = [] } = trpc.neighborhood.getConnectedMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && shareWithNeighbors && sharedHouseholdIds.length > 0 }
   );
 
   const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
@@ -305,6 +319,7 @@ export default function Tasks() {
         dueTime: dueTime || undefined,
         assignedTo: selectedAssignees[0], // First assignee
         projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
+        sharedHouseholdIds: shareWithNeighbors ? sharedHouseholdIds : [],
       });
 
       // Add dependencies if this is a project task
@@ -628,7 +643,68 @@ export default function Tasks() {
                       </Label>
                     </div>
                   ))}
+                  
+                  {/* Connected household members (only when sharing is enabled AND households selected) */}
+                  {shareWithNeighbors && sharedHouseholdIds.length > 0 && connectedMembers
+                    .filter((cm: any) => {
+                      // Filter out duplicates: if member exists in own household (same userId), don't show from connected
+                      return !members.some((m: any) => m.userId && cm.userId && m.userId === cm.userId);
+                    })
+                    .map((m: any) => (
+                    <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
+                      <Checkbox
+                        id={`task-assignee-connected-${m.id}`}
+                        checked={selectedAssignees.includes(m.id)}
+                        onCheckedChange={() => toggleAssignee(m.id)}
+                      />
+                      <Label htmlFor={`task-assignee-connected-${m.id}`} className="cursor-pointer flex-1">
+                        {m.memberName} <span className="text-xs text-muted-foreground">({m.householdName})</span>
+                      </Label>
+                    </div>
+                  ))}
                 </div>
+              </div>
+
+              {/* Share with neighbors */}
+              <div className="space-y-3 p-3 rounded-lg bg-muted/30">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="shareWithNeighbors"
+                    checked={shareWithNeighbors}
+                    onCheckedChange={(checked) => {
+                      setShareWithNeighbors(checked as boolean);
+                      if (!checked) setSharedHouseholdIds([]);
+                    }}
+                  />
+                  <Label htmlFor="shareWithNeighbors" className="cursor-pointer font-medium">
+                    Mit Nachbarn teilen
+                  </Label>
+                </div>
+                {shareWithNeighbors && (
+                  <div className="pl-6 space-y-2">
+                    <Label className="text-sm text-muted-foreground">Haushalte auswählen:</Label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {connectedHouseholds.map((household: any) => (
+                        <div key={household.id} className="flex items-center space-x-2 p-2 rounded border bg-background">
+                          <Checkbox
+                            id={`household-${household.id}`}
+                            checked={sharedHouseholdIds.includes(household.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSharedHouseholdIds([...sharedHouseholdIds, household.id]);
+                              } else {
+                                setSharedHouseholdIds(sharedHouseholdIds.filter(id => id !== household.id));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`household-${household.id}`} className="cursor-pointer flex-1">
+                            {household.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Repeat checkbox */}

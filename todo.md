@@ -1637,3 +1637,12 @@
 - [x] Duplikat-Filterung: Logik funktioniert nicht korrekt (Fix: userId-Vergleich statt id)
 - [x] Haushalte-Auswahl: Namen werden nicht geladen (Fix: Feldnamen id/name statt householdId/householdName)
 - [x] Tasks-Seite: Sharing-UI bei Aufgabenerstellung (via TaskDetailDialog bereits verfügbar)
+
+
+## Tasks-Seite Aufgabenerstellung Fix
+- [x] Tasks-Seite: Eigenen Aufgabenerstellungs-Dialog mit Sharing-UI implementieren
+- [x] Sharing-UI: "Mit Nachbarn teilen" Checkbox hinzugefügt
+- [x] Sharing-UI: Haushaltsauswahl nach Checkbox-Aktivierung anzeigen
+- [x] Sharing-UI: Mitglieder aus ausgewählten Haushalten bei Verantwortliche anzeigen
+- [x] Duplikat-Filterung: userId-Vergleich für Mitglieder implementiert
+- [x] sharedHouseholdIds zu addMutation hinzugefügt
