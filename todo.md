@@ -1593,3 +1593,12 @@
 - [x] Mitglieder-Dropdown: Personen aus verbundenen Haushalten anzeigen
 - [x] Task-Listen: Badge "Geteilt" anzeigen
 - [x] Task-Details: Geteilte Haushalte auflisten
+
+
+## Privatsphäre & UI-Verbesserungen für Nachbarschafts-System
+- [x] Haushaltssuche: Nur Einladungscodes akzeptieren (keine Namen-Suche)
+- [x] Haushaltssuche: Keine Vorschläge anzeigen (nur exakte Treffer)
+- [x] Tasks-Seite: Checkbox "Haushaltsübergreifende Aufgabe" (via TaskDetailDialog)
+- [x] Calendar-Seite: Checkbox "Haushaltsübergreifende Aufgabe" (via TaskDetailDialog)
+- [x] Projects-Seite: Checkbox "Haushaltsübergreifende Aufgabe" bereits implementiert
+- [x] TaskDetailDialog: Zentrale Komponente für alle Seiten erweitert

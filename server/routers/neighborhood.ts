@@ -272,7 +272,7 @@ export const neighborhoodRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Search by name or invite code (partial match)
+      // Search by invite code only (privacy protection - no name search)
       const results = await db.select({
         id: households.id,
         name: households.name,
@@ -280,12 +280,11 @@ export const neighborhoodRouter = router({
       })
         .from(households);
 
-      // Filter results: partial match on name or exact match on inviteCode, exclude current household
+      // Filter results: exact match on inviteCode only, exclude current household
       return results.filter((h: any) => {
         if (h.id === currentHouseholdId) return false;
-        const nameMatch = h.name?.toLowerCase().includes(query.toLowerCase());
         const codeMatch = h.inviteCode?.toLowerCase() === query.toLowerCase();
-        return nameMatch || codeMatch;
+        return codeMatch;
       });
     }),
 });

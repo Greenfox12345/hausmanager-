@@ -121,30 +121,26 @@ export default function Neighborhood() {
               <DialogHeader>
                 <DialogTitle>Haushalt einladen</DialogTitle>
                 <DialogDescription>
-                  Suchen Sie nach einem Haushalt über den Namen oder Einladungscode
+                  Geben Sie den Einladungscode des Haushalts ein, den Sie verbinden möchten
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="search">Haushalt suchen</Label>
+                  <Label htmlFor="search">Einladungscode eingeben</Label>
                   <div className="flex gap-2 mt-2">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="search"
-                        placeholder="Name oder Einladungscode..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
-                      />
-                    </div>
+                    <Input
+                      id="search"
+                      placeholder="z.B. ABC123"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
+                    />
                   </div>
                 </div>
 
-                {/* Search Results */}
+                {/* Search Results - only show exact match */}
                 {searchResults.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Suchergebnisse</Label>
+                    <Label>Haushalt gefunden</Label>
                     {searchResults.map((result) => (
                       <Card key={result.id} className="p-3">
                         <div className="flex items-center justify-between">
@@ -168,7 +164,7 @@ export default function Neighborhood() {
 
                 {searchQuery.length > 0 && searchResults.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Keine Haushalte gefunden
+                    Kein Haushalt mit diesem Einladungscode gefunden
                   </p>
                 )}
               </div>
@@ -285,7 +281,7 @@ export default function Neighborhood() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <strong>1. Haushalte verbinden:</strong> Suchen Sie nach anderen Haushalten über Namen oder Einladungscode
+              <strong>1. Haushalte verbinden:</strong> Geben Sie den Einladungscode eines anderen Haushalts ein, um eine Verbindung herzustellen
             </p>
             <p>
               <strong>2. Aufgaben teilen:</strong> Beim Erstellen von Aufgaben können Sie verbundene Haushalte auswählen
