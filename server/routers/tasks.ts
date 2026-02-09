@@ -41,6 +41,7 @@ export const tasksRouter = router({
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
         projectIds: z.array(z.number()).optional(),
+        sharedHouseholdIds: z.array(z.number()).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -95,6 +96,20 @@ export const tasksRouter = router({
           taskId,
           input.name
         );
+      }
+
+      // Create shared task entries for connected households
+      if (input.sharedHouseholdIds && input.sharedHouseholdIds.length > 0) {
+        const db = await getDb();
+        if (db) {
+          const { sharedTasks } = await import("../../drizzle/schema");
+          for (const householdId of input.sharedHouseholdIds) {
+            await db.insert(sharedTasks).values({
+              taskId,
+              householdId,
+            });
+          }
+        }
       }
 
       return { id: taskId };
@@ -807,5 +822,25 @@ export const tasksRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // Get shared households for a task
+  getSharedHouseholds: publicProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      const { sharedTasks, households } = await import("../../drizzle/schema");
+      
+      const shared = await db.select({
+        householdId: sharedTasks.householdId,
+        householdName: households.name,
+      })
+        .from(sharedTasks)
+        .leftJoin(households, eq(sharedTasks.householdId, households.id))
+        .where(eq(sharedTasks.taskId, input.taskId));
+
+      return shared;
     }),
 });

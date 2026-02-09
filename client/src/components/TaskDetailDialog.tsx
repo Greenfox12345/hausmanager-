@@ -87,6 +87,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household && open }
   );
+
+  const { data: sharedHouseholds = [] } = trpc.tasks.getSharedHouseholds.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task && open }
+  );
   
   // Load available tasks for dependencies
   const { data: allAvailableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
@@ -801,6 +806,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <span className="text-muted-foreground">Rotation:</span>{" "}
                       <strong>{task.requiredPersons} Person(en) pro Durchgang</strong>
                     </span>
+                  </div>
+                )}
+
+                {sharedHouseholds.length > 0 && (
+                  <div className="space-y-2 p-3 border rounded-lg bg-blue-50 dark:bg-blue-950">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                        Geteilt mit {sharedHouseholds.length} Haushalt{sharedHouseholds.length > 1 ? 'en' : ''}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {sharedHouseholds.map((sh: any) => (
+                        <Badge key={sh.householdId} variant="outline" className="bg-white dark:bg-blue-900">
+                          {sh.householdName}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
 

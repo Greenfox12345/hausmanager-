@@ -272,25 +272,20 @@ export const neighborhoodRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Search by name or invite code
+      // Search by name or invite code (partial match)
       const results = await db.select({
         id: households.id,
         name: households.name,
         inviteCode: households.inviteCode,
       })
-        .from(households)
-        .where(
-          and(
-            or(
-              eq(households.name, query),
-              eq(households.inviteCode, query)
-            ),
-            // Exclude current household
-            eq(households.id, currentHouseholdId) // This will be negated in the filter below
-          )
-        );
+        .from(households);
 
-      // Filter out current household (since we can't use NOT in the where clause easily)
-      return results.filter((h: any) => h.id !== currentHouseholdId);
+      // Filter results: partial match on name or exact match on inviteCode, exclude current household
+      return results.filter((h: any) => {
+        if (h.id === currentHouseholdId) return false;
+        const nameMatch = h.name?.toLowerCase().includes(query.toLowerCase());
+        const codeMatch = h.inviteCode?.toLowerCase() === query.toLowerCase();
+        return nameMatch || codeMatch;
+      });
     }),
 });

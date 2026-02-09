@@ -1584,3 +1584,12 @@
 - [ ] Frontend: Mitglieder-Auswahl erweitern (haushaltsübergreifend)
 - [ ] Frontend: Geteilte Aufgaben in Task-Listen kennzeichnen
 - [ ] Berechtigungen: Alle Mitglieder verbundener Haushalte können geteilte Aufgaben verwalten
+
+
+## Nachbarschafts-System Bugfixes & Erweiterungen
+- [x] Fix: Haushaltssuche funktioniert nicht (Backend-Query anpassen)
+- [x] Aufgaben-Erstellung: "Mit Nachbarn teilen" Checkbox hinzufügen
+- [x] Aufgaben-Erstellung: Verbundene Haushalte auswählen können
+- [x] Mitglieder-Dropdown: Personen aus verbundenen Haushalten anzeigen
+- [x] Task-Listen: Badge "Geteilt" anzeigen
+- [x] Task-Details: Geteilte Haushalte auflisten

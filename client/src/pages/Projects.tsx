@@ -74,6 +74,8 @@ export default function Projects() {
   const [hasRotation, setHasRotation] = useState(false);
   const [rotationRequired, setRotationRequired] = useState("");
   const [rotationExcluded, setRotationExcluded] = useState<number[]>([]);
+  const [shareWithNeighbors, setShareWithNeighbors] = useState(false);
+  const [sharedHouseholdIds, setSharedHouseholdIds] = useState<number[]>([]);
 
   // Form state for project creation/editing
   const [projectName, setProjectName] = useState("");
@@ -96,6 +98,16 @@ export default function Projects() {
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
+  );
+
+  const { data: connectedHouseholds = [] } = trpc.neighborhood.getConnectedHouseholds.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const { data: connectedMembers = [] } = trpc.neighborhood.getConnectedMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && shareWithNeighbors }
   );
 
   // Load all dependencies once for all tasks
@@ -344,6 +356,8 @@ export default function Projects() {
     setTaskPrerequisites([]);
     setTaskFollowups([]);
     setAdditionalProjectIds([]);
+    setShareWithNeighbors(false);
+    setSharedHouseholdIds([]);
   };
 
   const handleAddTask = async () => {
@@ -389,6 +403,7 @@ export default function Projects() {
         enableRotation: hasRotation,
         requiredPersons: hasRotation && rotationRequired ? parseInt(rotationRequired) : undefined,
         excludedMembers: hasRotation && rotationExcluded.length > 0 ? rotationExcluded : undefined,
+        sharedHouseholdIds: shareWithNeighbors && sharedHouseholdIds.length > 0 ? sharedHouseholdIds : undefined,
       });
 
       // Add dependencies if any
@@ -925,6 +940,11 @@ export default function Projects() {
                                               Überfällig
                                             </Badge>
                                           )}
+                                          {(task as any).sharedHouseholdCount > 0 && (
+                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                                              Geteilt
+                                            </Badge>
+                                          )}
                                         </div>
 
                                         <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
@@ -1183,6 +1203,7 @@ export default function Projects() {
               <div className="space-y-2">
                 <Label>Verantwortliche *</Label>
                 <div className="grid grid-cols-2 gap-2">
+                  {/* Own household members */}
                   {members.map((m) => (
                     <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
                       <Checkbox
@@ -1201,8 +1222,73 @@ export default function Projects() {
                       </Label>
                     </div>
                   ))}
+                  {/* Connected household members (when sharing is enabled) */}
+                  {shareWithNeighbors && connectedMembers.map((m) => (
+                    <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
+                      <Checkbox
+                        id={`task-assignee-connected-${m.id}`}
+                        checked={taskAssignees.includes(m.id)}
+                        onCheckedChange={() => {
+                          setTaskAssignees(prev =>
+                            prev.includes(m.id)
+                              ? prev.filter(id => id !== m.id)
+                              : [...prev, m.id]
+                          );
+                        }}
+                      />
+                      <Label htmlFor={`task-assignee-connected-${m.id}`} className="cursor-pointer flex-1">
+                        {m.memberName} <span className="text-xs text-muted-foreground">({m.householdName})</span>
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
+
+              {/* Neighborhood Sharing */}
+              {connectedHouseholds.length > 0 && (
+                <div className="space-y-2 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="share-with-neighbors"
+                      checked={shareWithNeighbors}
+                      onCheckedChange={(checked) => {
+                        setShareWithNeighbors(checked as boolean);
+                        if (!checked) {
+                          setSharedHouseholdIds([]);
+                        }
+                      }}
+                    />
+                    <Label htmlFor="share-with-neighbors" className="cursor-pointer font-semibold">
+                      Mit Nachbarn teilen
+                    </Label>
+                  </div>
+                  {shareWithNeighbors && (
+                    <div className="mt-3 space-y-2">
+                      <Label className="text-sm">Haushalte auswählen:</Label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {connectedHouseholds.map((household) => (
+                          <div key={household.id} className="flex items-center space-x-2 p-2 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+                            <Checkbox
+                              id={`shared-household-${household.id}`}
+                              checked={sharedHouseholdIds.includes(household.id)}
+                              onCheckedChange={() => {
+                                setSharedHouseholdIds(prev =>
+                                  prev.includes(household.id)
+                                    ? prev.filter(id => id !== household.id)
+                                    : [...prev, household.id]
+                                );
+                              }}
+                            />
+                            <Label htmlFor={`shared-household-${household.id}`} className="cursor-pointer flex-1">
+                              {household.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)</Label>
