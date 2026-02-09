@@ -420,7 +420,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     .where(
       or(
         eq(tasks.householdId, householdId),
-        sql`JSON_CONTAINS(${tasks.sharedHouseholdIds}, ${JSON.stringify(householdId)}, '$')`
+        sql`JSON_CONTAINS(${tasks.sharedHouseholdIds}, CAST(${householdId} AS JSON), '$')`
       )
     )
     .orderBy(tasks.isCompleted, desc(tasks.createdAt));

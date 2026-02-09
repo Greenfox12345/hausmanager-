@@ -1724,3 +1724,6 @@
 - [x] Update getSharedHouseholds query to use JSON field
 - [x] Fix authorization to allow shared household members to edit tasks
 - [x] Update sharedHouseholdNames to exclude current household
+
+## JSON_CONTAINS Syntax Error (2026-02-09)
+- [x] Fix JSON_CONTAINS parameter to use CAST(householdId AS JSON) in getTasks WHERE clause
