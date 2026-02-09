@@ -406,7 +406,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
         ELSE (
           SELECT GROUP_CONCAT(h.name SEPARATOR ', ')
           FROM ${households} h
-          WHERE JSON_CONTAINS(${tasks.sharedHouseholdIds}, JSON_QUOTE(h.id))
+          WHERE h.id MEMBER OF(${tasks.sharedHouseholdIds})
             AND h.id != ${householdId}
         )
       END
@@ -420,7 +420,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     .where(
       or(
         eq(tasks.householdId, householdId),
-        sql`JSON_CONTAINS(${tasks.sharedHouseholdIds}, JSON_QUOTE(${householdId}))`
+        sql`${householdId} MEMBER OF(${tasks.sharedHouseholdIds})`
       )
     )
     .orderBy(tasks.isCompleted, desc(tasks.createdAt));

@@ -1731,3 +1731,7 @@
 ## JSON_CONTAINS Array Comparison Fix (2026-02-09)
 - [x] Fix JSON_CONTAINS to properly compare numbers in JSON array using JSON_QUOTE
 - [x] Update both WHERE clause and sharedHouseholdNames subquery
+
+## JSON Array Membership Check Fix (2026-02-09)
+- [x] Replace JSON_CONTAINS/JSON_QUOTE with MEMBER OF operator for number arrays
+- [x] Update both WHERE clause and sharedHouseholdNames subquery
