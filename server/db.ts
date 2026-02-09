@@ -376,6 +376,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
   const tasksWithSharing = await db.select({
     id: tasks.id,
     householdId: tasks.householdId,
+    householdName: households.name,
     name: tasks.name,
     description: tasks.description,
     assignedTo: tasks.assignedTo,
@@ -396,11 +397,18 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
       SELECT COUNT(*) FROM ${sharedTasks} 
       WHERE ${sharedTasks.taskId} = ${tasks.id}
     )`,
+    sharedHouseholdNames: sql<string>`(
+      SELECT GROUP_CONCAT(h.name SEPARATOR ', ')
+      FROM ${sharedTasks} st
+      LEFT JOIN ${households} h ON st.householdId = h.id
+      WHERE st.taskId = ${tasks.id}
+    )`,
     isSharedWithUs: sql<boolean>`(
       ${tasks.householdId} != ${householdId}
     )`
   })
     .from(tasks)
+    .leftJoin(households, eq(tasks.householdId, households.id))
     .where(
       or(
         eq(tasks.householdId, householdId),
@@ -429,6 +437,7 @@ export async function createTask(data: {
   requiredPersons?: number;
   dueDate?: Date;
   projectIds?: number[];
+  nonResponsiblePermission?: "full" | "milestones_reminders" | "view_only";
   createdBy: number;
 }) {
   const db = await getDb();

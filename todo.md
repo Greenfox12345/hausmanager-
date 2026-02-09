@@ -1687,3 +1687,17 @@
 - [x] Replicate member data loading from Tasks.tsx into TaskDetailDialog
 - [x] Ensure userId is properly available in edit dialog for duplicate checking
 - [x] Replace members prop with ownMembers query in TaskDetailDialog
+
+## Bidirectional Household Display for Shared Tasks (2026-02-09)
+- [x] Add creator household identification to task data (householdName in getTasks)
+- [x] Show "Verknüpft mit [Haushaltsname]" for receiving households
+- [x] Show "Geteilt mit [Haushalte]" for creating household
+- [x] Update Tasks.tsx, Calendar.tsx, Projects.tsx with bidirectional badges
+
+## Permission System for Non-Responsible Members (2026-02-09)
+- [x] Design permission levels: Full Edit, Milestones+Reminders, View Only
+- [x] Add permission field to task schema (nonResponsiblePermission)
+- [x] Add permission selector to task creation UI in Tasks.tsx
+- [ ] Add permission selector to TaskDetailDialog edit UI
+- [ ] Implement permission checks in backend procedures
+- [ ] Enforce permissions in TaskDetailDialog actions (disable fields based on permission)

@@ -60,6 +60,7 @@ export default function Tasks() {
   // Sharing with neighbors states
   const [shareWithNeighbors, setShareWithNeighbors] = useState(false);
   const [sharedHouseholdIds, setSharedHouseholdIds] = useState<number[]>([]);
+  const [nonResponsiblePermission, setNonResponsiblePermission] = useState<"full" | "milestones_reminders" | "view_only">("full");
 
   // Dialog states
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
@@ -320,6 +321,7 @@ export default function Tasks() {
         assignedTo: selectedAssignees[0], // First assignee
         projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
         sharedHouseholdIds: shareWithNeighbors ? sharedHouseholdIds : [],
+        nonResponsiblePermission: shareWithNeighbors && sharedHouseholdIds.length > 0 ? nonResponsiblePermission : "full",
       });
 
       // Add dependencies if this is a project task
@@ -713,6 +715,23 @@ export default function Tasks() {
                         </div>
                       ))}
                     </div>
+                    
+                    {/* Permission selector for shared tasks */}
+                    {sharedHouseholdIds.length > 0 && (
+                      <div className="mt-3">
+                        <Label className="text-sm text-muted-foreground mb-2 block">Berechtigungen für nicht-verantwortliche Mitglieder:</Label>
+                        <Select value={nonResponsiblePermission} onValueChange={(value: any) => setNonResponsiblePermission(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full">Vollzugriff (alles bearbeiten)</SelectItem>
+                            <SelectItem value="milestones_reminders">Zwischenziele & Erinnerungen</SelectItem>
+                            <SelectItem value="view_only">Nur ansehen</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1285,7 +1304,13 @@ export default function Tasks() {
                         {(task as any).isSharedWithUs && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                             <Users className="h-3 w-3" />
-                            Haushaltsübergreifend
+                            Verknüpft mit {(task as any).householdName || "anderem Haushalt"}
+                          </span>
+                        )}
+                        {!(task as any).isSharedWithUs && (task as any).sharedHouseholdCount > 0 && (task as any).sharedHouseholdNames && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
+                            <Users className="h-3 w-3" />
+                            Geteilt mit {(task as any).sharedHouseholdNames}
                           </span>
                         )}
                       </div>

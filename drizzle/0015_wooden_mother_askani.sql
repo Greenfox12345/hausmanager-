@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `nonResponsiblePermission` enum('full','milestones_reminders','view_only') DEFAULT 'full' NOT NULL;

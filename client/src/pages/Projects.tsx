@@ -943,13 +943,13 @@ export default function Projects() {
                                           {(task as any).isSharedWithUs && (
                                             <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-blue-200 dark:border-blue-800 text-xs">
                                               <Users className="h-3 w-3 mr-1" />
-                                              Haushaltsübergreifend
+                                              Verknüpft mit {(task as any).householdName || "anderem Haushalt"}
                                             </Badge>
                                           )}
-                                          {(task as any).sharedHouseholdCount > 0 && !(task as any).isSharedWithUs && (
-                                            <Badge variant="outline" className="bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-400 border-orange-200 dark:border-orange-800 text-xs">
+                                          {(task as any).sharedHouseholdCount > 0 && !(task as any).isSharedWithUs && (task as any).sharedHouseholdNames && (
+                                            <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 border-green-200 dark:border-green-800 text-xs">
                                               <Users className="h-3 w-3 mr-1" />
-                                              Geteilt ({(task as any).sharedHouseholdCount})
+                                              Geteilt mit {(task as any).sharedHouseholdNames}
                                             </Badge>
                                           )}
                                         </div>

@@ -42,6 +42,7 @@ export const tasksRouter = router({
         dueTime: z.string().optional(),
         projectIds: z.array(z.number()).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
+        nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
       })
     )
     .mutation(async ({ input }) => {
@@ -71,6 +72,7 @@ export const tasksRouter = router({
         requiredPersons: input.requiredPersons,
         dueDate: dueDatetime,
         projectIds: input.projectIds || [],
+        nonResponsiblePermission: input.nonResponsiblePermission,
         createdBy: input.memberId,
       });
 
@@ -136,6 +138,7 @@ export const tasksRouter = router({
         dueTime: z.string().optional(),
         projectIds: z.array(z.number()).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
+        nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
       })
     )
     .mutation(async ({ input }) => {
