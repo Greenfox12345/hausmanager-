@@ -212,6 +212,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // Initialize project state
       setIsProjectTask(!!task.projectIds && task.projectIds.length > 0);
       setSelectedProjectIds(task.projectIds || []);
+      
+      // Initialize sharing state from sharedHouseholds query (loaded separately)
+      // This will be set in a separate useEffect when sharedHouseholds loads
     }
   }, [task, open]);
   
@@ -228,6 +231,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setFollowups(followupIds);
     }
   }, [taskDependencies, task, open]);
+  
+  // Load existing shared households when sharedHouseholds are fetched
+  useEffect(() => {
+    if (sharedHouseholds && task && open) {
+      const householdIds = sharedHouseholds.map((sh: any) => sh.id);
+      setEnableSharing(householdIds.length > 0);
+      setSelectedSharedHouseholds(householdIds);
+    }
+  }, [sharedHouseholds, task, open]);
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({

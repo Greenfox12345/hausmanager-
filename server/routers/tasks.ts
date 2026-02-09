@@ -858,8 +858,8 @@ export const tasksRouter = router({
       const { sharedTasks, households } = await import("../../drizzle/schema");
       
       const shared = await db.select({
-        householdId: sharedTasks.householdId,
-        householdName: households.name,
+        id: sharedTasks.householdId,
+        name: households.name,
       })
         .from(sharedTasks)
         .leftJoin(households, eq(sharedTasks.householdId, households.id))

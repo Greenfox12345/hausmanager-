@@ -1655,3 +1655,21 @@
 - [x] Prüfen: Filter-Logik in Projects.tsx korrekt? (JA)
 - [x] Prüfen: Filter-Logik in TaskDetailDialog.tsx korrekt? (JA)
 - [x] Fix: userId zu getHouseholdMembers Return-Objekt hinzugefügt
+
+
+## Haushaltsübergreifende Aufgaben - Weitere Verbesserungen
+- [ ] TaskDetailDialog: Haushaltsname bei geteilten Aufgaben anzeigen (Zeile 904)
+- [ ] Tasks-Seite: Beim Bearbeiten "Mit Nachbarn teilen" und Haushalte vorauswählen
+- [ ] Geteilte Aufgaben: In allen verbundenen Haushalten anzeigen (nicht nur im erstellenden)
+- [ ] Geteilte Aufgaben: Mit Tag "Haushaltsübergreifend" kennzeichnen
+- [ ] Backend: Query für geteilte Aufgaben nach Haushalt implementieren
+
+## Cross-Household Task Sharing Fixes (2026-02-09)
+- [x] Fix household names in TaskDetailDialog (backend returns id and name)
+- [x] Fix Tasks.tsx edit pre-population (sharing checkbox and households)
+- [x] Implement cross-household task visibility (tasks shared with household appear in all views)
+- [x] Add "Haushaltsübergreifend" badge to shared tasks in Tasks.tsx
+- [x] Add "Haushaltsübergreifend" badge to shared tasks in Calendar.tsx
+- [x] Add "Haushaltsübergreifend" badge to shared tasks in Projects.tsx
+- [x] Extend getTasks to load tasks where household is in sharedHouseholdIds
+- [x] Add isSharedWithUs flag to distinguish shared vs owned tasks

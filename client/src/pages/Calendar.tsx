@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { de } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
@@ -1014,6 +1014,12 @@ export default function Calendar() {
                                   {!task.isCompleted && !task.isFutureOccurrence && task.dueDate && isPast(new Date(task.dueDate)) && (
                                     <Badge variant="destructive" className="text-xs">
                                       Überfällig
+                                    </Badge>
+                                  )}
+                                  {(task as any).isSharedWithUs && (
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-blue-200 dark:border-blue-800 text-xs">
+                                      <Users className="h-3 w-3 mr-1" />
+                                      Haushaltsübergreifend
                                     </Badge>
                                   )}
                                 </div>

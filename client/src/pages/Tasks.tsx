@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
@@ -1270,6 +1270,12 @@ export default function Tasks() {
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             <RefreshCw className="h-3 w-3" />
                             Rotation {task.requiredPersons ? `(${task.requiredPersons} Pers.)` : ""}
+                          </span>
+                        )}
+                        {(task as any).isSharedWithUs && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            <Users className="h-3 w-3" />
+                            Haushaltsübergreifend
                           </span>
                         )}
                       </div>

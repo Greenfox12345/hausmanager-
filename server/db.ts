@@ -365,14 +365,14 @@ export async function unlinkItemsFromTask(itemIds: number[]) {
 }
 
 // Tasks management
-export async function getTasks(householdId: number): Promise<(Task & { sharedHouseholdCount?: number })[]> {
+export async function getTasks(householdId: number): Promise<(Task & { sharedHouseholdCount?: number, isSharedWithUs?: boolean })[]> {
   const db = await getDb();
   if (!db) return [];
 
   const { sharedTasks } = await import("../drizzle/schema");
-  const { sql, count } = await import("drizzle-orm");
+  const { sql, count, or, inArray } = await import("drizzle-orm");
 
-  // Get tasks with shared household count
+  // Get tasks owned by this household OR shared with this household
   const tasksWithSharing = await db.select({
     id: tasks.id,
     householdId: tasks.householdId,
@@ -395,10 +395,22 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     sharedHouseholdCount: sql<number>`(
       SELECT COUNT(*) FROM ${sharedTasks} 
       WHERE ${sharedTasks.taskId} = ${tasks.id}
+    )`,
+    isSharedWithUs: sql<boolean>`(
+      ${tasks.householdId} != ${householdId}
     )`
   })
     .from(tasks)
-    .where(eq(tasks.householdId, householdId))
+    .where(
+      or(
+        eq(tasks.householdId, householdId),
+        inArray(tasks.id, 
+          db.select({ taskId: sharedTasks.taskId })
+            .from(sharedTasks)
+            .where(eq(sharedTasks.householdId, householdId))
+        )
+      )
+    )
     .orderBy(tasks.isCompleted, desc(tasks.createdAt));
 
   return tasksWithSharing as any;
