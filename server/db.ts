@@ -393,15 +393,23 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     createdBy: tasks.createdBy,
     createdAt: tasks.createdAt,
     updatedAt: tasks.updatedAt,
+    sharedHouseholdIds: tasks.sharedHouseholdIds,
     sharedHouseholdCount: sql<number>`(
-      SELECT COUNT(*) FROM ${sharedTasks} 
-      WHERE ${sharedTasks.taskId} = ${tasks.id}
+      CASE 
+        WHEN ${tasks.sharedHouseholdIds} IS NULL THEN 0
+        ELSE JSON_LENGTH(${tasks.sharedHouseholdIds})
+      END
     )`,
     sharedHouseholdNames: sql<string>`(
-      SELECT GROUP_CONCAT(h.name SEPARATOR ', ')
-      FROM ${sharedTasks} st
-      LEFT JOIN ${households} h ON st.householdId = h.id
-      WHERE st.taskId = ${tasks.id}
+      CASE
+        WHEN ${tasks.sharedHouseholdIds} IS NULL THEN NULL
+        ELSE (
+          SELECT GROUP_CONCAT(h.name SEPARATOR ', ')
+          FROM ${households} h
+          WHERE JSON_CONTAINS(${tasks.sharedHouseholdIds}, CAST(h.id AS JSON), '$')
+            AND h.id != ${householdId}
+        )
+      END
     )`,
     isSharedWithUs: sql<boolean>`(
       ${tasks.householdId} != ${householdId}
@@ -412,11 +420,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     .where(
       or(
         eq(tasks.householdId, householdId),
-        inArray(tasks.id, 
-          db.select({ taskId: sharedTasks.taskId })
-            .from(sharedTasks)
-            .where(eq(sharedTasks.householdId, householdId))
-        )
+        sql`JSON_CONTAINS(${tasks.sharedHouseholdIds}, ${JSON.stringify(householdId)}, '$')`
       )
     )
     .orderBy(tasks.isCompleted, desc(tasks.createdAt));

@@ -100,17 +100,14 @@ export const tasksRouter = router({
         );
       }
 
-      // Create shared task entries for connected households
+      // Update sharedHouseholdIds in the task itself
       if (input.sharedHouseholdIds && input.sharedHouseholdIds.length > 0) {
         const db = await getDb();
         if (db) {
-          const { sharedTasks } = await import("../../drizzle/schema");
-          for (const householdId of input.sharedHouseholdIds) {
-            await db.insert(sharedTasks).values({
-              taskId,
-              householdId,
-            });
-          }
+          const { tasks } = await import("../../drizzle/schema");
+          await db.update(tasks)
+            .set({ sharedHouseholdIds: input.sharedHouseholdIds })
+            .where(eq(tasks.id, taskId));
         }
       }
 
@@ -176,26 +173,11 @@ export const tasksRouter = router({
       // The new repeatInterval and repeatUnit are already saved above
 
       // Handle shared households
+      // Update sharedHouseholdIds directly in the task
       if (input.sharedHouseholdIds !== undefined) {
-        const db = await getDb();
-        if (db) {
-          const { sharedTasks } = await import("../../drizzle/schema");
-          const { eq, and } = await import("drizzle-orm");
-          
-          // Delete existing shared task entries
-          await db.delete(sharedTasks).where(eq(sharedTasks.taskId, taskId));
-          
-          // Insert new shared task entries
-          if (input.sharedHouseholdIds.length > 0) {
-            await db.insert(sharedTasks).values(
-              input.sharedHouseholdIds.map(householdId => ({
-                taskId,
-                householdId,
-                createdAt: new Date(),
-              }))
-            );
-          }
-        }
+        await updateTask(taskId, {
+          sharedHouseholdIds: input.sharedHouseholdIds.length > 0 ? input.sharedHouseholdIds : null
+        });
       }
 
       await createActivityLog({
@@ -858,15 +840,26 @@ export const tasksRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      const { sharedTasks, households } = await import("../../drizzle/schema");
+      const { tasks, households } = await import("../../drizzle/schema");
       
+      // Get the task's sharedHouseholdIds
+      const task = await db.select({ sharedHouseholdIds: tasks.sharedHouseholdIds })
+        .from(tasks)
+        .where(eq(tasks.id, input.taskId))
+        .limit(1);
+      
+      if (!task[0] || !task[0].sharedHouseholdIds || task[0].sharedHouseholdIds.length === 0) {
+        return [];
+      }
+      
+      // Get household names for the shared household IDs
+      const { inArray } = await import("drizzle-orm");
       const shared = await db.select({
-        id: sharedTasks.householdId,
+        id: households.id,
         name: households.name,
       })
-        .from(sharedTasks)
-        .leftJoin(households, eq(sharedTasks.householdId, households.id))
-        .where(eq(sharedTasks.taskId, input.taskId));
+        .from(households)
+        .where(inArray(households.id, task[0].sharedHouseholdIds));
 
       return shared;
     }),

@@ -1714,3 +1714,13 @@
 - [x] Initialize permission from task.nonResponsiblePermission in useEffect
 - [x] Pass nonResponsiblePermission to update mutation
 - [x] Extended Task interface to include nonResponsiblePermission field
+
+## Replace sharedTasks Table with JSON Field (2026-02-09)
+- [x] Add sharedHouseholdIds JSON field to tasks table schema
+- [x] Migrate existing sharedTasks data to JSON field
+- [ ] Remove sharedTasks table (can be done later)
+- [x] Update getTasks query to use JSON field
+- [x] Update create/update mutations to use JSON field
+- [x] Update getSharedHouseholds query to use JSON field
+- [x] Fix authorization to allow shared household members to edit tasks
+- [x] Update sharedHouseholdNames to exclude current household

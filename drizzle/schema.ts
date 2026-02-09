@@ -150,6 +150,7 @@ export const tasks = mysqlTable("tasks", {
   completionPhotoUrls: json("completionPhotoUrls").$type<{url: string, filename: string}[]>(),
   completionFileUrls: json("completionFileUrls").$type<{url: string, filename: string}[]>(),
   skippedDates: json("skippedDates").$type<string[]>(), // ISO date strings of skipped occurrences for recurring tasks
+  sharedHouseholdIds: json("sharedHouseholdIds").$type<number[]>(), // IDs of households this task is shared with
   nonResponsiblePermission: mysqlEnum("nonResponsiblePermission", ["full", "milestones_reminders", "view_only"]).default("full").notNull(), // Permission level for non-responsible members
   createdBy: int("createdBy").notNull().references(() => householdMembers.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
