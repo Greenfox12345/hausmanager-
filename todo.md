@@ -1646,3 +1646,12 @@
 - [x] Sharing-UI: Mitglieder aus ausgewählten Haushalten bei Verantwortliche anzeigen
 - [x] Duplikat-Filterung: userId-Vergleich für Mitglieder implementiert
 - [x] sharedHouseholdIds zu addMutation hinzugefügt
+
+
+## Duplikat-Filterung Debugging
+- [x] Untersuchen: userId-Vergleich funktioniert nicht korrekt (userId war undefined)
+- [x] Prüfen: Werden userId-Felder vom Backend korrekt geladen? (NEIN - fehlte in auth.ts)
+- [x] Prüfen: Filter-Logik in Tasks.tsx korrekt? (JA)
+- [x] Prüfen: Filter-Logik in Projects.tsx korrekt? (JA)
+- [x] Prüfen: Filter-Logik in TaskDetailDialog.tsx korrekt? (JA)
+- [x] Fix: userId zu getHouseholdMembers Return-Objekt hinzugefügt

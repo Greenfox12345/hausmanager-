@@ -85,6 +85,7 @@ export const authRouter = router({
       const members = await getHouseholdMembers(input.householdId);
       return members.map(m => ({
         id: m.id,
+        userId: m.userId,
         memberName: m.memberName,
         photoUrl: m.photoUrl,
         isActive: m.isActive,
