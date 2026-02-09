@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
+import { borrowRequests, inventoryItems } from "../../drizzle/schema";
 import {
+  getDb,
   createBorrowRequest,
   getBorrowRequestsByItem,
   getBorrowRequestsByBorrower,
@@ -574,8 +576,75 @@ export const borrowRouter = router({
   getPendingRequestsCount: publicProcedure
     .input(z.object({ householdId: z.number(), ownerId: z.number() }))
     .query(async ({ input }) => {
-      const requests = await getBorrowRequestsByOwner(input.householdId);
-      const pendingCount = requests.filter(req => req.status === "pending").length;
-      return { count: pendingCount };
+      const db = await getDb();
+      if (!db) return { count: 0 };
+
+      // Get all pending requests for items owned by this member
+      const { inventoryOwnership } = await import("../../drizzle/schema");
+      const { eq, and, or } = await import("drizzle-orm");
+
+      const pendingRequests = await db
+        .select({ requestId: borrowRequests.id })
+        .from(borrowRequests)
+        .innerJoin(inventoryItems, eq(borrowRequests.inventoryItemId, inventoryItems.id))
+        .leftJoin(inventoryOwnership, eq(inventoryItems.id, inventoryOwnership.inventoryItemId))
+        .where(
+          and(
+            eq(borrowRequests.status, "pending"),
+            // Item is either household-owned (no ownership record) or personally owned by this member
+            or(
+              and(
+                eq(inventoryItems.householdId, input.householdId),
+                eq(inventoryItems.ownershipType, "household")
+              ),
+              and(
+                eq(inventoryItems.ownershipType, "personal"),
+                eq(inventoryOwnership.memberId, input.ownerId)
+              )
+            )
+          )
+        );
+
+      return { count: pendingRequests.length };
+    }),
+
+  // Get pending request counts per item
+  getPendingRequestsByItem: publicProcedure
+    .input(z.object({ householdId: z.number(), ownerId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      const { inventoryOwnership } = await import("../../drizzle/schema");
+      const { eq, and, or, count } = await import("drizzle-orm");
+
+      // Get pending request counts grouped by item
+      const itemCounts = await db
+        .select({
+          itemId: borrowRequests.inventoryItemId,
+          count: count(borrowRequests.id)
+        })
+        .from(borrowRequests)
+        .innerJoin(inventoryItems, eq(borrowRequests.inventoryItemId, inventoryItems.id))
+        .leftJoin(inventoryOwnership, eq(inventoryItems.id, inventoryOwnership.inventoryItemId))
+        .where(
+          and(
+            eq(borrowRequests.status, "pending"),
+            // Item is either household-owned or personally owned by this member
+            or(
+              and(
+                eq(inventoryItems.householdId, input.householdId),
+                eq(inventoryItems.ownershipType, "household")
+              ),
+              and(
+                eq(inventoryItems.ownershipType, "personal"),
+                eq(inventoryOwnership.memberId, input.ownerId)
+              )
+            )
+          )
+        )
+        .groupBy(borrowRequests.inventoryItemId);
+
+      return itemCounts;
     }),
 });

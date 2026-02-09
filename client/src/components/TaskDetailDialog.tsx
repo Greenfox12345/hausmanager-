@@ -82,6 +82,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [prerequisites, setPrerequisites] = useState<number[]>([]);
   const [followups, setFollowups] = useState<number[]>([]);
   
+  // Neighborhood sharing state
+  const [enableSharing, setEnableSharing] = useState(false);
+  const [selectedSharedHouseholds, setSelectedSharedHouseholds] = useState<number[]>([]);
+  
   // Load projects
   const { data: projects = [] } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -91,6 +95,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const { data: sharedHouseholds = [] } = trpc.tasks.getSharedHouseholds.useQuery(
     { taskId: task?.id ?? 0 },
     { enabled: !!task && open }
+  );
+  
+  // Load connected households for sharing
+  const { data: connectedHouseholds = [] } = trpc.neighborhood.getConnectedHouseholds.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && isEditing }
+  );
+  
+  // Load members from connected households when sharing is enabled
+  const { data: connectedMembers = [] } = trpc.neighborhood.getConnectedMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && isEditing && enableSharing }
   );
   
   // Load available tasks for dependencies
@@ -305,6 +321,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
         projectIds: isProjectTask ? selectedProjectIds : [],
+        sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
       });
       
       // Step 2: Update dependencies (BEFORE invalidating)
@@ -470,6 +487,77 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 </div>
                 {selectedAssignees.length === 0 && (
                   <p className="text-xs text-destructive">Bitte wählen Sie mindestens einen Verantwortlichen</p>
+                )}
+              </div>
+
+              {/* Neighborhood Sharing */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="enable-sharing"
+                    checked={enableSharing}
+                    onCheckedChange={(checked) => {
+                      setEnableSharing(!!checked);
+                      if (!checked) {
+                        setSelectedSharedHouseholds([]);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="enable-sharing" className="cursor-pointer font-semibold">
+                    Mit Nachbarn teilen
+                  </Label>
+                </div>
+
+                {enableSharing && (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Haushalte auswählen</Label>
+                      <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
+                        {connectedHouseholds.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Keine verbundenen Haushalte</p>
+                        ) : (
+                          connectedHouseholds.map((h: any) => (
+                            <div key={h.householdId} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
+                              <Checkbox
+                                id={`household-${h.householdId}`}
+                                checked={selectedSharedHouseholds.includes(h.householdId)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedSharedHouseholds([...selectedSharedHouseholds, h.householdId]);
+                                  } else {
+                                    setSelectedSharedHouseholds(selectedSharedHouseholds.filter(id => id !== h.householdId));
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`household-${h.householdId}`} className="cursor-pointer flex-1">
+                                {h.householdName}
+                              </Label>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {connectedMembers.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm">Mitglieder aus verbundenen Haushalten</Label>
+                        <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                          {connectedMembers.map((m: any) => (
+                            <div key={m.id} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
+                              <Checkbox
+                                id={`connected-assignee-${m.id}`}
+                                checked={selectedAssignees.includes(m.id)}
+                                onCheckedChange={() => toggleAssignee(m.id)}
+                              />
+                              <Label htmlFor={`connected-assignee-${m.id}`} className="cursor-pointer flex-1 text-xs">
+                                {m.memberName} ({m.householdName})
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

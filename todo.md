@@ -1609,3 +1609,17 @@
 - [x] Projektverknüpfungen: Aufgaben erscheinen nicht in der Projekt-Ansicht (Fix: projectIds in getTasks SELECT)
 - [x] Projektverknüpfungen: Projekt wird nicht in Aufgabendetails angezeigt (Fix: projectIds in getTasks SELECT)
 - [x] Ausleih-Benachrichtigungen: Badge fehlt bei "Inventar & Ausleihen" Navigation (Fix: Badge zu Dropdown-Menüpunkten hinzugefügt)
+
+
+## Inventory & Ausleih-Verbesserungen
+- [x] Inventory-Seite: Dominante Badge für Items mit offenen Anfragen
+- [x] Benachrichtigungen: Nur Item-Eigentümer sehen Badge für ihre Items
+- [x] Backend: getPendingRequestsCount nach Eigentümer filtern
+- [x] Backend: getPendingRequestsByItem Query hinzugefügt
+
+## Haushaltsübergreifende Aufgaben UI-Erweiterung
+- [x] Tasks-Seite: "Mit Nachbarn teilen" UI hinzugefügt (via TaskDetailDialog)
+- [x] TaskDetailDialog: Sharing-UI in Bearbeitungs-Ansicht hinzugefügt
+- [x] Backend: sharedHouseholdIds zu tasks.update Input-Schema hinzugefügt
+- [x] Backend: Shared task entries werden bei Update korrekt verwaltet
+- [ ] Alle Aufgabenbearbeitungs-Dialoge: Sharing-UI konsistent verfügbar

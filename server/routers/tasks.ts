@@ -135,6 +135,7 @@ export const tasksRouter = router({
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
         projectIds: z.array(z.number()).optional(),
+        sharedHouseholdIds: z.array(z.number()).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -170,6 +171,29 @@ export const tasksRouter = router({
       // If this is a recurring task and interval/unit changed, we don't need to recalculate
       // The next occurrence will be calculated correctly when the task is completed
       // The new repeatInterval and repeatUnit are already saved above
+
+      // Handle shared households
+      if (input.sharedHouseholdIds !== undefined) {
+        const db = await getDb();
+        if (db) {
+          const { sharedTasks } = await import("../../drizzle/schema");
+          const { eq, and } = await import("drizzle-orm");
+          
+          // Delete existing shared task entries
+          await db.delete(sharedTasks).where(eq(sharedTasks.taskId, taskId));
+          
+          // Insert new shared task entries
+          if (input.sharedHouseholdIds.length > 0) {
+            await db.insert(sharedTasks).values(
+              input.sharedHouseholdIds.map(householdId => ({
+                taskId,
+                householdId,
+                createdAt: new Date(),
+              }))
+            );
+          }
+        }
+      }
 
       await createActivityLog({
         householdId,

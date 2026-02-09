@@ -73,6 +73,23 @@ export default function Inventory() {
     { enabled: !!household }
   );
 
+  // Get pending borrow requests per item
+  const { data: pendingRequestsByItem = [] } = trpc.borrow.getPendingRequestsByItem.useQuery(
+    {
+      householdId: household?.householdId ?? 0,
+      ownerId: member?.memberId ?? 0,
+    },
+    {
+      enabled: !!household && !!member,
+      refetchInterval: 30000, // Refetch every 30 seconds
+    }
+  );
+
+  // Create a map for quick lookup
+  const pendingCountMap = new Map(
+    pendingRequestsByItem.map((item: any) => [item.itemId, item.count])
+  );
+
   const addCategoryMutation = trpc.shopping.createCategory.useMutation({
     onSuccess: () => {
       utils.shopping.listCategories.invalidate();
@@ -369,6 +386,11 @@ export default function Inventory() {
                         >
                           {item.categoryName}
                         </span>
+                        {pendingCountMap.get(item.id) && (
+                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            {pendingCountMap.get(item.id)} Anfrage{pendingCountMap.get(item.id) > 1 ? 'n' : ''}
+                          </span>
+                        )}
                       </div>
                       {item.details && (
                         <p className="text-sm text-muted-foreground mb-2">{item.details}</p>
