@@ -1623,3 +1623,11 @@
 - [x] Backend: sharedHouseholdIds zu tasks.update Input-Schema hinzugefügt
 - [x] Backend: Shared task entries werden bei Update korrekt verwaltet
 - [ ] Alle Aufgabenbearbeitungs-Dialoge: Sharing-UI konsistent verfügbar
+
+
+## Haushaltsübergreifende Mitgliederauswahl Bugfixes
+- [x] TaskDetailDialog: Mitglieder aus verbundenen Haushalten bei "Verantwortliche" anzeigen (nicht separat)
+- [x] TaskDetailDialog: Mitglieder erst nach Haushaltsauswahl anzeigen
+- [x] Projects.tsx: Mitglieder erst nach Haushaltsauswahl anzeigen
+- [x] Duplikat-Filterung: User, die in beiden Haushalten sind, nur einmal anzeigen
+- [x] Duplikat-Filterung: Bei Duplikaten nur eigenen Haushalt anzeigen, nicht verbundenen

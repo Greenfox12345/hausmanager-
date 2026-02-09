@@ -472,6 +472,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               <div className="space-y-2">
                 <Label>Verantwortliche *</Label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  {/* Own household members */}
                   {members.map((m) => (
                     <div key={m.memberId} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
                       <Checkbox
@@ -484,6 +485,26 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </Label>
                     </div>
                   ))}
+                  
+                  {/* Connected household members (only if sharing enabled and households selected) */}
+                  {enableSharing && selectedSharedHouseholds.length > 0 && connectedMembers
+                    .filter((cm: any) => {
+                      // Filter out duplicates: if member exists in own household, don't show from connected
+                      return !members.some(m => m.memberId === cm.id);
+                    })
+                    .map((m: any) => (
+                      <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors bg-blue-50 dark:bg-blue-950">
+                        <Checkbox
+                          id={`edit-connected-assignee-${m.id}`}
+                          checked={selectedAssignees.includes(m.id)}
+                          onCheckedChange={() => toggleAssignee(m.id)}
+                        />
+                        <Label htmlFor={`edit-connected-assignee-${m.id}`} className="cursor-pointer flex-1 text-sm">
+                          {m.memberName} <span className="text-xs text-muted-foreground">({m.householdName})</span>
+                        </Label>
+                      </div>
+                    ))
+                  }
                 </div>
                 {selectedAssignees.length === 0 && (
                   <p className="text-xs text-destructive">Bitte wählen Sie mindestens einen Verantwortlichen</p>
@@ -538,25 +559,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     </div>
 
-                    {connectedMembers.length > 0 && (
-                      <div className="space-y-2">
-                        <Label className="text-sm">Mitglieder aus verbundenen Haushalten</Label>
-                        <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                          {connectedMembers.map((m: any) => (
-                            <div key={m.id} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
-                              <Checkbox
-                                id={`connected-assignee-${m.id}`}
-                                checked={selectedAssignees.includes(m.id)}
-                                onCheckedChange={() => toggleAssignee(m.id)}
-                              />
-                              <Label htmlFor={`connected-assignee-${m.id}`} className="cursor-pointer flex-1 text-xs">
-                                {m.memberName} ({m.householdName})
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+
                   </>
                 )}
               </div>

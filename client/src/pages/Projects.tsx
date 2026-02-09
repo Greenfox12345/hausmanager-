@@ -1222,8 +1222,13 @@ export default function Projects() {
                       </Label>
                     </div>
                   ))}
-                  {/* Connected household members (when sharing is enabled) */}
-                  {shareWithNeighbors && connectedMembers.map((m) => (
+                  {/* Connected household members (only when sharing is enabled AND households selected) */}
+                  {shareWithNeighbors && sharedHouseholdIds.length > 0 && connectedMembers
+                    .filter((cm) => {
+                      // Filter out duplicates: if member exists in own household, don't show from connected
+                      return !members.some(m => m.id === cm.id);
+                    })
+                    .map((m) => (
                     <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
                       <Checkbox
                         id={`task-assignee-connected-${m.id}`}
