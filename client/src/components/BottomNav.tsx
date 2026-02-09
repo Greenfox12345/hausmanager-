@@ -98,41 +98,31 @@ export function BottomNav() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <Link href="/projects">
-                <DropdownMenuItem className="cursor-pointer">
-                  Projekte
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/history">
-                <DropdownMenuItem className="cursor-pointer">
-                  Verlauf
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/members">
-                <DropdownMenuItem className="cursor-pointer">
-                  Haushalt
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/inventory">
-                <DropdownMenuItem className="cursor-pointer flex items-center justify-between">
-                  <span>Inventar</span>
-                  {pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
-                      {pendingCount}
-                    </span>
-                  )}
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/borrows">
-                <DropdownMenuItem className="cursor-pointer flex items-center justify-between">
-                  <span>Ausleihen</span>
-                  {pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
-                      {pendingCount}
-                    </span>
-                  )}
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/projects'}>
+                Projekte
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/history'}>
+                Verlauf
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/members'}>
+                Haushalt
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer flex items-center justify-between" onClick={() => window.location.href = '/inventory'}>
+                <span>Inventar</span>
+                {pendingCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                    {pendingCount}
+                  </span>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer flex items-center justify-between" onClick={() => window.location.href = '/borrows'}>
+                <span>Ausleihen</span>
+                {pendingCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                    {pendingCount}
+                  </span>
+                )}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

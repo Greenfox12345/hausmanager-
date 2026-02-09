@@ -236,8 +236,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   useEffect(() => {
     if (sharedHouseholds && task && open) {
       const householdIds = sharedHouseholds.map((sh: any) => sh.id);
-      setEnableSharing(householdIds.length > 0);
-      setSelectedSharedHouseholds(householdIds);
+      // Only update if values actually changed to prevent infinite loop
+      setEnableSharing(prev => {
+        const newValue = householdIds.length > 0;
+        return prev === newValue ? prev : newValue;
+      });
+      setSelectedSharedHouseholds(prev => {
+        // Compare arrays to avoid unnecessary updates
+        if (prev.length === householdIds.length && prev.every((id, i) => id === householdIds[i])) {
+          return prev;
+        }
+        return householdIds;
+      });
     }
   }, [sharedHouseholds, task, open]);
 
