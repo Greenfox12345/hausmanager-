@@ -512,7 +512,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   {enableSharing && selectedSharedHouseholds.length > 0 && connectedMembers
                     .filter((cm: any) => {
                       // Filter out duplicates: if member exists in own household (same userId), don't show from connected
-                      return !members.some((m: any) => m.userId && cm.userId && m.userId === cm.userId);
+                      return !members.some((m: any) => {
+                        // If both have userId and they match, it's a duplicate
+                        if (m.userId && cm.userId && m.userId === cm.userId) {
+                          return true;
+                        }
+                        // If both have NULL userId, check name + household to avoid duplicates
+                        if (!m.userId && !cm.userId && m.memberName === cm.memberName) {
+                          return true;
+                        }
+                        return false;
+                      });
                     })
                     .map((m: any) => (
                       <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors bg-blue-50 dark:bg-blue-950">

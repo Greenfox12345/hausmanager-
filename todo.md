@@ -1677,3 +1677,8 @@
 ## Critical Errors on /tasks Page (2026-02-09)
 - [x] Fix "Maximum update depth exceeded" error (infinite setState loop)
 - [x] Fix nested anchor tags warning (<a> inside <a>)
+
+## Duplicate Member Filtering Bug (2026-02-09)
+- [x] Fix duplicate check in TaskDetailDialog.tsx line 515 (userId comparison logic)
+- [x] Fix duplicate check in Tasks.tsx line 651
+- [x] Fix duplicate check in Projects.tsx line 1236
