@@ -1701,3 +1701,9 @@
 - [ ] Add permission selector to TaskDetailDialog edit UI
 - [ ] Implement permission checks in backend procedures
 - [ ] Enforce permissions in TaskDetailDialog actions (disable fields based on permission)
+
+## TaskDetailDialog Bidirectional Display Issues (2026-02-09)
+- [x] Add info section showing "Verknüpft mit [Haushalte]" or "Geteilt mit [Haushalte]" in description area
+- [x] Fix household checkbox pre-selection when editing shared tasks (useEffect already implemented)
+- [x] Ensure enableSharing checkbox is pre-checked when task has shared households (useEffect already implemented)
+- [x] Extended Task interface to include householdName, sharedHouseholdNames, isSharedWithUs

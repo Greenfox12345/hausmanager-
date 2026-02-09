@@ -40,6 +40,10 @@ interface Task {
   frequency?: string | null;
   customFrequencyDays?: number | null;
   skippedDates?: string[] | null;
+  householdId?: number | null;
+  householdName?: string | null;
+  sharedHouseholdNames?: string | null;
+  isSharedWithUs?: boolean | null;
 }
 
 interface Member {
@@ -548,6 +552,28 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <p className="text-xs text-destructive">Bitte wählen Sie mindestens einen Verantwortlichen</p>
                 )}
               </div>
+
+              {/* Connected Households Info */}
+              {task && (task.isSharedWithUs || (task.sharedHouseholdNames && task.sharedHouseholdNames.length > 0)) && (
+                <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                  <div className="flex items-start gap-2">
+                    <Users className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        {task.isSharedWithUs ? (
+                          <>
+                            Diese Aufgabe ist verknüpft mit <span className="font-semibold">{task.householdName || "anderem Haushalt"}</span>
+                          </>
+                        ) : (
+                          <>
+                            Diese Aufgabe wurde geteilt mit <span className="font-semibold">{task.sharedHouseholdNames}</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Neighborhood Sharing */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
