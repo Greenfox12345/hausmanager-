@@ -1727,3 +1727,7 @@
 
 ## JSON_CONTAINS Syntax Error (2026-02-09)
 - [x] Fix JSON_CONTAINS parameter to use CAST(householdId AS JSON) in getTasks WHERE clause
+
+## JSON_CONTAINS Array Comparison Fix (2026-02-09)
+- [x] Fix JSON_CONTAINS to properly compare numbers in JSON array using JSON_QUOTE
+- [x] Update both WHERE clause and sharedHouseholdNames subquery
