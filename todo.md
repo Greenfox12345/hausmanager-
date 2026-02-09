@@ -1707,3 +1707,10 @@
 - [x] Fix household checkbox pre-selection when editing shared tasks (useEffect already implemented)
 - [x] Ensure enableSharing checkbox is pre-checked when task has shared households (useEffect already implemented)
 - [x] Extended Task interface to include householdName, sharedHouseholdNames, isSharedWithUs
+
+## Permission Selector in TaskDetailDialog (2026-02-09)
+- [x] Add nonResponsiblePermission state to TaskDetailDialog
+- [x] Add permission selector UI below household selection
+- [x] Initialize permission from task.nonResponsiblePermission in useEffect
+- [x] Pass nonResponsiblePermission to update mutation
+- [x] Extended Task interface to include nonResponsiblePermission field

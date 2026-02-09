@@ -44,6 +44,7 @@ interface Task {
   householdName?: string | null;
   sharedHouseholdNames?: string | null;
   isSharedWithUs?: boolean | null;
+  nonResponsiblePermission?: "full" | "milestones_reminders" | "view_only" | null;
 }
 
 interface Member {
@@ -89,6 +90,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Neighborhood sharing state
   const [enableSharing, setEnableSharing] = useState(false);
   const [selectedSharedHouseholds, setSelectedSharedHouseholds] = useState<number[]>([]);
+  const [nonResponsiblePermission, setNonResponsiblePermission] = useState<"full" | "milestones_reminders" | "view_only">("full");
   
   // Load projects
   const { data: projects = [] } = trpc.projects.list.useQuery(
@@ -223,6 +225,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setIsProjectTask(!!task.projectIds && task.projectIds.length > 0);
       setSelectedProjectIds(task.projectIds || []);
       
+      // Initialize permission
+      setNonResponsiblePermission(task.nonResponsiblePermission || "full");
+      
       // Initialize sharing state from sharedHouseholds query (loaded separately)
       // This will be set in a separate useEffect when sharedHouseholds loads
     }
@@ -354,6 +359,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
         projectIds: isProjectTask ? selectedProjectIds : [],
         sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
+        nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
       });
       
       // Step 2: Update dependencies (BEFORE invalidating)
@@ -623,7 +629,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     </div>
 
-
+                    {/* Permission selector for shared tasks */}
+                    {selectedSharedHouseholds.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm">Berechtigungen für nicht-verantwortliche Mitglieder:</Label>
+                        <Select value={nonResponsiblePermission} onValueChange={(value: any) => setNonResponsiblePermission(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full">Vollzugriff (alles bearbeiten)</SelectItem>
+                            <SelectItem value="milestones_reminders">Zwischenziele & Erinnerungen</SelectItem>
+                            <SelectItem value="view_only">Nur ansehen</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Legt fest, was Mitglieder aus verbundenen Haushalten ändern dürfen.
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
