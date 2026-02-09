@@ -1682,3 +1682,8 @@
 - [x] Fix duplicate check in TaskDetailDialog.tsx line 515 (userId comparison logic)
 - [x] Fix duplicate check in Tasks.tsx line 651
 - [x] Fix duplicate check in Projects.tsx line 1236
+
+## Backend userId Query Issue (2026-02-09)
+- [x] Replicate member data loading from Tasks.tsx into TaskDetailDialog
+- [x] Ensure userId is properly available in edit dialog for duplicate checking
+- [x] Replace members prop with ownMembers query in TaskDetailDialog

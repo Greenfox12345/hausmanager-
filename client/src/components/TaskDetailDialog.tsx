@@ -98,6 +98,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
   
   // Load connected households for sharing
+  // Load own household members
+  const { data: ownMembers = [] } = trpc.household.getHouseholdMembers.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open }
+  );
+  
   const { data: connectedHouseholds = [] } = trpc.neighborhood.getConnectedHouseholds.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household && open && isEditing }
@@ -443,7 +449,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   if (!task) return null;
 
-  const assignedMember = members.find(m => m.memberId === task.assignedTo);
+  const assignedMember = ownMembers.find(m => m.id === task.assignedTo) || members.find(m => m.memberId === task.assignedTo);
 
   return (
     <>
@@ -495,14 +501,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 <Label>Verantwortliche *</Label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                   {/* Own household members */}
-                  {members.map((m) => (
-                    <div key={m.memberId} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
+                  {ownMembers.map((m) => (
+                    <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
                       <Checkbox
-                        id={`edit-assignee-${m.memberId}`}
-                        checked={selectedAssignees.includes(m.memberId)}
-                        onCheckedChange={() => toggleAssignee(m.memberId)}
+                        id={`edit-assignee-${m.id}`}
+                        checked={selectedAssignees.includes(m.id)}
+                        onCheckedChange={() => toggleAssignee(m.id)}
                       />
-                      <Label htmlFor={`edit-assignee-${m.memberId}`} className="cursor-pointer flex-1">
+                      <Label htmlFor={`edit-assignee-${m.id}`} className="cursor-pointer flex-1">
                         {m.memberName}
                       </Label>
                     </div>
@@ -512,7 +518,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   {enableSharing && selectedSharedHouseholds.length > 0 && connectedMembers
                     .filter((cm: any) => {
                       // Filter out duplicates: if member exists in own household (same userId), don't show from connected
-                      return !members.some((m: any) => {
+                      return !ownMembers.some((m: any) => {
                         // If both have userId and they match, it's a duplicate
                         if (m.userId && cm.userId && m.userId === cm.userId) {
                           return true;
@@ -688,20 +694,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             Mitglieder, die von der Rotation ausgeschlossen werden
                           </p>
                           <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
-                            {members.map((m) => (
-                              <div key={m.memberId} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                            {ownMembers.map((m) => (
+                              <div key={m.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
                                 <Checkbox
-                                  id={`exclude-${m.memberId}`}
-                                  checked={excludedMembers.includes(m.memberId)}
+                                  id={`exclude-${m.id}`}
+                                  checked={excludedMembers.includes(m.id)}
                                   onCheckedChange={(checked) => {
                                     setExcludedMembers(prev =>
                                       checked
-                                        ? [...prev, m.memberId]
-                                        : prev.filter(id => id !== m.memberId)
+                                        ? [...prev, m.id]
+                                        : prev.filter(id => id !== m.id)
                                     );
                                   }}
                                 />
-                                <Label htmlFor={`exclude-${m.memberId}`} className="cursor-pointer text-sm flex-1">
+                                <Label htmlFor={`exclude-${m.id}`} className="cursor-pointer text-sm flex-1">
                                   {m.memberName}
                                 </Label>
                               </div>
@@ -989,7 +995,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <div className="text-xs text-muted-foreground space-y-1">
                       {task.createdBy && (
                         <div>
-                          Erstellt von: <strong>{members.find(m => m.memberId === task.createdBy)?.memberName || "Unbekannt"}</strong>
+                          Erstellt von: <strong>{ownMembers.find(m => m.id === task.createdBy)?.memberName || members.find(m => m.memberId === task.createdBy)?.memberName || "Unbekannt"}</strong>
                         </div>
                       )}
                       {task.createdAt && (
@@ -1181,7 +1187,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 ) : (
                   <div className="space-y-4">
                     {taskHistory.map((activity: any) => {
-                      const activityMember = members.find(m => m.memberId === activity.memberId);
+                      const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
                       return (
                         <div key={activity.id} className="border rounded-lg p-4 space-y-2">
                           <div className="flex items-start justify-between">
