@@ -489,8 +489,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   {/* Connected household members (only if sharing enabled and households selected) */}
                   {enableSharing && selectedSharedHouseholds.length > 0 && connectedMembers
                     .filter((cm: any) => {
-                      // Filter out duplicates: if member exists in own household, don't show from connected
-                      return !members.some(m => m.memberId === cm.id);
+                      // Filter out duplicates: if member exists in own household (same userId), don't show from connected
+                      return !members.some((m: any) => m.userId && cm.userId && m.userId === cm.userId);
                     })
                     .map((m: any) => (
                       <div key={`connected-${m.id}`} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors bg-blue-50 dark:bg-blue-950">
@@ -538,20 +538,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <p className="text-xs text-muted-foreground">Keine verbundenen Haushalte</p>
                         ) : (
                           connectedHouseholds.map((h: any) => (
-                            <div key={h.householdId} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
+                            <div key={h.id} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
                               <Checkbox
-                                id={`household-${h.householdId}`}
-                                checked={selectedSharedHouseholds.includes(h.householdId)}
+                                id={`household-${h.id}`}
+                                checked={selectedSharedHouseholds.includes(h.id)}
                                 onCheckedChange={(checked) => {
                                   if (checked) {
-                                    setSelectedSharedHouseholds([...selectedSharedHouseholds, h.householdId]);
+                                    setSelectedSharedHouseholds([...selectedSharedHouseholds, h.id]);
                                   } else {
-                                    setSelectedSharedHouseholds(selectedSharedHouseholds.filter(id => id !== h.householdId));
+                                    setSelectedSharedHouseholds(selectedSharedHouseholds.filter(id => id !== h.id));
                                   }
                                 }}
                               />
-                              <Label htmlFor={`household-${h.householdId}`} className="cursor-pointer flex-1">
-                                {h.householdName}
+                              <Label htmlFor={`household-${h.id}`} className="cursor-pointer flex-1">
+                                {h.name}
                               </Label>
                             </div>
                           ))
@@ -910,8 +910,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {sharedHouseholds.map((sh: any) => (
-                        <Badge key={sh.householdId} variant="outline" className="bg-white dark:bg-blue-900">
-                          {sh.householdName}
+                        <Badge key={sh.id} variant="outline" className="bg-white dark:bg-blue-900">
+                          {sh.name}
                         </Badge>
                       ))}
                     </div>

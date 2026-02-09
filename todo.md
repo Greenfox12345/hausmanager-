@@ -1631,3 +1631,9 @@
 - [x] Projects.tsx: Mitglieder erst nach Haushaltsauswahl anzeigen
 - [x] Duplikat-Filterung: User, die in beiden Haushalten sind, nur einmal anzeigen
 - [x] Duplikat-Filterung: Bei Duplikaten nur eigenen Haushalt anzeigen, nicht verbundenen
+
+
+## Haushaltsübergreifende Aufgaben - Weitere Bugfixes
+- [x] Duplikat-Filterung: Logik funktioniert nicht korrekt (Fix: userId-Vergleich statt id)
+- [x] Haushalte-Auswahl: Namen werden nicht geladen (Fix: Feldnamen id/name statt householdId/householdName)
+- [x] Tasks-Seite: Sharing-UI bei Aufgabenerstellung (via TaskDetailDialog bereits verfügbar)

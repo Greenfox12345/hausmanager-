@@ -212,6 +212,7 @@ export const neighborhoodRouter = router({
       // Fetch members from connected households
       const members = await db.select({
         id: householdMembers.id,
+        userId: householdMembers.userId,
         memberName: householdMembers.memberName,
         photoUrl: householdMembers.photoUrl,
         householdId: householdMembers.householdId,
