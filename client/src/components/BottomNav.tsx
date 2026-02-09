@@ -114,13 +114,23 @@ export function BottomNav() {
                 </DropdownMenuItem>
               </Link>
               <Link href="/inventory">
-                <DropdownMenuItem className="cursor-pointer">
-                  Inventar
+                <DropdownMenuItem className="cursor-pointer flex items-center justify-between">
+                  <span>Inventar</span>
+                  {pendingCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                      {pendingCount}
+                    </span>
+                  )}
                 </DropdownMenuItem>
               </Link>
               <Link href="/borrows">
-                <DropdownMenuItem className="cursor-pointer">
-                  Ausleihen
+                <DropdownMenuItem className="cursor-pointer flex items-center justify-between">
+                  <span>Ausleihen</span>
+                  {pendingCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                      {pendingCount}
+                    </span>
+                  )}
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

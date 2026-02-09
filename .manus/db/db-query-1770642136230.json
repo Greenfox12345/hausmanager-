@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, projectIds FROM tasks WHERE projectIds IS NOT NULL LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, projectIds FROM tasks WHERE projectIds IS NOT NULL LIMIT 5;",
+  "rows": [
+    {
+      "id": "600002",
+      "name": "Testen",
+      "projectIds": "[]"
+    },
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "projectIds": "[]"
+    },
+    {
+      "id": "600006",
+      "name": "sdf",
+      "projectIds": "[450002]"
+    },
+    {
+      "id": "630001",
+      "name": "Bad putzen",
+      "projectIds": "[480001]"
+    },
+    {
+      "id": "660003",
+      "name": "Holz holen",
+      "projectIds": "[510003]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprojectIds\n600002\tTesten\t[]\n600005\tTest Aufgabe für Dialog\t[]\n600006\tsdf\t[450002]\n630001\tBad putzen\t[480001]\n660003\tHolz holen\t[510003]\n",
+  "stderr": "",
+  "execution_time_ms": 481
+}

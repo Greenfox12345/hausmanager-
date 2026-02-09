@@ -1602,3 +1602,10 @@
 - [x] Calendar-Seite: Checkbox "Haushaltsübergreifende Aufgabe" (via TaskDetailDialog)
 - [x] Projects-Seite: Checkbox "Haushaltsübergreifende Aufgabe" bereits implementiert
 - [x] TaskDetailDialog: Zentrale Komponente für alle Seiten erweitert
+
+
+## Bugfixes
+- [x] Projektverknüpfungen: Aufgaben werden nicht korrekt mit Projekten verknüpft (Fix: leeres Array statt undefined)
+- [x] Projektverknüpfungen: Aufgaben erscheinen nicht in der Projekt-Ansicht (Fix: projectIds in getTasks SELECT)
+- [x] Projektverknüpfungen: Projekt wird nicht in Aufgabendetails angezeigt (Fix: projectIds in getTasks SELECT)
+- [x] Ausleih-Benachrichtigungen: Badge fehlt bei "Inventar & Ausleihen" Navigation (Fix: Badge zu Dropdown-Menüpunkten hinzugefügt)

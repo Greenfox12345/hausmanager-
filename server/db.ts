@@ -387,6 +387,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     enableRotation: tasks.enableRotation,
     requiredPersons: tasks.requiredPersons,
     dueDate: tasks.dueDate,
+    projectIds: tasks.projectIds,
     completedAt: tasks.completedAt,
     createdBy: tasks.createdBy,
     createdAt: tasks.createdAt,

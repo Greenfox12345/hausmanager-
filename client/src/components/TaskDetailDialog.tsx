@@ -304,7 +304,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         enableRotation: enableRepeat && enableRotation,
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
-        projectIds: isProjectTask && selectedProjectIds.length > 0 ? selectedProjectIds : undefined,
+        projectIds: isProjectTask ? selectedProjectIds : [],
       });
       
       // Step 2: Update dependencies (BEFORE invalidating)
