@@ -1735,3 +1735,8 @@
 ## JSON Array Membership Check Fix (2026-02-09)
 - [x] Replace JSON_CONTAINS/JSON_QUOTE with MEMBER OF operator for number arrays
 - [x] Update both WHERE clause and sharedHouseholdNames subquery
+
+## MEMBER OF Syntax Error in getTasks (2026-02-09)
+- [x] Fix MEMBER OF operator syntax in WHERE clause (replaced with JSON_CONTAINS)
+- [x] Fix MEMBER OF operator syntax in sharedHouseholdNames subquery (replaced with JSON_CONTAINS)
+- [x] Test task loading in connected households
