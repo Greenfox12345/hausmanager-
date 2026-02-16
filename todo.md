@@ -1740,3 +1740,8 @@
 - [x] Fix MEMBER OF operator syntax in WHERE clause (replaced with JSON_CONTAINS)
 - [x] Fix MEMBER OF operator syntax in sharedHouseholdNames subquery (replaced with JSON_CONTAINS)
 - [x] Test task loading in connected households
+
+## JSON_CONTAINS CAST Syntax Error (2026-02-16)
+- [x] Fix JSON_CONTAINS(sharedHouseholdIds, CAST(householdId AS JSON)) syntax error
+- [x] Use CONCAT('"', householdId, '"') instead of CAST for JSON string comparison
+- [ ] Fix nested anchor tag warning on /tasks page (source not yet identified)
