@@ -1745,3 +1745,8 @@
 - [x] Fix JSON_CONTAINS(sharedHouseholdIds, CAST(householdId AS JSON)) syntax error
 - [x] Use CONCAT('"', householdId, '"') instead of CAST for JSON string comparison
 - [ ] Fix nested anchor tag warning on /tasks page (source not yet identified)
+
+## Task Loading Failure on /tasks (2026-02-16)
+- [x] Debug why tasks show "Keine Aufgaben vorhanden" despite tasks existing
+- [x] Fix query error that occurs after task creation (replaced JSON_CONTAINS with JSON_SEARCH)
+- [x] Test with browser console to identify root cause (query was hanging due to CONCAT parameter binding)
