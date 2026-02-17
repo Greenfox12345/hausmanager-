@@ -1803,3 +1803,6 @@
 - [x] Fix nested arrays in DB data (cleaned up existing data)
 - [x] Added flattening for assignedTo, sharedHouseholdIds, projectIds in updateTask
 - [x] 11 vitest tests passing for flattening logic
+
+## Fix UI Not Updating After Household Connection Changes (2026-02-17)
+- [x] Fix query invalidation after saving household connection changes (added getSharedHouseholds.invalidate)
