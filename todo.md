@@ -1778,3 +1778,8 @@
 - [x] Test assignee display in Projects.tsx (backend test passed - assignedToNames resolved correctly)
 - [x] Test assignee editing functionality in browser (ready for user testing)
 - [x] Verify all fixes work end-to-end (backend tests pass, data migrated to arrays)
+
+## Fix Nested Array and Name Display Bugs (2026-02-17)
+- [x] Fix frontend sending nested array [[id]] instead of [id] for assignedTo (root cause: raw SQL returns JSON as strings)
+- [x] Fix Verantwortliche names not loading in task display (root cause: same - JSON parsing missing)
+- [x] Write vitest tests to verify both fixes (4 tests passing: array type, name resolution, sharedHouseholdIds, booleans)

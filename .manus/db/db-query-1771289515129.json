@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name, assignedTo, JSON_TYPE(assignedTo) as type \nFROM tasks \nWHERE assignedTo IS NOT NULL \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, assignedTo, JSON_TYPE(assignedTo) as type \nFROM tasks \nWHERE assignedTo IS NOT NULL \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "600002",
+      "name": "Testen",
+      "assignedTo": "[480008]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "assignedTo": "[[480009]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "600006",
+      "name": "sdf",
+      "assignedTo": "[[480011]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "630001",
+      "name": "Bad putzen",
+      "assignedTo": "[[510001]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "660003",
+      "name": "Holz holen",
+      "assignedTo": "[[480004]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "660004",
+      "name": "Holz Zuschneiden",
+      "assignedTo": "[[480004]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "660005",
+      "name": "Holz Hobeln",
+      "assignedTo": "[[480004]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "660006",
+      "name": "Holz Schleifen",
+      "assignedTo": "[[480004]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "660007",
+      "name": "Spähne ausleeren",
+      "assignedTo": "[[480004]]",
+      "type": "ARRAY"
+    },
+    {
+      "id": "690022",
+      "name": "Passwort ausdenken",
+      "assignedTo": "[[480010]]",
+      "type": "ARRAY"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tassignedTo\ttype\n600002\tTesten\t[480008]\tARRAY\n600005\tTest Aufgabe für Dialog\t[[480009]]\tARRAY\n600006\tsdf\t[[480011]]\tARRAY\n630001\tBad putzen\t[[510001]]\tARRAY\n660003\tHolz holen\t[[480004]]\tARRAY\n660004\tHolz Zuschneiden\t[[480004]]\tARRAY\n660005\tHolz Hobeln\t[[480004]]\tARRAY\n660006\tHolz Schleifen\t[[480004]]\tARRAY\n660007\tSpähne ausleeren\t[[480004]]\tARRAY\n690022\tPasswort ausdenken\t[[480010]]\tARRAY\n",
+  "stderr": "",
+  "execution_time_ms": 358
+}

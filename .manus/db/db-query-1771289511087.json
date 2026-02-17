@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_tasks,\n  SUM(CASE WHEN assignedTo IS NOT NULL AND JSON_TYPE(assignedTo) = 'ARRAY' THEN 1 ELSE 0 END) as array_tasks,\n  SUM(CASE WHEN assignedTo IS NOT NULL AND JSON_TYPE(assignedTo) != 'ARRAY' THEN 1 ELSE 0 END) as non_array_tasks\nFROM tasks;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  COUNT(*) as total_tasks,\n  SUM(CASE WHEN assignedTo IS NOT NULL AND JSON_TYPE(assignedTo) = 'ARRAY' THEN 1 ELSE 0 END) as array_tasks,\n  SUM(CASE WHEN assignedTo IS NOT NULL AND JSON_TYPE(assignedTo) != 'ARRAY' THEN 1 ELSE 0 END) as non_array_tasks\nFROM tasks;",
+  "rows": [
+    {
+      "total_tasks": "63",
+      "array_tasks": "63",
+      "non_array_tasks": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_tasks\tarray_tasks\tnon_array_tasks\n63\t63\t0\n",
+  "stderr": "",
+  "execution_time_ms": 368
+}

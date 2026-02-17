@@ -377,14 +377,43 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
         ORDER BY isCompleted, createdAt DESC`
   );
 
-  const tasksWithSharing = tasksResult as unknown as any[];
+  const rawTasks = tasksResult as unknown as any[];
 
-  // Get all household members to resolve names
+  // Parse JSON fields that come as strings from raw SQL
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'skippedDates', 'completionPhotoUrls', 'completionFileUrls'];
+  const tasksWithSharing = rawTasks.map(task => {
+    const parsed = { ...task };
+    for (const field of jsonFields) {
+      if (parsed[field] && typeof parsed[field] === 'string') {
+        try {
+          parsed[field] = JSON.parse(parsed[field]);
+        } catch {
+          // leave as-is if not valid JSON
+        }
+      }
+    }
+    // Convert boolean fields (MySQL returns 0/1 from raw SQL)
+    if (typeof parsed.isCompleted === 'number') parsed.isCompleted = parsed.isCompleted === 1;
+    if (typeof parsed.enableRotation === 'number') parsed.enableRotation = parsed.enableRotation === 1;
+    return parsed;
+  });
+
+  // Get all household members to resolve names - also get members from shared households
+  const allHouseholdIds = new Set<number>();
+  allHouseholdIds.add(householdId);
+  tasksWithSharing.forEach(task => {
+    if (task.sharedHouseholdIds && Array.isArray(task.sharedHouseholdIds)) {
+      task.sharedHouseholdIds.forEach((id: number) => allHouseholdIds.add(id));
+    }
+    if (task.householdId) allHouseholdIds.add(task.householdId);
+  });
+
+  const householdIdList = Array.from(allHouseholdIds);
   const [membersResult] = await db.execute(
-    sql`SELECT id, memberName FROM household_members WHERE householdId = ${householdId}`
+    sql`SELECT id, memberName, householdId FROM household_members WHERE householdId IN (${sql.raw(householdIdList.join(','))})`
   );
   
-  const members = membersResult as unknown as { id: number; memberName: string }[];
+  const members = membersResult as unknown as { id: number; memberName: string; householdId: number }[];
 
   // Resolve assignedToNames in JavaScript
   const tasksWithNames = tasksWithSharing.map(task => {

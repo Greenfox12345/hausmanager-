@@ -1,0 +1,14 @@
+{
+  "query": "SELECT \n  JSON_TYPE(assignedTo) as type,\n  COUNT(*) as count\nFROM tasks \nWHERE assignedTo IS NOT NULL\nGROUP BY JSON_TYPE(assignedTo);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  JSON_TYPE(assignedTo) as type,\n  COUNT(*) as count\nFROM tasks \nWHERE assignedTo IS NOT NULL\nGROUP BY JSON_TYPE(assignedTo);",
+  "rows": [
+    {
+      "type": "ARRAY",
+      "count": "63"
+    }
+  ],
+  "messages": [],
+  "stdout": "type\tcount\nARRAY\t63\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}
