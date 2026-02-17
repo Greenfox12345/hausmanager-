@@ -1818,3 +1818,24 @@
 - [ ] Update log display UI to show detailed changes
 - [x] Test logging for all action types (14 new tests passing)
 - [x] Fixed stale drizzle/schema.js causing projectId column error
+
+## Rotation Schedule Table Implementation (2026-02-17)
+- [x] Create database schema for task_rotation_schedule table (taskId, occurrenceNumber, position, memberId)
+- [x] Create database schema for task_rotation_occurrence_notes table (taskId, occurrenceNumber, notes)
+- [x] Add database helper functions (getRotationSchedule, setRotationSchedule, extendRotationSchedule, shiftRotationSchedule)
+- [x] Create backend mutations (tasks.getRotationSchedule, tasks.setRotationSchedule, tasks.extendRotationSchedule)
+- [x] Create RotationScheduleTable component with expandable rows and notes input
+- [x] Implement "Weiter planen" button to add more occurrences
+- [x] Pre-fill first occurrence with currently selected assignees
+- [x] Show dropdown for each cell with available members (minus excluded)
+- [x] Add notes textarea for each occurrence (shared across all positions)
+- [x] Calculate and display dates for each occurrence based on repeat interval
+- [x] Integrate rotation schedule table into TaskDetailDialog edit mode
+- [x] Display read-only rotation schedule in TaskDetailDialog details view (with notes)
+- [x] Load rotation schedule from backend when dialog opens
+- [x] Save rotation schedule to backend when task is updated
+- [x] Update task completion logic to use rotation schedule for next assignees
+- [x] Auto-extend schedule when completing tasks (add new 3rd occurrence)
+- [x] Shift schedule down after completion (occurrence 2 → 1, 3 → 2)
+- [x] Fallback to old rotation logic if no schedule exists
+- [x] Write vitest tests for rotation schedule functionality (6 tests passing)

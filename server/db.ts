@@ -12,6 +12,8 @@ import {
   projectHouseholds,
   activityHistory,
   taskRotationExclusions,
+  taskRotationSchedule,
+  taskRotationOccurrenceNotes,
   inventoryItems,
   inventoryOwnership,
   borrowRequests,
@@ -31,7 +33,11 @@ import {
   type BorrowGuideline,
   type BorrowReturnPhoto,
   type CalendarEvent,
-  type InsertCalendarEvent
+  type InsertCalendarEvent,
+  type TaskRotationSchedule,
+  type InsertTaskRotationSchedule,
+  type TaskRotationOccurrenceNote,
+  type InsertTaskRotationOccurrenceNote
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1131,4 +1137,171 @@ export async function deleteCalendarEventsByBorrowRequest(borrowRequestId: numbe
 
   await db.delete(calendarEvents)
     .where(eq(calendarEvents.relatedBorrowId, borrowRequestId));
+}
+
+// ==================== Task Rotation Schedule ====================
+
+/**
+ * Get rotation schedule for a task
+ * Returns schedule entries grouped by occurrence number with member details and notes
+ */
+export async function getRotationSchedule(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get schedule entries
+  const scheduleEntries = await db.select().from(taskRotationSchedule)
+    .where(eq(taskRotationSchedule.taskId, taskId))
+    .orderBy(taskRotationSchedule.occurrenceNumber, taskRotationSchedule.position);
+
+  // Get notes for all occurrences
+  const notes = await db.select().from(taskRotationOccurrenceNotes)
+    .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+
+  // Group by occurrence number
+  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string }> = {};
+  
+  for (const entry of scheduleEntries) {
+    if (!grouped[entry.occurrenceNumber]) {
+      grouped[entry.occurrenceNumber] = { members: [] };
+    }
+    grouped[entry.occurrenceNumber].members.push({
+      position: entry.position,
+      memberId: entry.memberId,
+    });
+  }
+
+  // Add notes to grouped data
+  for (const note of notes) {
+    if (grouped[note.occurrenceNumber]) {
+      grouped[note.occurrenceNumber].notes = note.notes || undefined;
+    }
+  }
+
+  // Convert to array format
+  return Object.entries(grouped).map(([occurrenceNumber, data]) => ({
+    occurrenceNumber: parseInt(occurrenceNumber),
+    members: data.members.sort((a, b) => a.position - b.position),
+    notes: data.notes,
+  }));
+}
+
+/**
+ * Set rotation schedule for a task
+ * Replaces all existing schedule entries and notes
+ */
+export async function setRotationSchedule(
+  taskId: number,
+  schedule: Array<{
+    occurrenceNumber: number;
+    members: Array<{ position: number; memberId: number }>;
+    notes?: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Delete existing schedule and notes
+  await db.delete(taskRotationSchedule).where(eq(taskRotationSchedule.taskId, taskId));
+  await db.delete(taskRotationOccurrenceNotes).where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+
+  // Insert new schedule entries
+  for (const occurrence of schedule) {
+    for (const member of occurrence.members) {
+      await db.insert(taskRotationSchedule).values({
+        taskId,
+        occurrenceNumber: occurrence.occurrenceNumber,
+        position: member.position,
+        memberId: member.memberId,
+      });
+    }
+
+    // Insert notes if provided
+    if (occurrence.notes) {
+      await db.insert(taskRotationOccurrenceNotes).values({
+        taskId,
+        occurrenceNumber: occurrence.occurrenceNumber,
+        notes: occurrence.notes,
+      });
+    }
+  }
+
+  return { success: true };
+}
+
+/**
+ * Extend rotation schedule by adding one more occurrence
+ * Used when completing tasks to maintain 3 future occurrences
+ */
+export async function extendRotationSchedule(
+  taskId: number,
+  newOccurrenceNumber: number,
+  members: Array<{ position: number; memberId: number }>,
+  notes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Insert new schedule entries
+  for (const member of members) {
+    await db.insert(taskRotationSchedule).values({
+      taskId,
+      occurrenceNumber: newOccurrenceNumber,
+      position: member.position,
+      memberId: member.memberId,
+    });
+  }
+
+  // Insert notes if provided
+  if (notes) {
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber: newOccurrenceNumber,
+      notes,
+    });
+  }
+
+  return { success: true };
+}
+
+/**
+ * Shift rotation schedule down by one occurrence
+ * Used when completing a task - occurrence 2 becomes 1, occurrence 3 becomes 2, etc.
+ */
+export async function shiftRotationSchedule(taskId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current schedule
+  const currentSchedule = await getRotationSchedule(taskId);
+  if (currentSchedule.length === 0) return { success: true };
+
+  // Delete all existing entries
+  await db.delete(taskRotationSchedule).where(eq(taskRotationSchedule.taskId, taskId));
+  await db.delete(taskRotationOccurrenceNotes).where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+
+  // Re-insert with decremented occurrence numbers
+  for (const occurrence of currentSchedule) {
+    const newOccurrenceNumber = occurrence.occurrenceNumber - 1;
+    if (newOccurrenceNumber < 1) continue; // Skip occurrence 1 (it was just completed)
+
+    for (const member of occurrence.members) {
+      await db.insert(taskRotationSchedule).values({
+        taskId,
+        occurrenceNumber: newOccurrenceNumber,
+        position: member.position,
+        memberId: member.memberId,
+      });
+    }
+
+    if (occurrence.notes) {
+      await db.insert(taskRotationOccurrenceNotes).values({
+        taskId,
+        occurrenceNumber: newOccurrenceNumber,
+        notes: occurrence.notes,
+      });
+    }
+  }
+
+  return { success: true };
 }

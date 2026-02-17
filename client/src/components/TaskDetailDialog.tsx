@@ -20,6 +20,7 @@ import { useState as useStateForTabs } from "react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { RotationScheduleTable, type ScheduleOccurrence } from "@/components/RotationScheduleTable";
 
 interface Task {
   id: number;
@@ -136,6 +137,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!task?.id && open }
   );
   
+  // Load rotation schedule
+  const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open && !!task?.enableRotation }
+  );
+  
   // Load linked shopping items
   const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
     { taskId: task?.id ?? 0 },
@@ -165,6 +172,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
+  const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
 
   // Reset edit mode when dialog closes
   useEffect(() => {
@@ -234,6 +242,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
   }, [task, open]);
   
+  // Load rotation schedule when data arrives
+  useEffect(() => {
+    if (rotationScheduleData && task && open && task.enableRotation) {
+      const scheduleWithDates = rotationScheduleData.map(occ => ({
+        occurrenceNumber: occ.occurrenceNumber,
+        members: occ.members,
+        notes: occ.notes,
+        calculatedDate: undefined, // Will be calculated by RotationScheduleTable
+      }));
+      setRotationSchedule(scheduleWithDates);
+    }
+  }, [rotationScheduleData, task, open]);
+  
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
     if (taskDependencies && task && open) {
@@ -276,6 +297,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.error(`Fehler: ${error.message}`);
     },
   });
+  
+  const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
@@ -362,6 +385,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
         nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
       });
+      
+      // Step 1.5: Save rotation schedule if rotation is enabled
+      if (enableRepeat && enableRotation && rotationSchedule.length > 0) {
+        await setRotationScheduleMutation.mutateAsync({
+          taskId: task.id,
+          schedule: rotationSchedule.map(occ => ({
+            occurrenceNumber: occ.occurrenceNumber,
+            members: occ.members.filter(m => m.memberId !== 0), // Filter out unassigned
+            notes: occ.notes,
+          })),
+        });
+      }
       
       // Step 2: Update dependencies (BEFORE invalidating)
       // If isProjectTask is false, clear all dependencies
@@ -771,6 +806,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             ))}
                           </div>
                         </div>
+
+                        {/* Rotation Schedule Table */}
+                        <div className="space-y-2 border-t pt-4 mt-4">
+                          <Label className="text-sm font-medium">Rotationsplan</Label>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
+                          </p>
+                          <RotationScheduleTable
+                            requiredPersons={requiredPersons}
+                            availableMembers={ownMembers.filter(m => !excludedMembers.includes(m.id)).map(m => ({ memberId: m.id, memberName: m.memberName }))}
+                            currentAssignees={selectedAssignees}
+                            repeatInterval={parseInt(repeatInterval) || 1}
+                            repeatUnit={repeatUnit}
+                            dueDate={dueDate ? new Date(dueDate) : null}
+                            onChange={setRotationSchedule}
+                            initialSchedule={rotationSchedule}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -986,12 +1039,47 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 )}
 
                 {task.enableRotation && (
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">
-                      <span className="text-muted-foreground">Rotation:</span>{" "}
-                      <strong>{task.requiredPersons} Person(en) pro Durchgang</strong>
-                    </span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="text-muted-foreground">Rotation:</span>{" "}
+                        <strong>{task.requiredPersons} Person(en) pro Durchgang</strong>
+                      </span>
+                    </div>
+                    
+                    {/* Read-only rotation schedule */}
+                    {rotationScheduleData && rotationScheduleData.length > 0 && (
+                      <div className="border rounded-lg p-3 bg-muted/30 space-y-3">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <Calendar className="h-4 w-4" />
+                          Geplante Rotation
+                        </div>
+                        <div className="space-y-2">
+                          {rotationScheduleData.map((occ) => {
+                            const memberNames = occ.members
+                              .map(m => members.find(mem => mem.memberId === m.memberId)?.memberName || `#${m.memberId}`)
+                              .join(", ");
+                            
+                            return (
+                              <div key={occ.occurrenceNumber} className="text-sm space-y-1">
+                                <div className="flex items-start gap-2">
+                                  <span className="font-medium text-muted-foreground min-w-[80px]">
+                                    Termin {occ.occurrenceNumber}:
+                                  </span>
+                                  <span>{memberNames}</span>
+                                </div>
+                                {occ.notes && (
+                                  <div className="pl-[88px] text-xs text-muted-foreground italic">
+                                    {occ.notes}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

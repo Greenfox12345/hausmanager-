@@ -12,6 +12,10 @@ import {
   getDb,
   getHouseholdById,
   getAllHouseholds,
+  getRotationSchedule,
+  setRotationSchedule,
+  extendRotationSchedule,
+  shiftRotationSchedule,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
@@ -553,34 +557,105 @@ export const tasksRouter = router({
           nextDueDate.setMonth(nextDueDate.getMonth() + (task.repeatInterval || 1));
         }
 
-        // Handle rotation if enabled (only for single assignee)
+        // Handle rotation if enabled
         let nextAssignee = task.assignedTo;
-        if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
-          const members = await getHouseholdMembers(input.householdId);
-          const activeMembers = members.filter(m => m.isActive);
-
-          if (activeMembers.length > 1) {
-            const currentAssigneeId = task.assignedTo[0];
-            const currentIndex = activeMembers.findIndex(m => m.id === currentAssigneeId);
-            const nextIndex = (currentIndex + 1) % activeMembers.length;
-            const nextMember = activeMembers[nextIndex];
-
-            if (nextMember) {
-              nextAssignee = [nextMember.id];
-
+        if (task.enableRotation) {
+          // Check if rotation schedule exists
+          const schedule = await getRotationSchedule(input.taskId);
+          
+          if (schedule && schedule.length > 0) {
+            // Use rotation schedule
+            const nextOccurrence = schedule.find(occ => occ.occurrenceNumber === 1);
+            
+            if (nextOccurrence && nextOccurrence.members.length > 0) {
+              // Get member IDs from schedule
+              nextAssignee = nextOccurrence.members.map(m => m.memberId);
+              
+              // Get member names for logging
+              const members = await getHouseholdMembers(input.householdId);
+              const nextMemberNames = nextAssignee
+                .map(id => members.find(m => m.id === id)?.memberName || `#${id}`)
+                .join(", ");
+              
               await createActivityLog({
                 householdId: input.householdId,
                 memberId: input.memberId,
                 activityType: "task",
                 action: "rotated",
-                description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche ist ${nextMember.memberName}`,
+                description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche sind ${nextMemberNames}`,
                 relatedItemId: input.taskId,
                 metadata: {
                   previousAssignee: task.assignedTo,
-                  nextAssignee: [nextMember.id],
-                  nextAssigneeName: nextMember.memberName,
+                  nextAssignee,
+                  nextAssigneeNames: nextMemberNames,
                 },
               });
+              
+              // Shift schedule down (occurrence 2 becomes 1, etc.)
+              await shiftRotationSchedule(input.taskId);
+              
+              // Check if we need to extend the schedule (less than 3 future occurrences)
+              const updatedSchedule = await getRotationSchedule(input.taskId);
+              if (updatedSchedule.length < 3 && task.requiredPersons) {
+                // Get available members (excluding excluded ones)
+                const db = await getDb();
+                if (db) {
+                  const { taskRotationExclusions } = await import("../../drizzle/schema");
+                  const exclusions = await db.select().from(taskRotationExclusions)
+                    .where(eq(taskRotationExclusions.taskId, input.taskId));
+                  const excludedIds = exclusions.map(e => e.memberId);
+                  
+                  const members = await getHouseholdMembers(input.householdId);
+                  const availableMembers = members.filter(m => m.isActive && !excludedIds.includes(m.id));
+                  
+                  // Add a new occurrence (simple round-robin for auto-extension)
+                  const newOccurrenceNumber = updatedSchedule.length + 1;
+                  const newMembers: { position: number; memberId: number }[] = [];
+                  
+                  for (let i = 0; i < task.requiredPersons; i++) {
+                    if (availableMembers.length > 0) {
+                      const memberIndex = (newOccurrenceNumber - 1 + i) % availableMembers.length;
+                      newMembers.push({
+                        position: i + 1,
+                        memberId: availableMembers[memberIndex].id,
+                      });
+                    }
+                  }
+                  
+                  if (newMembers.length > 0) {
+                    await extendRotationSchedule(input.taskId, newOccurrenceNumber, newMembers);
+                  }
+                }
+              }
+            }
+          } else if (task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
+            // Fallback to old rotation logic (single assignee round-robin)
+            const members = await getHouseholdMembers(input.householdId);
+            const activeMembers = members.filter(m => m.isActive);
+
+            if (activeMembers.length > 1) {
+              const currentAssigneeId = task.assignedTo[0];
+              const currentIndex = activeMembers.findIndex(m => m.id === currentAssigneeId);
+              const nextIndex = (currentIndex + 1) % activeMembers.length;
+              const nextMember = activeMembers[nextIndex];
+
+              if (nextMember) {
+                nextAssignee = [nextMember.id];
+
+                await createActivityLog({
+                  householdId: input.householdId,
+                  memberId: input.memberId,
+                  activityType: "task",
+                  action: "rotated",
+                  description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche ist ${nextMember.memberName}`,
+                  relatedItemId: input.taskId,
+                  metadata: {
+                    previousAssignee: task.assignedTo,
+                    nextAssignee: [nextMember.id],
+                    nextAssigneeName: nextMember.memberName,
+                  },
+                });
+              }
             }
           }
         }
@@ -1241,5 +1316,59 @@ export const tasksRouter = router({
         .where(inArray(households.id, task[0].sharedHouseholdIds));
 
       return shared;
+    }),
+
+  // Get rotation schedule for a task
+  getRotationSchedule: publicProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      return await getRotationSchedule(input.taskId);
+    }),
+
+  // Set rotation schedule for a task
+  setRotationSchedule: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        schedule: z.array(
+          z.object({
+            occurrenceNumber: z.number(),
+            members: z.array(
+              z.object({
+                position: z.number(),
+                memberId: z.number(),
+              })
+            ),
+            notes: z.string().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await setRotationSchedule(input.taskId, input.schedule);
+    }),
+
+  // Extend rotation schedule by adding one more occurrence
+  extendRotationSchedule: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        occurrenceNumber: z.number(),
+        members: z.array(
+          z.object({
+            position: z.number(),
+            memberId: z.number(),
+          })
+        ),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await extendRotationSchedule(
+        input.taskId,
+        input.occurrenceNumber,
+        input.members,
+        input.notes
+      );
     }),
 });

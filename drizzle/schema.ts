@@ -174,6 +174,38 @@ export type TaskRotationExclusion = typeof taskRotationExclusions.$inferSelect;
 export type InsertTaskRotationExclusion = typeof taskRotationExclusions.$inferInsert;
 
 /**
+ * Task rotation schedule - pre-planned assignments for recurring tasks with rotation
+ * Stores which members are assigned to which future occurrence of a rotating task
+ */
+export const taskRotationSchedule = mysqlTable("task_rotation_schedule", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc.
+  position: int("position").notNull(), // 1 = first person, 2 = second person (for requiredPersons > 1)
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TaskRotationSchedule = typeof taskRotationSchedule.$inferSelect;
+export type InsertTaskRotationSchedule = typeof taskRotationSchedule.$inferInsert;
+
+/**
+ * Task rotation occurrence notes - notes for specific occurrences of rotating tasks
+ * One note per occurrence, shared across all positions/members
+ */
+export const taskRotationOccurrenceNotes = mysqlTable("task_rotation_occurrence_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc.
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferSelect;
+export type InsertTaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferInsert;
+
+/**
  * Task dependencies - relationships between household tasks
  * Used for both regular tasks and project-linked tasks
  */
