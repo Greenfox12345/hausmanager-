@@ -1750,3 +1750,21 @@
 - [x] Debug why tasks show "Keine Aufgaben vorhanden" despite tasks existing
 - [x] Fix query error that occurs after task creation (replaced JSON_CONTAINS with JSON_SEARCH)
 - [x] Test with browser console to identify root cause (query was hanging due to CONCAT parameter binding)
+
+## Fix Task Editing and Multiple Assignees (2026-02-17)
+- [x] Fix TaskDetailDialog to properly save sharedHouseholdIds when household connections are changed (was already working)
+- [x] Extend tasks schema to support multiple assignees (assignedTo as JSON array instead of single ID)
+- [x] Migrate existing assignedTo data to new array format
+- [x] Update backend getTasks query to load assignedToNames for arrays
+- [x] Update backend createTask mutation to accept assignedTo array
+- [x] Update backend updateTask mutation to accept assignedTo array
+- [x] Update backend toggleComplete rotation logic to handle arrays (only rotates with single assignee)
+- [x] Update task display in Tasks.tsx to show multiple assignees (comma-separated)
+- [x] Update task display in Calendar.tsx to show multiple assignees
+- [x] Update task display in Projects.tsx to show multiple assignees
+- [x] Update task display in GanttChartView.tsx to show multiple assignees
+- [x] Update TaskDetailDialog to send assignedTo as array
+- [x] Update Shopping.tsx to send assignedTo as array
+- [x] Write vitest tests for multiple assignees functionality (2 tests passing)
+- [ ] Create rotation planning table UI (deferred for future feature)
+- [ ] Implement rotation schedule database table (deferred for future feature)

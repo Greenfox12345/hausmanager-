@@ -1,0 +1,1 @@
+DROP TABLE `task_rotation_schedule`;

@@ -74,7 +74,7 @@ export default function Tasks() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
   const [showBatchAssignDialog, setShowBatchAssignDialog] = useState(false);
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false);
-  const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null);
+  const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null); // Single member for batch assign
   
   // Filter and sorting states
   const [filterExpanded, setFilterExpanded] = useState(false);
@@ -318,7 +318,7 @@ export default function Tasks() {
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
-        assignedTo: selectedAssignees[0], // First assignee
+        assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined, // Array of assignees
         projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
         sharedHouseholdIds: shareWithNeighbors ? sharedHouseholdIds : [],
         nonResponsiblePermission: shareWithNeighbors && sharedHouseholdIds.length > 0 ? nonResponsiblePermission : "full",
@@ -470,6 +470,14 @@ export default function Tasks() {
     return memberData?.memberName || "Unbekannt";
   };
   
+  const getMemberNames = (memberIds: number[] | null) => {
+    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
+    return memberIds.map(id => {
+      const memberData = members.find((m) => m.id === id);
+      return memberData?.memberName || "Unbekannt";
+    }).join(", ");
+  };
+  
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
     if (!tasks || tasks.length === 0) return [];
@@ -484,7 +492,7 @@ export default function Tasks() {
     
     // Assignee filter
     if (assigneeFilter !== "all") {
-      filtered = filtered.filter(t => t.assignedTo === assigneeFilter);
+      filtered = filtered.filter(t => t.assignedTo && t.assignedTo.includes(assigneeFilter));
     }
     
     // Due date filter
@@ -1260,7 +1268,7 @@ export default function Tasks() {
                       )}
                       <div className="flex flex-wrap gap-2 mt-2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
-                          {getMemberName(task.assignedTo)}
+                          {getMemberNames(task.assignedTo)}
                         </span>
                         <TaskDependencies
                           taskId={task.id}
@@ -1457,7 +1465,7 @@ export default function Tasks() {
                   taskIds: selectedTaskIds,
                   householdId: household.householdId,
                   memberId: member.memberId,
-                  assignedTo: batchAssignTo,
+                  assignedTo: batchAssignTo ? [batchAssignTo] : [], // Wrap in array
                 });
                 setShowBatchAssignDialog(false);
               }}

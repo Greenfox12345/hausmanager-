@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `task_rotation_schedule` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`taskId` int NOT NULL,\n\t`occurrenceNumber` int NOT NULL,\n\t`position` int NOT NULL,\n\t`memberId` int,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `task_rotation_schedule_id` PRIMARY KEY(`id`)\n);\n\nALTER TABLE `task_rotation_schedule` ADD CONSTRAINT `task_rotation_schedule_taskId_tasks_id_fk` FOREIGN KEY (`taskId`) REFERENCES `tasks`(`id`) ON DELETE cascade ON UPDATE no action;\n\nALTER TABLE `task_rotation_schedule` ADD CONSTRAINT `task_rotation_schedule_memberId_household_members_id_fk` FOREIGN KEY (`memberId`) REFERENCES `household_members`(`id`) ON DELETE set null ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute CREATE TABLE `task_rotation_schedule` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`taskId` int NOT NULL,\n\t`occurrenceNumber` int NOT NULL,\n\t`position` int NOT NULL,\n\t`memberId` int,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `task_rotation_schedule_id` PRIMARY KEY(`id`)\n);\n\nALTER TABLE `task_rotation_schedule` ADD CONSTRAINT `task_rotation_schedule_taskId_tasks_id_fk` FOREIGN KEY (`taskId`) REFERENCES `tasks`(`id`) ON DELETE cascade ON UPDATE no action;\n\nALTER TABLE `task_rotation_schedule` ADD CONSTRAINT `task_rotation_schedule_memberId_household_members_id_fk` FOREIGN KEY (`memberId`) REFERENCES `household_members`(`id`) ON DELETE set null ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 3638
+}

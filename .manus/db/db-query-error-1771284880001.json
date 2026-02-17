@@ -1,0 +1,8 @@
+{
+  "query": "-- First, create a temporary column to store the JSON array\nALTER TABLE `tasks` ADD COLUMN `assignedTo_new` json;\n\n-- Migrate existing data: convert single ID to array [ID]\nUPDATE `tasks` SET `assignedTo_new` = JSON_ARRAY(`assignedTo`) WHERE `assignedTo` IS NOT NULL;\n\n-- Drop the foreign key constraint\nALTER TABLE `tasks` DROP FOREIGN KEY `tasks_assignedTo_household_members_id_fk`;\n\n-- Drop the old column\nALTER TABLE `tasks` DROP COLUMN `assignedTo`;\n\n-- Rename the new column to assignedTo\nALTER TABLE `tasks` CHANGE COLUMN `assignedTo_new` `assignedTo` json;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute -- First, create a temporary column to store the JSON array\nALTER TABLE `tasks` ADD COLUMN `assignedTo_new` json;\n\n-- Migrate existing data: convert single ID to array [ID]\nUPDATE `tasks` SET `assignedTo_new` = JSON_ARRAY(`assignedTo`) WHERE `assignedTo` IS NOT NULL;\n\n-- Drop the foreign key constraint\nALTER TABLE `tasks` DROP FOREIGN KEY `tasks_assignedTo_household_members_id_fk`;\n\n-- Drop the old column\nALTER TABLE `tasks` DROP COLUMN `assignedTo`;\n\n-- Rename the new column to assignedTo\nALTER TABLE `tasks` CHANGE COLUMN `assignedTo_new` `assignedTo` json;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1091 (42000) at line 8: Can't DROP 'tasks_assignedTo_household_members_id_fk'; check that column/key exists"
+  ]
+}

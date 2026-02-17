@@ -30,7 +30,7 @@ export const tasksRouter = router({
         memberId: z.number(),
         name: z.string().min(1),
         description: z.string().optional(),
-        assignedTo: z.number().optional(),
+        assignedTo: z.array(z.number()).optional(), // Array of member IDs
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).default("once"),
         customFrequencyDays: z.number().optional(),
         repeatInterval: z.number().optional(),
@@ -91,13 +91,17 @@ export const tasksRouter = router({
       });
 
       // Send notification if task is assigned to someone
-      if (input.assignedTo && input.assignedTo !== input.memberId) {
-        await notifyTaskAssigned(
-          input.householdId,
-          input.assignedTo,
-          taskId,
-          input.name
-        );
+      if (input.assignedTo && input.assignedTo.length > 0) {
+        for (const assigneeId of input.assignedTo) {
+          if (assigneeId !== input.memberId) {
+            await notifyTaskAssigned(
+              input.householdId,
+              assigneeId,
+              taskId,
+              input.name
+            );
+          }
+        }
       }
 
       // Update sharedHouseholdIds in the task itself
@@ -123,7 +127,7 @@ export const tasksRouter = router({
         memberId: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
-        assignedTo: z.number().optional(),
+        assignedTo: z.array(z.number()).optional(), // Array of member IDs
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).optional(),
         customFrequencyDays: z.number().optional(),
         repeatInterval: z.number().optional(),
@@ -230,19 +234,20 @@ export const tasksRouter = router({
           nextDueDate.setMonth(nextDueDate.getMonth() + (task.repeatInterval || 1));
         }
 
-        // Handle rotation if enabled
+        // Handle rotation if enabled (only for single assignee)
         let nextAssignee = task.assignedTo;
-        if (task.enableRotation && task.assignedTo) {
+        if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
           const members = await getHouseholdMembers(input.householdId);
           const activeMembers = members.filter(m => m.isActive);
           
           if (activeMembers.length > 1) {
-            const currentIndex = activeMembers.findIndex(m => m.id === task.assignedTo);
+            const currentAssigneeId = task.assignedTo[0];
+            const currentIndex = activeMembers.findIndex(m => m.id === currentAssigneeId);
             const nextIndex = (currentIndex + 1) % activeMembers.length;
             const nextMember = activeMembers[nextIndex];
             
             if (nextMember) {
-              nextAssignee = nextMember.id;
+              nextAssignee = [nextMember.id]; // Keep as array
               
               await createActivityLog({
                 householdId: input.householdId,
@@ -404,8 +409,8 @@ export const tasksRouter = router({
         });
       }
 
-      // Handle rotation if enabled
-      if (task.enableRotation && task.assignedTo) {
+      // Handle rotation if enabled (only for single assignee)
+      if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
         const members = await getHouseholdMembers(input.householdId);
         const activeMembers = members.filter(m => m.isActive);
         
@@ -423,13 +428,14 @@ export const tasksRouter = router({
         const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
         
         if (eligibleMembers.length > 0) {
-          const currentIndex = eligibleMembers.findIndex(m => m.id === task.assignedTo);
+          const currentAssigneeId = task.assignedTo[0];
+          const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
           const nextIndex = (currentIndex + 1) % eligibleMembers.length;
           const nextMember = eligibleMembers[nextIndex];
           
           if (nextMember) {
             await updateTask(input.taskId, {
-              assignedTo: nextMember.id,
+              assignedTo: [nextMember.id], // Keep as array
             });
           }
         }
@@ -595,7 +601,7 @@ export const tasksRouter = router({
         taskIds: z.array(z.number()),
         householdId: z.number(),
         memberId: z.number(),
-        assignedTo: z.number(),
+        assignedTo: z.array(z.number()), // Array of member IDs
       })
     )
     .mutation(async ({ input }) => {
@@ -720,13 +726,14 @@ export const tasksRouter = router({
 
       // Revert rotation if enabled
       let previousAssignee = task.assignedTo;
-      if (task.enableRotation && task.assignedTo) {
+      if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
         const members = await getHouseholdMembers(input.householdId);
         const activeMembers = members.filter((m: any) => m.isActive);
 
         if (activeMembers.length > 1) {
+          const currentAssigneeId = task.assignedTo[0];
           const currentIndex = activeMembers.findIndex(
-            (m: any) => m.id === task.assignedTo
+            (m: any) => m.id === currentAssigneeId
           );
           // Go back one in rotation
           const previousIndex =
@@ -734,7 +741,7 @@ export const tasksRouter = router({
           const previousMember = activeMembers[previousIndex];
 
           if (previousMember) {
-            previousAssignee = previousMember.id;
+            previousAssignee = [previousMember.id];
           }
         }
       }

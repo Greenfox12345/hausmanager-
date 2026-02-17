@@ -380,6 +380,16 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     name: tasks.name,
     description: tasks.description,
     assignedTo: tasks.assignedTo,
+    assignedToNames: sql<string>`(
+      CASE
+        WHEN ${tasks.assignedTo} IS NULL THEN NULL
+        ELSE (
+          SELECT GROUP_CONCAT(m.memberName SEPARATOR ', ')
+          FROM ${householdMembers} m
+          WHERE JSON_SEARCH(${tasks.assignedTo}, 'one', CAST(m.id AS CHAR)) IS NOT NULL
+        )
+      END
+    )`,
     isCompleted: tasks.isCompleted,
     frequency: tasks.frequency,
     customFrequencyDays: tasks.customFrequencyDays,
@@ -432,7 +442,7 @@ export async function createTask(data: {
   householdId: number;
   name: string;
   description?: string;
-  assignedTo?: number;
+  assignedTo?: number[]; // Array of member IDs
   frequency?: "once" | "daily" | "weekly" | "monthly" | "custom";
   customFrequencyDays?: number;
   repeatInterval?: number;

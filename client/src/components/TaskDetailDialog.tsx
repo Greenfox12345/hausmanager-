@@ -25,7 +25,7 @@ interface Task {
   id: number;
   name: string;
   description?: string | null;
-  assignedTo?: number | null;
+  assignedTo?: number[] | null; // Array of member IDs
   dueDate?: string | Date | null;
   enableRepeat?: boolean | null;
   repeatInterval?: number | null;
@@ -178,8 +178,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     if (task && open) {
       setName(task.name || "");
       setDescription(task.description || "");
-      setAssignedTo(task.assignedTo || null);
-      setSelectedAssignees(task.assignedTo ? [task.assignedTo] : []);
+      setAssignedTo(task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo[0] : null); // For backward compatibility
+      setSelectedAssignees(task.assignedTo || []);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -347,7 +347,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         taskId: task.id,
         name: name || undefined,
         description: description !== undefined ? description : undefined,
-        assignedTo: selectedAssignees[0] || undefined,
+        assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined,
         dueDate: dueDateString || undefined,
         dueTime: dueTimeString || undefined,
         frequency: frequency,
@@ -406,8 +406,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     if (task) {
       setName(task.name || "");
       setDescription(task.description || "");
-      setAssignedTo(task.assignedTo || null);
-      setSelectedAssignees(task.assignedTo ? [task.assignedTo] : []);
+      setAssignedTo(task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo[0] : null); // For backward compatibility
+      setSelectedAssignees(task.assignedTo || []);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -459,7 +459,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   if (!task) return null;
 
-  const assignedMember = ownMembers.find(m => m.id === task.assignedTo) || members.find(m => m.memberId === task.assignedTo);
+  const assignedMemberIds = task.assignedTo || [];
+  const assignedMemberNames = assignedMemberIds.map(id => {
+    const member = ownMembers.find(m => m.id === id) || members.find(m => m.memberId === id);
+    return member?.memberName || "Unbekannt";
+  }).join(", ") || "Nicht zugewiesen";
 
   return (
     <>
@@ -944,12 +948,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   )}
                 </div>
 
-                {assignedMember && (
+                {assignedMemberIds.length > 0 && (
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
                       <span className="text-muted-foreground">Verantwortlich:</span>{" "}
-                      <strong>{assignedMember.memberName}</strong>
+                      <strong>{assignedMemberNames}</strong>
                     </span>
                   </div>
                 )}

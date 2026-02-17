@@ -1,0 +1,9 @@
+{
+  "query": "-- Step 1: Add temporary column\nALTER TABLE tasks ADD COLUMN assignedTo_new JSON;\n\n-- Step 2: Migrate data: convert single ID to array [ID]\nUPDATE tasks SET assignedTo_new = JSON_ARRAY(assignedTo) WHERE assignedTo IS NOT NULL;\n\n-- Step 3: Drop old column (and its index/FK if exists)\nALTER TABLE tasks DROP INDEX IF EXISTS tasks_assignedTo_household_members_id_fk;\nALTER TABLE tasks DROP COLUMN assignedTo;\n\n-- Step 4: Rename new column\nALTER TABLE tasks CHANGE COLUMN assignedTo_new assignedTo JSON;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute -- Step 1: Add temporary column\nALTER TABLE tasks ADD COLUMN assignedTo_new JSON;\n\n-- Step 2: Migrate data: convert single ID to array [ID]\nUPDATE tasks SET assignedTo_new = JSON_ARRAY(assignedTo) WHERE assignedTo IS NOT NULL;\n\n-- Step 3: Drop old column (and its index/FK if exists)\nALTER TABLE tasks DROP INDEX IF EXISTS tasks_assignedTo_household_members_id_fk;\nALTER TABLE tasks DROP COLUMN assignedTo;\n\n-- Step 4: Rename new column\nALTER TABLE tasks CHANGE COLUMN assignedTo_new assignedTo JSON;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1627
+}

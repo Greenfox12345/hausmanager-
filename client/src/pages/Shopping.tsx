@@ -653,7 +653,7 @@ export default function Shopping() {
         name: taskName.trim(),
         dueDate: taskDueDate || undefined,
         dueTime: taskDueTime || undefined,
-        assignedTo: selectedAssignees[0],
+        assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined, // Array of assignees
         frequency: taskEnableRepeat ? "custom" : "once",
         repeatInterval: taskEnableRepeat ? Number(taskRepeatInterval) : undefined,
         repeatUnit: taskEnableRepeat ? taskRepeatUnit : undefined,

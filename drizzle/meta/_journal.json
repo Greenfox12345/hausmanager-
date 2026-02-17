@@ -120,6 +120,20 @@
       "when": 1770675321924,
       "tag": "0016_uneven_the_hunter",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1771287594336,
+      "tag": "0017_small_queen_noir",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1771288238110,
+      "tag": "0018_dry_butterfly",
+      "breakpoints": true
     }
   ]
 }

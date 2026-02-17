@@ -9,7 +9,7 @@ interface Task {
   name: string;
   dueDate: Date | null;
   isCompleted: boolean;
-  assignedTo: number | null;
+  assignedTo: number[] | null; // Array of member IDs
   enableRotation?: boolean;
   repeatInterval?: number | null;
   repeatUnit?: string | null;
@@ -32,6 +32,14 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
+  };
+  
+  const getMemberNames = (memberIds: number[] | null) => {
+    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
+    return memberIds.map(id => {
+      const memberData = members.find((m) => m.id === id);
+      return memberData?.memberName || "Unbekannt";
+    }).join(", ");
   };
 
   // Calculate date range for Gantt chart
@@ -141,7 +149,7 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {getMemberName(task.assignedTo)}
+                        {getMemberNames(task.assignedTo)}
                       </div>
                     </div>
 
@@ -210,7 +218,7 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span>{getMemberName(task.assignedTo)}</span>
+                    <span>{getMemberNames(task.assignedTo)}</span>
                     {task.repeatInterval && task.repeatUnit && (
                       <Badge variant="outline" className="text-xs">
                         <Clock className="h-3 w-3 mr-1" />

@@ -1,0 +1,49 @@
+{
+  "query": "SHOW CREATE TABLE tasks;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SHOW CREATE TABLE tasks;",
+  "rows": [
+    {
+      "Table": "tasks",
+      "Create Table": "CREATE TABLE `tasks` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `householdId` int(11) NOT NULL,",
+    "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `assignedTo` int(11) DEFAULT NULL,",
+    "  `frequency` enum('once','daily','weekly','monthly','custom') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'once',",
+    "  `customFrequencyDays` int(11) DEFAULT NULL,",
+    "  `enableRotation` tinyint(1) NOT NULL DEFAULT '0',",
+    "  `dueDate` datetime DEFAULT NULL,",
+    "  `isCompleted` tinyint(1) NOT NULL DEFAULT '0',",
+    "  `completedBy` int(11) DEFAULT NULL,",
+    "  `completedAt` timestamp NULL DEFAULT NULL,",
+    "  `completionPhotoUrls` json DEFAULT NULL,",
+    "  `createdBy` int(11) NOT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  `repeatInterval` int(11) DEFAULT NULL,",
+    "  `repeatUnit` enum('days','weeks','months') COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `requiredPersons` int(11) DEFAULT NULL,",
+    "  `projectIds` json DEFAULT NULL,",
+    "  `skippedDates` json DEFAULT NULL,",
+    "  `completionFileUrls` json DEFAULT NULL,",
+    "  `nonResponsiblePermission` enum('full','milestones_reminders','view_only') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'full',",
+    "  `sharedHouseholdIds` json DEFAULT NULL,",
+    "  `assignedTo_new` json DEFAULT NULL,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  KEY `tasks_householdId_households_id_fk` (`householdId`),",
+    "  KEY `tasks_assignedTo_household_members_id_fk` (`assignedTo`),",
+    "  KEY `tasks_completedBy_household_members_id_fk` (`completedBy`),",
+    "  KEY `tasks_createdBy_household_members_id_fk` (`createdBy`),",
+    "  CONSTRAINT `tasks_householdId_households_id_fk` FOREIGN KEY (`householdId`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`households` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,",
+    "  CONSTRAINT `tasks_completedBy_household_members_id_fk` FOREIGN KEY (`completedBy`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`household_members` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,",
+    "  CONSTRAINT `tasks_createdBy_household_members_id_fk` FOREIGN KEY (`createdBy`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`household_members` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1770001"
+  ],
+  "stdout": "Table\tCreate Table\ntasks\tCREATE TABLE `tasks` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `householdId` int(11) NOT NULL,\n  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `assignedTo` int(11) DEFAULT NULL,\n  `frequency` enum('once','daily','weekly','monthly','custom') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'once',\n  `customFrequencyDays` int(11) DEFAULT NULL,\n  `enableRotation` tinyint(1) NOT NULL DEFAULT '0',\n  `dueDate` datetime DEFAULT NULL,\n  `isCompleted` tinyint(1) NOT NULL DEFAULT '0',\n  `completedBy` int(11) DEFAULT NULL,\n  `completedAt` timestamp NULL DEFAULT NULL,\n  `completionPhotoUrls` json DEFAULT NULL,\n  `createdBy` int(11) NOT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `repeatInterval` int(11) DEFAULT NULL,\n  `repeatUnit` enum('days','weeks','months') COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `requiredPersons` int(11) DEFAULT NULL,\n  `projectIds` json DEFAULT NULL,\n  `skippedDates` json DEFAULT NULL,\n  `completionFileUrls` json DEFAULT NULL,\n  `nonResponsiblePermission` enum('full','milestones_reminders','view_only') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'full',\n  `sharedHouseholdIds` json DEFAULT NULL,\n  `assignedTo_new` json DEFAULT NULL,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  KEY `tasks_householdId_households_id_fk` (`householdId`),\n  KEY `tasks_assignedTo_household_members_id_fk` (`assignedTo`),\n  KEY `tasks_completedBy_household_members_id_fk` (`completedBy`),\n  KEY `tasks_createdBy_household_members_id_fk` (`createdBy`),\n  CONSTRAINT `tasks_householdId_households_id_fk` FOREIGN KEY (`householdId`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`households` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,\n  CONSTRAINT `tasks_completedBy_household_members_id_fk` FOREIGN KEY (`completedBy`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`household_members` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,\n  CONSTRAINT `tasks_createdBy_household_members_id_fk` FOREIGN KEY (`createdBy`) REFERENCES `5dPSLyh58e9tDjPvGLCuzX`.`household_members` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1770001\n",
+  "stderr": "",
+  "execution_time_ms": 350
+}

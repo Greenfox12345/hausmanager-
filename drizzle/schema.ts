@@ -135,7 +135,7 @@ export const tasks = mysqlTable("tasks", {
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  assignedTo: int("assignedTo").references(() => householdMembers.id),
+  assignedTo: json("assignedTo").$type<number[]>(), // Array of household member IDs
   frequency: mysqlEnum("frequency", ["once", "daily", "weekly", "monthly", "custom"]).default("once").notNull(),
   customFrequencyDays: int("customFrequencyDays"),
   repeatInterval: int("repeatInterval"),

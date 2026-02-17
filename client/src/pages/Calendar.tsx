@@ -369,7 +369,7 @@ export default function Calendar() {
     
     // Apply assignee filter
     if (filterAssignee !== null) {
-      filtered = filtered.filter(task => task.assignedTo === filterAssignee);
+      filtered = filtered.filter(task => task.assignedTo && task.assignedTo.includes(filterAssignee));
     }
     
     // Apply sorting
@@ -410,6 +410,14 @@ export default function Calendar() {
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
+  };
+  
+  const getMemberNames = (memberIds: number[] | null) => {
+    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
+    return memberIds.map(id => {
+      const memberData = members.find((m) => m.id === id);
+      return memberData?.memberName || "Unbekannt";
+    }).join(", ");
   };
 
   const getProjectName = (projectIds: number[] | null) => {
@@ -769,7 +777,7 @@ export default function Calendar() {
                                     </div>
                                     
                                     <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                      <span>{getMemberName(task.assignedTo)}</span>
+                                      <span>{getMemberNames(task.assignedTo)}</span>
                                       {task.dueDate && (
                                         <span>• {format(new Date(task.dueDate), "HH:mm")} Uhr</span>
                                       )}
@@ -1031,7 +1039,7 @@ export default function Calendar() {
                                 </div>
                                 
                                 <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                  <span>{getMemberName(task.assignedTo)}</span>
+                                  <span>{getMemberNames(task.assignedTo)}</span>
                                   {task.dueDate && (
                                     <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
                                   )}
@@ -1283,7 +1291,7 @@ export default function Calendar() {
                                 </div>
                                 
                                 <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                  <span>{getMemberName(task.assignedTo)}</span>
+                                  <span>{getMemberNames(task.assignedTo)}</span>
                                   {task.createdAt && (
                                     <span>• Erstellt: {format(new Date(task.createdAt), "dd.MM.yyyy")}</span>
                                   )}

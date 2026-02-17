@@ -393,7 +393,7 @@ export default function Projects() {
         memberId: member?.memberId || 0,
         name: taskName,
         description: taskDescription || undefined,
-        assignedTo: taskAssignees.length > 0 ? taskAssignees[0] : undefined,
+        assignedTo: taskAssignees.length > 0 ? taskAssignees : undefined, // Array of assignees
         dueDate: dueDateTime ? dueDateTime.toISOString() : undefined,
         projectIds: selectedProjectId ? [selectedProjectId, ...additionalProjectIds] : undefined,
         frequency: isRepeating && repeatInterval ? (
@@ -471,6 +471,14 @@ export default function Projects() {
     if (!memberId) return "Nicht zugewiesen";
     const memberData = members.find((m) => m.id === memberId);
     return memberData?.memberName || "Unbekannt";
+  };
+  
+  const getMemberNames = (memberIds: number[] | null) => {
+    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
+    return memberIds.map(id => {
+      const memberData = members.find((m) => m.id === id);
+      return memberData?.memberName || "Unbekannt";
+    }).join(", ");
   };
 
   const getFrequencyBadge = (task: typeof tasks[0]) => {
@@ -955,7 +963,7 @@ export default function Projects() {
                                         </div>
 
                                         <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                          <span>{getMemberName(task.assignedTo)}</span>
+                                          <span>{getMemberNames(task.assignedTo)}</span>
                                           {task.dueDate && (
                                             <span>• {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr</span>
                                           )}
