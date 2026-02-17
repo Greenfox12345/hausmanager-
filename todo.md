@@ -1844,3 +1844,10 @@
 - [x] Investigate React crash when clicking "Verantwortung rotieren" checkbox (infinite loop in useEffect)
 - [x] Fix the crash by wrapping onChange callback in useCallback
 - [x] Test rotation toggle functionality
+
+## Fix Rotation Toggle Crash with Due Dates (2026-02-17)
+- [x] Investigate why rotation crashes when task has a due date (Date object creates new reference every render)
+- [x] Fix infinite re-render loop in RotationScheduleTable using useRef to track initialization
+- [x] Separate date updates from onChange notifications to prevent cascading re-renders
+- [ ] Test with tasks that have due dates vs tasks without due dates
+- [ ] Test with daily, weekly, and monthly rotation intervals

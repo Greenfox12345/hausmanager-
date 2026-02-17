@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,17 +41,21 @@ export function RotationScheduleTable({
   initialSchedule,
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
-
-  // Calculate date for an occurrence
-  const calculateOccurrenceDate = (occurrenceNumber: number): Date | undefined => {
+  const isInitialized = useRef(false);
+  const isUpdatingDates = useRef(false);
+  
+  // Calculate date for an occurrence (memoized to prevent recalculation)
+  const calculateOccurrenceDate = useCallback((occurrenceNumber: number): Date | undefined => {
     if (!dueDate) return undefined;
     
     const addFunction = repeatUnit === "days" ? addDays : repeatUnit === "weeks" ? addWeeks : addMonths;
     return addFunction(dueDate, repeatInterval * (occurrenceNumber - 1));
-  };
+  }, [dueDate, repeatInterval, repeatUnit]);
 
-  // Initialize schedule with 3 occurrences
+  // Initialize schedule ONCE on mount
   useEffect(() => {
+    if (isInitialized.current) return;
+    
     if (initialSchedule && initialSchedule.length > 0) {
       // Use provided initial schedule
       const withDates = initialSchedule.map(occ => ({
@@ -86,13 +90,29 @@ export function RotationScheduleTable({
       
       setSchedule(defaultSchedule);
     }
-  }, [requiredPersons, repeatInterval, repeatUnit, dueDate]); // Removed currentAssignees to prevent infinite loop
+    
+    isInitialized.current = true;
+  }, []); // Empty deps - run ONCE on mount
 
-  // Notify parent of changes
+  // Update calculated dates when date-related props change (but don't trigger onChange)
   useEffect(() => {
-    if (schedule.length > 0) {
-      onChange(schedule);
-    }
+    if (!isInitialized.current || schedule.length === 0) return;
+    
+    isUpdatingDates.current = true;
+    const updated = schedule.map(occ => ({
+      ...occ,
+      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+    }));
+    setSchedule(updated);
+    // Reset flag after state update completes
+    setTimeout(() => { isUpdatingDates.current = false; }, 0);
+  }, [dueDate, repeatInterval, repeatUnit, calculateOccurrenceDate]); // Update dates when these change
+
+  // Notify parent of changes (but NOT when just updating dates)
+  useEffect(() => {
+    if (!isInitialized.current || schedule.length === 0 || isUpdatingDates.current) return;
+    
+    onChange(schedule);
   }, [schedule, onChange]);
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
