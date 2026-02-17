@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, householdId, name, assignedTo, JSON_TYPE(assignedTo) as jsonType\nFROM tasks \nWHERE assignedTo IS NOT NULL \nAND JSON_TYPE(assignedTo) != 'ARRAY'\nLIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, householdId, name, assignedTo, JSON_TYPE(assignedTo) as jsonType\nFROM tasks \nWHERE assignedTo IS NOT NULL \nAND JSON_TYPE(assignedTo) != 'ARRAY'\nLIMIT 10",
+  "rows": [
+    {
+      "id": "1770003",
+      "householdId": "510002",
+      "name": "Hdj",
+      "assignedTo": "810001",
+      "jsonType": "INTEGER"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\thouseholdId\tname\tassignedTo\tjsonType\n1770003\t510002\tHdj\t810001\tINTEGER\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

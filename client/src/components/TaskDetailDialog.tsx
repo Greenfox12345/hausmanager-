@@ -178,8 +178,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     if (task && open) {
       setName(task.name || "");
       setDescription(task.description || "");
-      setAssignedTo(task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo[0] : null); // For backward compatibility
-      setSelectedAssignees(task.assignedTo || []);
+      const assigneeArr = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? (typeof task.assignedTo === 'string' ? (() => { try { const p = JSON.parse(task.assignedTo); return Array.isArray(p) ? p : [p]; } catch { return []; } })() : [task.assignedTo]) : []);
+      setAssignedTo(assigneeArr.length > 0 ? assigneeArr[0] : null);
+      setSelectedAssignees(assigneeArr);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -406,8 +407,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     if (task) {
       setName(task.name || "");
       setDescription(task.description || "");
-      setAssignedTo(task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo[0] : null); // For backward compatibility
-      setSelectedAssignees(task.assignedTo || []);
+      const assigneeArr = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? (typeof task.assignedTo === 'string' ? (() => { try { const p = JSON.parse(task.assignedTo); return Array.isArray(p) ? p : [p]; } catch { return []; } })() : [task.assignedTo]) : []);
+      setAssignedTo(assigneeArr.length > 0 ? assigneeArr[0] : null);
+      setSelectedAssignees(assigneeArr);
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
@@ -459,8 +461,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   if (!task) return null;
 
-  const assignedMemberIds = task.assignedTo || [];
-  const assignedMemberNames = assignedMemberIds.map(id => {
+  const assignedMemberIds = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? (typeof task.assignedTo === 'string' ? (() => { try { const p = JSON.parse(task.assignedTo as any); return Array.isArray(p) ? p : [p]; } catch { return []; } })() : [task.assignedTo as any]) : []);
+  const assignedMemberNames = assignedMemberIds.map((id: number) => {
     const member = ownMembers.find(m => m.id === id) || members.find(m => m.memberId === id);
     return member?.memberName || "Unbekannt";
   }).join(", ") || "Nicht zugewiesen";

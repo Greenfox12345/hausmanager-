@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, householdId, name, sharedHouseholdIds, \n  CASE \n    WHEN sharedHouseholdIds IS NULL THEN 'NULL'\n    WHEN JSON_VALID(sharedHouseholdIds) = 0 THEN 'INVALID_JSON'\n    ELSE JSON_TYPE(sharedHouseholdIds)\n  END as dataType\nFROM tasks \nWHERE sharedHouseholdIds IS NOT NULL\nLIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, householdId, name, sharedHouseholdIds, \n  CASE \n    WHEN sharedHouseholdIds IS NULL THEN 'NULL'\n    WHEN JSON_VALID(sharedHouseholdIds) = 0 THEN 'INVALID_JSON'\n    ELSE JSON_TYPE(sharedHouseholdIds)\n  END as dataType\nFROM tasks \nWHERE sharedHouseholdIds IS NOT NULL\nLIMIT 20",
+  "rows": [
+    {
+      "id": "870002",
+      "householdId": "450001",
+      "name": "Minischlafzimmer aufäumen",
+      "sharedHouseholdIds": "[510002]",
+      "dataType": "ARRAY"
+    },
+    {
+      "id": "930001",
+      "householdId": "450001",
+      "name": "Fegen",
+      "sharedHouseholdIds": "[510002]",
+      "dataType": "ARRAY"
+    },
+    {
+      "id": "1470002",
+      "householdId": "510002",
+      "name": "Test2",
+      "sharedHouseholdIds": "[450001]",
+      "dataType": "ARRAY"
+    },
+    {
+      "id": "1530001",
+      "householdId": "450001",
+      "name": "Priv",
+      "sharedHouseholdIds": "[510002, 450001]",
+      "dataType": "ARRAY"
+    },
+    {
+      "id": "1680001",
+      "householdId": "510002",
+      "name": "Megawork",
+      "sharedHouseholdIds": "[450001]",
+      "dataType": "ARRAY"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\thouseholdId\tname\tsharedHouseholdIds\tdataType\n870002\t450001\tMinischlafzimmer aufäumen\t[510002]\tARRAY\n930001\t450001\tFegen\t[510002]\tARRAY\n1470002\t510002\tTest2\t[450001]\tARRAY\n1530001\t450001\tPriv\t[510002, 450001]\tARRAY\n1680001\t510002\tMegawork\t[450001]\tARRAY\n",
+  "stderr": "",
+  "execution_time_ms": 346
+}

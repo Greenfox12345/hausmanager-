@@ -34,9 +34,23 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
     return memberData?.memberName || "Unbekannt";
   };
   
-  const getMemberNames = (memberIds: number[] | null) => {
-    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
-    return memberIds.map(id => {
+  const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
+    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    let ids: number[] = [];
+    if (Array.isArray(memberIds)) {
+      ids = memberIds;
+    } else if (typeof memberIds === 'number') {
+      ids = [memberIds];
+    } else if (typeof memberIds === 'string') {
+      try {
+        const parsed = JSON.parse(memberIds);
+        ids = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        ids = [];
+      }
+    }
+    if (ids.length === 0) return "Nicht zugewiesen";
+    return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
       return memberData?.memberName || "Unbekannt";
     }).join(", ");

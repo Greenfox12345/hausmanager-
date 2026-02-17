@@ -1,0 +1,35 @@
+{
+  "query": "SELECT t.householdId, COUNT(*) as taskCount, h.name as householdName\nFROM tasks t \nLEFT JOIN households h ON t.householdId = h.id\nWHERE t.assignedTo IS NOT NULL \nGROUP BY t.householdId, h.name\nORDER BY taskCount DESC\nLIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT t.householdId, COUNT(*) as taskCount, h.name as householdName\nFROM tasks t \nLEFT JOIN households h ON t.householdId = h.id\nWHERE t.assignedTo IS NOT NULL \nGROUP BY t.householdId, h.name\nORDER BY taskCount DESC\nLIMIT 5",
+  "rows": [
+    {
+      "householdId": "510002",
+      "taskCount": "20",
+      "householdName": "Provat"
+    },
+    {
+      "householdId": "540001",
+      "taskCount": "14",
+      "householdName": "JungeBau"
+    },
+    {
+      "householdId": "450001",
+      "taskCount": "8",
+      "householdName": "Buchenbühl"
+    },
+    {
+      "householdId": "600001",
+      "taskCount": "7",
+      "householdName": "IJV Nbg"
+    },
+    {
+      "householdId": "390004",
+      "taskCount": "5",
+      "householdName": "Baubox"
+    }
+  ],
+  "messages": [],
+  "stdout": "householdId\ttaskCount\thouseholdName\n510002\t20\tProvat\n540001\t14\tJungeBau\n450001\t8\tBuchenbühl\n600001\t7\tIJV Nbg\n390004\t5\tBaubox\n",
+  "stderr": "",
+  "execution_time_ms": 342
+}

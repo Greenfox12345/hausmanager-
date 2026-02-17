@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, householdId, name, sharedHouseholdIds \nFROM tasks \nWHERE householdId = 390007 \n   OR JSON_SEARCH(sharedHouseholdIds, 'one', CAST(390007 AS CHAR)) IS NOT NULL\nORDER BY isCompleted, createdAt DESC\nLIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, householdId, name, sharedHouseholdIds \nFROM tasks \nWHERE householdId = 390007 \n   OR JSON_SEARCH(sharedHouseholdIds, 'one', CAST(390007 AS CHAR)) IS NOT NULL\nORDER BY isCompleted, createdAt DESC\nLIMIT 5",
+  "rows": [
+    {
+      "id": "600002",
+      "householdId": "390007",
+      "name": "Testen",
+      "sharedHouseholdIds": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\thouseholdId\tname\tsharedHouseholdIds\n600002\t390007\tTesten\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}

@@ -1783,3 +1783,16 @@
 - [x] Fix frontend sending nested array [[id]] instead of [id] for assignedTo (root cause: raw SQL returns JSON as strings)
 - [x] Fix Verantwortliche names not loading in task display (root cause: same - JSON parsing missing)
 - [x] Write vitest tests to verify both fixes (4 tests passing: array type, name resolution, sharedHouseholdIds, booleans)
+
+## Fix /tasks Page Crash (2026-02-17)
+- [x] Diagnose and fix /tasks page crash (root cause: getMemberNames called .map() on non-array assignedTo)
+
+## Fix getMemberNames Crash (2026-02-17)
+- [x] Fix getMemberNames in Calendar.tsx to handle non-array assignedTo (crash at line 316)
+- [x] Fix getMemberNames in Tasks.tsx to handle non-array assignedTo
+- [x] Fix getMemberNames in Projects.tsx to handle non-array assignedTo
+- [x] Fix getMemberNames in GanttChartView.tsx to handle non-array assignedTo
+- [x] Fix getMemberNames in TaskDetailDialog.tsx to handle non-array assignedTo
+- [x] Fix assignedTo.includes() in Calendar.tsx filter to handle non-array
+- [x] Fix assignedTo.includes() in Tasks.tsx filter to handle non-array
+- [x] Write vitest tests for parseAssignedTo robustness (9 tests passing)

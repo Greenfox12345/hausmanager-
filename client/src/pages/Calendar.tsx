@@ -369,7 +369,10 @@ export default function Calendar() {
     
     // Apply assignee filter
     if (filterAssignee !== null) {
-      filtered = filtered.filter(task => task.assignedTo && task.assignedTo.includes(filterAssignee));
+      filtered = filtered.filter(task => {
+        const ids = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : []);
+        return ids.includes(filterAssignee);
+      });
     }
     
     // Apply sorting
@@ -412,9 +415,24 @@ export default function Calendar() {
     return memberData?.memberName || "Unbekannt";
   };
   
-  const getMemberNames = (memberIds: number[] | null) => {
-    if (!memberIds || memberIds.length === 0) return "Nicht zugewiesen";
-    return memberIds.map(id => {
+  const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
+    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    // Handle single number (legacy data)
+    let ids: number[] = [];
+    if (Array.isArray(memberIds)) {
+      ids = memberIds;
+    } else if (typeof memberIds === 'number') {
+      ids = [memberIds];
+    } else if (typeof memberIds === 'string') {
+      try {
+        const parsed = JSON.parse(memberIds);
+        ids = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        ids = [];
+      }
+    }
+    if (ids.length === 0) return "Nicht zugewiesen";
+    return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
       return memberData?.memberName || "Unbekannt";
     }).join(", ");

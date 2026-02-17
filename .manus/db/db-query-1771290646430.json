@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM tasks LIKE 'name%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SHOW COLUMNS FROM tasks LIKE 'name%'",
+  "rows": [
+    {
+      "Field": "name",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nname\tvarchar(255)\tNO\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 343
+}
