@@ -1796,3 +1796,10 @@
 - [x] Fix assignedTo.includes() in Calendar.tsx filter to handle non-array
 - [x] Fix assignedTo.includes() in Tasks.tsx filter to handle non-array
 - [x] Write vitest tests for parseAssignedTo robustness (9 tests passing)
+
+## Fix Household Connection Editing Bugs (2026-02-17)
+- [x] Fix nested array [[id]] sent for assignedTo when editing household connections (added .flat() in updateTask)
+- [x] Fix household connection removal not persisting after save (simplified to single updateTask call, normalize empty array to null)
+- [x] Fix nested arrays in DB data (cleaned up existing data)
+- [x] Added flattening for assignedTo, sharedHouseholdIds, projectIds in updateTask
+- [x] 11 vitest tests passing for flattening logic

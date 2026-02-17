@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, CAST(assignedTo AS CHAR) as assignedToStr FROM tasks WHERE assignedTo IS NOT NULL AND JSON_TYPE(JSON_EXTRACT(assignedTo, '$[0]')) = 'ARRAY' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, CAST(assignedTo AS CHAR) as assignedToStr FROM tasks WHERE assignedTo IS NOT NULL AND JSON_TYPE(JSON_EXTRACT(assignedTo, '$[0]')) = 'ARRAY' LIMIT 5;",
+  "rows": [
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "assignedToStr": "[[480009]]"
+    },
+    {
+      "id": "600006",
+      "name": "sdf",
+      "assignedToStr": "[[480011]]"
+    },
+    {
+      "id": "630001",
+      "name": "Bad putzen",
+      "assignedToStr": "[[510001]]"
+    },
+    {
+      "id": "660003",
+      "name": "Holz holen",
+      "assignedToStr": "[[480004]]"
+    },
+    {
+      "id": "660004",
+      "name": "Holz Zuschneiden",
+      "assignedToStr": "[[480004]]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tassignedToStr\n600005\tTest Aufgabe für Dialog\t[[480009]]\n600006\tsdf\t[[480011]]\n630001\tBad putzen\t[[510001]]\n660003\tHolz holen\t[[480004]]\n660004\tHolz Zuschneiden\t[[480004]]\n",
+  "stderr": "",
+  "execution_time_ms": 340
+}

@@ -166,23 +166,25 @@ export const tasksRouter = router({
         }
       }
       
-      // Update the task with new values
+      // Normalize sharedHouseholdIds: empty array -> null for clean DB storage
+      if (updates.sharedHouseholdIds !== undefined) {
+        updates.sharedHouseholdIds = (updates.sharedHouseholdIds as number[]).length > 0 
+          ? updates.sharedHouseholdIds 
+          : null as any;
+      }
+
+      // Normalize projectIds: empty array -> null for clean DB storage  
+      if (updates.projectIds !== undefined) {
+        updates.projectIds = (updates.projectIds as number[]).length > 0 
+          ? updates.projectIds 
+          : null as any;
+      }
+
+      // Update the task with all values in a single call
       await updateTask(taskId, {
         ...updates,
         dueDate: dueDatetime,
       });
-      
-      // If this is a recurring task and interval/unit changed, we don't need to recalculate
-      // The next occurrence will be calculated correctly when the task is completed
-      // The new repeatInterval and repeatUnit are already saved above
-
-      // Handle shared households
-      // Update sharedHouseholdIds directly in the task
-      if (input.sharedHouseholdIds !== undefined) {
-        await updateTask(taskId, {
-          sharedHouseholdIds: input.sharedHouseholdIds.length > 0 ? input.sharedHouseholdIds : null
-        });
-      }
 
       await createActivityLog({
         householdId,

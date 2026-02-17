@@ -463,6 +463,39 @@ export async function updateTask(id: number, data: Partial<Task>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Flatten assignedTo to prevent nested arrays [[id]] -> [id]
+  if (data.assignedTo !== undefined && data.assignedTo !== null) {
+    const raw = data.assignedTo as any;
+    if (Array.isArray(raw)) {
+      data.assignedTo = raw.flat().filter((v: any) => typeof v === 'number') as any;
+    } else if (typeof raw === 'number') {
+      data.assignedTo = [raw] as any;
+    } else if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        data.assignedTo = (Array.isArray(parsed) ? parsed.flat() : [parsed]).filter((v: any) => typeof v === 'number') as any;
+      } catch {
+        data.assignedTo = [] as any;
+      }
+    }
+  }
+
+  // Flatten sharedHouseholdIds to prevent nested arrays
+  if (data.sharedHouseholdIds !== undefined && data.sharedHouseholdIds !== null) {
+    const raw = data.sharedHouseholdIds as any;
+    if (Array.isArray(raw)) {
+      data.sharedHouseholdIds = raw.flat().filter((v: any) => typeof v === 'number') as any;
+    }
+  }
+
+  // Flatten projectIds to prevent nested arrays
+  if (data.projectIds !== undefined && data.projectIds !== null) {
+    const raw = data.projectIds as any;
+    if (Array.isArray(raw)) {
+      data.projectIds = raw.flat().filter((v: any) => typeof v === 'number') as any;
+    }
+  }
+
   await db.update(tasks).set(data).where(eq(tasks.id, id));
 }
 
