@@ -10,9 +10,279 @@ import {
   getHouseholdMembers,
   createTaskRotationExclusions,
   getDb,
+  getHouseholdById,
+  getAllHouseholds,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
-import { taskRotationExclusions, activityHistory } from "../../drizzle/schema";
+import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
+import { inArray } from "drizzle-orm";
+
+// ─── German label helpers ───────────────────────────────────────────────────
+
+const frequencyLabels: Record<string, string> = {
+  once: "Einmalig",
+  daily: "Täglich",
+  weekly: "Wöchentlich",
+  monthly: "Monatlich",
+  custom: "Benutzerdefiniert",
+};
+
+const repeatUnitLabels: Record<string, string> = {
+  days: "Tage",
+  weeks: "Wochen",
+  months: "Monate",
+};
+
+const permissionLabels: Record<string, string> = {
+  full: "Vollzugriff",
+  milestones_reminders: "Meilensteine & Erinnerungen",
+  view_only: "Nur Ansicht",
+};
+
+function formatDate(d: Date | string | null | undefined): string {
+  if (!d) return "–";
+  const date = typeof d === "string" ? new Date(d) : d;
+  return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function formatDateTime(d: Date | string | null | undefined): string {
+  if (!d) return "–";
+  const date = typeof d === "string" ? new Date(d) : d;
+  return date.toLocaleDateString("de-DE", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
+/**
+ * Resolve member IDs to a comma-separated name string.
+ * Returns "–" when the list is empty/null.
+ */
+function memberIdsToNames(
+  ids: number[] | null | undefined,
+  members: { id: number; memberName: string }[],
+): string {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return "–";
+  const names = ids
+    .map((id) => members.find((m) => m.id === id)?.memberName ?? `#${id}`)
+    .join(", ");
+  return names || "–";
+}
+
+/**
+ * Resolve project IDs to a comma-separated name string.
+ */
+function projectIdsToNames(
+  ids: number[] | null | undefined,
+  projectList: { id: number; name: string }[],
+): string {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return "–";
+  const names = ids
+    .map((id) => projectList.find((p) => p.id === id)?.name ?? `#${id}`)
+    .join(", ");
+  return names || "–";
+}
+
+/**
+ * Resolve household IDs to a comma-separated name string.
+ */
+function householdIdsToNames(
+  ids: number[] | null | undefined,
+  householdList: { id: number; name: string }[],
+): string {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return "–";
+  const names = ids
+    .map((id) => householdList.find((h) => h.id === id)?.name ?? `#${id}`)
+    .join(", ");
+  return names || "–";
+}
+
+// Normalise arrays for comparison (null / undefined / [] all become [])
+function normaliseArr(v: any): number[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return [...v].sort((a, b) => a - b);
+  return [v];
+}
+
+function arraysEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+/**
+ * Build a German description of all field-level changes between old and new task values.
+ * Returns an array of change description strings and a metadata object.
+ */
+async function buildUpdateChanges(
+  currentTask: any,
+  updates: Record<string, any>,
+  dueDatetime: Date | undefined,
+  householdId: number,
+): Promise<{ changes: string[]; metadata: Record<string, any> }> {
+  const changes: string[] = [];
+  const metadata: Record<string, any> = { fieldChanges: {} };
+
+  // Lazy-load lookup data only when needed
+  let _members: { id: number; memberName: string }[] | null = null;
+  let _projectList: { id: number; name: string }[] | null = null;
+  let _householdList: { id: number; name: string }[] | null = null;
+
+  async function getMembers() {
+    if (!_members) {
+      // Collect all household IDs we might need members from
+      const allHhIds = new Set<number>();
+      allHhIds.add(householdId);
+      const sharedOld = normaliseArr(currentTask.sharedHouseholdIds);
+      const sharedNew = normaliseArr(updates.sharedHouseholdIds);
+      [...sharedOld, ...sharedNew].forEach((id) => allHhIds.add(id));
+      if (currentTask.householdId) allHhIds.add(currentTask.householdId);
+
+      const memberSets = await Promise.all(
+        Array.from(allHhIds).map((hhId) => getHouseholdMembers(hhId)),
+      );
+      const memberMap = new Map<number, { id: number; memberName: string }>();
+      memberSets.flat().forEach((m) => memberMap.set(m.id, { id: m.id, memberName: m.memberName }));
+      _members = Array.from(memberMap.values());
+    }
+    return _members;
+  }
+
+  async function getProjectList() {
+    if (!_projectList) {
+      const db = await getDb();
+      if (db) {
+        const allProjects = await db.select({ id: projects.id, name: projects.name }).from(projects);
+        _projectList = allProjects;
+      } else {
+        _projectList = [];
+      }
+    }
+    return _projectList;
+  }
+
+  async function getHouseholdList() {
+    if (!_householdList) {
+      _householdList = (await getAllHouseholds()).map((h) => ({ id: h.id, name: h.name }));
+    }
+    return _householdList;
+  }
+
+  // ── Name ──
+  if (updates.name !== undefined && updates.name !== currentTask.name) {
+    changes.push(`Name geändert von '${currentTask.name}' zu '${updates.name}'`);
+    metadata.fieldChanges.name = { old: currentTask.name, new: updates.name };
+  }
+
+  // ── Description ──
+  if (updates.description !== undefined && updates.description !== (currentTask.description ?? "")) {
+    const oldDesc = currentTask.description || "(leer)";
+    const newDesc = updates.description || "(leer)";
+    changes.push(`Beschreibung geändert von '${oldDesc}' zu '${newDesc}'`);
+    metadata.fieldChanges.description = { old: currentTask.description, new: updates.description };
+  }
+
+  // ── Assigned To ──
+  if (updates.assignedTo !== undefined) {
+    const oldArr = normaliseArr(currentTask.assignedTo);
+    const newArr = normaliseArr(updates.assignedTo);
+    if (!arraysEqual(oldArr, newArr)) {
+      const members = await getMembers();
+      const oldNames = memberIdsToNames(oldArr.length > 0 ? oldArr : null, members);
+      const newNames = memberIdsToNames(newArr.length > 0 ? newArr : null, members);
+      changes.push(`Verantwortliche geändert von '${oldNames}' zu '${newNames}'`);
+      metadata.fieldChanges.assignedTo = { old: oldArr, new: newArr, oldNames, newNames };
+    }
+  }
+
+  // ── Due Date ──
+  if (dueDatetime !== undefined) {
+    const oldDate = currentTask.dueDate ? formatDateTime(currentTask.dueDate) : "–";
+    const newDate = formatDateTime(dueDatetime);
+    if (oldDate !== newDate) {
+      changes.push(`Fälligkeitsdatum geändert von '${oldDate}' zu '${newDate}'`);
+      metadata.fieldChanges.dueDate = {
+        old: currentTask.dueDate?.toString(),
+        new: dueDatetime.toISOString(),
+      };
+    }
+  }
+
+  // ── Frequency ──
+  if (updates.frequency !== undefined && updates.frequency !== currentTask.frequency) {
+    const oldLabel = frequencyLabels[currentTask.frequency] ?? currentTask.frequency;
+    const newLabel = frequencyLabels[updates.frequency] ?? updates.frequency;
+    changes.push(`Häufigkeit geändert von '${oldLabel}' zu '${newLabel}'`);
+    metadata.fieldChanges.frequency = { old: currentTask.frequency, new: updates.frequency };
+  }
+
+  // ── Repeat Interval ──
+  if (updates.repeatInterval !== undefined && updates.repeatInterval !== currentTask.repeatInterval) {
+    const oldVal = currentTask.repeatInterval ?? "–";
+    changes.push(`Wiederholungsintervall geändert von '${oldVal}' zu '${updates.repeatInterval}'`);
+    metadata.fieldChanges.repeatInterval = { old: currentTask.repeatInterval, new: updates.repeatInterval };
+  }
+
+  // ── Repeat Unit ──
+  if (updates.repeatUnit !== undefined && updates.repeatUnit !== currentTask.repeatUnit) {
+    const oldLabel = currentTask.repeatUnit ? (repeatUnitLabels[currentTask.repeatUnit] ?? currentTask.repeatUnit) : "–";
+    const newLabel = repeatUnitLabels[updates.repeatUnit] ?? updates.repeatUnit;
+    changes.push(`Wiederholungseinheit geändert von '${oldLabel}' zu '${newLabel}'`);
+    metadata.fieldChanges.repeatUnit = { old: currentTask.repeatUnit, new: updates.repeatUnit };
+  }
+
+  // ── Enable Rotation ──
+  if (updates.enableRotation !== undefined && updates.enableRotation !== currentTask.enableRotation) {
+    const oldVal = currentTask.enableRotation ? "Ja" : "Nein";
+    const newVal = updates.enableRotation ? "Ja" : "Nein";
+    changes.push(`Rotation geändert von '${oldVal}' zu '${newVal}'`);
+    metadata.fieldChanges.enableRotation = { old: currentTask.enableRotation, new: updates.enableRotation };
+  }
+
+  // ── Required Persons ──
+  if (updates.requiredPersons !== undefined && updates.requiredPersons !== currentTask.requiredPersons) {
+    const oldVal = currentTask.requiredPersons ?? "–";
+    changes.push(`Benötigte Personen geändert von '${oldVal}' zu '${updates.requiredPersons}'`);
+    metadata.fieldChanges.requiredPersons = { old: currentTask.requiredPersons, new: updates.requiredPersons };
+  }
+
+  // ── Project IDs ──
+  if (updates.projectIds !== undefined) {
+    const oldArr = normaliseArr(currentTask.projectIds);
+    const newArr = normaliseArr(updates.projectIds);
+    if (!arraysEqual(oldArr, newArr)) {
+      const projectList = await getProjectList();
+      const oldNames = projectIdsToNames(oldArr.length > 0 ? oldArr : null, projectList);
+      const newNames = projectIdsToNames(newArr.length > 0 ? newArr : null, projectList);
+      changes.push(`Projekte geändert von '${oldNames}' zu '${newNames}'`);
+      metadata.fieldChanges.projectIds = { old: oldArr, new: newArr, oldNames, newNames };
+    }
+  }
+
+  // ── Shared Household IDs ──
+  if (updates.sharedHouseholdIds !== undefined) {
+    const oldArr = normaliseArr(currentTask.sharedHouseholdIds);
+    const newArr = normaliseArr(updates.sharedHouseholdIds);
+    if (!arraysEqual(oldArr, newArr)) {
+      const householdList = await getHouseholdList();
+      const oldNames = householdIdsToNames(oldArr.length > 0 ? oldArr : null, householdList);
+      const newNames = householdIdsToNames(newArr.length > 0 ? newArr : null, householdList);
+      changes.push(`Geteilte Haushalte geändert von '${oldNames}' zu '${newNames}'`);
+      metadata.fieldChanges.sharedHouseholdIds = { old: oldArr, new: newArr, oldNames, newNames };
+    }
+  }
+
+  // ── Non-Responsible Permission ──
+  if (updates.nonResponsiblePermission !== undefined && updates.nonResponsiblePermission !== currentTask.nonResponsiblePermission) {
+    const oldLabel = permissionLabels[currentTask.nonResponsiblePermission] ?? currentTask.nonResponsiblePermission;
+    const newLabel = permissionLabels[updates.nonResponsiblePermission] ?? updates.nonResponsiblePermission;
+    changes.push(`Berechtigung geändert von '${oldLabel}' zu '${newLabel}'`);
+    metadata.fieldChanges.nonResponsiblePermission = { old: currentTask.nonResponsiblePermission, new: updates.nonResponsiblePermission };
+  }
+
+  return { changes, metadata };
+}
+
+// ─── Router ─────────────────────────────────────────────────────────────────
 
 export const tasksRouter = router({
   // Get all tasks for a household
@@ -50,7 +320,6 @@ export const tasksRouter = router({
       let dueDatetime: Date | undefined;
       if (input.dueDate) {
         if (input.dueTime) {
-          // Parse date and time components to avoid timezone conversion
           const [year, month, day] = input.dueDate.split('-').map(Number);
           const [hours, minutes] = input.dueTime.split(':').map(Number);
           dueDatetime = new Date(year, month - 1, day, hours, minutes);
@@ -81,13 +350,43 @@ export const tasksRouter = router({
         await createTaskRotationExclusions(taskId, input.excludedMembers);
       }
 
+      // Build detailed creation description
+      const details: string[] = [];
+      details.push(`Aufgabe erstellt: '${input.name}'`);
+      if (input.description) details.push(`Beschreibung: ${input.description}`);
+      if (dueDatetime) details.push(`Fällig am: ${formatDateTime(dueDatetime)}`);
+      details.push(`Häufigkeit: ${frequencyLabels[input.frequency] ?? input.frequency}`);
+      if (input.repeatInterval && input.repeatUnit) {
+        details.push(`Wiederholung: alle ${input.repeatInterval} ${repeatUnitLabels[input.repeatUnit] ?? input.repeatUnit}`);
+      }
+      if (input.enableRotation) details.push("Rotation aktiviert");
+
+      // Resolve assignee names
+      if (input.assignedTo && input.assignedTo.length > 0) {
+        const members = await getHouseholdMembers(input.householdId);
+        const names = memberIdsToNames(input.assignedTo, members);
+        details.push(`Verantwortliche: ${names}`);
+      }
+
+      const creationMetadata: Record<string, any> = {
+        name: input.name,
+        description: input.description,
+        frequency: input.frequency,
+        repeatInterval: input.repeatInterval,
+        repeatUnit: input.repeatUnit,
+        enableRotation: input.enableRotation,
+        assignedTo: input.assignedTo,
+        dueDate: dueDatetime?.toISOString(),
+      };
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "created",
-        description: `Created task: ${input.name}`,
+        description: details.join(" | "),
         relatedItemId: taskId,
+        metadata: creationMetadata,
       });
 
       // Send notification if task is assigned to someone
@@ -127,7 +426,7 @@ export const tasksRouter = router({
         memberId: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
-        assignedTo: z.array(z.number()).optional(), // Array of member IDs
+        assignedTo: z.array(z.number()).optional(),
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).optional(),
         customFrequencyDays: z.number().optional(),
         repeatInterval: z.number().optional(),
@@ -144,20 +443,19 @@ export const tasksRouter = router({
     )
     .mutation(async ({ input }) => {
       const { taskId, householdId, memberId, dueDate, dueTime, ...updates } = input;
-      
-      // Get current task to check if recurrence settings changed
-      const tasks = await getTasks(householdId);
-      const currentTask = tasks.find(t => t.id === taskId);
-      
+
+      // Get current task to compare old vs new values
+      const tasksList = await getTasks(householdId);
+      const currentTask = tasksList.find(t => t.id === taskId);
+
       if (!currentTask) {
         throw new Error("Task not found");
       }
-      
+
       // Combine date and time if both provided
       let dueDatetime: Date | undefined;
       if (dueDate) {
         if (dueTime) {
-          // Parse date and time components to avoid timezone conversion
           const [year, month, day] = dueDate.split('-').map(Number);
           const [hours, minutes] = dueTime.split(':').map(Number);
           dueDatetime = new Date(year, month - 1, day, hours, minutes);
@@ -165,20 +463,28 @@ export const tasksRouter = router({
           dueDatetime = new Date(dueDate);
         }
       }
-      
+
       // Normalize sharedHouseholdIds: empty array -> null for clean DB storage
       if (updates.sharedHouseholdIds !== undefined) {
-        updates.sharedHouseholdIds = (updates.sharedHouseholdIds as number[]).length > 0 
-          ? updates.sharedHouseholdIds 
+        updates.sharedHouseholdIds = (updates.sharedHouseholdIds as number[]).length > 0
+          ? updates.sharedHouseholdIds
           : null as any;
       }
 
-      // Normalize projectIds: empty array -> null for clean DB storage  
+      // Normalize projectIds: empty array -> null for clean DB storage
       if (updates.projectIds !== undefined) {
-        updates.projectIds = (updates.projectIds as number[]).length > 0 
-          ? updates.projectIds 
+        updates.projectIds = (updates.projectIds as number[]).length > 0
+          ? updates.projectIds
           : null as any;
       }
+
+      // Build detailed change description BEFORE applying the update
+      const { changes, metadata } = await buildUpdateChanges(
+        currentTask,
+        updates,
+        dueDatetime,
+        householdId,
+      );
 
       // Update the task with all values in a single call
       await updateTask(taskId, {
@@ -186,13 +492,25 @@ export const tasksRouter = router({
         dueDate: dueDatetime,
       });
 
+      // Build description string
+      const taskName = updates.name ?? currentTask.name;
+      let description: string;
+      if (changes.length === 0) {
+        description = `Aufgabe '${taskName}' gespeichert (keine Änderungen)`;
+      } else if (changes.length === 1) {
+        description = `Aufgabe '${taskName}' bearbeitet: ${changes[0]}`;
+      } else {
+        description = `Aufgabe '${taskName}' bearbeitet: ${changes.join(" | ")}`;
+      }
+
       await createActivityLog({
         householdId,
         memberId,
         activityType: "task",
         action: "updated",
-        description: `Updated task`,
+        description,
         relatedItemId: taskId,
+        metadata,
       });
 
       return { success: true };
@@ -209,9 +527,9 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
@@ -227,7 +545,6 @@ export const tasksRouter = router({
         const currentDueDate = task.dueDate ? new Date(task.dueDate) : new Date();
         let nextDueDate = new Date(currentDueDate);
 
-        // Calculate next due date based on repeat interval
         if (task.repeatUnit === "days") {
           nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval || 1));
         } else if (task.repeatUnit === "weeks") {
@@ -241,23 +558,28 @@ export const tasksRouter = router({
         if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
           const members = await getHouseholdMembers(input.householdId);
           const activeMembers = members.filter(m => m.isActive);
-          
+
           if (activeMembers.length > 1) {
             const currentAssigneeId = task.assignedTo[0];
             const currentIndex = activeMembers.findIndex(m => m.id === currentAssigneeId);
             const nextIndex = (currentIndex + 1) % activeMembers.length;
             const nextMember = activeMembers[nextIndex];
-            
+
             if (nextMember) {
-              nextAssignee = [nextMember.id]; // Keep as array
-              
+              nextAssignee = [nextMember.id];
+
               await createActivityLog({
                 householdId: input.householdId,
                 memberId: input.memberId,
                 activityType: "task",
                 action: "rotated",
-                description: `Task rotated to ${nextMember.memberName}`,
+                description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche ist ${nextMember.memberName}`,
                 relatedItemId: input.taskId,
+                metadata: {
+                  previousAssignee: task.assignedTo,
+                  nextAssignee: [nextMember.id],
+                  nextAssigneeName: nextMember.memberName,
+                },
               });
             }
           }
@@ -278,10 +600,14 @@ export const tasksRouter = router({
           memberId: input.memberId,
           activityType: "task",
           action: "completed",
-          description: `Completed recurring task occurrence`,
+          description: `Wiederkehrende Aufgabe '${task.name}' abgeschlossen (Termin: ${formatDate(originalDueDate)}). Nächster Termin: ${formatDate(nextDueDate)}`,
           relatedItemId: input.taskId,
-          completedDate: originalDueDate || new Date(), // Store the actual completion date
-          metadata: { originalDueDate: originalDueDate?.toString() },
+          completedDate: originalDueDate || new Date(),
+          metadata: {
+            originalDueDate: originalDueDate?.toString(),
+            nextDueDate: nextDueDate.toISOString(),
+            taskName: task.name,
+          },
         });
       } else {
         // For non-recurring tasks: normal completion logic
@@ -291,14 +617,27 @@ export const tasksRouter = router({
           completedAt: input.isCompleted ? new Date() : null,
         });
 
-        await createActivityLog({
-          householdId: input.householdId,
-          memberId: input.memberId,
-          activityType: "task",
-          action: input.isCompleted ? "completed" : "uncompleted",
-          description: `${input.isCompleted ? "Completed" : "Uncompleted"} task`,
-          relatedItemId: input.taskId,
-        });
+        if (input.isCompleted) {
+          await createActivityLog({
+            householdId: input.householdId,
+            memberId: input.memberId,
+            activityType: "task",
+            action: "completed",
+            description: `Aufgabe '${task.name}' als erledigt markiert`,
+            relatedItemId: input.taskId,
+            metadata: { taskName: task.name },
+          });
+        } else {
+          await createActivityLog({
+            householdId: input.householdId,
+            memberId: input.memberId,
+            activityType: "task",
+            action: "uncompleted",
+            description: `Aufgabe '${task.name}' als unerledigt markiert`,
+            relatedItemId: input.taskId,
+            metadata: { taskName: task.name },
+          });
+        }
       }
 
       return { success: true };
@@ -314,6 +653,11 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      // Get task name before deletion for the log
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+      const taskName = task?.name ?? `#${input.taskId}`;
+
       await deleteTask(input.taskId);
 
       await createActivityLog({
@@ -321,8 +665,9 @@ export const tasksRouter = router({
         memberId: input.memberId,
         activityType: "task",
         action: "deleted",
-        description: `Deleted task`,
+        description: `Aufgabe '${taskName}' gelöscht`,
         relatedItemId: input.taskId,
+        metadata: { taskName },
       });
 
       return { success: true };
@@ -349,9 +694,9 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
@@ -371,7 +716,7 @@ export const tasksRouter = router({
       // Update due date if recurring
       if (task.frequency !== "once" && task.dueDate) {
         let nextDueDate = new Date(task.dueDate);
-        
+
         switch (task.frequency) {
           case "daily":
             nextDueDate.setDate(nextDueDate.getDate() + 1);
@@ -383,7 +728,6 @@ export const tasksRouter = router({
             nextDueDate.setMonth(nextDueDate.getMonth() + 1);
             break;
           case "custom":
-            // Use new repeatInterval and repeatUnit fields
             if (task.repeatInterval && task.repeatUnit) {
               switch (task.repeatUnit) {
                 case "days":
@@ -397,12 +741,11 @@ export const tasksRouter = router({
                   break;
               }
             } else if (task.customFrequencyDays) {
-              // Fallback to old field for compatibility
               nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
             }
             break;
         }
-        
+
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
           isCompleted: false,
@@ -415,32 +758,42 @@ export const tasksRouter = router({
       if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
         const members = await getHouseholdMembers(input.householdId);
         const activeMembers = members.filter(m => m.isActive);
-        
+
         // Get excluded members from task_rotation_exclusions table
         const db = await getDb();
         if (!db) throw new Error("Database not available");
-        
+
         const exclusions = await db.select()
           .from(taskRotationExclusions)
           .where(eq(taskRotationExclusions.taskId, input.taskId));
-        
+
         const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
-        
+
         // Filter out excluded members
         const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
-        
+
         if (eligibleMembers.length > 0) {
           const currentAssigneeId = task.assignedTo[0];
           const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
           const nextIndex = (currentIndex + 1) % eligibleMembers.length;
           const nextMember = eligibleMembers[nextIndex];
-          
+
           if (nextMember) {
             await updateTask(input.taskId, {
-              assignedTo: [nextMember.id], // Keep as array
+              assignedTo: [nextMember.id],
             });
           }
         }
+      }
+
+      // Build description with details
+      const descParts: string[] = [`Aufgabe abgeschlossen: '${task.name}'`];
+      if (input.comment) descParts.push(`Kommentar: ${input.comment}`);
+      if (input.photoUrls && input.photoUrls.length > 0) {
+        descParts.push(`${input.photoUrls.length} Foto(s) angehängt`);
+      }
+      if (input.fileUrls && input.fileUrls.length > 0) {
+        descParts.push(`${input.fileUrls.length} Datei(en) angehängt`);
       }
 
       // Create activity log with original due date
@@ -449,11 +802,13 @@ export const tasksRouter = router({
         memberId: input.memberId,
         activityType: "task",
         action: "completed",
-        description: `Aufgabe abgeschlossen: ${task.name}`,
+        description: descParts.join(" | "),
         relatedItemId: input.taskId,
         comment: input.comment,
         photoUrls: input.photoUrls,
-        metadata: originalDueDate ? { originalDueDate: originalDueDate.toISOString() } : undefined,
+        metadata: originalDueDate
+          ? { originalDueDate: originalDueDate.toISOString(), taskName: task.name }
+          : { taskName: task.name },
       });
 
       // Send notification to task creator if different from completer
@@ -474,7 +829,7 @@ export const tasksRouter = router({
       // Process linked shopping items
       const { getLinkedShoppingItems, deleteShoppingItem, addInventoryItem } = await import("../db");
       const linkedItems = await getLinkedShoppingItems(input.taskId);
-      
+
       // Delete all linked shopping items from the list
       for (const item of linkedItems) {
         await deleteShoppingItem(item.id);
@@ -515,24 +870,39 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
 
-      // Create activity log for milestone
+      // Build detailed milestone description
+      const descParts: string[] = [`Zwischensieg bei Aufgabe: '${task.name}'`];
+      if (input.comment) descParts.push(`Kommentar: ${input.comment}`);
+      if (input.photoUrls && input.photoUrls.length > 0) {
+        descParts.push(`${input.photoUrls.length} Foto(s) angehängt`);
+      }
+      if (input.fileUrls && input.fileUrls.length > 0) {
+        descParts.push(`${input.fileUrls.length} Datei(en) angehängt`);
+      }
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "milestone",
-        description: `Zwischensieg bei Aufgabe: ${task.name}`,
+        description: descParts.join(" | "),
         relatedItemId: input.taskId,
         comment: input.comment,
         photoUrls: input.photoUrls,
         fileUrls: input.fileUrls,
+        metadata: {
+          taskName: task.name,
+          hasComment: !!input.comment,
+          photoCount: input.photoUrls?.length ?? 0,
+          fileCount: input.fileUrls?.length ?? 0,
+        },
       });
 
       return { success: true };
@@ -549,22 +919,25 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
 
-      // Create activity log for reminder
+      const descParts: string[] = [`Erinnerung gesendet für Aufgabe: '${task.name}'`];
+      if (input.comment) descParts.push(`Nachricht: ${input.comment}`);
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "reminder",
-        description: `Erinnerung gesendet für Aufgabe: ${task.name}`,
+        description: descParts.join(" | "),
         relatedItemId: input.taskId,
         comment: input.comment,
+        metadata: { taskName: task.name },
       });
 
       return { success: true };
@@ -603,7 +976,7 @@ export const tasksRouter = router({
         taskIds: z.array(z.number()),
         householdId: z.number(),
         memberId: z.number(),
-        assignedTo: z.array(z.number()), // Array of member IDs
+        assignedTo: z.array(z.number()),
       })
     )
     .mutation(async ({ input }) => {
@@ -635,11 +1008,11 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
+      const tasksList = await getTasks(input.householdId);
       const completedCount = await Promise.all(
         input.taskIds.map(async (taskId) => {
           try {
-            const task = tasks.find(t => t.id === taskId);
+            const task = tasksList.find(t => t.id === taskId);
             if (!task) return 0;
 
             await updateTask(taskId, {
@@ -653,8 +1026,9 @@ export const tasksRouter = router({
               memberId: input.memberId,
               activityType: "task",
               action: "completed",
-              description: `Aufgabe abgeschlossen: ${task.name}`,
+              description: `Aufgabe '${task.name}' als erledigt markiert`,
               relatedItemId: taskId,
+              metadata: { taskName: task.name },
             });
 
             return 1;
@@ -676,7 +1050,7 @@ export const tasksRouter = router({
         taskId: z.number(),
         householdId: z.number(),
         memberId: z.number(),
-        activityId: z.number(), // ID of the activity log entry to reference
+        activityId: z.number(),
       })
     )
     .mutation(async ({ input }) => {
@@ -703,9 +1077,9 @@ export const tasksRouter = router({
       }
 
       // Get original due date from metadata
-      const metadata = activity.metadata as { originalDueDate?: string } | null;
-      const originalDueDate = metadata?.originalDueDate
-        ? new Date(metadata.originalDueDate)
+      const actMeta = activity.metadata as { originalDueDate?: string } | null;
+      const originalDueDate = actMeta?.originalDueDate
+        ? new Date(actMeta.originalDueDate)
         : null;
 
       if (!originalDueDate) {
@@ -713,8 +1087,8 @@ export const tasksRouter = router({
       }
 
       // Get the task
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find((t: any) => t.id === input.taskId);
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find((t: any) => t.id === input.taskId);
 
       if (!task) {
         throw new Error("Task not found");
@@ -737,7 +1111,6 @@ export const tasksRouter = router({
           const currentIndex = activeMembers.findIndex(
             (m: any) => m.id === currentAssigneeId
           );
-          // Go back one in rotation
           const previousIndex =
             (currentIndex - 1 + activeMembers.length) % activeMembers.length;
           const previousMember = activeMembers[previousIndex];
@@ -757,8 +1130,6 @@ export const tasksRouter = router({
         completedAt: null,
       });
 
-      // NOTE: We do NOT delete the activity log entry - it stays as history
-
       return { success: true };
     }),
 
@@ -769,13 +1140,13 @@ export const tasksRouter = router({
         taskId: z.number(),
         householdId: z.number(),
         memberId: z.number(),
-        dateToSkip: z.string(), // ISO date string
+        dateToSkip: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
@@ -788,15 +1159,15 @@ export const tasksRouter = router({
         skippedDates: updatedSkippedDates,
       });
 
-      // Log the skip action
+      const formattedDate = new Date(input.dateToSkip).toLocaleDateString('de-DE');
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "skipped",
-        description: `Skipped occurrence on ${new Date(input.dateToSkip).toLocaleDateString('de-DE')}`,
+        description: `Termin übersprungen am ${formattedDate} für Aufgabe '${task.name}'`,
         relatedItemId: input.taskId,
-        metadata: { skippedDate: input.dateToSkip },
+        metadata: { skippedDate: input.dateToSkip, taskName: task.name },
       });
 
       return { success: true };
@@ -809,13 +1180,13 @@ export const tasksRouter = router({
         taskId: z.number(),
         householdId: z.number(),
         memberId: z.number(),
-        dateToRestore: z.string(), // ISO date string
+        dateToRestore: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      const tasks = await getTasks(input.householdId);
-      const task = tasks.find(t => t.id === input.taskId);
-      
+      const tasksList = await getTasks(input.householdId);
+      const task = tasksList.find(t => t.id === input.taskId);
+
       if (!task) {
         throw new Error("Task not found");
       }
@@ -828,15 +1199,15 @@ export const tasksRouter = router({
         skippedDates: updatedSkippedDates,
       });
 
-      // Log the restore action
+      const formattedDate = new Date(input.dateToRestore).toLocaleDateString('de-DE');
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "restored",
-        description: `Restored skipped occurrence on ${new Date(input.dateToRestore).toLocaleDateString('de-DE')}`,
+        description: `Übersprungener Termin am ${formattedDate} wiederhergestellt für Aufgabe '${task.name}'`,
         relatedItemId: input.taskId,
-        metadata: { restoredDate: input.dateToRestore },
+        metadata: { restoredDate: input.dateToRestore, taskName: task.name },
       });
 
       return { success: true };
@@ -850,19 +1221,18 @@ export const tasksRouter = router({
       if (!db) return [];
 
       const { tasks, households } = await import("../../drizzle/schema");
-      
+
       // Get the task's sharedHouseholdIds
       const task = await db.select({ sharedHouseholdIds: tasks.sharedHouseholdIds })
         .from(tasks)
         .where(eq(tasks.id, input.taskId))
         .limit(1);
-      
+
       if (!task[0] || !task[0].sharedHouseholdIds || task[0].sharedHouseholdIds.length === 0) {
         return [];
       }
-      
+
       // Get household names for the shared household IDs
-      const { inArray } = await import("drizzle-orm");
       const shared = await db.select({
         id: households.id,
         name: households.name,

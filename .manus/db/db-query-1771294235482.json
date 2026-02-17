@@ -1,0 +1,82 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tasks' ORDER BY ORDINAL_POSITION",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tasks' ORDER BY ORDINAL_POSITION",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "householdId"
+    },
+    {
+      "COLUMN_NAME": "name"
+    },
+    {
+      "COLUMN_NAME": "description"
+    },
+    {
+      "COLUMN_NAME": "frequency"
+    },
+    {
+      "COLUMN_NAME": "customFrequencyDays"
+    },
+    {
+      "COLUMN_NAME": "enableRotation"
+    },
+    {
+      "COLUMN_NAME": "dueDate"
+    },
+    {
+      "COLUMN_NAME": "isCompleted"
+    },
+    {
+      "COLUMN_NAME": "completedBy"
+    },
+    {
+      "COLUMN_NAME": "completedAt"
+    },
+    {
+      "COLUMN_NAME": "completionPhotoUrls"
+    },
+    {
+      "COLUMN_NAME": "createdBy"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    },
+    {
+      "COLUMN_NAME": "repeatInterval"
+    },
+    {
+      "COLUMN_NAME": "repeatUnit"
+    },
+    {
+      "COLUMN_NAME": "requiredPersons"
+    },
+    {
+      "COLUMN_NAME": "projectIds"
+    },
+    {
+      "COLUMN_NAME": "skippedDates"
+    },
+    {
+      "COLUMN_NAME": "completionFileUrls"
+    },
+    {
+      "COLUMN_NAME": "nonResponsiblePermission"
+    },
+    {
+      "COLUMN_NAME": "sharedHouseholdIds"
+    },
+    {
+      "COLUMN_NAME": "assignedTo"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nhouseholdId\nname\ndescription\nfrequency\ncustomFrequencyDays\nenableRotation\ndueDate\nisCompleted\ncompletedBy\ncompletedAt\ncompletionPhotoUrls\ncreatedBy\ncreatedAt\nupdatedAt\nrepeatInterval\nrepeatUnit\nrequiredPersons\nprojectIds\nskippedDates\ncompletionFileUrls\nnonResponsiblePermission\nsharedHouseholdIds\nassignedTo\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}

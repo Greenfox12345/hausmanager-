@@ -1809,3 +1809,12 @@
 
 ## Fix Duplicate Key Warning in TaskDetailDialog (2026-02-17)
 - [x] Fix duplicate key `2026-01-06` warning when clicking edit on tasks (added index to key in skippedDates map)
+
+## Improve Task Activity Logs (2026-02-17)
+- [x] Analyze current logging implementation (schema, mutations, display)
+- [x] Add detailed change descriptions for task updates (field-by-field diff)
+- [x] Add full details for milestone additions
+- [x] Translate all log action types and descriptions to German
+- [ ] Update log display UI to show detailed changes
+- [x] Test logging for all action types (14 new tests passing)
+- [x] Fixed stale drizzle/schema.js causing projectId column error

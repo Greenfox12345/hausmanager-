@@ -202,7 +202,7 @@ describe("Tasks - Skipped Dates", () => {
     );
 
     expect(skipActivity).toBeDefined();
-    expect(skipActivity?.description).toContain("Skipped occurrence");
+    expect(skipActivity?.description).toContain("Termin übersprungen");
   });
 
   it("should log restore action in activity history", async () => {
@@ -237,6 +237,6 @@ describe("Tasks - Skipped Dates", () => {
     );
 
     expect(restoreActivity).toBeDefined();
-    expect(restoreActivity?.description).toContain("Restored skipped occurrence");
+    expect(restoreActivity?.description).toContain("wiederhergestellt");
   });
 });
