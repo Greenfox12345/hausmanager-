@@ -1866,3 +1866,10 @@
 - [ ] Update task completion logic to handle weekday-based next occurrence
 - [x] Write tests for weekday-based monthly recurrence (12 tests passing)
 - [ ] Update activity logs to show recurrence mode in German
+
+## Update Task Completion Logic for Monthly Recurrence Mode (2026-02-17)
+- [x] Update toggleComplete mutation to check monthlyRecurrenceMode
+- [x] Use getNextMonthlyOccurrence for monthly tasks instead of simple date addition
+- [x] Handle both same_date and same_weekday modes in completion logic
+- [x] Write tests for task completion with both recurrence modes (8 tests passing)
+- [x] Verify completion works correctly for daily/weekly tasks (no regression)

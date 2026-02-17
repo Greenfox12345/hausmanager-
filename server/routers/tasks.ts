@@ -558,7 +558,10 @@ export const tasksRouter = router({
         } else if (task.repeatUnit === "weeks") {
           nextDueDate.setDate(nextDueDate.getDate() + ((task.repeatInterval || 1) * 7));
         } else if (task.repeatUnit === "months") {
-          nextDueDate.setMonth(nextDueDate.getMonth() + (task.repeatInterval || 1));
+          // Use monthlyRecurrenceMode if set
+          const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
+          const mode = task.monthlyRecurrenceMode || "same_date";
+          nextDueDate = getNextMonthlyOccurrence(currentDueDate, task.repeatInterval || 1, mode);
         }
 
         // Handle rotation if enabled
