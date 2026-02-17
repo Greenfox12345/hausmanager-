@@ -1839,3 +1839,8 @@
 - [x] Shift schedule down after completion (occurrence 2 → 1, 3 → 2)
 - [x] Fallback to old rotation logic if no schedule exists
 - [x] Write vitest tests for rotation schedule functionality (6 tests passing)
+
+## Fix Rotation Toggle Crash (2026-02-17)
+- [x] Investigate React crash when clicking "Verantwortung rotieren" checkbox (infinite loop in useEffect)
+- [x] Fix the crash by wrapping onChange callback in useCallback
+- [x] Test rotation toggle functionality

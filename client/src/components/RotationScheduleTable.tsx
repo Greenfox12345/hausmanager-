@@ -90,8 +90,10 @@ export function RotationScheduleTable({
 
   // Notify parent of changes
   useEffect(() => {
-    onChange(schedule);
-  }, [schedule]);
+    if (schedule.length > 0) {
+      onChange(schedule);
+    }
+  }, [schedule, onChange]);
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
     setSchedule(prev =>
