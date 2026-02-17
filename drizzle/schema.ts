@@ -140,6 +140,7 @@ export const tasks = mysqlTable("tasks", {
   customFrequencyDays: int("customFrequencyDays"),
   repeatInterval: int("repeatInterval"),
   repeatUnit: mysqlEnum("repeatUnit", ["days", "weeks", "months"]),
+  monthlyRecurrenceMode: mysqlEnum("monthlyRecurrenceMode", ["same_date", "same_weekday"]).default("same_date"), // For monthly tasks: repeat on same date (15th) or same weekday (3rd Thursday)
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),
@@ -157,7 +158,7 @@ export const tasks = mysqlTable("tasks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type Task = typeof tasks.$inferSelect;
+export type Task = typeof tasks.$inferSelect; // Includes monthlyRecurrenceMode field
 export type InsertTask = typeof tasks.$inferInsert;
 
 /**

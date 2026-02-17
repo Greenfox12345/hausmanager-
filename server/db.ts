@@ -451,6 +451,7 @@ export async function createTask(data: {
   customFrequencyDays?: number;
   repeatInterval?: number;
   repeatUnit?: "days" | "weeks" | "months";
+  monthlyRecurrenceMode?: "same_date" | "same_weekday";
   enableRotation?: boolean;
   requiredPersons?: number;
   dueDate?: Date;

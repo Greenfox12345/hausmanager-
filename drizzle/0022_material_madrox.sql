@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD `monthlyRecurrenceMode` enum('same_date','same_weekday') DEFAULT 'same_date';

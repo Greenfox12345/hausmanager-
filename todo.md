@@ -1851,3 +1851,18 @@
 - [x] Separate date updates from onChange notifications to prevent cascading re-renders
 - [ ] Test with tasks that have due dates vs tasks without due dates
 - [ ] Test with daily, weekly, and monthly rotation intervals
+
+## Monthly Weekday Recurrence (2026-02-17)
+- [x] Add database field for monthly recurrence mode (same_date vs same_weekday)
+- [x] Update schema: tasks table with monthlyRecurrenceMode column
+- [x] Add backend helper to calculate "nth weekday of month" (e.g., 3rd Thursday)
+- [x] Create shared/dateUtils.ts with getNthWeekdayOfMonth, getNextMonthlyOccurrence, formatWeekdayOccurrence
+- [x] Update TaskDetailDialog with toggle for monthly recurrence mode
+- [x] Add monthlyRecurrenceMode to task create/update schemas
+- [x] Load and save monthlyRecurrenceMode in TaskDetailDialog
+- [x] Update RotationScheduleTable date calculation for weekday-based recurrence
+- [x] Pass monthlyRecurrenceMode prop from TaskDetailDialog to RotationScheduleTable
+- [x] Use getNextMonthlyOccurrence helper for monthly date calculations
+- [ ] Update task completion logic to handle weekday-based next occurrence
+- [x] Write tests for weekday-based monthly recurrence (12 tests passing)
+- [ ] Update activity logs to show recurrence mode in German

@@ -26,6 +26,7 @@ interface Task {
   id: number;
   name: string;
   description?: string | null;
+  monthlyRecurrenceMode?: "same_date" | "same_weekday" | null;
   assignedTo?: number[] | null; // Array of member IDs
   dueDate?: string | Date | null;
   enableRepeat?: boolean | null;
@@ -169,6 +170,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [enableRepeat, setEnableRepeat] = useState(false);
   const [repeatInterval, setRepeatInterval] = useState("1");
   const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
+  const [monthlyRecurrenceMode, setMonthlyRecurrenceMode] = useState<"same_date" | "same_weekday">("same_date");
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
@@ -227,6 +229,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         } else if (task.repeatInterval && task.repeatUnit) {
           setRepeatInterval(task.repeatInterval.toString());
           setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
+          if (task.monthlyRecurrenceMode) {
+            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+          }
         }
       } else {
         setRepeatInterval("1");
@@ -383,6 +388,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         customFrequencyDays: customFrequencyDays,
         repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
         repeatUnit: enableRepeat ? repeatUnit : undefined,
+        monthlyRecurrenceMode: enableRepeat && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
         enableRotation: enableRepeat && enableRotation,
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
@@ -484,6 +490,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         } else if (task.repeatInterval && task.repeatUnit) {
           setRepeatInterval(task.repeatInterval.toString());
           setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
+          if (task.monthlyRecurrenceMode) {
+            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+          }
         }
       } else {
         setRepeatInterval("1");
@@ -758,6 +767,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     </div>
 
+                    {/* Monthly recurrence mode - only shown when repeatUnit is months */}
+                    {repeatUnit === "months" && (
+                      <div className="space-y-2 pl-6 border-l-2 border-muted">
+                        <Label>Monatliche Wiederholung</Label>
+                        <Select value={monthlyRecurrenceMode} onValueChange={(v) => setMonthlyRecurrenceMode(v as any)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="same_date">Am gleichen Tag (z.B. jeden 15.)</SelectItem>
+                            <SelectItem value="same_weekday">Am gleichen Wochentag (z.B. jeden 3. Donnerstag)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
                     {/* Rotation checkbox - nested under repeat */}
                     <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
                       <Switch
@@ -824,6 +849,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             currentAssignees={selectedAssignees}
                             repeatInterval={parseInt(repeatInterval) || 1}
                             repeatUnit={repeatUnit}
+                            monthlyRecurrenceMode={monthlyRecurrenceMode}
                             dueDate={dueDate ? new Date(dueDate) : null}
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}

@@ -155,6 +155,13 @@
       "when": 1771329707922,
       "tag": "0021_sudden_alex_power",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1771333033335,
+      "tag": "0022_material_madrox",
+      "breakpoints": true
     }
   ]
 }

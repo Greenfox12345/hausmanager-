@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Calendar } from "lucide-react";
 import { addDays, addWeeks, addMonths, format } from "date-fns";
 import { de } from "date-fns/locale";
+import { getNextMonthlyOccurrence } from "../../../shared/dateUtils";
 
 interface Member {
   memberId: number;
@@ -18,6 +19,7 @@ interface RotationScheduleTableProps {
   currentAssignees: number[];
   repeatInterval: number;
   repeatUnit: "days" | "weeks" | "months";
+  monthlyRecurrenceMode?: "same_date" | "same_weekday";
   dueDate?: Date | null;
   onChange: (schedule: ScheduleOccurrence[]) => void;
   initialSchedule?: ScheduleOccurrence[];
@@ -36,6 +38,7 @@ export function RotationScheduleTable({
   currentAssignees,
   repeatInterval,
   repeatUnit,
+  monthlyRecurrenceMode = "same_date",
   dueDate,
   onChange,
   initialSchedule,
@@ -48,9 +51,15 @@ export function RotationScheduleTable({
   const calculateOccurrenceDate = useCallback((occurrenceNumber: number): Date | undefined => {
     if (!dueDate) return undefined;
     
-    const addFunction = repeatUnit === "days" ? addDays : repeatUnit === "weeks" ? addWeeks : addMonths;
-    return addFunction(dueDate, repeatInterval * (occurrenceNumber - 1));
-  }, [dueDate, repeatInterval, repeatUnit]);
+    if (repeatUnit === "months") {
+      // Use weekday-based calculation for monthly recurrence if mode is same_weekday
+      return getNextMonthlyOccurrence(dueDate, repeatInterval * (occurrenceNumber - 1), monthlyRecurrenceMode);
+    } else {
+      // For days/weeks, use simple addition
+      const addFunction = repeatUnit === "days" ? addDays : addWeeks;
+      return addFunction(dueDate, repeatInterval * (occurrenceNumber - 1));
+    }
+  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode]);
 
   // Initialize schedule ONCE on mount
   useEffect(() => {
