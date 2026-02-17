@@ -1806,3 +1806,6 @@
 
 ## Fix UI Not Updating After Household Connection Changes (2026-02-17)
 - [x] Fix query invalidation after saving household connection changes (added getSharedHouseholds.invalidate)
+
+## Fix Duplicate Key Warning in TaskDetailDialog (2026-02-17)
+- [x] Fix duplicate key `2026-01-06` warning when clicking edit on tasks (added index to key in skippedDates map)

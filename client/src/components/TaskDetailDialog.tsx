@@ -781,8 +781,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="border-t pt-4 mt-4">
                     <h4 className="text-sm font-semibold mb-3">Ausgelassene Termine ({task.skippedDates.length})</h4>
                     <div className="space-y-2">
-                      {task.skippedDates.map((dateStr: string) => (
-                        <div key={dateStr} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
+                      {task.skippedDates.map((dateStr: string, idx: number) => (
+                        <div key={`${dateStr}-${idx}`} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
                           <span className="text-sm">
                             {format(new Date(dateStr), "PPP", { locale: de })}
                           </span>
