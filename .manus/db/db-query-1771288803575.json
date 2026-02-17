@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, assignedTo FROM tasks LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, assignedTo FROM tasks LIMIT 3;",
+  "rows": [
+    {
+      "id": "600002",
+      "name": "Testen",
+      "assignedTo": "480008"
+    },
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "assignedTo": "[[480009]]"
+    },
+    {
+      "id": "600006",
+      "name": "sdf",
+      "assignedTo": "[[480011]]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tassignedTo\n600002\tTesten\t480008\n600005\tTest Aufgabe für Dialog\t[[480009]]\n600006\tsdf\t[[480011]]\n",
+  "stderr": "",
+  "execution_time_ms": 498
+}

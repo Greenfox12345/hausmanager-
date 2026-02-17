@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "120e7e08-8c4e-44f1-a780-cb8a559b5868",
-  "prevId": "4ad13704-12bb-4709-9629-7dccc2156909",
+  "id": "f76d44eb-7c77-4396-a806-de593baa4580",
+  "prevId": "de6a2c3e-8f0f-4acc-9ff0-ac5771056f6f",
   "tables": {
     "activity_history": {
       "name": "activity_history",

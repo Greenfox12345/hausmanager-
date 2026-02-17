@@ -1,0 +1,49 @@
+{
+  "query": "SELECT DISTINCT householdId FROM tasks;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT DISTINCT householdId FROM tasks;",
+  "rows": [
+    {
+      "householdId": "390004"
+    },
+    {
+      "householdId": "390007"
+    },
+    {
+      "householdId": "390008"
+    },
+    {
+      "householdId": "390009"
+    },
+    {
+      "householdId": "390010"
+    },
+    {
+      "householdId": "420001"
+    },
+    {
+      "householdId": "450001"
+    },
+    {
+      "householdId": "510001"
+    },
+    {
+      "householdId": "510002"
+    },
+    {
+      "householdId": "540001"
+    },
+    {
+      "householdId": "600001"
+    },
+    {
+      "householdId": "720001"
+    },
+    {
+      "householdId": "780001"
+    }
+  ],
+  "messages": [],
+  "stdout": "householdId\n390004\n390007\n390008\n390009\n390010\n420001\n450001\n510001\n510002\n540001\n600001\n720001\n780001\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}

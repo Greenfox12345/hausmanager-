@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -365,77 +365,46 @@ export async function unlinkItemsFromTask(itemIds: number[]) {
 }
 
 // Tasks management
-export async function getTasks(householdId: number): Promise<(Task & { sharedHouseholdCount?: number, isSharedWithUs?: boolean })[]> {
+export async function getTasks(householdId: number): Promise<(Task & { sharedHouseholdCount?: number, isSharedWithUs?: boolean, assignedToNames?: string })[]> {
   const db = await getDb();
   if (!db) return [];
 
-  const { sharedTasks } = await import("../drizzle/schema");
-  const { sql, count, or, inArray } = await import("drizzle-orm");
+  // Use raw SQL to avoid Drizzle caching issues
+  const [tasksResult] = await db.execute(
+    sql`SELECT * FROM tasks 
+        WHERE householdId = ${householdId} 
+           OR JSON_SEARCH(sharedHouseholdIds, 'one', CAST(${householdId} AS CHAR)) IS NOT NULL
+        ORDER BY isCompleted, createdAt DESC`
+  );
 
-  // Get tasks owned by this household OR shared with this household
-  const tasksWithSharing = await db.select({
-    id: tasks.id,
-    householdId: tasks.householdId,
-    householdName: households.name,
-    name: tasks.name,
-    description: tasks.description,
-    assignedTo: tasks.assignedTo,
-    assignedToNames: sql<string>`(
-      CASE
-        WHEN ${tasks.assignedTo} IS NULL THEN NULL
-        ELSE (
-          SELECT GROUP_CONCAT(m.memberName SEPARATOR ', ')
-          FROM ${householdMembers} m
-          WHERE JSON_SEARCH(${tasks.assignedTo}, 'one', CAST(m.id AS CHAR)) IS NOT NULL
-        )
-      END
-    )`,
-    isCompleted: tasks.isCompleted,
-    frequency: tasks.frequency,
-    customFrequencyDays: tasks.customFrequencyDays,
-    repeatInterval: tasks.repeatInterval,
-    repeatUnit: tasks.repeatUnit,
-    enableRotation: tasks.enableRotation,
-    requiredPersons: tasks.requiredPersons,
-    dueDate: tasks.dueDate,
-    projectIds: tasks.projectIds,
-    completedAt: tasks.completedAt,
-    createdBy: tasks.createdBy,
-    createdAt: tasks.createdAt,
-    updatedAt: tasks.updatedAt,
-    sharedHouseholdIds: tasks.sharedHouseholdIds,
-    sharedHouseholdCount: sql<number>`(
-      CASE 
-        WHEN ${tasks.sharedHouseholdIds} IS NULL THEN 0
-        ELSE JSON_LENGTH(${tasks.sharedHouseholdIds})
-      END
-    )`,
-    sharedHouseholdNames: sql<string>`(
-      CASE
-        WHEN ${tasks.sharedHouseholdIds} IS NULL THEN NULL
-        ELSE (
-          SELECT GROUP_CONCAT(h.name SEPARATOR ', ')
-          FROM ${households} h
-          WHERE JSON_SEARCH(${tasks.sharedHouseholdIds}, 'one', CAST(h.id AS CHAR)) IS NOT NULL
-            AND h.id != ${householdId}
-        )
-      END
-    )`,
-    isSharedWithUs: sql<boolean>`(
-      ${tasks.householdId} != ${householdId}
-    )`
-  })
-    .from(tasks)
-    .leftJoin(households, eq(tasks.householdId, households.id))
-    .where(
-      or(
-        eq(tasks.householdId, householdId),
-        sql`JSON_SEARCH(${tasks.sharedHouseholdIds}, 'one', CAST(${householdId} AS CHAR)) IS NOT NULL`
-      )
-    )
-    .orderBy(tasks.isCompleted, desc(tasks.createdAt));
+  const tasksWithSharing = tasksResult as unknown as any[];
 
-  return tasksWithSharing as any;
+  // Get all household members to resolve names
+  const [membersResult] = await db.execute(
+    sql`SELECT id, memberName FROM household_members WHERE householdId = ${householdId}`
+  );
+  
+  const members = membersResult as unknown as { id: number; memberName: string }[];
+
+  // Resolve assignedToNames in JavaScript
+  const tasksWithNames = tasksWithSharing.map(task => {
+    let assignedToNames: string | null = null;
+    
+    if (task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length > 0) {
+      const names = task.assignedTo
+        .map((id: number) => members.find(m => m.id === id)?.memberName)
+        .filter((name: string | undefined) => name !== undefined);
+      
+      assignedToNames = names.length > 0 ? names.join(", ") : null;
+    }
+    
+    return {
+      ...task,
+      assignedToNames,
+    };
+  });
+
+  return tasksWithNames as any;
 }
 
 export async function createTask(data: {

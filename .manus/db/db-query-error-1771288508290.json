@@ -1,0 +1,8 @@
+{
+  "query": "SELECT \n  t.id,\n  t.name,\n  t.assignedTo,\n  (\n    SELECT GROUP_CONCAT(m.memberName SEPARATOR ', ')\n    FROM household_members m\n    WHERE JSON_CONTAINS(t.assignedTo, CAST(m.id AS JSON))\n  ) as assignedToNames\nFROM tasks t\nWHERE t.assignedTo IS NOT NULL\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  t.id,\n  t.name,\n  t.assignedTo,\n  (\n    SELECT GROUP_CONCAT(m.memberName SEPARATOR ', ')\n    FROM household_members m\n    WHERE JSON_CONTAINS(t.assignedTo, CAST(m.id AS JSON))\n  ) as assignedToNames\nFROM tasks t\nWHERE t.assignedTo IS NOT NULL\nLIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1815 (HY000) at line 1: expression json_contains(5dpslyh58e9tdjpvglcuzx.tasks.assignedto, cast(cast(5dpslyh58e9tdjpvglcuzx.household_members.id, json BINARY), json BINARY)) cannot be pushed down"
+  ]
+}

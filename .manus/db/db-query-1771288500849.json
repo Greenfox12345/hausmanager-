@@ -1,0 +1,31 @@
+{
+  "query": "SELECT \n  id, \n  name, \n  assignedTo,\n  JSON_CONTAINS(assignedTo, '1') as contains_1,\n  JSON_CONTAINS(assignedTo, '2') as contains_2\nFROM tasks \nWHERE assignedTo IS NOT NULL \nLIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  id, \n  name, \n  assignedTo,\n  JSON_CONTAINS(assignedTo, '1') as contains_1,\n  JSON_CONTAINS(assignedTo, '2') as contains_2\nFROM tasks \nWHERE assignedTo IS NOT NULL \nLIMIT 3;",
+  "rows": [
+    {
+      "id": "600002",
+      "name": "Testen",
+      "assignedTo": "480008",
+      "contains_1": "0",
+      "contains_2": "0"
+    },
+    {
+      "id": "600005",
+      "name": "Test Aufgabe für Dialog",
+      "assignedTo": "[[480009]]",
+      "contains_1": "0",
+      "contains_2": "0"
+    },
+    {
+      "id": "600006",
+      "name": "sdf",
+      "assignedTo": "[[480011]]",
+      "contains_1": "0",
+      "contains_2": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tassignedTo\tcontains_1\tcontains_2\n600002\tTesten\t480008\t0\t0\n600005\tTest Aufgabe für Dialog\t[[480009]]\t0\t0\n600006\tsdf\t[[480011]]\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

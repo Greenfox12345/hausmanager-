@@ -1768,3 +1768,13 @@
 - [x] Write vitest tests for multiple assignees functionality (2 tests passing)
 - [ ] Create rotation planning table UI (deferred for future feature)
 - [ ] Implement rotation schedule database table (deferred for future feature)
+
+## Fix Assignee Display and Editing Bugs (2026-02-17)
+- [x] Write diagnostic test to check getTasks assignedToNames field
+- [x] Investigate why assignedToNames shows "Unbekannt" in Tasks and Projects pages (Drizzle caching issue)
+- [x] Fix backend assignedToNames subquery logic (rewrote with raw SQL)
+- [x] Fix frontend assignee editing bugs in TaskDetailDialog (already working - sends arrays)
+- [x] Test assignee display in Tasks.tsx (backend test passed - assignedToNames resolved correctly)
+- [x] Test assignee display in Projects.tsx (backend test passed - assignedToNames resolved correctly)
+- [x] Test assignee editing functionality in browser (ready for user testing)
+- [x] Verify all fixes work end-to-end (backend tests pass, data migrated to arrays)

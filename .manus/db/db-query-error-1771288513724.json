@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  t.id,\n  t.name,\n  t.assignedTo,\n  GROUP_CONCAT(m.memberName SEPARATOR ', ') as assignedToNames\nFROM tasks t\nLEFT JOIN JSON_TABLE(\n  t.assignedTo,\n  '$[*]' COLUMNS(memberId INT PATH '$')\n) AS jt\nLEFT JOIN household_members m ON m.id = jt.memberId\nWHERE t.assignedTo IS NOT NULL\nGROUP BY t.id, t.name, t.assignedTo\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT \n  t.id,\n  t.name,\n  t.assignedTo,\n  GROUP_CONCAT(m.memberName SEPARATOR ', ') as assignedToNames\nFROM tasks t\nLEFT JOIN JSON_TABLE(\n  t.assignedTo,\n  '$[*]' COLUMNS(memberId INT PATH '$')\n) AS jt\nLEFT JOIN household_members m ON m.id = jt.memberId\nWHERE t.assignedTo IS NOT NULL\nGROUP BY t.id, t.name, t.assignedTo\nLIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 7 column 22 near \"(",
+    "  t.assignedTo,",
+    "  '$[*]' COLUMNS(memberId INT PATH '$')",
+    ") AS jt",
+    "LEFT JOIN household_members m ON m.id = jt.memberId",
+    "WHERE t.assignedTo IS NOT NULL",
+    "GROUP BY t.id, t.name, t.assignedTo",
+    "LIMIT 5\""
+  ]
+}

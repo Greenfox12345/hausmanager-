@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as total, MIN(householdId) as min_household FROM tasks;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT COUNT(*) as total, MIN(householdId) as min_household FROM tasks;",
+  "rows": [
+    {
+      "total": "62",
+      "min_household": "390004"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tmin_household\n62\t390004\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}
