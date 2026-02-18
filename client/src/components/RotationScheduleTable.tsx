@@ -174,16 +174,28 @@ export function RotationScheduleTable({
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
     setSchedule(prev => {
-      const updated = prev.map(occ =>
-        occ.occurrenceNumber === occurrenceNumber
-          ? {
-              ...occ,
-              members: occ.members.map(m =>
-                m.position === position ? { ...m, memberId } : m
-              ),
-            }
-          : occ
-      );
+      const updated = prev.map(occ => {
+        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+        
+        // Ensure members array has all positions
+        const existingMember = occ.members.find(m => m.position === position);
+        let updatedMembers;
+        
+        if (existingMember) {
+          // Update existing member
+          updatedMembers = occ.members.map(m =>
+            m.position === position ? { ...m, memberId } : m
+          );
+        } else {
+          // Add new member if position doesn't exist
+          updatedMembers = [...occ.members, { position, memberId }];
+        }
+        
+        return {
+          ...occ,
+          members: updatedMembers,
+        };
+      });
       // Immediately notify parent of the change
       onChangeRef.current(updated);
       return updated;
@@ -203,16 +215,18 @@ export function RotationScheduleTable({
       for (let occIdx = 0; occIdx < newSchedule.length; occIdx++) {
         const occ = newSchedule[occIdx];
         
-        // For each position in this occurrence
-        for (let posIdx = 0; posIdx < occ.members.length; posIdx++) {
-          const member = occ.members[posIdx];
+        // For each position (use requiredPersons, not occ.members.length)
+        for (let position = 1; position <= requiredPersons; position++) {
+          const memberIdx = occ.members.findIndex(m => m.position === position);
+          const member = memberIdx >= 0 ? occ.members[memberIdx] : null;
           
-          // Only fill if currently unassigned (memberId === 0)
-          if (member.memberId === 0) {
+          // Only fill if currently unassigned (memberId === 0) or doesn't exist
+          if (!member || member.memberId === 0) {
             // Get previous occurrence's member at this position (if exists)
-            const prevOccMemberId = occIdx > 0 
-              ? newSchedule[occIdx - 1].members[posIdx]?.memberId 
+            const prevOccMember = occIdx > 0 
+              ? newSchedule[occIdx - 1].members.find(m => m.position === position)
               : null;
+            const prevOccMemberId = prevOccMember?.memberId || null;
             
             // If multiple members available, try to avoid assigning same person consecutively
             let selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
@@ -222,10 +236,19 @@ export function RotationScheduleTable({
               selectedMember = eligibleMembers[(memberIndex + 1) % eligibleMembers.length];
             }
             
-            occ.members[posIdx] = {
-              ...member,
-              memberId: selectedMember.memberId,
-            };
+            if (member) {
+              // Update existing member
+              occ.members[memberIdx] = {
+                ...member,
+                memberId: selectedMember.memberId,
+              };
+            } else {
+              // Add new member
+              occ.members.push({
+                position,
+                memberId: selectedMember.memberId,
+              });
+            }
             memberIndex++;
           }
         }
