@@ -1344,9 +1344,28 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName || "Noch offen")
                           .filter((name: string) => name !== "Noch offen");
                         
+                        // Calculate date for this occurrence
+                        let calculatedDate: Date | undefined = undefined;
+                        if (task.dueDate && task.repeatUnit !== "irregular") {
+                          const baseDate = new Date(task.dueDate);
+                          const interval = task.repeatInterval || 1;
+                          const occNum = occ.occurrenceNumber - 1; // 0-indexed for calculation
+                          
+                          if (task.repeatUnit === "days") {
+                            calculatedDate = new Date(baseDate);
+                            calculatedDate.setDate(baseDate.getDate() + (interval * occNum));
+                          } else if (task.repeatUnit === "weeks") {
+                            calculatedDate = new Date(baseDate);
+                            calculatedDate.setDate(baseDate.getDate() + (interval * 7 * occNum));
+                          } else if (task.repeatUnit === "months") {
+                            calculatedDate = new Date(baseDate);
+                            calculatedDate.setMonth(baseDate.getMonth() + (interval * occNum));
+                          }
+                        }
+                        
                         return {
                           occurrenceNumber: occ.occurrenceNumber,
-                          date: occ.calculatedDate ? new Date(occ.calculatedDate) : undefined,
+                          date: calculatedDate,
                           time: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : undefined,
                           responsiblePersons: memberNames,
                           notes: occ.notes,
@@ -1515,45 +1534,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
-                {/* Next 4 Occurrences for Recurring Tasks */}
-                {(task.enableRepeat || task.frequency !== "once") && task.dueDate && (
-                  <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-2">Kommende Termine</h4>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      {(() => {
-                        const dates: Date[] = [];
-                        const baseDate = new Date(task.dueDate);
-                        let interval = task.repeatInterval || task.customFrequencyDays || 1;
-                        let unit = task.repeatUnit || (task.frequency === "daily" ? "days" : task.frequency === "weekly" ? "weeks" : task.frequency === "monthly" ? "months" : "days");
-                        
-                        // Map frequency to interval/unit if not using old repeat fields
-                        if (task.frequency === "daily") { interval = 1; unit = "days"; }
-                        else if (task.frequency === "weekly") { interval = 1; unit = "weeks"; }
-                        else if (task.frequency === "monthly") { interval = 1; unit = "months"; }
-                        else if (task.frequency === "custom" && task.customFrequencyDays) { interval = task.customFrequencyDays; unit = "days"; }
-                        
-                        for (let i = 1; i <= 4; i++) {
-                          const nextDate = new Date(baseDate);
-                          if (unit === "days") {
-                            nextDate.setDate(baseDate.getDate() + (interval * i));
-                          } else if (unit === "weeks") {
-                            nextDate.setDate(baseDate.getDate() + (interval * i * 7));
-                          } else if (unit === "months") {
-                            nextDate.setMonth(baseDate.getMonth() + (interval * i));
-                          }
-                          dates.push(nextDate);
-                        }
-                        
-                        return dates.map((date, idx) => (
-                          <div key={idx}>
-                            {format(date, "PPP 'um' HH:mm 'Uhr'", { locale: de })}
-                          </div>
-                        ));
-                      })()}
-                    </div>
-                  </div>
-                )}
-                
                 {/* Action Buttons */}
                 {!isEditing && (
                   <div className="border-t pt-4 mt-4">
