@@ -68,6 +68,11 @@ export function RotationScheduleTable({
     if (!dueDate) return undefined;
     
     if (repeatUnit === "months") {
+      // First occurrence always uses exact due date
+      if (occurrenceNumber === 1) {
+        return dueDate;
+      }
+      
       // Use explicit weekday/occurrence if provided, otherwise derive from dueDate
       if (monthlyRecurrenceMode === "same_weekday" && monthlyWeekday !== undefined && monthlyOccurrence !== undefined) {
         return getNextMonthlyOccurrenceExplicit(dueDate, repeatInterval * (occurrenceNumber - 1), monthlyWeekday, monthlyOccurrence);
