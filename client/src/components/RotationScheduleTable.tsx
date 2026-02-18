@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus, Calendar } from "lucide-react";
-import { addDays, addWeeks, addMonths, format } from "date-fns";
+import { Plus, Calendar, Wand2 } from "lucide-react";
+import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence } from "../../../shared/dateUtils";
 
@@ -23,6 +23,7 @@ interface RotationScheduleTableProps {
   dueDate?: Date | null;
   onChange: (schedule: ScheduleOccurrence[]) => void;
   initialSchedule?: ScheduleOccurrence[];
+  excludedMemberIds?: number[];
 }
 
 export interface ScheduleOccurrence {
@@ -42,10 +43,14 @@ export function RotationScheduleTable({
   dueDate,
   onChange,
   initialSchedule,
+  excludedMemberIds = [],
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
+  
+  // Filter out excluded members
+  const eligibleMembers = availableMembers.filter(m => !excludedMemberIds.includes(m.memberId));
   
   // Calculate date for an occurrence (memoized to prevent recalculation)
   const calculateOccurrenceDate = useCallback((occurrenceNumber: number): Date | undefined => {
@@ -101,26 +106,25 @@ export function RotationScheduleTable({
     }
     
     isInitialized.current = true;
-  }, []); // Empty deps - run ONCE on mount
+  }, []); // Empty deps - run once on mount
 
-  // Update calculated dates when date-related props change (but don't trigger onChange)
+  // Update dates when relevant props change (but don't trigger onChange)
   useEffect(() => {
-    if (!isInitialized.current || schedule.length === 0) return;
+    if (!isInitialized.current) return;
     
     isUpdatingDates.current = true;
-    const updated = schedule.map(occ => ({
-      ...occ,
-      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-    }));
-    setSchedule(updated);
-    // Reset flag after state update completes
-    setTimeout(() => { isUpdatingDates.current = false; }, 0);
-  }, [dueDate, repeatInterval, repeatUnit, calculateOccurrenceDate]); // Update dates when these change
+    setSchedule(prev =>
+      prev.map(occ => ({
+        ...occ,
+        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+      }))
+    );
+    isUpdatingDates.current = false;
+  }, [calculateOccurrenceDate]);
 
-  // Notify parent of changes (but NOT when just updating dates)
+  // Notify parent when schedule changes (but not during date updates)
   useEffect(() => {
-    if (!isInitialized.current || schedule.length === 0 || isUpdatingDates.current) return;
-    
+    if (!isInitialized.current || isUpdatingDates.current) return;
     onChange(schedule);
   }, [schedule, onChange]);
 
@@ -162,11 +166,55 @@ export function RotationScheduleTable({
     setSchedule(prev => [...prev, newOccurrence]);
   };
 
+  const handleAutoFill = () => {
+    if (eligibleMembers.length === 0) return;
+    
+    setSchedule(prev => {
+      const newSchedule = [...prev];
+      let memberIndex = 0;
+      
+      // For each occurrence
+      for (let occIdx = 0; occIdx < newSchedule.length; occIdx++) {
+        const occ = newSchedule[occIdx];
+        
+        // For each position in this occurrence
+        for (let posIdx = 0; posIdx < occ.members.length; posIdx++) {
+          const member = occ.members[posIdx];
+          
+          // Only fill if currently unassigned (memberId === 0)
+          if (member.memberId === 0) {
+            // Round-robin through eligible members
+            const selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+            occ.members[posIdx] = {
+              ...member,
+              memberId: selectedMember.memberId,
+            };
+            memberIndex++;
+          }
+        }
+      }
+      
+      return newSchedule;
+    });
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Calendar className="h-4 w-4" />
-        <span>Planen Sie die Rotation für kommende Termine</span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span>Planen Sie die Rotation für kommende Termine</span>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleAutoFill}
+          className="gap-2"
+        >
+          <Wand2 className="h-4 w-4" />
+          Offene belegen
+        </Button>
       </div>
 
       {/* Table */}
@@ -174,96 +222,73 @@ export function RotationScheduleTable({
         <table className="w-full">
           <thead className="bg-muted">
             <tr>
-              <th className="p-2 text-left text-sm font-medium">Position</th>
-              {schedule.map((occ) => (
-                <th key={occ.occurrenceNumber} className="p-2 text-center text-sm font-medium">
+              <th className="p-3 text-left text-sm font-medium w-32">Termin</th>
+              <th className="p-3 text-left text-sm font-medium">Verantwortliche</th>
+              <th className="p-3 text-left text-sm font-medium w-64">Notizen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {schedule.map((occ) => (
+              <tr key={occ.occurrenceNumber} className="border-t">
+                <td className="p-3 align-top">
                   <div className="flex flex-col gap-1">
-                    <span>Termin {occ.occurrenceNumber}</span>
+                    <span className="text-sm font-medium">#{occ.occurrenceNumber}</span>
                     {occ.calculatedDate && (
-                      <span className="text-xs font-normal text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
                       </span>
                     )}
                   </div>
-                </th>
-              ))}
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: requiredPersons }, (_, posIndex) => {
-              const position = posIndex + 1;
-              return (
-                <tr key={position} className="border-t">
-                  <td className="p-2 text-sm font-medium">Person {position}</td>
-                  {schedule.map((occ) => {
-                    const member = occ.members.find(m => m.position === position);
-                    const selectedMemberId = member?.memberId || 0;
-                    
-                    return (
-                      <td key={occ.occurrenceNumber} className="p-2">
-                        <Select
-                          value={selectedMemberId.toString()}
-                          onValueChange={(value) =>
-                            handleMemberChange(occ.occurrenceNumber, position, parseInt(value))
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Wählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">Offen</SelectItem>
-                            {availableMembers.map((m) => (
-                              <SelectItem key={m.memberId} value={m.memberId.toString()}>
-                                {m.memberName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                    );
-                  })}
-                  <td className="p-2"></td>
-                </tr>
-              );
-            })}
+                </td>
+                <td className="p-3 align-top">
+                  <div className="flex flex-wrap gap-2">
+                    {occ.members.map((member) => (
+                      <Select
+                        key={member.position}
+                        value={member.memberId.toString()}
+                        onValueChange={(value) =>
+                          handleMemberChange(occ.occurrenceNumber, member.position, parseInt(value))
+                        }
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Wählen..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">Offen</SelectItem>
+                          {eligibleMembers.map((m) => (
+                            <SelectItem key={m.memberId} value={m.memberId.toString()}>
+                              {m.memberName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ))}
+                  </div>
+                </td>
+                <td className="p-3 align-top">
+                  <Textarea
+                    placeholder="Optionale Notizen..."
+                    value={occ.notes || ""}
+                    onChange={(e) => handleNotesChange(occ.occurrenceNumber, e.target.value)}
+                    rows={2}
+                    className="min-h-[60px]"
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* Notes for each occurrence */}
-      <div className="space-y-3">
-        {schedule.map((occ) => (
-          <div key={occ.occurrenceNumber} className="space-y-1">
-            <Label className="text-sm">
-              Notizen für Termin {occ.occurrenceNumber}
-              {occ.calculatedDate && (
-                <span className="text-muted-foreground ml-2">
-                  ({format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })})
-                </span>
-              )}
-            </Label>
-            <Textarea
-              placeholder="Optionale Notizen für diesen Termin..."
-              value={occ.notes || ""}
-              onChange={(e) => handleNotesChange(occ.occurrenceNumber, e.target.value)}
-              rows={2}
-              className="resize-none"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Extend button */}
+      {/* Extend Button */}
       <Button
         type="button"
         variant="outline"
-        size="sm"
         onClick={handleExtend}
-        className="w-full"
+        className="w-full gap-2"
       >
-        <Plus className="h-4 w-4 mr-2" />
-        Weiter planen (Termin {schedule.length + 1} hinzufügen)
+        <Plus className="h-4 w-4" />
+        Weiter planen
       </Button>
     </div>
   );

@@ -1873,3 +1873,11 @@
 - [x] Handle both same_date and same_weekday modes in completion logic
 - [x] Write tests for task completion with both recurrence modes (8 tests passing)
 - [x] Verify completion works correctly for daily/weekly tasks (no regression)
+
+## Rotation Schedule Table Redesign (2026-02-17)
+- [x] Remove position column from rotation schedule table
+- [x] Redesign table to show multiple assignees per occurrence in single row
+- [x] Add "Offene belegen" button to auto-fill empty assignments
+- [x] Implement auto-fill logic that respects rotation order and exclusions
+- [x] Pass excludedMemberIds to RotationScheduleTable component
+- [x] Test auto-fill with various scenarios (different requiredPersons, exclusions) - 9 tests passing

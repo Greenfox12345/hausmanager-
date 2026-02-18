@@ -845,7 +845,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           </p>
                           <RotationScheduleTable
                             requiredPersons={requiredPersons}
-                            availableMembers={ownMembers.filter(m => !excludedMembers.includes(m.id)).map(m => ({ memberId: m.id, memberName: m.memberName }))}
+                            availableMembers={ownMembers.map(m => ({ memberId: m.id, memberName: m.memberName }))}
                             currentAssignees={selectedAssignees}
                             repeatInterval={parseInt(repeatInterval) || 1}
                             repeatUnit={repeatUnit}
@@ -853,6 +853,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             dueDate={dueDate ? new Date(dueDate) : null}
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}
+                            excludedMemberIds={excludedMembers}
                           />
                         </div>
                       </div>
