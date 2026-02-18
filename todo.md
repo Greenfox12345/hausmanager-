@@ -2202,3 +2202,5 @@
 ## Bugfix: Skip-Button in "Termine Planen" aktualisiert nicht "Kommende Termine"
 - [x] Query-Invalidierung nach Skip-Mutation hinzufügen
 - [x] Beide Tabellen synchron halten
+  - [x] Lokalen State-Update entfernen (verursacht Konflikt mit Query)
+  - [x] isSkipped in useEffect beim Sync von rotationScheduleData übernehmen

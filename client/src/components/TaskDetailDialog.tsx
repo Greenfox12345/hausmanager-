@@ -409,10 +409,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load rotation schedule when data arrives
   useEffect(() => {
     if (rotationScheduleData && task && open && task.enableRotation) {
-      const scheduleWithDates = rotationScheduleData.map(occ => ({
+      const scheduleWithDates = rotationScheduleData.map((occ: any) => ({
         occurrenceNumber: occ.occurrenceNumber,
         members: occ.members,
         notes: occ.notes,
+        isSkipped: occ.isSkipped || false, // Include skip status
         calculatedDate: undefined, // Will be calculated by RotationScheduleTable
       }));
       setRotationSchedule(scheduleWithDates);
@@ -1175,20 +1176,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           size="sm"
                                           onClick={async () => {
                                             if (task?.id) {
-                                              // Save to DB immediately
+                                              // Save to DB immediately - query invalidation will update both tables
                                               try {
                                                 await skipRotationOccurrenceMutation.mutateAsync({
                                                   taskId: task.id,
                                                   occurrenceNumber: occ.occurrenceNumber,
                                                 });
-                                                // Update local state
-                                                handleRotationScheduleChange(
-                                                  rotationSchedule.map(o =>
-                                                    o.occurrenceNumber === occ.occurrenceNumber
-                                                      ? { ...o, isSkipped: !o.isSkipped }
-                                                      : o
-                                                  )
-                                                );
+                                                // Don't update local state - let query refetch handle it
                                               } catch (error) {
                                                 console.error('Failed to skip occurrence:', error);
                                               }
