@@ -1065,6 +1065,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}
                           />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const newOccurrence: ScheduleOccurrence = {
+                                occurrenceNumber: rotationSchedule.length + 1,
+                                members: selectedAssignees.map((id, i) => ({
+                                  position: i + 1,
+                                  memberId: id,
+                                })),
+                                notes: "",
+                              };
+                              handleRotationScheduleChange([...rotationSchedule, newOccurrence]);
+                            }}
+                            className="w-full gap-2 mt-3"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Termin hinzufügen
+                          </Button>
                         </div>
                         ) : (
                           <div className="space-y-2 border-t pt-4 mt-4">

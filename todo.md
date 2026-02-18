@@ -2071,3 +2071,10 @@
 - [x] Check backend mutation for saving rotation schedule
 - [x] Document current save flow and identify issues
 - [x] FIXED: Removed enableRotation requirement from save condition (line 443)
+
+## Rotation Table Updates (Feb 18, 2026)
+- [x] Re-add "Termin hinzufügen" button under rotation schedule
+- [x] Ensure notes table updates automatically when occurrence is added
+- [x] Ensure responsibilities table (RotationScheduleTable) updates automatically when occurrence is added
+- [x] Added useEffect to sync schedule with initialSchedule changes
+- [ ] Test both tables update correctly in browser

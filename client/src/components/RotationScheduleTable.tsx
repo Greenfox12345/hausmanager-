@@ -120,6 +120,21 @@ export function RotationScheduleTable({
     }
   }, [dueDate, initialSchedule, requiredPersons, currentAssignees, repeatInterval, repeatUnit, monthlyRecurrenceMode]); // Re-run when dueDate is set
 
+  // Sync schedule with initialSchedule changes (e.g., when parent adds new occurrence)
+  useEffect(() => {
+    if (!isInitialized.current) return;
+    if (!initialSchedule) return;
+    
+    // Check if initialSchedule has more occurrences than current schedule
+    if (initialSchedule.length > schedule.length) {
+      const withDates = initialSchedule.map(occ => ({
+        ...occ,
+        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+      }));
+      setSchedule(withDates);
+    }
+  }, [initialSchedule, schedule.length, calculateOccurrenceDate]);
+
   // Update dates when relevant props change (but don't trigger onChange)
   useEffect(() => {
     if (!isInitialized.current) return;
