@@ -439,8 +439,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
       });
       
-      // Step 1.5: Save rotation schedule if rotation is enabled
-      if (enableRepeat && enableRotation && rotationSchedule.length > 0) {
+      // Step 1.5: Save rotation schedule if repeat is enabled and schedule exists
+      if (enableRepeat && rotationSchedule.length > 0) {
         await setRotationScheduleMutation.mutateAsync({
           taskId: task.id,
           schedule: rotationSchedule.map(occ => ({

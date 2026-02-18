@@ -2063,3 +2063,11 @@
 - [x] Change tab label from "Terminnotizen" to "Termine Planen"
 - [x] Make rotation tab available even when enableRotation is false
 - [ ] Test rotation planning with rotation disabled
+
+## Investigation: Rotation Schedule Save Mechanism (Feb 18, 2026)
+- [x] Trace how rotation schedule data flows from RotationScheduleTable component
+- [x] Check how data is passed to TaskDetailDialog save handler
+- [x] Verify database schema for rotation schedule storage
+- [x] Check backend mutation for saving rotation schedule
+- [x] Document current save flow and identify issues
+- [x] FIXED: Removed enableRotation requirement from save condition (line 443)
