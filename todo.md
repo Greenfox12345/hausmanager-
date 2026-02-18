@@ -1881,3 +1881,15 @@
 - [x] Implement auto-fill logic that respects rotation order and exclusions
 - [x] Pass excludedMemberIds to RotationScheduleTable component
 - [x] Test auto-fill with various scenarios (different requiredPersons, exclusions) - 9 tests passing
+
+## Move Notes Out of Rotation Table (2026-02-18)
+- [ ] Remove notes column from rotation schedule table
+- [ ] Add collapsible notes section below table
+- [ ] Add toggle button per occurrence to show/hide notes field
+- [ ] Update table layout to be more compact without notes column
+
+## Fix Rotation Table Layout (2026-02-18)
+- [x] Restore horizontal table layout (columns = occurrences, rows = persons)
+- [x] Remove "Position" label column (keep person rows but without labels)
+- [x] Move notes out of table into collapsible sections below with toggle buttons
+- [x] Keep "Offene belegen" button
