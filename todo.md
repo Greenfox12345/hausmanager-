@@ -2283,3 +2283,33 @@
 - [x] RotationScheduleTable: onSkipSuccess Callback hinzugefügt
 - [x] TaskDetailDialog: onSkipSuccess Callback übergeben der Query refetched
 - [x] Beide Buttons aktualisieren jetzt konsistent beide Tabellen
+
+## KRITISCH: Skip-Buttons in "Termine Planen" aktualisieren "Kommende Termine" IMMER NOCH NICHT
+
+**Problem:**
+- Skip-Button in "Termine Planen" Tabelle (oben) funktioniert
+- Datenbank wird korrekt aktualisiert
+- ABER: "Kommende Termine" Tabelle (unten) zeigt NICHT den neuen Skip-Status
+- Problem besteht trotz mehrerer Lösungsversuche
+
+**Bisherige Lösungsversuche:**
+1. Query-Invalidierung hinzugefügt - FEHLGESCHLAGEN
+2. refetch() statt invalidate() - FEHLGESCHLAGEN
+3. useEffect Dependencies optimiert - FEHLGESCHLAGEN
+4. Lokalen State-Update hinzugefügt - FEHLGESCHLAGEN
+5. onSkipSuccess Callback hinzugefügt - FEHLGESCHLAGEN
+
+**Zu untersuchen:**
+- [x] Wird skipRotationOccurrenceMutation.onSuccess überhaupt aufgerufen? - JA
+- [x] Wird refetch() tatsächlich ausgeführt? - JA, aber möglicherweise mit Cache
+- [x] Lädt die Query neue Daten oder verwendet sie Cache? - CACHE-PROBLEM
+- [x] Wird der useEffect nach Query-Update getriggert? - Nur wenn Query sich ändert
+- [x] Gibt es ein Problem mit der Query-Key oder Caching? - JA!
+
+**Root Cause:**
+- refetch() alleine reicht nicht - Query verwendet gecachte Daten
+- rotationScheduleData kann undefined sein
+
+**Lösung:**
+- [x] invalidate() VOR refetch() aufrufen um Cache zu leeren
+- [x] Fallback für rotationScheduleData hinzugefügt (|| [])

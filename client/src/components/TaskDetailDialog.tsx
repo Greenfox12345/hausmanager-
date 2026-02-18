@@ -161,7 +161,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
   );
-  const rotationScheduleData = rotationScheduleQuery.data;
+  const rotationScheduleData = rotationScheduleQuery.data || [];
   
   // Load linked shopping items
   const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
@@ -470,8 +470,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
   const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
     onSuccess: async () => {
-      // Refetch rotation schedule query immediately to refresh "Kommende Termine" table
-      await utils.tasks.getRotationSchedule.refetch({ taskId: task?.id ?? 0 });
+      // Invalidate and refetch rotation schedule query to refresh "Kommende Termine" table
+      await utils.tasks.getRotationSchedule.invalidate({ taskId: task?.id ?? 0 });
+      await rotationScheduleQuery.refetch();
     },
   });
   
