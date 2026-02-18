@@ -887,10 +887,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <strong>Terminende:</strong>{" "}
                     {(() => {
                       const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
-                      const end = new Date(start);
-                      end.setDate(end.getDate() + (parseInt(durationDays) || 0));
+                      const daysInMs = (parseInt(durationDays) || 0) * 24 * 60 * 60 * 1000;
                       const [hours, minutes] = durationTime.split(':').map(Number);
-                      end.setMinutes(end.getMinutes() + (hours || 0) * 60 + (minutes || 0));
+                      const timeInMs = ((hours || 0) * 60 + (minutes || 0)) * 60 * 1000;
+                      const end = new Date(start.getTime() + daysInMs + timeInMs);
                       return end.toLocaleDateString("de-DE", {
                         day: "2-digit",
                         month: "2-digit",

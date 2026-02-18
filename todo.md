@@ -2129,3 +2129,7 @@
 - [x] Zeitzonenproblem bei Terminende-Berechnung identifizieren
 - [x] Sicherstellen dass alle Datums-/Zeitangaben in gleicher Zeitzone sind
 - [x] Konsistente Zeitzonenbehandlung in View- und Edit-Modus
+
+## Zeitzonenfehler im Bearbeitungsmodus beheben
+- [x] Terminende-Berechnung im Edit-Modus finden
+- [x] Millisekunden-basierte Berechnung wie im View-Modus anwenden
