@@ -2078,3 +2078,10 @@
 - [x] Ensure responsibilities table (RotationScheduleTable) updates automatically when occurrence is added
 - [x] Added useEffect to sync schedule with initialSchedule changes
 - [ ] Test both tables update correctly in browser
+
+## Auto-Fill Smart Assignment (Feb 18, 2026)
+- [x] Update auto-fill logic to check previous occurrence assignments
+- [x] Prefer different person when multiple eligible members available
+- [x] Avoid consecutive assignments of same person to same position
+- [x] Algorithm now checks if selected member was assigned in previous occurrence
+- [x] If match found and >1 member available, selects next member in rotation

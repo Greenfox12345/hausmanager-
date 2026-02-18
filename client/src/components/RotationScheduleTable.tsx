@@ -193,8 +193,19 @@ export function RotationScheduleTable({
           
           // Only fill if currently unassigned (memberId === 0)
           if (member.memberId === 0) {
-            // Round-robin through eligible members
-            const selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+            // Get previous occurrence's member at this position (if exists)
+            const prevOccMemberId = occIdx > 0 
+              ? newSchedule[occIdx - 1].members[posIdx]?.memberId 
+              : null;
+            
+            // If multiple members available, try to avoid assigning same person consecutively
+            let selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+            
+            if (eligibleMembers.length > 1 && prevOccMemberId && selectedMember.memberId === prevOccMemberId) {
+              // Try next member in rotation
+              selectedMember = eligibleMembers[(memberIndex + 1) % eligibleMembers.length];
+            }
+            
             occ.members[posIdx] = {
               ...member,
               memberId: selectedMember.memberId,
