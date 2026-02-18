@@ -2052,3 +2052,14 @@
 - [x] Disable buttons at list boundaries (first/last task)
 - [x] Show current position (X / Y) between navigation buttons
 - [x] Navigation respects current filter and sort settings
+
+## BUG: Rotation Table Not Auto-Updating (Feb 18, 2026)
+- [ ] Investigate why rotation schedule table doesn't update after adding occurrence
+- [ ] Check if onChange callback is being called
+- [ ] Fix the update mechanism to refresh table immediately
+- [ ] Test adding occurrences and verify table updates
+
+## Rotation Tab Changes (Feb 18, 2026)
+- [x] Change tab label from "Terminnotizen" to "Termine Planen"
+- [x] Make rotation tab available even when enableRotation is false
+- [ ] Test rotation planning with rotation disabled

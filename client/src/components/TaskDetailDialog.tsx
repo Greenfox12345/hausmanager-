@@ -904,11 +904,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     )}
 
-                    {/* Rotation Schedule Notes - shown when repeat AND rotation are enabled */}
-                    {enableRepeat && enableRotation && (
+                    {/* Rotation Schedule Planning - shown when repeat is enabled */}
+                    {enableRepeat && (
                       <div className="space-y-3 pl-6 border-l-2 border-muted">
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Terminnotizen</Label>
+                          <Label className="text-sm font-medium">Termine Planen</Label>
                           <p className="text-xs text-muted-foreground">
                             Fügen Sie Notizen für spezifische Termine hinzu
                           </p>
