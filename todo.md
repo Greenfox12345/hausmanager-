@@ -2194,3 +2194,7 @@
 - [x] Problem identifiziert: Skip-Status wird nur im lokalen State gespeichert, nicht in DB
 - [x] Skip-Button soll sofort in DB speichern (tRPC-Mutation aufrufen)
 - [x] Nach dem Speichern Rotation-Schedule neu laden
+
+## Bugfix: "hooks[lastArg] is not a function" Fehler beim Überspringen
+- [x] Mutation-Hook korrekt in TaskDetailDialog deklarieren
+- [x] useMutation() Hook verwenden statt direkten .mutate() Aufruf

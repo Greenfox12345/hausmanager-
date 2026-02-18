@@ -466,6 +466,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
+  const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation();
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
@@ -1171,7 +1172,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             if (task?.id) {
                                               // Save to DB immediately
                                               try {
-                                                await trpc.tasks.skipRotationOccurrence.mutate({
+                                                await skipRotationOccurrenceMutation.mutateAsync({
                                                   taskId: task.id,
                                                   occurrenceNumber: occ.occurrenceNumber,
                                                 });
