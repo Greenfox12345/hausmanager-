@@ -1359,8 +1359,39 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             calculatedDate = new Date(baseDate);
                             calculatedDate.setDate(baseDate.getDate() + (interval * 7 * occNum));
                           } else if (task.repeatUnit === "months") {
-                            calculatedDate = new Date(baseDate);
-                            calculatedDate.setMonth(baseDate.getMonth() + (interval * occNum));
+                            if (task.monthlyRecurrenceMode === "same_weekday") {
+                              // Calculate based on weekday occurrence (e.g., "3rd Monday")
+                              const targetMonth = baseDate.getMonth() + (interval * occNum);
+                              const targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+                              const normalizedMonth = targetMonth % 12;
+                              
+                              // Get the weekday and occurrence from base date
+                              const weekday = baseDate.getDay(); // 0=Sunday, 1=Monday, etc.
+                              const occurrence = Math.ceil(baseDate.getDate() / 7); // 1st, 2nd, 3rd, 4th week
+                              
+                              // Find the Nth occurrence of the weekday in target month
+                              calculatedDate = new Date(targetYear, normalizedMonth, 1);
+                              let count = 0;
+                              
+                              while (calculatedDate.getMonth() === normalizedMonth) {
+                                if (calculatedDate.getDay() === weekday) {
+                                  count++;
+                                  if (count === occurrence) {
+                                    break;
+                                  }
+                                }
+                                calculatedDate.setDate(calculatedDate.getDate() + 1);
+                              }
+                              
+                              // If we couldn't find the occurrence (e.g., 5th Monday doesn't exist), use last occurrence
+                              if (calculatedDate.getMonth() !== normalizedMonth) {
+                                calculatedDate.setDate(calculatedDate.getDate() - 7);
+                              }
+                            } else {
+                              // Same date mode
+                              calculatedDate = new Date(baseDate);
+                              calculatedDate.setMonth(baseDate.getMonth() + (interval * occNum));
+                            }
                           }
                         }
                         
