@@ -245,8 +245,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        setDueDate(format(date, "yyyy-MM-dd"));
-        setDueTime(format(date, "HH:mm"));
+        // Extract date and time in UTC to avoid timezone shifts
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        setDueDate(`${year}-${month}-${day}`);
+        setDueTime(`${hours}:${minutes}`);
       } else {
         setDueDate("");
         setDueTime("");
@@ -540,8 +546,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        setDueDate(format(date, "yyyy-MM-dd"));
-        setDueTime(format(date, "HH:mm"));
+        // Extract date and time in UTC to avoid timezone shifts
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        setDueDate(`${year}-${month}-${day}`);
+        setDueTime(`${hours}:${minutes}`);
       } else {
         setDueDate("");
         setDueTime("");

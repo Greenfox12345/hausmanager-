@@ -2133,3 +2133,8 @@
 ## Zeitzonenfehler im Bearbeitungsmodus beheben
 - [x] Terminende-Berechnung im Edit-Modus finden
 - [x] Millisekunden-basierte Berechnung wie im View-Modus anwenden
+
+## Kumulative Zeitverschiebung beheben
+- [x] UTC/Lokale-Zeit-Problem bei Zeiteingabe analysieren
+- [x] Zeithandling so anpassen dass keine Verschiebungen auftreten
+- [x] Konsistente Zeitzonenbehandlung bei Speichern und Laden
