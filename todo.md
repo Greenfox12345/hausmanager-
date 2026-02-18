@@ -2198,3 +2198,7 @@
 ## Bugfix: "hooks[lastArg] is not a function" Fehler beim Überspringen
 - [x] Mutation-Hook korrekt in TaskDetailDialog deklarieren
 - [x] useMutation() Hook verwenden statt direkten .mutate() Aufruf
+
+## Bugfix: Skip-Button in "Termine Planen" aktualisiert nicht "Kommende Termine"
+- [x] Query-Invalidierung nach Skip-Mutation hinzufügen
+- [x] Beide Tabellen synchron halten

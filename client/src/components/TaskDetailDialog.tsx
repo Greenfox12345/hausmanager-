@@ -466,7 +466,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
-  const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation();
+  const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
+    onSuccess: () => {
+      // Invalidate rotation schedule query to refresh "Kommende Termine" table
+      utils.tasks.getRotationSchedule.invalidate({ taskId: task?.id ?? 0 });
+    },
+  });
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
