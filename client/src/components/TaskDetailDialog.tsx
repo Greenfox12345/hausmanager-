@@ -21,6 +21,8 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { RotationScheduleTable, type ScheduleOccurrence } from "@/components/RotationScheduleTable";
+import { PhotoViewer } from "@/components/PhotoViewer";
+import { PDFViewer } from "@/components/PDFViewer";
 
 interface Task {
   id: number;
@@ -78,6 +80,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [showReminderDialog, setShowReminderDialog] = useState(false);
   const [showShoppingItemDetail, setShowShoppingItemDetail] = useState(false);
   const [selectedShoppingItem, setSelectedShoppingItem] = useState<any>(null);
+  
+  // Viewer states
+  const [showPhotoViewer, setShowPhotoViewer] = useState(false);
+  const [viewerPhotos, setViewerPhotos] = useState<{url: string, filename: string}[]>([]);
+  const [viewerPhotoIndex, setViewerPhotoIndex] = useState(0);
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [viewerPDF, setViewerPDF] = useState<{url: string, filename: string} | null>(null);
   
   // Load task history
   const { data: taskHistory = [] } = trpc.activities.getByTaskId.useQuery(
@@ -1586,7 +1595,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     src={photo.url}
                                     alt={photo.filename}
                                     className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => window.open(photo.url, '_blank')}
+                                    onClick={() => {
+                                      setViewerPhotos(activity.photoUrls);
+                                      setViewerPhotoIndex(idx);
+                                      setShowPhotoViewer(true);
+                                    }}
                                   />
                                 </div>
                               ))}
@@ -1596,16 +1609,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           {activity.fileUrls && activity.fileUrls.length > 0 && (
                             <div className="space-y-2 mt-3">
                               {activity.fileUrls.map((file: {url: string, filename: string}, idx: number) => (
-                                <a
+                                <button
                                   key={idx}
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors"
+                                  onClick={() => {
+                                    setViewerPDF(file);
+                                    setShowPDFViewer(true);
+                                  }}
+                                  className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors w-full text-left"
                                 >
                                   <FileText className="h-5 w-5 text-red-600 shrink-0" />
                                   <span className="text-sm truncate">{file.filename}</span>
-                                </a>
+                                </button>
                               ))}
                             </div>
                           )}
@@ -1691,6 +1705,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               memberId: member.memberId,
               comment: data.comment,
               photoUrls: data.photoUrls,
+              fileUrls: data.fileUrls,
             });
             setShowMilestoneDialog(false);
             setActiveTab("history");
@@ -1783,6 +1798,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    )}
+    
+    {/* Photo Viewer */}
+    <PhotoViewer
+      photos={viewerPhotos}
+      initialIndex={viewerPhotoIndex}
+      open={showPhotoViewer}
+      onOpenChange={setShowPhotoViewer}
+    />
+    
+    {/* PDF Viewer */}
+    {viewerPDF && (
+      <PDFViewer
+        url={viewerPDF.url}
+        filename={viewerPDF.filename}
+        open={showPDFViewer}
+        onOpenChange={setShowPDFViewer}
+      />
     )}
   </>
   );

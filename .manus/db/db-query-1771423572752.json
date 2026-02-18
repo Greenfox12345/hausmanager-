@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, action, description, comment, photoUrls, fileUrls, createdAt FROM activity_history WHERE action = 'milestone' ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, action, description, comment, photoUrls, fileUrls, createdAt FROM activity_history WHERE action = 'milestone' ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "2550124",
+      "action": "milestone",
+      "description": "Zwischensieg bei Aufgabe: 'ddsf' | Kommentar: Geht",
+      "comment": "Geht",
+      "photoUrls": "[]",
+      "fileUrls": "NULL",
+      "createdAt": "2026-02-18 14:05:12"
+    },
+    {
+      "id": "2550122",
+      "action": "milestone",
+      "description": "Zwischensieg bei Aufgabe: 'Brainstormen' | Kommentar: Gedanken gemacht",
+      "comment": "Gedanken gemacht",
+      "photoUrls": "[]",
+      "fileUrls": "NULL",
+      "createdAt": "2026-02-18 13:55:19"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taction\tdescription\tcomment\tphotoUrls\tfileUrls\tcreatedAt\n2550124\tmilestone\tZwischensieg bei Aufgabe: 'ddsf' | Kommentar: Geht\tGeht\t[]\tNULL\t2026-02-18 14:05:12\n2550122\tmilestone\tZwischensieg bei Aufgabe: 'Brainstormen' | Kommentar: Gedanken gemacht\tGedanken gemacht\t[]\tNULL\t2026-02-18 13:55:19\n",
+  "stderr": "",
+  "execution_time_ms": 468
+}

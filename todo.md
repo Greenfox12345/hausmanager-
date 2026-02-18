@@ -1998,3 +1998,16 @@
 - [x] Backend logic to save irregularRecurrence flag
 - [x] Write vitest tests (all 5 tests passing)
 - [x] End-to-end browser testing
+
+## BUG: Milestone PDFs not displayed in task history (Feb 18, 2026)
+- [x] Check how milestones are saved with file attachments - FOUND: fileUrls was missing in mutation call
+- [x] Fixed: Added fileUrls to addMilestone mutation
+- [x] Fixed: Added JSON parsing for fileUrls in getActivityHistoryByTaskId
+- [ ] Test milestone PDF display in browser
+
+## NEW: In-App PDF and Photo Viewer (Feb 18, 2026)
+- [x] Create photo lightbox viewer component
+- [x] Create PDF viewer component with navigation
+- [x] Integrate viewers into task history
+- [x] Add keyboard navigation (ESC to close, arrows for next/prev)
+- [ ] Test viewer functionality in browser

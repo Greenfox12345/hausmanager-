@@ -656,7 +656,13 @@ export async function getActivityHistoryByTaskId(taskId: number, householdId: nu
     )
     .orderBy(desc(activityHistory.createdAt));
 
-  return activities;
+  // Parse JSON fields (photoUrls, fileUrls, metadata) if they are strings
+  return activities.map(activity => ({
+    ...activity,
+    photoUrls: typeof activity.photoUrls === 'string' ? JSON.parse(activity.photoUrls) : activity.photoUrls,
+    fileUrls: typeof activity.fileUrls === 'string' ? JSON.parse(activity.fileUrls) : activity.fileUrls,
+    metadata: typeof activity.metadata === 'string' ? JSON.parse(activity.metadata) : activity.metadata,
+  }));
 }
 
 // Admin function to delete household and all related data
