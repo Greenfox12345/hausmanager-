@@ -908,31 +908,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       </div>
                                     </td>
                                     <td className="p-2">
-                                      <Button
-                                        type="button"
-                                        variant={hasNotes ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => {
-                                          const currentNotes = rotationSchedule.find(o => o.occurrenceNumber === occ.occurrenceNumber)?.notes || "";
-                                          const newNotes = prompt("Notizen für Termin " + occ.occurrenceNumber, currentNotes);
-                                          if (newNotes !== null) {
-                                            handleRotationScheduleChange(
-                                              rotationSchedule.map(o =>
-                                                o.occurrenceNumber === occ.occurrenceNumber
-                                                  ? { ...o, notes: newNotes }
-                                                  : o
-                                              )
-                                            );
-                                          }
+                                      <Textarea
+                                        placeholder="Notiz hinzufügen..."
+                                        value={occ.notes || ""}
+                                        onChange={(e) => {
+                                          handleRotationScheduleChange(
+                                            rotationSchedule.map(o =>
+                                              o.occurrenceNumber === occ.occurrenceNumber
+                                                ? { ...o, notes: e.target.value }
+                                                : o
+                                            )
+                                          );
                                         }}
-                                        className="w-full justify-start"
-                                      >
-                                        {hasNotes ? (
-                                          <span className="truncate">{occ.notes}</span>
-                                        ) : (
-                                          "Notiz hinzufügen"
-                                        )}
-                                      </Button>
+                                        className="min-h-[60px] resize-none"
+                                      />
                                     </td>
                                   </tr>
                                 );

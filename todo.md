@@ -2019,3 +2019,8 @@
 ## PDF Viewer Width Fix (Feb 18, 2026)
 - [x] Increase dialog width to make PDF more readable (90vw for large, 80vw for medium)
 - [x] Adjust aspect ratio for better PDF display
+
+## UI Simplification: Replace Dialog Input with Inline Field (Feb 18, 2026)
+- [x] Identify which input field at line 911 uses dialog/popover (rotation notes with prompt())
+- [x] Replace with simple inline Textarea field
+- [ ] Test functionality after change
