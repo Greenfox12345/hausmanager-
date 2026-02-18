@@ -470,8 +470,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
   const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
     onSuccess: async () => {
-      // Invalidate and refetch rotation schedule query to refresh "Kommende Termine" table
-      await utils.tasks.getRotationSchedule.invalidate({ taskId: task?.id ?? 0 });
+      // Refetch rotation schedule query to refresh "Kommende Termine" table
       await rotationScheduleQuery.refetch();
     },
   });

@@ -2313,3 +2313,21 @@
 **Lösung:**
 - [x] invalidate() VOR refetch() aufrufen um Cache zu leeren
 - [x] Fallback für rotationScheduleData hinzugefügt (|| [])
+
+
+## Crash-Bug behoben (19.02.2026)
+
+**Problem:** 
+- App crashte mit Infinite Loop nach invalidate() + refetch() Änderung
+- React Rendering-Fehler durch zu viele Re-Renders
+
+**Root Cause:**
+- `invalidate()` + `refetch()` zusammen verursachten Infinite Loop
+- useEffect triggerte erneut → Query refetch → useEffect → Loop
+
+**Lösung:**
+- [x] Nur `refetch()` verwenden, `invalidate()` entfernt
+- [x] App läuft wieder stabil
+
+**Nächster Schritt:**
+- [ ] Skip-Funktionalität testen ob beide Tabellen synchronisiert bleiben
