@@ -157,11 +157,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
   
   // Load rotation schedule
-  const rotationScheduleQuery = trpc.tasks.getRotationSchedule.useQuery(
+  const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
   );
-  const rotationScheduleData = rotationScheduleQuery.data || [];
   
   // Load linked shopping items
   const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
@@ -468,7 +467,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
-  const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation();
+  const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
+    onSuccess: async () => {
+      // Refetch rotation schedule query immediately to refresh "Kommende Termine" table
+      await utils.tasks.getRotationSchedule.refetch({ taskId: task?.id ?? 0 });
+    },
+  });
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
@@ -1332,7 +1336,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             monthlyOccurrence={monthlyOccurrence}
                             dueDate={dueDateObject}
                             onChange={handleRotationScheduleChange}
-                            onSkipSuccess={() => rotationScheduleQuery.refetch()}
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}
                           />
