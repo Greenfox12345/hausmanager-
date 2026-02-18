@@ -28,35 +28,6 @@ export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTab
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">#</TableHead>
-            <TableHead className="w-32">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Datum
-              </div>
-            </TableHead>
-            <TableHead className="w-24">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Uhrzeit
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Verantwortliche
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Notizen
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
         <TableBody>
           {occurrences.map((occ) => (
             <TableRow key={occ.occurrenceNumber}>

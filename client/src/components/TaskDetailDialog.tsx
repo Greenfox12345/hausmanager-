@@ -470,6 +470,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       // Step 3: Invalidate all queries ONCE (after both mutations complete)
       await utils.tasks.list.invalidate();
+      await utils.tasks.getRotationSchedule.invalidate({ taskId: task.id });
       await utils.tasks.getSharedHouseholds.invalidate({ taskId: task.id });
       await utils.projects.getTaskDependencies.invalidate({ taskId: task.id });
       await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
