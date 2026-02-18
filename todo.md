@@ -2163,4 +2163,8 @@
 ## Termin-Management in Rotationsplanung
 - [x] Termine in Rotationsplanung löschen können
 - [x] Termine auslassen/überspringen können (ohne zu löschen)
+  - [x] Visuelles Durchstreichen statt Notizen-Spam
+  - [x] Toggle-Button für Skip-Status
+  - [x] Skip-Status in Datenbank speichern
 - [x] Termine in der Liste nach oben/unten verschieben können
+- [x] Action-Buttons auch in "Termine Planen" Tabelle anzeigen

@@ -204,6 +204,7 @@ export const taskRotationOccurrenceNotes = mysqlTable("task_rotation_occurrence_
   taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
   occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc.
   notes: text("notes"),
+  isSkipped: boolean("isSkipped").default(false).notNull(), // Toggle for skipped status
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -31,6 +31,7 @@ export interface ScheduleOccurrence {
   members: { position: number; memberId: number }[];
   notes?: string;
   calculatedDate?: Date;
+  isSkipped?: boolean;
 }
 
 export function RotationScheduleTable({
@@ -190,12 +191,10 @@ export function RotationScheduleTable({
     setSchedule(prev => {
       const updated = prev.map(occ => {
         if (occ.occurrenceNumber !== occurrenceNumber) return occ;
-        const skipNote = occ.notes 
-          ? `${occ.notes} [ÜBERSPRUNGEN]`
-          : "[ÜBERSPRUNGEN]";
+        // Toggle the skip status
         return {
           ...occ,
-          notes: skipNote,
+          isSkipped: !occ.isSkipped,
         };
       });
       onChangeRef.current(updated);
@@ -385,11 +384,11 @@ export function RotationScheduleTable({
           <thead className="bg-muted">
             <tr>
               {schedule.map((occ) => (
-                <th key={occ.occurrenceNumber} className="p-2 text-center text-sm font-medium">
+                <th key={occ.occurrenceNumber} className={`p-2 text-center text-sm font-medium ${occ.isSkipped ? 'opacity-50' : ''}`}>
                   <div className="flex flex-col gap-1">
-                    <span>Termin {occ.occurrenceNumber}</span>
+                    <span className={occ.isSkipped ? 'line-through' : ''}>Termin {occ.occurrenceNumber}</span>
                     {occ.calculatedDate && (
-                      <span className="text-xs font-normal text-muted-foreground">
+                      <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
                         {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
                       </span>
                     )}
@@ -474,11 +473,11 @@ export function RotationScheduleTable({
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant={occ.isSkipped ? "default" : "ghost"}
                       size="sm"
                       onClick={() => handleSkipOccurrence(occ.occurrenceNumber)}
-                      title="Überspringen"
-                      className="h-7 w-7 p-0"
+                      title={occ.isSkipped ? "Überspringen rückgängig machen" : "Überspringen"}
+                      className={`h-7 w-7 p-0 ${occ.isSkipped ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
                     >
                       <SkipForward className="h-3.5 w-3.5" />
                     </Button>

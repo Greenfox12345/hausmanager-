@@ -1170,7 +1170,7 @@ export async function getRotationSchedule(taskId: number) {
     .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
 
   // Group by occurrence number
-  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string }> = {};
+  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string; isSkipped?: boolean }> = {};
   
   for (const entry of scheduleEntries) {
     if (!grouped[entry.occurrenceNumber]) {
@@ -1182,10 +1182,11 @@ export async function getRotationSchedule(taskId: number) {
     });
   }
 
-  // Add notes to grouped data
+  // Add notes and skip status to grouped data
   for (const note of notes) {
     if (grouped[note.occurrenceNumber]) {
       grouped[note.occurrenceNumber].notes = note.notes || undefined;
+      grouped[note.occurrenceNumber].isSkipped = note.isSkipped || false;
     }
   }
 
@@ -1194,6 +1195,7 @@ export async function getRotationSchedule(taskId: number) {
     occurrenceNumber: parseInt(occurrenceNumber),
     members: data.members.sort((a, b) => a.position - b.position),
     notes: data.notes,
+    isSkipped: data.isSkipped || false,
   }));
 
   // Ensure at least 3 occurrences are returned
@@ -1205,6 +1207,7 @@ export async function getRotationSchedule(taskId: number) {
         occurrenceNumber: maxOccurrence + i + 1,
         members: [],
         notes: undefined,
+        isSkipped: false,
       });
     }
   }
@@ -1359,40 +1362,53 @@ export async function deleteRotationOccurrence(taskId: number, occurrenceNumber:
 
 /**
  * Skip/mark an occurrence as skipped without deleting it
- * Adds a note indicating it was skipped
+ * Toggles the isSkipped status
  */
 export async function skipRotationOccurrence(taskId: number, occurrenceNumber: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Get current schedule
+  // Get current schedule to check if occurrence exists and get current skip status
   const currentSchedule = await getRotationSchedule(taskId);
   const occurrence = currentSchedule.find(occ => occ.occurrenceNumber === occurrenceNumber);
   
   if (!occurrence) throw new Error("Occurrence not found");
 
-  // Update notes to indicate skipped
-  const skipNote = occurrence.notes 
-    ? `${occurrence.notes} [ÜBERSPRUNGEN]`
-    : "[ÜBERSPRUNGEN]";
+  // Toggle the skip status
+  const newSkipStatus = !occurrence.isSkipped;
 
-  // Delete existing note if any
-  await db.delete(taskRotationOccurrenceNotes)
+  // Check if note record exists
+  const existingNote = await db.select()
+    .from(taskRotationOccurrenceNotes)
     .where(
       and(
         eq(taskRotationOccurrenceNotes.taskId, taskId),
         eq(taskRotationOccurrenceNotes.occurrenceNumber, occurrenceNumber)
       )
-    );
+    )
+    .limit(1);
 
-  // Insert updated note
-  await db.insert(taskRotationOccurrenceNotes).values({
-    taskId,
-    occurrenceNumber,
-    notes: skipNote,
-  });
+  if (existingNote.length > 0) {
+    // Update existing record
+    await db.update(taskRotationOccurrenceNotes)
+      .set({ isSkipped: newSkipStatus })
+      .where(
+        and(
+          eq(taskRotationOccurrenceNotes.taskId, taskId),
+          eq(taskRotationOccurrenceNotes.occurrenceNumber, occurrenceNumber)
+        )
+      );
+  } else {
+    // Create new record with skip status
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber,
+      notes: occurrence.notes || "",
+      isSkipped: newSkipStatus,
+    });
+  }
 
-  return { success: true };
+  return { success: true, isSkipped: newSkipStatus };
 }
 
 /**
