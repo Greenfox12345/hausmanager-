@@ -157,10 +157,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
   
   // Load rotation schedule
-  const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
+  const rotationScheduleQuery = trpc.tasks.getRotationSchedule.useQuery(
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
   );
+  const rotationScheduleData = rotationScheduleQuery.data;
   
   // Load linked shopping items
   const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
@@ -1336,6 +1337,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             monthlyOccurrence={monthlyOccurrence}
                             dueDate={dueDateObject}
                             onChange={handleRotationScheduleChange}
+                            onSkipSuccess={() => rotationScheduleQuery.refetch()}
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}
                           />

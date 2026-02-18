@@ -2264,3 +2264,22 @@
 - "Termine Planen" (oben) wird jetzt sofort aktualisiert via lokaler State
 - "Kommende Termine" (unten) wird via Query-Refetch aktualisiert
 - Beide Tabellen bleiben synchron
+
+## Überprüfung: Skip-Button Logik in TaskDetailDialog
+
+**Zu überprüfen:**
+- [x] Skip-Button in "Termine Planen" Tabelle (Zeile ~1174)
+- [x] Skip-Button in RotationScheduleTable Komponente
+- [x] Konsistenz zwischen beiden Implementierungen
+- [x] Mutation-Aufruf und State-Updates
+- [x] Query-Invalidierung und Refetch-Logik
+
+**Gefundene Probleme:**
+1. "Termine Planen" Skip-Button hat bereits Query-Refetch (via skipRotationOccurrenceMutation onSuccess)
+2. RotationScheduleTable Skip-Button hat KEINE Query-Invalidierung
+3. Beide aktualisieren lokalen State, aber nicht konsistent
+
+**Lösung:**
+- [x] RotationScheduleTable: onSkipSuccess Callback hinzugefügt
+- [x] TaskDetailDialog: onSkipSuccess Callback übergeben der Query refetched
+- [x] Beide Buttons aktualisieren jetzt konsistent beide Tabellen

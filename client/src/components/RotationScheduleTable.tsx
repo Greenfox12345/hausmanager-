@@ -24,6 +24,7 @@ interface RotationScheduleTableProps {
   monthlyOccurrence?: number; // 1-5 (1st, 2nd, 3rd, 4th, last)
   dueDate?: Date | null;
   onChange: (schedule: ScheduleOccurrence[]) => void;
+  onSkipSuccess?: () => void; // Optional: called after successful skip mutation
   initialSchedule?: ScheduleOccurrence[];
   excludedMemberIds?: number[];
 }
@@ -48,6 +49,7 @@ export function RotationScheduleTable({
   monthlyOccurrence,
   dueDate,
   onChange,
+  onSkipSuccess,
   initialSchedule,
   excludedMemberIds = [],
 }: RotationScheduleTableProps) {
@@ -212,6 +214,8 @@ export function RotationScheduleTable({
           onChangeRef.current(updated);
           return updated;
         });
+        // Call onSkipSuccess callback to refetch query in parent
+        onSkipSuccess?.();
       } catch (error) {
         console.error('Failed to skip occurrence:', error);
       }
