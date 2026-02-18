@@ -1,0 +1,82 @@
+{
+  "query": "SELECT * FROM task_rotation_occurrence_notes LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT * FROM task_rotation_occurrence_notes LIMIT 10;",
+  "rows": [
+    {
+      "id": "60054",
+      "taskId": "1920001",
+      "occurrenceNumber": "1",
+      "notes": "bist a depp",
+      "createdAt": "2026-02-18 22:09:55",
+      "updatedAt": "2026-02-18 22:09:55",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60055",
+      "taskId": "1920001",
+      "occurrenceNumber": "2",
+      "notes": "dsf",
+      "createdAt": "2026-02-18 22:09:55",
+      "updatedAt": "2026-02-18 22:09:55",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60056",
+      "taskId": "1920001",
+      "occurrenceNumber": "3",
+      "notes": "fdsf",
+      "createdAt": "2026-02-18 22:09:55",
+      "updatedAt": "2026-02-18 22:09:55",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60077",
+      "taskId": "1950005",
+      "occurrenceNumber": "2",
+      "notes": "",
+      "createdAt": "2026-02-18 22:49:37",
+      "updatedAt": "2026-02-18 22:49:43",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60078",
+      "taskId": "1950005",
+      "occurrenceNumber": "3",
+      "notes": "",
+      "createdAt": "2026-02-18 22:49:45",
+      "updatedAt": "2026-02-18 22:49:45",
+      "isSkipped": "1"
+    },
+    {
+      "id": "60088",
+      "taskId": "1950001",
+      "occurrenceNumber": "1",
+      "notes": "Nichts vergessen",
+      "createdAt": "2026-02-18 22:54:45",
+      "updatedAt": "2026-02-18 22:54:45",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60089",
+      "taskId": "1950001",
+      "occurrenceNumber": "3",
+      "notes": "4",
+      "createdAt": "2026-02-18 22:54:45",
+      "updatedAt": "2026-02-18 22:54:45",
+      "isSkipped": "0"
+    },
+    {
+      "id": "60090",
+      "taskId": "1950001",
+      "occurrenceNumber": "4",
+      "notes": "8",
+      "createdAt": "2026-02-18 22:54:46",
+      "updatedAt": "2026-02-18 22:54:46",
+      "isSkipped": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\toccurrenceNumber\tnotes\tcreatedAt\tupdatedAt\tisSkipped\n60054\t1920001\t1\tbist a depp\t2026-02-18 22:09:55\t2026-02-18 22:09:55\t0\n60055\t1920001\t2\tdsf\t2026-02-18 22:09:55\t2026-02-18 22:09:55\t0\n60056\t1920001\t3\tfdsf\t2026-02-18 22:09:55\t2026-02-18 22:09:55\t0\n60077\t1950005\t2\t\t2026-02-18 22:49:37\t2026-02-18 22:49:43\t0\n60078\t1950005\t3\t\t2026-02-18 22:49:45\t2026-02-18 22:49:45\t1\n60088\t1950001\t1\tNichts vergessen\t2026-02-18 22:54:45\t2026-02-18 22:54:45\t0\n60089\t1950001\t3\t4\t2026-02-18 22:54:45\t2026-02-18 22:54:45\t0\n60090\t1950001\t4\t8\t2026-02-18 22:54:46\t2026-02-18 22:54:46\t0\n",
+  "stderr": "",
+  "execution_time_ms": 402
+}

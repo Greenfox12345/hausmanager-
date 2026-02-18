@@ -580,6 +580,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               .filter(m => m.memberId !== 0)
               .slice(0, requiredPersons || occ.members.length),
             notes: occ.notes,
+            isSkipped: occ.isSkipped, // Preserve skip status
           })),
         });
       }

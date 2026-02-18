@@ -1225,10 +1225,21 @@ export async function setRotationSchedule(
     occurrenceNumber: number;
     members: Array<{ position: number; memberId: number }>;
     notes?: string;
+    isSkipped?: boolean;
   }>
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+
+  // Load existing isSkipped status before deleting
+  const existingNotes = await db.select()
+    .from(taskRotationOccurrenceNotes)
+    .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+  
+  const skipStatusMap = new Map<number, boolean>();
+  for (const note of existingNotes) {
+    skipStatusMap.set(note.occurrenceNumber, (note as any).isSkipped || false);
+  }
 
   // Delete existing schedule and notes
   await db.delete(taskRotationSchedule).where(eq(taskRotationSchedule.taskId, taskId));
@@ -1245,13 +1256,19 @@ export async function setRotationSchedule(
       });
     }
 
-    // Insert notes if provided
-    if (occurrence.notes) {
+    // Restore isSkipped status from existing data or use provided value
+    const isSkipped = occurrence.isSkipped !== undefined 
+      ? occurrence.isSkipped 
+      : (skipStatusMap.get(occurrence.occurrenceNumber) || false);
+
+    // Insert notes if provided OR if isSkipped status exists
+    if (occurrence.notes || isSkipped) {
       await db.insert(taskRotationOccurrenceNotes).values({
         taskId,
         occurrenceNumber: occurrence.occurrenceNumber,
-        notes: occurrence.notes,
-      });
+        notes: occurrence.notes || "",
+        isSkipped,
+      } as typeof taskRotationOccurrenceNotes.$inferInsert);
     }
   }
 

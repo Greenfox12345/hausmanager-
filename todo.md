@@ -2204,3 +2204,28 @@
 - [x] Beide Tabellen synchron halten
   - [x] Lokalen State-Update entfernen (verursacht Konflikt mit Query)
   - [x] isSkipped in useEffect beim Sync von rotationScheduleData übernehmen
+
+## Analyse: Skip-Speicherlogik Probleme
+- [x] Datenbank-Schema überprüfen - OK
+- [x] Backend skipRotationOccurrence Funktion analysieren - OK
+- [x] Backend getRotationSchedule Funktion analysieren - OK
+- [x] Frontend Mutation-Aufruf überprüfen - OK
+- [x] State-Synchronisierung zwischen Tabellen überprüfen - OK
+- [x] Identifizierte Probleme dokumentieren
+
+## Identifizierte Probleme:
+
+**KRITISCH: Problem 1 - Datenverlust beim Speichern**
+- `setRotationSchedule` löscht ALLE `taskRotationOccurrenceNotes` (Zeile 1235)
+- Dadurch gehen alle `isSkipped` Status verloren wenn Aufgabe bearbeitet wird
+- Lösung: Beim Speichern existierende `isSkipped` Status beibehalten
+
+**Problem 2 - Fehlende isSkipped beim Erstellen von Notizen**
+- `setRotationSchedule` erstellt neue Notizen ohne `isSkipped` Feld (Zeile 1250-1254)
+- Lösung: `isSkipped` Status beim Erstellen mitgeben
+
+## Zu beheben:
+- [x] setRotationSchedule: Existierende isSkipped Status vor Löschen laden
+- [x] setRotationSchedule: isSkipped Status beim Neu-Erstellen wiederherstellen
+- [x] setRotationSchedule: Interface erweitern um isSkipped zu akzeptieren
+- [x] Frontend: isSkipped beim Speichern mitgeben
