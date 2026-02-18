@@ -2024,3 +2024,10 @@
 - [x] Identify which input field at line 911 uses dialog/popover (rotation notes with prompt())
 - [x] Replace with simple inline Textarea field
 - [ ] Test functionality after change
+
+## PDF Viewer Zoom Feature (Feb 18, 2026)
+- [x] Add zoom state (scale) to PDFViewer component
+- [x] Add zoom in/out/reset buttons to toolbar
+- [x] Apply CSS transform to iframe for zoom effect
+- [x] Zoom range: 50% to 200% in 25% steps
+- [ ] Test zoom functionality in browser
