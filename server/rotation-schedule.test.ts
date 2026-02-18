@@ -235,3 +235,119 @@ describe("Rotation Schedule", () => {
     expect(retrieved[0].members[1].memberId).toBe(member2Id);
   });
 });
+
+describe("Rotation Schedule - Minimum 3 Occurrences", () => {
+  let testHouseholdId2: number;
+  let testTaskId2: number;
+  let testUserId2: number;
+
+  beforeAll(async () => {
+    // Create test user
+    const testOpenId = "test-user-min-occ-" + Date.now();
+    await upsertUser({ openId: testOpenId, name: "Test User Min Occ" });
+    const testUser = await getUserByOpenId(testOpenId);
+    if (!testUser) throw new Error("Failed to create test user");
+    testUserId2 = testUser.id;
+    
+    // Create test household
+    testHouseholdId2 = await createHousehold(
+      "Test Household for Min Occurrences",
+      "test_hash_2",
+      testUserId2
+    );
+
+    // Create test task with rotation enabled
+    testTaskId2 = await createTask({
+      householdId: testHouseholdId2,
+      name: "Test Task Min Occurrences",
+      description: "Task for testing minimum 3 occurrences",
+      assignedTo: [],
+      frequency: "weekly",
+      repeatInterval: 1,
+      repeatUnit: "weeks",
+      enableRotation: true,
+      requiredPersons: 2,
+      dueDate: new Date("2026-02-24"),
+      createdBy: testUserId2,
+    });
+  });
+
+  afterAll(async () => {
+    // Cleanup
+    if (testTaskId2) {
+      await deleteTask(testTaskId2);
+    }
+  });
+
+  it("should return at least 3 occurrences even when no members are assigned", async () => {
+    // Act: Get rotation schedule without any assignments
+    const schedule = await getRotationSchedule(testTaskId2);
+
+    // Assert: Should have at least 3 occurrences
+    expect(schedule).toBeDefined();
+    expect(schedule.length).toBeGreaterThanOrEqual(3);
+    
+    // All occurrences should have empty members arrays
+    schedule.forEach((occ) => {
+      expect(occ.members).toEqual([]);
+      expect(occ.notes).toBeUndefined();
+    });
+
+    // Occurrence numbers should be sequential starting from 1
+    expect(schedule[0].occurrenceNumber).toBe(1);
+    expect(schedule[1].occurrenceNumber).toBe(2);
+    expect(schedule[2].occurrenceNumber).toBe(3);
+  });
+
+  it("should return at least 3 occurrences when only 1 occurrence has assignments", async () => {
+    // Arrange: Add assignment for first occurrence only
+    await setRotationSchedule(testTaskId2, [
+      {
+        occurrenceNumber: 1,
+        members: [{ position: 1, memberId: 1 }],
+      },
+    ]);
+
+    // Act: Get rotation schedule
+    const schedule = await getRotationSchedule(testTaskId2);
+
+    // Assert: Should have at least 3 occurrences
+    expect(schedule).toBeDefined();
+    expect(schedule.length).toBeGreaterThanOrEqual(3);
+
+    // First occurrence should have assignment
+    expect(schedule[0].occurrenceNumber).toBe(1);
+    expect(schedule[0].members.length).toBe(1);
+
+    // Second and third occurrences should be empty
+    expect(schedule[1].occurrenceNumber).toBe(2);
+    expect(schedule[1].members).toEqual([]);
+    expect(schedule[2].occurrenceNumber).toBe(3);
+    expect(schedule[2].members).toEqual([]);
+  });
+
+  it("should not add extra occurrences when 3 or more already exist", async () => {
+    // Arrange: Add assignments for 5 occurrences
+    const schedule = [];
+    for (let i = 1; i <= 5; i++) {
+      schedule.push({
+        occurrenceNumber: i,
+        members: [{ position: 1, memberId: 1 }],
+      });
+    }
+    await setRotationSchedule(testTaskId2, schedule);
+
+    // Act: Get rotation schedule
+    const retrieved = await getRotationSchedule(testTaskId2);
+
+    // Assert: Should have exactly 5 occurrences (no extras added)
+    expect(retrieved).toBeDefined();
+    expect(retrieved.length).toBe(5);
+
+    // All occurrences should have assignments
+    retrieved.forEach((occ, index) => {
+      expect(occ.occurrenceNumber).toBe(index + 1);
+      expect(occ.members.length).toBe(1);
+    });
+  });
+});

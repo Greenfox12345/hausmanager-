@@ -1190,11 +1190,26 @@ export async function getRotationSchedule(taskId: number) {
   }
 
   // Convert to array format
-  return Object.entries(grouped).map(([occurrenceNumber, data]) => ({
+  const result = Object.entries(grouped).map(([occurrenceNumber, data]) => ({
     occurrenceNumber: parseInt(occurrenceNumber),
     members: data.members.sort((a, b) => a.position - b.position),
     notes: data.notes,
   }));
+
+  // Ensure at least 3 occurrences are returned
+  const minOccurrences = 3;
+  if (result.length < minOccurrences) {
+    const maxOccurrence = result.length > 0 ? Math.max(...result.map(r => r.occurrenceNumber)) : 0;
+    for (let i = result.length; i < minOccurrences; i++) {
+      result.push({
+        occurrenceNumber: maxOccurrence + i + 1,
+        members: [],
+        notes: undefined,
+      });
+    }
+  }
+
+  return result.sort((a, b) => a.occurrenceNumber - b.occurrenceNumber);
 }
 
 /**

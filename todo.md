@@ -2152,7 +2152,7 @@
 
 ## Kommende Termine immer anzeigen
 - [x] UpcomingOccurrencesTable: Termine auch ohne Verantwortliche anzeigen
-- [ ] Mindestens 3 kommende Termine immer laden und anzeigen (Backend-Änderung erforderlich)
+- [in progress] Mindestens 3 kommende Termine immer laden und anzeigen (Backend-Änderung erforderlich)
 - [x] Filterung anpassen damit leere Verantwortliche nicht ausgeblendet werden
 
 ## Kalender-Integration für Termine
