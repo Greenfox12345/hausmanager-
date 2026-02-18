@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Plus, Calendar, Wand2, ChevronDown, ChevronRight } from "lucide-react";
+import { Calendar, Wand2 } from "lucide-react";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence } from "../../../shared/dateUtils";
@@ -46,9 +44,14 @@ export function RotationScheduleTable({
   excludedMemberIds = [],
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
-  const [expandedNotes, setExpandedNotes] = useState<Set<number>>(new Set());
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
+  const onChangeRef = useRef(onChange);
+  
+  // Keep onChange ref up to date
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
   
   // Filter out excluded members
   const eligibleMembers = availableMembers.filter(m => !excludedMemberIds.includes(m.memberId));
@@ -126,8 +129,8 @@ export function RotationScheduleTable({
   // Notify parent when schedule changes (but not during date updates)
   useEffect(() => {
     if (!isInitialized.current || isUpdatingDates.current) return;
-    onChange(schedule);
-  }, [schedule, onChange]);
+    onChangeRef.current(schedule);
+  }, [schedule]);
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
     setSchedule(prev =>
@@ -144,40 +147,7 @@ export function RotationScheduleTable({
     );
   };
 
-  const handleNotesChange = (occurrenceNumber: number, notes: string) => {
-    setSchedule(prev =>
-      prev.map(occ =>
-        occ.occurrenceNumber === occurrenceNumber ? { ...occ, notes } : occ
-      )
-    );
-  };
 
-  const toggleNotes = (occurrenceNumber: number) => {
-    setExpandedNotes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(occurrenceNumber)) {
-        newSet.delete(occurrenceNumber);
-      } else {
-        newSet.add(occurrenceNumber);
-      }
-      return newSet;
-    });
-  };
-
-  const handleExtend = () => {
-    const nextOccurrenceNumber = schedule.length + 1;
-    const newOccurrence: ScheduleOccurrence = {
-      occurrenceNumber: nextOccurrenceNumber,
-      members: Array.from({ length: requiredPersons }, (_, i) => ({
-        position: i + 1,
-        memberId: 0,
-      })),
-      notes: "",
-      calculatedDate: calculateOccurrenceDate(nextOccurrenceNumber),
-    };
-    
-    setSchedule(prev => [...prev, newOccurrence]);
-  };
 
   const handleAutoFill = () => {
     if (eligibleMembers.length === 0) return;
@@ -288,66 +258,7 @@ export function RotationScheduleTable({
         </table>
       </div>
 
-      {/* Collapsible Notes Section */}
-      <div className="space-y-2">
-        {schedule.map((occ) => {
-          const isExpanded = expandedNotes.has(occ.occurrenceNumber);
-          return (
-            <div key={occ.occurrenceNumber} className="border rounded-lg">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => toggleNotes(occ.occurrenceNumber)}
-                className="w-full justify-between p-3 h-auto"
-              >
-                <div className="flex items-center gap-2">
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                  <span className="text-sm font-medium">
-                    Notizen für Termin {occ.occurrenceNumber}
-                    {occ.calculatedDate && (
-                      <span className="text-muted-foreground ml-2 font-normal">
-                        ({format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })})
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {occ.notes && !isExpanded && (
-                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">
-                    {occ.notes}
-                  </span>
-                )}
-              </Button>
-              
-              {isExpanded && (
-                <div className="p-3 pt-0">
-                  <Textarea
-                    placeholder="Optionale Notizen für diesen Termin..."
-                    value={occ.notes || ""}
-                    onChange={(e) => handleNotesChange(occ.occurrenceNumber, e.target.value)}
-                    rows={3}
-                    className="w-full"
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
 
-      {/* Extend Button */}
-      <Button
-        type="button"
-        variant="outline"
-        onClick={handleExtend}
-        className="w-full gap-2"
-      >
-        <Plus className="h-4 w-4" />
-        Weiter planen
-      </Button>
     </div>
   );
 }

@@ -116,3 +116,57 @@ export function formatWeekdayOccurrence(date: Date, locale: string = 'de'): stri
   
   return `${occurrence}. ${dayName}`;
 }
+
+/**
+ * Calculate the next occurrence of a recurring task with explicit weekday and occurrence
+ * @param startDate - The starting date (used for year/month calculation)
+ * @param monthsToAdd - Number of months to add
+ * @param weekday - The day of the week (0=Sunday, 6=Saturday)
+ * @param occurrence - Which occurrence (1=first, 2=second, 3=third, 4=fourth, 5=last)
+ * @returns Next occurrence date
+ */
+export function getNextMonthlyOccurrenceExplicit(
+  startDate: Date,
+  monthsToAdd: number,
+  weekday: number,
+  occurrence: number
+): Date {
+  const targetMonth = new Date(startDate);
+  targetMonth.setMonth(targetMonth.getMonth() + monthsToAdd);
+  
+  // Handle "last" occurrence (5)
+  if (occurrence === 5) {
+    // Find the last occurrence of the weekday in the month
+    // Start from the last day of the month and work backwards
+    const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
+    const lastDayWeekday = lastDay.getDay();
+    
+    // Calculate days to subtract to get to the target weekday
+    let daysToSubtract = (lastDayWeekday - weekday + 7) % 7;
+    const result = new Date(lastDay);
+    result.setDate(lastDay.getDate() - daysToSubtract);
+    
+    return result;
+  }
+  
+  // For 1st-4th occurrence, use existing function
+  const result = getNthWeekdayOfMonth(
+    targetMonth.getFullYear(),
+    targetMonth.getMonth(),
+    weekday,
+    occurrence
+  );
+  
+  // Fallback to last occurrence if nth doesn't exist
+  if (!result) {
+    const fallback = getNthWeekdayOfMonth(
+      targetMonth.getFullYear(),
+      targetMonth.getMonth(),
+      weekday,
+      occurrence - 1
+    );
+    return fallback || targetMonth;
+  }
+  
+  return result;
+}

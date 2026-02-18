@@ -1893,3 +1893,27 @@
 - [x] Remove "Position" label column (keep person rows but without labels)
 - [x] Move notes out of table into collapsible sections below with toggle buttons
 - [x] Keep "Offene belegen" button
+
+## Fix Rotation Crashes and Improve UI (2026-02-18)
+### Critical Crashes
+- [x] Fix crash when enabling rotation on tasks (infinite loop - Pasted_content_02)
+- [x] Fix crash when editing existing tasks with rotation (Pasted_content_03)
+- [x] Used useRef to stabilize onChange callback and prevent infinite re-renders
+
+### UI Improvements
+- [x] Redesign notes section as table (columns: Date | Notes Button)
+- [x] Move notes section above "Verantwortung rotieren" toggle
+- [x] Notes should appear after repeat settings but before rotation toggle
+- [x] Add "Termin hinzufügen" button below notes table
+- [x] Remove notes section from RotationScheduleTable component
+
+### Monthly Recurrence Enhancement
+- [x] Add weekday selection for monthly "same_weekday" mode
+- [x] Add occurrence number selection (1st, 2nd, 3rd, 4th, last)
+- [x] Show these fields only when repeatUnit is "months" and monthlyRecurrenceMode is "same_weekday"
+- [x] Add monthlyWeekday and monthlyOccurrence fields to database schema
+- [x] Add monthlyWeekday and monthlyOccurrence to task create/update schemas
+- [x] Create getNextMonthlyOccurrenceExplicit function for explicit weekday/occurrence calculation
+- [ ] Update RotationScheduleTable to use explicit weekday/occurrence when available
+- [ ] Update task completion logic to use explicit weekday/occurrence
+- [ ] Calculate and display preview of next occurrence based on selection

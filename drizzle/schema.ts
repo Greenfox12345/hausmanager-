@@ -141,6 +141,8 @@ export const tasks = mysqlTable("tasks", {
   repeatInterval: int("repeatInterval"),
   repeatUnit: mysqlEnum("repeatUnit", ["days", "weeks", "months"]),
   monthlyRecurrenceMode: mysqlEnum("monthlyRecurrenceMode", ["same_date", "same_weekday"]).default("same_date"), // For monthly tasks: repeat on same date (15th) or same weekday (3rd Thursday)
+  monthlyWeekday: int("monthlyWeekday"), // 0-6 (Sunday-Saturday) for same_weekday mode
+  monthlyOccurrence: int("monthlyOccurrence"), // 1-5 (1st, 2nd, 3rd, 4th, 5th/last) for same_weekday mode
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),

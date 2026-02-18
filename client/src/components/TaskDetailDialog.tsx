@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ interface Task {
   name: string;
   description?: string | null;
   monthlyRecurrenceMode?: "same_date" | "same_weekday" | null;
+  monthlyWeekday?: number | null;
+  monthlyOccurrence?: number | null;
   assignedTo?: number[] | null; // Array of member IDs
   dueDate?: string | Date | null;
   enableRepeat?: boolean | null;
@@ -171,6 +173,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [repeatInterval, setRepeatInterval] = useState("1");
   const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
   const [monthlyRecurrenceMode, setMonthlyRecurrenceMode] = useState<"same_date" | "same_weekday">("same_date");
+  const [monthlyWeekday, setMonthlyWeekday] = useState<number>(1); // 0-6 (Sunday-Saturday), default to Monday
+  const [monthlyOccurrence, setMonthlyOccurrence] = useState<number>(1); // 1-5 (1st, 2nd, 3rd, 4th, last)
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
@@ -231,6 +235,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
           if (task.monthlyRecurrenceMode) {
             setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
+              setMonthlyWeekday(task.monthlyWeekday);
+            }
+            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
+              setMonthlyOccurrence(task.monthlyOccurrence);
+            }
           }
         }
       } else {
@@ -389,6 +399,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
         repeatUnit: enableRepeat ? repeatUnit : undefined,
         monthlyRecurrenceMode: enableRepeat && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
+        monthlyWeekday: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : undefined,
+        monthlyOccurrence: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : undefined,
         enableRotation: enableRepeat && enableRotation,
         requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
@@ -492,6 +504,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
           if (task.monthlyRecurrenceMode) {
             setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
+              setMonthlyWeekday(task.monthlyWeekday);
+            }
+            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
+              setMonthlyOccurrence(task.monthlyOccurrence);
+            }
           }
         }
       } else {
@@ -777,9 +795,141 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="same_date">Am gleichen Tag (z.B. jeden 15.)</SelectItem>
-                            <SelectItem value="same_weekday">Am gleichen Wochentag (z.B. jeden 3. Donnerstag)</SelectItem>
+                            <SelectItem value="same_weekday">Fester Wochentag</SelectItem>
                           </SelectContent>
                         </Select>
+                        
+                        {/* Weekday and occurrence selection - only shown for same_weekday mode */}
+                        {monthlyRecurrenceMode === "same_weekday" && (
+                          <div className="space-y-3 mt-3 pl-4 border-l-2 border-muted">
+                            <div className="space-y-2">
+                              <Label>Welcher im Monat</Label>
+                              <Select value={monthlyOccurrence.toString()} onValueChange={(v) => setMonthlyOccurrence(parseInt(v))}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">1. (erster)</SelectItem>
+                                  <SelectItem value="2">2. (zweiter)</SelectItem>
+                                  <SelectItem value="3">3. (dritter)</SelectItem>
+                                  <SelectItem value="4">4. (vierter)</SelectItem>
+                                  <SelectItem value="5">Letzter</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label>Wochentag</Label>
+                              <Select value={monthlyWeekday.toString()} onValueChange={(v) => setMonthlyWeekday(parseInt(v))}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">Montag</SelectItem>
+                                  <SelectItem value="2">Dienstag</SelectItem>
+                                  <SelectItem value="3">Mittwoch</SelectItem>
+                                  <SelectItem value="4">Donnerstag</SelectItem>
+                                  <SelectItem value="5">Freitag</SelectItem>
+                                  <SelectItem value="6">Samstag</SelectItem>
+                                  <SelectItem value="0">Sonntag</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Rotation Schedule Notes - shown when rotation is enabled */}
+                    {enableRotation && (
+                      <div className="space-y-3 pl-6 border-l-2 border-muted">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Terminnotizen</Label>
+                          <p className="text-xs text-muted-foreground">
+                            Fügen Sie Notizen für spezifische Termine hinzu
+                          </p>
+                        </div>
+                        
+                        {/* Notes Table */}
+                        <div className="border rounded-lg overflow-hidden">
+                          <table className="w-full">
+                            <thead className="bg-muted">
+                              <tr>
+                                <th className="p-2 text-left text-sm font-medium w-32">Datum</th>
+                                <th className="p-2 text-left text-sm font-medium">Notizen</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rotationSchedule.map((occ) => {
+                                const hasNotes = occ.notes && occ.notes.trim().length > 0;
+                                return (
+                                  <tr key={occ.occurrenceNumber} className="border-t">
+                                    <td className="p-2">
+                                      <div className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">Termin {occ.occurrenceNumber}</span>
+                                        {occ.calculatedDate && (
+                                          <span className="text-xs text-muted-foreground">
+                                            {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </td>
+                                    <td className="p-2">
+                                      <Button
+                                        type="button"
+                                        variant={hasNotes ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => {
+                                          const currentNotes = rotationSchedule.find(o => o.occurrenceNumber === occ.occurrenceNumber)?.notes || "";
+                                          const newNotes = prompt("Notizen für Termin " + occ.occurrenceNumber, currentNotes);
+                                          if (newNotes !== null) {
+                                            setRotationSchedule(prev =>
+                                              prev.map(o =>
+                                                o.occurrenceNumber === occ.occurrenceNumber
+                                                  ? { ...o, notes: newNotes }
+                                                  : o
+                                              )
+                                            );
+                                          }
+                                        }}
+                                        className="w-full justify-start"
+                                      >
+                                        {hasNotes ? (
+                                          <span className="truncate">{occ.notes}</span>
+                                        ) : (
+                                          "Notiz hinzufügen"
+                                        )}
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        
+                        {/* Add Occurrence Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const nextOccurrenceNumber = rotationSchedule.length + 1;
+                            const newOccurrence: ScheduleOccurrence = {
+                              occurrenceNumber: nextOccurrenceNumber,
+                              members: Array.from({ length: requiredPersons }, (_, i) => ({
+                                position: i + 1,
+                                memberId: 0,
+                              })),
+                              notes: "",
+                            };
+                            setRotationSchedule(prev => [...prev, newOccurrence]);
+                          }}
+                          className="w-full gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Termin hinzufügen
+                        </Button>
                       </div>
                     )}
 
