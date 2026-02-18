@@ -2093,3 +2093,10 @@
 - [x] Integrate table into task detail dialog (replaces old rotation schedule display)
 - [x] Table uses rotationSchedule state which updates automatically
 - [x] Shows "Noch offen" when no responsible persons assigned
+
+## Termin-Dauer Feature
+- [x] Datenbank-Schema erweitern (durationDays, durationHours in tasks table)
+- [x] Backend-Logik für Dauer-Felder in task creation/update
+- [x] UI-Felder für Dauer in Aufgabenerstellung auf /tasks
+- [x] Automatische Berechnung und Anzeige des Terminendes
+- [ ] Dauer-Felder auch in TaskDetailDialog (Bearbeitung)

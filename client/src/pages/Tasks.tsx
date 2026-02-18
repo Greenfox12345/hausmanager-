@@ -36,6 +36,8 @@ export default function Tasks() {
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
+  const [durationDays, setDurationDays] = useState("0");
+  const [durationHours, setDurationHours] = useState("0");
   const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
   
   // Repeat options
@@ -318,6 +320,8 @@ export default function Tasks() {
         excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
+        durationDays: parseInt(durationDays) || 0,
+        durationHours: parseInt(durationHours) || 0,
         assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined, // Array of assignees
         projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
         sharedHouseholdIds: shareWithNeighbors ? sharedHouseholdIds : [],
@@ -653,6 +657,55 @@ export default function Tasks() {
                   />
                 </div>
               </div>
+
+              {/* Duration fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="durationDays">Dauer (Tage)</Label>
+                  <Input
+                    id="durationDays"
+                    type="number"
+                    min="0"
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="durationHours">Dauer (Stunden)</Label>
+                  <Input
+                    id="durationHours"
+                    type="number"
+                    min="0"
+                    max="23"
+                    value={durationHours}
+                    onChange={(e) => setDurationHours(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              {/* End date/time display */}
+              {(dueDate && (parseInt(durationDays) > 0 || parseInt(durationHours) > 0)) && (
+                <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Terminende:</strong>{" "}
+                    {(() => {
+                      const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
+                      const end = new Date(start);
+                      end.setDate(end.getDate() + (parseInt(durationDays) || 0));
+                      end.setHours(end.getHours() + (parseInt(durationHours) || 0));
+                      return end.toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+                    })()}
+                  </p>
+                </div>
+              )}
 
               {/* Multiple assignees */}
               <div className="space-y-2">

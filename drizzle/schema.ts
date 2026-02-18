@@ -147,6 +147,8 @@ export const tasks = mysqlTable("tasks", {
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
   dueDate: datetime("dueDate"),
+  durationDays: int("durationDays").default(0), // Duration in days
+  durationHours: int("durationHours").default(0), // Duration in hours (0-23)
   projectIds: json("projectIds").$type<number[]>(),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
