@@ -2229,3 +2229,9 @@
 - [x] setRotationSchedule: isSkipped Status beim Neu-Erstellen wiederherstellen
 - [x] setRotationSchedule: Interface erweitern um isSkipped zu akzeptieren
 - [x] Frontend: isSkipped beim Speichern mitgeben
+
+## Bugfix: Skip-Button in "Termine Planen" aktualisiert UI der "Kommende Termine" nicht
+- [x] Query-Invalidierung überprüfen
+- [x] State-Synchronisierung zwischen rotationSchedule und rotationScheduleData überprüfen
+- [x] UI-Update nach Skip-Mutation sicherstellen
+- [x] invalidate() zu refetch() geändert für sofortiges UI-Update
