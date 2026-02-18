@@ -2235,3 +2235,20 @@
 - [x] State-Synchronisierung zwischen rotationSchedule und rotationScheduleData überprüfen
 - [x] UI-Update nach Skip-Mutation sicherstellen
 - [x] invalidate() zu refetch() geändert für sofortiges UI-Update
+
+## KRITISCH: UI-Synchronisierung zwischen Tabellen funktioniert nicht
+
+**Symptome:**
+1. Skip-Button in "Termine Planen" (oben) speichert in DB, aber "Kommende Termine" (unten) zeigt alten Status
+2. Wenn oben ausgesetzt und dann zurückgenommen wird, bleibt unten der ausgesetzte Status
+3. refetch() wird aufgerufen, aber useEffect triggert nicht oder synchronisiert nicht korrekt
+
+**Zu untersuchen:**
+- [x] Wird rotationScheduleData tatsächlich neu geladen nach refetch()? - JA
+- [x] Triggert der useEffect mit rotationScheduleData Dependency? - NEIN, weil `task` Objekt sich nicht ändert
+- [x] Wird setRotationSchedule im useEffect korrekt aufgerufen? - Nur wenn Dependencies triggern
+- [x] Gibt es Race Conditions zwischen lokalem State und Query? - Nein
+
+**Lösung:**
+- [x] useEffect Dependencies geändert von `[rotationScheduleData, task, open]` zu `[rotationScheduleData, task?.id, task?.enableRotation, open]`
+- [x] Jetzt triggert useEffect bei jeder Änderung von rotationScheduleData

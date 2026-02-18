@@ -418,7 +418,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }));
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, task, open]);
+  }, [rotationScheduleData, task?.id, task?.enableRotation, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
