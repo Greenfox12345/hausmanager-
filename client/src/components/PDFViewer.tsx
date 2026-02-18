@@ -17,9 +17,9 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
   const [size, setSize] = useState<ViewerSize>("large");
   
   const sizeClasses = {
-    medium: "max-w-4xl max-h-[70vh]",
-    large: "max-w-6xl max-h-[85vh]",
-    fullscreen: "max-w-[98vw] max-h-[98vh]"
+    medium: "w-[80vw] max-w-5xl h-[70vh]",
+    large: "w-[90vw] max-w-7xl h-[85vh]",
+    fullscreen: "w-[98vw] h-[98vh]"
   };
   
   const handleDownload = () => {

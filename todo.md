@@ -2015,3 +2015,7 @@
 ## PDF Viewer Enhancement (Feb 18, 2026)
 - [x] Make PDF viewer larger (default: large size with 85vh height)
 - [x] Add resize functionality with preset sizes (medium/large/fullscreen)
+
+## PDF Viewer Width Fix (Feb 18, 2026)
+- [x] Increase dialog width to make PDF more readable (90vw for large, 80vw for medium)
+- [x] Adjust aspect ratio for better PDF display
