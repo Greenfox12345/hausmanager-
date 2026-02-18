@@ -2119,3 +2119,8 @@
 - [x] Speichern wenn requiredPersons reduziert wird
 - [x] Speichern wenn Personen aus Rotation entfernt werden
 - [x] Überschüssige Member-Positionen korrekt behandeln
+
+## Terminende in Aufgabendetails anzeigen
+- [x] Terminende-Berechnung in View-Modus hinzufügen
+- [x] Anzeige unter "Fällig"-Datum platzieren
+- [x] Nur anzeigen wenn Dauer > 0

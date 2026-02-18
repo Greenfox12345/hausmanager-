@@ -1407,6 +1407,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
+                {/* End date display */}
+                {task.dueDate && ((task.durationDays && task.durationDays > 0) || (task.durationMinutes && task.durationMinutes > 0)) && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Terminende:</span>{" "}
+                      <strong>
+                        {(() => {
+                          const start = new Date(task.dueDate);
+                          const end = new Date(start);
+                          end.setDate(end.getDate() + (task.durationDays || 0));
+                          end.setMinutes(end.getMinutes() + (task.durationMinutes || 0));
+                          return format(end, "PPP 'um' HH:mm 'Uhr'", { locale: de });
+                        })()}
+                      </strong>
+                    </span>
+                  </div>
+                )}
+
                 {(task.enableRepeat || task.repeatUnit) && (
                   <div className="flex items-center gap-2">
                     <Repeat className="h-4 w-4 text-muted-foreground" />
