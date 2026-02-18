@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -289,22 +289,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
   }, [taskDependencies, task, open]);
   
+  // Track previous sharedHouseholds to prevent infinite loop
+  const prevSharedHouseholdsRef = useRef<number[]>([]);
+  
   // Load existing shared households when sharedHouseholds are fetched
   useEffect(() => {
     if (sharedHouseholds && task && open) {
       const householdIds = sharedHouseholds.map((sh: any) => sh.id);
-      // Only update if values actually changed to prevent infinite loop
-      setEnableSharing(prev => {
-        const newValue = householdIds.length > 0;
-        return prev === newValue ? prev : newValue;
-      });
-      setSelectedSharedHouseholds(prev => {
-        // Compare arrays to avoid unnecessary updates
-        if (prev.length === householdIds.length && prev.every((id, i) => id === householdIds[i])) {
-          return prev;
-        }
-        return householdIds;
-      });
+      
+      // Only update if values actually changed (deep comparison)
+      const hasChanged = 
+        householdIds.length !== prevSharedHouseholdsRef.current.length ||
+        !householdIds.every((id, i) => id === prevSharedHouseholdsRef.current[i]);
+      
+      if (hasChanged) {
+        prevSharedHouseholdsRef.current = householdIds;
+        
+        setEnableSharing(householdIds.length > 0);
+        setSelectedSharedHouseholds(householdIds);
+      }
     }
   }, [sharedHouseholds, task, open]);
 

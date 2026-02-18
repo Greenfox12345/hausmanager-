@@ -1945,3 +1945,9 @@
 - [x] Add create mode hint for rotation planning (available after task creation)
 - [x] Fix RotationScheduleTable initialization when dueDate is set after mount
 - [x] Add empty state placeholder for RotationScheduleTable when schedule is empty
+
+## React Recursion Error Investigation (Feb 18, 2026 - URGENT)
+- [x] Analyze React error stack trace (dispatchSetState recursion)
+- [x] Identify crash occurs when changing date via calendar picker in edit mode
+- [x] Fix root cause of recursion when changing date (useRef to track previous sharedHouseholds)
+- [x] Test fix thoroughly with date picker in edit mode - NO CRASHES!
