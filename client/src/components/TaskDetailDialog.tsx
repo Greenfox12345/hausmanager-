@@ -181,6 +181,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   };
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
+  const [durationTime, setDurationTime] = useState("00:00"); // HH:MM format
+  const [durationDays, setDurationDays] = useState("0");
   const [frequency, setFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
   const [customFrequencyDays, setCustomFrequencyDays] = useState(1);
   const [repeatMode, setRepeatMode] = useState<"none" | "irregular" | "regular">("none");
@@ -249,6 +251,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueDate("");
         setDueTime("");
       }
+      
+      // Load duration
+      setDurationDays(String(task.durationDays || 0));
+      const minutes = task.durationMinutes || 0;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      setDurationTime(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`);
       
       // Map task data to repeat mode
       const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
@@ -443,6 +452,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined,
         dueDate: dueDateString || undefined,
         dueTime: dueTimeString || undefined,
+        durationDays: parseInt(durationDays) || 0,
+        durationMinutes: (() => {
+          const [hours, minutes] = durationTime.split(':').map(Number);
+          return (hours || 0) * 60 + (minutes || 0);
+        })(),
         frequency: frequency,
         customFrequencyDays: customFrequencyDays,
         repeatInterval: repeatMode !== "none" ? parseInt(repeatInterval) : undefined,
@@ -465,7 +479,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           taskId: task.id,
           schedule: rotationSchedule.map(occ => ({
             occurrenceNumber: occ.occurrenceNumber,
-            members: occ.members.filter(m => m.memberId !== 0), // Filter out unassigned
+            // Filter out unassigned AND trim to requiredPersons count
+            members: occ.members
+              .filter(m => m.memberId !== 0)
+              .slice(0, requiredPersons || occ.members.length),
             notes: occ.notes,
           })),
         });
@@ -529,6 +546,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueDate("");
         setDueTime("");
       }
+      
+      // Load duration
+      setDurationDays(String(task.durationDays || 0));
+      const minutes = task.durationMinutes || 0;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      setDurationTime(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`);
       
       // Map task data to repeat mode
       const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
@@ -830,6 +854,54 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   />
                 </div>
               </div>
+
+              {/* Duration fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="task-duration-time">Dauer (Stunden:Minuten)</Label>
+                  <Input
+                    id="task-duration-time"
+                    type="time"
+                    value={durationTime}
+                    onChange={(e) => setDurationTime(e.target.value)}
+                    placeholder="00:00"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="task-duration-days">Dauer (Tage)</Label>
+                  <Input
+                    id="task-duration-days"
+                    type="number"
+                    min="0"
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              {/* End date/time display */}
+              {(dueDate && (parseInt(durationDays) > 0 || durationTime !== "00:00")) && (
+                <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Terminende:</strong>{" "}
+                    {(() => {
+                      const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
+                      const end = new Date(start);
+                      end.setDate(end.getDate() + (parseInt(durationDays) || 0));
+                      const [hours, minutes] = durationTime.split(':').map(Number);
+                      end.setMinutes(end.getMinutes() + (hours || 0) * 60 + (minutes || 0));
+                      return end.toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+                    })()}
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-4 border-t pt-4">
                 <div className="space-y-2">

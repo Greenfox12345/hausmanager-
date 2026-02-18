@@ -2108,3 +2108,14 @@
 - [x] UI: Stunden-Eingabe auf HH:MM Format ändern
 - [ ] UI: Automatische Normalisierung (>23:59 → Tage + Rest) - not needed, time input handles this
 - [x] Berechnung: Terminende mit Minuten-Genauigkeit
+
+## Dauer in Aufgaben-Bearbeitung
+- [x] Dauer-Felder (HH:MM + Tage) in TaskDetailDialog hinzufügen
+- [x] Dauer-Werte aus Task laden und anzeigen
+- [x] Dauer-Änderungen beim Speichern übernehmen
+- [x] Terminende-Berechnung in Bearbeitungsmodus anzeigen
+
+## Rotation Schedule Speichern Fix
+- [x] Speichern wenn requiredPersons reduziert wird
+- [x] Speichern wenn Personen aus Rotation entfernt werden
+- [x] Überschüssige Member-Positionen korrekt behandeln
