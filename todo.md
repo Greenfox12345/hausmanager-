@@ -2085,3 +2085,11 @@
 - [x] Avoid consecutive assignments of same person to same position
 - [x] Algorithm now checks if selected member was assigned in previous occurrence
 - [x] If match found and >1 member available, selects next member in rotation
+
+## Upcoming Occurrences Table (Feb 18, 2026)
+- [x] Create "Kommende Termine" table component for task details
+- [x] Display date, time, responsible persons, and notes for each occurrence
+- [x] Show notes even when responsible persons are not assigned
+- [x] Integrate table into task detail dialog (replaces old rotation schedule display)
+- [x] Table uses rotationSchedule state which updates automatically
+- [x] Shows "Noch offen" when no responsible persons assigned

@@ -20,7 +20,8 @@ import { useState as useStateForTabs } from "react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
-import { RotationScheduleTable, type ScheduleOccurrence } from "@/components/RotationScheduleTable";
+import { RotationScheduleTable, type ScheduleOccurrence } from "./RotationScheduleTable";
+import { UpcomingOccurrencesTable } from "./UpcomingOccurrencesTable";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 
@@ -1307,6 +1308,31 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
+                {/* Kommende Termine */}
+                {task.enableRepeat && rotationSchedule && rotationSchedule.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Calendar className="h-4 w-4" />
+                      Kommende Termine
+                    </div>
+                    <UpcomingOccurrencesTable
+                      occurrences={rotationSchedule.map((occ) => {
+                        const memberNames = occ.members
+                          .map(m => members.find(mem => mem.memberId === m.memberId)?.memberName || "Noch offen")
+                          .filter(name => name !== "Noch offen");
+                        
+                        return {
+                          occurrenceNumber: occ.occurrenceNumber,
+                          date: occ.calculatedDate ? new Date(occ.calculatedDate) : undefined,
+                          time: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : undefined,
+                          responsiblePersons: memberNames,
+                          notes: occ.notes,
+                        };
+                      })}
+                    />
+                  </div>
+                )}
+
                 {task.enableRotation && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
@@ -1317,38 +1343,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </span>
                     </div>
                     
-                    {/* Read-only rotation schedule */}
-                    {rotationScheduleData && rotationScheduleData.length > 0 && (
-                      <div className="border rounded-lg p-3 bg-muted/30 space-y-3">
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <Calendar className="h-4 w-4" />
-                          Geplante Rotation
-                        </div>
-                        <div className="space-y-2">
-                          {rotationScheduleData.map((occ) => {
-                            const memberNames = occ.members
-                              .map(m => members.find(mem => mem.memberId === m.memberId)?.memberName || `#${m.memberId}`)
-                              .join(", ");
-                            
-                            return (
-                              <div key={occ.occurrenceNumber} className="text-sm space-y-1">
-                                <div className="flex items-start gap-2">
-                                  <span className="font-medium text-muted-foreground min-w-[80px]">
-                                    Termin {occ.occurrenceNumber}:
-                                  </span>
-                                  <span>{memberNames}</span>
-                                </div>
-                                {occ.notes && (
-                                  <div className="pl-[88px] text-xs text-muted-foreground italic">
-                                    {occ.notes}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+
                   </div>
                 )}
 
