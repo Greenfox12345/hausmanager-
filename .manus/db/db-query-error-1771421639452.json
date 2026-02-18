@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, householdName FROM households ORDER BY id; SELECT userId, householdId, memberId FROM household_connections WHERE userId = 2160001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, householdName FROM households ORDER BY id; SELECT userId, householdId, memberId FROM household_connections WHERE userId = 2160001;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'householdname' in 'field list'"
+  ]
+}

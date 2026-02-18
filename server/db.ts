@@ -401,6 +401,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     // Convert boolean fields (MySQL returns 0/1 from raw SQL)
     if (typeof parsed.isCompleted === 'number') parsed.isCompleted = parsed.isCompleted === 1;
     if (typeof parsed.enableRotation === 'number') parsed.enableRotation = parsed.enableRotation === 1;
+    if (typeof parsed.irregularRecurrence === 'number') parsed.irregularRecurrence = parsed.irregularRecurrence === 1;
     return parsed;
   });
 

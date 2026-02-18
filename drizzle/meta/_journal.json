@@ -176,6 +176,20 @@
       "when": 1771420003812,
       "tag": "0024_cute_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1771421168137,
+      "tag": "0025_faithful_orphan",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1771421218196,
+      "tag": "0026_dusty_xorn",
+      "breakpoints": true
     }
   ]
 }

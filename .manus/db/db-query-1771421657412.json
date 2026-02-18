@@ -1,0 +1,493 @@
+{
+  "query": "SELECT id, name FROM households ORDER BY id; SELECT id, householdId, userId, memberName FROM household_members WHERE userId = 2160001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name FROM households ORDER BY id; SELECT id, householdId, userId, memberName FROM household_members WHERE userId = 2160001;",
+  "rows": [
+    {
+      "id": "390004",
+      "name": "Baubox"
+    },
+    {
+      "id": "390005",
+      "name": "Test Haushalt"
+    },
+    {
+      "id": "390006",
+      "name": "Zweiter Haushalt"
+    },
+    {
+      "id": "390007",
+      "name": "Testhaushalt"
+    },
+    {
+      "id": "390008",
+      "name": "Test Invite Code"
+    },
+    {
+      "id": "390009",
+      "name": "Passwort"
+    },
+    {
+      "id": "390010",
+      "name": "TestHaus"
+    },
+    {
+      "id": "420001",
+      "name": "N"
+    },
+    {
+      "id": "450001",
+      "name": "Buchenbühl"
+    },
+    {
+      "id": "510001",
+      "name": "Test"
+    },
+    {
+      "id": "510002",
+      "name": "Provat"
+    },
+    {
+      "id": "540001",
+      "name": "JungeBau"
+    },
+    {
+      "id": "570002",
+      "name": "Test Household for Activities"
+    },
+    {
+      "id": "600001",
+      "name": "IJV Nbg"
+    },
+    {
+      "id": "630001",
+      "name": "Familie Müller"
+    },
+    {
+      "id": "720001",
+      "name": "Musterhaus"
+    },
+    {
+      "id": "780001",
+      "name": "Munsi"
+    },
+    {
+      "id": "810001",
+      "name": "Test Haushalt"
+    },
+    {
+      "id": "810008",
+      "name": "Test Household for Activities"
+    },
+    {
+      "id": "810032",
+      "name": "Test Household for Activities"
+    },
+    {
+      "id": "810056",
+      "name": "Test Household for Activities"
+    },
+    {
+      "id": "840002",
+      "name": "Test Household for Rotation"
+    },
+    {
+      "id": "840003",
+      "name": "Test Household for Rotation"
+    },
+    {
+      "id": "840004",
+      "name": "Test Household for Rotation"
+    },
+    {
+      "id": "840005",
+      "name": "Test Household"
+    },
+    {
+      "id": "840006",
+      "name": "Test Household"
+    },
+    {
+      "id": "840007",
+      "name": "Test Household"
+    },
+    {
+      "id": "840008",
+      "name": "Test Household"
+    },
+    {
+      "id": "870001",
+      "name": "Test Household for Completion"
+    },
+    {
+      "id": "870002",
+      "name": "Test Household for Completion"
+    },
+    {
+      "id": "900006",
+      "name": "Test Household - Irregular 1771420475467"
+    },
+    {
+      "id": "900007",
+      "name": "Test Household - Irregular 1771420475662"
+    },
+    {
+      "id": "900008",
+      "name": "Test Household - Irregular 1771420475846"
+    },
+    {
+      "id": "900009",
+      "name": "Test Household - Irregular 1771420476021"
+    },
+    {
+      "id": "900010",
+      "name": "Test Household - Irregular 1771420476190"
+    },
+    {
+      "id": "900011",
+      "name": "Test Household - Irregular 1771420483177"
+    },
+    {
+      "id": "900012",
+      "name": "Test Household - Irregular 1771420483357"
+    },
+    {
+      "id": "900013",
+      "name": "Test Household - Irregular 1771420483526"
+    },
+    {
+      "id": "900014",
+      "name": "Test Household - Irregular 1771420483694"
+    },
+    {
+      "id": "900015",
+      "name": "Test Household - Irregular 1771420483872"
+    },
+    {
+      "id": "900016",
+      "name": "Test Household - Irregular 1771420525683"
+    },
+    {
+      "id": "900017",
+      "name": "Test Household - Irregular 1771420526022"
+    },
+    {
+      "id": "900018",
+      "name": "Test Household - Irregular 1771420526340"
+    },
+    {
+      "id": "900019",
+      "name": "Test Household - Irregular 1771420526665"
+    },
+    {
+      "id": "900020",
+      "name": "Test Household - Irregular 1771420526986"
+    },
+    {
+      "id": "900021",
+      "name": "Test Household - Irregular 1771420533798"
+    },
+    {
+      "id": "900022",
+      "name": "Test Household - Irregular 1771420534164"
+    },
+    {
+      "id": "900023",
+      "name": "Test Household - Irregular 1771420534515"
+    },
+    {
+      "id": "900024",
+      "name": "Test Household - Irregular 1771420534858"
+    },
+    {
+      "id": "900025",
+      "name": "Test Household - Irregular 1771420535356"
+    },
+    {
+      "id": "900026",
+      "name": "Test Household - Irregular 1771420541920"
+    },
+    {
+      "id": "900027",
+      "name": "Test Household - Irregular 1771420542270"
+    },
+    {
+      "id": "900028",
+      "name": "Test Household - Irregular 1771420542605"
+    },
+    {
+      "id": "900029",
+      "name": "Test Household - Irregular 1771420542937"
+    },
+    {
+      "id": "900030",
+      "name": "Test Household - Irregular 1771420543287"
+    },
+    {
+      "id": "900031",
+      "name": "Test Household - Irregular 1771420565321"
+    },
+    {
+      "id": "900032",
+      "name": "Test Household - Irregular 1771420565774"
+    },
+    {
+      "id": "900033",
+      "name": "Test Household - Irregular 1771420566191"
+    },
+    {
+      "id": "900034",
+      "name": "Test Household - Irregular 1771420566551"
+    },
+    {
+      "id": "900035",
+      "name": "Test Household - Irregular 1771420566894"
+    },
+    {
+      "id": "900036",
+      "name": "Test Household - Irregular 1771420573481"
+    },
+    {
+      "id": "900037",
+      "name": "Test Household - Irregular 1771420573952"
+    },
+    {
+      "id": "900038",
+      "name": "Test Household - Irregular 1771420574413"
+    },
+    {
+      "id": "900039",
+      "name": "Test Household - Irregular 1771420574749"
+    },
+    {
+      "id": "900040",
+      "name": "Test Household - Irregular 1771420575082"
+    },
+    {
+      "id": "900041",
+      "name": "Test Household - Irregular 1771420604129"
+    },
+    {
+      "id": "900042",
+      "name": "Test Household - Irregular 1771420604566"
+    },
+    {
+      "id": "900043",
+      "name": "Test Household - Irregular 1771420605078"
+    },
+    {
+      "id": "900044",
+      "name": "Test Household - Irregular 1771420605720"
+    },
+    {
+      "id": "900045",
+      "name": "Test Household - Irregular 1771420606371"
+    },
+    {
+      "id": "900046",
+      "name": "Test Household - Irregular 1771420613167"
+    },
+    {
+      "id": "900047",
+      "name": "Test Household - Irregular 1771420613616"
+    },
+    {
+      "id": "900048",
+      "name": "Test Household - Irregular 1771420614049"
+    },
+    {
+      "id": "900049",
+      "name": "Test Household - Irregular 1771420614703"
+    },
+    {
+      "id": "900050",
+      "name": "Test Household - Irregular 1771420615416"
+    },
+    {
+      "id": "900051",
+      "name": "Test Household - Irregular 1771420623140"
+    },
+    {
+      "id": "900052",
+      "name": "Test Household - Irregular 1771420623617"
+    },
+    {
+      "id": "900053",
+      "name": "Test Household - Irregular 1771420624056"
+    },
+    {
+      "id": "900054",
+      "name": "Test Household - Irregular 1771420624709"
+    },
+    {
+      "id": "900055",
+      "name": "Test Household - Irregular 1771420625452"
+    },
+    {
+      "id": "900056",
+      "name": "Test Household - Irregular 1771420631254"
+    },
+    {
+      "id": "900057",
+      "name": "Test Household - Irregular 1771420631738"
+    },
+    {
+      "id": "900058",
+      "name": "Test Household - Irregular 1771420632180"
+    },
+    {
+      "id": "900059",
+      "name": "Test Household - Irregular 1771420632847"
+    },
+    {
+      "id": "900060",
+      "name": "Test Household - Irregular 1771420633523"
+    },
+    {
+      "id": "900061",
+      "name": "Test Household - Irregular 1771420665795"
+    },
+    {
+      "id": "900062",
+      "name": "Test Household - Irregular 1771420666258"
+    },
+    {
+      "id": "900063",
+      "name": "Test Household - Irregular 1771420666703"
+    },
+    {
+      "id": "900064",
+      "name": "Test Household - Irregular 1771420667363"
+    },
+    {
+      "id": "900065",
+      "name": "Test Household - Irregular 1771420668041"
+    },
+    {
+      "id": "900066",
+      "name": "Test Household - Irregular 1771420677230"
+    },
+    {
+      "id": "900067",
+      "name": "Test Household - Irregular 1771420677668"
+    },
+    {
+      "id": "900068",
+      "name": "Test Household - Irregular 1771420678096"
+    },
+    {
+      "id": "900069",
+      "name": "Test Household - Irregular 1771420678739"
+    },
+    {
+      "id": "900070",
+      "name": "Test Household - Irregular 1771420679402"
+    },
+    {
+      "id": "900071",
+      "name": "Test Household - Irregular 1771420685815"
+    },
+    {
+      "id": "900072",
+      "name": "Test Household - Irregular 1771420686271"
+    },
+    {
+      "id": "900073",
+      "name": "Test Household - Irregular 1771420686733"
+    },
+    {
+      "id": "900074",
+      "name": "Test Household - Irregular 1771420687374"
+    },
+    {
+      "id": "900075",
+      "name": "Test Household - Irregular 1771420688028"
+    },
+    {
+      "id": "900076",
+      "name": "Test Household - Irregular 1771420738025"
+    },
+    {
+      "id": "900077",
+      "name": "Test Household - Irregular 1771420738494"
+    },
+    {
+      "id": "900078",
+      "name": "Test Household - Irregular 1771420738950"
+    },
+    {
+      "id": "900079",
+      "name": "Test Household - Irregular 1771420739648"
+    },
+    {
+      "id": "900080",
+      "name": "Test Household - Irregular 1771420740381"
+    },
+    {
+      "id": "900081",
+      "name": "Test Household - Irregular 1771420750430"
+    },
+    {
+      "id": "900082",
+      "name": "Test Household - Irregular 1771420750879"
+    },
+    {
+      "id": "900083",
+      "name": "Test Household - Irregular 1771420751304"
+    },
+    {
+      "id": "900084",
+      "name": "Test Household - Irregular 1771420751936"
+    },
+    {
+      "id": "900085",
+      "name": "Test Household - Irregular 1771420752599"
+    },
+    {
+      "id": "900086",
+      "name": "Test Household - Irregular 1771420758788"
+    },
+    {
+      "id": "900087",
+      "name": "Test Household - Irregular 1771420759231"
+    },
+    {
+      "id": "900088",
+      "name": "Test Household - Irregular 1771420759681"
+    },
+    {
+      "id": "900089",
+      "name": "Test Household - Irregular 1771420760333"
+    },
+    {
+      "id": "900090",
+      "name": "Test Household - Irregular 1771420760992"
+    },
+    {
+      "id": "900091",
+      "name": "Test Household - Irregular 1771420790981"
+    },
+    {
+      "id": "900092",
+      "name": "Test Household - Irregular 1771420791428"
+    },
+    {
+      "id": "900093",
+      "name": "Test Household - Irregular 1771420791872"
+    },
+    {
+      "id": "900094",
+      "name": "Test Household - Irregular 1771420792516"
+    },
+    {
+      "id": "900095",
+      "name": "Test Household - Irregular 1771420793164"
+    }
+  ],
+  "messages": [
+    "id\thouseholdId\tuserId\tmemberName",
+    "900001\t810001\t2160001\tManusman"
+  ],
+  "stdout": "id\tname\n390004\tBaubox\n390005\tTest Haushalt\n390006\tZweiter Haushalt\n390007\tTesthaushalt\n390008\tTest Invite Code\n390009\tPasswort\n390010\tTestHaus\n420001\tN\n450001\tBuchenbühl\n510001\tTest\n510002\tProvat\n540001\tJungeBau\n570002\tTest Household for Activities\n600001\tIJV Nbg\n630001\tFamilie Müller\n720001\tMusterhaus\n780001\tMunsi\n810001\tTest Haushalt\n810008\tTest Household for Activities\n810032\tTest Household for Activities\n810056\tTest Household for Activities\n840002\tTest Household for Rotation\n840003\tTest Household for Rotation\n840004\tTest Household for Rotation\n840005\tTest Household\n840006\tTest Household\n840007\tTest Household\n840008\tTest Household\n870001\tTest Household for Completion\n870002\tTest Household for Completion\n900006\tTest Household - Irregular 1771420475467\n900007\tTest Household - Irregular 1771420475662\n900008\tTest Household - Irregular 1771420475846\n900009\tTest Household - Irregular 1771420476021\n900010\tTest Household - Irregular 1771420476190\n900011\tTest Household - Irregular 1771420483177\n900012\tTest Household - Irregular 1771420483357\n900013\tTest Household - Irregular 1771420483526\n900014\tTest Household - Irregular 1771420483694\n900015\tTest Household - Irregular 1771420483872\n900016\tTest Household - Irregular 1771420525683\n900017\tTest Household - Irregular 1771420526022\n900018\tTest Household - Irregular 1771420526340\n900019\tTest Household - Irregular 1771420526665\n900020\tTest Household - Irregular 1771420526986\n900021\tTest Household - Irregular 1771420533798\n900022\tTest Household - Irregular 1771420534164\n900023\tTest Household - Irregular 1771420534515\n900024\tTest Household - Irregular 1771420534858\n900025\tTest Household - Irregular 1771420535356\n900026\tTest Household - Irregular 1771420541920\n900027\tTest Household - Irregular 1771420542270\n900028\tTest Household - Irregular 1771420542605\n900029\tTest Household - Irregular 1771420542937\n900030\tTest Household - Irregular 1771420543287\n900031\tTest Household - Irregular 1771420565321\n900032\tTest Household - Irregular 1771420565774\n900033\tTest Household - Irregular 1771420566191\n900034\tTest Household - Irregular 1771420566551\n900035\tTest Household - Irregular 1771420566894\n900036\tTest Household - Irregular 1771420573481\n900037\tTest Household - Irregular 1771420573952\n900038\tTest Household - Irregular 1771420574413\n900039\tTest Household - Irregular 1771420574749\n900040\tTest Household - Irregular 1771420575082\n900041\tTest Household - Irregular 1771420604129\n900042\tTest Household - Irregular 1771420604566\n900043\tTest Household - Irregular 1771420605078\n900044\tTest Household - Irregular 1771420605720\n900045\tTest Household - Irregular 1771420606371\n900046\tTest Household - Irregular 1771420613167\n900047\tTest Household - Irregular 1771420613616\n900048\tTest Household - Irregular 1771420614049\n900049\tTest Household - Irregular 1771420614703\n900050\tTest Household - Irregular 1771420615416\n900051\tTest Household - Irregular 1771420623140\n900052\tTest Household - Irregular 1771420623617\n900053\tTest Household - Irregular 1771420624056\n900054\tTest Household - Irregular 1771420624709\n900055\tTest Household - Irregular 1771420625452\n900056\tTest Household - Irregular 1771420631254\n900057\tTest Household - Irregular 1771420631738\n900058\tTest Household - Irregular 1771420632180\n900059\tTest Household - Irregular 1771420632847\n900060\tTest Household - Irregular 1771420633523\n900061\tTest Household - Irregular 1771420665795\n900062\tTest Household - Irregular 1771420666258\n900063\tTest Household - Irregular 1771420666703\n900064\tTest Household - Irregular 1771420667363\n900065\tTest Household - Irregular 1771420668041\n900066\tTest Household - Irregular 1771420677230\n900067\tTest Household - Irregular 1771420677668\n900068\tTest Household - Irregular 1771420678096\n900069\tTest Household - Irregular 1771420678739\n900070\tTest Household - Irregular 1771420679402\n900071\tTest Household - Irregular 1771420685815\n900072\tTest Household - Irregular 1771420686271\n900073\tTest Household - Irregular 1771420686733\n900074\tTest Household - Irregular 1771420687374\n900075\tTest Household - Irregular 1771420688028\n900076\tTest Household - Irregular 1771420738025\n900077\tTest Household - Irregular 1771420738494\n900078\tTest Household - Irregular 1771420738950\n900079\tTest Household - Irregular 1771420739648\n900080\tTest Household - Irregular 1771420740381\n900081\tTest Household - Irregular 1771420750430\n900082\tTest Household - Irregular 1771420750879\n900083\tTest Household - Irregular 1771420751304\n900084\tTest Household - Irregular 1771420751936\n900085\tTest Household - Irregular 1771420752599\n900086\tTest Household - Irregular 1771420758788\n900087\tTest Household - Irregular 1771420759231\n900088\tTest Household - Irregular 1771420759681\n900089\tTest Household - Irregular 1771420760333\n900090\tTest Household - Irregular 1771420760992\n900091\tTest Household - Irregular 1771420790981\n900092\tTest Household - Irregular 1771420791428\n900093\tTest Household - Irregular 1771420791872\n900094\tTest Household - Irregular 1771420792516\n900095\tTest Household - Irregular 1771420793164\nid\thouseholdId\tuserId\tmemberName\n900001\t810001\t2160001\tManusman\n",
+  "stderr": "",
+  "execution_time_ms": 399
+}

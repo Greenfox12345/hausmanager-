@@ -1,0 +1,322 @@
+{
+  "query": "SELECT COUNT(*) as total_tasks FROM tasks; SELECT householdId, COUNT(*) as task_count FROM tasks GROUP BY householdId; SELECT id, name, householdId, createdAt FROM tasks ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT COUNT(*) as total_tasks FROM tasks; SELECT householdId, COUNT(*) as task_count FROM tasks GROUP BY householdId; SELECT id, name, householdId, createdAt FROM tasks ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "total_tasks": "81"
+    },
+    {
+      "total_tasks": "householdId\ttask_count"
+    },
+    {
+      "total_tasks": "900089\t1"
+    },
+    {
+      "total_tasks": "900045\t1"
+    },
+    {
+      "total_tasks": "900064\t1"
+    },
+    {
+      "total_tasks": "900091\t1"
+    },
+    {
+      "total_tasks": "900038\t1"
+    },
+    {
+      "total_tasks": "900036\t1"
+    },
+    {
+      "total_tasks": "900033\t1"
+    },
+    {
+      "total_tasks": "900017\t1"
+    },
+    {
+      "total_tasks": "900042\t1"
+    },
+    {
+      "total_tasks": "900090\t1"
+    },
+    {
+      "total_tasks": "900070\t1"
+    },
+    {
+      "total_tasks": "900034\t1"
+    },
+    {
+      "total_tasks": "900029\t1"
+    },
+    {
+      "total_tasks": "900080\t1"
+    },
+    {
+      "total_tasks": "900095\t1"
+    },
+    {
+      "total_tasks": "900051\t1"
+    },
+    {
+      "total_tasks": "900062\t1"
+    },
+    {
+      "total_tasks": "900025\t1"
+    },
+    {
+      "total_tasks": "900035\t1"
+    },
+    {
+      "total_tasks": "900024\t1"
+    },
+    {
+      "total_tasks": "900059\t1"
+    },
+    {
+      "total_tasks": "900087\t1"
+    },
+    {
+      "total_tasks": "900061\t1"
+    },
+    {
+      "total_tasks": "900028\t1"
+    },
+    {
+      "total_tasks": "900044\t1"
+    },
+    {
+      "total_tasks": "900050\t1"
+    },
+    {
+      "total_tasks": "900092\t1"
+    },
+    {
+      "total_tasks": "900066\t1"
+    },
+    {
+      "total_tasks": "900068\t1"
+    },
+    {
+      "total_tasks": "900021\t1"
+    },
+    {
+      "total_tasks": "900047\t1"
+    },
+    {
+      "total_tasks": "900079\t1"
+    },
+    {
+      "total_tasks": "900078\t1"
+    },
+    {
+      "total_tasks": "900031\t1"
+    },
+    {
+      "total_tasks": "900026\t1"
+    },
+    {
+      "total_tasks": "900075\t1"
+    },
+    {
+      "total_tasks": "900086\t1"
+    },
+    {
+      "total_tasks": "900073\t1"
+    },
+    {
+      "total_tasks": "900030\t1"
+    },
+    {
+      "total_tasks": "900041\t1"
+    },
+    {
+      "total_tasks": "900019\t1"
+    },
+    {
+      "total_tasks": "900056\t1"
+    },
+    {
+      "total_tasks": "900048\t1"
+    },
+    {
+      "total_tasks": "900058\t1"
+    },
+    {
+      "total_tasks": "900040\t1"
+    },
+    {
+      "total_tasks": "900093\t1"
+    },
+    {
+      "total_tasks": "900016\t1"
+    },
+    {
+      "total_tasks": "900055\t1"
+    },
+    {
+      "total_tasks": "900074\t1"
+    },
+    {
+      "total_tasks": "900022\t1"
+    },
+    {
+      "total_tasks": "900020\t1"
+    },
+    {
+      "total_tasks": "900077\t1"
+    },
+    {
+      "total_tasks": "900083\t1"
+    },
+    {
+      "total_tasks": "900032\t1"
+    },
+    {
+      "total_tasks": "900046\t1"
+    },
+    {
+      "total_tasks": "900018\t1"
+    },
+    {
+      "total_tasks": "900065\t1"
+    },
+    {
+      "total_tasks": "900057\t1"
+    },
+    {
+      "total_tasks": "900076\t1"
+    },
+    {
+      "total_tasks": "900039\t1"
+    },
+    {
+      "total_tasks": "900037\t1"
+    },
+    {
+      "total_tasks": "900088\t1"
+    },
+    {
+      "total_tasks": "510002\t1"
+    },
+    {
+      "total_tasks": "900063\t1"
+    },
+    {
+      "total_tasks": "900052\t1"
+    },
+    {
+      "total_tasks": "900023\t1"
+    },
+    {
+      "total_tasks": "900060\t1"
+    },
+    {
+      "total_tasks": "900069\t1"
+    },
+    {
+      "total_tasks": "900067\t1"
+    },
+    {
+      "total_tasks": "900049\t1"
+    },
+    {
+      "total_tasks": "900053\t1"
+    },
+    {
+      "total_tasks": "900085\t1"
+    },
+    {
+      "total_tasks": "900084\t1"
+    },
+    {
+      "total_tasks": "900071\t1"
+    },
+    {
+      "total_tasks": "900082\t1"
+    },
+    {
+      "total_tasks": "900094\t1"
+    },
+    {
+      "total_tasks": "900043\t1"
+    },
+    {
+      "total_tasks": "900081\t1"
+    },
+    {
+      "total_tasks": "900027\t1"
+    },
+    {
+      "total_tasks": "900054\t1"
+    },
+    {
+      "total_tasks": "900072\t1"
+    },
+    {
+      "total_tasks": "id\tname\thouseholdId\tcreatedAt"
+    },
+    {
+      "total_tasks": "1890089\tddsf\t510002\t2026-02-18 13:21:31"
+    },
+    {
+      "total_tasks": "1890088\tIrregular Rotation Task\t900095\t2026-02-18 13:19:53"
+    },
+    {
+      "total_tasks": "1890086\tRegular Task\t900093\t2026-02-18 13:19:52"
+    },
+    {
+      "total_tasks": "1890087\tIrregular Task\t900094\t2026-02-18 13:19:52"
+    },
+    {
+      "total_tasks": "1890085\tIrregular Task No Date\t900092\t2026-02-18 13:19:51"
+    },
+    {
+      "total_tasks": "1890084\tIrregular Task\t900091\t2026-02-18 13:19:51"
+    },
+    {
+      "total_tasks": "1890083\tIrregular Rotation Task\t900090\t2026-02-18 13:19:21"
+    },
+    {
+      "total_tasks": "1890082\tIrregular Task\t900089\t2026-02-18 13:19:20"
+    },
+    {
+      "total_tasks": "1890081\tRegular Task\t900088\t2026-02-18 13:19:19"
+    },
+    {
+      "total_tasks": "1890080\tIrregular Task No Date\t900087\t2026-02-18 13:19:19"
+    },
+    {
+      "total_tasks": "1890079\tIrregular Task\t900086\t2026-02-18 13:19:18"
+    },
+    {
+      "total_tasks": "1890077\tIrregular Task\t900084\t2026-02-18 13:19:12"
+    },
+    {
+      "total_tasks": "1890078\tIrregular Rotation Task\t900085\t2026-02-18 13:19:12"
+    },
+    {
+      "total_tasks": "1890076\tRegular Task\t900083\t2026-02-18 13:19:11"
+    },
+    {
+      "total_tasks": "1890075\tIrregular Task No Date\t900082\t2026-02-18 13:19:11"
+    },
+    {
+      "total_tasks": "1890074\tIrregular Task\t900081\t2026-02-18 13:19:10"
+    },
+    {
+      "total_tasks": "1890073\tIrregular Rotation Task\t900080\t2026-02-18 13:19:00"
+    },
+    {
+      "total_tasks": "1890072\tIrregular Task\t900079\t2026-02-18 13:18:59"
+    },
+    {
+      "total_tasks": "1890071\tRegular Task\t900078\t2026-02-18 13:18:59"
+    },
+    {
+      "total_tasks": "1890069\tIrregular Task\t900076\t2026-02-18 13:18:58"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_tasks\n81\nhouseholdId\ttask_count\n900089\t1\n900045\t1\n900064\t1\n900091\t1\n900038\t1\n900036\t1\n900033\t1\n900017\t1\n900042\t1\n900090\t1\n900070\t1\n900034\t1\n900029\t1\n900080\t1\n900095\t1\n900051\t1\n900062\t1\n900025\t1\n900035\t1\n900024\t1\n900059\t1\n900087\t1\n900061\t1\n900028\t1\n900044\t1\n900050\t1\n900092\t1\n900066\t1\n900068\t1\n900021\t1\n900047\t1\n900079\t1\n900078\t1\n900031\t1\n900026\t1\n900075\t1\n900086\t1\n900073\t1\n900030\t1\n900041\t1\n900019\t1\n900056\t1\n900048\t1\n900058\t1\n900040\t1\n900093\t1\n900016\t1\n900055\t1\n900074\t1\n900022\t1\n900020\t1\n900077\t1\n900083\t1\n900032\t1\n900046\t1\n900018\t1\n900065\t1\n900057\t1\n900076\t1\n900039\t1\n900037\t1\n900088\t1\n510002\t1\n900063\t1\n900052\t1\n900023\t1\n900060\t1\n900069\t1\n900067\t1\n900049\t1\n900053\t1\n900085\t1\n900084\t1\n900071\t1\n900082\t1\n900094\t1\n900043\t1\n900081\t1\n900027\t1\n900054\t1\n900072\t1\nid\tname\thouseholdId\tcreatedAt\n1890089\tddsf\t510002\t2026-02-18 13:21:31\n1890088\tIrregular Rotation Task\t900095\t2026-02-18 13:19:53\n1890086\tRegular Task\t900093\t2026-02-18 13:19:52\n1890087\tIrregular Task\t900094\t2026-02-18 13:19:52\n1890085\tIrregular Task No Date\t900092\t2026-02-18 13:19:51\n1890084\tIrregular Task\t900091\t2026-02-18 13:19:51\n1890083\tIrregular Rotation Task\t900090\t2026-02-18 13:19:21\n1890082\tIrregular Task\t900089\t2026-02-18 13:19:20\n1890081\tRegular Task\t900088\t2026-02-18 13:19:19\n1890080\tIrregular Task No Date\t900087\t2026-02-18 13:19:19\n1890079\tIrregular Task\t900086\t2026-02-18 13:19:18\n1890077\tIrregular Task\t900084\t2026-02-18 13:19:12\n1890078\tIrregular Rotation Task\t900085\t2026-02-18 13:19:12\n1890076\tRegular Task\t900083\t2026-02-18 13:19:11\n1890075\tIrregular Task No Date\t900082\t2026-02-18 13:19:11\n1890074\tIrregular Task\t900081\t2026-02-18 13:19:10\n1890073\tIrregular Rotation Task\t900080\t2026-02-18 13:19:00\n1890072\tIrregular Task\t900079\t2026-02-18 13:18:59\n1890071\tRegular Task\t900078\t2026-02-18 13:18:59\n1890069\tIrregular Task\t900076\t2026-02-18 13:18:58\n",
+  "stderr": "",
+  "execution_time_ms": 460
+}

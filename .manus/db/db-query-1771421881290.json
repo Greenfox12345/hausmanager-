@@ -1,0 +1,190 @@
+{
+  "query": "SELECT id, name, householdId, createdAt FROM tasks ORDER BY id LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, householdId, createdAt FROM tasks ORDER BY id LIMIT 30;",
+  "rows": [
+    {
+      "id": "1890009",
+      "name": "Irregular Task",
+      "householdId": "900016",
+      "createdAt": "2026-02-18 13:15:25"
+    },
+    {
+      "id": "1890010",
+      "name": "Irregular Task No Date",
+      "householdId": "900017",
+      "createdAt": "2026-02-18 13:15:26"
+    },
+    {
+      "id": "1890011",
+      "name": "Regular Task",
+      "householdId": "900018",
+      "createdAt": "2026-02-18 13:15:26"
+    },
+    {
+      "id": "1890012",
+      "name": "Irregular Task",
+      "householdId": "900019",
+      "createdAt": "2026-02-18 13:15:26"
+    },
+    {
+      "id": "1890013",
+      "name": "Irregular Rotation Task",
+      "householdId": "900020",
+      "createdAt": "2026-02-18 13:15:27"
+    },
+    {
+      "id": "1890014",
+      "name": "Irregular Task",
+      "householdId": "900021",
+      "createdAt": "2026-02-18 13:15:33"
+    },
+    {
+      "id": "1890015",
+      "name": "Irregular Task No Date",
+      "householdId": "900022",
+      "createdAt": "2026-02-18 13:15:34"
+    },
+    {
+      "id": "1890016",
+      "name": "Regular Task",
+      "householdId": "900023",
+      "createdAt": "2026-02-18 13:15:34"
+    },
+    {
+      "id": "1890017",
+      "name": "Irregular Task",
+      "householdId": "900024",
+      "createdAt": "2026-02-18 13:15:35"
+    },
+    {
+      "id": "1890018",
+      "name": "Irregular Rotation Task",
+      "householdId": "900025",
+      "createdAt": "2026-02-18 13:15:35"
+    },
+    {
+      "id": "1890019",
+      "name": "Irregular Task",
+      "householdId": "900026",
+      "createdAt": "2026-02-18 13:15:42"
+    },
+    {
+      "id": "1890020",
+      "name": "Irregular Task No Date",
+      "householdId": "900027",
+      "createdAt": "2026-02-18 13:15:42"
+    },
+    {
+      "id": "1890021",
+      "name": "Regular Task",
+      "householdId": "900028",
+      "createdAt": "2026-02-18 13:15:42"
+    },
+    {
+      "id": "1890022",
+      "name": "Irregular Task",
+      "householdId": "900029",
+      "createdAt": "2026-02-18 13:15:43"
+    },
+    {
+      "id": "1890023",
+      "name": "Irregular Rotation Task",
+      "householdId": "900030",
+      "createdAt": "2026-02-18 13:15:43"
+    },
+    {
+      "id": "1890024",
+      "name": "Irregular Task",
+      "householdId": "900031",
+      "createdAt": "2026-02-18 13:16:05"
+    },
+    {
+      "id": "1890025",
+      "name": "Irregular Task No Date",
+      "householdId": "900032",
+      "createdAt": "2026-02-18 13:16:05"
+    },
+    {
+      "id": "1890026",
+      "name": "Regular Task",
+      "householdId": "900033",
+      "createdAt": "2026-02-18 13:16:06"
+    },
+    {
+      "id": "1890027",
+      "name": "Irregular Task",
+      "householdId": "900034",
+      "createdAt": "2026-02-18 13:16:06"
+    },
+    {
+      "id": "1890028",
+      "name": "Irregular Rotation Task",
+      "householdId": "900035",
+      "createdAt": "2026-02-18 13:16:07"
+    },
+    {
+      "id": "1890029",
+      "name": "Irregular Task",
+      "householdId": "900036",
+      "createdAt": "2026-02-18 13:16:13"
+    },
+    {
+      "id": "1890030",
+      "name": "Irregular Task No Date",
+      "householdId": "900037",
+      "createdAt": "2026-02-18 13:16:14"
+    },
+    {
+      "id": "1890031",
+      "name": "Regular Task",
+      "householdId": "900038",
+      "createdAt": "2026-02-18 13:16:14"
+    },
+    {
+      "id": "1890032",
+      "name": "Irregular Task",
+      "householdId": "900039",
+      "createdAt": "2026-02-18 13:16:14"
+    },
+    {
+      "id": "1890033",
+      "name": "Irregular Rotation Task",
+      "householdId": "900040",
+      "createdAt": "2026-02-18 13:16:15"
+    },
+    {
+      "id": "1890034",
+      "name": "Irregular Task",
+      "householdId": "900041",
+      "createdAt": "2026-02-18 13:16:44"
+    },
+    {
+      "id": "1890035",
+      "name": "Irregular Task No Date",
+      "householdId": "900042",
+      "createdAt": "2026-02-18 13:16:44"
+    },
+    {
+      "id": "1890036",
+      "name": "Regular Task",
+      "householdId": "900043",
+      "createdAt": "2026-02-18 13:16:45"
+    },
+    {
+      "id": "1890037",
+      "name": "Irregular Task",
+      "householdId": "900044",
+      "createdAt": "2026-02-18 13:16:45"
+    },
+    {
+      "id": "1890038",
+      "name": "Irregular Rotation Task",
+      "householdId": "900045",
+      "createdAt": "2026-02-18 13:16:46"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\thouseholdId\tcreatedAt\n1890009\tIrregular Task\t900016\t2026-02-18 13:15:25\n1890010\tIrregular Task No Date\t900017\t2026-02-18 13:15:26\n1890011\tRegular Task\t900018\t2026-02-18 13:15:26\n1890012\tIrregular Task\t900019\t2026-02-18 13:15:26\n1890013\tIrregular Rotation Task\t900020\t2026-02-18 13:15:27\n1890014\tIrregular Task\t900021\t2026-02-18 13:15:33\n1890015\tIrregular Task No Date\t900022\t2026-02-18 13:15:34\n1890016\tRegular Task\t900023\t2026-02-18 13:15:34\n1890017\tIrregular Task\t900024\t2026-02-18 13:15:35\n1890018\tIrregular Rotation Task\t900025\t2026-02-18 13:15:35\n1890019\tIrregular Task\t900026\t2026-02-18 13:15:42\n1890020\tIrregular Task No Date\t900027\t2026-02-18 13:15:42\n1890021\tRegular Task\t900028\t2026-02-18 13:15:42\n1890022\tIrregular Task\t900029\t2026-02-18 13:15:43\n1890023\tIrregular Rotation Task\t900030\t2026-02-18 13:15:43\n1890024\tIrregular Task\t900031\t2026-02-18 13:16:05\n1890025\tIrregular Task No Date\t900032\t2026-02-18 13:16:05\n1890026\tRegular Task\t900033\t2026-02-18 13:16:06\n1890027\tIrregular Task\t900034\t2026-02-18 13:16:06\n1890028\tIrregular Rotation Task\t900035\t2026-02-18 13:16:07\n1890029\tIrregular Task\t900036\t2026-02-18 13:16:13\n1890030\tIrregular Task No Date\t900037\t2026-02-18 13:16:14\n1890031\tRegular Task\t900038\t2026-02-18 13:16:14\n1890032\tIrregular Task\t900039\t2026-02-18 13:16:14\n1890033\tIrregular Rotation Task\t900040\t2026-02-18 13:16:15\n1890034\tIrregular Task\t900041\t2026-02-18 13:16:44\n1890035\tIrregular Task No Date\t900042\t2026-02-18 13:16:44\n1890036\tRegular Task\t900043\t2026-02-18 13:16:45\n1890037\tIrregular Task\t900044\t2026-02-18 13:16:45\n1890038\tIrregular Rotation Task\t900045\t2026-02-18 13:16:46\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}

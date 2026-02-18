@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total FROM tasks; SELECT id, name, householdId FROM tasks ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT COUNT(*) as total FROM tasks; SELECT id, name, householdId FROM tasks ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "total": "1"
+    },
+    {
+      "total": "id\tname\thouseholdId"
+    },
+    {
+      "total": "1890089\tddsf\t510002"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n1\nid\tname\thouseholdId\n1890089\tddsf\t510002\n",
+  "stderr": "",
+  "execution_time_ms": 400
+}
