@@ -215,6 +215,12 @@ export function RotationScheduleTable({
       for (let occIdx = 0; occIdx < newSchedule.length; occIdx++) {
         const occ = newSchedule[occIdx];
         
+        // Track members already assigned in THIS occurrence to avoid duplicates
+        const assignedInThisOcc = new Set<number>();
+        occ.members.forEach(m => {
+          if (m.memberId !== 0) assignedInThisOcc.add(m.memberId);
+        });
+        
         // For each position (use requiredPersons, not occ.members.length)
         for (let position = 1; position <= requiredPersons; position++) {
           const memberIdx = occ.members.findIndex(m => m.position === position);
@@ -228,13 +234,34 @@ export function RotationScheduleTable({
               : null;
             const prevOccMemberId = prevOccMember?.memberId || null;
             
-            // If multiple members available, try to avoid assigning same person consecutively
-            let selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+            // Find a member that is not already assigned in this occurrence
+            let selectedMember = null;
+            let attempts = 0;
             
-            if (eligibleMembers.length > 1 && prevOccMemberId && selectedMember.memberId === prevOccMemberId) {
-              // Try next member in rotation
-              selectedMember = eligibleMembers[(memberIndex + 1) % eligibleMembers.length];
+            while (attempts < eligibleMembers.length) {
+              const candidate = eligibleMembers[(memberIndex + attempts) % eligibleMembers.length];
+              
+              // Check if this candidate is already assigned in this occurrence
+              if (!assignedInThisOcc.has(candidate.memberId)) {
+                // Also try to avoid consecutive assignments if possible
+                if (eligibleMembers.length > 1 && prevOccMemberId && candidate.memberId === prevOccMemberId) {
+                  // Try to find a different member if available
+                  attempts++;
+                  continue;
+                }
+                selectedMember = candidate;
+                break;
+              }
+              attempts++;
             }
+            
+            // If we couldn't find a member (all are assigned), take any available one
+            if (!selectedMember) {
+              selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+            }
+            
+            // Mark this member as assigned in this occurrence
+            assignedInThisOcc.add(selectedMember.memberId);
             
             if (member) {
               // Update existing member
@@ -323,6 +350,11 @@ export function RotationScheduleTable({
                     const member = occ.members.find(m => m.position === position);
                     const selectedMemberId = member?.memberId || 0;
                     
+                    // Get all member IDs already assigned to OTHER positions in this occurrence
+                    const assignedMemberIds = occ.members
+                      .filter(m => m.position !== position && m.memberId !== 0)
+                      .map(m => m.memberId);
+                    
                     return (
                       <td key={occ.occurrenceNumber} className="p-2">
                         <Select
@@ -336,11 +368,18 @@ export function RotationScheduleTable({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="0">Offen</SelectItem>
-                            {eligibleMembers.map((m) => (
-                              <SelectItem key={m.memberId} value={m.memberId.toString()}>
-                                {m.memberName}
-                              </SelectItem>
-                            ))}
+                            {eligibleMembers.map((m) => {
+                              const isAlreadyAssigned = assignedMemberIds.includes(m.memberId);
+                              return (
+                                <SelectItem 
+                                  key={m.memberId} 
+                                  value={m.memberId.toString()}
+                                  disabled={isAlreadyAssigned}
+                                >
+                                  {m.memberName}{isAlreadyAssigned ? ' (bereits zugewiesen)' : ''}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </td>
