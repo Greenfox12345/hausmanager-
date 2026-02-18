@@ -2152,10 +2152,15 @@
 
 ## Kommende Termine immer anzeigen
 - [x] UpcomingOccurrencesTable: Termine auch ohne Verantwortliche anzeigen
-- [in progress] Mindestens 3 kommende Termine immer laden und anzeigen (Backend-Änderung erforderlich)
+- [x] Mindestens 3 kommende Termine immer laden und anzeigen (Backend-Änderung erforderlich)
 - [x] Filterung anpassen damit leere Verantwortliche nicht ausgeblendet werden
 
 ## Kalender-Integration für Termine
 - [ ] Kalender-Ansicht implementieren
 - [ ] Termine im Kalender eintragen
 - [ ] Spezielle Notizen an Terminen hervorheben
+
+## Termin-Management in Rotationsplanung
+- [x] Termine in Rotationsplanung löschen können
+- [x] Termine auslassen/überspringen können (ohne zu löschen)
+- [x] Termine in der Liste nach oben/unten verschieben können

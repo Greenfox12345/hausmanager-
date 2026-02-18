@@ -1331,3 +1331,108 @@ export async function shiftRotationSchedule(taskId: number) {
 
   return { success: true };
 }
+
+/**
+ * Delete a specific occurrence from rotation schedule
+ * Removes the occurrence and renumbers all following occurrences
+ */
+export async function deleteRotationOccurrence(taskId: number, occurrenceNumber: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current schedule
+  const currentSchedule = await getRotationSchedule(taskId);
+  
+  // Filter out the occurrence to delete and renumber
+  const updatedSchedule = currentSchedule
+    .filter(occ => occ.occurrenceNumber !== occurrenceNumber)
+    .map((occ, index) => ({
+      ...occ,
+      occurrenceNumber: index + 1, // Renumber starting from 1
+    }));
+
+  // Replace entire schedule with updated version
+  await setRotationSchedule(taskId, updatedSchedule);
+
+  return { success: true };
+}
+
+/**
+ * Skip/mark an occurrence as skipped without deleting it
+ * Adds a note indicating it was skipped
+ */
+export async function skipRotationOccurrence(taskId: number, occurrenceNumber: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current schedule
+  const currentSchedule = await getRotationSchedule(taskId);
+  const occurrence = currentSchedule.find(occ => occ.occurrenceNumber === occurrenceNumber);
+  
+  if (!occurrence) throw new Error("Occurrence not found");
+
+  // Update notes to indicate skipped
+  const skipNote = occurrence.notes 
+    ? `${occurrence.notes} [ÜBERSPRUNGEN]`
+    : "[ÜBERSPRUNGEN]";
+
+  // Delete existing note if any
+  await db.delete(taskRotationOccurrenceNotes)
+    .where(
+      and(
+        eq(taskRotationOccurrenceNotes.taskId, taskId),
+        eq(taskRotationOccurrenceNotes.occurrenceNumber, occurrenceNumber)
+      )
+    );
+
+  // Insert updated note
+  await db.insert(taskRotationOccurrenceNotes).values({
+    taskId,
+    occurrenceNumber,
+    notes: skipNote,
+  });
+
+  return { success: true };
+}
+
+/**
+ * Move an occurrence up or down in the schedule
+ * Swaps positions with adjacent occurrence
+ */
+export async function moveRotationOccurrence(
+  taskId: number,
+  occurrenceNumber: number,
+  direction: 'up' | 'down'
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current schedule
+  const currentSchedule = await getRotationSchedule(taskId);
+  
+  const currentIndex = currentSchedule.findIndex(occ => occ.occurrenceNumber === occurrenceNumber);
+  if (currentIndex === -1) throw new Error("Occurrence not found");
+
+  const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+  
+  // Check bounds
+  if (swapIndex < 0 || swapIndex >= currentSchedule.length) {
+    return { success: false, message: "Cannot move occurrence in that direction" };
+  }
+
+  // Swap the occurrences
+  const temp = currentSchedule[currentIndex];
+  currentSchedule[currentIndex] = currentSchedule[swapIndex];
+  currentSchedule[swapIndex] = temp;
+
+  // Renumber all occurrences sequentially
+  const updatedSchedule = currentSchedule.map((occ, index) => ({
+    ...occ,
+    occurrenceNumber: index + 1,
+  }));
+
+  // Replace entire schedule with updated version
+  await setRotationSchedule(taskId, updatedSchedule);
+
+  return { success: true };
+}

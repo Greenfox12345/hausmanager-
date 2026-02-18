@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Wand2 } from "lucide-react";
+import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown } from "lucide-react";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
@@ -171,6 +171,63 @@ export function RotationScheduleTable({
       onChangeRef.current(schedule);
     }
   }, [schedule]);
+
+  const handleDeleteOccurrence = (occurrenceNumber: number) => {
+    setSchedule(prev => {
+      // Filter out the occurrence and renumber
+      const filtered = prev.filter(occ => occ.occurrenceNumber !== occurrenceNumber);
+      const renumbered = filtered.map((occ, index) => ({
+        ...occ,
+        occurrenceNumber: index + 1,
+        calculatedDate: calculateOccurrenceDate(index + 1),
+      }));
+      onChangeRef.current(renumbered);
+      return renumbered;
+    });
+  };
+
+  const handleSkipOccurrence = (occurrenceNumber: number) => {
+    setSchedule(prev => {
+      const updated = prev.map(occ => {
+        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+        const skipNote = occ.notes 
+          ? `${occ.notes} [ÜBERSPRUNGEN]`
+          : "[ÜBERSPRUNGEN]";
+        return {
+          ...occ,
+          notes: skipNote,
+        };
+      });
+      onChangeRef.current(updated);
+      return updated;
+    });
+  };
+
+  const handleMoveOccurrence = (occurrenceNumber: number, direction: 'up' | 'down') => {
+    setSchedule(prev => {
+      const currentIndex = prev.findIndex(occ => occ.occurrenceNumber === occurrenceNumber);
+      if (currentIndex === -1) return prev;
+
+      const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      if (swapIndex < 0 || swapIndex >= prev.length) return prev;
+
+      // Create a copy and swap
+      const updated = [...prev];
+      const temp = updated[currentIndex];
+      updated[currentIndex] = updated[swapIndex];
+      updated[swapIndex] = temp;
+
+      // Renumber all occurrences and recalculate dates
+      const renumbered = updated.map((occ, index) => ({
+        ...occ,
+        occurrenceNumber: index + 1,
+        calculatedDate: calculateOccurrenceDate(index + 1),
+      }));
+
+      onChangeRef.current(renumbered);
+      return renumbered;
+    });
+  };
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
     setSchedule(prev => {
@@ -388,10 +445,60 @@ export function RotationScheduleTable({
                 </tr>
               );
             })}
+            {/* Action buttons row */}
+            <tr className="border-t bg-muted/30">
+              {schedule.map((occ, index) => (
+                <td key={occ.occurrenceNumber} className="p-2">
+                  <div className="flex gap-1 justify-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMoveOccurrence(occ.occurrenceNumber, 'up')}
+                      disabled={index === 0}
+                      title="Nach oben verschieben"
+                      className="h-7 w-7 p-0"
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMoveOccurrence(occ.occurrenceNumber, 'down')}
+                      disabled={index === schedule.length - 1}
+                      title="Nach unten verschieben"
+                      className="h-7 w-7 p-0"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSkipOccurrence(occ.occurrenceNumber)}
+                      title="Überspringen"
+                      className="h-7 w-7 p-0"
+                    >
+                      <SkipForward className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteOccurrence(occ.occurrenceNumber)}
+                      title="Löschen"
+                      className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </td>
+              ))}
+            </tr>
           </tbody>
         </table>
       </div>
-
 
     </div>
   );

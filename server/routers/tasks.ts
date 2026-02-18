@@ -16,6 +16,9 @@ import {
   setRotationSchedule,
   extendRotationSchedule,
   shiftRotationSchedule,
+  deleteRotationOccurrence,
+  skipRotationOccurrence,
+  moveRotationOccurrence,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
@@ -1391,6 +1394,47 @@ export const tasksRouter = router({
         input.occurrenceNumber,
         input.members,
         input.notes
+      );
+    }),
+
+  // Delete a specific occurrence from rotation schedule
+  deleteRotationOccurrence: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        occurrenceNumber: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await deleteRotationOccurrence(input.taskId, input.occurrenceNumber);
+    }),
+
+  // Skip/mark an occurrence as skipped
+  skipRotationOccurrence: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        occurrenceNumber: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await skipRotationOccurrence(input.taskId, input.occurrenceNumber);
+    }),
+
+  // Move an occurrence up or down in the schedule
+  moveRotationOccurrence: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        occurrenceNumber: z.number(),
+        direction: z.enum(['up', 'down']),
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await moveRotationOccurrence(
+        input.taskId,
+        input.occurrenceNumber,
+        input.direction
       );
     }),
 });
