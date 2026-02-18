@@ -209,8 +209,8 @@ export const taskRotationOccurrenceNotes = mysqlTable("task_rotation_occurrence_
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type TaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferSelect;
-export type InsertTaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferInsert;
+export type TaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferSelect & { isSkipped: boolean };
+export type InsertTaskRotationOccurrenceNote = typeof taskRotationOccurrenceNotes.$inferInsert & { isSkipped?: boolean };
 
 /**
  * Task dependencies - relationships between household tasks

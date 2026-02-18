@@ -1167,14 +1167,35 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           type="button"
                                           variant={occ.isSkipped ? "default" : "ghost"}
                                           size="sm"
-                                          onClick={() => {
-                                            handleRotationScheduleChange(
-                                              rotationSchedule.map(o =>
-                                                o.occurrenceNumber === occ.occurrenceNumber
-                                                  ? { ...o, isSkipped: !o.isSkipped }
-                                                  : o
-                                              )
-                                            );
+                                          onClick={async () => {
+                                            if (task?.id) {
+                                              // Save to DB immediately
+                                              try {
+                                                await trpc.tasks.skipRotationOccurrence.mutate({
+                                                  taskId: task.id,
+                                                  occurrenceNumber: occ.occurrenceNumber,
+                                                });
+                                                // Update local state
+                                                handleRotationScheduleChange(
+                                                  rotationSchedule.map(o =>
+                                                    o.occurrenceNumber === occ.occurrenceNumber
+                                                      ? { ...o, isSkipped: !o.isSkipped }
+                                                      : o
+                                                  )
+                                                );
+                                              } catch (error) {
+                                                console.error('Failed to skip occurrence:', error);
+                                              }
+                                            } else {
+                                              // No taskId: just update local state (for task creation)
+                                              handleRotationScheduleChange(
+                                                rotationSchedule.map(o =>
+                                                  o.occurrenceNumber === occ.occurrenceNumber
+                                                    ? { ...o, isSkipped: !o.isSkipped }
+                                                    : o
+                                                )
+                                              );
+                                            }
                                           }}
                                           title={occ.isSkipped ? "Überspringen rückgängig machen" : "Überspringen"}
                                           className={`h-7 w-7 p-0 ${occ.isSkipped ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
@@ -1296,6 +1317,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
                             </p>
                             <RotationScheduleTable
+                            taskId={task?.id}
                             requiredPersons={requiredPersons}
                             availableMembers={availableMembers}
                             currentAssignees={selectedAssignees}

@@ -2187,3 +2187,10 @@
 - [x] isSkipped Status zur UpcomingOccurrencesTable Interface hinzufügen
 - [x] isSkipped Status beim Mapping der Termine übergeben
 - [x] Visuelle Kennzeichnung (Durchstreichen + Ausgrauen) implementieren
+
+## Bugfix: Überspringen-Status wird nicht gespeichert
+- [x] Backend skipRotationOccurrence Funktion überprüfen
+- [x] Frontend handleSkipOccurrence Funktion überprüfen
+- [x] Problem identifiziert: Skip-Status wird nur im lokalen State gespeichert, nicht in DB
+- [x] Skip-Button soll sofort in DB speichern (tRPC-Mutation aufrufen)
+- [x] Nach dem Speichern Rotation-Schedule neu laden

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown } from "lucide-react";
@@ -12,6 +13,7 @@ interface Member {
 }
 
 interface RotationScheduleTableProps {
+  taskId?: number; // Optional: if provided, skip will save to DB immediately
   requiredPersons: number;
   availableMembers: Member[];
   currentAssignees: number[];
@@ -35,6 +37,7 @@ export interface ScheduleOccurrence {
 }
 
 export function RotationScheduleTable({
+  taskId,
   requiredPersons,
   availableMembers,
   currentAssignees,
@@ -187,19 +190,45 @@ export function RotationScheduleTable({
     });
   };
 
-  const handleSkipOccurrence = (occurrenceNumber: number) => {
-    setSchedule(prev => {
-      const updated = prev.map(occ => {
-        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
-        // Toggle the skip status
-        return {
-          ...occ,
-          isSkipped: !occ.isSkipped,
-        };
+  const skipMutation = trpc.tasks.skipRotationOccurrence.useMutation();
+
+  const handleSkipOccurrence = async (occurrenceNumber: number) => {
+    // If taskId is provided, save to DB immediately
+    if (taskId) {
+      try {
+        await skipMutation.mutateAsync({
+          taskId,
+          occurrenceNumber,
+        });
+        // Update local state to reflect the change
+        setSchedule(prev => {
+          const updated = prev.map(occ => {
+            if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+            return {
+              ...occ,
+              isSkipped: !occ.isSkipped,
+            };
+          });
+          onChangeRef.current(updated);
+          return updated;
+        });
+      } catch (error) {
+        console.error('Failed to skip occurrence:', error);
+      }
+    } else {
+      // No taskId: just update local state (for task creation)
+      setSchedule(prev => {
+        const updated = prev.map(occ => {
+          if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+          return {
+            ...occ,
+            isSkipped: !occ.isSkipped,
+          };
+        });
+        onChangeRef.current(updated);
+        return updated;
       });
-      onChangeRef.current(updated);
-      return updated;
-    });
+    }
   };
 
   const handleMoveOccurrence = (occurrenceNumber: number, direction: 'up' | 'down') => {

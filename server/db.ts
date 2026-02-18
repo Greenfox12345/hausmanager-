@@ -1186,7 +1186,7 @@ export async function getRotationSchedule(taskId: number) {
   for (const note of notes) {
     if (grouped[note.occurrenceNumber]) {
       grouped[note.occurrenceNumber].notes = note.notes || undefined;
-      grouped[note.occurrenceNumber].isSkipped = note.isSkipped || false;
+      grouped[note.occurrenceNumber].isSkipped = (note as TaskRotationOccurrenceNote).isSkipped || false;
     }
   }
 
@@ -1391,7 +1391,7 @@ export async function skipRotationOccurrence(taskId: number, occurrenceNumber: n
   if (existingNote.length > 0) {
     // Update existing record
     await db.update(taskRotationOccurrenceNotes)
-      .set({ isSkipped: newSkipStatus })
+      .set({ isSkipped: newSkipStatus } as Partial<typeof taskRotationOccurrenceNotes.$inferSelect>)
       .where(
         and(
           eq(taskRotationOccurrenceNotes.taskId, taskId),
@@ -1405,7 +1405,7 @@ export async function skipRotationOccurrence(taskId: number, occurrenceNumber: n
       occurrenceNumber,
       notes: occurrence.notes || "",
       isSkipped: newSkipStatus,
-    });
+    } as typeof taskRotationOccurrenceNotes.$inferInsert);
   }
 
   return { success: true, isSkipped: newSkipStatus };
