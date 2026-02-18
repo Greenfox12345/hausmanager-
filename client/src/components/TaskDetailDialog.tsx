@@ -183,7 +183,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [dueTime, setDueTime] = useState("");
   const [frequency, setFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
   const [customFrequencyDays, setCustomFrequencyDays] = useState(1);
-  const [enableRepeat, setEnableRepeat] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<"none" | "irregular" | "regular">("none");
   const [repeatInterval, setRepeatInterval] = useState("1");
   const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months" | "irregular">("weeks");
   const [monthlyRecurrenceMode, setMonthlyRecurrenceMode] = useState<"same_date" | "same_weekday">("same_date");
@@ -237,9 +237,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueTime("");
       }
       
-      // Map task data to repeat fields
+      // Map task data to repeat mode
       const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
-      setEnableRepeat(Boolean(hasRepeat));
+      if (!hasRepeat) {
+        setRepeatMode("none");
+      } else if (task.repeatUnit === "irregular") {
+        setRepeatMode("irregular");
+      } else {
+        setRepeatMode("regular");
+      }
       
       if (hasRepeat) {
         // Use new frequency field if available, otherwise map old repeat fields
@@ -399,7 +405,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     let frequency: "once" | "daily" | "weekly" | "monthly" | "custom" = "once";
     let customFrequencyDays: number | undefined = undefined;
     
-    if (enableRepeat) {
+    if (repeatMode !== "none") {
       const interval = parseInt(repeatInterval) || 1;
       if (repeatUnit === "days" && interval === 1) {
         frequency = "daily";
@@ -426,22 +432,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         dueTime: dueTimeString || undefined,
         frequency: frequency,
         customFrequencyDays: customFrequencyDays,
-        repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
-        repeatUnit: enableRepeat ? repeatUnit : undefined,
-        irregularRecurrence: enableRepeat && repeatUnit === "irregular",
-        monthlyRecurrenceMode: enableRepeat && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
-        monthlyWeekday: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : undefined,
-        monthlyOccurrence: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : undefined,
-        enableRotation: enableRepeat && enableRotation,
-        requiredPersons: enableRepeat && enableRotation ? requiredPersons : undefined,
-        excludedMembers: enableRepeat && enableRotation ? excludedMembers : undefined,
+        repeatInterval: repeatMode !== "none" ? parseInt(repeatInterval) : undefined,
+        repeatUnit: repeatMode !== "none" ? repeatUnit : undefined,
+        irregularRecurrence: repeatMode === "irregular",
+        monthlyRecurrenceMode: repeatMode === "regular" && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
+        monthlyWeekday: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : undefined,
+        monthlyOccurrence: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : undefined,
+        enableRotation: repeatMode !== "none" && enableRotation,
+        requiredPersons: repeatMode !== "none" && enableRotation ? requiredPersons : undefined,
+        excludedMembers: repeatMode !== "none" && enableRotation ? excludedMembers : undefined,
         projectIds: isProjectTask ? selectedProjectIds : [],
         sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
         nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
       });
       
-      // Step 1.5: Save rotation schedule if repeat is enabled and schedule exists
-      if (enableRepeat && rotationSchedule.length > 0) {
+      // Step 1.5: Save rotation schedule if repeat mode is not none and schedule exists
+      if (repeatMode !== "none" && rotationSchedule.length > 0) {
         await setRotationScheduleMutation.mutateAsync({
           taskId: task.id,
           schedule: rotationSchedule.map(occ => ({
@@ -510,9 +516,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setDueTime("");
       }
       
-      // Map task data to repeat fields
+      // Map task data to repeat mode
       const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
-      setEnableRepeat(Boolean(hasRepeat));
+      if (!hasRepeat) {
+        setRepeatMode("none");
+      } else if (task.repeatUnit === "irregular") {
+        setRepeatMode("irregular");
+      } else {
+        setRepeatMode("regular");
+      }
       
       if (hasRepeat) {
         // Use new frequency field if available, otherwise map old repeat fields
@@ -806,52 +818,65 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               </div>
 
               <div className="space-y-4 border-t pt-4">
-                <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
-                  <Switch
-                    id="enableRepeat"
-                    checked={enableRepeat}
-                    onCheckedChange={(checked) => setEnableRepeat(checked)}
-                  />
-                  <Label htmlFor="enableRepeat" className="cursor-pointer flex items-center gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="repeatMode" className="flex items-center gap-2">
                     <Repeat className="h-4 w-4" />
-                    Wiederholung aktivieren
+                    Wiederholungsmodus
                   </Label>
+                  <Select value={repeatMode} onValueChange={(v) => {
+                    setRepeatMode(v as any);
+                    if (v === "irregular") {
+                      setRepeatUnit("irregular");
+                    } else if (v === "regular" && repeatUnit === "irregular") {
+                      setRepeatUnit("weeks");
+                    }
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Ohne Wiederholung</SelectItem>
+                      <SelectItem value="irregular">Unregelmäßig wiederholen</SelectItem>
+                      <SelectItem value="regular">Regelmäßig wiederholen</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {enableRepeat && (
+                {repeatMode !== "none" && (
                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
-                    <div className="space-y-2">
-                      <Label>Wiederholungsintervall</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          type="number"
-                          min="1"
-                          value={repeatInterval}
-                          onChange={(e) => setRepeatInterval(e.target.value)}
-                          className="w-20"
-                          disabled={repeatUnit === "irregular"}
-                        />
-                        <Select value={repeatUnit} onValueChange={(v) => setRepeatUnit(v as any)}>
-                          <SelectTrigger className="flex-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="days">Tage(n)</SelectItem>
-                            <SelectItem value="weeks">Woche(n)</SelectItem>
-                            <SelectItem value="months">Monat(e)</SelectItem>
-                            <SelectItem value="irregular">Unregelmäßig</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    {repeatMode === "irregular" && (
+                      <p className="text-sm text-muted-foreground">
+                        Bei unregelmäßiger Wiederholung werden Termine als "Termin 1", "Termin 2" usw. angezeigt.
+                      </p>
+                    )}
+                    
+                    {repeatMode === "regular" && (
+                      <div className="space-y-2">
+                        <Label>Wiederholungsintervall</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={repeatInterval}
+                            onChange={(e) => setRepeatInterval(e.target.value)}
+                            className="w-20"
+                          />
+                          <Select value={repeatUnit} onValueChange={(v) => setRepeatUnit(v as any)}>
+                            <SelectTrigger className="flex-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="days">Tage(n)</SelectItem>
+                              <SelectItem value="weeks">Woche(n)</SelectItem>
+                              <SelectItem value="months">Monat(e)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      {repeatUnit === "irregular" && (
-                        <p className="text-sm text-muted-foreground pl-1">
-                          Bei unregelmäßiger Wiederholung werden Termine als "Termin 1", "Termin 2" usw. angezeigt.
-                        </p>
-                      )}
-                    </div>
+                    )}
 
-                    {/* Monthly recurrence mode - only shown when repeatUnit is months */}
-                    {repeatUnit === "months" && (
+                    {/* Monthly recurrence mode - only shown when repeatUnit is months and mode is regular */}
+                    {repeatMode === "regular" && repeatUnit === "months" && (
                       <div className="space-y-2 pl-6 border-l-2 border-muted">
                         <Label>Monatliche Wiederholung</Label>
                         <Select value={monthlyRecurrenceMode} onValueChange={(v) => setMonthlyRecurrenceMode(v as any)}>
@@ -905,9 +930,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     )}
 
-                    {/* Rotation Schedule Planning - shown when repeat is enabled */}
-                    {enableRepeat && (
-                      <div className="space-y-3 pl-6 border-l-2 border-muted">
+                    {/* Rotation Schedule Planning - shown when repeat mode is not none */}
+                    <div className="space-y-3 pl-6 border-l-2 border-muted">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">Termine Planen</Label>
                           <p className="text-xs text-muted-foreground">
@@ -985,7 +1009,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           Termin hinzufügen
                         </Button>
                       </div>
-                    )}
 
                     {/* Rotation checkbox - nested under repeat */}
                     <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
@@ -1296,7 +1319,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
-                {task.enableRepeat && (
+                {(task.enableRepeat || task.repeatUnit) && (
                   <div className="flex items-center gap-2">
                     <Repeat className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
@@ -1309,7 +1332,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 )}
 
                 {/* Kommende Termine */}
-                {task.enableRepeat && rotationSchedule && rotationSchedule.length > 0 && (
+                {(task.enableRepeat || task.repeatUnit) && rotationSchedule && rotationSchedule.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Calendar className="h-4 w-4" />
