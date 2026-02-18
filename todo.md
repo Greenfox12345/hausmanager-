@@ -2031,3 +2031,9 @@
 - [x] Apply CSS transform to iframe for zoom effect
 - [x] Zoom range: 50% to 200% in 25% steps
 - [ ] Test zoom functionality in browser
+
+## Mobile PDF Zoom Optimization (Feb 18, 2026)
+- [x] Move zoom controls to second row on mobile devices
+- [x] Add pinch-to-zoom gesture support with touch events
+- [x] Zoom controls now centered in dedicated row below main toolbar
+- [ ] Test zoom on mobile devices
