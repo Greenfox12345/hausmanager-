@@ -2144,3 +2144,8 @@
 - [x] Untersuchen warum Zeit beim Speichern um +5h verschoben wird
 - [x] Backend überprüfen: Wie wird dueDate/dueTime gespeichert?
 - [x] Konsistente UTC-Behandlung in allen Schritten sicherstellen
+
+## -1 Stunde Verschiebung beim Laden beheben
+- [x] Untersuchen warum Zeit beim Laden zum Bearbeiten -1h springt
+- [x] UTC-Extraktion beim Laden überprüfen
+- [x] Sicherstellen dass gespeicherte UTC-Zeit korrekt geladen wird

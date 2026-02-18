@@ -245,12 +245,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        // Extract date and time in UTC to avoid timezone shifts
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        // Extract date and time as-is (database returns UTC, new Date interprets as UTC)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
         setDueDate(`${year}-${month}-${day}`);
         setDueTime(`${hours}:${minutes}`);
       } else {
@@ -546,12 +546,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        // Extract date and time in UTC to avoid timezone shifts
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        // Extract date and time as-is (database returns UTC, new Date interprets as UTC)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
         setDueDate(`${year}-${month}-${day}`);
         setDueTime(`${hours}:${minutes}`);
       } else {
