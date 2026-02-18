@@ -160,8 +160,8 @@ export function RotationScheduleTable({
   }, [schedule]);
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
-    setSchedule(prev =>
-      prev.map(occ =>
+    setSchedule(prev => {
+      const updated = prev.map(occ =>
         occ.occurrenceNumber === occurrenceNumber
           ? {
               ...occ,
@@ -170,8 +170,11 @@ export function RotationScheduleTable({
               ),
             }
           : occ
-      )
-    );
+      );
+      // Immediately notify parent of the change
+      onChangeRef.current(updated);
+      return updated;
+    });
   };
 
 
@@ -215,6 +218,8 @@ export function RotationScheduleTable({
         }
       }
       
+      // Immediately notify parent of the change
+      onChangeRef.current(newSchedule);
       return newSchedule;
     });
   };
