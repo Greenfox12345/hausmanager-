@@ -1177,13 +1177,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           size="sm"
                                           onClick={async () => {
                                             if (task?.id) {
-                                              // Save to DB immediately - query invalidation will update both tables
+                                              // Save to DB immediately - query refetch will update "Kommende Termine"
                                               try {
                                                 await skipRotationOccurrenceMutation.mutateAsync({
                                                   taskId: task.id,
                                                   occurrenceNumber: occ.occurrenceNumber,
                                                 });
-                                                // Don't update local state - let query refetch handle it
+                                                // Also update local state for "Termine Planen" table
+                                                handleRotationScheduleChange(
+                                                  rotationSchedule.map(o =>
+                                                    o.occurrenceNumber === occ.occurrenceNumber
+                                                      ? { ...o, isSkipped: !o.isSkipped }
+                                                      : o
+                                                  )
+                                                );
                                               } catch (error) {
                                                 console.error('Failed to skip occurrence:', error);
                                               }

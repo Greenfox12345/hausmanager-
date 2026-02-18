@@ -2252,3 +2252,15 @@
 **Lösung:**
 - [x] useEffect Dependencies geändert von `[rotationScheduleData, task, open]` zu `[rotationScheduleData, task?.id, task?.enableRotation, open]`
 - [x] Jetzt triggert useEffect bei jeder Änderung von rotationScheduleData
+
+## Bugfix: Skip-Button in "Termine Planen" funktioniert nicht mehr
+- [x] Skip-Button Handler überprüfen
+- [x] Mutation-Aufruf überprüfen - funktioniert
+- [x] Console-Fehler überprüfen - keine
+- [x] Lokalen State-Update wiederherstellen - DONE
+
+**Lösung:**
+- Lokalen State-Update nach Mutation hinzugefügt
+- "Termine Planen" (oben) wird jetzt sofort aktualisiert via lokaler State
+- "Kommende Termine" (unten) wird via Query-Refetch aktualisiert
+- Beide Tabellen bleiben synchron
