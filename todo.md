@@ -1917,3 +1917,10 @@
 - [ ] Update RotationScheduleTable to use explicit weekday/occurrence when available
 - [ ] Update task completion logic to use explicit weekday/occurrence
 - [ ] Calculate and display preview of next occurrence based on selection
+
+## Fix Rotation Crash and Missing Notes (2026-02-18)
+- [x] Analyze crash stack trace (Pasted_content_04) - setRotationSchedule in notes causing infinite loop
+- [x] Fix the crash by using handleRotationScheduleChange instead of setRotationSchedule
+- [x] Fix notes visibility condition from enableRotation to enableRepeat && enableRotation
+- [x] Verify notes section appears between repeat settings and rotation toggle
+- [ ] Test rotation toggle and notes functionality

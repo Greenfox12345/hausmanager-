@@ -840,8 +840,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       </div>
                     )}
 
-                    {/* Rotation Schedule Notes - shown when rotation is enabled */}
-                    {enableRotation && (
+                    {/* Rotation Schedule Notes - shown when repeat AND rotation are enabled */}
+                    {enableRepeat && enableRotation && (
                       <div className="space-y-3 pl-6 border-l-2 border-muted">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">Terminnotizen</Label>
@@ -883,8 +883,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           const currentNotes = rotationSchedule.find(o => o.occurrenceNumber === occ.occurrenceNumber)?.notes || "";
                                           const newNotes = prompt("Notizen für Termin " + occ.occurrenceNumber, currentNotes);
                                           if (newNotes !== null) {
-                                            setRotationSchedule(prev =>
-                                              prev.map(o =>
+                                            handleRotationScheduleChange(
+                                              rotationSchedule.map(o =>
                                                 o.occurrenceNumber === occ.occurrenceNumber
                                                   ? { ...o, notes: newNotes }
                                                   : o
@@ -923,7 +923,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               })),
                               notes: "",
                             };
-                            setRotationSchedule(prev => [...prev, newOccurrence]);
+                            handleRotationScheduleChange([...rotationSchedule, newOccurrence]);
                           }}
                           className="w-full gap-2"
                         >
