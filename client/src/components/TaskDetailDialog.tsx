@@ -1578,7 +1578,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       Kommende Termine
                     </div>
                     <UpcomingOccurrencesTable
-                      occurrences={rotationScheduleData.map((occ: any) => {
+                      occurrences={rotationScheduleData
+                        .map((occ: any, index: number) => {
                         const memberNames = occ.members
                           .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName)
                           .filter((name: string | undefined): name is string => name !== undefined && name !== null);
@@ -1644,7 +1645,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           time: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : undefined,
                           responsiblePersons: memberNames,
                           notes: occ.notes,
+                          _index: index,
+                          _hasSpecialFeatures: memberNames.length > 0 || (occ.notes && occ.notes.trim().length > 0)
                         };
+                      })
+                      .filter((occ: any) => {
+                        // Always show first 3 occurrences
+                        if (occ._index < 3) return true;
+                        // Show occurrences with assigned people or notes
+                        return occ._hasSpecialFeatures;
                       })}
                     />
                   </div>

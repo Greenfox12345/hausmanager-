@@ -2178,3 +2178,7 @@
 - [x] Konsistente Nummerierung nach jeder Änderung sicherstellen
 - [x] Duplikate und übersprungene Nummern verhindern
 - [x] Daten bei jeder Durchnummerierung neu berechnen (Vorbereitung für manuelle Datumsänderung)
+
+## Bugfix: UpcomingOccurrencesTable Anzeige korrigieren
+- [x] Immer die ersten 3 Termine anzeigen (auch ohne Besonderheiten)
+- [x] Plus alle weiteren Termine mit Verantwortlichen oder Notizen anzeigen
