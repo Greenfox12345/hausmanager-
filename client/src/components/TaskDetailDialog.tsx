@@ -171,7 +171,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [customFrequencyDays, setCustomFrequencyDays] = useState(1);
   const [enableRepeat, setEnableRepeat] = useState(false);
   const [repeatInterval, setRepeatInterval] = useState("1");
-  const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months">("weeks");
+  const [repeatUnit, setRepeatUnit] = useState<"days" | "weeks" | "months" | "irregular">("weeks");
   const [monthlyRecurrenceMode, setMonthlyRecurrenceMode] = useState<"same_date" | "same_weekday">("same_date");
   const [monthlyWeekday, setMonthlyWeekday] = useState<number>(1); // 0-6 (Sunday-Saturday), default to Monday
   const [monthlyOccurrence, setMonthlyOccurrence] = useState<number>(1); // 1-5 (1st, 2nd, 3rd, 4th, last)
@@ -414,6 +414,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         customFrequencyDays: customFrequencyDays,
         repeatInterval: enableRepeat ? parseInt(repeatInterval) : undefined,
         repeatUnit: enableRepeat ? repeatUnit : undefined,
+        irregularRecurrence: enableRepeat && repeatUnit === "irregular",
         monthlyRecurrenceMode: enableRepeat && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
         monthlyWeekday: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : undefined,
         monthlyOccurrence: enableRepeat && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : undefined,
@@ -787,6 +788,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           value={repeatInterval}
                           onChange={(e) => setRepeatInterval(e.target.value)}
                           className="w-20"
+                          disabled={repeatUnit === "irregular"}
                         />
                         <Select value={repeatUnit} onValueChange={(v) => setRepeatUnit(v as any)}>
                           <SelectTrigger className="flex-1">
@@ -796,9 +798,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             <SelectItem value="days">Tage(n)</SelectItem>
                             <SelectItem value="weeks">Woche(n)</SelectItem>
                             <SelectItem value="months">Monat(e)</SelectItem>
+                            <SelectItem value="irregular">Unregelmäßig</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
+                      {repeatUnit === "irregular" && (
+                        <p className="text-sm text-muted-foreground pl-1">
+                          Bei unregelmäßiger Wiederholung werden Termine als "Termin 1", "Termin 2" usw. angezeigt.
+                        </p>
+                      )}
                     </div>
 
                     {/* Monthly recurrence mode - only shown when repeatUnit is months */}
