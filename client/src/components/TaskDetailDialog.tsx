@@ -212,6 +212,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     setRotationSchedule(schedule);
   }, []);
 
+  // Auto-fill monthlyWeekday and monthlyOccurrence from dueDate when switching to same_weekday mode
+  useEffect(() => {
+    if (monthlyRecurrenceMode === "same_weekday" && dueDateObject) {
+      // Only auto-fill if values haven't been manually set (still at defaults)
+      const weekday = dueDateObject.getDay();
+      const occurrence = Math.ceil(dueDateObject.getDate() / 7);
+      
+      // Update the values to match the dueDate
+      setMonthlyWeekday(weekday);
+      setMonthlyOccurrence(occurrence);
+    }
+  }, [monthlyRecurrenceMode, dueDateObject]);
+
   // Reset edit mode when dialog closes
   useEffect(() => {
     if (!open) {
@@ -1085,6 +1098,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             repeatInterval={parseInt(repeatInterval) || 1}
                             repeatUnit={repeatUnit}
                             monthlyRecurrenceMode={monthlyRecurrenceMode}
+                            monthlyWeekday={monthlyWeekday}
+                            monthlyOccurrence={monthlyOccurrence}
                             dueDate={dueDateObject}
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}
@@ -1360,14 +1375,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             calculatedDate.setDate(baseDate.getDate() + (interval * 7 * occNum));
                           } else if (task.repeatUnit === "months") {
                             if (task.monthlyRecurrenceMode === "same_weekday") {
-                              // Calculate based on weekday occurrence (e.g., "3rd Monday")
+                              // Calculate based on user-selected weekday occurrence (e.g., "3rd Monday")
                               const targetMonth = baseDate.getMonth() + (interval * occNum);
                               const targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
                               const normalizedMonth = targetMonth % 12;
                               
-                              // Get the weekday and occurrence from base date
-                              const weekday = baseDate.getDay(); // 0=Sunday, 1=Monday, etc.
-                              const occurrence = Math.ceil(baseDate.getDate() / 7); // 1st, 2nd, 3rd, 4th week
+                              // Use stored monthlyWeekday and monthlyOccurrence values
+                              const weekday = task.monthlyWeekday ?? baseDate.getDay();
+                              const occurrence = task.monthlyOccurrence ?? Math.ceil(baseDate.getDate() / 7);
                               
                               // Find the Nth occurrence of the weekday in target month
                               calculatedDate = new Date(targetYear, normalizedMonth, 1);

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, Wand2 } from "lucide-react";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
-import { getNextMonthlyOccurrence } from "../../../shared/dateUtils";
+import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
 
 interface Member {
   memberId: number;
@@ -18,6 +18,8 @@ interface RotationScheduleTableProps {
   repeatInterval: number;
   repeatUnit: "days" | "weeks" | "months" | "irregular";
   monthlyRecurrenceMode?: "same_date" | "same_weekday";
+  monthlyWeekday?: number; // 0-6 (Sunday-Saturday)
+  monthlyOccurrence?: number; // 1-5 (1st, 2nd, 3rd, 4th, last)
   dueDate?: Date | null;
   onChange: (schedule: ScheduleOccurrence[]) => void;
   initialSchedule?: ScheduleOccurrence[];
@@ -38,6 +40,8 @@ export function RotationScheduleTable({
   repeatInterval,
   repeatUnit,
   monthlyRecurrenceMode = "same_date",
+  monthlyWeekday,
+  monthlyOccurrence,
   dueDate,
   onChange,
   initialSchedule,
@@ -64,14 +68,18 @@ export function RotationScheduleTable({
     if (!dueDate) return undefined;
     
     if (repeatUnit === "months") {
-      // Use weekday-based calculation for monthly recurrence if mode is same_weekday
-      return getNextMonthlyOccurrence(dueDate, repeatInterval * (occurrenceNumber - 1), monthlyRecurrenceMode);
+      // Use explicit weekday/occurrence if provided, otherwise derive from dueDate
+      if (monthlyRecurrenceMode === "same_weekday" && monthlyWeekday !== undefined && monthlyOccurrence !== undefined) {
+        return getNextMonthlyOccurrenceExplicit(dueDate, repeatInterval * (occurrenceNumber - 1), monthlyWeekday, monthlyOccurrence);
+      } else {
+        return getNextMonthlyOccurrence(dueDate, repeatInterval * (occurrenceNumber - 1), monthlyRecurrenceMode);
+      }
     } else {
       // For days/weeks, use simple addition
       const addFunction = repeatUnit === "days" ? addDays : addWeeks;
       return addFunction(dueDate, repeatInterval * (occurrenceNumber - 1));
     }
-  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode]);
+  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
 
   // Initialize schedule when component mounts OR when dueDate becomes available
   useEffect(() => {
@@ -148,7 +156,7 @@ export function RotationScheduleTable({
       }))
     );
     isUpdatingDates.current = false;
-  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode]);
+  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
 
   // Notify parent when schedule changes (but not during date updates or initial mount)
   useEffect(() => {
