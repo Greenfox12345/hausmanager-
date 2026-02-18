@@ -9,6 +9,7 @@ interface UpcomingOccurrence {
   time?: string;
   responsiblePersons: string[];
   notes?: string;
+  isSkipped?: boolean;
 }
 
 interface UpcomingOccurrencesTableProps {
@@ -30,17 +31,17 @@ export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTab
       <Table>
         <TableBody>
           {occurrences.map((occ) => (
-            <TableRow key={occ.occurrenceNumber}>
-              <TableCell className="font-medium text-muted-foreground">
+            <TableRow key={occ.occurrenceNumber} className={occ.isSkipped ? 'opacity-60' : ''}>
+              <TableCell className={`font-medium text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
                 {occ.occurrenceNumber}
               </TableCell>
               <TableCell>
                 {occ.date ? (
-                  <span className="text-sm">
+                  <span className={`text-sm ${occ.isSkipped ? 'line-through' : ''}`}>
                     {format(occ.date, "EEE, dd.MM.yyyy", { locale: de })}
                   </span>
                 ) : (
-                  <span className="text-sm text-muted-foreground italic">
+                  <span className={`text-sm text-muted-foreground italic ${occ.isSkipped ? 'line-through' : ''}`}>
                     Termin {occ.occurrenceNumber}
                   </span>
                 )}

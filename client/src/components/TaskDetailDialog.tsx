@@ -1645,6 +1645,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           time: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : undefined,
                           responsiblePersons: memberNames,
                           notes: occ.notes,
+                          isSkipped: occ.isSkipped || false,
                           _index: index,
                           _hasSpecialFeatures: memberNames.length > 0 || (occ.notes && occ.notes.trim().length > 0)
                         };

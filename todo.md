@@ -2182,3 +2182,8 @@
 ## Bugfix: UpcomingOccurrencesTable Anzeige korrigieren
 - [x] Immer die ersten 3 Termine anzeigen (auch ohne Besonderheiten)
 - [x] Plus alle weiteren Termine mit Verantwortlichen oder Notizen anzeigen
+
+## Übersprungene Termine in Kommende Termine Tabelle kennzeichnen
+- [x] isSkipped Status zur UpcomingOccurrencesTable Interface hinzufügen
+- [x] isSkipped Status beim Mapping der Termine übergeben
+- [x] Visuelle Kennzeichnung (Durchstreichen + Ausgrauen) implementieren
