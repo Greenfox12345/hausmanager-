@@ -1951,3 +1951,10 @@
 - [x] Identify crash occurs when changing date via calendar picker in edit mode
 - [x] Fix root cause of recursion when changing date (useRef to track previous sharedHouseholds)
 - [x] Test fix thoroughly with date picker in edit mode - NO CRASHES!
+
+## Crash when editing tasks with date AND rotation (Feb 18, 2026 - CRITICAL)
+- [x] Analyze error stack trace (dispatchSetState recursion in RotationScheduleTable)
+- [x] Reproduce error with task that has both dueDate and enableRotation
+- [x] Identify useEffect dependencies causing infinite loop
+- [x] Fix root cause by using primitive dependencies instead of callback
+- [x] Test thoroughly - ALL SCENARIOS PASS WITHOUT CRASHES!

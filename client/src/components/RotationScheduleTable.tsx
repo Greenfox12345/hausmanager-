@@ -72,8 +72,8 @@ export function RotationScheduleTable({
 
   // Initialize schedule when component mounts OR when dueDate becomes available
   useEffect(() => {
-    // Only initialize if we haven't yet, OR if we have a dueDate and schedule is empty
-    if (isInitialized.current && schedule.length > 0) return;
+    // Only initialize if we haven't yet
+    if (isInitialized.current) return;
     
     // Don't initialize without a valid dueDate (can't calculate occurrence dates)
     if (!dueDate) return;
@@ -119,6 +119,7 @@ export function RotationScheduleTable({
   // Update dates when relevant props change (but don't trigger onChange)
   useEffect(() => {
     if (!isInitialized.current) return;
+    if (!dueDate) return;
     
     isUpdatingDates.current = true;
     setSchedule(prev =>
@@ -128,7 +129,7 @@ export function RotationScheduleTable({
       }))
     );
     isUpdatingDates.current = false;
-  }, [calculateOccurrenceDate]);
+  }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode]);
 
   // Notify parent when schedule changes (but not during date updates or initial mount)
   useEffect(() => {
