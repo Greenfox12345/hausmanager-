@@ -157,7 +157,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load rotation schedule
   const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
     { taskId: task?.id ?? 0 },
-    { enabled: !!task?.id && open && !!task?.enableRotation }
+    { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
   );
   
   // Load linked shopping items
@@ -1332,17 +1332,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 )}
 
                 {/* Kommende Termine */}
-                {(task.enableRepeat || task.repeatUnit) && rotationSchedule && rotationSchedule.length > 0 && (
+                {(task.enableRepeat || task.repeatUnit) && rotationScheduleData && rotationScheduleData.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Calendar className="h-4 w-4" />
                       Kommende Termine
                     </div>
                     <UpcomingOccurrencesTable
-                      occurrences={rotationSchedule.map((occ) => {
+                      occurrences={rotationScheduleData.map((occ: any) => {
                         const memberNames = occ.members
-                          .map(m => members.find(mem => mem.memberId === m.memberId)?.memberName || "Noch offen")
-                          .filter(name => name !== "Noch offen");
+                          .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName || "Noch offen")
+                          .filter((name: string) => name !== "Noch offen");
                         
                         return {
                           occurrenceNumber: occ.occurrenceNumber,
