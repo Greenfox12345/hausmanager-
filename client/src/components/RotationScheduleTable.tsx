@@ -16,7 +16,7 @@ interface RotationScheduleTableProps {
   availableMembers: Member[];
   currentAssignees: number[];
   repeatInterval: number;
-  repeatUnit: "days" | "weeks" | "months" | "irregular";
+  repeatUnit: "days" | "weeks" | "months";
   monthlyRecurrenceMode?: "same_date" | "same_weekday";
   dueDate?: Date | null;
   onChange: (schedule: ScheduleOccurrence[]) => void;
@@ -58,9 +58,6 @@ export function RotationScheduleTable({
   
   // Calculate date for an occurrence (memoized to prevent recalculation)
   const calculateOccurrenceDate = useCallback((occurrenceNumber: number): Date | undefined => {
-    // For irregular recurrence, don't calculate dates
-    if (repeatUnit === "irregular") return undefined;
-    
     if (!dueDate) return undefined;
     
     if (repeatUnit === "months") {
@@ -79,8 +76,7 @@ export function RotationScheduleTable({
     if (isInitialized.current) return;
     
     // Don't initialize without a valid dueDate (can't calculate occurrence dates)
-    // EXCEPT for irregular recurrence which doesn't need dates
-    if (!dueDate && repeatUnit !== "irregular") return;
+    if (!dueDate) return;
     
     if (initialSchedule && initialSchedule.length > 0) {
       // Use provided initial schedule
@@ -199,11 +195,7 @@ export function RotationScheduleTable({
       <div className="space-y-4">
         <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
           <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>
-            {repeatUnit === "irregular" 
-              ? "Die Rotationsplanung wird geladen..."
-              : "Setzen Sie ein Fälligkeitsdatum um die Rotationsplanung zu starten"}
-          </p>
+          <p>Setzen Sie ein Fälligkeitsdatum um die Rotationsplanung zu starten</p>
         </div>
       </div>
     );

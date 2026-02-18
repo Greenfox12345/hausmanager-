@@ -450,8 +450,7 @@ export async function createTask(data: {
   frequency?: "once" | "daily" | "weekly" | "monthly" | "custom";
   customFrequencyDays?: number;
   repeatInterval?: number;
-  repeatUnit?: "days" | "weeks" | "months" | "irregular";
-  irregularRecurrence?: boolean;
+  repeatUnit?: "days" | "weeks" | "months";
   monthlyRecurrenceMode?: "same_date" | "same_weekday";
   enableRotation?: boolean;
   requiredPersons?: number;

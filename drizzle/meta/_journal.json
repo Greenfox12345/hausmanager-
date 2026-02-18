@@ -169,13 +169,6 @@
       "when": 1771407648440,
       "tag": "0023_premium_sister_grimm",
       "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "5",
-      "when": 1771420003812,
-      "tag": "0024_cute_skin",
-      "breakpoints": true
     }
   ]
 }
