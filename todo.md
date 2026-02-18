@@ -1958,3 +1958,18 @@
 - [x] Identify useEffect dependencies causing infinite loop
 - [x] Fix root cause by using primitive dependencies instead of callback
 - [x] Test thoroughly - ALL SCENARIOS PASS WITHOUT CRASHES!
+
+## CRITICAL: Infinite Loop Crash when editing tasks with date + rotation (Feb 18, 2026)
+- [ ] Reproduce crash: Create task with date + rotation, then click Bearbeiten
+- [ ] Identify EXACT line causing setState during render (chunk-HILHV7CH.js = Radix UI)
+- [ ] Fix infinite loop at root cause (not just workarounds)
+- [ ] Implement rotation table for tasks WITHOUT dates (show "Termin 1", "Termin 2" instead of dates)
+- [ ] Test ALL scenarios: (1) Edit task with date+rotation (2) Create task, add date, enable rotation (3) Create task, enable rotation, add date (4) Create task with rotation but NO date
+- [ ] Verify NO crashes in ANY scenario before checkpoint
+
+## CRITICAL: Maximum update depth exceeded when selecting date via calendar picker (Feb 18, 2026)
+- [x] Reproduce crash: Task with rotation, no date, select date via calendar picker → CRASH
+- [x] Analyze stack trace: chunk-HILHV7CH.js (Radix UI), setRef recursion, Array.map loop
+- [x] Identify root cause: availableMembers creates new array every render
+- [x] Fix by using useMemo to stabilize availableMembers array reference
+- [x] Test all scenarios: NO CRASHES! ✅

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -184,6 +184,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
     setRotationSchedule(schedule);
   }, []);
+
+  // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
+  const availableMembers = useMemo(() => 
+    ownMembers.map(m => ({ memberId: m.id, memberName: m.memberName })),
+    [ownMembers]
+  );
 
   // Reset edit mode when dialog closes
   useEffect(() => {
@@ -1005,7 +1011,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             </p>
                             <RotationScheduleTable
                             requiredPersons={requiredPersons}
-                            availableMembers={ownMembers.map(m => ({ memberId: m.id, memberName: m.memberName }))}
+                            availableMembers={availableMembers}
                             currentAssignees={selectedAssignees}
                             repeatInterval={parseInt(repeatInterval) || 1}
                             repeatUnit={repeatUnit}
