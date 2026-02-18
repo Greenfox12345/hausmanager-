@@ -451,28 +451,6 @@ export function RotationScheduleTable({
                   <div className="flex gap-1 justify-center">
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleMoveOccurrence(occ.occurrenceNumber, 'up')}
-                      disabled={index === 0}
-                      title="Nach oben verschieben"
-                      className="h-7 w-7 p-0"
-                    >
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleMoveOccurrence(occ.occurrenceNumber, 'down')}
-                      disabled={index === schedule.length - 1}
-                      title="Nach unten verschieben"
-                      className="h-7 w-7 p-0"
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      type="button"
                       variant={occ.isSkipped ? "default" : "ghost"}
                       size="sm"
                       onClick={() => handleSkipOccurrence(occ.occurrenceNumber)}

@@ -211,10 +211,91 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     [dueDate]
   );
 
+  // Helper function to calculate date for an occurrence
+  const calculateOccurrenceDate = useCallback((occurrenceNumber: number): Date | undefined => {
+    if (!dueDateObject || repeatUnit === "irregular") return undefined;
+    
+    const baseDate = dueDateObject;
+    const interval = parseInt(repeatInterval) || 1;
+    const occNum = occurrenceNumber - 1; // 0-indexed for calculation
+    
+    let calculatedDate: Date | undefined = undefined;
+    
+    if (repeatUnit === "days") {
+      calculatedDate = new Date(baseDate);
+      calculatedDate.setDate(baseDate.getDate() + (interval * occNum));
+    } else if (repeatUnit === "weeks") {
+      calculatedDate = new Date(baseDate);
+      calculatedDate.setDate(baseDate.getDate() + (interval * 7 * occNum));
+    } else if (repeatUnit === "months") {
+      if (monthlyRecurrenceMode === "same_weekday") {
+        // First occurrence always uses the exact due date
+        if (occNum === 0) {
+          calculatedDate = new Date(baseDate);
+        } else {
+          // Calculate based on user-selected weekday occurrence (e.g., "3rd Monday")
+          const targetMonth = baseDate.getMonth() + (interval * occNum);
+          const targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+          const normalizedMonth = targetMonth % 12;
+          
+          // Use stored monthlyWeekday and monthlyOccurrence values
+          const weekday = monthlyWeekday ?? baseDate.getDay();
+          const occurrence = monthlyOccurrence ?? Math.ceil(baseDate.getDate() / 7);
+          
+          // Find the Nth occurrence of the weekday in target month
+          calculatedDate = new Date(targetYear, normalizedMonth, 1);
+          let count = 0;
+          
+          while (calculatedDate.getMonth() === normalizedMonth) {
+            if (calculatedDate.getDay() === weekday) {
+              count++;
+              if (count === occurrence) {
+                break;
+              }
+            }
+            calculatedDate.setDate(calculatedDate.getDate() + 1);
+          }
+          
+          // If we couldn't find the occurrence (e.g., 5th Monday doesn't exist), use last occurrence
+          if (calculatedDate.getMonth() !== normalizedMonth) {
+            calculatedDate.setDate(calculatedDate.getDate() - 7);
+          }
+        }
+      } else {
+        // Same date mode
+        calculatedDate = new Date(baseDate);
+        calculatedDate.setMonth(baseDate.getMonth() + (interval * occNum));
+      }
+    }
+    
+    return calculatedDate;
+  }, [dueDateObject, repeatUnit, repeatInterval, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
+
   // Memoize handleRotationScheduleChange to prevent function recreation on every render
   const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
-    setRotationSchedule(schedule);
-  }, []);
+    // Recalculate dates for all occurrences based on their current occurrence number
+    const withDates = schedule.map(occ => ({
+      ...occ,
+      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber)
+    }));
+    
+    // Sort by calculatedDate if available, then renumber sequentially
+    const sorted = [...withDates].sort((a, b) => {
+      if (!a.calculatedDate && !b.calculatedDate) return 0;
+      if (!a.calculatedDate) return 1;
+      if (!b.calculatedDate) return -1;
+      return new Date(a.calculatedDate).getTime() - new Date(b.calculatedDate).getTime();
+    });
+    
+    // Renumber sequentially starting from 1 and recalculate dates with new numbers
+    const renumbered = sorted.map((occ, index) => ({
+      ...occ,
+      occurrenceNumber: index + 1,
+      calculatedDate: calculateOccurrenceDate(index + 1)
+    }));
+    
+    setRotationSchedule(renumbered);
+  }, [calculateOccurrenceDate]);
 
   // Auto-fill monthlyWeekday and monthlyOccurrence from dueDate when switching to same_weekday mode
   useEffect(() => {
@@ -1082,44 +1163,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     </td>
                                     <td className="p-2">
                                       <div className="flex gap-1 justify-center items-start pt-2">
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => {
-                                            const currentIndex = rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber);
-                                            if (currentIndex > 0) {
-                                              const updated = [...rotationSchedule];
-                                              [updated[currentIndex - 1], updated[currentIndex]] = [updated[currentIndex], updated[currentIndex - 1]];
-                                              const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
-                                              handleRotationScheduleChange(renumbered);
-                                            }
-                                          }}
-                                          disabled={rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber) === 0}
-                                          title="Nach oben verschieben"
-                                          className="h-7 w-7 p-0"
-                                        >
-                                          <ArrowUp className="h-3.5 w-3.5" />
-                                        </Button>
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => {
-                                            const currentIndex = rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber);
-                                            if (currentIndex < rotationSchedule.length - 1) {
-                                              const updated = [...rotationSchedule];
-                                              [updated[currentIndex], updated[currentIndex + 1]] = [updated[currentIndex + 1], updated[currentIndex]];
-                                              const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
-                                              handleRotationScheduleChange(renumbered);
-                                            }
-                                          }}
-                                          disabled={rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber) === rotationSchedule.length - 1}
-                                          title="Nach unten verschieben"
-                                          className="h-7 w-7 p-0"
-                                        >
-                                          <ArrowDown className="h-3.5 w-3.5" />
-                                        </Button>
                                         <Button
                                           type="button"
                                           variant={occ.isSkipped ? "default" : "ghost"}

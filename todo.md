@@ -2170,3 +2170,11 @@
 - [x] Action-Buttons auch in "Termine Planen" Tabelle anzeigen
 
 - [x] Action-Buttons in "Termine Planen" Tabelle sichtbar machen (falls noch nicht vorhanden)
+
+## Bugfix: Termin-Logik korrigieren
+- [x] Hoch/Runter-Buttons aus RotationScheduleTable entfernen
+- [x] Hoch/Runter-Buttons aus Termine Planen Tabelle entfernen
+- [x] Automatische chronologische Sortierung nach Datum implementieren
+- [x] Konsistente Nummerierung nach jeder Änderung sicherstellen
+- [x] Duplikate und übersprungene Nummern verhindern
+- [x] Daten bei jeder Durchnummerierung neu berechnen (Vorbereitung für manuelle Datumsänderung)
