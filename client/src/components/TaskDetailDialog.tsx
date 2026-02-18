@@ -1416,9 +1416,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <strong>
                         {(() => {
                           const start = new Date(task.dueDate);
-                          const end = new Date(start);
-                          end.setDate(end.getDate() + (task.durationDays || 0));
-                          end.setMinutes(end.getMinutes() + (task.durationMinutes || 0));
+                          const daysInMs = (task.durationDays || 0) * 24 * 60 * 60 * 1000;
+                          const minutesInMs = (task.durationMinutes || 0) * 60 * 1000;
+                          const end = new Date(start.getTime() + daysInMs + minutesInMs);
                           return format(end, "PPP 'um' HH:mm 'Uhr'", { locale: de });
                         })()}
                       </strong>

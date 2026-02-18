@@ -2124,3 +2124,8 @@
 - [x] Terminende-Berechnung in View-Modus hinzufügen
 - [x] Anzeige unter "Fällig"-Datum platzieren
 - [x] Nur anzeigen wenn Dauer > 0
+
+## Zeitzonenfehler beheben
+- [x] Zeitzonenproblem bei Terminende-Berechnung identifizieren
+- [x] Sicherstellen dass alle Datums-/Zeitangaben in gleicher Zeitzone sind
+- [x] Konsistente Zeitzonenbehandlung in View- und Edit-Modus
