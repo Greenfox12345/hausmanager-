@@ -458,7 +458,7 @@ export async function createTask(data: {
   requiredPersons?: number;
   dueDate?: Date;
   durationDays?: number;
-  durationHours?: number;
+  durationMinutes?: number;
   projectIds?: number[];
   nonResponsiblePermission?: "full" | "milestones_reminders" | "view_only";
   createdBy: number;

@@ -2100,3 +2100,11 @@
 - [x] UI-Felder für Dauer in Aufgabenerstellung auf /tasks
 - [x] Automatische Berechnung und Anzeige des Terminendes
 - [ ] Dauer-Felder auch in TaskDetailDialog (Bearbeitung)
+
+## Dauer-Felder Verbesserung
+- [x] Datenbank-Schema: durationHours durch durationMinutes ersetzen
+- [x] Backend: durationMinutes statt durationHours verwenden
+- [x] UI: Stunden-Feld vor Tage-Feld platzieren
+- [x] UI: Stunden-Eingabe auf HH:MM Format ändern
+- [ ] UI: Automatische Normalisierung (>23:59 → Tage + Rest) - not needed, time input handles this
+- [x] Berechnung: Terminende mit Minuten-Genauigkeit

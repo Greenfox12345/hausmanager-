@@ -319,7 +319,7 @@ export const tasksRouter = router({
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
         durationDays: z.number().min(0).optional(),
-        durationHours: z.number().min(0).max(23).optional(),
+        durationMinutes: z.number().min(0).max(1439).optional(), // 0-1439 (max 23:59)
         projectIds: z.array(z.number()).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
         nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
@@ -353,7 +353,7 @@ export const tasksRouter = router({
         requiredPersons: input.requiredPersons,
         dueDate: dueDatetime,
         durationDays: input.durationDays,
-        durationHours: input.durationHours,
+        durationMinutes: input.durationMinutes,
         projectIds: input.projectIds || [],
         nonResponsiblePermission: input.nonResponsiblePermission,
         createdBy: input.memberId,
@@ -456,7 +456,7 @@ export const tasksRouter = router({
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
         durationDays: z.number().min(0).optional(),
-        durationHours: z.number().min(0).max(23).optional(),
+        durationMinutes: z.number().min(0).max(1439).optional(), // 0-1439 (max 23:59)
         projectIds: z.array(z.number()).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
         nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
