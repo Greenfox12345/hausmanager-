@@ -2011,3 +2011,7 @@
 - [x] Integrate viewers into task history
 - [x] Add keyboard navigation (ESC to close, arrows for next/prev)
 - [ ] Test viewer functionality in browser
+
+## PDF Viewer Enhancement (Feb 18, 2026)
+- [x] Make PDF viewer larger (default: large size with 85vh height)
+- [x] Add resize functionality with preset sizes (medium/large/fullscreen)

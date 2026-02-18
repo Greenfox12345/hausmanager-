@@ -1,6 +1,8 @@
-import { X, Download, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { X, Download, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PDFViewerProps {
   url: string;
@@ -9,7 +11,17 @@ interface PDFViewerProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type ViewerSize = "medium" | "large" | "fullscreen";
+
 export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps) {
+  const [size, setSize] = useState<ViewerSize>("large");
+  
+  const sizeClasses = {
+    medium: "max-w-4xl max-h-[70vh]",
+    large: "max-w-6xl max-h-[85vh]",
+    fullscreen: "max-w-[98vw] max-h-[98vh]"
+  };
+  
   const handleDownload = () => {
     window.open(url, "_blank");
   };
@@ -20,7 +32,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 flex flex-col">
+      <DialogContent className={`${sizeClasses[size]} p-0 flex flex-col`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex-1">
@@ -28,6 +40,16 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
             <p className="text-xs text-muted-foreground">PDF-Dokument</p>
           </div>
           <div className="flex items-center gap-2">
+            <Select value={size} onValueChange={(v) => setSize(v as ViewerSize)}>
+              <SelectTrigger className="w-32 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="medium">Mittel</SelectItem>
+                <SelectItem value="large">Groß</SelectItem>
+                <SelectItem value="fullscreen">Vollbild</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               variant="outline"
               size="sm"
