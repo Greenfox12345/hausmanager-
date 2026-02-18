@@ -2138,3 +2138,9 @@
 - [x] UTC/Lokale-Zeit-Problem bei Zeiteingabe analysieren
 - [x] Zeithandling so anpassen dass keine Verschiebungen auftreten
 - [x] Konsistente Zeitzonenbehandlung bei Speichern und Laden
+
+## Neue Zeitzonenprobleme beheben
+- [x] Untersuchen warum Zeit in Tabelle -1h angezeigt wird beim Bearbeiten
+- [x] Untersuchen warum Zeit beim Speichern um +5h verschoben wird
+- [x] Backend überprüfen: Wie wird dueDate/dueTime gespeichert?
+- [x] Konsistente UTC-Behandlung in allen Schritten sicherstellen

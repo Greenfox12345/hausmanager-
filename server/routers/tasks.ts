@@ -332,7 +332,8 @@ export const tasksRouter = router({
         if (input.dueTime) {
           const [year, month, day] = input.dueDate.split('-').map(Number);
           const [hours, minutes] = input.dueTime.split(':').map(Number);
-          dueDatetime = new Date(year, month - 1, day, hours, minutes);
+          // Create UTC date to avoid timezone shifts
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
           dueDatetime = new Date(input.dueDate);
         }
@@ -479,7 +480,8 @@ export const tasksRouter = router({
         if (dueTime) {
           const [year, month, day] = dueDate.split('-').map(Number);
           const [hours, minutes] = dueTime.split(':').map(Number);
-          dueDatetime = new Date(year, month - 1, day, hours, minutes);
+          // Create UTC date to avoid timezone shifts
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
           dueDatetime = new Date(dueDate);
         }
