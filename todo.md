@@ -2331,3 +2331,20 @@
 
 **Nächster Schritt:**
 - [ ] Skip-Funktionalität testen ob beide Tabellen synchronisiert bleiben
+
+
+## KRITISCHER BUG: Infinite Loop beim Aufgabendetails öffnen (19.02.2026) - BEHOBEN
+
+**Problem:**
+- [x] Beim Öffnen des Aufgabendetails-Dialogs crasht die App mit Infinite Loop
+- [x] Gleicher React Rendering-Fehler wie vorher
+- [x] refetch() im onSuccess Handler verursacht immer noch Loop
+
+**Root Cause:**
+- [x] refetch() triggert useEffect → setzt rotationSchedule → triggert Re-Render → Loop
+- [x] useEffect reagiert auf rotationScheduleData Änderungen
+
+**Lösung:**
+- [x] refetch() komplett aus onSuccess Handler entfernt
+- [x] Skip-Status wird nur in DB gespeichert, UI-Update erfolgt manuell
+- [x] App läuft wieder stabil
