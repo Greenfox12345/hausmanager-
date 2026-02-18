@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, SkipForward, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -1046,16 +1046,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <tr>
                                 <th className="p-2 text-left text-sm font-medium w-32">Datum</th>
                                 <th className="p-2 text-left text-sm font-medium">Notizen</th>
+                                <th className="p-2 text-center text-sm font-medium w-40">Aktionen</th>
                               </tr>
                             </thead>
                             <tbody>
                               {rotationSchedule.map((occ) => {
                                 const hasNotes = occ.notes && occ.notes.trim().length > 0;
                                 return (
-                                  <tr key={occ.occurrenceNumber} className="border-t">
+                                  <tr key={occ.occurrenceNumber} className={`border-t ${occ.isSkipped ? 'opacity-60' : ''}`}>
                                     <td className="p-2">
                                       <div className="flex flex-col gap-1">
-                                        <span className="text-sm font-medium">Termin {occ.occurrenceNumber}</span>
+                                        <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''}`}>Termin {occ.occurrenceNumber}</span>
                                         {occ.calculatedDate && (
                                           <span className="text-xs text-muted-foreground">
                                             {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
@@ -1078,6 +1079,80 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                         }}
                                         className="min-h-[60px] resize-none"
                                       />
+                                    </td>
+                                    <td className="p-2">
+                                      <div className="flex gap-1 justify-center items-start pt-2">
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const currentIndex = rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber);
+                                            if (currentIndex > 0) {
+                                              const updated = [...rotationSchedule];
+                                              [updated[currentIndex - 1], updated[currentIndex]] = [updated[currentIndex], updated[currentIndex - 1]];
+                                              const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
+                                              handleRotationScheduleChange(renumbered);
+                                            }
+                                          }}
+                                          disabled={rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber) === 0}
+                                          title="Nach oben verschieben"
+                                          className="h-7 w-7 p-0"
+                                        >
+                                          <ArrowUp className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const currentIndex = rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber);
+                                            if (currentIndex < rotationSchedule.length - 1) {
+                                              const updated = [...rotationSchedule];
+                                              [updated[currentIndex], updated[currentIndex + 1]] = [updated[currentIndex + 1], updated[currentIndex]];
+                                              const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
+                                              handleRotationScheduleChange(renumbered);
+                                            }
+                                          }}
+                                          disabled={rotationSchedule.findIndex(o => o.occurrenceNumber === occ.occurrenceNumber) === rotationSchedule.length - 1}
+                                          title="Nach unten verschieben"
+                                          className="h-7 w-7 p-0"
+                                        >
+                                          <ArrowDown className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant={occ.isSkipped ? "default" : "ghost"}
+                                          size="sm"
+                                          onClick={() => {
+                                            handleRotationScheduleChange(
+                                              rotationSchedule.map(o =>
+                                                o.occurrenceNumber === occ.occurrenceNumber
+                                                  ? { ...o, isSkipped: !o.isSkipped }
+                                                  : o
+                                              )
+                                            );
+                                          }}
+                                          title={occ.isSkipped ? "Überspringen rückgängig machen" : "Überspringen"}
+                                          className={`h-7 w-7 p-0 ${occ.isSkipped ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+                                        >
+                                          <SkipForward className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const updated = rotationSchedule.filter(o => o.occurrenceNumber !== occ.occurrenceNumber);
+                                            const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
+                                            handleRotationScheduleChange(renumbered);
+                                          }}
+                                          title="Löschen"
+                                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                        >
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </div>
                                     </td>
                                   </tr>
                                 );

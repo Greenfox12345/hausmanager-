@@ -2168,3 +2168,5 @@
   - [x] Skip-Status in Datenbank speichern
 - [x] Termine in der Liste nach oben/unten verschieben können
 - [x] Action-Buttons auch in "Termine Planen" Tabelle anzeigen
+
+- [x] Action-Buttons in "Termine Planen" Tabelle sichtbar machen (falls noch nicht vorhanden)
