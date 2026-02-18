@@ -1615,15 +1615,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       Kommende Termine
                     </div>
                     <UpcomingOccurrencesTable
-                      occurrences={rotationScheduleData
+                      occurrences={rotationSchedule
                         .map((occ: any, index: number) => {
                         const memberNames = occ.members
                           .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName)
                           .filter((name: string | undefined): name is string => name !== undefined && name !== null);
                         
-                        // Calculate date for this occurrence
-                        let calculatedDate: Date | undefined = undefined;
-                        if (task.dueDate && task.repeatUnit !== "irregular") {
+                        // Use calculatedDate from rotationSchedule if available, otherwise calculate
+                        let calculatedDate: Date | undefined = occ.calculatedDate ? new Date(occ.calculatedDate) : undefined;
+                        if (!calculatedDate && task.dueDate && task.repeatUnit !== "irregular") {
                           const baseDate = new Date(task.dueDate);
                           const interval = task.repeatInterval || 1;
                           const occNum = occ.occurrenceNumber - 1; // 0-indexed for calculation

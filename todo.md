@@ -2264,3 +2264,18 @@
 - "Termine Planen" (oben) wird jetzt sofort aktualisiert via lokaler State
 - "Kommende Termine" (unten) wird via Query-Refetch aktualisiert
 - Beide Tabellen bleiben synchron
+
+
+## Skip-Status Synchronisierung zwischen beiden Tabellen (19.02.2026) - IMPLEMENTIERT
+
+**Anforderung:**
+- [x] Wenn in "Termine Planen" (oben) Skip-Button geklickt wird
+- [x] Soll der gleiche Termin in "Kommende Termine" (unten) auch durchgestrichen sein
+- [x] Skip-Button-Status soll in beiden Tabellen synchronisiert sein
+
+**Lösung:**
+- [x] UpcomingOccurrencesTable verwendet jetzt rotationSchedule statt rotationScheduleData
+- [x] rotationSchedule wird optimistisch aktualisiert bei Skip-Button-Klick
+- [x] isSkipped Status wird aus rotationSchedule gelesen
+- [x] Beide Tabellen teilen sich den gleichen State und sind synchronisiert
+- [x] Visuelle Darstellung (Durchstreichung) funktioniert in beiden Tabellen
