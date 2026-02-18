@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, Download, ExternalLink, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface PDFViewerProps {
   url: string;
@@ -11,10 +11,7 @@ interface PDFViewerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ViewerSize = "medium" | "large" | "fullscreen";
-
 export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps) {
-  const [size, setSize] = useState<ViewerSize>("large");
   const [zoom, setZoom] = useState(100);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   
@@ -50,7 +47,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
         );
         
         const scale = currentDistance / initialDistance;
-        const newZoom = Math.round(Math.max(50, Math.min(200, initialZoom * scale)));
+        const newZoom = Math.max(5, Math.min(500, Math.round(initialZoom * scale)));
         setZoom(newZoom);
       }
     };
@@ -64,11 +61,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
     };
   }, [zoom]);
   
-  const sizeClasses = {
-    medium: "w-[80vw] max-w-5xl h-[70vh]",
-    large: "w-[90vw] max-w-7xl h-[85vh]",
-    fullscreen: "w-[98vw] h-[98vh]"
-  };
+
   
   const handleDownload = () => {
     window.open(url, "_blank");
@@ -80,7 +73,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${sizeClasses[size]} p-0 flex flex-col`}>
+      <DialogContent className="w-[95vw] max-w-7xl h-[90vh] p-0 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b space-y-3">
           {/* First Row: Title and Actions */}
@@ -90,16 +83,6 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
               <p className="text-xs text-muted-foreground">PDF-Dokument</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Select value={size} onValueChange={(v) => setSize(v as ViewerSize)}>
-              <SelectTrigger className="w-32 h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="medium">Mittel</SelectItem>
-                <SelectItem value="large">Groß</SelectItem>
-                <SelectItem value="fullscreen">Vollbild</SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               variant="outline"
               size="sm"
@@ -134,8 +117,12 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setZoom(Math.min(200, zoom + 25))}
-              disabled={zoom >= 200}
+              onClick={() => {
+                // Dynamic step: smaller steps for low zoom, larger for high zoom
+                const step = zoom < 100 ? 10 : zoom < 200 ? 25 : 50;
+                setZoom(Math.min(500, zoom + step));
+              }}
+              disabled={zoom >= 500}
             >
               <ZoomIn className="h-4 w-4" />
             </Button>
@@ -144,8 +131,12 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setZoom(Math.max(50, zoom - 25))}
-              disabled={zoom <= 50}
+              onClick={() => {
+                // Dynamic step: smaller steps for low zoom, larger for high zoom
+                const step = zoom <= 100 ? 10 : zoom <= 200 ? 25 : 50;
+                setZoom(Math.max(5, zoom - step));
+              }}
+              disabled={zoom <= 5}
             >
               <ZoomOut className="h-4 w-4" />
             </Button>

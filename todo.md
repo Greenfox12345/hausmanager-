@@ -2037,3 +2037,10 @@
 - [x] Add pinch-to-zoom gesture support with touch events
 - [x] Zoom controls now centered in dedicated row below main toolbar
 - [ ] Test zoom on mobile devices
+
+## PDF Viewer Simplification & Zoom Enhancement (Feb 18, 2026)
+- [x] Remove size dropdown (medium/large/fullscreen)
+- [x] Extend zoom range to 5% - 500%
+- [x] Improve pinch-zoom responsiveness (no rounding, smoother)
+- [x] Update zoom button steps for wider range (dynamic: 10/25/50 based on zoom level)
+- [x] Fixed dialog size to 95vw x 90vh for consistency
