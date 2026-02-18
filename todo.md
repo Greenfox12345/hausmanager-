@@ -1924,3 +1924,24 @@
 - [x] Fix notes visibility condition from enableRotation to enableRepeat && enableRotation
 - [x] Verify notes section appears between repeat settings and rotation toggle
 - [ ] Test rotation toggle and notes functionality
+
+## Deep Root Cause Analysis - Rotation Crash (2026-02-18)
+- [ ] Read complete TaskDetailDialog code to understand all state interactions
+- [ ] Read complete RotationScheduleTable code to understand all useEffect chains
+- [ ] Trace data flow: enableRotation toggle → rotationSchedule initialization → onChange callbacks
+- [ ] Identify all circular dependencies and state update conflicts
+- [ ] Find why notes section is not visible despite code being present
+- [ ] Implement comprehensive fix that eliminates root cause, not symptoms
+- [ ] Test with multiple scenarios (new task, existing task, toggle on/off)
+
+## Rotation Crash and Notes Visibility (Current Focus)
+- [x] Fix infinite loop crash when activating rotation toggle
+- [ ] Fix notes section not appearing when rotation is enabled
+- [ ] Transfer working solution from edit mode to create mode
+
+## Rotation Crash and Notes Visibility Issues (Feb 18, 2026)
+- [x] Fix infinite loop crash when enabling rotation toggle
+- [x] Fix notes section appearing in edit mode  
+- [x] Add create mode hint for rotation planning (available after task creation)
+- [x] Fix RotationScheduleTable initialization when dueDate is set after mount
+- [x] Add empty state placeholder for RotationScheduleTable when schedule is empty

@@ -938,7 +938,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <Switch
                         id="enableRotation"
                         checked={enableRotation}
-                        onCheckedChange={(checked) => setEnableRotation(checked)}
+                        onCheckedChange={(checked) => {
+                          setEnableRotation(checked);
+                          // Initialize empty schedule when rotation is first enabled
+                          if (checked && rotationSchedule.length === 0) {
+                            setRotationSchedule([]);
+                          }
+                        }}
                       />
                       <Label htmlFor="enableRotation" className="cursor-pointer flex items-center gap-2">
                         <Users className="h-4 w-4" />
@@ -987,13 +993,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           </div>
                         </div>
 
-                        {/* Rotation Schedule Table */}
-                        <div className="space-y-2 border-t pt-4 mt-4">
-                          <Label className="text-sm font-medium">Rotationsplan</Label>
-                          <p className="text-xs text-muted-foreground mb-3">
-                            Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
-                          </p>
-                          <RotationScheduleTable
+                        {/* Rotation Schedule Table - Only show in edit mode */}
+                        {task?.id ? (
+                          <div className="space-y-2 border-t pt-4 mt-4">
+                            <Label className="text-sm font-medium">Rotationsplan</Label>
+                            <p className="text-xs text-muted-foreground mb-3">
+                              Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
+                            </p>
+                            <RotationScheduleTable
                             requiredPersons={requiredPersons}
                             availableMembers={ownMembers.map(m => ({ memberId: m.id, memberName: m.memberName }))}
                             currentAssignees={selectedAssignees}
@@ -1006,6 +1013,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             excludedMemberIds={excludedMembers}
                           />
                         </div>
+                        ) : (
+                          <div className="space-y-2 border-t pt-4 mt-4">
+                            <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
+                              <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

@@ -70,9 +70,13 @@ export function RotationScheduleTable({
     }
   }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode]);
 
-  // Initialize schedule ONCE on mount
+  // Initialize schedule when component mounts OR when dueDate becomes available
   useEffect(() => {
-    if (isInitialized.current) return;
+    // Only initialize if we haven't yet, OR if we have a dueDate and schedule is empty
+    if (isInitialized.current && schedule.length > 0) return;
+    
+    // Don't initialize without a valid dueDate (can't calculate occurrence dates)
+    if (!dueDate) return;
     
     if (initialSchedule && initialSchedule.length > 0) {
       // Use provided initial schedule
@@ -81,6 +85,7 @@ export function RotationScheduleTable({
         calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
       }));
       setSchedule(withDates);
+      isInitialized.current = true;
     } else {
       // Create default 3 occurrences
       const defaultSchedule: ScheduleOccurrence[] = [];
@@ -107,10 +112,9 @@ export function RotationScheduleTable({
       }
       
       setSchedule(defaultSchedule);
+      isInitialized.current = true;
     }
-    
-    isInitialized.current = true;
-  }, []); // Empty deps - run once on mount
+  }, [dueDate, initialSchedule, requiredPersons, currentAssignees, repeatInterval, repeatUnit, monthlyRecurrenceMode]); // Re-run when dueDate is set
 
   // Update dates when relevant props change (but don't trigger onChange)
   useEffect(() => {
@@ -126,10 +130,13 @@ export function RotationScheduleTable({
     isUpdatingDates.current = false;
   }, [calculateOccurrenceDate]);
 
-  // Notify parent when schedule changes (but not during date updates)
+  // Notify parent when schedule changes (but not during date updates or initial mount)
   useEffect(() => {
     if (!isInitialized.current || isUpdatingDates.current) return;
-    onChangeRef.current(schedule);
+    // Only notify if schedule actually has content (prevent notification on initial empty state)
+    if (schedule.length > 0) {
+      onChangeRef.current(schedule);
+    }
   }, [schedule]);
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
@@ -180,6 +187,18 @@ export function RotationScheduleTable({
       return newSchedule;
     });
   };
+
+  // Show placeholder if schedule is empty
+  if (schedule.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
+          <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p>Setzen Sie ein Fälligkeitsdatum um die Rotationsplanung zu starten</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
