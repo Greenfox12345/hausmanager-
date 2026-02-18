@@ -1435,6 +1435,20 @@ export default function Tasks() {
         onOpenChange={setDetailDialogOpen}
         task={selectedTask}
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
+        taskList={filteredAndSortedTasks}
+        currentTaskIndex={selectedTask ? filteredAndSortedTasks.findIndex(t => t.id === selectedTask.id) : -1}
+        onNavigatePrevious={() => {
+          const currentIndex = selectedTask ? filteredAndSortedTasks.findIndex(t => t.id === selectedTask.id) : -1;
+          if (currentIndex > 0) {
+            setSelectedTask(filteredAndSortedTasks[currentIndex - 1]);
+          }
+        }}
+        onNavigateNext={() => {
+          const currentIndex = selectedTask ? filteredAndSortedTasks.findIndex(t => t.id === selectedTask.id) : -1;
+          if (currentIndex >= 0 && currentIndex < filteredAndSortedTasks.length - 1) {
+            setSelectedTask(filteredAndSortedTasks[currentIndex + 1]);
+          }
+        }}
         onTaskUpdated={(updatedTask) => {
           // Receive updated task directly from dialog
           setSelectedTask(updatedTask);

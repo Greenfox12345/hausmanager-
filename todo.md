@@ -2044,3 +2044,11 @@
 - [x] Improve pinch-zoom responsiveness (no rounding, smoother)
 - [x] Update zoom button steps for wider range (dynamic: 10/25/50 based on zoom level)
 - [x] Fixed dialog size to 95vw x 90vh for consistency
+
+## Task Detail Navigation (Feb 18, 2026)
+- [x] Add previous/next buttons to TaskDetailDialog header
+- [x] Pass task list and current task index from parent component
+- [x] Implement navigation logic to switch between tasks
+- [x] Disable buttons at list boundaries (first/last task)
+- [x] Show current position (X / Y) between navigation buttons
+- [x] Navigation respects current filter and sort settings

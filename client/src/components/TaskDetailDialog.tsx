@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -65,9 +65,13 @@ interface TaskDetailDialogProps {
   members: Member[];
   onTaskUpdated?: (updatedTask: Task) => void;
   onNavigateToTask?: (taskId: number) => void;
+  taskList?: Task[]; // Full list of tasks for navigation
+  currentTaskIndex?: number; // Current task index in the list
+  onNavigatePrevious?: () => void; // Navigate to previous task
+  onNavigateNext?: () => void; // Navigate to next task
 }
 
-export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask }: TaskDetailDialogProps) {
+export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask, taskList, currentTaskIndex, onNavigatePrevious, onNavigateNext }: TaskDetailDialogProps) {
   const [, setLocation] = useLocation();
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
@@ -567,7 +571,34 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>{isEditing ? "Aufgabe bearbeiten" : "Aufgabendetails"}</span>
+            <div className="flex items-center gap-2">
+              {taskList && taskList.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onNavigatePrevious}
+                    disabled={currentTaskIndex === 0}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xs text-muted-foreground px-2">
+                    {(currentTaskIndex ?? 0) + 1} / {taskList.length}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onNavigateNext}
+                    disabled={currentTaskIndex === (taskList.length - 1)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <span>{isEditing ? "Aufgabe bearbeiten" : "Aufgabendetails"}</span>
+            </div>
             {!isEditing && (
               <Button
                 variant="ghost"
