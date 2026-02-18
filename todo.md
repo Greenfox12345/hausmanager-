@@ -2149,3 +2149,13 @@
 - [x] Untersuchen warum Zeit beim Laden zum Bearbeiten -1h springt
 - [x] UTC-Extraktion beim Laden überprüfen
 - [x] Sicherstellen dass gespeicherte UTC-Zeit korrekt geladen wird
+
+## Kommende Termine immer anzeigen
+- [x] UpcomingOccurrencesTable: Termine auch ohne Verantwortliche anzeigen
+- [ ] Mindestens 3 kommende Termine immer laden und anzeigen (Backend-Änderung erforderlich)
+- [x] Filterung anpassen damit leere Verantwortliche nicht ausgeblendet werden
+
+## Kalender-Integration für Termine
+- [ ] Kalender-Ansicht implementieren
+- [ ] Termine im Kalender eintragen
+- [ ] Spezielle Notizen an Terminen hervorheben

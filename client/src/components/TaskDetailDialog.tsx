@@ -52,6 +52,8 @@ interface Task {
   sharedHouseholdNames?: string | null;
   isSharedWithUs?: boolean | null;
   nonResponsiblePermission?: "full" | "milestones_reminders" | "view_only" | null;
+  durationDays?: number | null;
+  durationMinutes?: number | null;
 }
 
 interface Member {
@@ -1460,8 +1462,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <UpcomingOccurrencesTable
                       occurrences={rotationScheduleData.map((occ: any) => {
                         const memberNames = occ.members
-                          .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName || "Noch offen")
-                          .filter((name: string) => name !== "Noch offen");
+                          .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName)
+                          .filter((name: string | undefined): name is string => name !== undefined && name !== null);
                         
                         // Calculate date for this occurrence
                         let calculatedDate: Date | undefined = undefined;
