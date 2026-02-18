@@ -181,15 +181,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
-  const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
-    setRotationSchedule(schedule);
-  }, []);
-
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
   const availableMembers = useMemo(() => 
     ownMembers.map(m => ({ memberId: m.id, memberName: m.memberName })),
     [ownMembers]
   );
+
+  // Memoize dueDateObject to prevent new Date() on every render
+  const dueDateObject = useMemo(() => 
+    dueDate ? new Date(dueDate) : null,
+    [dueDate]
+  );
+
+  // Memoize handleRotationScheduleChange to prevent function recreation on every render
+  const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
+    setRotationSchedule(schedule);
+  }, []);
 
   // Reset edit mode when dialog closes
   useEffect(() => {
@@ -1016,7 +1023,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             repeatInterval={parseInt(repeatInterval) || 1}
                             repeatUnit={repeatUnit}
                             monthlyRecurrenceMode={monthlyRecurrenceMode}
-                            dueDate={dueDate ? new Date(dueDate) : null}
+                            dueDate={dueDateObject}
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}

@@ -1973,3 +1973,9 @@
 - [x] Identify root cause: availableMembers creates new array every render
 - [x] Fix by using useMemo to stabilize availableMembers array reference
 - [x] Test all scenarios: NO CRASHES! ✅
+
+## URGENT: Crash still occurs in Haushalt Provat (Feb 18, 2026)
+- [x] Analyze why useMemo fix didn't work for Provat household
+- [x] Identified ALL unstable references: dueDateObject (new Date()), handleRotationScheduleChange
+- [x] Fix ALL unstable references with useMemo/useCallback
+- [x] Test specifically with Provat household data - NO CRASHES! ✅
