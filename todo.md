@@ -2489,3 +2489,22 @@
 - [x] Sondertermine bekommen hohe Numbers ab 1000 (1000, 1001, 1002...)
 - [x] Keine Konflikte zwischen regulären und Sonderterminen
 - [x] Backend kann beide Typen korrekt speichern und laden
+
+
+## Problem: Sondertermine verlieren ihr eigenes Datum (19.02.2026) - BEHOBEN
+
+**Problem:**
+- [x] Sondertermine ignorierten das eingegebene Datum
+- [x] Sie wurden in die reguläre Terminreihe eingefügt
+- [x] Ihr calculatedDate wurde überschrieben
+
+**Root Cause:**
+- [x] useEffect der Daten aktualisiert rief calculateOccurrenceDate für ALLE Termine auf
+- [x] useEffect der initialSchedule synchronisiert überschrieb auch Sondertermin-Daten
+- [x] Keine Unterscheidung zwischen regulären und Sonderterminen
+
+**Lösung:**
+- [x] Beide useEffects prüfen jetzt isSpecial Flag
+- [x] Sondertermine behalten ihr calculatedDate (aus specialDate)
+- [x] Nur reguläre Termine werden neu berechnet
+- [x] Chronologische Sortierung funktioniert korrekt

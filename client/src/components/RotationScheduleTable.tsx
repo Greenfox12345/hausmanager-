@@ -159,10 +159,17 @@ export function RotationScheduleTable({
     isSyncingWithInitialSchedule.current = true;
     
     // Sync with initialSchedule: update length, isSkipped, and other properties
-    const withDates = initialSchedule.map(occ => ({
-      ...occ,
-      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-    }));
+    // Special occurrences keep their own date, only recalculate regular ones
+    const withDates = initialSchedule.map(occ => {
+      if (occ.isSpecial) {
+        // Special occurrences already have their calculatedDate from DB
+        return occ;
+      }
+      return {
+        ...occ,
+        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+      };
+    });
     setSchedule(withDates);
     
     // Reset flag after sync
@@ -178,10 +185,16 @@ export function RotationScheduleTable({
     
     isUpdatingDates.current = true;
     setSchedule(prev =>
-      prev.map(occ => ({
-        ...occ,
-        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-      }))
+      prev.map(occ => {
+        // Special occurrences keep their own date, only recalculate regular ones
+        if (occ.isSpecial) {
+          return occ;
+        }
+        return {
+          ...occ,
+          calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+        };
+      })
     );
     isUpdatingDates.current = false;
   }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
