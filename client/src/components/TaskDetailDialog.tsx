@@ -590,6 +590,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               .slice(0, requiredPersons || occ.members.length),
             notes: occ.notes,
             isSkipped: occ.isSkipped, // Preserve skip status
+            isSpecial: occ.isSpecial, // Preserve special occurrence flag
+            specialName: occ.specialName, // Preserve special occurrence name
+            calculatedDate: occ.calculatedDate, // Preserve calculated/special date
           })),
         });
       }
@@ -1693,8 +1696,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           responsiblePersons: memberNames,
                           notes: occ.notes,
                           isSkipped: occ.isSkipped || false,
+                          isSpecial: occ.isSpecial || false,
+                          specialName: occ.specialName,
                           _index: index,
-                          _hasSpecialFeatures: memberNames.length > 0 || (occ.notes && occ.notes.trim().length > 0)
+                          _hasSpecialFeatures: memberNames.length > 0 || (occ.notes && occ.notes.trim().length > 0) || occ.isSpecial
                         };
                       })
                       .filter((occ: any) => {

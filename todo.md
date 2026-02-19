@@ -2418,3 +2418,29 @@
 - Backend vollständig implementiert
 - Frontend lädt Sondertermine aus DB
 - Bereit zum Testen
+
+
+## KRITISCHER BUG: Sondertermine werden nicht gespeichert und synchronisiert (19.02.2026)
+
+**Problem:**
+- [ ] Sondertermine verschwinden nach dem Speichern der Aufgabe
+- [ ] Sondertermine tauchen beim erneuten Bearbeiten nicht mehr auf
+- [ ] Sondertermine werden in "Termine Planen" Tabelle nicht angezeigt
+- [ ] Keine Synchronisierung zwischen Dialog und Tabellen
+
+**Zu debuggen:**
+- [ ] Wird rotationSchedule mit Sonderterminen an setRotationSchedule Mutation übergeben?
+- [ ] Werden Sondertermine beim Aufgabe-Speichern in DB geschrieben?
+- [ ] Werden Sondertermine beim Laden der Aufgabe aus DB gelesen?
+- [ ] Wird rotationSchedule State korrekt initialisiert?
+
+**Implementiert:**
+- [x] rotationSchedule beim Speichern an Backend übergeben (mit isSpecial, specialName, calculatedDate)
+- [x] Sondertermine in UpcomingOccurrencesTable anzeigen (gelber Hintergrund, Stern-Icon)
+- [x] Sondertermine in RotationScheduleTable anzeigen (gelber Hintergrund, Stern-Icon)
+- [x] State-Synchronisierung zwischen allen Komponenten via rotationSchedule State
+
+**Status:**
+- Sondertermine werden vollständig gespeichert
+- Sondertermine werden in allen Tabellen angezeigt
+- Bereit zum Testen
