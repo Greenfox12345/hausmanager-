@@ -26,6 +26,7 @@ interface RotationScheduleTableProps {
   onChange: (schedule: ScheduleOccurrence[]) => void;
   initialSchedule?: ScheduleOccurrence[];
   excludedMemberIds?: number[];
+  onSkipOccurrence?: (occurrenceNumber: number, isSkipped: boolean) => Promise<void>;
 }
 
 export interface ScheduleOccurrence {
@@ -50,6 +51,7 @@ export function RotationScheduleTable({
   onChange,
   initialSchedule,
   excludedMemberIds = [],
+  onSkipOccurrence,
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const isInitialized = useRef(false);
@@ -137,20 +139,18 @@ export function RotationScheduleTable({
     }
   }, [dueDate, initialSchedule, requiredPersons, currentAssignees, repeatInterval, repeatUnit, monthlyRecurrenceMode]); // Re-run when dueDate is set
 
-  // Sync schedule with initialSchedule changes (e.g., when parent adds new occurrence)
+  // Sync schedule with initialSchedule changes (e.g., when parent adds new occurrence or updates skip status)
   useEffect(() => {
     if (!isInitialized.current) return;
     if (!initialSchedule) return;
     
-    // Check if initialSchedule has more occurrences than current schedule
-    if (initialSchedule.length > schedule.length) {
-      const withDates = initialSchedule.map(occ => ({
-        ...occ,
-        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-      }));
-      setSchedule(withDates);
-    }
-  }, [initialSchedule, schedule.length, calculateOccurrenceDate]);
+    // Sync with initialSchedule: update length, isSkipped, and other properties
+    const withDates = initialSchedule.map(occ => ({
+      ...occ,
+      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+    }));
+    setSchedule(withDates);
+  }, [initialSchedule, calculateOccurrenceDate]);
 
   // Update dates when relevant props change (but don't trigger onChange)
   useEffect(() => {
@@ -190,23 +190,22 @@ export function RotationScheduleTable({
     });
   };
 
-  const skipMutation = trpc.tasks.skipRotationOccurrence.useMutation();
-
   const handleSkipOccurrence = async (occurrenceNumber: number) => {
-    // If taskId is provided, save to DB immediately
-    if (taskId) {
+    // Find current skip status to toggle it
+    const currentOcc = schedule.find(occ => occ.occurrenceNumber === occurrenceNumber);
+    const newSkipStatus = !currentOcc?.isSkipped;
+    
+    // If onSkipOccurrence callback is provided, use it (for saved tasks)
+    if (onSkipOccurrence) {
       try {
-        await skipMutation.mutateAsync({
-          taskId,
-          occurrenceNumber,
-        });
+        await onSkipOccurrence(occurrenceNumber, newSkipStatus);
         // Update local state to reflect the change
         setSchedule(prev => {
           const updated = prev.map(occ => {
             if (occ.occurrenceNumber !== occurrenceNumber) return occ;
             return {
               ...occ,
-              isSkipped: !occ.isSkipped,
+              isSkipped: newSkipStatus,
             };
           });
           onChangeRef.current(updated);
@@ -216,13 +215,13 @@ export function RotationScheduleTable({
         console.error('Failed to skip occurrence:', error);
       }
     } else {
-      // No taskId: just update local state (for task creation)
+      // No callback: just update local state (for task creation)
       setSchedule(prev => {
         const updated = prev.map(occ => {
           if (occ.occurrenceNumber !== occurrenceNumber) return occ;
           return {
             ...occ,
-            isSkipped: !occ.isSkipped,
+            isSkipped: newSkipStatus,
           };
         });
         onChangeRef.current(updated);

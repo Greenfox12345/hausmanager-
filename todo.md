@@ -2279,3 +2279,35 @@
 - [x] isSkipped Status wird aus rotationSchedule gelesen
 - [x] Beide Tabellen teilen sich den gleichen State und sind synchronisiert
 - [x] Visuelle Darstellung (Durchstreichung) funktioniert in beiden Tabellen
+
+
+## Skip-Button Toggle funktioniert nicht korrekt (19.02.2026)
+
+**User-Feedback:**
+- [ ] "all das hat nichts mit dem problem zu tun, dass der termin unten nicht richtig getoggelt wird"
+
+**Problem:**
+- [ ] Wenn Skip-Button in "Termine Planen" (RotationScheduleTable oben) geklickt wird
+- [ ] Wird der gleiche Termin in "Kommende Termine" (UpcomingOccurrencesTable unten) NICHT korrekt durchgestrichen/getoggelt
+- [ ] Synchronisierung zwischen beiden Tabellen funktioniert nicht wie erwartet
+
+**Root Cause gefunden:**
+- [x] RotationScheduleTable hat seine eigene skipMutation Instanz
+- [x] TaskDetailDialog hat auch eine skipRotationOccurrenceMutation Instanz
+- [x] Der onSuccess Handler in TaskDetailDialog wird NUR für TaskDetailDialog's Mutation ausgeführt
+- [x] Wenn Skip-Button in RotationScheduleTable geklickt wird, wird RotationScheduleTable's Mutation verwendet
+- [x] Deshalb wird der optimistische Update in TaskDetailDialog nie ausgeführt
+
+**Lösung:**
+- [x] RotationScheduleTable verwendet jetzt onSkipOccurrence Callback
+- [x] TaskDetailDialog ruft seine skipRotationOccurrenceMutation auf
+- [x] onSuccess Handler wird korrekt ausgeführt
+- [x] "Kommende Termine" wird durchgestrichen ✓
+- [ ] "Rotationsplan" wird NICHT durchgestrichen ✗
+
+**Neues Problem - BEHOBEN:**
+- [x] RotationScheduleTable hat eigenen lokalen State
+- [x] Optimistischer Update in TaskDetailDialog aktualisiert rotationSchedule
+- [x] RotationScheduleTable synchronisiert jetzt mit initialSchedule
+- [x] useEffect aktualisiert schedule bei initialSchedule Änderungen
+- [x] Beide Tabellen werden jetzt korrekt durchgestrichen

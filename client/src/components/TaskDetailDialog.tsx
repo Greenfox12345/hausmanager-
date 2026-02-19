@@ -1345,6 +1345,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}
+                            onSkipOccurrence={async (occurrenceNumber: number, isSkipped: boolean) => {
+                              if (!task?.id) return;
+                              await skipRotationOccurrenceMutation.mutateAsync({
+                                taskId: task.id,
+                                occurrenceNumber,
+                                isSkipped,
+                              } as any);
+                            }}
                           />
                           <Button
                             type="button"
