@@ -2,7 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Edit2 } from "lucide-react";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
@@ -54,6 +56,7 @@ export function RotationScheduleTable({
   onSkipOccurrence,
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
+  const [editingOccurrenceNumber, setEditingOccurrenceNumber] = useState<number | null>(null);
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
   const isSyncingWithInitialSchedule = useRef(false);
@@ -237,6 +240,35 @@ export function RotationScheduleTable({
         return updated;
       });
     }
+  };
+
+  const handleDateChange = (occurrenceNumber: number, newDate: Date) => {
+    setSchedule(prev => {
+      // Update the date for the specific occurrence
+      const updated = prev.map(occ => 
+        occ.occurrenceNumber === occurrenceNumber
+          ? { ...occ, calculatedDate: newDate }
+          : occ
+      );
+      
+      // Sort by date (chronologically)
+      const sorted = updated.sort((a, b) => {
+        if (!a.calculatedDate || !b.calculatedDate) return 0;
+        return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+      });
+      
+      // Renumber occurrences after sorting
+      const renumbered = sorted.map((occ, index) => ({
+        ...occ,
+        occurrenceNumber: index + 1,
+      }));
+      
+      onChangeRef.current(renumbered);
+      return renumbered;
+    });
+    
+    // Close the date picker
+    setEditingOccurrenceNumber(null);
   };
 
   const handleMoveOccurrence = (occurrenceNumber: number, direction: 'up' | 'down') => {
@@ -425,9 +457,26 @@ export function RotationScheduleTable({
                   <div className="flex flex-col gap-1">
                     <span className={occ.isSkipped ? 'line-through' : ''}>Termin {occ.occurrenceNumber}</span>
                     {occ.calculatedDate && (
-                      <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                        {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
-                      </span>
+                      <Popover open={editingOccurrenceNumber === occ.occurrenceNumber} onOpenChange={(open) => setEditingOccurrenceNumber(open ? occ.occurrenceNumber : null)}>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className={`text-xs font-normal text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 justify-center ${occ.isSkipped ? 'line-through' : ''}`}
+                          >
+                            {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
+                            <Edit2 className="h-3 w-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="center">
+                          <CalendarComponent
+                            mode="single"
+                            selected={occ.calculatedDate}
+                            onSelect={(date) => date && handleDateChange(occ.occurrenceNumber, date)}
+                            locale={de}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </th>

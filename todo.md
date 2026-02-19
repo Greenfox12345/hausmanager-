@@ -2329,3 +2329,25 @@
 - [x] onChange wird nicht aufgerufen während initialSchedule-Sync
 - [x] Flag wird nach Sync zurückgesetzt
 - [x] App läuft wieder stabil
+
+
+## Inline-Datumsbearbeitung für Rotationsplan (19.02.2026) - IMPLEMENTIERT
+
+**Anforderung:**
+- [x] Termine-Daten direkt in der Tabelle bearbeiten können
+- [x] Automatische chronologische Neusortierung nach Datumsänderung
+- [x] Visuelle Rückmeldung bei erfolgreicher Änderung
+
+**Design:**
+- [x] Datum in Spaltenüberschrift klickbar gemacht
+- [x] Popover mit Calendar-Component öffnet bei Klick
+- [x] Edit2 Icon zeigt Bearbeitbarkeit an
+- [x] Nach Änderung: Termin wird an richtige Position verschoben
+- [x] Occurrence Numbers werden automatisch neu vergeben
+
+**Implementierung:**
+- [x] handleDateChange Funktion in RotationScheduleTable
+- [x] Sortierung nach calculatedDate (chronologisch)
+- [x] Occurrence Numbers neu nummeriert (1, 2, 3, ...)
+- [x] onChange wird aufgerufen um Parent zu aktualisieren
+- [x] Popover schließt automatisch nach Auswahl
