@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE task_rotation_occurrence_notes \nADD COLUMN isSpecial BOOLEAN NOT NULL DEFAULT FALSE AFTER isSkipped,\nADD COLUMN specialName VARCHAR(255) AFTER isSpecial,\nADD COLUMN specialDate TIMESTAMP AFTER specialName;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE task_rotation_occurrence_notes \nADD COLUMN isSpecial BOOLEAN NOT NULL DEFAULT FALSE AFTER isSkipped,\nADD COLUMN specialName VARCHAR(255) AFTER isSpecial,\nADD COLUMN specialDate TIMESTAMP AFTER specialName;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'isspecial' in 'task_rotation_occurrence_notes'"
+  ]
+}

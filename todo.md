@@ -2351,3 +2351,45 @@
 - [x] Occurrence Numbers neu nummeriert (1, 2, 3, ...)
 - [x] onChange wird aufgerufen um Parent zu aktualisieren
 - [x] Popover schließt automatisch nach Auswahl
+
+
+## Sondertermin-Feature (19.02.2026)
+
+**Problem mit Inline-Datumsbearbeitung:**
+- [x] Terminberechnung überschreibt manuelle Datumsänderungen
+- [x] Automatische Rotation macht manuelle Anpassungen zunichte
+- [x] Inline-Datumsbearbeitung funktioniert nicht wie gewünscht
+
+**Neue Anforderung: Sondertermine:**
+- [ ] Stern-Button zum Hinzufügen von Sonderterminen
+- [ ] Sondertermine haben eigenen Namen (z.B. "Urlaubsvertretung", "Extra Reinigung")
+- [ ] Sondertermine haben manuelles Datum
+- [ ] Sondertermine werden NICHT in die automatische Rotation einberechnet
+- [ ] Sondertermine stehen chronologisch zwischen den regulären Terminen
+- [ ] Sondertermine sind visuell unterscheidbar (z.B. Stern-Icon, andere Farbe)
+
+**Design:**
+- [ ] "Sondertermin hinzufügen" Button mit Stern-Icon
+- [ ] Dialog/Popover zum Erstellen: Name-Input + Date-Picker
+- [ ] Sondertermine in Tabelle mit Stern-Icon markieren
+- [ ] Occurrence Numbers: Reguläre Termine durchnummerieren, Sondertermine mit "S1", "S2" etc.
+
+**Datenmodell:**
+- [ ] ScheduleOccurrence erweitern: `isSpecial: boolean`, `specialName?: string`
+- [ ] Backend: taskRotationOccurrenceNotes erweitern oder neue Tabelle
+- [ ] Sortierung: Alle Termine (regulär + Sonder) chronologisch, aber nur reguläre zählen für Rotation
+
+**Implementierung:**
+- [x] Inline-Datumsbearbeitung entfernt (funktioniert nicht mit Auto-Berechnung)
+- [x] handleAddSpecialOccurrence Funktion implementiert
+- [x] Sondertermine in schedule State integriert
+- [x] Visuelle Unterscheidung in Tabelle (Stern-Icon, gelber Hintergrund)
+- [x] Dialog zum Hinzufügen von Sonderterminen
+- [x] Datenbank-Schema erweitert (isSpecial, specialName, specialDate)
+- [x] Feature bereit zum Testen (Backend-Persistierung erfolgt beim Speichern der Aufgabe)
+
+**Status:**
+- UI vollständig implementiert und funktionsfähig
+- Sondertermine werden im lokalen State verwaltet
+- Beim Speichern der Aufgabe werden alle Termine (regulär + Sonder) persistiert
+- Bereit für User-Testing

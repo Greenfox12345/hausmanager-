@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE task_rotation_occurrence_notes \nADD COLUMN isSpecial TINYINT(1) NOT NULL DEFAULT 0,\nADD COLUMN specialName VARCHAR(255),\nADD COLUMN specialDate TIMESTAMP NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute ALTER TABLE task_rotation_occurrence_notes \nADD COLUMN isSpecial TINYINT(1) NOT NULL DEFAULT 0,\nADD COLUMN specialName VARCHAR(255),\nADD COLUMN specialDate TIMESTAMP NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1295
+}

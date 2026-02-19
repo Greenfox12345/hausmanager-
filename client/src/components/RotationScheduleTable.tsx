@@ -3,8 +3,11 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Edit2 } from "lucide-react";
+import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Star } from "lucide-react";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
@@ -37,6 +40,8 @@ export interface ScheduleOccurrence {
   notes?: string;
   calculatedDate?: Date;
   isSkipped?: boolean;
+  isSpecial?: boolean; // True for special occurrences (not counted in rotation)
+  specialName?: string; // Custom name for special occurrences
 }
 
 export function RotationScheduleTable({
@@ -56,7 +61,9 @@ export function RotationScheduleTable({
   onSkipOccurrence,
 }: RotationScheduleTableProps) {
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
-  const [editingOccurrenceNumber, setEditingOccurrenceNumber] = useState<number | null>(null);
+  const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
+  const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
+  const [specialOccurrenceDate, setSpecialOccurrenceDate] = useState<Date | undefined>(undefined);
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
   const isSyncingWithInitialSchedule = useRef(false);
@@ -242,33 +249,47 @@ export function RotationScheduleTable({
     }
   };
 
-  const handleDateChange = (occurrenceNumber: number, newDate: Date) => {
+  const handleAddSpecialOccurrence = () => {
+    if (!specialOccurrenceName || !specialOccurrenceDate) return;
+    
     setSchedule(prev => {
-      // Update the date for the specific occurrence
-      const updated = prev.map(occ => 
-        occ.occurrenceNumber === occurrenceNumber
-          ? { ...occ, calculatedDate: newDate }
-          : occ
-      );
+      // Create the special occurrence
+      const specialOcc: ScheduleOccurrence = {
+        occurrenceNumber: -1, // Temporary, will be renumbered
+        members: Array.from({ length: requiredPersons }, (_, i) => ({
+          position: i + 1,
+          memberId: 0, // Unassigned
+        })),
+        calculatedDate: specialOccurrenceDate,
+        isSpecial: true,
+        specialName: specialOccurrenceName,
+      };
+      
+      // Add to schedule
+      const withSpecial = [...prev, specialOcc];
       
       // Sort by date (chronologically)
-      const sorted = updated.sort((a, b) => {
+      const sorted = withSpecial.sort((a, b) => {
         if (!a.calculatedDate || !b.calculatedDate) return 0;
         return a.calculatedDate.getTime() - b.calculatedDate.getTime();
       });
       
-      // Renumber occurrences after sorting
-      const renumbered = sorted.map((occ, index) => ({
+      // Renumber: Regular occurrences get 1,2,3... Special occurrences get negative numbers
+      let regularCount = 1;
+      let specialCount = 1;
+      const renumbered = sorted.map(occ => ({
         ...occ,
-        occurrenceNumber: index + 1,
+        occurrenceNumber: occ.isSpecial ? -specialCount++ : regularCount++,
       }));
       
       onChangeRef.current(renumbered);
       return renumbered;
     });
     
-    // Close the date picker
-    setEditingOccurrenceNumber(null);
+    // Reset dialog
+    setIsAddingSpecialOccurrence(false);
+    setSpecialOccurrenceName("");
+    setSpecialOccurrenceDate(undefined);
   };
 
   const handleMoveOccurrence = (occurrenceNumber: number, direction: 'up' | 'down') => {
@@ -435,16 +456,28 @@ export function RotationScheduleTable({
           <Calendar className="h-4 w-4" />
           <span>Planen Sie die Rotation für kommende Termine</span>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleAutoFill}
-          className="gap-2"
-        >
-          <Wand2 className="h-4 w-4" />
-          Offene belegen
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAddingSpecialOccurrence(true)}
+            className="gap-2"
+          >
+            <Star className="h-4 w-4" />
+            Sondertermin
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAutoFill}
+            className="gap-2"
+          >
+            <Wand2 className="h-4 w-4" />
+            Offene belegen
+          </Button>
+        </div>
       </div>
 
       {/* Table - Horizontal Layout (Columns = Occurrences, Rows = Persons) */}
@@ -453,30 +486,18 @@ export function RotationScheduleTable({
           <thead className="bg-muted">
             <tr>
               {schedule.map((occ) => (
-                <th key={occ.occurrenceNumber} className={`p-2 text-center text-sm font-medium ${occ.isSkipped ? 'opacity-50' : ''}`}>
+                <th key={occ.occurrenceNumber} className={`p-2 text-center text-sm font-medium ${occ.isSkipped ? 'opacity-50' : ''} ${occ.isSpecial ? 'bg-yellow-50 dark:bg-yellow-950' : ''}`}>
                   <div className="flex flex-col gap-1">
-                    <span className={occ.isSkipped ? 'line-through' : ''}>Termin {occ.occurrenceNumber}</span>
+                    <div className="flex items-center justify-center gap-1">
+                      {occ.isSpecial && <Star className="h-3 w-3 text-yellow-600 fill-yellow-600" />}
+                      <span className={occ.isSkipped ? 'line-through' : ''}>
+                        {occ.isSpecial ? occ.specialName : `Termin ${occ.occurrenceNumber}`}
+                      </span>
+                    </div>
                     {occ.calculatedDate && (
-                      <Popover open={editingOccurrenceNumber === occ.occurrenceNumber} onOpenChange={(open) => setEditingOccurrenceNumber(open ? occ.occurrenceNumber : null)}>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className={`text-xs font-normal text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 justify-center ${occ.isSkipped ? 'line-through' : ''}`}
-                          >
-                            {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
-                            <Edit2 className="h-3 w-3" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="center">
-                          <CalendarComponent
-                            mode="single"
-                            selected={occ.calculatedDate}
-                            onSelect={(date) => date && handleDateChange(occ.occurrenceNumber, date)}
-                            locale={de}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
+                        {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -562,6 +583,61 @@ export function RotationScheduleTable({
           </tbody>
         </table>
       </div>
+
+      {/* Special Occurrence Dialog */}
+      <Dialog open={isAddingSpecialOccurrence} onOpenChange={setIsAddingSpecialOccurrence}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-600" />
+              Sondertermin hinzufügen
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="special-name">Name des Sondertermins</Label>
+              <Input
+                id="special-name"
+                placeholder="z.B. Urlaubsvertretung, Extra Reinigung"
+                value={specialOccurrenceName}
+                onChange={(e) => setSpecialOccurrenceName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Datum</Label>
+              <CalendarComponent
+                mode="single"
+                selected={specialOccurrenceDate}
+                onSelect={setSpecialOccurrenceDate}
+                locale={de}
+                className="rounded-md border"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsAddingSpecialOccurrence(false);
+                setSpecialOccurrenceName("");
+                setSpecialOccurrenceDate(undefined);
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddSpecialOccurrence}
+              disabled={!specialOccurrenceName || !specialOccurrenceDate}
+              className="gap-2"
+            >
+              <Star className="h-4 w-4" />
+              Hinzufügen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

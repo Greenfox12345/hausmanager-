@@ -202,9 +202,12 @@ export type InsertTaskRotationSchedule = typeof taskRotationSchedule.$inferInser
 export const taskRotationOccurrenceNotes = mysqlTable("task_rotation_occurrence_notes", {
   id: int("id").autoincrement().primaryKey(),
   taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
-  occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc.
+  occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc. (negative for special occurrences)
   notes: text("notes"),
   isSkipped: boolean("isSkipped").default(false).notNull(), // Toggle for skipped status
+  isSpecial: boolean("isSpecial").default(false).notNull(), // True for special occurrences (not counted in rotation)
+  specialName: varchar("specialName", { length: 255 }), // Custom name for special occurrences
+  specialDate: timestamp("specialDate"), // Custom date for special occurrences
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
