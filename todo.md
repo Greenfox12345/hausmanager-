@@ -2393,3 +2393,28 @@
 - Sondertermine werden im lokalen State verwaltet
 - Beim Speichern der Aufgabe werden alle Termine (regulär + Sonder) persistiert
 - Bereit für User-Testing
+
+
+## BUG: Sondertermine werden nicht gespeichert und geladen (19.02.2026)
+
+**Problem:**
+- [ ] Sondertermine werden nicht in der Datenbank gespeichert
+- [ ] Sondertermine werden nicht in Aufgabendetails angezeigt
+- [ ] Backend-Integration für Speichern und Laden fehlt
+
+**Zu prüfen:**
+- [ ] Wird rotationSchedule mit isSpecial/specialName beim Speichern der Aufgabe persistiert?
+- [ ] Werden Sondertermine beim Laden der Aufgabe aus DB gelesen?
+- [ ] Funktioniert die Zuordnung zwischen schedule State und DB-Einträgen?
+
+**Implementiert:**
+- [x] Backend-Mutation zum Speichern von Sonderterminen in taskRotationOccurrenceNotes (setRotationSchedule)
+- [x] Backend-Query zum Laden von Sonderterminen aus taskRotationOccurrenceNotes (getRotationSchedule)
+- [x] Integration in bestehende setRotationSchedule Funktion (isSpecial, specialName, specialDate)
+- [x] Integration in bestehende getRotationSchedule Query (lädt alle Felder)
+- [x] Frontend useEffect aktualisiert um Sondertermine zu laden
+
+**Status:**
+- Backend vollständig implementiert
+- Frontend lädt Sondertermine aus DB
+- Bereit zum Testen

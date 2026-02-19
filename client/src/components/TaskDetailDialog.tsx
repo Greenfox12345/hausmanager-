@@ -414,7 +414,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         members: occ.members,
         notes: occ.notes,
         isSkipped: occ.isSkipped || false, // Include skip status
-        calculatedDate: undefined, // Will be calculated by RotationScheduleTable
+        isSpecial: occ.isSpecial || false, // Include special occurrence flag
+        specialName: occ.specialName, // Include special occurrence name
+        calculatedDate: occ.specialDate || undefined, // Use specialDate for special occurrences
       }));
       setRotationSchedule(scheduleWithDates);
     }
