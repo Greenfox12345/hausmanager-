@@ -2444,3 +2444,22 @@
 - Sondertermine werden vollständig gespeichert
 - Sondertermine werden in allen Tabellen angezeigt
 - Bereit zum Testen
+
+
+## BUG: Sondertermine werden nach Erstellung nicht richtig zugeordnet (19.02.2026) - BEHOBEN
+
+**Problem:**
+- [x] Sondertermine wurden erstellt und erschienen initial in der Tabelle
+- [x] Nach Neuladen/Schließen und Öffnen des Dialogs verschwanden sie aus der Verantwortungstabelle
+- [x] Sondertermine waren nicht persistent oder wurden nicht korrekt geladen
+
+**Root Cause:**
+- [x] Sondertermine bekamen negative occurrenceNumbers (-1, -2, -3...)
+- [x] Backend/DB konnte negative Numbers nicht korrekt verarbeiten
+- [x] Beim Laden aus DB wurden Sondertermine nicht gefunden/zugeordnet
+
+**Lösung:**
+- [x] Alle Termine (regulär + Sonder) bekommen jetzt positive sequentielle Numbers (1, 2, 3...)
+- [x] isSpecial Flag unterscheidet Sondertermine von regulären Terminen
+- [x] Chronologische Sortierung nach calculatedDate bleibt erhalten
+- [x] Sondertermine werden jetzt korrekt gespeichert und geladen

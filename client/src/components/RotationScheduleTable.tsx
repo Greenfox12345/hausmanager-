@@ -274,12 +274,11 @@ export function RotationScheduleTable({
         return a.calculatedDate.getTime() - b.calculatedDate.getTime();
       });
       
-      // Renumber: Regular occurrences get 1,2,3... Special occurrences get negative numbers
-      let regularCount = 1;
-      let specialCount = 1;
-      const renumbered = sorted.map(occ => ({
+      // Renumber all occurrences sequentially (1, 2, 3...) regardless of type
+      // The isSpecial flag distinguishes special occurrences from regular ones
+      const renumbered = sorted.map((occ, index) => ({
         ...occ,
-        occurrenceNumber: occ.isSpecial ? -specialCount++ : regularCount++,
+        occurrenceNumber: index + 1,
       }));
       
       onChangeRef.current(renumbered);
