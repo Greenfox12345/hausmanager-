@@ -170,7 +170,14 @@ export function RotationScheduleTable({
         calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
       };
     });
-    setSchedule(withDates);
+    
+    // Sort by date to maintain chronological order
+    const sorted = withDates.sort((a, b) => {
+      if (!a.calculatedDate || !b.calculatedDate) return 0;
+      return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+    });
+    
+    setSchedule(sorted);
     
     // Reset flag after sync
     setTimeout(() => {
@@ -184,8 +191,8 @@ export function RotationScheduleTable({
     if (!dueDate) return;
     
     isUpdatingDates.current = true;
-    setSchedule(prev =>
-      prev.map(occ => {
+    setSchedule(prev => {
+      const updated = prev.map(occ => {
         // Special occurrences keep their own date, only recalculate regular ones
         if (occ.isSpecial) {
           return occ;
@@ -194,8 +201,14 @@ export function RotationScheduleTable({
           ...occ,
           calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
         };
-      })
-    );
+      });
+      
+      // Sort by date to maintain chronological order
+      return updated.sort((a, b) => {
+        if (!a.calculatedDate || !b.calculatedDate) return 0;
+        return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+      });
+    });
     isUpdatingDates.current = false;
   }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
 

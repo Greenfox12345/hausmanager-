@@ -2508,3 +2508,22 @@
 - [x] Sondertermine behalten ihr calculatedDate (aus specialDate)
 - [x] Nur reguläre Termine werden neu berechnet
 - [x] Chronologische Sortierung funktioniert korrekt
+
+
+## Problem: Sondertermine werden nicht chronologisch einsortiert (19.02.2026) - BEHOBEN
+
+**Problem:**
+- [x] Sondertermine wurden am Ende der Liste angehängt
+- [x] Sie sollten chronologisch nach Datum zwischen regulären Terminen einsortiert werden
+- [x] Sortierung funktionierte nicht wie erwartet
+
+**Root Cause:**
+- [x] handleAddSpecialOccurrence sortierte initial korrekt
+- [x] Aber useEffects (date update, initialSchedule sync) verwendeten nur map() ohne Sortierung
+- [x] Dadurch wurde die chronologische Reihenfolge nicht beibehalten
+
+**Lösung:**
+- [x] Sortierung nach calculatedDate in beide useEffects hinzugefügt
+- [x] Alle Termine werden jetzt immer chronologisch sortiert
+- [x] Sondertermine erscheinen an der richtigen Position zwischen regulären Terminen
+- [x] Beispiel: Reg1 (01.03), Sonder (05.03), Reg2 (10.03), Reg3 (17.03)
