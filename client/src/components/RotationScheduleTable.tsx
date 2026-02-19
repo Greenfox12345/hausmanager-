@@ -56,6 +56,7 @@ export function RotationScheduleTable({
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
+  const isSyncingWithInitialSchedule = useRef(false);
   const onChangeRef = useRef(onChange);
   
   // Keep onChange ref up to date
@@ -144,12 +145,20 @@ export function RotationScheduleTable({
     if (!isInitialized.current) return;
     if (!initialSchedule) return;
     
+    // Set flag to prevent onChange during sync
+    isSyncingWithInitialSchedule.current = true;
+    
     // Sync with initialSchedule: update length, isSkipped, and other properties
     const withDates = initialSchedule.map(occ => ({
       ...occ,
       calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
     }));
     setSchedule(withDates);
+    
+    // Reset flag after sync
+    setTimeout(() => {
+      isSyncingWithInitialSchedule.current = false;
+    }, 0);
   }, [initialSchedule, calculateOccurrenceDate]);
 
   // Update dates when relevant props change (but don't trigger onChange)
@@ -167,9 +176,9 @@ export function RotationScheduleTable({
     isUpdatingDates.current = false;
   }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
 
-  // Notify parent when schedule changes (but not during date updates or initial mount)
+  // Notify parent when schedule changes (but not during date updates, initial mount, or initialSchedule sync)
   useEffect(() => {
-    if (!isInitialized.current || isUpdatingDates.current) return;
+    if (!isInitialized.current || isUpdatingDates.current || isSyncingWithInitialSchedule.current) return;
     // Only notify if schedule actually has content (prevent notification on initial empty state)
     if (schedule.length > 0) {
       onChangeRef.current(schedule);

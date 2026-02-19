@@ -2311,3 +2311,21 @@
 - [x] RotationScheduleTable synchronisiert jetzt mit initialSchedule
 - [x] useEffect aktualisiert schedule bei initialSchedule Änderungen
 - [x] Beide Tabellen werden jetzt korrekt durchgestrichen
+
+
+## KRITISCHER BUG: Infinite Loop beim Aufgaben bearbeiten (19.02.2026) - BEHOBEN
+
+**Problem:**
+- [x] Beim Öffnen des Aufgabenbearbeitungs-Dialogs crasht die App mit Infinite Loop
+- [x] React Rendering-Fehler: "An unexpected error occurred"
+- [x] Verursacht durch useEffect der initialSchedule synchronisiert
+
+**Root Cause:**
+- [x] useEffect in RotationScheduleTable reagiert auf initialSchedule Änderungen
+- [x] useEffect ruft setSchedule auf → triggert onChange → aktualisiert initialSchedule → Loop
+
+**Lösung:**
+- [x] isSyncingWithInitialSchedule Flag hinzugefügt
+- [x] onChange wird nicht aufgerufen während initialSchedule-Sync
+- [x] Flag wird nach Sync zurückgesetzt
+- [x] App läuft wieder stabil
