@@ -2463,3 +2463,29 @@
 - [x] isSpecial Flag unterscheidet Sondertermine von regulären Terminen
 - [x] Chronologische Sortierung nach calculatedDate bleibt erhalten
 - [x] Sondertermine werden jetzt korrekt gespeichert und geladen
+
+
+## Problem: Sondertermine verdrängen reguläre Termine (19.02.2026)
+
+**Problem:**
+- [ ] Sondertermine werden in die Liste eingefügt
+- [ ] Dabei verdrängen sie reguläre Termine statt zusätzlich eingefügt zu werden
+- [ ] Reguläre Termine verschwinden oder werden überschrieben
+- [ ] Sondertermine werden nicht korrekt gespeichert
+
+**Erwartetes Verhalten:**
+- [ ] Sondertermine sollen ZUSÄTZLICH zu regulären Terminen existieren
+- [ ] Reguläre Termine (1, 2, 3, 4...) bleiben unverändert
+- [ ] Sondertermine werden chronologisch einsortiert
+- [ ] Alle Termine (regulär + Sonder) werden gespeichert und geladen
+
+**Root Cause:**
+- [x] Alle Termine wurden sequentiell neu nummeriert (1, 2, 3...) nach Einsortierung
+- [x] Reguläre Termine verloren ihre ursprünglichen occurrenceNumbers
+- [x] Backend konnte Termine nicht mehr korrekt zuordnen
+
+**Lösung:**
+- [x] Reguläre Termine behalten ihre sequentiellen Numbers (1, 2, 3...)
+- [x] Sondertermine bekommen hohe Numbers ab 1000 (1000, 1001, 1002...)
+- [x] Keine Konflikte zwischen regulären und Sonderterminen
+- [x] Backend kann beide Typen korrekt speichern und laden
