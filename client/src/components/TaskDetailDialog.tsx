@@ -611,21 +611,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       // Step 1.5: Save rotation schedule if repeat mode is not none and schedule exists
       if (repeatMode !== "none" && rotationSchedule.length > 0) {
+        const schedulePayload = rotationSchedule.map(occ => ({
+          occurrenceNumber: occ.occurrenceNumber,
+          // Filter out unassigned AND trim to requiredPersons count
+          members: occ.members
+            .filter(m => m.memberId !== 0)
+            .slice(0, requiredPersons || occ.members.length),
+          notes: occ.notes,
+          isSkipped: occ.isSkipped, // Preserve skip status
+          isSpecial: occ.isSpecial, // Preserve special occurrence flag
+          specialName: occ.specialName, // Preserve special occurrence name
+          calculatedDate: occ.isSpecial ? undefined : occ.calculatedDate, // Only for regular occurrences
+          specialDate: occ.isSpecial ? occ.specialDate : undefined, // Only for special occurrences
+        }));
+        
+        console.log('🔍 Sending rotation schedule to server:', JSON.stringify(schedulePayload, null, 2));
+        
         await setRotationScheduleMutation.mutateAsync({
           taskId: task.id,
-          schedule: rotationSchedule.map(occ => ({
-            occurrenceNumber: occ.occurrenceNumber,
-            // Filter out unassigned AND trim to requiredPersons count
-            members: occ.members
-              .filter(m => m.memberId !== 0)
-              .slice(0, requiredPersons || occ.members.length),
-            notes: occ.notes,
-            isSkipped: occ.isSkipped, // Preserve skip status
-            isSpecial: occ.isSpecial, // Preserve special occurrence flag
-            specialName: occ.specialName, // Preserve special occurrence name
-            calculatedDate: occ.isSpecial ? undefined : occ.calculatedDate, // Only for regular occurrences
-            specialDate: occ.isSpecial ? occ.specialDate : undefined, // Only for special occurrences
-          })),
+          schedule: schedulePayload,
         });
       }
       

@@ -2619,12 +2619,12 @@
 ## Bug Fix: Termine Planen Section
 - [x] Fix "Termine Planen" section to load and display special appointments (Sondertermine) from database
 
-## Bug Fix: Sondertermin Speicherung
-- [x] Fix special appointment saving - currently only optimistic updates, appointments disappear after reload (STILL BROKEN)
-- [x] Trace complete save flow: dialog -> handleAddSpecialOccurrence -> rotationSchedule state -> handleSave -> mutation
-- [x] Check if specialDate is properly passed through all steps
-- [x] Verify database schema supports specialDate field
-- [x] Test end-to-end persistence
+## Bug Fix: Sondertermin Speicherung (FIXED)
+- [x] Add console.log to trace exact data being sent to mutation
+- [x] Check if specialDate is being sent in the mutation payload
+- [x] Verify data arrives correctly in server/routers.ts
+- [x] Fix Zod schema in server/routers/tasks.ts to accept isSpecial, specialName, specialDate, isSkipped, calculatedDate
+- [x] Check if data is correctly inserted into database
 - [x] Fix handleRotationScheduleChange to preserve specialDate for special appointments
 - [x] Fix server/db.ts setRotationSchedule to save specialDate instead of calculatedDate
 

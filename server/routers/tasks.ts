@@ -1365,11 +1365,17 @@ export const tasksRouter = router({
               })
             ),
             notes: z.string().optional(),
+            isSkipped: z.boolean().optional(),
+            isSpecial: z.boolean().optional(),
+            specialName: z.string().optional(),
+            calculatedDate: z.date().optional(),
+            specialDate: z.date().optional(),
           })
         ),
       })
     )
     .mutation(async ({ input }) => {
+      console.log('🔍 Server received rotation schedule:', JSON.stringify(input.schedule, null, 2));
       return await setRotationSchedule(input.taskId, input.schedule);
     }),
 
