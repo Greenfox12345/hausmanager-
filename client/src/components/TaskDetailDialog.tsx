@@ -1246,29 +1246,38 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             Termin {occ.occurrenceNumber}
                                           </span>
                                         )}
-                                        {occ.isSpecial ? (
-                                          // Editable special appointment date with calendar
-                                          occ.specialDate && (
+                                        {occ.isSpecial || repeatUnit === 'irregular' ? (
+                                          // Editable date with calendar (special appointments or irregular schedules)
+                                          (occ.specialDate || occ.calculatedDate) && (
                                             <Popover>
                                               <PopoverTrigger asChild>
                                                 <Button
                                                   variant="ghost"
-                                                  className="h-6 text-xs text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 justify-start"
+                                                  className={`h-6 text-xs text-muted-foreground px-1 justify-start ${
+                                                    occ.isSpecial 
+                                                      ? 'hover:bg-yellow-100 dark:hover:bg-yellow-950' 
+                                                      : 'hover:bg-accent'
+                                                  }`}
                                                 >
                                                   <Calendar className="h-3 w-3 mr-1" />
-                                                  {format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })}
+                                                  {format(new Date(occ.specialDate || occ.calculatedDate!), "dd.MM.yyyy", { locale: de })}
                                                 </Button>
                                               </PopoverTrigger>
                                               <PopoverContent className="w-auto p-0" align="start">
                                                 <CalendarComponent
                                                   mode="single"
-                                                  selected={new Date(occ.specialDate)}
+                                                  selected={new Date(occ.specialDate || occ.calculatedDate!)}
                                                   onSelect={(date) => {
                                                     if (date) {
                                                       handleRotationScheduleChange(
                                                         rotationSchedule.map(o =>
                                                           o.occurrenceNumber === occ.occurrenceNumber
-                                                            ? { ...o, specialDate: date }
+                                                            ? { 
+                                                                ...o, 
+                                                                ...(occ.isSpecial 
+                                                                  ? { specialDate: date } 
+                                                                  : { calculatedDate: date })
+                                                              }
                                                             : o
                                                         )
                                                       );
@@ -1280,7 +1289,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             </Popover>
                                           )
                                         ) : (
-                                          // Regular appointment date (non-editable)
+                                          // Regular appointment date (auto-calculated, non-editable)
                                           occ.calculatedDate && (
                                             <span className="text-xs text-muted-foreground">
                                               {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}

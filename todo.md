@@ -2649,3 +2649,8 @@
 ## UI Improvement: Sondertermin Layout in UpcomingOccurrencesTable
 - [x] Show special appointment name in first column (instead of "Termin X")
 - [x] Show special appointment date in second column (like regular appointments)
+
+## Feature: Editable Dates for Irregular Appointments
+- [x] Make dates editable for irregular appointments in Termine Planen table (like special appointments)
+- [x] Keep dates auto-calculated for regular appointments (days/weeks/months intervals)
+- [x] Add calendar picker for irregular appointment dates
