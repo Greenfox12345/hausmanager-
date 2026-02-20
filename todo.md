@@ -2686,3 +2686,12 @@
 - [x] Verify calculatedDate is set correctly for irregular appointments
 - [x] Test complete flow: click button → select date → verify state update
 - [x] Added type="button" to all calendar trigger buttons to prevent form submission
+
+## Bug Fix: Calendar Date Selection Not Saving for Irregular Appointments
+- [x] Calendar opens correctly
+- [x] Date gets selected (blue border appears)
+- [x] But date is not saved to state - onSelect handler not working
+- [x] Check if handleRotationScheduleChange is being called
+- [x] Verify calculatedDate is being set in the state
+- [x] Fixed: handleRotationScheduleChange was recalculating dates for ALL non-special appointments, including irregular ones
+- [x] Now irregular appointments preserve their manually set calculatedDate

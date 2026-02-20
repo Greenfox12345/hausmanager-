@@ -278,13 +278,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Memoize handleRotationScheduleChange to prevent function recreation on every render
   const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
-    // Recalculate dates ONLY for regular occurrences, preserve specialDate for special ones
+    // Recalculate dates ONLY for regular occurrences, preserve specialDate for special ones and calculatedDate for irregular ones
     const withDates = schedule.map(occ => {
       if (occ.isSpecial) {
         // Special occurrences: keep specialDate, no calculatedDate
         return {
           ...occ,
           calculatedDate: undefined,
+        };
+      } else if (repeatUnit === 'irregular') {
+        // Irregular occurrences: keep manually set calculatedDate, don't recalculate
+        return {
+          ...occ,
         };
       } else {
         // Regular occurrences: calculate date based on occurrence number
