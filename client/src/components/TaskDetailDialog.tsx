@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, SkipForward, Trash2 } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, SkipForward, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -197,6 +197,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
+  const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
   
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
@@ -1334,11 +1335,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         {/* Rotation Schedule Table - Only show in edit mode */}
                         {task?.id ? (
                           <div className="space-y-2 border-t pt-4 mt-4">
-                            <Label className="text-sm font-medium">Rotationsplan</Label>
-                            <p className="text-xs text-muted-foreground mb-3">
-                              Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
-                            </p>
-                            <RotationScheduleTable
+                            <button
+                              type="button"
+                              onClick={() => setIsRotationPlanExpanded(!isRotationPlanExpanded)}
+                              className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity"
+                            >
+                              <ChevronDown className={`h-4 w-4 transition-transform ${isRotationPlanExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                              <Label className="text-sm font-medium cursor-pointer">Rotationsplan</Label>
+                            </button>
+                            {isRotationPlanExpanded && (
+                              <div className="space-y-3">
+                                <p className="text-xs text-muted-foreground">
+                                  Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
+                                </p>
+                                <RotationScheduleTable
                             taskId={task?.id}
                             requiredPersons={requiredPersons}
                             availableMembers={availableMembers}
@@ -1380,7 +1390,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             <Plus className="h-4 w-4" />
                             Termin hinzufügen
                           </Button>
-                        </div>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <div className="space-y-2 border-t pt-4 mt-4">
                             <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">

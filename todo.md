@@ -2560,3 +2560,18 @@
 - [x] Notizen-Feld funktioniert für alle Termine (regulär + Sonder)
 - [x] Notizen werden automatisch gespeichert und geladen (bereits im Backend implementiert)
 - [x] Notizen werden in "Kommende Termine" Tabelle angezeigt (bereits implementiert)
+
+
+## "Termine Planen" als ausklappbare Sektion (20.02.2026)
+
+**Anforderung:**
+- [x] "Termine Planen" Überschrift mit kleinem Dreieck-Icon als Akkordeon-Header
+- [x] Klick auf Header klappt Tabelle und Button ein/aus
+- [x] Dreieck rotiert je nach Zustand (ausgeklappt/eingeklappt)
+- [x] Standard: ausgeklappt
+
+**Implementiert:**
+- [x] ChevronDown Icon hinzugefügt (rotiert -90° wenn eingeklappt)
+- [x] isRotationPlanExpanded State (default: true)
+- [x] Klickbarer Header mit hover-Effekt
+- [x] Tabelle und Button werden ein-/ausgeblendet
