@@ -2677,3 +2677,12 @@
 - [x] Add reset icon button next to special appointment date picker
 - [x] Implement confirmation dialog before resetting
 - [x] Reset should clear specialName and specialDate, converting back to regular appointment
+
+## Bug Investigation: Calendar Buttons for Irregular Appointments Not Working
+- [x] Test if Popover opens when clicking the date button
+- [x] Check if Calendar component renders inside Popover
+- [x] Verify onSelect handler is called when clicking a date
+- [x] Check if date is saved to rotationSchedule state
+- [x] Verify calculatedDate is set correctly for irregular appointments
+- [x] Test complete flow: click button → select date → verify state update
+- [x] Added type="button" to all calendar trigger buttons to prevent form submission

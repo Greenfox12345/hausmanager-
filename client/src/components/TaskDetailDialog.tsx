@@ -1283,6 +1283,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           <Popover>
                                             <PopoverTrigger asChild>
                                               <Button
+                                                type="button"
                                                 variant="ghost"
                                                 className={`h-6 text-xs px-1 justify-start ${
                                                   occ.isSpecial 

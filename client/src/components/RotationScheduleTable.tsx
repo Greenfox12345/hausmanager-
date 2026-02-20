@@ -556,6 +556,7 @@ export function RotationScheduleTable({
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
+                              type="button"
                               variant="ghost"
                               className={`h-6 text-xs font-normal text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 ${occ.isSkipped ? 'line-through' : ''}`}
                             >
@@ -592,6 +593,7 @@ export function RotationScheduleTable({
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
+                              type="button"
                               variant="ghost"
                               className={`h-6 text-xs font-normal px-1 ${
                                 occ.calculatedDate
