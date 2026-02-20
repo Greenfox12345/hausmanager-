@@ -1800,7 +1800,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <span className="text-sm">
                       <span className="text-muted-foreground">Wiederholung:</span>{" "}
                       <strong>
-                        Alle {task.repeatInterval} {task.repeatUnit === "days" ? "Tage" : task.repeatUnit === "weeks" ? "Wochen" : "Monate"}
+                        {task.repeatUnit === "irregular" 
+                          ? "Unregelmäßig" 
+                          : `Alle ${task.repeatInterval} ${task.repeatUnit === "days" ? "Tage" : task.repeatUnit === "weeks" ? "Wochen" : "Monate"}`}
                       </strong>
                     </span>
                   </div>

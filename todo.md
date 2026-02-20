@@ -2695,3 +2695,8 @@
 - [x] Verify calculatedDate is being set in the state
 - [x] Fixed: handleRotationScheduleChange was recalculating dates for ALL non-special appointments, including irregular ones
 - [x] Now irregular appointments preserve their manually set calculatedDate
+
+## Bug Fix: Incorrect "Wiederholung:" Display for Irregular Tasks
+- [x] Check what is currently shown for "Wiederholung:" field in task details for irregular tasks
+- [x] Fix the display logic to show correct information for irregular repetition (now shows "Unregelmäßig" instead of "Alle X Tage/Wochen/Monate")
+- [x] Test with irregular tasks to verify correct display
