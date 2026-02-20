@@ -2720,3 +2720,12 @@
 - [x] Verify calculatedDate is being sent to backend correctly
 - [x] Verify backend saves calculatedDate for irregular appointments (added to INSERT condition and values)
 - [x] Verify backend loads calculatedDate for irregular appointments (added to SELECT and mapping)
+
+## Konzeptionelle Fixes (2026-02-20)
+- [x] Optimistic updates entfernt - verwirren Benutzer
+- [x] calculatedDate komplett entfernt - existiert nicht in DB-Schema
+- [x] Unregelmäßige Termine verwenden jetzt specialDate (wie Sondertermine)
+- [x] Backend: setRotationSchedule speichert specialDate korrekt
+- [x] Backend: getRotationSchedule lädt specialDate korrekt
+- [x] Frontend: Alle UI-Komponenten verwenden specialDate für manuelle Daten
+- [x] Konzept geklärt: reguläre Termine = berechnet, unregelmäßige/Sondertermine = specialDate

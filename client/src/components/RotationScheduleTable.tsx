@@ -38,8 +38,7 @@ export interface ScheduleOccurrence {
   occurrenceNumber: number;
   members: { position: number; memberId: number }[];
   notes?: string;
-  calculatedDate?: Date; // For regular occurrences (auto-calculated)
-  specialDate?: Date; // For special occurrences (manually set)
+  specialDate?: Date; // For irregular appointments and special occurrences (manually set)
   isSkipped?: boolean;
   isSpecial?: boolean;
   specialName?: string;

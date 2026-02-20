@@ -1194,7 +1194,6 @@ export async function getRotationSchedule(taskId: number) {
     grouped[note.occurrenceNumber].isSpecial = (note as any).isSpecial || false;
     grouped[note.occurrenceNumber].specialName = (note as any).specialName || undefined;
     grouped[note.occurrenceNumber].specialDate = (note as any).specialDate || undefined;
-    grouped[note.occurrenceNumber].calculatedDate = (note as any).calculatedDate || undefined;
   }
 
   // Convert to array format
@@ -1206,7 +1205,6 @@ export async function getRotationSchedule(taskId: number) {
     isSpecial: data.isSpecial || false,
     specialName: data.specialName,
     specialDate: data.specialDate,
-    calculatedDate: data.calculatedDate,
   }));
 
   // Ensure at least 3 occurrences are returned
@@ -1222,7 +1220,6 @@ export async function getRotationSchedule(taskId: number) {
         isSpecial: false,
         specialName: undefined,
         specialDate: undefined,
-        calculatedDate: undefined,
       });
     }
   }
@@ -1243,7 +1240,6 @@ export async function setRotationSchedule(
     isSkipped?: boolean;
     isSpecial?: boolean;
     specialName?: string;
-    calculatedDate?: Date;
     specialDate?: Date;
   }>
 ) {
@@ -1280,8 +1276,8 @@ export async function setRotationSchedule(
       ? occurrence.isSkipped 
       : (skipStatusMap.get(occurrence.occurrenceNumber) || false);
 
-    // Insert notes if provided OR if isSkipped status exists OR if it's a special occurrence OR if calculatedDate is set (for irregular appointments)
-    if (occurrence.notes || isSkipped || occurrence.isSpecial || occurrence.calculatedDate) {
+    // Insert notes if provided OR if isSkipped status exists OR if it's a special occurrence OR if specialDate is set (for irregular appointments)
+    if (occurrence.notes || isSkipped || occurrence.isSpecial || occurrence.specialDate) {
       await db.insert(taskRotationOccurrenceNotes).values({
         taskId,
         occurrenceNumber: occurrence.occurrenceNumber,
@@ -1290,7 +1286,6 @@ export async function setRotationSchedule(
         isSpecial: occurrence.isSpecial || false,
         specialName: occurrence.specialName || null,
         specialDate: occurrence.specialDate || null,
-        calculatedDate: occurrence.calculatedDate || null,
       } as typeof taskRotationOccurrenceNotes.$inferInsert);
     }
   }

@@ -284,27 +284,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       return;
     }
     
-    // Recalculate dates ONLY for regular occurrences, preserve specialDate for special ones
-    const withDates = schedule.map(occ => {
-      if (occ.isSpecial) {
-        // Special occurrences: keep specialDate, no calculatedDate
-        return {
-          ...occ,
-          calculatedDate: undefined,
-        };
-      } else {
-        // Regular occurrences: calculate date based on occurrence number
-        return {
-          ...occ,
-          calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-        };
-      }
+    // For regular appointments: sort by date and renumber
+    // Calculate dates for sorting (special occurrences use specialDate, regular ones calculate from occurrence number)
+    const withCalculatedDates = schedule.map(occ => {
+      const calculatedDate = occ.isSpecial ? undefined : calculateOccurrenceDate(occ.occurrenceNumber);
+      return { ...occ, _tempCalculatedDate: calculatedDate };
     });
     
-    // Sort by date (use specialDate for special, calculatedDate for regular)
-    const sorted = [...withDates].sort((a, b) => {
-      const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
-      const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+    // Sort by date (use specialDate for special, _tempCalculatedDate for regular)
+    const sorted = [...withCalculatedDates].sort((a, b) => {
+      const dateA = a.isSpecial ? a.specialDate : a._tempCalculatedDate;
+      const dateB = b.isSpecial ? b.specialDate : b._tempCalculatedDate;
       if (!dateA && !dateB) return 0;
       if (!dateA) return 1;
       if (!dateB) return -1;
@@ -315,25 +305,26 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     let regularCount = 1;
     let specialCount = 1000;
     const renumbered = sorted.map(occ => {
+      // Remove temp field
+      const { _tempCalculatedDate, ...occWithoutTemp } = occ as any;
+      
       if (occ.isSpecial) {
         // Special occurrences: high numbers, keep specialDate
         return {
-          ...occ,
+          ...occWithoutTemp,
           occurrenceNumber: specialCount++,
-          calculatedDate: undefined,
         };
       } else {
-        // Regular occurrences: sequential numbers, recalculate date with new number
+        // Regular occurrences: sequential numbers
         return {
-          ...occ,
-          occurrenceNumber: regularCount,
-          calculatedDate: calculateOccurrenceDate(regularCount++),
+          ...occWithoutTemp,
+          occurrenceNumber: regularCount++,
         };
       }
     });
     
     setRotationSchedule(renumbered);
-  }, [calculateOccurrenceDate]);
+  }, [calculateOccurrenceDate, repeatUnit]);
 
   // Auto-fill monthlyWeekday and monthlyOccurrence from dueDate when switching to same_weekday mode
   useEffect(() => {
@@ -460,8 +451,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         isSkipped: occ.isSkipped || false, // Include skip status
         isSpecial: occ.isSpecial || false, // Include special occurrence flag
         specialName: occ.specialName, // Include special occurrence name
-        specialDate: occ.specialDate, // For special occurrences
-        calculatedDate: undefined, // Will be calculated by RotationScheduleTable for regular occurrences
+        specialDate: occ.specialDate, // For special occurrences and irregular appointments
       }));
       setRotationSchedule(scheduleWithDates);
     }
@@ -515,16 +505,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
   const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
-    onSuccess: async (data, variables) => {
-      // Optimistic UI update: manually update local state without refetch
-      const isSkipped = (variables as any).isSkipped;
-      setRotationSchedule(prev => 
-        prev.map(occ => 
-          occ.occurrenceNumber === variables.occurrenceNumber
-            ? { ...occ, isSkipped }
-            : occ
-        )
-      );
+    onSuccess: async () => {
+      // Reload rotation schedule from server after skip
+      if (task?.id) {
+        const updated = await utils.tasks.getRotationSchedule.fetch({ taskId: task.id });
+        setRotationSchedule(updated);
+      }
     },
   });
   
@@ -635,8 +621,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           isSkipped: occ.isSkipped, // Preserve skip status
           isSpecial: occ.isSpecial, // Preserve special occurrence flag
           specialName: occ.specialName, // Preserve special occurrence name
-          calculatedDate: occ.isSpecial ? undefined : occ.calculatedDate, // Only for regular occurrences
-          specialDate: occ.isSpecial ? occ.specialDate : undefined, // Only for special occurrences
+          specialDate: occ.specialDate, // For special occurrences and irregular appointments
         }));
         
         console.log('🔍 Sending rotation schedule to server:', JSON.stringify(schedulePayload, null, 2));
@@ -1294,14 +1279,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                 className={`h-6 text-xs px-1 justify-start ${
                                                   occ.isSpecial 
                                                     ? 'hover:bg-yellow-100 dark:hover:bg-yellow-950 text-muted-foreground' 
-                                                    : (occ.specialDate || occ.calculatedDate)
+                                                    : occ.specialDate
                                                       ? 'hover:bg-accent text-muted-foreground'
                                                       : 'hover:bg-accent text-muted-foreground italic'
                                                 }`}
                                               >
                                                 <Calendar className="h-3 w-3 mr-1" />
-                                                {(occ.specialDate || occ.calculatedDate) 
-                                                  ? format(new Date(occ.specialDate || occ.calculatedDate!), "dd.MM.yyyy", { locale: de })
+                                                {occ.specialDate 
+                                                  ? format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })
                                                   : "Datum eingeben"
                                                 }
                                               </Button>
@@ -1309,18 +1294,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             <PopoverContent className="w-auto p-0" align="start">
                                               <CalendarComponent
                                                 mode="single"
-                                                selected={(occ.specialDate || occ.calculatedDate) ? new Date(occ.specialDate || occ.calculatedDate!) : undefined}
+                                                selected={occ.specialDate ? new Date(occ.specialDate) : undefined}
                                                 onSelect={(date) => {
                                                   if (date) {
                                                     handleRotationScheduleChange(
                                                       rotationSchedule.map(o =>
                                                         o.occurrenceNumber === occ.occurrenceNumber
-                                                          ? { 
-                                                              ...o, 
-                                                              ...(occ.isSpecial 
-                                                                ? { specialDate: date } 
-                                                                : { calculatedDate: date })
-                                                            }
+                                                          ? { ...o, specialDate: date }
                                                           : o
                                                       )
                                                     );
@@ -1332,9 +1312,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           </Popover>
                                         ) : (
                                           // Regular appointment date (auto-calculated, non-editable)
-                                          occ.calculatedDate && (
+                                          calculateOccurrenceDate(occ.occurrenceNumber) && (
                                             <span className="text-xs text-muted-foreground">
-                                              {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
+                                              {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: de })}
                                             </span>
                                           )
                                         )}
@@ -1831,13 +1811,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName)
                           .filter((name: string | undefined): name is string => name !== undefined && name !== null);
                         
-                        // Use specialDate for special occurrences, calculatedDate for regular ones
+                        // Use specialDate for special occurrences and irregular appointments
                         let calculatedDate: Date | undefined;
-                        if (occ.isSpecial && occ.specialDate) {
+                        if (occ.specialDate) {
                           calculatedDate = new Date(occ.specialDate);
-                        } else if (occ.calculatedDate) {
-                          calculatedDate = new Date(occ.calculatedDate);
                         }
+                        // For regular appointments, calculate date if not already set
                         if (!calculatedDate && task.dueDate && task.repeatUnit !== "irregular") {
                           const baseDate = new Date(task.dueDate);
                           const interval = task.repeatInterval || 1;
