@@ -2627,3 +2627,8 @@
 - [x] Test end-to-end persistence
 - [x] Fix handleRotationScheduleChange to preserve specialDate for special appointments
 - [x] Fix server/db.ts setRotationSchedule to save specialDate instead of calculatedDate
+
+## UI Improvement: Sondertermin Display in Rotation Table
+- [x] Remove occurrence number from special appointment display
+- [x] Show special appointment name in first column (without star icon)
+- [x] Show date in second column (same as regular appointments)

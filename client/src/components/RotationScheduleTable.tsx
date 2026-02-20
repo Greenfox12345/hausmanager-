@@ -536,16 +536,30 @@ export function RotationScheduleTable({
               {schedule.map((occ) => (
                 <th key={occ.occurrenceNumber} className={`p-2 text-center text-sm font-medium ${occ.isSkipped ? 'opacity-50' : ''} ${occ.isSpecial ? 'bg-yellow-50 dark:bg-yellow-950' : ''}`}>
                   <div className="flex flex-col gap-1">
-                    <div className="flex items-center justify-center gap-1">
-                      {occ.isSpecial && <Star className="h-3 w-3 text-yellow-600 fill-yellow-600" />}
-                      <span className={occ.isSkipped ? 'line-through' : ''}>
-                        {occ.isSpecial ? occ.specialName : `Termin ${occ.occurrenceNumber}`}
-                      </span>
-                    </div>
-                    {((occ.isSpecial && occ.specialDate) || (!occ.isSpecial && occ.calculatedDate)) && (
-                      <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                        {format(occ.isSpecial ? occ.specialDate! : occ.calculatedDate!, "dd.MM.yyyy", { locale: de })}
-                      </span>
+                    {occ.isSpecial ? (
+                      // Special appointments: Just name and date, no icon or numbering
+                      <>
+                        <span className={`text-yellow-600 dark:text-yellow-500 ${occ.isSkipped ? 'line-through' : ''}`}>
+                          {occ.specialName}
+                        </span>
+                        {occ.specialDate && (
+                          <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
+                            {format(occ.specialDate, "dd.MM.yyyy", { locale: de })}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      // Regular appointments: "Termin X" with date
+                      <>
+                        <span className={occ.isSkipped ? 'line-through' : ''}>
+                          Termin {occ.occurrenceNumber}
+                        </span>
+                        {occ.calculatedDate && (
+                          <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
+                            {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </th>
