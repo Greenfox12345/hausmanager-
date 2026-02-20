@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Home, Plus, LogIn, Users } from "lucide-react";
+import { Home, Plus, LogIn, Users, User, Settings } from "lucide-react";
 import { InviteCodeDialog } from "@/components/InviteCodeDialog";
+import { UserProfileDialog } from "@/components/UserProfileDialog";
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
@@ -22,6 +23,7 @@ export default function HouseholdSelection() {
   const [newHouseholdName, setNewHouseholdName] = useState("");
   const [createdHousehold, setCreatedHousehold] = useState<{ name: string; inviteCode: string } | null>(null);
   const [inviteCode, setInviteCode] = useState("");
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   // Get current user
   const { data: currentUser, isLoading: userLoading } = trpc.userAuth.getCurrentUser.useQuery(
@@ -168,6 +170,29 @@ export default function HouseholdSelection() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* User Profile Section */}
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{currentUser.name}</h3>
+                  <p className="text-sm text-gray-600">{currentUser.email}</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setProfileDialogOpen(true)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Profil bearbeiten
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
@@ -296,6 +321,12 @@ export default function HouseholdSelection() {
           householdName={createdHousehold.name}
         />
       )}
+
+      {/* User Profile Dialog */}
+      <UserProfileDialog
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+      />
     </div>
   );
 }

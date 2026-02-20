@@ -9,6 +9,7 @@ import { uploadRouter } from "./routers/upload";
 import { projectsRouter } from "./routers/projects";
 import { notificationsRouter } from "./routers/notifications";
 import { userAuthRouter } from "./routers/userAuth";
+import { userProfileRouter } from "./routers/userProfile";
 import { householdManagementRouter } from "./routers/householdManagement";
 import { activitiesRouter } from "./routers/activities";
 import { inventoryRouter } from "./routers/inventory";
@@ -34,6 +35,7 @@ export const appRouter = router({
 
   // Feature routers
   userAuth: userAuthRouter,
+  userProfile: userProfileRouter,
   householdManagement: householdManagementRouter,
   storage: storageRouter,
   household: authRouter,

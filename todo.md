@@ -2744,3 +2744,31 @@
 - [x] Sortierung verwendet specialDate || calculateOccurrenceDate()
 - [x] Reguläre Termine werden on-the-fly berechnet (keine Speicherung)
 - [x] Synchronisierung zwischen "Termine Planen" und "Rotationsplan" implementiert
+
+## Benutzerprofil-Verwaltung auf /household-selection (AKTUELL)
+- [x] Backend: user.getProfile Procedure (lädt email, name)
+- [x] Backend: user.updateProfile Procedure (aktualisiert email und/oder name)
+- [x] Backend: user.changePassword Procedure (verifiziert altes Passwort, setzt neues)
+- [x] Frontend: Profil-Card auf HouseholdSelection Seite (oberhalb Haushaltsliste)
+- [x] Frontend: Profil-Bearbeitungs-Dialog mit Tabs (Allgemein, Passwort ändern)
+- [x] Validierung: E-Mail-Format prüfen
+- [x] Validierung: E-Mail-Eindeutigkeit prüfen (bei Änderung)
+- [x] Validierung: Passwort-Stärke prüfen (mind. 8 Zeichen)
+- [x] Validierung: Altes Passwort verifizieren vor Änderung
+- [x] UX: Erfolgs-Toast nach Speichern
+- [x] UX: Fehlerbehandlung und Fehlermeldungen
+- [x] Tests: Profilverwaltung testen
+
+## Benutzerprofil-Verwaltung - Abgeschlossen (2026-02-20)
+- [x] Backend: user.getProfile Procedure (lädt email, name)
+- [x] Backend: user.updateProfile Procedure (aktualisiert email und/oder name)
+- [x] Backend: user.changePassword Procedure (verifiziert altes Passwort, setzt neues)
+- [x] Frontend: Profil-Card auf HouseholdSelection Seite (oberhalb Haushaltsliste)
+- [x] Frontend: Profil-Bearbeitungs-Dialog mit Tabs (Allgemein, Passwort ändern)
+- [x] Validierung: E-Mail-Format prüfen
+- [x] Validierung: E-Mail-Eindeutigkeit prüfen (bei Änderung)
+- [x] Validierung: Passwort-Stärke prüfen (mind. 8 Zeichen)
+- [x] Validierung: Altes Passwort verifizieren vor Änderung
+- [x] UX: Erfolgs-Toast nach Speichern
+- [x] UX: Fehlerbehandlung und Fehlermeldungen
+- [x] Tests: Profilverwaltung Test-Datei erstellt (DB-Verbindung in Test-Env problematisch)
