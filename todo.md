@@ -2667,3 +2667,13 @@
 - [x] Verify database schema supports "irregular" value
 - [x] Fix loading logic to preserve irregular repeatUnit (was being overwritten by frequency mapping)
 - [x] Fix saving and loading of irregular repeat setting
+
+## Bug Fix: Calendar Date Picker Buttons Not Working
+- [x] Investigate why calendar buttons don't respond to clicks
+- [x] Fix click handler by adding type="button" to prevent form submission
+- [x] Test calendar opening on button click
+
+## Feature: Reset Button for Special Appointments
+- [x] Add reset icon button next to special appointment date picker
+- [x] Implement confirmation dialog before resetting
+- [x] Reset should clear specialName and specialDate, converting back to regular appointment

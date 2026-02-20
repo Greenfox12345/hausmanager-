@@ -1251,6 +1251,26 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                               className="h-7 text-sm text-yellow-700 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1"
                                               placeholder="Sondertermin-Name"
                                             />
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-7 w-7 shrink-0"
+                                              onClick={() => {
+                                                if (confirm("Möchten Sie diesen Sondertermin wirklich zurücksetzen? Er wird zu einem regulären Termin.")) {
+                                                  handleRotationScheduleChange(
+                                                    rotationSchedule.map(o =>
+                                                      o.occurrenceNumber === occ.occurrenceNumber
+                                                        ? { ...o, isSpecial: false, specialName: undefined, specialDate: undefined }
+                                                        : o
+                                                    )
+                                                  );
+                                                }
+                                              }}
+                                              title="Sondertermin zurücksetzen"
+                                            >
+                                              <RotateCcw className="h-3.5 w-3.5" />
+                                            </Button>
                                           </div>
                                         ) : (
                                           // Regular appointment (non-editable)
