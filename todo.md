@@ -2632,3 +2632,9 @@
 - [x] Remove occurrence number from special appointment display
 - [x] Show special appointment name in first column (without star icon)
 - [x] Show date in second column (same as regular appointments)
+
+## Bug Fix: Sondertermine ohne verantwortliche Person
+- [x] Fix special appointments to save correctly even without assigned members
+- [x] Check member filtering logic in mutation payload
+- [x] Fix getRotationSchedule to create entries for notes without members
+- [x] Ensure special appointments can exist without members array

@@ -1183,14 +1183,17 @@ export async function getRotationSchedule(taskId: number) {
   }
 
   // Add notes, skip status, and special occurrence data to grouped data
+  // Also create entries for special appointments without members
   for (const note of notes) {
-    if (grouped[note.occurrenceNumber]) {
-      grouped[note.occurrenceNumber].notes = note.notes || undefined;
-      grouped[note.occurrenceNumber].isSkipped = (note as TaskRotationOccurrenceNote).isSkipped || false;
-      grouped[note.occurrenceNumber].isSpecial = (note as any).isSpecial || false;
-      grouped[note.occurrenceNumber].specialName = (note as any).specialName || undefined;
-      grouped[note.occurrenceNumber].specialDate = (note as any).specialDate || undefined;
+    if (!grouped[note.occurrenceNumber]) {
+      // Create entry for special appointments or notes without members
+      grouped[note.occurrenceNumber] = { members: [] };
     }
+    grouped[note.occurrenceNumber].notes = note.notes || undefined;
+    grouped[note.occurrenceNumber].isSkipped = (note as TaskRotationOccurrenceNote).isSkipped || false;
+    grouped[note.occurrenceNumber].isSpecial = (note as any).isSpecial || false;
+    grouped[note.occurrenceNumber].specialName = (note as any).specialName || undefined;
+    grouped[note.occurrenceNumber].specialDate = (note as any).specialDate || undefined;
   }
 
   // Convert to array format
