@@ -1238,6 +1238,7 @@ export async function setRotationSchedule(
     isSpecial?: boolean;
     specialName?: string;
     calculatedDate?: Date;
+    specialDate?: Date;
   }>
 ) {
   const db = await getDb();
@@ -1282,7 +1283,7 @@ export async function setRotationSchedule(
         isSkipped,
         isSpecial: occurrence.isSpecial || false,
         specialName: occurrence.specialName || null,
-        specialDate: occurrence.calculatedDate || null,
+        specialDate: occurrence.specialDate || null,
       } as typeof taskRotationOccurrenceNotes.$inferInsert);
     }
   }

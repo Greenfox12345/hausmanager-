@@ -2618,3 +2618,8 @@
 
 ## Bug Fix: Termine Planen Section
 - [x] Fix "Termine Planen" section to load and display special appointments (Sondertermine) from database
+
+## Bug Fix: Sondertermin Speicherung
+- [x] Fix special appointment saving - currently only optimistic updates, appointments disappear after reload
+- [x] Ensure specialDate is properly saved to database
+- [x] Verify special appointments load correctly from database
