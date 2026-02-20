@@ -2545,3 +2545,18 @@
 - [x] RotationScheduleTable zeigt korrektes Datum basierend auf Termintyp
 - [x] UpcomingOccurrencesTable zeigt korrektes Datum basierend auf Termintyp
 - [ ] TypeScript-Fehler beheben (Cache-Problem)
+
+
+## Sondertermine sollen Notizen bekommen können (20.02.2026)
+
+**Anforderung:**
+- [x] Sondertermine sollen auch Notizen in der Rotationsplan-Tabelle eingeben können
+- [x] Notizen sollen gespeichert und geladen werden wie bei regulären Terminen
+- [x] Notizen sollen in der "Kommende Termine" Tabelle angezeigt werden
+
+**Implementiert:**
+- [x] Sondertermine haben bereits ein notes Feld in der Datenstruktur
+- [x] Notizen-Zeile zur Rotationsplan-Tabelle hinzugefügt (vor Action-Buttons)
+- [x] Notizen-Feld funktioniert für alle Termine (regulär + Sonder)
+- [x] Notizen werden automatisch gespeichert und geladen (bereits im Backend implementiert)
+- [x] Notizen werden in "Kommende Termine" Tabelle angezeigt (bereits implementiert)

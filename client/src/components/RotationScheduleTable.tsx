@@ -590,6 +590,27 @@ export function RotationScheduleTable({
                 </tr>
               );
             })}
+            {/* Notes row */}
+            <tr className="border-t">
+              {schedule.map((occ) => (
+                <td key={occ.occurrenceNumber} className="p-2">
+                  <textarea
+                    placeholder="Notizen..."
+                    value={occ.notes || ""}
+                    onChange={(e) => {
+                      const newSchedule = schedule.map(o =>
+                        o.occurrenceNumber === occ.occurrenceNumber
+                          ? { ...o, notes: e.target.value }
+                          : o
+                      );
+                      setSchedule(newSchedule);
+                      onChange(newSchedule);
+                    }}
+                    className="w-full min-h-[60px] p-2 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </td>
+              ))}
+            </tr>
             {/* Action buttons row */}
             <tr className="border-t bg-muted/30">
               {schedule.map((occ, index) => (
