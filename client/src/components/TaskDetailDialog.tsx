@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, SkipForward, Trash2, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
@@ -1217,18 +1219,73 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                 const hasNotes = occ.notes && occ.notes.trim().length > 0;
                                 return (
                                   <tr key={occ.occurrenceNumber} className={`border-t ${occ.isSkipped ? 'opacity-60' : ''}`}>
-                                    <td className="p-2">
+                                     <td className="p-2">
                                       <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-1">
-                                          {occ.isSpecial && <Star className="h-3 w-3 text-yellow-600 fill-yellow-600" />}
-                                          <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''} ${occ.isSpecial ? 'text-yellow-700 dark:text-yellow-500' : ''}`}>
-                                            {occ.isSpecial ? occ.specialName : `Termin ${occ.occurrenceNumber}`}
+                                        {occ.isSpecial ? (
+                                          // Editable special appointment name
+                                          <div className="flex items-center gap-1">
+                                            <Star className="h-3 w-3 text-yellow-600 fill-yellow-600 shrink-0" />
+                                            <Input
+                                              value={occ.specialName || ""}
+                                              onChange={(e) => {
+                                                handleRotationScheduleChange(
+                                                  rotationSchedule.map(o =>
+                                                    o.occurrenceNumber === occ.occurrenceNumber
+                                                      ? { ...o, specialName: e.target.value }
+                                                      : o
+                                                  )
+                                                );
+                                              }}
+                                              className="h-7 text-sm text-yellow-700 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1"
+                                              placeholder="Sondertermin-Name"
+                                            />
+                                          </div>
+                                        ) : (
+                                          // Regular appointment (non-editable)
+                                          <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''}`}>
+                                            Termin {occ.occurrenceNumber}
                                           </span>
-                                        </div>
-                                        {((occ.isSpecial && occ.specialDate) || (!occ.isSpecial && occ.calculatedDate)) && (
-                                          <span className="text-xs text-muted-foreground">
-                                            {format(occ.isSpecial ? new Date(occ.specialDate!) : new Date(occ.calculatedDate!), "dd.MM.yyyy", { locale: de })}
-                                          </span>
+                                        )}
+                                        {occ.isSpecial ? (
+                                          // Editable special appointment date with calendar
+                                          occ.specialDate && (
+                                            <Popover>
+                                              <PopoverTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  className="h-6 text-xs text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 justify-start"
+                                                >
+                                                  <Calendar className="h-3 w-3 mr-1" />
+                                                  {format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })}
+                                                </Button>
+                                              </PopoverTrigger>
+                                              <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                  mode="single"
+                                                  selected={new Date(occ.specialDate)}
+                                                  onSelect={(date) => {
+                                                    if (date) {
+                                                      handleRotationScheduleChange(
+                                                        rotationSchedule.map(o =>
+                                                          o.occurrenceNumber === occ.occurrenceNumber
+                                                            ? { ...o, specialDate: date }
+                                                            : o
+                                                        )
+                                                      );
+                                                    }
+                                                  }}
+                                                  locale={de}
+                                                />
+                                              </PopoverContent>
+                                            </Popover>
+                                          )
+                                        ) : (
+                                          // Regular appointment date (non-editable)
+                                          occ.calculatedDate && (
+                                            <span className="text-xs text-muted-foreground">
+                                              {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
+                                            </span>
+                                          )
                                         )}
                                       </div>
                                     </td>

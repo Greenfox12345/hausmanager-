@@ -537,16 +537,51 @@ export function RotationScheduleTable({
                 <th key={occ.occurrenceNumber} className={`p-2 text-center text-sm font-medium ${occ.isSkipped ? 'opacity-50' : ''} ${occ.isSpecial ? 'bg-yellow-50 dark:bg-yellow-950' : ''}`}>
                   <div className="flex flex-col gap-1">
                     {occ.isSpecial ? (
-                      // Special appointments: Just name and date, no icon or numbering
+                      // Special appointments: Editable name and date
                       <>
-                        <span className={`text-yellow-600 dark:text-yellow-500 ${occ.isSkipped ? 'line-through' : ''}`}>
-                          {occ.specialName}
-                        </span>
-                        {occ.specialDate && (
-                          <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                            {format(occ.specialDate, "dd.MM.yyyy", { locale: de })}
-                          </span>
-                        )}
+                        <Input
+                          value={occ.specialName || ""}
+                          onChange={(e) => {
+                            const newSchedule = schedule.map(o =>
+                              o.occurrenceNumber === occ.occurrenceNumber
+                                ? { ...o, specialName: e.target.value }
+                                : o
+                            );
+                            setSchedule(newSchedule);
+                            onChange(newSchedule);
+                          }}
+                          className="h-7 text-sm text-yellow-600 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1 text-center"
+                          placeholder="Sondertermin-Name"
+                        />
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className={`h-6 text-xs font-normal text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 ${occ.isSkipped ? 'line-through' : ''}`}
+                            >
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : "Datum wählen"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <CalendarComponent
+                              mode="single"
+                              selected={occ.specialDate}
+                              onSelect={(date) => {
+                                if (date) {
+                                  const newSchedule = schedule.map(o =>
+                                    o.occurrenceNumber === occ.occurrenceNumber
+                                      ? { ...o, specialDate: date }
+                                      : o
+                                  );
+                                  setSchedule(newSchedule);
+                                  onChange(newSchedule);
+                                }
+                              }}
+                              locale={de}
+                            />
+                          </PopoverContent>
+                        </Popover>
                       </>
                     ) : (
                       // Regular appointments: "Termin X" with date

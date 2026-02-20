@@ -2638,3 +2638,10 @@
 - [x] Check member filtering logic in mutation payload
 - [x] Fix getRotationSchedule to create entries for notes without members
 - [x] Ensure special appointments can exist without members array
+
+## Feature: Inline Editing für Sondertermine
+- [x] Add inline text field for editing special appointment names in rotation table
+- [x] Add inline calendar picker for editing special appointment dates in rotation table
+- [x] Add inline editing for special appointments in upcoming appointments list ("Termine Planen")
+- [x] Update rotation schedule state when inline edits are made
+- [x] Test inline editing functionality
