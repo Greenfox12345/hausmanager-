@@ -34,21 +34,17 @@ export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTab
         <TableBody>
           {occurrences.map((occ) => (
             <TableRow key={occ.occurrenceNumber} className={`${occ.isSkipped ? 'opacity-60' : ''} ${occ.isSpecial ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}`}>
-              <TableCell className={`font-medium text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                {occ.occurrenceNumber}
+              <TableCell className={`font-medium ${occ.isSkipped ? 'line-through' : ''} ${occ.isSpecial ? 'text-yellow-700 dark:text-yellow-500' : 'text-muted-foreground'}`}>
+                {occ.isSpecial && occ.specialName ? occ.specialName : occ.occurrenceNumber}
               </TableCell>
               <TableCell>
-                {occ.isSpecial && occ.specialName ? (
-                  <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''}`}>
-                    ⭐ {occ.specialName}
-                  </span>
-                ) : occ.date ? (
+                {occ.date ? (
                   <span className={`text-sm ${occ.isSkipped ? 'line-through' : ''}`}>
                     {format(occ.date, "EEE, dd.MM.yyyy", { locale: de })}
                   </span>
                 ) : (
                   <span className={`text-sm text-muted-foreground italic ${occ.isSkipped ? 'line-through' : ''}`}>
-                    Termin {occ.occurrenceNumber}
+                    Kein Datum
                   </span>
                 )}
               </TableCell>

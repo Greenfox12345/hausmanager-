@@ -2645,3 +2645,7 @@
 - [x] Add inline editing for special appointments in upcoming appointments list ("Termine Planen")
 - [x] Update rotation schedule state when inline edits are made
 - [x] Test inline editing functionality
+
+## UI Improvement: Sondertermin Layout in UpcomingOccurrencesTable
+- [x] Show special appointment name in first column (instead of "Termin X")
+- [x] Show special appointment date in second column (like regular appointments)
