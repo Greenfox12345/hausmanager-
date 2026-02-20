@@ -2729,3 +2729,18 @@
 - [x] Backend: getRotationSchedule lädt specialDate korrekt
 - [x] Frontend: Alle UI-Komponenten verwenden specialDate für manuelle Daten
 - [x] Konzept geklärt: reguläre Termine = berechnet, unregelmäßige/Sondertermine = specialDate
+
+## Tabellensynchronisierung für unregelmäßige Termine (AKTUELL)
+- [x] Termine aus "Termine Planen" werden nicht in "Rotationsplan" angezeigt
+- [x] Datumseingabe in "Rotationsplan" funktioniert nicht (Kalender öffnet, aber Klick auf Datum hat keine Wirkung)
+- [x] RotationScheduleTable: specialDate Anzeige für unregelmäßige Termine implementieren
+- [x] RotationScheduleTable: onChange Handler für Datumseingabe fixen
+- [x] Synchronisierung zwischen beiden Tabellen testen
+
+## Tabellensynchronisierung Fix (2026-02-20)
+- [x] calculatedDate komplett aus RotationScheduleTable.tsx entfernt
+- [x] Datums-Anzeige für unregelmäßige Termine verwendet jetzt specialDate
+- [x] Datums-Eingabe (onChange) setzt jetzt specialDate
+- [x] Sortierung verwendet specialDate || calculateOccurrenceDate()
+- [x] Reguläre Termine werden on-the-fly berechnet (keine Speicherung)
+- [x] Synchronisierung zwischen "Termine Planen" und "Rotationsplan" implementiert

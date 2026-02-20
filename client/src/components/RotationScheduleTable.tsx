@@ -122,12 +122,8 @@ export function RotationScheduleTable({
     if (!dueDate && repeatUnit !== "irregular") return;
     
     if (initialSchedule && initialSchedule.length > 0) {
-      // Use provided initial schedule
-      const withDates = initialSchedule.map(occ => ({
-        ...occ,
-        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-      }));
-      setSchedule(withDates);
+      // Use provided initial schedule (dates are either in specialDate or calculated on-the-fly)
+      setSchedule(initialSchedule);
       isInitialized.current = true;
     } else {
       // Create default 3 occurrences
@@ -150,7 +146,6 @@ export function RotationScheduleTable({
           occurrenceNumber: i,
           members,
           notes: "",
-          calculatedDate: calculateOccurrenceDate(i),
         });
       }
       
@@ -168,22 +163,11 @@ export function RotationScheduleTable({
     isSyncingWithInitialSchedule.current = true;
     
     // Sync with initialSchedule: update length, isSkipped, and other properties
-    // Special occurrences keep their own date, only recalculate regular ones
-    const withDates = initialSchedule.map(occ => {
-      if (occ.isSpecial) {
-        // Special occurrences already have their calculatedDate from DB
-        return occ;
-      }
-      return {
-        ...occ,
-        calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-      };
-    });
-    
     // Sort by date to maintain chronological order
-    const sorted = withDates.sort((a, b) => {
-      const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
-      const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+    const sorted = initialSchedule.slice().sort((a, b) => {
+      // For irregular/special: use specialDate, for regular: calculate on-the-fly
+      const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
+      const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
       if (!dateA || !dateB) return 0;
       return dateA.getTime() - dateB.getTime();
     });
@@ -201,28 +185,9 @@ export function RotationScheduleTable({
     if (!isInitialized.current) return;
     if (!dueDate) return;
     
-    isUpdatingDates.current = true;
-    setSchedule(prev => {
-      const updated = prev.map(occ => {
-        // Special occurrences keep their own date, only recalculate regular ones
-        if (occ.isSpecial) {
-          return occ;
-        }
-        return {
-          ...occ,
-          calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
-        };
-      });
-      
-      // Sort by date to maintain chronological order
-      return updated.sort((a, b) => {
-        const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
-        const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
-        if (!dateA || !dateB) return 0;
-        return dateA.getTime() - dateB.getTime();
-      });
-    });
-    isUpdatingDates.current = false;
+    // For regular appointments, dates are calculated on-the-fly, no need to update schedule
+    // For irregular/special appointments, dates are in specialDate and don't change with these props
+    // This effect is now a no-op but kept for potential future use
   }, [dueDate, repeatInterval, repeatUnit, monthlyRecurrenceMode, monthlyWeekday, monthlyOccurrence]);
 
   // Notify parent when schedule changes (but not during date updates, initial mount, or initialSchedule sync)
@@ -241,7 +206,6 @@ export function RotationScheduleTable({
       const renumbered = filtered.map((occ, index) => ({
         ...occ,
         occurrenceNumber: index + 1,
-        calculatedDate: calculateOccurrenceDate(index + 1),
       }));
       onChangeRef.current(renumbered);
       return renumbered;
@@ -309,8 +273,8 @@ export function RotationScheduleTable({
       
       // Sort by date (chronologically)
       const sorted = withSpecial.sort((a, b) => {
-        const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
-        const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+        const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
+        const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
         if (!dateA || !dateB) return 0;
         return dateA.getTime() - dateB.getTime();
       });
@@ -353,11 +317,10 @@ export function RotationScheduleTable({
       updated[currentIndex] = updated[swapIndex];
       updated[swapIndex] = temp;
 
-      // Renumber all occurrences and recalculate dates
+      // Renumber all occurrences (dates are either in specialDate or calculated on-the-fly)
       const renumbered = updated.map((occ, index) => ({
         ...occ,
         occurrenceNumber: index + 1,
-        calculatedDate: calculateOccurrenceDate(index + 1),
       }));
 
       onChangeRef.current(renumbered);
@@ -595,24 +558,24 @@ export function RotationScheduleTable({
                               type="button"
                               variant="ghost"
                               className={`h-6 text-xs font-normal px-1 ${
-                                occ.calculatedDate
+                                occ.specialDate
                                   ? 'hover:bg-accent text-muted-foreground'
                                   : 'hover:bg-accent text-muted-foreground italic'
                               } ${occ.isSkipped ? 'line-through' : ''}`}
                             >
                               <Calendar className="h-3 w-3 mr-1" />
-                              {occ.calculatedDate ? format(occ.calculatedDate, "dd.MM.yyyy", { locale: de }) : "Datum eingeben"}
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : "Datum eingeben"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
                             <CalendarComponent
                               mode="single"
-                              selected={occ.calculatedDate}
+                              selected={occ.specialDate}
                               onSelect={(date) => {
                                 if (date) {
                                   const newSchedule = schedule.map(o =>
                                     o.occurrenceNumber === occ.occurrenceNumber
-                                      ? { ...o, calculatedDate: date }
+                                      ? { ...o, specialDate: date }
                                       : o
                                   );
                                   setSchedule(newSchedule);
@@ -630,9 +593,9 @@ export function RotationScheduleTable({
                         <span className={occ.isSkipped ? 'line-through' : ''}>
                           Termin {occ.occurrenceNumber}
                         </span>
-                        {occ.calculatedDate && (
+                        {calculateOccurrenceDate(occ.occurrenceNumber) && (
                           <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                            {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
+                            {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: de })}
                           </span>
                         )}
                       </>
