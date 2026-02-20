@@ -198,6 +198,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
+  const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
   
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
@@ -1637,11 +1638,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Kommende Termine */}
                 {(task.enableRepeat || task.repeatUnit) && rotationScheduleData && rotationScheduleData.length > 0 && (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <Calendar className="h-4 w-4" />
-                      Kommende Termine
-                    </div>
-                    <UpcomingOccurrencesTable
+                    <button
+                      type="button"
+                      onClick={() => setIsUpcomingTermineExpanded(!isUpcomingTermineExpanded)}
+                      className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity"
+                    >
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isUpcomingTermineExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <Calendar className="h-4 w-4" />
+                        Kommende Termine
+                      </div>
+                    </button>
+                    {isUpcomingTermineExpanded && (
+                      <UpcomingOccurrencesTable
                       occurrences={rotationSchedule
                         .map((occ: any, index: number) => {
                         const memberNames = occ.members
@@ -1728,6 +1737,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         return occ._hasSpecialFeatures;
                       })}
                     />
+                    )}
                   </div>
                 )}
 
