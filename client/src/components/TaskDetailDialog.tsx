@@ -276,26 +276,53 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Memoize handleRotationScheduleChange to prevent function recreation on every render
   const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
-    // Recalculate dates for all occurrences based on their current occurrence number
-    const withDates = schedule.map(occ => ({
-      ...occ,
-      calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber)
-    }));
-    
-    // Sort by calculatedDate if available, then renumber sequentially
-    const sorted = [...withDates].sort((a, b) => {
-      if (!a.calculatedDate && !b.calculatedDate) return 0;
-      if (!a.calculatedDate) return 1;
-      if (!b.calculatedDate) return -1;
-      return new Date(a.calculatedDate).getTime() - new Date(b.calculatedDate).getTime();
+    // Recalculate dates ONLY for regular occurrences, preserve specialDate for special ones
+    const withDates = schedule.map(occ => {
+      if (occ.isSpecial) {
+        // Special occurrences: keep specialDate, no calculatedDate
+        return {
+          ...occ,
+          calculatedDate: undefined,
+        };
+      } else {
+        // Regular occurrences: calculate date based on occurrence number
+        return {
+          ...occ,
+          calculatedDate: calculateOccurrenceDate(occ.occurrenceNumber),
+        };
+      }
     });
     
-    // Renumber sequentially starting from 1 and recalculate dates with new numbers
-    const renumbered = sorted.map((occ, index) => ({
-      ...occ,
-      occurrenceNumber: index + 1,
-      calculatedDate: calculateOccurrenceDate(index + 1)
-    }));
+    // Sort by date (use specialDate for special, calculatedDate for regular)
+    const sorted = [...withDates].sort((a, b) => {
+      const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
+      const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
+    });
+    
+    // Renumber: Regular occurrences get 1, 2, 3..., Special occurrences get 1000, 1001, 1002...
+    let regularCount = 1;
+    let specialCount = 1000;
+    const renumbered = sorted.map(occ => {
+      if (occ.isSpecial) {
+        // Special occurrences: high numbers, keep specialDate
+        return {
+          ...occ,
+          occurrenceNumber: specialCount++,
+          calculatedDate: undefined,
+        };
+      } else {
+        // Regular occurrences: sequential numbers, recalculate date with new number
+        return {
+          ...occ,
+          occurrenceNumber: regularCount,
+          calculatedDate: calculateOccurrenceDate(regularCount++),
+        };
+      }
+    });
     
     setRotationSchedule(renumbered);
   }, [calculateOccurrenceDate]);

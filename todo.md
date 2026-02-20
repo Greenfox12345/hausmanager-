@@ -2620,6 +2620,10 @@
 - [x] Fix "Termine Planen" section to load and display special appointments (Sondertermine) from database
 
 ## Bug Fix: Sondertermin Speicherung
-- [x] Fix special appointment saving - currently only optimistic updates, appointments disappear after reload
-- [x] Ensure specialDate is properly saved to database
-- [x] Verify special appointments load correctly from database
+- [x] Fix special appointment saving - currently only optimistic updates, appointments disappear after reload (STILL BROKEN)
+- [x] Trace complete save flow: dialog -> handleAddSpecialOccurrence -> rotationSchedule state -> handleSave -> mutation
+- [x] Check if specialDate is properly passed through all steps
+- [x] Verify database schema supports specialDate field
+- [x] Test end-to-end persistence
+- [x] Fix handleRotationScheduleChange to preserve specialDate for special appointments
+- [x] Fix server/db.ts setRotationSchedule to save specialDate instead of calculatedDate
