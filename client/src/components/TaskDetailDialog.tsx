@@ -416,7 +416,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         isSkipped: occ.isSkipped || false, // Include skip status
         isSpecial: occ.isSpecial || false, // Include special occurrence flag
         specialName: occ.specialName, // Include special occurrence name
-        calculatedDate: occ.specialDate || undefined, // Use specialDate for special occurrences
+        specialDate: occ.specialDate, // For special occurrences
+        calculatedDate: undefined, // Will be calculated by RotationScheduleTable for regular occurrences
       }));
       setRotationSchedule(scheduleWithDates);
     }
@@ -592,7 +593,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             isSkipped: occ.isSkipped, // Preserve skip status
             isSpecial: occ.isSpecial, // Preserve special occurrence flag
             specialName: occ.specialName, // Preserve special occurrence name
-            calculatedDate: occ.calculatedDate, // Preserve calculated/special date
+            calculatedDate: occ.isSpecial ? undefined : occ.calculatedDate, // Only for regular occurrences
+            specialDate: occ.isSpecial ? occ.specialDate : undefined, // Only for special occurrences
           })),
         });
       }
@@ -1634,8 +1636,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           .map((m: any) => members.find(mem => mem.memberId === m.memberId)?.memberName)
                           .filter((name: string | undefined): name is string => name !== undefined && name !== null);
                         
-                        // Use calculatedDate from rotationSchedule if available, otherwise calculate
-                        let calculatedDate: Date | undefined = occ.calculatedDate ? new Date(occ.calculatedDate) : undefined;
+                        // Use specialDate for special occurrences, calculatedDate for regular ones
+                        let calculatedDate: Date | undefined;
+                        if (occ.isSpecial && occ.specialDate) {
+                          calculatedDate = new Date(occ.specialDate);
+                        } else if (occ.calculatedDate) {
+                          calculatedDate = new Date(occ.calculatedDate);
+                        }
                         if (!calculatedDate && task.dueDate && task.repeatUnit !== "irregular") {
                           const baseDate = new Date(task.dueDate);
                           const interval = task.repeatInterval || 1;

@@ -2527,3 +2527,21 @@
 - [x] Alle Termine werden jetzt immer chronologisch sortiert
 - [x] Sondertermine erscheinen an der richtigen Position zwischen regulären Terminen
 - [x] Beispiel: Reg1 (01.03), Sonder (05.03), Reg2 (10.03), Reg3 (17.03)
+
+
+## KRITISCHER BUG: Sondertermin-Datum wird beim Speichern/Laden überschrieben (19.02.2026)
+
+**Problem - BEHOBEN:**
+- [x] Sondertermine werden mit eigenem Datum erstellt
+- [x] Nach Speichern und Neuladen wird das Datum zu einem regulären Termin-Datum
+- [x] calculatedDate wurde für beide Termintypen verwendet (Konflikt)
+
+**Lösungsansatz:**
+- [x] Separate Felder verwenden: calculatedDate für reguläre, specialDate für Sondertermine
+- [x] ScheduleOccurrence Interface erweitert um specialDate
+- [x] Backend gibt beide Felder zurück (specialDate in DB-Spalte)
+- [x] Frontend wählt je nach isSpecial das richtige Feld in allen Tabellen
+- [x] Keine Umwandlung mehr nötig, saubere Trennung
+- [x] RotationScheduleTable zeigt korrektes Datum basierend auf Termintyp
+- [x] UpcomingOccurrencesTable zeigt korrektes Datum basierend auf Termintyp
+- [ ] TypeScript-Fehler beheben (Cache-Problem)

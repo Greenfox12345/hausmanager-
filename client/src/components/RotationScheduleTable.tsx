@@ -38,10 +38,11 @@ export interface ScheduleOccurrence {
   occurrenceNumber: number;
   members: { position: number; memberId: number }[];
   notes?: string;
-  calculatedDate?: Date;
+  calculatedDate?: Date; // For regular occurrences (auto-calculated)
+  specialDate?: Date; // For special occurrences (manually set)
   isSkipped?: boolean;
-  isSpecial?: boolean; // True for special occurrences (not counted in rotation)
-  specialName?: string; // Custom name for special occurrences
+  isSpecial?: boolean;
+  specialName?: string;
 }
 
 export function RotationScheduleTable({
@@ -173,8 +174,10 @@ export function RotationScheduleTable({
     
     // Sort by date to maintain chronological order
     const sorted = withDates.sort((a, b) => {
-      if (!a.calculatedDate || !b.calculatedDate) return 0;
-      return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+      const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
+      const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+      if (!dateA || !dateB) return 0;
+      return dateA.getTime() - dateB.getTime();
     });
     
     setSchedule(sorted);
@@ -205,8 +208,10 @@ export function RotationScheduleTable({
       
       // Sort by date to maintain chronological order
       return updated.sort((a, b) => {
-        if (!a.calculatedDate || !b.calculatedDate) return 0;
-        return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+        const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
+        const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+        if (!dateA || !dateB) return 0;
+        return dateA.getTime() - dateB.getTime();
       });
     });
     isUpdatingDates.current = false;
@@ -286,7 +291,7 @@ export function RotationScheduleTable({
           position: i + 1,
           memberId: 0, // Unassigned
         })),
-        calculatedDate: specialOccurrenceDate,
+        specialDate: specialOccurrenceDate, // Use specialDate for special occurrences
         isSpecial: true,
         specialName: specialOccurrenceName,
       };
@@ -296,8 +301,10 @@ export function RotationScheduleTable({
       
       // Sort by date (chronologically)
       const sorted = withSpecial.sort((a, b) => {
-        if (!a.calculatedDate || !b.calculatedDate) return 0;
-        return a.calculatedDate.getTime() - b.calculatedDate.getTime();
+        const dateA = a.isSpecial ? a.specialDate : a.calculatedDate;
+        const dateB = b.isSpecial ? b.specialDate : b.calculatedDate;
+        if (!dateA || !dateB) return 0;
+        return dateA.getTime() - dateB.getTime();
       });
       
       // Renumber: Regular occurrences keep their sequence (1, 2, 3...)
@@ -526,9 +533,9 @@ export function RotationScheduleTable({
                         {occ.isSpecial ? occ.specialName : `Termin ${occ.occurrenceNumber}`}
                       </span>
                     </div>
-                    {occ.calculatedDate && (
+                    {((occ.isSpecial && occ.specialDate) || (!occ.isSpecial && occ.calculatedDate)) && (
                       <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                        {format(occ.calculatedDate, "dd.MM.yyyy", { locale: de })}
+                        {format(occ.isSpecial ? occ.specialDate! : occ.calculatedDate!, "dd.MM.yyyy", { locale: de })}
                       </span>
                     )}
                   </div>
