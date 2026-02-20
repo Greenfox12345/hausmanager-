@@ -2615,3 +2615,6 @@
 - [ ] Sondertermin-Button neben "Fügen Sie Notizen für spezifische Termine hinzu"
 - [ ] Button öffnet Dialog zum Erstellen von Sonderterminen
 - [ ] Funktionalität identisch mit Sondertermin-Button im Rotationsplan
+
+## Bug Fix: Termine Planen Section
+- [x] Fix "Termine Planen" section to load and display special appointments (Sondertermine) from database

@@ -1188,10 +1188,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                   <tr key={occ.occurrenceNumber} className={`border-t ${occ.isSkipped ? 'opacity-60' : ''}`}>
                                     <td className="p-2">
                                       <div className="flex flex-col gap-1">
-                                        <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''}`}>Termin {occ.occurrenceNumber}</span>
-                                        {occ.calculatedDate && (
+                                        <div className="flex items-center gap-1">
+                                          {occ.isSpecial && <Star className="h-3 w-3 text-yellow-600 fill-yellow-600" />}
+                                          <span className={`text-sm font-medium ${occ.isSkipped ? 'line-through' : ''} ${occ.isSpecial ? 'text-yellow-700 dark:text-yellow-500' : ''}`}>
+                                            {occ.isSpecial ? occ.specialName : `Termin ${occ.occurrenceNumber}`}
+                                          </span>
+                                        </div>
+                                        {((occ.isSpecial && occ.specialDate) || (!occ.isSpecial && occ.calculatedDate)) && (
                                           <span className="text-xs text-muted-foreground">
-                                            {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
+                                            {format(occ.isSpecial ? new Date(occ.specialDate!) : new Date(occ.calculatedDate!), "dd.MM.yyyy", { locale: de })}
                                           </span>
                                         )}
                                       </div>
