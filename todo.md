@@ -2813,3 +2813,11 @@
 - [x] UX: Gitter-Overlay für bessere Orientierung
 - [x] UX: Responsive für mobile Geräte
 - [x] UX: Keyboard-Shortcuts (Enter = Übernehmen, Esc = Abbrechen)
+
+## BUG: Profilbild-Speicherung (AKTUELL)
+- [x] Problem: Profilbild wird nicht korrekt mit Account verknüpft
+- [x] Problem: Bild verschwindet beim Neuladen der Seite
+- [x] Backend: uploadProfileImage Procedure überprüfen
+- [x] Backend: Datenbankfeld profileImageUrl prüfen
+- [x] Frontend: Cache-Invalidierung nach Upload prüfen
+- [x] Test: Profilbild hochladen und Seite neu laden

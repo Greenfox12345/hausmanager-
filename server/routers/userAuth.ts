@@ -65,6 +65,7 @@ export const userAuthRouter = router({
           id: newUser.insertId,
           email: input.email,
           name: input.name,
+          profileImageUrl: null,
         },
       };
     }),
@@ -126,6 +127,7 @@ export const userAuthRouter = router({
           email: user.email,
           name: user.name,
           role: user.role,
+          profileImageUrl: user.profileImageUrl,
         },
       };
     }),
@@ -173,6 +175,7 @@ export const userAuthRouter = router({
           email: user.email,
           name: user.name,
           role: user.role,
+          profileImageUrl: user.profileImageUrl,
         };
       } catch (error) {
         return null; // Invalid or expired token
