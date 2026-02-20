@@ -2772,3 +2772,32 @@
 - [x] UX: Erfolgs-Toast nach Speichern
 - [x] UX: Fehlerbehandlung und Fehlermeldungen
 - [x] Tests: Profilverwaltung Test-Datei erstellt (DB-Verbindung in Test-Env problematisch)
+
+## Profilbild-Upload (AKTUELL)
+- [ ] Datenbank: profileImageUrl Feld zu users Tabelle hinzufügen
+- [ ] Migration: Schema-Änderung mit pnpm db:push anwenden
+- [ ] Backend: userProfile.uploadProfileImage Procedure (S3 Upload)
+- [ ] Backend: userProfile.deleteProfileImage Procedure
+- [ ] Backend: userProfile.getProfile erweitern (profileImageUrl zurückgeben)
+- [ ] Frontend: Profilbild-Upload-Komponente mit Vorschau
+- [ ] Frontend: Client-seitige Bildkompression vor Upload
+- [ ] Frontend: Profilbild-Anzeige auf HouseholdSelection (statt Icon)
+- [ ] Frontend: "Bild entfernen"-Button
+- [ ] UX: Drag & Drop Support
+- [ ] UX: Ladeindikator während Upload
+- [ ] Validierung: Bildgröße (max. 5MB)
+- [ ] Validierung: Bildformat (JPEG, PNG, WebP)
+
+## Profilbild-Upload - Abgeschlossen (2026-02-20)
+- [x] Datenbank: profileImageUrl Feld zu users Tabelle hinzugefügt
+- [x] Migration: Schema-Änderung mit SQL angewendet
+- [x] Backend: userProfile.uploadProfileImage Procedure (S3 Upload)
+- [x] Backend: userProfile.deleteProfileImage Procedure
+- [x] Backend: userProfile.getProfile erweitert (profileImageUrl zurückgeben)
+- [x] Frontend: Profilbild-Upload-Komponente mit Vorschau
+- [x] Frontend: Client-seitige Bildkompression vor Upload (800px max, 85% Qualität)
+- [x] Frontend: Profilbild-Anzeige auf HouseholdSelection (statt Icon)
+- [x] Frontend: "Bild entfernen"-Button
+- [x] UX: Ladeindikator während Upload
+- [x] Validierung: Bildgröße (max. 5MB)
+- [x] Validierung: Bildformat (nur image/*)

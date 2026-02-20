@@ -174,8 +174,16 @@ export default function HouseholdSelection() {
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
             <CardContent className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
-                  <User className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
+                  {currentUser.profileImageUrl ? (
+                    <img 
+                      src={currentUser.profileImageUrl} 
+                      alt={currentUser.name} 
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-6 w-6 text-white" />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">{currentUser.name}</h3>

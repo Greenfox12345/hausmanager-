@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X, User } from "lucide-react";
+import { useRef } from "react";
 
 interface UserProfileDialogProps {
   open: boolean;
@@ -27,6 +28,9 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Update profile mutation
   const updateProfileMutation = trpc.userProfile.updateProfile.useMutation({
@@ -38,6 +42,33 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
     },
     onError: (error) => {
       toast.error(error.message || "Fehler beim Aktualisieren des Profils");
+    },
+  });
+
+  // Upload profile image mutation
+  const uploadProfileImageMutation = trpc.userProfile.uploadProfileImage.useMutation({
+    onSuccess: (data) => {
+      toast.success("Profilbild erfolgreich hochgeladen");
+      utils.userProfile.getProfile.invalidate();
+      utils.userAuth.getCurrentUser.invalidate();
+      setProfileImagePreview(null);
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Fehler beim Hochladen des Profilbilds");
+      setIsUploading(false);
+    },
+  });
+
+  // Delete profile image mutation
+  const deleteProfileImageMutation = trpc.userProfile.deleteProfileImage.useMutation({
+    onSuccess: () => {
+      toast.success("Profilbild erfolgreich entfernt");
+      utils.userProfile.getProfile.invalidate();
+      utils.userAuth.getCurrentUser.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Fehler beim Entfernen des Profilbilds");
     },
   });
 
@@ -77,6 +108,75 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Bitte wählen Sie eine Bilddatei aus");
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Bild darf maximal 5MB groß sein");
+      return;
+    }
+
+    // Read and compress image
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Compress image
+        const canvas = document.createElement("canvas");
+        const maxSize = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        setProfileImagePreview(compressedDataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUploadImage = async () => {
+    if (!profileImagePreview) return;
+
+    setIsUploading(true);
+    await uploadProfileImageMutation.mutateAsync({
+      imageData: profileImagePreview,
+      mimeType: "image/jpeg",
+    });
+  };
+
+  const handleDeleteImage = async () => {
+    if (confirm("Möchten Sie Ihr Profilbild wirklich entfernen?")) {
+      await deleteProfileImageMutation.mutateAsync();
+    }
   };
 
   const handleUpdateProfile = () => {
@@ -152,6 +252,90 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
             </TabsList>
 
             <TabsContent value="general" className="space-y-4 mt-4">
+              {/* Profile Image Section */}
+              <div className="space-y-2">
+                <Label>Profilbild</Label>
+                <div className="flex items-center gap-4">
+                  {/* Current or Preview Image */}
+                  <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                    {profileImagePreview ? (
+                      <img src={profileImagePreview} alt="Vorschau" className="h-full w-full object-cover" />
+                    ) : profile?.profileImageUrl ? (
+                      <img src={profile.profileImageUrl} alt="Profilbild" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-10 w-10 text-gray-400" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-2">
+                    {profileImagePreview ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleUploadImage}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Hochladen...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Hochladen
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setProfileImagePreview(null)}
+                          disabled={isUploading}
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Abbrechen
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          {profile?.profileImageUrl ? "Bild ändern" : "Bild hochladen"}
+                        </Button>
+                        {profile?.profileImageUrl && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleDeleteImage}
+                            disabled={deleteProfileImageMutation.isPending}
+                          >
+                            {deleteProfileImageMutation.isPending ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <X className="mr-2 h-4 w-4" />
+                            )}
+                            Entfernen
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">JPEG, PNG oder WebP, max. 5MB</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input

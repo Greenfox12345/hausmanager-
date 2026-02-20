@@ -23,6 +23,7 @@ export const userProfileRouter = router({
         id: users.id,
         email: users.email,
         name: users.name,
+        profileImageUrl: users.profileImageUrl,
       })
       .from(users)
       .where(eq(users.id, ctx.user.id))
@@ -36,6 +37,7 @@ export const userProfileRouter = router({
       id: user.id,
       email: user.email,
       name: user.name,
+      profileImageUrl: user.profileImageUrl,
     };
   }),
 
@@ -132,4 +134,64 @@ export const userProfileRouter = router({
         message: "Passwort erfolgreich geändert",
       };
     }),
+
+  /**
+   * Upload profile image
+   */
+  uploadProfileImage: protectedProcedure
+    .input(
+      z.object({
+        imageData: z.string(), // Base64 encoded image
+        mimeType: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+      // Import storage helper
+      const { storagePut } = await import("../storage");
+
+      // Convert base64 to buffer
+      const base64Data = input.imageData.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
+
+      // Generate unique filename
+      const extension = input.mimeType.split("/")[1];
+      const filename = `profile-${ctx.user.id}-${Date.now()}.${extension}`;
+
+      // Upload to S3
+      const { url } = await storagePut(filename, buffer, input.mimeType);
+
+      // Update user profile
+      await db
+        .update(users)
+        .set({ profileImageUrl: url })
+        .where(eq(users.id, ctx.user.id));
+
+      return {
+        success: true,
+        profileImageUrl: url,
+        message: "Profilbild erfolgreich hochgeladen",
+      };
+    }),
+
+  /**
+   * Delete profile image
+   */
+  deleteProfileImage: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+    // Remove profile image URL from database
+    await db
+      .update(users)
+      .set({ profileImageUrl: null })
+      .where(eq(users.id, ctx.user.id));
+
+    return {
+      success: true,
+      message: "Profilbild erfolgreich entfernt",
+    };
+  }),
 });

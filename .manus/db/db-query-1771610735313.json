@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM users LIKE 'profile%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SHOW COLUMNS FROM users LIKE 'profile%';",
+  "rows": [
+    {
+      "Field": "profileImageUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nprofileImageUrl\ttext\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 386
+}
