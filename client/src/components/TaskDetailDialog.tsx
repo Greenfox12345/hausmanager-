@@ -1246,47 +1246,50 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             Termin {occ.occurrenceNumber}
                                           </span>
                                         )}
-                                        {!occ.isSpecial && occ.calculatedDate && (
-                                          <span className="text-xs text-muted-foreground">
-                                            {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
-                                          </span>
+                                        {occ.isSpecial ? (
+                                          // Editable special appointment date with calendar
+                                          occ.specialDate && (
+                                            <Popover>
+                                              <PopoverTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  className="h-6 text-xs text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 justify-start"
+                                                >
+                                                  <Calendar className="h-3 w-3 mr-1" />
+                                                  {format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })}
+                                                </Button>
+                                              </PopoverTrigger>
+                                              <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                  mode="single"
+                                                  selected={new Date(occ.specialDate)}
+                                                  onSelect={(date) => {
+                                                    if (date) {
+                                                      handleRotationScheduleChange(
+                                                        rotationSchedule.map(o =>
+                                                          o.occurrenceNumber === occ.occurrenceNumber
+                                                            ? { ...o, specialDate: date }
+                                                            : o
+                                                        )
+                                                      );
+                                                    }
+                                                  }}
+                                                  locale={de}
+                                                />
+                                              </PopoverContent>
+                                            </Popover>
+                                          )
+                                        ) : (
+                                          // Regular appointment date (non-editable)
+                                          occ.calculatedDate && (
+                                            <span className="text-xs text-muted-foreground">
+                                              {format(new Date(occ.calculatedDate), "dd.MM.yyyy", { locale: de })}
+                                            </span>
+                                          )
                                         )}
                                       </div>
                                     </td>
                                     <td className="p-2">
-                                      {occ.isSpecial && (
-                                        <div className="mb-2">
-                                          <Popover>
-                                            <PopoverTrigger asChild>
-                                              <Button
-                                                variant="ghost"
-                                                className="h-6 text-xs text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 justify-start"
-                                              >
-                                                <Calendar className="h-3 w-3 mr-1" />
-                                                {occ.specialDate ? format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de }) : "Datum wählen"}
-                                              </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                              <CalendarComponent
-                                                mode="single"
-                                                selected={occ.specialDate ? new Date(occ.specialDate) : undefined}
-                                                onSelect={(date) => {
-                                                  if (date) {
-                                                    handleRotationScheduleChange(
-                                                      rotationSchedule.map(o =>
-                                                        o.occurrenceNumber === occ.occurrenceNumber
-                                                          ? { ...o, specialDate: date }
-                                                          : o
-                                                      )
-                                                    );
-                                                  }
-                                                }}
-                                                locale={de}
-                                              />
-                                            </PopoverContent>
-                                          </Popover>
-                                        </div>
-                                      )}
                                       <Textarea
                                         placeholder="Notiz hinzufügen..."
                                         value={occ.notes || ""}
