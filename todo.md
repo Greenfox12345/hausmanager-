@@ -2654,3 +2654,9 @@
 - [x] Make dates editable for irregular appointments in Termine Planen table (like special appointments)
 - [x] Keep dates auto-calculated for regular appointments (days/weeks/months intervals)
 - [x] Add calendar picker for irregular appointment dates
+
+## Bug Fix: Irregular Appointment Date Display
+- [x] Show "Datum eingeben" button for irregular appointments without dates in Termine Planen
+- [x] Show "Datum eingeben" button for irregular appointments without dates in Rotationsplan
+- [x] Ensure calendar picker works when no date is set (allow setting initial date)
+- [x] Calendar picker shows undefined as selected when no date is set

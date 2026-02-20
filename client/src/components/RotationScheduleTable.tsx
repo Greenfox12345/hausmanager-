@@ -583,8 +583,48 @@ export function RotationScheduleTable({
                           </PopoverContent>
                         </Popover>
                       </>
+                    ) : repeatUnit === 'irregular' ? (
+                      // Irregular appointments: "Termin X" with editable date
+                      <>
+                        <span className={occ.isSkipped ? 'line-through' : ''}>
+                          Termin {occ.occurrenceNumber}
+                        </span>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className={`h-6 text-xs font-normal px-1 ${
+                                occ.calculatedDate
+                                  ? 'hover:bg-accent text-muted-foreground'
+                                  : 'hover:bg-accent text-muted-foreground italic'
+                              } ${occ.isSkipped ? 'line-through' : ''}`}
+                            >
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {occ.calculatedDate ? format(occ.calculatedDate, "dd.MM.yyyy", { locale: de }) : "Datum eingeben"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <CalendarComponent
+                              mode="single"
+                              selected={occ.calculatedDate}
+                              onSelect={(date) => {
+                                if (date) {
+                                  const newSchedule = schedule.map(o =>
+                                    o.occurrenceNumber === occ.occurrenceNumber
+                                      ? { ...o, calculatedDate: date }
+                                      : o
+                                  );
+                                  setSchedule(newSchedule);
+                                  onChange(newSchedule);
+                                }
+                              }}
+                              locale={de}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </>
                     ) : (
-                      // Regular appointments: "Termin X" with date
+                      // Regular appointments: "Termin X" with auto-calculated date
                       <>
                         <span className={occ.isSkipped ? 'line-through' : ''}>
                           Termin {occ.occurrenceNumber}

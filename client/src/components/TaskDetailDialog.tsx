@@ -1248,46 +1248,49 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                         )}
                                         {occ.isSpecial || repeatUnit === 'irregular' ? (
                                           // Editable date with calendar (special appointments or irregular schedules)
-                                          (occ.specialDate || occ.calculatedDate) && (
-                                            <Popover>
-                                              <PopoverTrigger asChild>
-                                                <Button
-                                                  variant="ghost"
-                                                  className={`h-6 text-xs text-muted-foreground px-1 justify-start ${
-                                                    occ.isSpecial 
-                                                      ? 'hover:bg-yellow-100 dark:hover:bg-yellow-950' 
-                                                      : 'hover:bg-accent'
-                                                  }`}
-                                                >
-                                                  <Calendar className="h-3 w-3 mr-1" />
-                                                  {format(new Date(occ.specialDate || occ.calculatedDate!), "dd.MM.yyyy", { locale: de })}
-                                                </Button>
-                                              </PopoverTrigger>
-                                              <PopoverContent className="w-auto p-0" align="start">
-                                                <CalendarComponent
-                                                  mode="single"
-                                                  selected={new Date(occ.specialDate || occ.calculatedDate!)}
-                                                  onSelect={(date) => {
-                                                    if (date) {
-                                                      handleRotationScheduleChange(
-                                                        rotationSchedule.map(o =>
-                                                          o.occurrenceNumber === occ.occurrenceNumber
-                                                            ? { 
-                                                                ...o, 
-                                                                ...(occ.isSpecial 
-                                                                  ? { specialDate: date } 
-                                                                  : { calculatedDate: date })
-                                                              }
-                                                            : o
-                                                        )
-                                                      );
-                                                    }
-                                                  }}
-                                                  locale={de}
-                                                />
-                                              </PopoverContent>
-                                            </Popover>
-                                          )
+                                          <Popover>
+                                            <PopoverTrigger asChild>
+                                              <Button
+                                                variant="ghost"
+                                                className={`h-6 text-xs px-1 justify-start ${
+                                                  occ.isSpecial 
+                                                    ? 'hover:bg-yellow-100 dark:hover:bg-yellow-950 text-muted-foreground' 
+                                                    : (occ.specialDate || occ.calculatedDate)
+                                                      ? 'hover:bg-accent text-muted-foreground'
+                                                      : 'hover:bg-accent text-muted-foreground italic'
+                                                }`}
+                                              >
+                                                <Calendar className="h-3 w-3 mr-1" />
+                                                {(occ.specialDate || occ.calculatedDate) 
+                                                  ? format(new Date(occ.specialDate || occ.calculatedDate!), "dd.MM.yyyy", { locale: de })
+                                                  : "Datum eingeben"
+                                                }
+                                              </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                              <CalendarComponent
+                                                mode="single"
+                                                selected={(occ.specialDate || occ.calculatedDate) ? new Date(occ.specialDate || occ.calculatedDate!) : undefined}
+                                                onSelect={(date) => {
+                                                  if (date) {
+                                                    handleRotationScheduleChange(
+                                                      rotationSchedule.map(o =>
+                                                        o.occurrenceNumber === occ.occurrenceNumber
+                                                          ? { 
+                                                              ...o, 
+                                                              ...(occ.isSpecial 
+                                                                ? { specialDate: date } 
+                                                                : { calculatedDate: date })
+                                                            }
+                                                          : o
+                                                      )
+                                                    );
+                                                  }
+                                                }}
+                                                locale={de}
+                                              />
+                                            </PopoverContent>
+                                          </Popover>
                                         ) : (
                                           // Regular appointment date (auto-calculated, non-editable)
                                           occ.calculatedDate && (
