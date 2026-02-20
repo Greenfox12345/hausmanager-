@@ -2709,3 +2709,14 @@
 - [x] Found: handleRotationScheduleChange was sorting and renumbering ALL occurrences, causing notes to rotate
 - [x] Fix: For irregular appointments, skip sorting and renumbering entirely
 - [x] Now irregular appointments preserve their order and notes stay with the correct occurrence
+
+## CRITICAL BUGS: Irregular Appointment Date Handling
+- [x] Dates entered in "Termine Planen" table show correctly
+- [x] Dates entered in Rotationsplan table reset all other dates and don't display - FIXED by not sorting/renumbering irregular appointments
+- [x] Dates don't persist to database - disappear after reload - FIXED by adding calculatedDate to save/load logic
+- [x] Dates don't show in "Kommende Termine" section - FIXED by loading calculatedDate from database
+- [x] Debug RotationScheduleTable onChange handler for irregular appointments
+- [x] Debug database save/load flow for irregular appointment dates
+- [x] Verify calculatedDate is being sent to backend correctly
+- [x] Verify backend saves calculatedDate for irregular appointments (added to INSERT condition and values)
+- [x] Verify backend loads calculatedDate for irregular appointments (added to SELECT and mapping)
