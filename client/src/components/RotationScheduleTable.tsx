@@ -75,6 +75,15 @@ export function RotationScheduleTable({
     onChangeRef.current = onChange;
   }, [onChange]);
   
+  // Listen for custom event to open special appointment dialog
+  useEffect(() => {
+    const handleOpenDialog = () => {
+      setIsAddingSpecialOccurrence(true);
+    };
+    window.addEventListener('openSpecialAppointmentDialog', handleOpenDialog);
+    return () => window.removeEventListener('openSpecialAppointmentDialog', handleOpenDialog);
+  }, []);
+  
   // Filter out excluded members
   const eligibleMembers = availableMembers.filter(m => !excludedMemberIds.includes(m.memberId));
   

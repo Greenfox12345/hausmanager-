@@ -2590,3 +2590,28 @@
 - [x] isUpcomingTermineExpanded State (default: true)
 - [x] Klickbarer Header mit hover-Effekt
 - [x] UpcomingOccurrencesTable wird ein-/ausgeblendet
+
+
+## Termine automatisch aktualisieren bei Intervalländerung (20.02.2026)
+
+**Anforderung:**
+- [ ] Wenn Wiederholungsintervall (Zahl) geändert wird → Termine sofort neu berechnen
+- [ ] Wenn Zeiteinheit (Tage/Wochen/Monate) geändert wird → Termine sofort neu berechnen
+- [ ] Beide Tabellen ("Rotationsplan" und "Kommende Termine") sollen aktualisiert werden
+- [ ] Sondertermine sollen NICHT neu berechnet werden (behalten ihr Datum)
+
+**Implementierung:**
+- [ ] useEffect in RotationScheduleTable der auf repeatInterval und repeatUnit reagiert
+- [ ] Nur reguläre Termine neu berechnen (isSpecial === false)
+- [ ] Sondertermine aus dem Array filtern, reguläre neu berechnen, dann zusammenführen
+
+
+## Finalisierung Aufgabenbearbeitung: Termine Planen (20.02.2026)
+
+**Anforderung:**
+- [ ] "Termine Planen" Sektion als ausklappbares Akkordeon (wie Rotationsplan)
+- [ ] ChevronDown Icon das beim Klick rotiert
+- [ ] Standard: ausgeklappt
+- [ ] Sondertermin-Button neben "Fügen Sie Notizen für spezifische Termine hinzu"
+- [ ] Button öffnet Dialog zum Erstellen von Sonderterminen
+- [ ] Funktionalität identisch mit Sondertermin-Button im Rotationsplan

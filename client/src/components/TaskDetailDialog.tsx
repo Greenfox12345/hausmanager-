@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, SkipForward, Trash2 } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, SkipForward, Trash2, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -199,6 +199,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
+  const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(true); // Default: expanded
   
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
@@ -1137,12 +1138,38 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
                     {/* Rotation Schedule Planning - shown when repeat mode is not none */}
                     <div className="space-y-3 pl-6 border-l-2 border-muted">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Termine Planen</Label>
-                          <p className="text-xs text-muted-foreground">
-                            Fügen Sie Notizen für spezifische Termine hinzu
-                          </p>
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsTerminePlanenExpanded(!isTerminePlanenExpanded)}
+                            className="flex items-center gap-2 flex-1 text-left hover:opacity-70 transition-opacity"
+                          >
+                            <ChevronDown className={`h-4 w-4 transition-transform ${isTerminePlanenExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                            <div className="space-y-1">
+                              <Label className="text-sm font-medium cursor-pointer">Termine Planen</Label>
+                              <p className="text-xs text-muted-foreground">
+                                Fügen Sie Notizen für spezifische Termine hinzu
+                              </p>
+                            </div>
+                          </button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Trigger the special appointment dialog in RotationScheduleTable
+                              // We'll pass a callback to open it
+                              const event = new CustomEvent('openSpecialAppointmentDialog');
+                              window.dispatchEvent(event);
+                            }}
+                            className="gap-2 shrink-0"
+                          >
+                            <Star className="h-4 w-4" />
+                            Sondertermin
+                          </Button>
                         </div>
+                        
+                        {isTerminePlanenExpanded && (<>
                         
                         {/* Notes Table */}
                         <div className="border rounded-lg overflow-hidden">
@@ -1271,6 +1298,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <Plus className="h-4 w-4" />
                           Termin hinzufügen
                         </Button>
+                        </>)}
                       </div>
 
                     {/* Rotation checkbox - nested under repeat */}
