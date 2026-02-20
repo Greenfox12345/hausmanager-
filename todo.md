@@ -2700,3 +2700,12 @@
 - [x] Check what is currently shown for "Wiederholung:" field in task details for irregular tasks
 - [x] Fix the display logic to show correct information for irregular repetition (now shows "Unregelmäßig" instead of "Alle X Tage/Wochen/Monate")
 - [x] Test with irregular tasks to verify correct display
+
+## CRITICAL BUG: Calendar Date Selection Rotates Notes Instead of Setting Date
+- [x] Calendar opens correctly for irregular appointments
+- [x] Clicking on a date does NOT set the date
+- [x] Instead, clicking rotates notes of previous appointments (very strange behavior)
+- [x] Debug onSelect handler to see what it's actually doing
+- [x] Found: handleRotationScheduleChange was sorting and renumbering ALL occurrences, causing notes to rotate
+- [x] Fix: For irregular appointments, skip sorting and renumbering entirely
+- [x] Now irregular appointments preserve their order and notes stay with the correct occurrence
