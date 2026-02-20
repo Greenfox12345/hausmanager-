@@ -2660,3 +2660,10 @@
 - [x] Show "Datum eingeben" button for irregular appointments without dates in Rotationsplan
 - [x] Ensure calendar picker works when no date is set (allow setting initial date)
 - [x] Calendar picker shows undefined as selected when no date is set
+
+## Bug Fix: Irregular Repeat Setting Not Persisting
+- [x] Investigate why "unregelmäßig wiederholen" setting resets to regular after save
+- [x] Check if repeatUnit is being sent to backend correctly
+- [x] Verify database schema supports "irregular" value
+- [x] Fix loading logic to preserve irregular repeatUnit (was being overwritten by frequency mapping)
+- [x] Fix saving and loading of irregular repeat setting

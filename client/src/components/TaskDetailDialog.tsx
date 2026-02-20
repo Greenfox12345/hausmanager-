@@ -391,8 +391,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       if (hasRepeat) {
-        // Use new frequency field if available, otherwise map old repeat fields
-        if (task.frequency) {
+        // For irregular repeat mode, use repeatUnit directly
+        if (task.repeatUnit === "irregular") {
+          setRepeatUnit("irregular");
+          if (task.repeatInterval) {
+            setRepeatInterval(task.repeatInterval.toString());
+          }
+        } else if (task.frequency) {
+          // Use new frequency field if available, otherwise map old repeat fields
           if (task.frequency === "daily") {
             setRepeatInterval("1");
             setRepeatUnit("days");
@@ -408,7 +414,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           }
         } else if (task.repeatInterval && task.repeatUnit) {
           setRepeatInterval(task.repeatInterval.toString());
-          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
           if (task.monthlyRecurrenceMode) {
             setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
             if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
@@ -718,8 +724,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       if (hasRepeat) {
-        // Use new frequency field if available, otherwise map old repeat fields
-        if (task.frequency) {
+        // For irregular repeat mode, use repeatUnit directly
+        if (task.repeatUnit === "irregular") {
+          setRepeatUnit("irregular");
+          if (task.repeatInterval) {
+            setRepeatInterval(task.repeatInterval.toString());
+          }
+        } else if (task.frequency) {
+          // Use new frequency field if available, otherwise map old repeat fields
           if (task.frequency === "daily") {
             setRepeatInterval("1");
             setRepeatUnit("days");
@@ -735,7 +747,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           }
         } else if (task.repeatInterval && task.repeatUnit) {
           setRepeatInterval(task.repeatInterval.toString());
-          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months");
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
           if (task.monthlyRecurrenceMode) {
             setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
             if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
