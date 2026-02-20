@@ -2801,3 +2801,15 @@
 - [x] UX: Ladeindikator während Upload
 - [x] Validierung: Bildgröße (max. 5MB)
 - [x] Validierung: Bildformat (nur image/*)
+
+## Bildbearbeitungs-Editor für Profilbilder (AKTUELL)
+- [x] Bibliothek: react-easy-crop installieren
+- [x] Komponente: ImageCropEditor mit Crop- und Zoom-Funktionen erstellen
+- [x] UI: Kreisförmiger Crop-Bereich (passend zum Avatar)
+- [x] UI: Zoom-Slider für stufenloses Zoomen
+- [x] UI: Live-Vorschau des zugeschnittenen Bereichs
+- [x] UI: "Übernehmen" und "Abbrechen" Buttons
+- [x] Integration: Crop-Editor in UserProfileDialog Workflow einbauen
+- [x] UX: Gitter-Overlay für bessere Orientierung
+- [x] UX: Responsive für mobile Geräte
+- [x] UX: Keyboard-Shortcuts (Enter = Übernehmen, Esc = Abbrechen)

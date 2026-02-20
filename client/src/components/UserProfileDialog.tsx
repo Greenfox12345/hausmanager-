@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Upload, X, User } from "lucide-react";
 import { useRef } from "react";
+import { ImageCropEditor } from "@/components/ImageCropEditor";
 
 interface UserProfileDialogProps {
   open: boolean;
@@ -30,6 +31,8 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [cropEditorOpen, setCropEditorOpen] = useState(false);
+  const [selectedImageForCrop, setSelectedImageForCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Update profile mutation
@@ -126,41 +129,25 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
       return;
     }
 
-    // Read and compress image
+    // Read image and open crop editor
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Compress image
-        const canvas = document.createElement("canvas");
-        const maxSize = 800;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxSize) {
-            height *= maxSize / width;
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width *= maxSize / height;
-            height = maxSize;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Convert to base64
-        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
-        setProfileImagePreview(compressedDataUrl);
-      };
-      img.src = event.target?.result as string;
+      const imageDataUrl = event.target?.result as string;
+      setSelectedImageForCrop(imageDataUrl);
+      setCropEditorOpen(true);
     };
     reader.readAsDataURL(file);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCropComplete = (croppedImageDataUrl: string) => {
+    setProfileImagePreview(croppedImageDataUrl);
+    setCropEditorOpen(false);
+    setSelectedImageForCrop(null);
   };
 
   const handleUploadImage = async () => {
@@ -444,6 +431,17 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
           </Tabs>
         )}
       </DialogContent>
+
+      {/* Image Crop Editor */}
+      {selectedImageForCrop && (
+        <ImageCropEditor
+          open={cropEditorOpen}
+          onOpenChange={setCropEditorOpen}
+          imageSrc={selectedImageForCrop}
+          onCropComplete={handleCropComplete}
+          isProcessing={false}
+        />
+      )}
     </Dialog>
   );
 }
