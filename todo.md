@@ -2958,8 +2958,11 @@
 - [x] Status-Badge-Logik auf requestStatus umgestellt (pending/approved/active/completed/rejected/cancelled)
 - [x] Button erscheint bei: null, rejected, cancelled (ermöglicht erneute Anfrage)
 
-## Bug Fix: SQL INSERT Fehler bei createBorrowRequest
+## Bug Fix: SQL INSERT Fehler bei createBorrowRequest (PERSISTENT)
 - [x] Fehler: "Failed query: insert into `borrow_requests`" mit zu vielen default-Werten
 - [x] createBorrowRequest Mutation analysiert
 - [x] INSERT Query korrigiert (values-Objekt ohne undefined-Felder)
-- [x] Anfrage-Erstellung testen
+- [x] PROBLEM: Query zeigt immer noch alle Felder mit default (Drizzle ORM Issue)
+- [x] Server neu gestartet und Änderungen verifiziert
+- [x] Alternative Lösung implementiert: Raw SQL Query statt Drizzle ORM
+- [x] Nur notwendige Felder in INSERT (inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId, status, startDate, endDate, requestMessage)

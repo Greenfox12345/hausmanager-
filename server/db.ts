@@ -916,25 +916,33 @@ export async function createBorrowRequest(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Build values object without undefined fields to avoid Drizzle ORM issues
-  const values: any = {
-    inventoryItemId: data.inventoryItemId,
-    borrowerHouseholdId: data.borrowerHouseholdId,
-    borrowerMemberId: data.borrowerMemberId,
-    ownerHouseholdId: data.ownerHouseholdId,
-    startDate: data.startDate,
-    endDate: data.endDate,
-    status: data.status || "pending",
-  };
-
-  // Only add requestMessage if it's provided
-  if (data.requestMessage !== undefined) {
-    values.requestMessage = data.requestMessage;
+  // Use raw SQL to avoid Drizzle ORM's attempt to set all fields with default
+  const sql = `
+    INSERT INTO borrow_requests (
+      inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
+      status, startDate, endDate${data.requestMessage ? ', requestMessage' : ''}
+    ) VALUES (
+      ?, ?, ?, ?, ?, ?, ?${data.requestMessage ? ', ?' : ''}
+    )
+  `;
+  
+  const params = [
+    data.inventoryItemId,
+    data.borrowerHouseholdId,
+    data.borrowerMemberId,
+    data.ownerHouseholdId,
+    data.status || "pending",
+    data.startDate,
+    data.endDate,
+  ];
+  
+  if (data.requestMessage) {
+    params.push(data.requestMessage);
   }
 
-  const [result] = await db.insert(borrowRequests).values(values);
+  const [result] = await db.execute(sql, params);
 
-  return result.insertId;
+  return (result as any).insertId;
 }
 
 export async function getBorrowRequestById(requestId: number) {
