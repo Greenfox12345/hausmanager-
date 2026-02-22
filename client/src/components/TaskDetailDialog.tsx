@@ -24,6 +24,7 @@ import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { RotationScheduleTable, type ScheduleOccurrence } from "./RotationScheduleTable";
 import { UpcomingOccurrencesTable } from "./UpcomingOccurrencesTable";
+import { RequiredItemsSection } from "./RequiredItemsSection";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 
@@ -655,22 +656,46 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           schedule: schedulePayload,
         });
         
-        // Save items for each occurrence
-        // First, remove all existing items for this task
-        await removeAllTaskItemsMutation.mutateAsync({ taskId: task.id });
+        // Save items for each occurrence (intelligent update)
+        // Load existing items from database
+        const existingItems = await utils.taskOccurrenceItems.getTaskOccurrenceItems.fetch({ taskId: task.id });
         
-        // Then, add all items from rotationSchedule
+        // Build map of current items from rotationSchedule
+        const currentItemsMap = new Map<string, { occurrenceNumber: number; itemId: number }>();
         for (const occ of rotationSchedule) {
           if (occ.items && occ.items.length > 0) {
             for (const item of occ.items) {
-              await addItemToOccurrenceMutation.mutateAsync({
-                taskId: task.id,
-                occurrenceNumber: occ.occurrenceNumber,
-                inventoryItemId: item.itemId,
-              });
+              const key = `${occ.occurrenceNumber}-${item.itemId}`;
+              currentItemsMap.set(key, { occurrenceNumber: occ.occurrenceNumber, itemId: item.itemId });
             }
           }
         }
+        
+        // Build map of existing items from database
+        const existingItemsMap = new Map<string, number>();
+        for (const item of existingItems) {
+          const key = `${item.occurrenceNumber}-${item.inventoryItemId}`;
+          existingItemsMap.set(key, item.id);
+        }
+        
+        // Delete items that are in DB but not in current list
+        for (const [key, itemId] of existingItemsMap) {
+          if (!currentItemsMap.has(key)) {
+            await removeItemFromOccurrenceMutation.mutateAsync({ itemId });
+          }
+        }
+        
+        // Add items that are in current list but not in DB
+        for (const [key, { occurrenceNumber, itemId }] of currentItemsMap) {
+          if (!existingItemsMap.has(key)) {
+            await addItemToOccurrenceMutation.mutateAsync({
+              taskId: task.id,
+              occurrenceNumber,
+              inventoryItemId: itemId,
+            });
+          }
+        }
+        // Items that are in both lists are left unchanged (preserves borrow details)
       }
       
       // Step 2: Update dependencies (BEFORE invalidating)
@@ -2041,6 +2066,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* Required Items Section */}
+                {task && rotationSchedule.length > 0 && (
+                  <RequiredItemsSection
+                    taskId={task.id}
+                    householdId={task.householdId}
+                    rotationSchedule={rotationSchedule}
+                    onItemAdded={() => {
+                      // Invalidate queries to reload items
+                      utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId: task.id });
+                    }}
+                  />
                 )}
                 
                 {/* Dependencies */}

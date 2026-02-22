@@ -2902,3 +2902,22 @@
 - [x] Lade-Logik analysieren (useEffect Dependency)
 - [x] Speicher-Logik analysieren (Duplikat-Prüfung)
 - [x] Lösung implementieren
+
+## Intelligentes Items-Update und Ausleihanfragen (AKTUELL)
+- [ ] Intelligentes Update-Verfahren statt "alles löschen" (bewahrt Ausleih-Details)
+- [ ] Update bestehende Items (wenn noch in Liste)
+- [ ] Lösche nur entfernte Items (nicht mehr in Liste)
+- [ ] Füge nur neue Items hinzu (noch nicht in DB)
+- [ ] Ausleihanfragen-Erstellung untersuchen (warum werden keine erstellt?)
+- [ ] Borrow-Integration implementieren (automatische Ausleihe-Erstellung)
+
+## Bereich "Benötigte Gegenstände" in Aufgaben-Details
+- [x] RequiredItemsSection Komponente erstellen
+- [x] Dynamische Tabelle mit Terminen als Spalten
+- [x] Items werden von oben nach unten aufgefüllt
+- [x] "+ Gegenstand" Button in nächster freier Zeile jeder Spalte
+- [x] Leere Zellen ohne Rahmen
+- [x] Ausleih-Zeitraum-Eingabe (Start/Ende)
+- [x] Status-Badge (nicht angefragt, angefragt, genehmigt, ausgeliehen, zurückgegeben)
+- [x] "Ausleihe anfragen"-Button
+- [x] Integration in TaskDetailDialog unterhalb Einkaufsliste
