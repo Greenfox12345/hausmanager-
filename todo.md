@@ -2939,3 +2939,12 @@
 - [x] Prop-Name von onSelect zu onSelectItem geändert
 - [x] Handler-Signatur mit itemName Parameter aktualisiert
 - [x] excludeItemIds hinzugefügt (bereits hinzugefügte Items ausblenden)
+
+## BorrowRequestDialog für Ausleih-Anfragen erstellen
+- [x] BorrowRequestDialog Komponente erstellen
+- [x] Formular mit Ausleih-Zeitraum (Start/Ende) vorausgefüllt
+- [x] Anfrage-Nachricht mit Aufgaben- und Termindetails vorausgefüllt
+- [x] Verantwortliche Person(en) anzeigen
+- [x] Bearbeitbare Felder vor dem Absenden
+- [x] Integration in RequiredItemsSection (Button öffnet Dialog)
+- [x] Direkte Anfrage durch Dialog-Workflow ersetzen

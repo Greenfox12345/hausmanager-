@@ -2073,6 +2073,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <RequiredItemsSection
                     taskId={task.id}
                     householdId={task.householdId}
+                    taskName={task.name}
+                    members={members}
                     rotationSchedule={rotationSchedule}
                     onItemAdded={() => {
                       // Invalidate queries to reload items

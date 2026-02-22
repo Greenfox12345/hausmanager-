@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,14 @@ interface BorrowRequestDialogProps {
     message?: string;
   }) => void;
   isSubmitting?: boolean;
+  // Task and occurrence context
+  taskName?: string;
+  occurrenceNumber?: number;
+  occurrenceDate?: Date;
+  assignedMembers?: string[];
+  // Pre-filled dates
+  initialStartDate?: Date | string | null;
+  initialEndDate?: Date | string | null;
 }
 
 export function BorrowRequestDialog({
@@ -34,10 +42,49 @@ export function BorrowRequestDialog({
   itemId,
   onSubmit,
   isSubmitting = false,
+  taskName,
+  occurrenceNumber,
+  occurrenceDate,
+  assignedMembers = [],
+  initialStartDate,
+  initialEndDate,
 }: BorrowRequestDialogProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");
+
+  // Pre-fill form when dialog opens
+  useEffect(() => {
+    if (open) {
+      // Set dates from initial values
+      if (initialStartDate) {
+        const date = typeof initialStartDate === 'string' ? new Date(initialStartDate) : initialStartDate;
+        setStartDate(date);
+      } else if (occurrenceDate) {
+        setStartDate(occurrenceDate);
+      }
+
+      if (initialEndDate) {
+        const date = typeof initialEndDate === 'string' ? new Date(initialEndDate) : initialEndDate;
+        setEndDate(date);
+      } else if (occurrenceDate) {
+        setEndDate(occurrenceDate);
+      }
+
+      // Generate pre-filled message with task context
+      if (taskName && occurrenceNumber) {
+        const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `Termin ${occurrenceNumber}`;
+        const membersStr = assignedMembers.length > 0 ? `\nVerantwortlich: ${assignedMembers.join(", ")}` : "";
+        
+        setMessage(
+          `Ich benötige "${itemName}" für folgende Aufgabe:\n\n` +
+          `Aufgabe: ${taskName}\n` +
+          `Termin: ${dateStr} (Termin ${occurrenceNumber})${membersStr}\n\n` +
+          `Bitte um Bestätigung der Ausleihe.`
+        );
+      }
+    }
+  }, [open, initialStartDate, initialEndDate, occurrenceDate, taskName, occurrenceNumber, assignedMembers, itemName]);
 
   // Load guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery(
@@ -76,6 +123,24 @@ export function BorrowRequestDialog({
             <Label className="text-sm font-medium">Item</Label>
             <div className="text-sm text-muted-foreground">{itemName}</div>
           </div>
+
+          {/* Task and Occurrence Context */}
+          {taskName && occurrenceNumber && (
+            <Card className="bg-muted/50">
+              <CardContent className="p-3 space-y-1">
+                <div className="text-sm font-medium">{taskName}</div>
+                <div className="text-sm text-muted-foreground flex items-center gap-2">
+                  <CalendarIcon className="h-3 w-3" />
+                  {occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `Termin ${occurrenceNumber}`}
+                </div>
+                {assignedMembers.length > 0 && (
+                  <div className="text-sm text-muted-foreground">
+                    Verantwortlich: {assignedMembers.join(", ")}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Guidelines Display */}
           {guidelines && (guidelines.instructionsText || (guidelines.checklistItems as any[])?.length > 0 || (guidelines.photoRequirements as any[])?.length > 0) && (

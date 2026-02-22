@@ -7,6 +7,7 @@ import { Calendar, Edit2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ItemPickerDialog } from "./ItemPickerDialog";
+import { BorrowRequestDialog } from "./BorrowRequestDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { toast } from "sonner";
@@ -14,10 +15,13 @@ import { toast } from "sonner";
 interface RequiredItemsSectionProps {
   taskId: number;
   householdId: number;
+  taskName: string;
+  members?: Array<{ id: number; name: string }>;
   rotationSchedule: Array<{
     occurrenceNumber: number;
     date?: Date;
     specialDate?: Date;
+    assignedMemberIds?: number[];
     items?: Array<{
       itemId: number;
       itemName: string;
@@ -29,11 +33,22 @@ interface RequiredItemsSectionProps {
 export function RequiredItemsSection({
   taskId,
   householdId,
+  taskName,
+  members = [],
   rotationSchedule,
   onItemAdded,
 }: RequiredItemsSectionProps) {
   const [selectedOccurrence, setSelectedOccurrence] = useState<number | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: number;
+    inventoryItemId: number;
+    itemName: string;
+    occurrenceNumber: number;
+    borrowStartDate?: string | null;
+    borrowEndDate?: string | null;
+  } | null>(null);
 
   // Load occurrence items with borrow details
   const { data: occurrenceItems = [] } = trpc.taskOccurrenceItems.getTaskOccurrenceItems.useQuery({
@@ -242,47 +257,20 @@ export function RequiredItemsSection({
                             <Button 
                               size="sm" 
                               className="w-full"
-                              onClick={async () => {
-                                if (!item.borrowStartDate || !item.borrowEndDate) {
-                                  toast.error("Bitte zuerst Ausleih-Zeitraum festlegen");
-                                  return;
-                                }
+                              onClick={() => {
                                 if (!currentUser) {
                                   toast.error("Bitte anmelden");
                                   return;
                                 }
-                                try {
-                                  const result = await createBorrowRequestMutation.mutateAsync({
-                                    inventoryItemId: item.inventoryItemId,
-                                    borrowerHouseholdId: householdId,
-                                    borrowerMemberId: currentUser.id,
-                                    startDate: new Date(item.borrowStartDate).toISOString(),
-                                    endDate: new Date(item.borrowEndDate).toISOString(),
-                                    requestMessage: `Für Aufgabe #${taskId}, Termin ${item.occurrenceNumber}`,
-                                  });
-                                  
-                                  // Update item with borrow request ID and status
-                                  await updateBorrowMutation.mutateAsync({
-                                    itemId: item.id,
-                                    borrowRequestId: result.requestId,
-                                    borrowStatus: result.autoApproved ? "approved" : "pending",
-                                  });
-                                  
-                                  await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
-                                  
-                                  if (result.autoApproved) {
-                                    toast.success("✅ Ausleihe automatisch genehmigt", {
-                                      description: "Dieser Gegenstand gehört zu deinem Haushalt"
-                                    });
-                                  } else {
-                                    toast.success("📤 Ausleih-Anfrage gesendet", {
-                                      description: "Warte auf Bestätigung des Eigentümers"
-                                    });
-                                  }
-                                } catch (error) {
-                                  console.error("Failed to create borrow request:", error);
-                                  toast.error("Fehler beim Erstellen der Ausleih-Anfrage");
-                                }
+                                setSelectedItem({
+                                  id: item.id,
+                                  inventoryItemId: item.inventoryItemId,
+                                  itemName: item.itemName,
+                                  occurrenceNumber: item.occurrenceNumber,
+                                  borrowStartDate: item.borrowStartDate,
+                                  borrowEndDate: item.borrowEndDate,
+                                });
+                                setBorrowDialogOpen(true);
                               }}
                               disabled={createBorrowRequestMutation.isPending}
                             >
@@ -316,6 +304,71 @@ export function RequiredItemsSection({
               undefined
             : undefined
         }
+      />
+
+      <BorrowRequestDialog
+        open={borrowDialogOpen}
+        onOpenChange={setBorrowDialogOpen}
+        itemName={selectedItem?.itemName || ""}
+        itemId={selectedItem?.inventoryItemId || 0}
+        taskName={taskName}
+        occurrenceNumber={selectedItem?.occurrenceNumber}
+        occurrenceDate={
+          selectedItem?.occurrenceNumber
+            ? rotationSchedule.find((o) => o.occurrenceNumber === selectedItem.occurrenceNumber)?.specialDate ||
+              rotationSchedule.find((o) => o.occurrenceNumber === selectedItem.occurrenceNumber)?.date
+            : undefined
+        }
+        assignedMembers={
+          selectedItem?.occurrenceNumber
+            ? rotationSchedule
+                .find((o) => o.occurrenceNumber === selectedItem.occurrenceNumber)
+                ?.assignedMemberIds?.map((memberId) => members.find((m) => m.id === memberId)?.name)
+                .filter((name): name is string => !!name) || []
+            : []
+        }
+        initialStartDate={selectedItem?.borrowStartDate}
+        initialEndDate={selectedItem?.borrowEndDate}
+        onSubmit={async (data) => {
+          if (!selectedItem || !currentUser) return;
+
+          try {
+            const result = await createBorrowRequestMutation.mutateAsync({
+              inventoryItemId: selectedItem.inventoryItemId,
+              borrowerHouseholdId: householdId,
+              borrowerMemberId: currentUser.id,
+              startDate: data.startDate.toISOString(),
+              endDate: data.endDate.toISOString(),
+              requestMessage: data.message || `Für Aufgabe #${taskId}, Termin ${selectedItem.occurrenceNumber}`,
+            });
+            
+            // Update item with borrow request ID and status
+            await updateBorrowMutation.mutateAsync({
+              itemId: selectedItem.id,
+              borrowRequestId: result.requestId,
+              borrowStatus: result.autoApproved ? "approved" : "pending",
+            });
+            
+            await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
+            
+            if (result.autoApproved) {
+              toast.success("✅ Ausleihe automatisch genehmigt", {
+                description: "Dieser Gegenstand gehört zu deinem Haushalt"
+              });
+            } else {
+              toast.success("📤 Ausleih-Anfrage gesendet", {
+                description: "Warte auf Bestätigung des Eigentümers"
+              });
+            }
+            
+            setBorrowDialogOpen(false);
+            setSelectedItem(null);
+          } catch (error) {
+            console.error("Failed to create borrow request:", error);
+            toast.error("Fehler beim Erstellen der Ausleih-Anfrage");
+          }
+        }}
+        isSubmitting={createBorrowRequestMutation.isPending}
       />
     </Card>
   );
