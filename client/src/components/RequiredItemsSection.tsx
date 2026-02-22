@@ -200,7 +200,7 @@ export function RequiredItemsSection({
                                       const newDate = e.target.value ? new Date(e.target.value) : null;
                                       updateBorrowMutation.mutate({
                                         itemId: item.id,
-                                        borrowStartDate: newDate,
+                                        borrowStartDate: newDate ? newDate.toISOString() : null,
                                       });
                                     }}
                                   />
@@ -214,7 +214,7 @@ export function RequiredItemsSection({
                                       const newDate = e.target.value ? new Date(e.target.value) : null;
                                       updateBorrowMutation.mutate({
                                         itemId: item.id,
-                                        borrowEndDate: newDate,
+                                        borrowEndDate: newDate ? newDate.toISOString() : null,
                                       });
                                     }}
                                   />

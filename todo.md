@@ -2921,3 +2921,7 @@
 - [x] Status-Badge (nicht angefragt, angefragt, genehmigt, ausgeliehen, zurückgegeben)
 - [x] "Ausleihe anfragen"-Button
 - [x] Integration in TaskDetailDialog unterhalb Einkaufsliste
+
+## Bug Fix: Datum-Format in RequiredItemsSection
+- [x] Date-Objekte in ISO-Strings konvertieren vor tRPC-Mutation (borrowStartDate, borrowEndDate)
+- [x] Fix testen und Checkpoint speichern
