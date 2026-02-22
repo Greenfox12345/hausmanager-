@@ -2863,3 +2863,18 @@
 - [ ] Test: Ausleih-Details aktualisieren
 - [ ] Test: Verfügbarkeits-Prüfung
 - [ ] Test: Borrow-Integration
+
+## Verfügbarkeits-Prüfung für Items (AKTUELL)
+- [x] Backend: Procedure zur Verfügbarkeits-Prüfung erstellen
+  - [x] inventory.checkItemAvailability - Prüft ob Item in Zeitraum verfügbar ist
+  - [x] Lädt aktive borrow_requests für das Item
+  - [x] Gibt Status zurück: "available", "borrowed", "partially_available"
+- [x] Frontend: Verfügbarkeits-Badges im ItemPickerDialog
+  - [x] Badge "Verfügbar" (grün) für verfügbare Items
+  - [x] Badge "Ausgeliehen" (rot) für aktuell ausgeliehene Items
+  - [x] Badge "Eingeschränkt" (gelb) für teilweise verfügbare Items
+- [x] Konflikt-Warnung bei überlappenden Ausleihen
+  - [x] Warnung anzeigen wenn Item bereits ausgeliehen ist
+  - [x] Details zur bestehenden Ausleihe anzeigen
+  - [x] Option "Trotzdem hinzufügen" anbieten
+- [ ] Tests schreiben und ausführen

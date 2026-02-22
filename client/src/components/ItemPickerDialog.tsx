@@ -3,8 +3,54 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package } from "lucide-react";
+import { Search, Package, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+
+// Availability Badge Component
+function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurrenceDate?: Date }) {
+  const { data: availability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
+    {
+      inventoryItemId: itemId,
+      startDate: occurrenceDate,
+      endDate: occurrenceDate,
+    },
+    { enabled: !!occurrenceDate }
+  );
+
+  if (!occurrenceDate || !availability) {
+    return (
+      <Badge variant="outline" className="shrink-0">
+        Verfügbar
+      </Badge>
+    );
+  }
+
+  switch (availability.status) {
+    case "available":
+      return (
+        <Badge variant="outline" className="shrink-0 border-green-500 text-green-700">
+          <CheckCircle2 className="h-3 w-3 mr-1" />
+          Verfügbar
+        </Badge>
+      );
+    case "borrowed":
+      return (
+        <Badge variant="outline" className="shrink-0 border-red-500 text-red-700">
+          <XCircle className="h-3 w-3 mr-1" />
+          Ausgeliehen
+        </Badge>
+      );
+    case "partially_available":
+      return (
+        <Badge variant="outline" className="shrink-0 border-yellow-500 text-yellow-700">
+          <AlertCircle className="h-3 w-3 mr-1" />
+          Eingeschränkt
+        </Badge>
+      );
+    default:
+      return null;
+  }
+}
 
 interface ItemPickerDialogProps {
   open: boolean;
@@ -12,6 +58,7 @@ interface ItemPickerDialogProps {
   householdId: number;
   onSelectItem: (itemId: number, itemName: string) => void;
   excludeItemIds?: number[]; // Items already added to this occurrence
+  occurrenceDate?: Date; // Date of the occurrence to check availability
 }
 
 export function ItemPickerDialog({
@@ -20,8 +67,14 @@ export function ItemPickerDialog({
   householdId,
   onSelectItem,
   excludeItemIds = [],
+  occurrenceDate,
 }: ItemPickerDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [conflictWarning, setConflictWarning] = useState<{
+    itemId: number;
+    itemName: string;
+    conflicts: Array<{ id: number; startDate: Date; endDate: Date; status: string }>;
+  } | null>(null);
 
   // Load inventory items
   const { data: items, isLoading } = trpc.inventory.getItems.useQuery(
@@ -75,7 +128,27 @@ export function ItemPickerDialog({
             filteredItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => {
+                onClick={async () => {
+                  // Check availability if date is provided
+                  if (occurrenceDate) {
+                    const availabilityCheck = await trpc.inventoryAvailability.checkItemAvailability.query({
+                      inventoryItemId: item.id,
+                      startDate: occurrenceDate,
+                      endDate: occurrenceDate,
+                    });
+
+                    // Show warning if item is borrowed or partially available
+                    if (availabilityCheck.status !== "available" && availabilityCheck.conflictingBorrows.length > 0) {
+                      setConflictWarning({
+                        itemId: item.id,
+                        itemName: item.name,
+                        conflicts: availabilityCheck.conflictingBorrows,
+                      });
+                      return;
+                    }
+                  }
+
+                  // No conflicts, proceed with selection
                   onSelectItem(item.id, item.name);
                   onOpenChange(false);
                   setSearchQuery("");
@@ -105,10 +178,8 @@ export function ItemPickerDialog({
                   )}
                 </div>
 
-                {/* Availability Badge (placeholder for future) */}
-                <Badge variant="outline" className="shrink-0">
-                  Verfügbar
-                </Badge>
+                {/* Availability Badge */}
+                <AvailabilityBadge itemId={item.id} occurrenceDate={occurrenceDate} />
               </button>
             ))
           )}
@@ -127,6 +198,65 @@ export function ItemPickerDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Conflict Warning Dialog */}
+      {conflictWarning && (
+        <Dialog open={true} onOpenChange={() => setConflictWarning(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-yellow-700">
+                <AlertCircle className="h-5 w-5" />
+                Gegenstand bereits ausgeliehen
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <p>
+                Der Gegenstand <strong>{conflictWarning.itemName}</strong> ist zum gewählten Termin bereits ausgeliehen:
+              </p>
+
+              <div className="space-y-2">
+                {conflictWarning.conflicts.map((conflict) => (
+                  <div key={conflict.id} className="p-3 bg-muted rounded-lg">
+                    <div className="font-medium">Ausleihe #{conflict.id}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {new Date(conflict.startDate).toLocaleDateString("de-DE")} - {new Date(conflict.endDate).toLocaleDateString("de-DE")}
+                    </div>
+                    <div className="text-sm">
+                      Status: <Badge variant="outline">{conflict.status}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Möchtest du den Gegenstand trotzdem hinzufügen? Du kannst später eine Ausleihe für einen anderen Zeitraum erstellen.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setConflictWarning(null)}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  onSelectItem(conflictWarning.itemId, conflictWarning.itemName);
+                  setConflictWarning(null);
+                  onOpenChange(false);
+                  setSearchQuery("");
+                }}
+              >
+                Trotzdem hinzufügen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
