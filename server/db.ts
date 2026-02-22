@@ -916,16 +916,23 @@ export async function createBorrowRequest(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [result] = await db.insert(borrowRequests).values({
+  // Build values object without undefined fields to avoid Drizzle ORM issues
+  const values: any = {
     inventoryItemId: data.inventoryItemId,
     borrowerHouseholdId: data.borrowerHouseholdId,
     borrowerMemberId: data.borrowerMemberId,
     ownerHouseholdId: data.ownerHouseholdId,
     startDate: data.startDate,
     endDate: data.endDate,
-    requestMessage: data.requestMessage,
     status: data.status || "pending",
-  });
+  };
+
+  // Only add requestMessage if it's provided
+  if (data.requestMessage !== undefined) {
+    values.requestMessage = data.requestMessage;
+  }
+
+  const [result] = await db.insert(borrowRequests).values(values);
 
   return result.insertId;
 }

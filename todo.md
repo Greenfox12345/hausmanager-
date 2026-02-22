@@ -2957,3 +2957,9 @@
 - [x] Backend: borrowRequests.status via LEFT JOIN in getTaskOccurrenceItems laden
 - [x] Status-Badge-Logik auf requestStatus umgestellt (pending/approved/active/completed/rejected/cancelled)
 - [x] Button erscheint bei: null, rejected, cancelled (ermöglicht erneute Anfrage)
+
+## Bug Fix: SQL INSERT Fehler bei createBorrowRequest
+- [x] Fehler: "Failed query: insert into `borrow_requests`" mit zu vielen default-Werten
+- [x] createBorrowRequest Mutation analysiert
+- [x] INSERT Query korrigiert (values-Objekt ohne undefined-Felder)
+- [x] Anfrage-Erstellung testen
