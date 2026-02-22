@@ -2925,3 +2925,9 @@
 ## Bug Fix: Datum-Format in RequiredItemsSection
 - [x] Date-Objekte in ISO-Strings konvertieren vor tRPC-Mutation (borrowStartDate, borrowEndDate)
 - [x] Fix testen und Checkpoint speichern
+
+## UI-Update-Probleme in RequiredItemsSection beheben
+- [x] Query invalidation nach Datumseingabe hinzufügen (Felder bleiben leer)
+- [x] Tabelle aktualisiert sich nicht direkt nach Änderungen
+- [x] "Ausleihe anfragen" Button mit Toast-Benachrichtigungen verbessern
+- [x] Automatische Genehmigung bei Eigentümer-Items mit Feedback anzeigen

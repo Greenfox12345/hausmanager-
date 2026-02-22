@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ItemPickerDialog } from "./ItemPickerDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface RequiredItemsSectionProps {
   taskId: number;
@@ -196,12 +197,18 @@ export function RequiredItemsSection({
                                   <Input
                                     type="date"
                                     value={item.borrowStartDate ? format(new Date(item.borrowStartDate), "yyyy-MM-dd") : ""}
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                       const newDate = e.target.value ? new Date(e.target.value) : null;
-                                      updateBorrowMutation.mutate({
-                                        itemId: item.id,
-                                        borrowStartDate: newDate ? newDate.toISOString() : null,
-                                      });
+                                      try {
+                                        await updateBorrowMutation.mutateAsync({
+                                          itemId: item.id,
+                                          borrowStartDate: newDate ? newDate.toISOString() : null,
+                                        });
+                                        await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
+                                        toast.success("Ausleih-Start aktualisiert");
+                                      } catch (error) {
+                                        toast.error("Fehler beim Speichern");
+                                      }
                                     }}
                                   />
                                 </div>
@@ -210,12 +217,18 @@ export function RequiredItemsSection({
                                   <Input
                                     type="date"
                                     value={item.borrowEndDate ? format(new Date(item.borrowEndDate), "yyyy-MM-dd") : ""}
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                       const newDate = e.target.value ? new Date(e.target.value) : null;
-                                      updateBorrowMutation.mutate({
-                                        itemId: item.id,
-                                        borrowEndDate: newDate ? newDate.toISOString() : null,
-                                      });
+                                      try {
+                                        await updateBorrowMutation.mutateAsync({
+                                          itemId: item.id,
+                                          borrowEndDate: newDate ? newDate.toISOString() : null,
+                                        });
+                                        await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
+                                        toast.success("Ausleih-Ende aktualisiert");
+                                      } catch (error) {
+                                        toast.error("Fehler beim Speichern");
+                                      }
                                     }}
                                   />
                                 </div>
@@ -229,11 +242,11 @@ export function RequiredItemsSection({
                               className="w-full"
                               onClick={async () => {
                                 if (!item.borrowStartDate || !item.borrowEndDate) {
-                                  alert("Bitte zuerst Ausleih-Zeitraum festlegen");
+                                  toast.error("Bitte zuerst Ausleih-Zeitraum festlegen");
                                   return;
                                 }
                                 if (!currentUser) {
-                                  alert("Bitte anmelden");
+                                  toast.error("Bitte anmelden");
                                   return;
                                 }
                                 try {
@@ -256,13 +269,17 @@ export function RequiredItemsSection({
                                   await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
                                   
                                   if (result.autoApproved) {
-                                    alert("Ausleihe wurde automatisch genehmigt (Haushaltsgegenstand)");
+                                    toast.success("✅ Ausleihe automatisch genehmigt", {
+                                      description: "Dieser Gegenstand gehört zu deinem Haushalt"
+                                    });
                                   } else {
-                                    alert("Ausleih-Anfrage wurde gesendet");
+                                    toast.success("📤 Ausleih-Anfrage gesendet", {
+                                      description: "Warte auf Bestätigung des Eigentümers"
+                                    });
                                   }
                                 } catch (error) {
                                   console.error("Failed to create borrow request:", error);
-                                  alert("Fehler beim Erstellen der Ausleih-Anfrage");
+                                  toast.error("Fehler beim Erstellen der Ausleih-Anfrage");
                                 }
                               }}
                               disabled={createBorrowRequestMutation.isPending}
