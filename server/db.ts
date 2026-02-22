@@ -916,31 +916,32 @@ export async function createBorrowRequest(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Use raw SQL to avoid Drizzle ORM's attempt to set all fields with default
-  const sql = `
-    INSERT INTO borrow_requests (
-      inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
-      status, startDate, endDate${data.requestMessage ? ', requestMessage' : ''}
-    ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?${data.requestMessage ? ', ?' : ''}
-    )
-  `;
-  
-  const params = [
-    data.inventoryItemId,
-    data.borrowerHouseholdId,
-    data.borrowerMemberId,
-    data.ownerHouseholdId,
-    data.status || "pending",
-    data.startDate,
-    data.endDate,
-  ];
+  // Use sql template tag from drizzle-orm to properly construct query
+  let query;
   
   if (data.requestMessage) {
-    params.push(data.requestMessage);
+    query = sql`
+      INSERT INTO borrow_requests (
+        inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
+        status, startDate, endDate, requestMessage
+      ) VALUES (
+        ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
+        ${data.status || "pending"}, ${data.startDate}, ${data.endDate}, ${data.requestMessage}
+      )
+    `;
+  } else {
+    query = sql`
+      INSERT INTO borrow_requests (
+        inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
+        status, startDate, endDate
+      ) VALUES (
+        ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
+        ${data.status || "pending"}, ${data.startDate}, ${data.endDate}
+      )
+    `;
   }
 
-  const [result] = await db.execute(sql, params);
+  const [result] = await db.execute(query);
 
   return (result as any).insertId;
 }

@@ -2966,3 +2966,9 @@
 - [x] Server neu gestartet und Änderungen verifiziert
 - [x] Alternative Lösung implementiert: Raw SQL Query statt Drizzle ORM
 - [x] Nur notwendige Felder in INSERT (inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId, status, startDate, endDate, requestMessage)
+
+## Bug Fix: Raw SQL Query Fehler in createBorrowRequest
+- [x] Fehler: "Failed query: INSERT INTO borrow_requests" - params nicht angezeigt
+- [x] Problem: db.execute() mit normalem String statt sql-Template-Tag
+- [x] Lösung: sql-Template-Tag von Drizzle verwendet (sql`...`)
+- [x] Zwei Queries: mit und ohne requestMessage
