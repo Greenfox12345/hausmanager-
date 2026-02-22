@@ -7,7 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Star } from "lucide-react";
+import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Star, Plus, X, Package } from "lucide-react";
+import { ItemPickerDialog } from "./ItemPickerDialog";
+import { Badge } from "@/components/ui/badge";
 import { addDays, addWeeks, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
@@ -19,6 +21,7 @@ interface Member {
 
 interface RotationScheduleTableProps {
   taskId?: number; // Optional: if provided, skip will save to DB immediately
+  householdId: number; // Required for loading inventory items
   requiredPersons: number;
   availableMembers: Member[];
   currentAssignees: number[];
@@ -42,10 +45,12 @@ export interface ScheduleOccurrence {
   isSkipped?: boolean;
   isSpecial?: boolean;
   specialName?: string;
+  items?: { itemId: number; itemName: string }[]; // Inventory items needed for this occurrence
 }
 
 export function RotationScheduleTable({
   taskId,
+  householdId,
   requiredPersons,
   availableMembers,
   currentAssignees,
@@ -64,6 +69,8 @@ export function RotationScheduleTable({
   const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
   const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
   const [specialOccurrenceDate, setSpecialOccurrenceDate] = useState<Date | undefined>(undefined);
+  const [isItemPickerOpen, setIsItemPickerOpen] = useState(false);
+  const [selectedOccurrenceForItem, setSelectedOccurrenceForItem] = useState<number | null>(null);
   const isInitialized = useRef(false);
   const isUpdatingDates = useRef(false);
   const isSyncingWithInitialSchedule = useRef(false);
@@ -673,6 +680,55 @@ export function RotationScheduleTable({
                 </td>
               ))}
             </tr>
+            {/* Items row */}
+            <tr className="border-t bg-muted/20">
+              {schedule.map((occ) => (
+                <td key={occ.occurrenceNumber} className="p-2">
+                  <div className="flex flex-col gap-1">
+                    {/* Item chips */}
+                    {(occ.items || []).map((item) => (
+                      <Badge
+                        key={item.itemId}
+                        variant="secondary"
+                        className="flex items-center gap-1 justify-between group"
+                      >
+                        <Package className="h-3 w-3" />
+                        <span className="text-xs truncate flex-1">{item.itemName}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newSchedule = schedule.map(o =>
+                              o.occurrenceNumber === occ.occurrenceNumber
+                                ? { ...o, items: (o.items || []).filter(i => i.itemId !== item.itemId) }
+                                : o
+                            );
+                            setSchedule(newSchedule);
+                            onChange(newSchedule);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    {/* Add item button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedOccurrenceForItem(occ.occurrenceNumber);
+                        setIsItemPickerOpen(true);
+                      }}
+                      className="h-7 text-xs"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Gegenstand
+                    </Button>
+                  </div>
+                </td>
+              ))}
+            </tr>
             {/* Action buttons row */}
             <tr className="border-t bg-muted/30">
               {schedule.map((occ, index) => (
@@ -760,6 +816,29 @@ export function RotationScheduleTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Item Picker Dialog */}
+      <ItemPickerDialog
+        open={isItemPickerOpen}
+        onOpenChange={setIsItemPickerOpen}
+        householdId={householdId}
+        onSelectItem={(itemId, itemName) => {
+          if (selectedOccurrenceForItem !== null) {
+            const newSchedule = schedule.map(o =>
+              o.occurrenceNumber === selectedOccurrenceForItem
+                ? { ...o, items: [...(o.items || []), { itemId, itemName }] }
+                : o
+            );
+            setSchedule(newSchedule);
+            onChange(newSchedule);
+          }
+        }}
+        excludeItemIds={
+          selectedOccurrenceForItem !== null
+            ? (schedule.find(o => o.occurrenceNumber === selectedOccurrenceForItem)?.items || []).map(i => i.itemId)
+            : []
+        }
+      />
 
     </div>
   );

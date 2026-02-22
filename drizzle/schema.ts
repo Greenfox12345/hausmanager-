@@ -479,6 +479,27 @@ export type SharedTask = typeof sharedTasks.$inferSelect;
 export type InsertSharedTask = typeof sharedTasks.$inferInsert;
 
 /**
+ * Task occurrence items - links inventory items to specific task occurrences
+ * Enables tracking which items are needed for each occurrence of a rotating/recurring task
+ */
+export const taskOccurrenceItems = mysqlTable("task_occurrence_items", {
+  id: int("id").autoincrement().primaryKey(),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  occurrenceNumber: int("occurrenceNumber").notNull(), // Which occurrence this item is for (1, 2, 3...)
+  inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  borrowStartDate: datetime("borrowStartDate"), // When the item should be borrowed
+  borrowEndDate: datetime("borrowEndDate"), // When the item should be returned
+  borrowStatus: mysqlEnum("borrowStatus", ["pending", "borrowed", "returned", "overdue"]).default("pending").notNull(),
+  borrowRequestId: int("borrowRequestId").references(() => borrowRequests.id), // Link to actual borrow request if created
+  notes: text("notes"), // Special instructions for this item usage
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TaskOccurrenceItem = typeof taskOccurrenceItems.$inferSelect;
+export type InsertTaskOccurrenceItem = typeof taskOccurrenceItems.$inferInsert;
+
+/**
  * Relations for household connections
  */
 export const householdConnectionsRelations = relations(householdConnections, ({ one }) => ({

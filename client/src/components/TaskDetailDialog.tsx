@@ -1503,6 +1503,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                 </p>
                                 <RotationScheduleTable
                             taskId={task?.id}
+                            householdId={household?.householdId ?? 0}
                             requiredPersons={requiredPersons}
                             availableMembers={availableMembers}
                             currentAssignees={selectedAssignees}

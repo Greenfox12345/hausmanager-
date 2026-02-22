@@ -17,6 +17,7 @@ import { borrowRouter } from "./routers/borrow";
 import { storageRouter } from "./routers/storage";
 import { calendarRouter } from "./routers/calendar";
 import { neighborhoodRouter } from "./routers/neighborhood";
+import { taskOccurrenceItemsRouter } from "./routers/taskOccurrenceItems";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -48,6 +49,7 @@ export const appRouter = router({
   inventory: inventoryRouter,
   borrow: borrowRouter,
   calendar: calendarRouter,
+  taskOccurrenceItems: taskOccurrenceItemsRouter,
   neighborhood: neighborhoodRouter,
 
   // Admin router

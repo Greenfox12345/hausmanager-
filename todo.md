@@ -2821,3 +2821,45 @@
 - [x] Backend: Datenbankfeld profileImageUrl prüfen
 - [x] Frontend: Cache-Invalidierung nach Upload prüfen
 - [x] Test: Profilbild hochladen und Seite neu laden
+
+## Item-Aufgaben-Verknüpfung (AKTUELL)
+
+### Datenbank
+- [x] Tabelle: taskOccurrenceItems erstellen (id, taskId, occurrenceNumber, inventoryItemId, borrowStartDate, borrowEndDate, borrowStatus, borrowRequestId, notes)
+- [x] Migration: pnpm db:push ausführen
+
+### Backend
+- [x] Procedure: tasks.addItemToOccurrence
+- [x] Procedure: tasks.removeItemFromOccurrence
+- [x] Procedure: tasks.updateOccurrenceItemBorrow
+- [x] Procedure: tasks.getTaskOccurrenceItems
+- [ ] Integration: Borrow-System Verknüpfung
+
+### Frontend: Rotationsplan-Tabelle
+- [x] UI: Neue Spalte "Items" hinzufügen
+- [x] UI: Item-Chips/Badges für kompakte Anzeige
+- [x] Komponente: ItemPickerDialog erstellen
+- [x] UI: "+" Button zum Hinzufügen
+- [x] UI: "×" Button zum Entfernen
+
+### Frontend: Aufgaben-Details
+- [ ] Abschnitt: "Benötigte Gegenstände" nach Einkaufsliste
+- [ ] UI: Gruppierung nach Termin
+- [ ] Komponente: Item-Cards mit Details
+- [ ] UI: Ausleih-Status anzeigen
+- [ ] UI: Ausleih-Zeitraum bearbeitbar
+- [ ] UI: Notizen-Feld für Items
+- [ ] Button: "Ausleihe erstellen"
+- [ ] Link: Zur Ausleihe-Detail-Seite
+
+### UX & Validierung
+- [ ] Verfügbarkeits-Badge im Item-Picker
+- [ ] Warnung bei Termin-Konflikten
+- [ ] Bulk-Zuordnung über Checkboxen
+
+### Tests
+- [ ] Test: Item zu Termin hinzufügen
+- [ ] Test: Item von Termin entfernen
+- [ ] Test: Ausleih-Details aktualisieren
+- [ ] Test: Verfügbarkeits-Prüfung
+- [ ] Test: Borrow-Integration
