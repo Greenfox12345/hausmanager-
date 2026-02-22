@@ -2979,3 +2979,10 @@
 - [x] Frontend → tRPC Router → createBorrowRequest Flow überprüft
 - [x] formatDateForMySQL Funktion hinzugefügt (konvertiert Date zu YYYY-MM-DD HH:MM:SS)
 - [x] startDate und endDate werden vor SQL-Query formatiert
+
+## Bug Fix: Foreign Key Constraint Failure - borrowerMemberId
+- [x] Root Cause gefunden: borrowerMemberId (User-ID) existiert nicht in household_members
+- [x] Problem: currentUser.id ist User-ID, aber borrowerMemberId muss HouseholdMember-ID sein
+- [x] Lösung: getCurrentMember Query in householdManagement Router hinzugefügt
+- [x] RequiredItemsSection aktualisiert: currentMember.id statt currentUser.id verwenden
+- [x] Validierung: currentMember muss geladen sein bevor Anfrage gesendet wird

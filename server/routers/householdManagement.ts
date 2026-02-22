@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../_core/trpc";
+import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { households, householdMembers, users } from "../../drizzle/schema";
@@ -410,5 +410,40 @@ export const householdManagementRouter = router({
         memberName: member.memberName,
         inviteCode: household.inviteCode,
       };
+    }),
+
+  /**
+   * Get current household member for authenticated user
+   */
+  getCurrentMember: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "You are not a member of this household",
+        });
+      }
+
+      return member;
     }),
 });

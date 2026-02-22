@@ -1,0 +1,24 @@
+{
+  "query": "SELECT hm.id as memberId, hm.memberName, hm.householdId, u.id as userId, u.name as userName \nFROM household_members hm \nJOIN users u ON hm.userId = u.id \nWHERE hm.householdId = 510002 \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT hm.id as memberId, hm.memberName, hm.householdId, u.id as userId, u.name as userName \nFROM household_members hm \nJOIN users u ON hm.userId = u.id \nWHERE hm.householdId = 510002 \nLIMIT 10;",
+  "rows": [
+    {
+      "memberId": "570002",
+      "memberName": "Basti",
+      "householdId": "510002",
+      "userId": "1710004",
+      "userName": "Basti"
+    },
+    {
+      "memberId": "810001",
+      "memberName": "Peter",
+      "householdId": "510002",
+      "userId": "2040001",
+      "userName": "Peter"
+    }
+  ],
+  "messages": [],
+  "stdout": "memberId\tmemberName\thouseholdId\tuserId\tuserName\n570002\tBasti\t510002\t1710004\tBasti\n810001\tPeter\t510002\t2040001\tPeter\n",
+  "stderr": "",
+  "execution_time_ms": 357
+}

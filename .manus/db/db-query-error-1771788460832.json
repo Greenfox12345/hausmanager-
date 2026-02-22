@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO borrow_requests (\n  inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,\n  status, startDate, endDate, requestMessage\n) VALUES (\n  270001, 510002, 1710004, 510002,\n  'approved', '2026-02-21 19:00:00', '2026-02-27 19:00:00', 'Test message'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute INSERT INTO borrow_requests (\n  inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,\n  status, startDate, endDate, requestMessage\n) VALUES (\n  270001, 510002, 1710004, 510002,\n  'approved', '2026-02-21 19:00:00', '2026-02-27 19:00:00', 'Test message'\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`5dpslyh58e9tdjpvglcuzx`.`borrow_requests`, CONSTRAINT `borrow_requests_borrowerMemberId_household_members_id_fk` FOREIGN KEY (`borrowerMemberId`) REFERENCES `household_members` (`id`) ON DELE)"
+  ]
+}

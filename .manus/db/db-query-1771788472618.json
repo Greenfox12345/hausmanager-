@@ -1,0 +1,760 @@
+{
+  "query": "SELECT id, memberName, householdId FROM household_members ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, memberName, householdId FROM household_members ORDER BY id;",
+  "rows": [
+    {
+      "id": "480004",
+      "memberName": "Basti",
+      "householdId": "390004"
+    },
+    {
+      "id": "480005",
+      "memberName": "Test User",
+      "householdId": "390005"
+    },
+    {
+      "id": "480006",
+      "memberName": "Test User",
+      "householdId": "390006"
+    },
+    {
+      "id": "480008",
+      "memberName": "TEst",
+      "householdId": "390007"
+    },
+    {
+      "id": "480009",
+      "memberName": "Test User",
+      "householdId": "390008"
+    },
+    {
+      "id": "480010",
+      "memberName": "Tester2",
+      "householdId": "390009"
+    },
+    {
+      "id": "480011",
+      "memberName": "Tester2",
+      "householdId": "390010"
+    },
+    {
+      "id": "480012",
+      "memberName": "Tester2",
+      "householdId": "390004"
+    },
+    {
+      "id": "510001",
+      "memberName": "Tester2",
+      "householdId": "420001"
+    },
+    {
+      "id": "540001",
+      "memberName": "Basti",
+      "householdId": "450001"
+    },
+    {
+      "id": "570001",
+      "memberName": "Test161",
+      "householdId": "510001"
+    },
+    {
+      "id": "570002",
+      "memberName": "Basti",
+      "householdId": "510002"
+    },
+    {
+      "id": "600001",
+      "memberName": "Basti",
+      "householdId": "540001"
+    },
+    {
+      "id": "630001",
+      "memberName": "Test Member",
+      "householdId": "570002"
+    },
+    {
+      "id": "660001",
+      "memberName": "Basti",
+      "householdId": "600001"
+    },
+    {
+      "id": "690001",
+      "memberName": "Daniel Hartmann",
+      "householdId": "630001"
+    },
+    {
+      "id": "720001",
+      "memberName": "Kristina Petri",
+      "householdId": "540001"
+    },
+    {
+      "id": "750001",
+      "memberName": "kawohlnoah@gmail.com",
+      "householdId": "540001"
+    },
+    {
+      "id": "780001",
+      "memberName": "Ludwig",
+      "householdId": "540001"
+    },
+    {
+      "id": "810001",
+      "memberName": "Peter",
+      "householdId": "510002"
+    },
+    {
+      "id": "840001",
+      "memberName": "Max Power",
+      "householdId": "720001"
+    },
+    {
+      "id": "870001",
+      "memberName": "Aqui",
+      "householdId": "780001"
+    },
+    {
+      "id": "900001",
+      "memberName": "Manusman",
+      "householdId": "810001"
+    },
+    {
+      "id": "900004",
+      "memberName": "Test Member",
+      "householdId": "810008"
+    },
+    {
+      "id": "900008",
+      "memberName": "Test Member",
+      "householdId": "810032"
+    },
+    {
+      "id": "900012",
+      "memberName": "Test Member",
+      "householdId": "810056"
+    },
+    {
+      "id": "930001",
+      "memberName": "Alice",
+      "householdId": "840002"
+    },
+    {
+      "id": "930002",
+      "memberName": "Bob",
+      "householdId": "840002"
+    },
+    {
+      "id": "930003",
+      "memberName": "Charlie",
+      "householdId": "840002"
+    },
+    {
+      "id": "930004",
+      "memberName": "Alice",
+      "householdId": "840003"
+    },
+    {
+      "id": "930005",
+      "memberName": "Bob",
+      "householdId": "840003"
+    },
+    {
+      "id": "930006",
+      "memberName": "Charlie",
+      "householdId": "840003"
+    },
+    {
+      "id": "930007",
+      "memberName": "Alice",
+      "householdId": "840004"
+    },
+    {
+      "id": "930008",
+      "memberName": "Bob",
+      "householdId": "840004"
+    },
+    {
+      "id": "930009",
+      "memberName": "Charlie",
+      "householdId": "840004"
+    },
+    {
+      "id": "930010",
+      "memberName": "Test Member",
+      "householdId": "840005"
+    },
+    {
+      "id": "930011",
+      "memberName": "Test Member",
+      "householdId": "840006"
+    },
+    {
+      "id": "930012",
+      "memberName": "Test Member",
+      "householdId": "840007"
+    },
+    {
+      "id": "930013",
+      "memberName": "Test Member",
+      "householdId": "840008"
+    },
+    {
+      "id": "960001",
+      "memberName": "Test Member",
+      "householdId": "870001"
+    },
+    {
+      "id": "960002",
+      "memberName": "Test Member",
+      "householdId": "870002"
+    },
+    {
+      "id": "990001",
+      "memberName": "Test Member",
+      "householdId": "900006"
+    },
+    {
+      "id": "990002",
+      "memberName": "Test Member",
+      "householdId": "900007"
+    },
+    {
+      "id": "990003",
+      "memberName": "Test Member",
+      "householdId": "900008"
+    },
+    {
+      "id": "990004",
+      "memberName": "Test Member",
+      "householdId": "900009"
+    },
+    {
+      "id": "990005",
+      "memberName": "Test Member",
+      "householdId": "900010"
+    },
+    {
+      "id": "990006",
+      "memberName": "Test Member 2",
+      "householdId": "900010"
+    },
+    {
+      "id": "990007",
+      "memberName": "Test Member",
+      "householdId": "900011"
+    },
+    {
+      "id": "990008",
+      "memberName": "Test Member",
+      "householdId": "900012"
+    },
+    {
+      "id": "990009",
+      "memberName": "Test Member",
+      "householdId": "900013"
+    },
+    {
+      "id": "990010",
+      "memberName": "Test Member",
+      "householdId": "900014"
+    },
+    {
+      "id": "990011",
+      "memberName": "Test Member",
+      "householdId": "900015"
+    },
+    {
+      "id": "990012",
+      "memberName": "Test Member 2",
+      "householdId": "900015"
+    },
+    {
+      "id": "990013",
+      "memberName": "Test Member",
+      "householdId": "900016"
+    },
+    {
+      "id": "990014",
+      "memberName": "Test Member",
+      "householdId": "900017"
+    },
+    {
+      "id": "990015",
+      "memberName": "Test Member",
+      "householdId": "900018"
+    },
+    {
+      "id": "990016",
+      "memberName": "Test Member",
+      "householdId": "900019"
+    },
+    {
+      "id": "990017",
+      "memberName": "Test Member",
+      "householdId": "900020"
+    },
+    {
+      "id": "990018",
+      "memberName": "Test Member 2",
+      "householdId": "900020"
+    },
+    {
+      "id": "990019",
+      "memberName": "Test Member",
+      "householdId": "900021"
+    },
+    {
+      "id": "990020",
+      "memberName": "Test Member",
+      "householdId": "900022"
+    },
+    {
+      "id": "990021",
+      "memberName": "Test Member",
+      "householdId": "900023"
+    },
+    {
+      "id": "990022",
+      "memberName": "Test Member",
+      "householdId": "900024"
+    },
+    {
+      "id": "990023",
+      "memberName": "Test Member",
+      "householdId": "900025"
+    },
+    {
+      "id": "990024",
+      "memberName": "Test Member 2",
+      "householdId": "900025"
+    },
+    {
+      "id": "990025",
+      "memberName": "Test Member",
+      "householdId": "900026"
+    },
+    {
+      "id": "990026",
+      "memberName": "Test Member",
+      "householdId": "900027"
+    },
+    {
+      "id": "990027",
+      "memberName": "Test Member",
+      "householdId": "900028"
+    },
+    {
+      "id": "990028",
+      "memberName": "Test Member",
+      "householdId": "900029"
+    },
+    {
+      "id": "990029",
+      "memberName": "Test Member",
+      "householdId": "900030"
+    },
+    {
+      "id": "990030",
+      "memberName": "Test Member 2",
+      "householdId": "900030"
+    },
+    {
+      "id": "990031",
+      "memberName": "Test Member",
+      "householdId": "900031"
+    },
+    {
+      "id": "990032",
+      "memberName": "Test Member",
+      "householdId": "900032"
+    },
+    {
+      "id": "990033",
+      "memberName": "Test Member",
+      "householdId": "900033"
+    },
+    {
+      "id": "990034",
+      "memberName": "Test Member",
+      "householdId": "900034"
+    },
+    {
+      "id": "990035",
+      "memberName": "Test Member",
+      "householdId": "900035"
+    },
+    {
+      "id": "990036",
+      "memberName": "Test Member 2",
+      "householdId": "900035"
+    },
+    {
+      "id": "990037",
+      "memberName": "Test Member",
+      "householdId": "900036"
+    },
+    {
+      "id": "990038",
+      "memberName": "Test Member",
+      "householdId": "900037"
+    },
+    {
+      "id": "990039",
+      "memberName": "Test Member",
+      "householdId": "900038"
+    },
+    {
+      "id": "990040",
+      "memberName": "Test Member",
+      "householdId": "900039"
+    },
+    {
+      "id": "990041",
+      "memberName": "Test Member",
+      "householdId": "900040"
+    },
+    {
+      "id": "990042",
+      "memberName": "Test Member 2",
+      "householdId": "900040"
+    },
+    {
+      "id": "990043",
+      "memberName": "Test Member",
+      "householdId": "900041"
+    },
+    {
+      "id": "990044",
+      "memberName": "Test Member",
+      "householdId": "900042"
+    },
+    {
+      "id": "990045",
+      "memberName": "Test Member",
+      "householdId": "900043"
+    },
+    {
+      "id": "990046",
+      "memberName": "Test Member",
+      "householdId": "900044"
+    },
+    {
+      "id": "990047",
+      "memberName": "Test Member",
+      "householdId": "900045"
+    },
+    {
+      "id": "990048",
+      "memberName": "Test Member 2",
+      "householdId": "900045"
+    },
+    {
+      "id": "990049",
+      "memberName": "Test Member",
+      "householdId": "900046"
+    },
+    {
+      "id": "990050",
+      "memberName": "Test Member",
+      "householdId": "900047"
+    },
+    {
+      "id": "990051",
+      "memberName": "Test Member",
+      "householdId": "900048"
+    },
+    {
+      "id": "990052",
+      "memberName": "Test Member",
+      "householdId": "900049"
+    },
+    {
+      "id": "990053",
+      "memberName": "Test Member",
+      "householdId": "900050"
+    },
+    {
+      "id": "990054",
+      "memberName": "Test Member 2",
+      "householdId": "900050"
+    },
+    {
+      "id": "990055",
+      "memberName": "Test Member",
+      "householdId": "900051"
+    },
+    {
+      "id": "990056",
+      "memberName": "Test Member",
+      "householdId": "900052"
+    },
+    {
+      "id": "990057",
+      "memberName": "Test Member",
+      "householdId": "900053"
+    },
+    {
+      "id": "990058",
+      "memberName": "Test Member",
+      "householdId": "900054"
+    },
+    {
+      "id": "990059",
+      "memberName": "Test Member",
+      "householdId": "900055"
+    },
+    {
+      "id": "990060",
+      "memberName": "Test Member 2",
+      "householdId": "900055"
+    },
+    {
+      "id": "990061",
+      "memberName": "Test Member",
+      "householdId": "900056"
+    },
+    {
+      "id": "990062",
+      "memberName": "Test Member",
+      "householdId": "900057"
+    },
+    {
+      "id": "990063",
+      "memberName": "Test Member",
+      "householdId": "900058"
+    },
+    {
+      "id": "990064",
+      "memberName": "Test Member",
+      "householdId": "900059"
+    },
+    {
+      "id": "990065",
+      "memberName": "Test Member",
+      "householdId": "900060"
+    },
+    {
+      "id": "990066",
+      "memberName": "Test Member 2",
+      "householdId": "900060"
+    },
+    {
+      "id": "990067",
+      "memberName": "Test Member",
+      "householdId": "900061"
+    },
+    {
+      "id": "990068",
+      "memberName": "Test Member",
+      "householdId": "900062"
+    },
+    {
+      "id": "990069",
+      "memberName": "Test Member",
+      "householdId": "900063"
+    },
+    {
+      "id": "990070",
+      "memberName": "Test Member",
+      "householdId": "900064"
+    },
+    {
+      "id": "990071",
+      "memberName": "Test Member",
+      "householdId": "900065"
+    },
+    {
+      "id": "990072",
+      "memberName": "Test Member 2",
+      "householdId": "900065"
+    },
+    {
+      "id": "990073",
+      "memberName": "Test Member",
+      "householdId": "900066"
+    },
+    {
+      "id": "990074",
+      "memberName": "Test Member",
+      "householdId": "900067"
+    },
+    {
+      "id": "990075",
+      "memberName": "Test Member",
+      "householdId": "900068"
+    },
+    {
+      "id": "990076",
+      "memberName": "Test Member",
+      "householdId": "900069"
+    },
+    {
+      "id": "990077",
+      "memberName": "Test Member",
+      "householdId": "900070"
+    },
+    {
+      "id": "990078",
+      "memberName": "Test Member 2",
+      "householdId": "900070"
+    },
+    {
+      "id": "990079",
+      "memberName": "Test Member",
+      "householdId": "900071"
+    },
+    {
+      "id": "990080",
+      "memberName": "Test Member",
+      "householdId": "900072"
+    },
+    {
+      "id": "990081",
+      "memberName": "Test Member",
+      "householdId": "900073"
+    },
+    {
+      "id": "990082",
+      "memberName": "Test Member",
+      "householdId": "900074"
+    },
+    {
+      "id": "990083",
+      "memberName": "Test Member",
+      "householdId": "900075"
+    },
+    {
+      "id": "990084",
+      "memberName": "Test Member 2",
+      "householdId": "900075"
+    },
+    {
+      "id": "990085",
+      "memberName": "Test Member",
+      "householdId": "900076"
+    },
+    {
+      "id": "990086",
+      "memberName": "Test Member",
+      "householdId": "900077"
+    },
+    {
+      "id": "990087",
+      "memberName": "Test Member",
+      "householdId": "900078"
+    },
+    {
+      "id": "990088",
+      "memberName": "Test Member",
+      "householdId": "900079"
+    },
+    {
+      "id": "990089",
+      "memberName": "Test Member",
+      "householdId": "900080"
+    },
+    {
+      "id": "990090",
+      "memberName": "Test Member 2",
+      "householdId": "900080"
+    },
+    {
+      "id": "990091",
+      "memberName": "Test Member",
+      "householdId": "900081"
+    },
+    {
+      "id": "990092",
+      "memberName": "Test Member",
+      "householdId": "900082"
+    },
+    {
+      "id": "990093",
+      "memberName": "Test Member",
+      "householdId": "900083"
+    },
+    {
+      "id": "990094",
+      "memberName": "Test Member",
+      "householdId": "900084"
+    },
+    {
+      "id": "990095",
+      "memberName": "Test Member",
+      "householdId": "900085"
+    },
+    {
+      "id": "990096",
+      "memberName": "Test Member 2",
+      "householdId": "900085"
+    },
+    {
+      "id": "990097",
+      "memberName": "Test Member",
+      "householdId": "900086"
+    },
+    {
+      "id": "990098",
+      "memberName": "Test Member",
+      "householdId": "900087"
+    },
+    {
+      "id": "990099",
+      "memberName": "Test Member",
+      "householdId": "900088"
+    },
+    {
+      "id": "990100",
+      "memberName": "Test Member",
+      "householdId": "900089"
+    },
+    {
+      "id": "990101",
+      "memberName": "Test Member",
+      "householdId": "900090"
+    },
+    {
+      "id": "990102",
+      "memberName": "Test Member 2",
+      "householdId": "900090"
+    },
+    {
+      "id": "990103",
+      "memberName": "Test Member",
+      "householdId": "900091"
+    },
+    {
+      "id": "990104",
+      "memberName": "Test Member",
+      "householdId": "900092"
+    },
+    {
+      "id": "990105",
+      "memberName": "Test Member",
+      "householdId": "900093"
+    },
+    {
+      "id": "990106",
+      "memberName": "Test Member",
+      "householdId": "900094"
+    },
+    {
+      "id": "990107",
+      "memberName": "Test Member",
+      "householdId": "900095"
+    },
+    {
+      "id": "990108",
+      "memberName": "Test Member 2",
+      "householdId": "900095"
+    },
+    {
+      "id": "1020001",
+      "memberName": "Test User",
+      "householdId": "930001"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tmemberName\thouseholdId\n480004\tBasti\t390004\n480005\tTest User\t390005\n480006\tTest User\t390006\n480008\tTEst\t390007\n480009\tTest User\t390008\n480010\tTester2\t390009\n480011\tTester2\t390010\n480012\tTester2\t390004\n510001\tTester2\t420001\n540001\tBasti\t450001\n570001\tTest161\t510001\n570002\tBasti\t510002\n600001\tBasti\t540001\n630001\tTest Member\t570002\n660001\tBasti\t600001\n690001\tDaniel Hartmann\t630001\n720001\tKristina Petri\t540001\n750001\tkawohlnoah@gmail.com\t540001\n780001\tLudwig\t540001\n810001\tPeter\t510002\n840001\tMax Power\t720001\n870001\tAqui\t780001\n900001\tManusman\t810001\n900004\tTest Member\t810008\n900008\tTest Member\t810032\n900012\tTest Member\t810056\n930001\tAlice\t840002\n930002\tBob\t840002\n930003\tCharlie\t840002\n930004\tAlice\t840003\n930005\tBob\t840003\n930006\tCharlie\t840003\n930007\tAlice\t840004\n930008\tBob\t840004\n930009\tCharlie\t840004\n930010\tTest Member\t840005\n930011\tTest Member\t840006\n930012\tTest Member\t840007\n930013\tTest Member\t840008\n960001\tTest Member\t870001\n960002\tTest Member\t870002\n990001\tTest Member\t900006\n990002\tTest Member\t900007\n990003\tTest Member\t900008\n990004\tTest Member\t900009\n990005\tTest Member\t900010\n990006\tTest Member 2\t900010\n990007\tTest Member\t900011\n990008\tTest Member\t900012\n990009\tTest Member\t900013\n990010\tTest Member\t900014\n990011\tTest Member\t900015\n990012\tTest Member 2\t900015\n990013\tTest Member\t900016\n990014\tTest Member\t900017\n990015\tTest Member\t900018\n990016\tTest Member\t900019\n990017\tTest Member\t900020\n990018\tTest Member 2\t900020\n990019\tTest Member\t900021\n990020\tTest Member\t900022\n990021\tTest Member\t900023\n990022\tTest Member\t900024\n990023\tTest Member\t900025\n990024\tTest Member 2\t900025\n990025\tTest Member\t900026\n990026\tTest Member\t900027\n990027\tTest Member\t900028\n990028\tTest Member\t900029\n990029\tTest Member\t900030\n990030\tTest Member 2\t900030\n990031\tTest Member\t900031\n990032\tTest Member\t900032\n990033\tTest Member\t900033\n990034\tTest Member\t900034\n990035\tTest Member\t900035\n990036\tTest Member 2\t900035\n990037\tTest Member\t900036\n990038\tTest Member\t900037\n990039\tTest Member\t900038\n990040\tTest Member\t900039\n990041\tTest Member\t900040\n990042\tTest Member 2\t900040\n990043\tTest Member\t900041\n990044\tTest Member\t900042\n990045\tTest Member\t900043\n990046\tTest Member\t900044\n990047\tTest Member\t900045\n990048\tTest Member 2\t900045\n990049\tTest Member\t900046\n990050\tTest Member\t900047\n990051\tTest Member\t900048\n990052\tTest Member\t900049\n990053\tTest Member\t900050\n990054\tTest Member 2\t900050\n990055\tTest Member\t900051\n990056\tTest Member\t900052\n990057\tTest Member\t900053\n990058\tTest Member\t900054\n990059\tTest Member\t900055\n990060\tTest Member 2\t900055\n990061\tTest Member\t900056\n990062\tTest Member\t900057\n990063\tTest Member\t900058\n990064\tTest Member\t900059\n990065\tTest Member\t900060\n990066\tTest Member 2\t900060\n990067\tTest Member\t900061\n990068\tTest Member\t900062\n990069\tTest Member\t900063\n990070\tTest Member\t900064\n990071\tTest Member\t900065\n990072\tTest Member 2\t900065\n990073\tTest Member\t900066\n990074\tTest Member\t900067\n990075\tTest Member\t900068\n990076\tTest Member\t900069\n990077\tTest Member\t900070\n990078\tTest Member 2\t900070\n990079\tTest Member\t900071\n990080\tTest Member\t900072\n990081\tTest Member\t900073\n990082\tTest Member\t900074\n990083\tTest Member\t900075\n990084\tTest Member 2\t900075\n990085\tTest Member\t900076\n990086\tTest Member\t900077\n990087\tTest Member\t900078\n990088\tTest Member\t900079\n990089\tTest Member\t900080\n990090\tTest Member 2\t900080\n990091\tTest Member\t900081\n990092\tTest Member\t900082\n990093\tTest Member\t900083\n990094\tTest Member\t900084\n990095\tTest Member\t900085\n990096\tTest Member 2\t900085\n990097\tTest Member\t900086\n990098\tTest Member\t900087\n990099\tTest Member\t900088\n990100\tTest Member\t900089\n990101\tTest Member\t900090\n990102\tTest Member 2\t900090\n990103\tTest Member\t900091\n990104\tTest Member\t900092\n990105\tTest Member\t900093\n990106\tTest Member\t900094\n990107\tTest Member\t900095\n990108\tTest Member 2\t900095\n1020001\tTest User\t930001\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}

@@ -61,8 +61,12 @@ export function RequiredItemsSection({
   const updateBorrowMutation = trpc.taskOccurrenceItems.updateOccurrenceItemBorrow.useMutation();
   const createBorrowRequestMutation = trpc.borrow.request.useMutation();
 
-  // Get current user
+  // Get current user and household member
   const { data: currentUser } = trpc.auth.me.useQuery();
+  const { data: currentMember } = trpc.householdManagement.getCurrentMember.useQuery(
+    { householdId },
+    { enabled: !!currentUser }
+  );
 
   const utils = trpc.useUtils();
 
@@ -264,10 +268,10 @@ export function RequiredItemsSection({
                               size="sm" 
                               className="w-full"
                               onClick={() => {
-                                if (!currentUser) {
-                                  toast.error("Bitte anmelden");
-                                  return;
-                                }
+                if (!currentUser || !currentMember) {
+                  toast.error("Bitte anmelden");
+                  return;
+                }
                                 setSelectedItem({
                                   id: item.id,
                                   inventoryItemId: item.inventoryItemId,
@@ -336,13 +340,13 @@ export function RequiredItemsSection({
         initialStartDate={selectedItem?.borrowStartDate}
         initialEndDate={selectedItem?.borrowEndDate}
         onSubmit={async (data) => {
-          if (!selectedItem || !currentUser) return;
+          if (!selectedItem || !currentUser || !currentMember) return;
 
           try {
             const result = await createBorrowRequestMutation.mutateAsync({
               inventoryItemId: selectedItem.inventoryItemId,
               borrowerHouseholdId: householdId,
-              borrowerMemberId: currentUser.id,
+              borrowerMemberId: currentMember.id,
               startDate: data.startDate.toISOString(),
               endDate: data.endDate.toISOString(),
               requestMessage: data.message || `Für Aufgabe #${taskId}, Termin ${selectedItem.occurrenceNumber}`,
