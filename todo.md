@@ -2884,3 +2884,9 @@
 - [x] ItemPickerDialog tRPC-Query analysieren
 - [x] Backend inventory.getItems Procedure prüfen
 - [x] Fehler identifizieren und beheben
+
+## Items-Speichervorgang untersuchen (AKTUELL)
+- [x] RotationScheduleTable Items-Handling analysieren
+- [x] TaskDetailDialog Speichervorgang prüfen
+- [x] Backend taskOccurrenceItems Integration prüfen
+- [x] Sicherstellen dass Items korrekt persistiert werden

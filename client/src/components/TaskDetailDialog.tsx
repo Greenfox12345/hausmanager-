@@ -164,6 +164,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
   );
   
+  // Load task occurrence items
+  const { data: taskOccurrenceItemsData } = trpc.taskOccurrenceItems.getTaskOccurrenceItems.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open }
+  );
+  
   // Load linked shopping items
   const { data: linkedShoppingItems = [] } = trpc.shopping.getLinkedItems.useQuery(
     { taskId: task?.id ?? 0 },
@@ -444,6 +450,20 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load rotation schedule when data arrives
   useEffect(() => {
     if (rotationScheduleData && task && open && task.enableRotation) {
+      // Group items by occurrence number
+      const itemsByOccurrence = new Map<number, Array<{ itemId: number; itemName: string }>>();
+      if (taskOccurrenceItemsData) {
+        for (const item of taskOccurrenceItemsData) {
+          if (!itemsByOccurrence.has(item.occurrenceNumber)) {
+            itemsByOccurrence.set(item.occurrenceNumber, []);
+          }
+          itemsByOccurrence.get(item.occurrenceNumber)!.push({
+            itemId: item.inventoryItemId,
+            itemName: item.itemName || '',
+          });
+        }
+      }
+      
       const scheduleWithDates = rotationScheduleData.map((occ: any) => ({
         occurrenceNumber: occ.occurrenceNumber,
         members: occ.members,
@@ -452,10 +472,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         isSpecial: occ.isSpecial || false, // Include special occurrence flag
         specialName: occ.specialName, // Include special occurrence name
         specialDate: occ.specialDate, // For special occurrences and irregular appointments
+        items: itemsByOccurrence.get(occ.occurrenceNumber) || [], // Add items from database
       }));
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, task?.id, task?.enableRotation, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
@@ -630,6 +651,30 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           taskId: task.id,
           schedule: schedulePayload,
         });
+        
+        // Save items for each occurrence
+        // First, remove all existing items for this task
+        const existingItems = await utils.taskOccurrenceItems.getTaskOccurrenceItems.fetch({ taskId: task.id });
+        for (const item of existingItems) {
+          await trpc.taskOccurrenceItems.removeItemFromOccurrence.mutate({
+            taskId: task.id,
+            occurrenceNumber: item.occurrenceNumber,
+            itemId: item.inventoryItemId,
+          });
+        }
+        
+        // Then, add all items from rotationSchedule
+        for (const occ of rotationSchedule) {
+          if (occ.items && occ.items.length > 0) {
+            for (const item of occ.items) {
+              await trpc.taskOccurrenceItems.addItemToOccurrence.mutate({
+                taskId: task.id,
+                occurrenceNumber: occ.occurrenceNumber,
+                inventoryItemId: item.itemId,
+              });
+            }
+          }
+        }
       }
       
       // Step 2: Update dependencies (BEFORE invalidating)
