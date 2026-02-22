@@ -2948,3 +2948,12 @@
 - [x] Bearbeitbare Felder vor dem Absenden
 - [x] Integration in RequiredItemsSection (Button öffnet Dialog)
 - [x] Direkte Anfrage durch Dialog-Workflow ersetzen
+
+## RequiredItemsSection: Termin-spezifische Anfrage-Status implementieren
+- [x] Aktuell: borrowStatus ist global für das Item (falsch)
+- [x] Gewünscht: Jede Anfrage hat eigenen Status pro Termin
+- [x] Button/Badge sollen sich auf konkrete Anfrage für diesen Termin beziehen
+- [x] Mehrere parallele Anfragen für dasselbe Item (verschiedene Termine) ermöglichen
+- [x] Backend: borrowRequests.status via LEFT JOIN in getTaskOccurrenceItems laden
+- [x] Status-Badge-Logik auf requestStatus umgestellt (pending/approved/active/completed/rejected/cancelled)
+- [x] Button erscheint bei: null, rejected, cancelled (ermöglicht erneute Anfrage)

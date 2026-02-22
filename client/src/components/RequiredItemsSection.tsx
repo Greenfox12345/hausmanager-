@@ -108,22 +108,28 @@ export function RequiredItemsSection({
     1
   );
 
-  // Get status badge
-  const getStatusBadge = (status: string | null) => {
-    if (!status || status === "not_requested") {
+  // Get status badge based on borrow request status (not item borrow status)
+  const getStatusBadge = (requestStatus: string | null) => {
+    if (!requestStatus) {
       return <Badge variant="secondary">Nicht angefragt</Badge>;
     }
-    if (status === "pending") {
-      return <Badge variant="outline">Angefragt</Badge>;
+    if (requestStatus === "pending") {
+      return <Badge variant="outline" className="border-yellow-500 text-yellow-700">Angefragt</Badge>;
     }
-    if (status === "approved") {
+    if (requestStatus === "approved") {
       return <Badge variant="default" className="bg-green-600">Genehmigt</Badge>;
     }
-    if (status === "borrowed") {
+    if (requestStatus === "active") {
       return <Badge variant="default" className="bg-blue-600">Ausgeliehen</Badge>;
     }
-    if (status === "returned") {
+    if (requestStatus === "completed") {
       return <Badge variant="default" className="bg-gray-600">Zurückgegeben</Badge>;
+    }
+    if (requestStatus === "rejected") {
+      return <Badge variant="destructive">Abgelehnt</Badge>;
+    }
+    if (requestStatus === "cancelled") {
+      return <Badge variant="secondary">Storniert</Badge>;
     }
     return null;
   };
@@ -252,8 +258,8 @@ export function RequiredItemsSection({
                               </div>
                             </PopoverContent>
                           </Popover>
-                          <div>{getStatusBadge(item.borrowStatus)}</div>
-                          {(!item.borrowStatus || item.borrowStatus === "not_requested") && (
+                          <div>{getStatusBadge(item.requestStatus)}</div>
+                          {(!item.requestStatus || item.requestStatus === "rejected" || item.requestStatus === "cancelled") && (
                             <Button 
                               size="sm" 
                               className="w-full"

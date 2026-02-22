@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { taskOccurrenceItems, inventoryItems, tasks } from "../../drizzle/schema";
+import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -23,7 +23,7 @@ export const taskOccurrenceItemsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
 
-      // Get all items for this task with inventory item details
+      // Get all items for this task with inventory item details and borrow request status
       const items = await db
         .select({
           id: taskOccurrenceItems.id,
@@ -42,9 +42,12 @@ export const taskOccurrenceItemsRouter = router({
           itemDetails: inventoryItems.details,
           itemPhotoUrls: inventoryItems.photoUrls,
           itemCategoryId: inventoryItems.categoryId,
+          // Borrow request status (the actual request status, not the item borrow status)
+          requestStatus: borrowRequests.status,
         })
         .from(taskOccurrenceItems)
         .leftJoin(inventoryItems, eq(taskOccurrenceItems.inventoryItemId, inventoryItems.id))
+        .leftJoin(borrowRequests, eq(taskOccurrenceItems.borrowRequestId, borrowRequests.id))
         .where(eq(taskOccurrenceItems.taskId, input.taskId))
         .orderBy(taskOccurrenceItems.occurrenceNumber);
 
