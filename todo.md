@@ -2878,3 +2878,9 @@
   - [x] Details zur bestehenden Ausleihe anzeigen
   - [x] Option "Trotzdem hinzufügen" anbieten
 - [ ] Tests schreiben und ausführen
+
+## BUG: Items laden nicht im ItemPickerDialog (AKTUELL)
+- [x] Items werden nicht angezeigt, obwohl Gegenstände im Inventar vorhanden sind
+- [x] ItemPickerDialog tRPC-Query analysieren
+- [x] Backend inventory.getItems Procedure prüfen
+- [x] Fehler identifizieren und beheben

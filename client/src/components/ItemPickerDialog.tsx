@@ -77,7 +77,7 @@ export function ItemPickerDialog({
   } | null>(null);
 
   // Load inventory items
-  const { data: items, isLoading } = trpc.inventory.getItems.useQuery(
+  const { data: items, isLoading } = trpc.inventory.list.useQuery(
     { householdId },
     { enabled: open }
   );
