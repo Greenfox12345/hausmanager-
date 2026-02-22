@@ -2972,3 +2972,10 @@
 - [x] Problem: db.execute() mit normalem String statt sql-Template-Tag
 - [x] Lösung: sql-Template-Tag von Drizzle verwendet (sql`...`)
 - [x] Zwei Queries: mit und ohne requestMessage
+
+## Bug Fix: Date-Format-Problem in createBorrowRequest
+- [x] Fehler: Dates werden als JS Date String-Repräsentation gesendet (z.B. "Tue Feb 10 2026 19:00:00 GMT-0500")
+- [x] MySQL erwartet: YYYY-MM-DD HH:MM:SS Format
+- [x] Frontend → tRPC Router → createBorrowRequest Flow überprüft
+- [x] formatDateForMySQL Funktion hinzugefügt (konvertiert Date zu YYYY-MM-DD HH:MM:SS)
+- [x] startDate und endDate werden vor SQL-Query formatiert

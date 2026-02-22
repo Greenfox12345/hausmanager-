@@ -916,6 +916,20 @@ export async function createBorrowRequest(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Convert Date objects to MySQL-compatible format (YYYY-MM-DD HH:MM:SS)
+  const formatDateForMySQL = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const startDateFormatted = formatDateForMySQL(data.startDate);
+  const endDateFormatted = formatDateForMySQL(data.endDate);
+
   // Use sql template tag from drizzle-orm to properly construct query
   let query;
   
@@ -926,7 +940,7 @@ export async function createBorrowRequest(data: {
         status, startDate, endDate, requestMessage
       ) VALUES (
         ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
-        ${data.status || "pending"}, ${data.startDate}, ${data.endDate}, ${data.requestMessage}
+        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}, ${data.requestMessage}
       )
     `;
   } else {
@@ -936,7 +950,7 @@ export async function createBorrowRequest(data: {
         status, startDate, endDate
       ) VALUES (
         ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
-        ${data.status || "pending"}, ${data.startDate}, ${data.endDate}
+        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}
       )
     `;
   }
