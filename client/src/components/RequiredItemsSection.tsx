@@ -52,7 +52,7 @@ export function RequiredItemsSection({
   const utils = trpc.useUtils();
 
   // Handle adding item to occurrence
-  const handleAddItem = async (itemId: number) => {
+  const handleAddItem = async (itemId: number, itemName: string) => {
     if (selectedOccurrence === null) return;
 
     try {
@@ -64,8 +64,10 @@ export function RequiredItemsSection({
       await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
       onItemAdded();
       setIsPickerOpen(false);
+      toast.success(`"${itemName}" zu Termin ${selectedOccurrence} hinzugefügt`);
     } catch (error) {
       console.error("Failed to add item:", error);
+      toast.error("Fehler beim Hinzufügen des Gegenstands");
     }
   };
 
@@ -305,7 +307,8 @@ export function RequiredItemsSection({
         open={isPickerOpen}
         onOpenChange={setIsPickerOpen}
         householdId={householdId}
-        onSelect={handleAddItem}
+        onSelectItem={handleAddItem}
+        excludeItemIds={selectedOccurrence !== null ? getItemsForOccurrence(selectedOccurrence).map(item => item.inventoryItemId) : []}
         occurrenceDate={
           selectedOccurrence !== null
             ? rotationSchedule.find((o) => o.occurrenceNumber === selectedOccurrence)?.specialDate ||

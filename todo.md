@@ -2931,3 +2931,11 @@
 - [x] Tabelle aktualisiert sich nicht direkt nach Änderungen
 - [x] "Ausleihe anfragen" Button mit Toast-Benachrichtigungen verbessern
 - [x] Automatische Genehmigung bei Eigentümer-Items mit Feedback anzeigen
+
+## Bug Fix: ItemPickerDialog in RequiredItemsSection
+- [x] ItemPickerDialog öffnet sich, aber Item-Auswahl funktioniert nicht
+- [x] Dialog bleibt offen nach Klick auf Item
+- [x] Item wird nicht zur Tabelle hinzugefügt
+- [x] Prop-Name von onSelect zu onSelectItem geändert
+- [x] Handler-Signatur mit itemName Parameter aktualisiert
+- [x] excludeItemIds hinzugefügt (bereits hinzugefügte Items ausblenden)
