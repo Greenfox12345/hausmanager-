@@ -2986,3 +2986,10 @@
 - [x] Lösung: getCurrentMember Query in householdManagement Router hinzugefügt
 - [x] RequiredItemsSection aktualisiert: currentMember.id statt currentUser.id verwenden
 - [x] Validierung: currentMember muss geladen sein bevor Anfrage gesendet wird
+
+## Bug Fix: borrowStatus Enum Mismatch
+- [x] Fehler: "approved" ist kein gültiger Wert für task_occurrence_items.borrowStatus
+- [x] borrowStatus akzeptiert nur: pending, borrowed, returned, overdue
+- [x] "approved" ist ein borrow_requests.status Wert, nicht task_occurrence_items.borrowStatus
+- [x] updateBorrowMutation korrigiert: immer "pending" setzen (Item wartet auf Abholung)
+- [x] Anfrage-Status wird über requestStatus (borrow_requests.status) angezeigt
