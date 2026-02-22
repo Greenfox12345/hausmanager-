@@ -2890,3 +2890,8 @@
 - [x] TaskDetailDialog Speichervorgang prüfen
 - [x] Backend taskOccurrenceItems Integration prüfen
 - [x] Sicherstellen dass Items korrekt persistiert werden
+
+## tRPC Hook-Fehler beim Speichern (AKTUELL)
+- [x] Fehlerquelle identifizieren (hooks[lastArg] is not a function)
+- [x] tRPC-Aufrufe korrigieren
+- [x] Test durchführen

@@ -525,6 +525,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   });
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
+  const addItemToOccurrenceMutation = trpc.taskOccurrenceItems.addItemToOccurrence.useMutation();
+  const removeItemFromOccurrenceMutation = trpc.taskOccurrenceItems.removeItemFromOccurrence.useMutation();
   const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
     onSuccess: async () => {
       // Reload rotation schedule from server after skip
@@ -656,7 +658,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         // First, remove all existing items for this task
         const existingItems = await utils.taskOccurrenceItems.getTaskOccurrenceItems.fetch({ taskId: task.id });
         for (const item of existingItems) {
-          await trpc.taskOccurrenceItems.removeItemFromOccurrence.mutate({
+          await removeItemFromOccurrenceMutation.mutateAsync({
             taskId: task.id,
             occurrenceNumber: item.occurrenceNumber,
             itemId: item.inventoryItemId,
@@ -667,7 +669,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         for (const occ of rotationSchedule) {
           if (occ.items && occ.items.length > 0) {
             for (const item of occ.items) {
-              await trpc.taskOccurrenceItems.addItemToOccurrence.mutate({
+              await addItemToOccurrenceMutation.mutateAsync({
                 taskId: task.id,
                 occurrenceNumber: occ.occurrenceNumber,
                 inventoryItemId: item.itemId,
