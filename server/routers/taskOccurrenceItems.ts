@@ -127,6 +127,28 @@ export const taskOccurrenceItemsRouter = router({
     }),
 
   /**
+   * Remove all items from a task
+   */
+  removeAllTaskItems: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+      // Delete all items for this task
+      await db.delete(taskOccurrenceItems).where(eq(taskOccurrenceItems.taskId, input.taskId));
+
+      return {
+        success: true,
+        message: "Alle Items erfolgreich entfernt",
+      };
+    }),
+
+  /**
    * Remove an item from a task occurrence
    */
   removeItemFromOccurrence: protectedProcedure

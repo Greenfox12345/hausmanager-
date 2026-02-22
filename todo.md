@@ -2895,3 +2895,10 @@
 - [x] Fehlerquelle identifizieren (hooks[lastArg] is not a function)
 - [x] tRPC-Aufrufe korrigieren
 - [x] Test durchführen
+
+## Items-Laden und Duplikat-Fehler (AKTUELL)
+- [x] Items werden beim Bearbeiten nicht in Tabelle geladen
+- [x] "Item schon verknüpft"-Fehler beim erneuten Speichern
+- [x] Lade-Logik analysieren (useEffect Dependency)
+- [x] Speicher-Logik analysieren (Duplikat-Prüfung)
+- [x] Lösung implementieren

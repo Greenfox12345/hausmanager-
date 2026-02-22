@@ -527,6 +527,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
   const addItemToOccurrenceMutation = trpc.taskOccurrenceItems.addItemToOccurrence.useMutation();
   const removeItemFromOccurrenceMutation = trpc.taskOccurrenceItems.removeItemFromOccurrence.useMutation();
+  const removeAllTaskItemsMutation = trpc.taskOccurrenceItems.removeAllTaskItems.useMutation();
   const skipRotationOccurrenceMutation = trpc.tasks.skipRotationOccurrence.useMutation({
     onSuccess: async () => {
       // Reload rotation schedule from server after skip
@@ -656,14 +657,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         
         // Save items for each occurrence
         // First, remove all existing items for this task
-        const existingItems = await utils.taskOccurrenceItems.getTaskOccurrenceItems.fetch({ taskId: task.id });
-        for (const item of existingItems) {
-          await removeItemFromOccurrenceMutation.mutateAsync({
-            taskId: task.id,
-            occurrenceNumber: item.occurrenceNumber,
-            itemId: item.inventoryItemId,
-          });
-        }
+        await removeAllTaskItemsMutation.mutateAsync({ taskId: task.id });
         
         // Then, add all items from rotationSchedule
         for (const occ of rotationSchedule) {
@@ -696,6 +690,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       await utils.projects.getTaskDependencies.invalidate({ taskId: task.id });
       await utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId });
       await utils.projects.getAllDependencies.invalidate({ householdId: household.householdId });
+      await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId: task.id });
       
       // Step 4: Refetch dependencies to update dialog UI
       const updatedDependencies = await utils.projects.getTaskDependencies.fetch({ taskId: task.id });
