@@ -465,19 +465,67 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         }
       }
       
-      const scheduleWithDates = rotationScheduleData.map((occ: any) => ({
-        occurrenceNumber: occ.occurrenceNumber,
-        members: occ.members,
-        notes: occ.notes,
-        isSkipped: occ.isSkipped || false, // Include skip status
-        isSpecial: occ.isSpecial || false, // Include special occurrence flag
-        specialName: occ.specialName, // Include special occurrence name
-        specialDate: occ.specialDate, // For special occurrences and irregular appointments
-        items: itemsByOccurrence.get(occ.occurrenceNumber) || [], // Add items from database
-      }));
+      const scheduleWithDates = rotationScheduleData.map((occ: any) => {
+        // Calculate date for regular recurring occurrences
+        let calculatedDate: Date | undefined;
+        if (occ.specialDate) {
+          calculatedDate = new Date(occ.specialDate);
+        } else if (task.dueDate && task.repeatUnit && task.repeatUnit !== "irregular") {
+          const baseDate = new Date(task.dueDate);
+          const interval = task.repeatInterval || 1;
+          const occNum = occ.occurrenceNumber - 1; // 0-indexed for calculation
+          
+          if (task.repeatUnit === "days") {
+            calculatedDate = new Date(baseDate);
+            calculatedDate.setDate(baseDate.getDate() + (interval * occNum));
+          } else if (task.repeatUnit === "weeks") {
+            calculatedDate = new Date(baseDate);
+            calculatedDate.setDate(baseDate.getDate() + (interval * 7 * occNum));
+          } else if (task.repeatUnit === "months") {
+            if (task.monthlyRecurrenceMode === "same_weekday") {
+              if (occNum === 0) {
+                calculatedDate = new Date(baseDate);
+              } else {
+                const targetMonth = baseDate.getMonth() + (interval * occNum);
+                const targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+                const normalizedMonth = targetMonth % 12;
+                const weekday = task.monthlyWeekday ?? baseDate.getDay();
+                const occurrence = task.monthlyOccurrence ?? Math.ceil(baseDate.getDate() / 7);
+                calculatedDate = new Date(targetYear, normalizedMonth, 1);
+                let count = 0;
+                while (calculatedDate.getMonth() === normalizedMonth) {
+                  if (calculatedDate.getDay() === weekday) {
+                    count++;
+                    if (count === occurrence) break;
+                  }
+                  calculatedDate.setDate(calculatedDate.getDate() + 1);
+                }
+                if (calculatedDate.getMonth() !== normalizedMonth) {
+                  calculatedDate.setDate(calculatedDate.getDate() - 7);
+                }
+              }
+            } else {
+              calculatedDate = new Date(baseDate);
+              calculatedDate.setMonth(baseDate.getMonth() + (interval * occNum));
+            }
+          }
+        }
+
+        return {
+          occurrenceNumber: occ.occurrenceNumber,
+          members: occ.members,
+          notes: occ.notes,
+          date: calculatedDate, // Calculated date for regular occurrences
+          isSkipped: occ.isSkipped || false,
+          isSpecial: occ.isSpecial || false,
+          specialName: occ.specialName,
+          specialDate: occ.specialDate ? new Date(occ.specialDate) : undefined,
+          items: itemsByOccurrence.get(occ.occurrenceNumber) || [],
+        };
+      });
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.enableRepeat, task?.repeatUnit, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.enableRepeat, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {

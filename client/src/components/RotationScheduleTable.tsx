@@ -41,6 +41,7 @@ export interface ScheduleOccurrence {
   occurrenceNumber: number;
   members: { position: number; memberId: number }[];
   notes?: string;
+  date?: Date; // Calculated date for regular recurring occurrences
   specialDate?: Date; // For irregular appointments and special occurrences (manually set)
   isSkipped?: boolean;
   isSpecial?: boolean;

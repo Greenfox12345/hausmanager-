@@ -2999,3 +2999,10 @@
 - [x] Root Cause: useEffect prüfte nur task.enableRotation, nicht enableRepeat/repeatUnit
 - [x] Fix: Bedingung erweitert auf (enableRotation || enableRepeat || repeatUnit)
 - [x] Server-Cache-Fehler (Unexpected if) durch Neustart behoben
+
+## Bug Fix: Termin-Daten in RequiredItemsSection Spaltenüberschriften zeigen nur "-"
+- [x] Root Cause: getRotationSchedule gibt kein berechnetes date-Feld zurück, nur specialDate
+- [x] ScheduleOccurrence Interface um date-Feld erweitert
+- [x] Datumsberechnung in TaskDetailDialog useEffect eingebaut (Tage/Wochen/Monate)
+- [x] Unterstützung für same_weekday und same_date Monatsmodi
+- [x] useEffect Dependencies aktualisiert (dueDate, repeatInterval, monthlyRecurrenceMode etc.)
