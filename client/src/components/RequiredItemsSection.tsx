@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Edit2 } from "lucide-react";
+import { Calendar, Edit2, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ItemPickerDialog } from "./ItemPickerDialog";
@@ -21,6 +21,9 @@ interface RequiredItemsSectionProps {
     occurrenceNumber: number;
     date?: Date;
     specialDate?: Date;
+    isSpecial?: boolean;
+    specialName?: string;
+    isSkipped?: boolean;
     assignedMemberIds?: number[];
     items?: Array<{
       itemId: number;
@@ -153,12 +156,34 @@ export function RequiredItemsSection({
         <table className="w-full">
           <thead>
             <tr>
-              {rotationSchedule.map((occ) => (
-                <th key={occ.occurrenceNumber} className="border p-2 text-left bg-muted">
+              {rotationSchedule.filter(occ => !occ.isSkipped).map((occ) => (
+                <th
+                  key={occ.occurrenceNumber}
+                  className={`border p-2 text-left ${
+                    occ.isSpecial
+                      ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+                      : "bg-muted"
+                  }`}
+                >
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
+                    {occ.isSpecial ? (
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    ) : (
+                      <Calendar className="h-4 w-4" />
+                    )}
                     <div>
-                      <div className="font-semibold">Termin {occ.occurrenceNumber}</div>
+                      <div className="font-semibold flex items-center gap-1.5">
+                        {occ.isSpecial && occ.specialName ? (
+                          <span className="text-amber-700 dark:text-amber-400">{occ.specialName}</span>
+                        ) : (
+                          <>Termin {occ.occurrenceNumber}</>
+                        )}
+                        {occ.isSpecial && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-300 text-amber-600 dark:border-amber-700 dark:text-amber-400">
+                            Sondertermin
+                          </Badge>
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {formatDate(occ.specialDate || occ.date || null)}
                       </div>
@@ -171,14 +196,15 @@ export function RequiredItemsSection({
           <tbody>
             {Array.from({ length: maxRows }).map((_, rowIndex) => (
               <tr key={rowIndex}>
-                {rotationSchedule.map((occ) => {
+                {rotationSchedule.filter(occ => !occ.isSkipped).map((occ) => {
                   const items = getItemsForOccurrence(occ.occurrenceNumber);
                   const item = items[rowIndex];
+                  const specialCellClass = occ.isSpecial ? "bg-amber-50/50 dark:bg-amber-950/20" : "";
 
                   // If this is the "+ Gegenstand" button row
                   if (rowIndex === items.length) {
                     return (
-                      <td key={occ.occurrenceNumber} className="border p-2">
+                      <td key={occ.occurrenceNumber} className={`border p-2 ${specialCellClass}`}>
                         <Button
                           variant="outline"
                           size="sm"
@@ -197,7 +223,7 @@ export function RequiredItemsSection({
                   // If there's an item in this row
                   if (item) {
                     return (
-                      <td key={occ.occurrenceNumber} className="border p-2">
+                      <td key={occ.occurrenceNumber} className={`border p-2 ${specialCellClass}`}>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="font-medium">{item.itemName}</span>
@@ -293,7 +319,7 @@ export function RequiredItemsSection({
                   }
 
                   // Empty cell (no border)
-                  return <td key={occ.occurrenceNumber} className="p-2"></td>;
+                  return <td key={occ.occurrenceNumber} className={`p-2 ${specialCellClass}`}></td>;
                 })}
               </tr>
             ))}

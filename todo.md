@@ -3006,3 +3006,10 @@
 - [x] Datumsberechnung in TaskDetailDialog useEffect eingebaut (Tage/Wochen/Monate)
 - [x] Unterstützung für same_weekday und same_date Monatsmodi
 - [x] useEffect Dependencies aktualisiert (dueDate, repeatInterval, monthlyRecurrenceMode etc.)
+
+## Sondertermine in RequiredItemsSection anzeigen
+- [x] Sondertermin-Namen in Spaltenüberschriften anzeigen (specialName statt "Termin X")
+- [x] Sondertermine farblich abheben (Amber-Farbtöne, Star-Icon, "Sondertermin"-Badge)
+- [x] isSpecial, specialName, isSkipped aus rotationSchedule genutzt
+- [x] Übersprungene Termine (isSkipped) werden ausgeblendet
+- [x] Sondertermin-Zellen haben durchgehend helle Amber-Hintergrundfarbe
