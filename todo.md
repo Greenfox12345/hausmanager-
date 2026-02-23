@@ -2993,3 +2993,9 @@
 - [x] "approved" ist ein borrow_requests.status Wert, nicht task_occurrence_items.borrowStatus
 - [x] updateBorrowMutation korrigiert: immer "pending" setzen (Item wartet auf Abholung)
 - [x] Anfrage-Status wird über requestStatus (borrow_requests.status) angezeigt
+
+## Bug Fix: Termine von regelmäßigen Aufgaben laden nicht in RequiredItemsSection
+- [x] Termine (Occurrences) werden nicht in der Tabelle angezeigt
+- [x] Root Cause: useEffect prüfte nur task.enableRotation, nicht enableRepeat/repeatUnit
+- [x] Fix: Bedingung erweitert auf (enableRotation || enableRepeat || repeatUnit)
+- [x] Server-Cache-Fehler (Unexpected if) durch Neustart behoben

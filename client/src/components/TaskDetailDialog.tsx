@@ -448,9 +448,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
   }, [task, open]);
   
-  // Load rotation schedule when data arrives
+  // Load rotation schedule when data arrives (for rotation AND recurring tasks)
   useEffect(() => {
-    if (rotationScheduleData && task && open && task.enableRotation) {
+    if (rotationScheduleData && task && open && (task.enableRotation || task.enableRepeat || task.repeatUnit)) {
       // Group items by occurrence number
       const itemsByOccurrence = new Map<number, Array<{ itemId: number; itemName: string }>>();
       if (taskOccurrenceItemsData) {
@@ -477,7 +477,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }));
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.enableRepeat, task?.repeatUnit, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
