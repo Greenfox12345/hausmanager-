@@ -157,19 +157,47 @@ export const borrowRouter = router({
         responseMessage: input.responseMessage,
       });
 
-      // Item already fetched above for validation
+      // Check if this borrow is linked to a task
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      
+      const [linkedOccurrence] = await db
+        .select({
+          taskId: taskOccurrenceItems.taskId,
+          occurrenceNumber: taskOccurrenceItems.occurrenceNumber,
+          taskName: tasksTable.name,
+        })
+        .from(taskOccurrenceItems)
+        .leftJoin(tasksTable, eq(taskOccurrenceItems.taskId, tasksTable.id))
+        .where(eq(taskOccurrenceItems.borrowRequestId, input.requestId))
+        .limit(1);
       
       // Create activity log
+      const metadata: any = {
+        itemId: request.inventoryItemId,
+        itemName: item.name,
+        requestId: input.requestId,
+        borrowerName: (await getHouseholdMemberById(request.borrowerMemberId))?.memberName,
+        startDate: request.startDate.toISOString(),
+        endDate: request.endDate.toISOString(),
+      };
+
+      if (linkedOccurrence) {
+        metadata.taskId = linkedOccurrence.taskId;
+        metadata.taskName = linkedOccurrence.taskName;
+        metadata.occurrenceNumber = linkedOccurrence.occurrenceNumber;
+      }
+
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "inventory",
+        activityType: linkedOccurrence ? "task" : "inventory",
         action: "borrow_approved",
-        description: `Ausleih-Anfrage für "${item?.name}" wurde genehmigt`,
-        metadata: {
-          itemId: request.inventoryItemId,
-          requestId: input.requestId,
-        },
+        description: linkedOccurrence
+          ? `Ausleih-Anfrage für "${item.name}" (Aufgabe "${linkedOccurrence.taskName}", Termin ${linkedOccurrence.occurrenceNumber}) wurde genehmigt`
+          : `Ausleih-Anfrage für "${item.name}" wurde genehmigt`,
+        relatedItemId: linkedOccurrence?.taskId,
+        metadata,
       });
 
       // Create calendar events for borrow start and return

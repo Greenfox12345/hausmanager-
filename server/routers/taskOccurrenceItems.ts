@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getDb } from "../db";
-import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests } from "../../drizzle/schema";
+import { getDb, createActivityLog } from "../db";
+import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests, householdMembers } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -121,6 +121,32 @@ export const taskOccurrenceItemsRouter = router({
         borrowStatus: "pending",
         notes: input.notes || null,
       });
+
+      // Get member ID for activity log
+      const [member] = await db
+        .select({ id: householdMembers.id })
+        .from(householdMembers)
+        .where(eq(householdMembers.userId, ctx.user!.id))
+        .limit(1);
+
+      if (member) {
+        // Create activity log entry
+        await createActivityLog({
+          householdId: task.householdId,
+          memberId: member.id,
+          activityType: "task",
+          action: "item_added",
+          description: `Gegenstand "${item.name}" zu Termin ${input.occurrenceNumber} hinzugefügt`,
+          relatedItemId: input.taskId,
+          metadata: {
+            taskId: input.taskId,
+            taskName: task.name,
+            occurrenceNumber: input.occurrenceNumber,
+            inventoryItemId: input.inventoryItemId,
+            inventoryItemName: item.name,
+          },
+        });
+      }
 
       return {
         success: true,

@@ -3120,3 +3120,9 @@
 
 ## User-ID-zu-Namen in /projects
 - [x] /projects: ReminderDialog-Verwendung analysieren und User-Namen-Mapping implementieren
+
+## Verlaufseinträge: Gegenstände hinzufügen & Ausleih-Bestätigungen
+- [x] Bestehende Verlaufslogik analysieren (activityHistory Schema, createActivityLog)
+- [x] Server: Verlaufseintrag beim Hinzufügen von Gegenständen zu Aufgaben (action: "item_added", mit Aufgaben- und Gegenstandsinfo)
+- [x] Server: Verlaufseintrag bei Bestätigung von Ausleih-Anfragen (action: "borrow_approved", mit Aufgabeninfo falls verknüpft)
+- [x] Frontend: History.tsx erweitert um item_added (indigo) und borrow_approved (emerald) mit Metadata-Boxen
