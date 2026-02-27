@@ -1,0 +1,91 @@
+{
+  "query": "SELECT id, name, frequency, repeatInterval, repeatUnit, dueDate, isCompleted FROM tasks WHERE repeatInterval IS NOT NULL LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT id, name, frequency, repeatInterval, repeatUnit, dueDate, isCompleted FROM tasks WHERE repeatInterval IS NOT NULL LIMIT 20;",
+  "rows": [
+    {
+      "id": "1890090",
+      "name": "Werkstatt aufräumen",
+      "frequency": "weekly",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "dueDate": "2026-02-18 19:30:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1920001",
+      "name": "d",
+      "frequency": "custom",
+      "repeatInterval": "1",
+      "repeatUnit": "irregular",
+      "dueDate": "2026-02-22 22:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950001",
+      "name": "Machen",
+      "frequency": "weekly",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "dueDate": "2026-02-21 22:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950003",
+      "name": "hm",
+      "frequency": "custom",
+      "repeatInterval": "30",
+      "repeatUnit": "days",
+      "dueDate": "2026-02-26 12:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950004",
+      "name": "Stammtisch",
+      "frequency": "monthly",
+      "repeatInterval": "1",
+      "repeatUnit": "months",
+      "dueDate": "2026-05-19 19:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950005",
+      "name": "wunder",
+      "frequency": "custom",
+      "repeatInterval": "3",
+      "repeatUnit": "weeks",
+      "dueDate": "2026-02-26 07:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950006",
+      "name": "ewe",
+      "frequency": "weekly",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "dueDate": "2000-12-12 00:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "1950007",
+      "name": "d",
+      "frequency": "monthly",
+      "repeatInterval": "1",
+      "repeatUnit": "months",
+      "dueDate": "2026-02-27 00:00:00",
+      "isCompleted": "0"
+    },
+    {
+      "id": "2010002",
+      "name": "Kochen",
+      "frequency": "weekly",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "dueDate": "2026-02-27 00:00:00",
+      "isCompleted": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tfrequency\trepeatInterval\trepeatUnit\tdueDate\tisCompleted\n1890090\tWerkstatt aufräumen\tweekly\t1\tweeks\t2026-02-18 19:30:00\t0\n1920001\td\tcustom\t1\tirregular\t2026-02-22 22:00:00\t0\n1950001\tMachen\tweekly\t1\tweeks\t2026-02-21 22:00:00\t0\n1950003\thm\tcustom\t30\tdays\t2026-02-26 12:00:00\t0\n1950004\tStammtisch\tmonthly\t1\tmonths\t2026-05-19 19:00:00\t0\n1950005\twunder\tcustom\t3\tweeks\t2026-02-26 07:00:00\t0\n1950006\tewe\tweekly\t1\tweeks\t2000-12-12 00:00:00\t0\n1950007\td\tmonthly\t1\tmonths\t2026-02-27 00:00:00\t0\n2010002\tKochen\tweekly\t1\tweeks\t2026-02-27 00:00:00\t0\n",
+  "stderr": "",
+  "execution_time_ms": 851
+}

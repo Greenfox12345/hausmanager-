@@ -794,6 +794,7 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      console.log('[completeTask] Starting for taskId:', input.taskId);
       const tasksList = await getTasks(input.householdId);
       const task = tasksList.find(t => t.id === input.taskId);
 
@@ -801,10 +802,76 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
+      const isRecurring = task.frequency !== "once" || (task.repeatInterval && task.repeatUnit);
+      console.log('[completeTask] Task found:', { id: task.id, name: task.name, frequency: task.frequency, isRecurring });
+
       // Save original due date before updating (for activity history)
       const originalDueDate = task.dueDate;
 
-      // Mark task as completed
+      // ===== 1. Load current occurrence details (Termin 1) for activity log =====
+      let occurrenceDetails: {
+        occurrenceNumber: number;
+        members: { position: number; memberId: number }[];
+        memberNames: string[];
+        notes?: string;
+        isSpecial?: boolean;
+        specialName?: string;
+        specialDate?: Date;
+        items: { itemName: string; borrowStatus: string }[];
+      } | null = null;
+
+      const { getRotationSchedule, deleteRotationOccurrence } = await import("../db");
+      
+      if (isRecurring) {
+        try {
+          const schedule = await getRotationSchedule(input.taskId);
+          // Find the first non-skipped occurrence
+          const currentOcc = schedule.find(occ => !occ.isSkipped) || schedule[0];
+          
+          if (currentOcc) {
+            // Get member names for this occurrence
+            const allMembers = await getHouseholdMembers(input.householdId);
+            const memberNames = currentOcc.members
+              .map(m => allMembers.find(am => am.id === m.memberId)?.memberName || `Mitglied ${m.memberId}`)
+              .filter(Boolean);
+
+            // Get occurrence items
+            const db = await getDb();
+            let occItems: { itemName: string; borrowStatus: string }[] = [];
+            if (db) {
+              const { taskOccurrenceItems: toiTable, inventoryItems: invTable } = await import("../../drizzle/schema");
+              const items = await db.select({
+                itemName: invTable.name,
+                borrowStatus: toiTable.borrowStatus,
+              })
+                .from(toiTable)
+                .leftJoin(invTable, eq(toiTable.inventoryItemId, invTable.id))
+                .where(
+                  and(
+                    eq(toiTable.taskId, input.taskId),
+                    eq(toiTable.occurrenceNumber, currentOcc.occurrenceNumber)
+                  )
+                );
+              occItems = items.map(i => ({ itemName: i.itemName || 'Unbekannt', borrowStatus: i.borrowStatus }));
+            }
+
+            occurrenceDetails = {
+              occurrenceNumber: currentOcc.occurrenceNumber,
+              members: currentOcc.members,
+              memberNames,
+              notes: currentOcc.notes,
+              isSpecial: currentOcc.isSpecial,
+              specialName: currentOcc.specialName,
+              specialDate: currentOcc.specialDate,
+              items: occItems,
+            };
+          }
+        } catch (e) {
+          console.error('[completeTask] Error loading occurrence details:', e);
+        }
+      }
+
+      // ===== 2. Mark task as completed =====
       await updateTask(input.taskId, {
         isCompleted: true,
         completedBy: input.memberId,
@@ -813,8 +880,8 @@ export const tasksRouter = router({
         completionFileUrls: input.fileUrls || [],
       });
 
-      // Update due date if recurring
-      if (task.frequency !== "once" && task.dueDate) {
+      // ===== 3. Update due date if recurring =====
+      if (isRecurring && task.dueDate) {
         let nextDueDate = new Date(task.dueDate);
 
         switch (task.frequency) {
@@ -854,40 +921,107 @@ export const tasksRouter = router({
         });
       }
 
-      // Handle rotation if enabled (only for single assignee)
-      if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
-        const members = await getHouseholdMembers(input.householdId);
-        const activeMembers = members.filter(m => m.isActive);
+      // ===== 4. Remove completed occurrence and shift remaining ones =====
+      if (isRecurring && occurrenceDetails) {
+        try {
+          // Remove the completed occurrence (this also renumbers remaining ones)
+          await deleteRotationOccurrence(input.taskId, occurrenceDetails.occurrenceNumber);
+          console.log('[completeTask] Occurrence', occurrenceDetails.occurrenceNumber, 'removed and remaining shifted');
 
-        // Get excluded members from task_rotation_exclusions table
-        const db = await getDb();
-        if (!db) throw new Error("Database not available");
+          // Shift task_occurrence_items: remove items for completed occurrence, renumber rest
+          const db = await getDb();
+          if (db) {
+            const { taskOccurrenceItems: toiTable } = await import("../../drizzle/schema");
+            
+            // Delete items for the completed occurrence
+            await db.delete(toiTable).where(
+              and(
+                eq(toiTable.taskId, input.taskId),
+                eq(toiTable.occurrenceNumber, occurrenceDetails.occurrenceNumber)
+              )
+            );
 
-        const exclusions = await db.select()
-          .from(taskRotationExclusions)
-          .where(eq(taskRotationExclusions.taskId, input.taskId));
+            // Get remaining items and renumber them
+            const remainingItems = await db.select().from(toiTable)
+              .where(eq(toiTable.taskId, input.taskId))
+              .orderBy(toiTable.occurrenceNumber);
 
-        const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
-
-        // Filter out excluded members
-        const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
-
-        if (eligibleMembers.length > 0) {
-          const currentAssigneeId = task.assignedTo[0];
-          const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
-          const nextIndex = (currentIndex + 1) % eligibleMembers.length;
-          const nextMember = eligibleMembers[nextIndex];
-
-          if (nextMember) {
-            await updateTask(input.taskId, {
-              assignedTo: [nextMember.id],
+            // Build a mapping of old occurrence numbers to new ones
+            const occNumberSet = Array.from(new Set(remainingItems.map(i => i.occurrenceNumber))).sort((a, b) => a - b);
+            const occMapping = new Map<number, number>();
+            occNumberSet.forEach((oldNum, index) => {
+              occMapping.set(oldNum, index + 1);
             });
+
+            // Update occurrence numbers
+            for (const item of remainingItems) {
+              const newOccNum = occMapping.get(item.occurrenceNumber);
+              if (newOccNum !== undefined && newOccNum !== item.occurrenceNumber) {
+                await db.update(toiTable)
+                  .set({ occurrenceNumber: newOccNum })
+                  .where(eq(toiTable.id, item.id));
+              }
+            }
+            console.log('[completeTask] Occurrence items shifted successfully');
+          }
+        } catch (e) {
+          console.error('[completeTask] Error removing occurrence:', e);
+        }
+      }
+
+      // ===== 5. Handle rotation if enabled (assign next person) =====
+      if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
+        try {
+          // After occurrence removal, the new first occurrence has the next assignees
+          // Update task.assignedTo to match the new first occurrence
+          const updatedSchedule = await getRotationSchedule(input.taskId);
+          const newFirstOcc = updatedSchedule.find(occ => !occ.isSkipped) || updatedSchedule[0];
+          if (newFirstOcc && newFirstOcc.members.length > 0) {
+            await updateTask(input.taskId, {
+              assignedTo: newFirstOcc.members.map(m => m.memberId),
+            });
+          }
+        } catch (e) {
+          console.error('[completeTask] Error updating rotation assignee:', e);
+          // Fallback: old rotation logic
+          const members = await getHouseholdMembers(input.householdId);
+          const activeMembers = members.filter(m => m.isActive);
+          const db = await getDb();
+          if (db) {
+            const exclusions = await db.select()
+              .from(taskRotationExclusions)
+              .where(eq(taskRotationExclusions.taskId, input.taskId));
+            const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
+            const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
+            if (eligibleMembers.length > 0) {
+              const currentAssigneeId = task.assignedTo[0];
+              const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
+              const nextIndex = (currentIndex + 1) % eligibleMembers.length;
+              const nextMember = eligibleMembers[nextIndex];
+              if (nextMember) {
+                await updateTask(input.taskId, { assignedTo: [nextMember.id] });
+              }
+            }
           }
         }
       }
 
-      // Build description with details
+      // ===== 6. Build activity log with occurrence details =====
       const descParts: string[] = [`Aufgabe abgeschlossen: '${task.name}'`];
+      if (occurrenceDetails) {
+        if (occurrenceDetails.specialName) {
+          descParts.push(`Sondertermin: ${occurrenceDetails.specialName}`);
+        }
+        if (occurrenceDetails.memberNames.length > 0) {
+          descParts.push(`Verantwortlich: ${occurrenceDetails.memberNames.join(', ')}`);
+        }
+        if (occurrenceDetails.notes) {
+          descParts.push(`Notizen: ${occurrenceDetails.notes}`);
+        }
+        if (occurrenceDetails.items.length > 0) {
+          descParts.push(`Gegenstände: ${occurrenceDetails.items.map(i => i.itemName).join(', ')}`);
+        }
+      }
       if (input.comment) descParts.push(`Kommentar: ${input.comment}`);
       if (input.photoUrls && input.photoUrls.length > 0) {
         descParts.push(`${input.photoUrls.length} Foto(s) angehängt`);
@@ -896,7 +1030,27 @@ export const tasksRouter = router({
         descParts.push(`${input.fileUrls.length} Datei(en) angehängt`);
       }
 
-      // Create activity log with original due date
+      // Create activity log with occurrence metadata
+      let metadataObj: any = { taskName: task.name };
+      if (originalDueDate) {
+        try {
+          const dueDateObj = originalDueDate instanceof Date ? originalDueDate : new Date(originalDueDate);
+          metadataObj.originalDueDate = dueDateObj.toISOString();
+        } catch (e) {
+          metadataObj.originalDueDate = String(originalDueDate);
+        }
+      }
+      if (occurrenceDetails) {
+        metadataObj.occurrence = {
+          number: occurrenceDetails.occurrenceNumber,
+          memberNames: occurrenceDetails.memberNames,
+          notes: occurrenceDetails.notes,
+          isSpecial: occurrenceDetails.isSpecial,
+          specialName: occurrenceDetails.specialName,
+          specialDate: occurrenceDetails.specialDate ? (occurrenceDetails.specialDate instanceof Date ? occurrenceDetails.specialDate.toISOString() : String(occurrenceDetails.specialDate)) : undefined,
+          items: occurrenceDetails.items,
+        };
+      }
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
@@ -906,24 +1060,26 @@ export const tasksRouter = router({
         relatedItemId: input.taskId,
         comment: input.comment,
         photoUrls: input.photoUrls,
-        metadata: originalDueDate
-          ? { originalDueDate: originalDueDate.toISOString(), taskName: task.name }
-          : { taskName: task.name },
+        metadata: metadataObj,
       });
 
-      // Send notification to task creator if different from completer
-      if (task.createdBy && task.createdBy !== input.memberId) {
-        const members = await getHouseholdMembers(input.householdId);
-        const completer = members.find(m => m.id === input.memberId);
-        if (completer) {
-          await notifyTaskCompleted(
-            input.householdId,
-            task.createdBy,
-            input.taskId,
-            task.name,
-            completer.memberName
-          );
+      // ===== 7. Send notification (non-fatal) =====
+      try {
+        if (task.createdBy && task.createdBy !== input.memberId) {
+          const members = await getHouseholdMembers(input.householdId);
+          const completer = members.find(m => m.id === input.memberId);
+          if (completer) {
+            await notifyTaskCompleted(
+              input.householdId,
+              task.createdBy,
+              input.taskId,
+              task.name,
+              completer.memberName
+            );
+          }
         }
+      } catch (notifError) {
+        console.error('[completeTask] Notification error (non-fatal):', notifError);
       }
 
       // Process linked shopping items

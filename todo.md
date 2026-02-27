@@ -3013,3 +3013,17 @@
 - [x] isSpecial, specialName, isSkipped aus rotationSchedule genutzt
 - [x] Übersprungene Termine (isSkipped) werden ausgeblendet
 - [x] Sondertermin-Zellen haben durchgehend helle Amber-Hintergrundfarbe
+
+## Bug Fix: Abschließen von Aufgaben mit regelmäßiger Wiederholung funktioniert nicht
+- [ ] Untersuchen warum manche wiederkehrende Aufgaben nicht abgeschlossen werden können
+- [ ] Task-Completion-Logik für recurring tasks analysieren
+- [ ] Root Cause identifizieren und beheben
+
+## Aufgaben-Abschließen-Logik überarbeiten
+- [x] Verlaufseintrag mit Termindetails (Datum, Notizen, Verantwortliche, Gegenstände)
+- [x] Aktuellen Termin (Occurrence) nach Abschluss entfernen (deleteRotationOccurrence)
+- [x] Nachfolgende Termine aufrücken lassen (Daten, Notizen, Verantwortliche, Gegenstände)
+- [x] Backend completeTask Mutation erweitert (7 Schritte)
+- [x] task_occurrence_items werden ebenfalls verschoben und umnummeriert
+- [x] Rotation Schedule nach Abschluss aktualisiert (neuer erster Termin wird assignee)
+- [x] Activity-Log enthält: Verantwortliche, Notizen, Sondertermin-Name, Gegenstände
