@@ -69,11 +69,11 @@ export function RevokeApprovalDialog({
 
           <div className="space-y-2">
             <Label htmlFor="revoke-reason" className="font-medium">
-              Begr\u00fcndung <span className="text-destructive">*</span>
+              Begründung <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="revoke-reason"
-              placeholder="Bitte gib eine Begr\u00fcndung f\u00fcr den Widerruf an..."
+              placeholder="Bitte gib eine Begründung für den Widerruf an..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
@@ -81,7 +81,7 @@ export function RevokeApprovalDialog({
             />
             {reason.trim().length === 0 && (
               <p className="text-xs text-muted-foreground">
-                Eine Begr\u00fcndung ist erforderlich, um die Genehmigung zu widerrufen.
+                Eine Begründung ist erforderlich, um die Genehmigung zu widerrufen.
               </p>
             )}
           </div>

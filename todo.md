@@ -3096,3 +3096,7 @@
 - [x] Datenfluss analysieren: BorrowRequestDialog → automatische Bestätigung → RequiredItemsSection
 - [x] Problem identifiziert: borrowStartDate und borrowEndDate wurden nicht in taskOccurrenceItems gespeichert
 - [x] Fix implementiert: Daten werden jetzt beim updateBorrowMutation mitgegeben
+
+## RevokeApprovalDialog: Umlaute werden nicht richtig angezeigt
+- [x] Dialog-Text analysieren: Unicode-Escape-Sequenzen (\u00fc) statt echte Umlaute
+- [x] Umlaute korrigiert: \u00fc → ü, alle Begründung-Texte gefixt
