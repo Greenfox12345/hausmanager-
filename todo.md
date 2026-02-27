@@ -3053,3 +3053,7 @@
 - [x] Analysiere Frontend-Logik für Termin-Bearbeitung
 - [x] Identifiziere und fixe den Bug beim Speichern von Terminen ohne Notizen/Verantwortliche
 - [x] Erstelle Übersichtsdokumentation des gesamten Termin-Flows
+
+## Sondertermine chronologisch einsortieren
+- [x] Kommende Termine Tabelle: Sondertermine nach Datum chronologisch einsortieren
+- [x] Benötigte Gegenstände Tabelle: Sondertermine nach Datum chronologisch einsortieren

@@ -2004,6 +2004,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         if (occ._index < 3) return true;
                         // Show occurrences with assigned people or notes
                         return occ._hasSpecialFeatures;
+                      })
+                      .sort((a: any, b: any) => {
+                        // Sort chronologically by date
+                        const dateA = a.date ? new Date(a.date).getTime() : Infinity;
+                        const dateB = b.date ? new Date(b.date).getTime() : Infinity;
+                        return dateA - dateB;
                       })}
                     />
                     )}
@@ -2123,7 +2129,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     householdId={task.householdId ?? 0}
                     taskName={task.name}
                     members={members.map(m => ({ id: m.memberId, name: m.memberName }))}
-                    rotationSchedule={rotationSchedule}
+                    rotationSchedule={[...rotationSchedule].sort((a, b) => {
+                      const dateA = (a.specialDate || a.date) ? new Date(a.specialDate || a.date!).getTime() : Infinity;
+                      const dateB = (b.specialDate || b.date) ? new Date(b.specialDate || b.date!).getTime() : Infinity;
+                      return dateA - dateB;
+                    })}
                     onItemAdded={() => {
                       // Invalidate queries to reload items
                       utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId: task.id });
