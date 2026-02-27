@@ -63,7 +63,10 @@ export default function History() {
     if (action === "reminder") return <Bell className="h-5 w-5" />;
     if (action === "borrow_revoked") return <Bell className="h-5 w-5" />;
     if (action === "item_added") return <ShoppingCart className="h-5 w-5" />;
+    if (action === "item_removed") return <ShoppingCart className="h-5 w-5" />;
     if (action === "borrow_approved") return <CheckCircle2 className="h-5 w-5" />;
+    if (action === "borrow_auto_approved") return <CheckCircle2 className="h-5 w-5" />;
+    if (action === "borrow_requested") return <Bell className="h-5 w-5" />;
     return <CheckCircle2 className="h-5 w-5" />;
   };
 
@@ -74,7 +77,10 @@ export default function History() {
     if (action === "reminder") return "text-yellow-600 bg-yellow-50";
     if (action === "borrow_revoked") return "text-red-600 bg-red-50";
     if (action === "item_added") return "text-indigo-600 bg-indigo-50";
+    if (action === "item_removed") return "text-orange-600 bg-orange-50";
     if (action === "borrow_approved") return "text-emerald-600 bg-emerald-50";
+    if (action === "borrow_auto_approved") return "text-emerald-600 bg-emerald-50";
+    if (action === "borrow_requested") return "text-blue-600 bg-blue-50";
     return "text-gray-600 bg-gray-50";
   };
 
@@ -308,6 +314,97 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Gegenstand:</span>
                                     <span className="text-sm">{meta.inventoryItemName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Item Removed Details */}
+                        {activity.action === "item_removed" && activity.metadata && (() => {
+                          const meta = activity.metadata as any;
+                          return (
+                            <div className="mt-2 p-3 bg-orange-50 dark:bg-orange-950/30 rounded-lg border border-orange-200 dark:border-orange-900">
+                              <div className="space-y-1.5">
+                                {meta.taskName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Aufgabe:</span>
+                                    <span className="text-sm">{meta.taskName}</span>
+                                  </div>
+                                )}
+                                {meta.occurrenceNumber && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Termin:</span>
+                                    <span className="text-sm">Termin {meta.occurrenceNumber}</span>
+                                  </div>
+                                )}
+                                {meta.inventoryItemName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Gegenstand:</span>
+                                    <span className="text-sm">{meta.inventoryItemName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Borrow Requested Details */}
+                        {activity.action === "borrow_requested" && activity.metadata && (() => {
+                          const meta = activity.metadata as any;
+                          return (
+                            <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900">
+                              <div className="space-y-1.5">
+                                {meta.itemName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Gegenstand:</span>
+                                    <span className="text-sm">{meta.itemName}</span>
+                                  </div>
+                                )}
+                                {meta.taskName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Aufgabe:</span>
+                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (Termin ${meta.occurrenceNumber})` : ""}</span>
+                                  </div>
+                                )}
+                                {meta.startDate && meta.endDate && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Zeitraum:</span>
+                                    <span className="text-sm">
+                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Borrow Auto-Approved Details */}
+                        {activity.action === "borrow_auto_approved" && activity.metadata && (() => {
+                          const meta = activity.metadata as any;
+                          return (
+                            <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-900">
+                              <div className="space-y-1.5">
+                                {meta.itemName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Gegenstand:</span>
+                                    <span className="text-sm">{meta.itemName}</span>
+                                  </div>
+                                )}
+                                {meta.taskName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Aufgabe:</span>
+                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (Termin ${meta.occurrenceNumber})` : ""}</span>
+                                  </div>
+                                )}
+                                {meta.startDate && meta.endDate && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Zeitraum:</span>
+                                    <span className="text-sm">
+                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                    </span>
                                   </div>
                                 )}
                               </div>

@@ -3126,3 +3126,10 @@
 - [x] Server: Verlaufseintrag beim Hinzufügen von Gegenständen zu Aufgaben (action: "item_added", mit Aufgaben- und Gegenstandsinfo)
 - [x] Server: Verlaufseintrag bei Bestätigung von Ausleih-Anfragen (action: "borrow_approved", mit Aufgabeninfo falls verknüpft)
 - [x] Frontend: History.tsx erweitert um item_added (indigo) und borrow_approved (emerald) mit Metadata-Boxen
+
+## Verlaufseinträge: Fehlende Termin-Aktionen
+- [x] Server: Verlaufseintrag beim Entfernen von Gegenständen (action: "item_removed") mit Aufgaben/Termin/Gegenstandsinfo
+- [x] Server: Verlaufseintrag beim Abschicken von Ausleih-Anfragen (action: "borrow_requested") mit Aufgabeninfo, Zeitraum
+- [x] Server: Verlaufseintrag bei Annahme von Anfragen / auto-approve (action: "borrow_auto_approved") mit Aufgabeninfo, Zeitraum
+- [x] Server: Benachrichtigung an Eigentümer bei persönlichen Gegenständen (mit Aufgabeninfo)
+- [x] Frontend: History.tsx um item_removed (orange), borrow_requested (blau), borrow_auto_approved (grün) erweitert

@@ -39,6 +39,10 @@ export const borrowRouter = router({
         startDate: z.string(), // ISO date string
         endDate: z.string(), // ISO date string
         requestMessage: z.string().optional(),
+        // Optional task context for activity log
+        taskId: z.number().optional(),
+        taskName: z.string().optional(),
+        occurrenceNumber: z.number().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -47,6 +51,8 @@ export const borrowRouter = router({
       if (!item) {
         throw new Error("Item not found");
       }
+
+      const autoApproved = item.ownershipType === "household";
 
       // Create borrow request
       const requestId = await createBorrowRequest({
@@ -58,37 +64,88 @@ export const borrowRouter = router({
         endDate: new Date(input.endDate),
         requestMessage: input.requestMessage,
         // Auto-approve for household items, pending for personal items
-        status: item.ownershipType === "household" ? "approved" : "pending",
+        status: autoApproved ? "approved" : "pending",
       });
 
-      // Create activity log
+      // Build shared metadata
+      const baseMetadata: Record<string, unknown> = {
+        itemId: input.inventoryItemId,
+        itemName: item.name,
+        requestId,
+        startDate: input.startDate,
+        endDate: input.endDate,
+      };
+      if (input.taskId) baseMetadata.taskId = input.taskId;
+      if (input.taskName) baseMetadata.taskName = input.taskName;
+      if (input.occurrenceNumber) baseMetadata.occurrenceNumber = input.occurrenceNumber;
+
+      // Activity log: Anfrage abgeschickt
+      const requestDescription = input.taskName
+        ? `Ausleih-Anfrage für "${item.name}" (Aufgabe: ${input.taskName}${
+            input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""
+          })`
+        : `Ausleih-Anfrage für "${item.name}"`;
+
       await createActivityLog({
         householdId: input.borrowerHouseholdId,
         memberId: input.borrowerMemberId,
-        activityType: "inventory",
+        activityType: "task",
         action: "borrow_requested",
-        description: `Ausleih-Anfrage für "${item.name}"`,
-        metadata: {
-          itemId: input.inventoryItemId,
-          requestId,
-          startDate: input.startDate,
-          endDate: input.endDate,
-        },
+        description: requestDescription,
+        relatedItemId: input.taskId,
+        metadata: baseMetadata,
       });
 
-      // TODO: Notify owner if personal item (requires approval)
-      // This will be implemented when notification system is ready
-      if (item.ownershipType === "personal") {
-        // await notifyOwner({
-        //   title: "Neue Ausleih-Anfrage",
-        //   content: `Jemand möchte "${item.name}" ausleihen vom ${new Date(input.startDate).toLocaleDateString()} bis ${new Date(input.endDate).toLocaleDateString()}`,
-        // });
+      // If auto-approved, also log the approval
+      if (autoApproved) {
+        const approvedDescription = input.taskName
+          ? `Ausleihe von "${item.name}" automatisch genehmigt (Aufgabe: ${input.taskName}${
+              input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""
+            })`
+          : `Ausleihe von "${item.name}" automatisch genehmigt`;
+
+        await createActivityLog({
+          householdId: input.borrowerHouseholdId,
+          memberId: input.borrowerMemberId,
+          activityType: "task",
+          action: "borrow_auto_approved",
+          description: approvedDescription,
+          relatedItemId: input.taskId,
+          metadata: baseMetadata,
+        });
+      }
+
+      // Notify owner if personal item (requires approval)
+      if (!autoApproved) {
+        const borrowerMember = await getHouseholdMemberById(input.borrowerMemberId);
+        const borrowerName = borrowerMember?.memberName ?? "Unbekannt";
+        const startFormatted = new Date(input.startDate).toLocaleDateString("de-DE");
+        const endFormatted = new Date(input.endDate).toLocaleDateString("de-DE");
+        const taskInfo = input.taskName
+          ? ` für Aufgabe "${input.taskName}"${
+              input.occurrenceNumber ? ` (Termin ${input.occurrenceNumber})` : ""
+            }`
+          : "";
+
+        // We need a memberId to send the notification - use the item owner's memberId if available
+        // For household items this won't be reached (autoApproved=true), so this is for personal items
+        const ownerMemberId = item.owners?.[0]?.memberId;
+        if (ownerMemberId) {
+          await createNotification({
+            householdId: item.householdId,
+            memberId: ownerMemberId,
+            title: "Neue Ausleih-Anfrage",
+            message: `${borrowerName} möchte "${item.name}" ausleihen vom ${startFormatted} bis ${endFormatted}${taskInfo}.`,
+            type: "general",
+            relatedTaskId: input.taskId,
+          });
+        }
       }
 
       return { 
         success: true, 
         requestId,
-        autoApproved: item.ownershipType === "household",
+        autoApproved,
       };
     }),
 

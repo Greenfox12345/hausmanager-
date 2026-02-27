@@ -421,7 +421,10 @@ export function RequiredItemsSection({
               borrowerMemberId: currentMember.id,
               startDate: data.startDate.toISOString(),
               endDate: data.endDate.toISOString(),
-              requestMessage: data.message || `Für Aufgabe #${taskId}, Termin ${selectedItem.occurrenceNumber}`,
+              requestMessage: data.message || `Für Aufgabe "${taskName}", Termin ${selectedItem.occurrenceNumber}`,
+              taskId,
+              taskName,
+              occurrenceNumber: selectedItem.occurrenceNumber,
             });
             
             // Update item with borrow request ID, borrow status, and dates

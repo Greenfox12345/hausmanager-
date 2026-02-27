@@ -190,8 +190,51 @@ export const taskOccurrenceItemsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
 
+      // Fetch item details before deletion for activity log
+      const [occurrenceItem] = await db
+        .select({
+          taskId: taskOccurrenceItems.taskId,
+          occurrenceNumber: taskOccurrenceItems.occurrenceNumber,
+          inventoryItemId: taskOccurrenceItems.inventoryItemId,
+          itemName: inventoryItems.name,
+          taskName: tasks.name,
+          householdId: tasks.householdId,
+        })
+        .from(taskOccurrenceItems)
+        .leftJoin(inventoryItems, eq(taskOccurrenceItems.inventoryItemId, inventoryItems.id))
+        .leftJoin(tasks, eq(taskOccurrenceItems.taskId, tasks.id))
+        .where(eq(taskOccurrenceItems.id, input.itemId))
+        .limit(1);
+
       // Delete the item
       await db.delete(taskOccurrenceItems).where(eq(taskOccurrenceItems.id, input.itemId));
+
+      // Create activity log entry
+      if (occurrenceItem) {
+        const [member] = await db
+          .select({ id: householdMembers.id })
+          .from(householdMembers)
+          .where(eq(householdMembers.userId, ctx.user!.id))
+          .limit(1);
+
+        if (member) {
+          await createActivityLog({
+            householdId: occurrenceItem.householdId!,
+            memberId: member.id,
+            activityType: "task",
+            action: "item_removed",
+            description: `Gegenstand "${occurrenceItem.itemName}" von Termin ${occurrenceItem.occurrenceNumber} entfernt`,
+            relatedItemId: occurrenceItem.taskId,
+            metadata: {
+              taskId: occurrenceItem.taskId,
+              taskName: occurrenceItem.taskName,
+              occurrenceNumber: occurrenceItem.occurrenceNumber,
+              inventoryItemId: occurrenceItem.inventoryItemId,
+              inventoryItemName: occurrenceItem.itemName,
+            },
+          });
+        }
+      }
 
       return {
         success: true,
