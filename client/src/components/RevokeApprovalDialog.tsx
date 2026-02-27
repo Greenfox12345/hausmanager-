@@ -19,6 +19,9 @@ interface RevokeApprovalDialogProps {
   borrowerName: string;
   startDate: string;
   endDate: string;
+  taskId?: number;
+  taskName?: string;
+  occurrenceNumber?: number;
   onConfirm: (reason: string) => void;
   isSubmitting?: boolean;
 }
@@ -30,6 +33,9 @@ export function RevokeApprovalDialog({
   borrowerName,
   startDate,
   endDate,
+  taskId,
+  taskName,
+  occurrenceNumber,
   onConfirm,
   isSubmitting = false,
 }: RevokeApprovalDialogProps) {
@@ -65,6 +71,9 @@ export function RevokeApprovalDialog({
             <div><span className="font-medium">Gegenstand:</span> {itemName}</div>
             <div><span className="font-medium">Ausleiher:</span> {borrowerName}</div>
             <div><span className="font-medium">Zeitraum:</span> {startDate} - {endDate}</div>
+            {taskName && (
+              <div><span className="font-medium">Aufgabe:</span> {taskName}{occurrenceNumber ? ` (Termin ${occurrenceNumber})` : ""}</div>
+            )}
           </div>
 
           <div className="space-y-2">

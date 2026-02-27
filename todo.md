@@ -3100,3 +3100,10 @@
 ## RevokeApprovalDialog: Umlaute werden nicht richtig angezeigt
 - [x] Dialog-Text analysieren: Unicode-Escape-Sequenzen (\u00fc) statt echte Umlaute
 - [x] Umlaute korrigiert: \u00fc → ü, alle Begründung-Texte gefixt
+
+## RevokeApprovalDialog: Aufgabeninformation anzeigen und verlinken
+- [x] Dialog-Props erweitern um taskId, taskName und occurrenceNumber
+- [x] UI: Aufgabeninfo im Dialog anzeigen (nur wenn taskName vorhanden)
+- [x] InventoryDetail: Keine Änderung nötig (nicht aufgabenverknüpft, taskId/taskName optional)
+- [x] RequiredItemsSection: taskId, taskName und occurrenceNumber an Dialog übergeben
+- [x] Server: Benachrichtigung mit relatedTaskId erweitert für direkten Link zu Aufgabendetails

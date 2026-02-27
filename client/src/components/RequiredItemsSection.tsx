@@ -52,6 +52,7 @@ export function RequiredItemsSection({
     borrowerName: string;
     startDate: string;
     endDate: string;
+    occurrenceNumber?: number;
   } | null>(null);
   const [selectedItem, setSelectedItem] = useState<{
     id: number;
@@ -350,6 +351,7 @@ export function RequiredItemsSection({
                                   borrowerName,
                                   startDate: item.borrowStartDate ? formatDate(item.borrowStartDate) : "-",
                                   endDate: item.borrowEndDate ? formatDate(item.borrowEndDate) : "-",
+                                  occurrenceNumber: item.occurrenceNumber,
                                 });
                                 setShowRevokeDialog(true);
                               }}
@@ -466,6 +468,9 @@ export function RequiredItemsSection({
           borrowerName={revokeItemInfo.borrowerName}
           startDate={revokeItemInfo.startDate}
           endDate={revokeItemInfo.endDate}
+          taskId={taskId}
+          taskName={taskName}
+          occurrenceNumber={revokeItemInfo.occurrenceNumber}
           onConfirm={(reason) => {
             if (!currentMember) return;
             revokeMutation.mutate({

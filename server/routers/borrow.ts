@@ -390,13 +390,14 @@ export const borrowRouter = router({
           const [task] = await db.select().from(tasksTable).where(eq(tasksTable.id, occ.taskId));
           const taskName = task?.name || `Aufgabe #${occ.taskId}`;
 
-          // Send notification to the borrower with task info
+          // Send notification to the borrower with task info and link
           await createNotification({
             householdId: request.borrowerHouseholdId,
             memberId: request.borrowerMemberId,
             type: "general",
             title: "Ausleihgenehmigung widerrufen",
             message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) für Aufgabe "${taskName}" (Termin ${occ.occurrenceNumber}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+            relatedTaskId: occ.taskId,
           });
 
           // Create activity log entry with full details
