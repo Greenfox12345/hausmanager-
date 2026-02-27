@@ -3112,3 +3112,8 @@
 - [x] ReminderDialog analysieren: assignedTo zeigt User-IDs statt Namen
 - [x] TaskDetailDialog: assignedTo-Array zu Mitgliedernamen mappen (ownMembers)
 - [x] Calendar.tsx: actionTask.assignedTo zu Mitgliedernamen mappen (members)
+
+## User-ID-zu-Namen in /tasks und /inventory + Erinnerungs-Benachrichtigungen
+- [x] /tasks: ReminderDialog-Aufruf analysieren und User-Namen-Mapping implementieren
+- [x] /inventory: ReminderDialog wird nicht verwendet (keine Änderung nötig)
+- [x] Server: sendReminder-Mutation erweitert - Benachrichtigungen an alle zugewiesenen Mitglieder mit relatedTaskId

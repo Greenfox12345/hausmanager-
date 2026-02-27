@@ -8,6 +8,7 @@ import {
   deleteTask,
   createActivityLog,
   getHouseholdMembers,
+  getHouseholdMemberById,
   createTaskRotationExclusions,
   getDb,
   getHouseholdById,
@@ -20,7 +21,7 @@ import {
   skipRotationOccurrence,
   moveRotationOccurrence,
 } from "../db";
-import { notifyTaskAssigned, notifyTaskCompleted } from "../notificationHelpers";
+import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { inArray } from "drizzle-orm";
 
@@ -1258,6 +1259,25 @@ export const tasksRouter = router({
         comment: input.comment,
         metadata: { taskName: task.name },
       });
+
+      // Send notification to all assigned members
+      if (task.assignedTo && task.assignedTo.length > 0) {
+        const senderMember = await getHouseholdMemberById(input.memberId);
+        const senderName = senderMember?.memberName || "Jemand";
+        
+        for (const assignedMemberId of task.assignedTo) {
+          await createNotification({
+            householdId: input.householdId,
+            memberId: assignedMemberId,
+            type: "reminder",
+            title: "Erinnerung: " + task.name,
+            message: input.comment 
+              ? `${senderName} hat dich an diese Aufgabe erinnert: ${input.comment}`
+              : `${senderName} hat dich an diese Aufgabe erinnert.`,
+            relatedTaskId: input.taskId,
+          });
+        }
+      }
 
       return { success: true };
     }),

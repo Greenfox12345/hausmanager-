@@ -1486,7 +1486,12 @@ export default function Tasks() {
       <ReminderDialog
         open={reminderDialogOpen}
         onOpenChange={setReminderDialogOpen}
-        task={selectedTask}
+        task={selectedTask ? {
+          ...selectedTask,
+          assignedTo: selectedTask.assignedTo && selectedTask.assignedTo.length > 0
+            ? selectedTask.assignedTo.map((id: number) => members.find(m => m.id === id)?.memberName).filter(Boolean).join(", ")
+            : undefined,
+        } : null}
         onSendReminder={handleSendReminder}
       />
 
