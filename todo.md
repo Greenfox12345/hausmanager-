@@ -3082,3 +3082,6 @@
 - [x] Frontend: Widerrufen-Button in RequiredItemsSection (Aufgabendetails)
 - [x] Frontend: Verlaufsanzeige für borrow_revoked Aktivitäten in History.tsx
 - [x] Tests: 12 Vitest-Tests für Input-Validierung und Nachrichtenformate
+
+## Widerrufs-Benachrichtigung: Aufgabeninformation hinzufügen
+- [x] Server: Benachrichtigungstext erweitern um Aufgabenname und Terminnummer bei aufgabenverknüpften Ausleihen

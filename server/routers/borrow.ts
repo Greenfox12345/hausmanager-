@@ -376,15 +376,6 @@ export const borrowRouter = router({
       // Delete calendar events for revoked borrow
       await deleteCalendarEventsByBorrowRequest(input.requestId);
 
-      // Send notification to the borrower
-      await createNotification({
-        householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
-        type: "general",
-        title: "Ausleihgenehmigung widerrufen",
-        message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
-      });
-
       // Check if this borrow is linked to a task occurrence
       const db = await getDb();
       if (db) {
@@ -398,6 +389,15 @@ export const borrowRouter = router({
           // Get task name for the activity log
           const [task] = await db.select().from(tasksTable).where(eq(tasksTable.id, occ.taskId));
           const taskName = task?.name || `Aufgabe #${occ.taskId}`;
+
+          // Send notification to the borrower with task info
+          await createNotification({
+            householdId: request.borrowerHouseholdId,
+            memberId: request.borrowerMemberId,
+            type: "general",
+            title: "Ausleihgenehmigung widerrufen",
+            message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) für Aufgabe "${taskName}" (Termin ${occ.occurrenceNumber}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+          });
 
           // Create activity log entry with full details
           await createActivityLog({
@@ -431,8 +431,16 @@ export const borrowRouter = router({
             .where(eq(taskOccurrenceItems.id, occ.id));
         }
 
-        // If no task-linked occurrences, still create a general activity log
+        // If no task-linked occurrences, send notification without task info and create a general activity log
         if (linkedOccurrences.length === 0) {
+          await createNotification({
+            householdId: request.borrowerHouseholdId,
+            memberId: request.borrowerMemberId,
+            type: "general",
+            title: "Ausleihgenehmigung widerrufen",
+            message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+          });
+
           await createActivityLog({
             householdId: input.revokerHouseholdId,
             memberId: input.revokerId,
