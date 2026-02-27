@@ -3163,3 +3163,12 @@
 - [x] Fix: Alle Anzeige-Bedingungen (task.enableRepeat || task.repeatUnit) auf task.repeatUnit vereinfacht
 - [x] Fix: rotationScheduleData-Query deaktiviert wenn repeatUnit null ist
 - [x] Test: 16 Unit-Tests für hasRepeat-Logik und Payload-Konstruktion (alle bestanden)
+
+## Benötigte Gegenstände für Aufgaben ohne Wiederholung
+- [x] Analysieren: taskOccurrenceItems Schema und wie Occurrence 0 für einmalige Aufgaben genutzt werden kann
+- [x] Analysieren: RequiredItemsSection Komponente verstehen
+- [x] Backend: taskOccurrenceItems Router unterstützt occurrenceNumber=0 bereits ohne Änderungen
+- [x] Frontend: SimpleRequiredItemsSection Komponente erstellt (3 Spalten: Gegenstand, Status, Aktionen)
+- [x] Frontend: SimpleRequiredItemsSection in TaskDetailDialog eingebunden (nur wenn !task.repeatUnit)
+- [x] Frontend: RepeatSection nur anzeigen wenn task.repeatUnit gesetzt ist
+- [x] Test: 14 Unit-Tests für Filterlogik und Anzeigebedingungen (alle bestanden)

@@ -25,6 +25,7 @@ import { ReminderDialog } from "@/components/ReminderDialog";
 import { RotationScheduleTable, type ScheduleOccurrence } from "./RotationScheduleTable";
 import { UpcomingOccurrencesTable } from "./UpcomingOccurrencesTable";
 import { RequiredItemsSection } from "./RequiredItemsSection";
+import { SimpleRequiredItemsSection } from "./SimpleRequiredItemsSection";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 
@@ -2131,8 +2132,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
 
-                {/* Required Items Section */}
-                {task && rotationSchedule.length > 0 && (task.enableRepeat || task.repeatUnit) && (
+                {/* Required Items Section for repeating tasks (multi-column by occurrence) */}
+                {task && rotationSchedule.length > 0 && task.repeatUnit && (
                   <RequiredItemsSection
                     taskId={task.id}
                     householdId={task.householdId ?? 0}
@@ -2147,6 +2148,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       // Invalidate queries to reload items
                       utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId: task.id });
                     }}
+                  />
+                )}
+
+                {/* Required Items Section for non-repeating tasks (single column) */}
+                {task && !task.repeatUnit && (
+                  <SimpleRequiredItemsSection
+                    taskId={task.id}
+                    householdId={task.householdId ?? 0}
+                    taskName={task.name}
                   />
                 )}
                 
