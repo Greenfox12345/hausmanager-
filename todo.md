@@ -3069,3 +3069,16 @@
 - [x] Server: Activity-Log Wording angepasst (Erstellen + Bearbeiten)
 - [x] Benachrichtigungen: "Aufgabe fällig" → "Termin anstehend" bei wiederkehrenden Aufgaben
 - [x] RotationScheduleTable: "Fälligkeitsdatum" → "Startdatum (Erster Termin)"
+
+## Ausleihgenehmigungen widerrufen
+- [x] Schema analysieren: inventoryAvailability / Ausleihe-Tabellen verstehen
+- [x] Server: `borrow.revoke` Mutation erstellt (Status auf "cancelled", Begründung in responseMessage)
+- [x] Server: Benachrichtigung an Ausleiher mit Details (Gegenstand, Zeitraum, Begründung)
+- [x] Server: Verlaufseintrag bei aufgabenverknüpften Ausleihen (mit Metadata: Ausleiher, Termin, Zeitraum, Begründung)
+- [x] Server: Kalendereinträge der Ausleihe werden gelöscht
+- [x] Server: borrowStatus in taskOccurrenceItems wird zurückgesetzt
+- [x] Frontend: RevokeApprovalDialog mit Pflicht-Begründungsfeld
+- [x] Frontend: Widerrufen-Button in InventoryDetail für genehmigte/aktive Ausleihen
+- [x] Frontend: Widerrufen-Button in RequiredItemsSection (Aufgabendetails)
+- [x] Frontend: Verlaufsanzeige für borrow_revoked Aktivitäten in History.tsx
+- [x] Tests: 12 Vitest-Tests für Input-Validierung und Nachrichtenformate

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ItemPickerDialog } from "./ItemPickerDialog";
 import { BorrowRequestDialog } from "./BorrowRequestDialog";
+import { RevokeApprovalDialog } from "./RevokeApprovalDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { toast } from "sonner";
@@ -44,6 +45,14 @@ export function RequiredItemsSection({
   const [selectedOccurrence, setSelectedOccurrence] = useState<number | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
+  const [showRevokeDialog, setShowRevokeDialog] = useState(false);
+  const [revokeItemInfo, setRevokeItemInfo] = useState<{
+    borrowRequestId: number;
+    itemName: string;
+    borrowerName: string;
+    startDate: string;
+    endDate: string;
+  } | null>(null);
   const [selectedItem, setSelectedItem] = useState<{
     id: number;
     inventoryItemId: number;
@@ -63,6 +72,17 @@ export function RequiredItemsSection({
   const removeItemMutation = trpc.taskOccurrenceItems.removeItemFromOccurrence.useMutation();
   const updateBorrowMutation = trpc.taskOccurrenceItems.updateOccurrenceItemBorrow.useMutation();
   const createBorrowRequestMutation = trpc.borrow.request.useMutation();
+  const revokeMutation = trpc.borrow.revoke.useMutation({
+    onSuccess: () => {
+      toast.success("Genehmigung widerrufen");
+      utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
+      setShowRevokeDialog(false);
+      setRevokeItemInfo(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Widerrufen");
+    },
+  });
 
   // Get current user and household member
   const { data: currentUser } = trpc.auth.me.useQuery();
@@ -255,7 +275,7 @@ export function RequiredItemsSection({
                                       try {
                                         await updateBorrowMutation.mutateAsync({
                                           itemId: item.id,
-                                          borrowStartDate: newDate ? newDate.toISOString() : null,
+                                          borrowStartDate: newDate ? newDate.toISOString() : undefined,
                                         });
                                         await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
                                         toast.success("Ausleih-Start aktualisiert");
@@ -275,7 +295,7 @@ export function RequiredItemsSection({
                                       try {
                                         await updateBorrowMutation.mutateAsync({
                                           itemId: item.id,
-                                          borrowEndDate: newDate ? newDate.toISOString() : null,
+                                          borrowEndDate: newDate ? newDate.toISOString() : undefined,
                                         });
                                         await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
                                         toast.success("Ausleih-Ende aktualisiert");
@@ -294,23 +314,47 @@ export function RequiredItemsSection({
                               size="sm" 
                               className="w-full"
                               onClick={() => {
-                if (!currentUser || !currentMember) {
-                  toast.error("Bitte anmelden");
-                  return;
-                }
+                                if (!currentUser || !currentMember) {
+                                  toast.error("Bitte anmelden");
+                                  return;
+                                }
                                 setSelectedItem({
                                   id: item.id,
                                   inventoryItemId: item.inventoryItemId,
-                                  itemName: item.itemName,
+                                  itemName: item.itemName || "Unbekannt",
                                   occurrenceNumber: item.occurrenceNumber,
-                                  borrowStartDate: item.borrowStartDate,
-                                  borrowEndDate: item.borrowEndDate,
+                                  borrowStartDate: item.borrowStartDate ? String(item.borrowStartDate) : undefined,
+                                  borrowEndDate: item.borrowEndDate ? String(item.borrowEndDate) : undefined,
                                 });
                                 setBorrowDialogOpen(true);
                               }}
                               disabled={createBorrowRequestMutation.isPending}
                             >
                               {createBorrowRequestMutation.isPending ? "Wird erstellt..." : "Ausleihe anfragen"}
+                            </Button>
+                          )}
+                          {(item.requestStatus === "approved" || item.requestStatus === "active") && item.borrowRequestId && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="w-full"
+                              onClick={() => {
+                                // Find borrower name from the occurrence's assigned members
+                                const occMembers = occ.assignedMemberIds || [];
+                                const borrowerName = occMembers.length > 0
+                                  ? occMembers.map(id => members.find(m => m.id === id)?.name).filter(Boolean).join(", ") || "Unbekannt"
+                                  : "Unbekannt";
+                                setRevokeItemInfo({
+                                  borrowRequestId: item.borrowRequestId!,
+                                  itemName: item.itemName || "Unbekannt",
+                                  borrowerName,
+                                  startDate: item.borrowStartDate ? formatDate(item.borrowStartDate) : "-",
+                                  endDate: item.borrowEndDate ? formatDate(item.borrowEndDate) : "-",
+                                });
+                                setShowRevokeDialog(true);
+                              }}
+                            >
+                              Widerrufen
                             </Button>
                           )}
                         </div>
@@ -408,6 +452,30 @@ export function RequiredItemsSection({
         }}
         isSubmitting={createBorrowRequestMutation.isPending}
       />
+
+      {revokeItemInfo && (
+        <RevokeApprovalDialog
+          open={showRevokeDialog}
+          onOpenChange={(open) => {
+            setShowRevokeDialog(open);
+            if (!open) setRevokeItemInfo(null);
+          }}
+          itemName={revokeItemInfo.itemName}
+          borrowerName={revokeItemInfo.borrowerName}
+          startDate={revokeItemInfo.startDate}
+          endDate={revokeItemInfo.endDate}
+          onConfirm={(reason) => {
+            if (!currentMember) return;
+            revokeMutation.mutate({
+              requestId: revokeItemInfo.borrowRequestId,
+              revokerId: currentMember.id,
+              revokerHouseholdId: householdId,
+              reason,
+            });
+          }}
+          isSubmitting={revokeMutation.isPending}
+        />
+      )}
     </Card>
   );
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { borrowRequests, inventoryItems } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 import {
   getDb,
   createBorrowRequest,
@@ -24,6 +25,8 @@ import {
   getCalendarEventsByBorrowRequest,
 } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { createNotification } from "../notificationHelpers";
+import { taskOccurrenceItems, tasks as tasksTable } from "../../drizzle/schema";
 
 export const borrowRouter = router({
   // Create a new borrow request
@@ -326,6 +329,129 @@ export const borrowRouter = router({
       const events = await getCalendarEventsByBorrowRequest(input.requestId);
       for (const event of events) {
         await markCalendarEventCompleted(event.id);
+      }
+
+      return { success: true };
+    }),
+
+  // Revoke an approved/active borrow request (with mandatory reason)
+  revoke: publicProcedure
+    .input(
+      z.object({
+        requestId: z.number(),
+        revokerId: z.number(),
+        revokerHouseholdId: z.number(),
+        reason: z.string().min(1, "Begründung ist erforderlich"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) {
+        throw new Error("Ausleih-Anfrage nicht gefunden");
+      }
+
+      // Only approved or active requests can be revoked
+      if (request.status !== "approved" && request.status !== "active") {
+        throw new Error("Nur genehmigte oder aktive Ausleihen können widerrufen werden");
+      }
+
+      // Get item and member details
+      const item = await getInventoryItemById(request.inventoryItemId);
+      if (!item) {
+        throw new Error("Gegenstand nicht gefunden");
+      }
+
+      const revokerMember = await getHouseholdMemberById(input.revokerId);
+      const revokerName = revokerMember?.memberName || "Unbekannt";
+      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrowerName = borrowerMember?.memberName || "Unbekannt";
+
+      // Update borrow request status to cancelled with reason
+      await updateBorrowRequestStatus({
+        requestId: input.requestId,
+        status: "cancelled",
+        responseMessage: `Widerrufen von ${revokerName}: ${input.reason}`,
+      });
+
+      // Delete calendar events for revoked borrow
+      await deleteCalendarEventsByBorrowRequest(input.requestId);
+
+      // Send notification to the borrower
+      await createNotification({
+        householdId: request.borrowerHouseholdId,
+        memberId: request.borrowerMemberId,
+        type: "general",
+        title: "Ausleihgenehmigung widerrufen",
+        message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+      });
+
+      // Check if this borrow is linked to a task occurrence
+      const db = await getDb();
+      if (db) {
+        const linkedOccurrences = await db
+          .select()
+          .from(taskOccurrenceItems)
+          .where(eq(taskOccurrenceItems.borrowRequestId, input.requestId));
+
+        // For each linked task occurrence, create an activity log and reset borrow status
+        for (const occ of linkedOccurrences) {
+          // Get task name for the activity log
+          const [task] = await db.select().from(tasksTable).where(eq(tasksTable.id, occ.taskId));
+          const taskName = task?.name || `Aufgabe #${occ.taskId}`;
+
+          // Create activity log entry with full details
+          await createActivityLog({
+            householdId: input.revokerHouseholdId,
+            memberId: input.revokerId,
+            activityType: "inventory",
+            action: "borrow_revoked",
+            description: `Ausleihgenehmigung für "${item.name}" widerrufen`,
+            metadata: {
+              itemId: request.inventoryItemId,
+              itemName: item.name,
+              requestId: input.requestId,
+              taskId: occ.taskId,
+              taskName,
+              occurrenceNumber: occ.occurrenceNumber,
+              borrowerName,
+              borrowerMemberId: request.borrowerMemberId,
+              startDate: request.startDate.toISOString(),
+              endDate: request.endDate.toISOString(),
+              reason: input.reason,
+              revokedBy: revokerName,
+            },
+          });
+
+          // Reset the occurrence item's borrow status
+          await db.update(taskOccurrenceItems)
+            .set({
+              borrowStatus: "pending",
+              borrowRequestId: null,
+            })
+            .where(eq(taskOccurrenceItems.id, occ.id));
+        }
+
+        // If no task-linked occurrences, still create a general activity log
+        if (linkedOccurrences.length === 0) {
+          await createActivityLog({
+            householdId: input.revokerHouseholdId,
+            memberId: input.revokerId,
+            activityType: "inventory",
+            action: "borrow_revoked",
+            description: `Ausleihgenehmigung für "${item.name}" widerrufen`,
+            metadata: {
+              itemId: request.inventoryItemId,
+              itemName: item.name,
+              requestId: input.requestId,
+              borrowerName,
+              borrowerMemberId: request.borrowerMemberId,
+              startDate: request.startDate.toISOString(),
+              endDate: request.endDate.toISOString(),
+              reason: input.reason,
+              revokedBy: revokerName,
+            },
+          });
+        }
       }
 
       return { success: true };

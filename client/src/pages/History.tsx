@@ -61,6 +61,7 @@ export default function History() {
     if (action === "completed") return <CheckCircle2 className="h-5 w-5" />;
     if (action === "milestone") return <Target className="h-5 w-5" />;
     if (action === "reminder") return <Bell className="h-5 w-5" />;
+    if (action === "borrow_revoked") return <Bell className="h-5 w-5" />;
     return <CheckCircle2 className="h-5 w-5" />;
   };
 
@@ -69,6 +70,7 @@ export default function History() {
     if (action === "completed") return "text-green-600 bg-green-50";
     if (action === "milestone") return "text-purple-600 bg-purple-50";
     if (action === "reminder") return "text-yellow-600 bg-yellow-50";
+    if (action === "borrow_revoked") return "text-red-600 bg-red-50";
     return "text-gray-600 bg-gray-50";
   };
 
@@ -236,6 +238,49 @@ export default function History() {
                             </div>
                           </div>
                         )}
+
+                        {/* Borrow Revoked Details */}
+                        {activity.action === "borrow_revoked" && activity.metadata && (() => {
+                          const meta = activity.metadata as any;
+                          return (
+                            <div className="mt-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-900">
+                              <div className="space-y-1.5">
+                                {meta.itemName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Gegenstand:</span>
+                                    <span className="text-sm">{meta.itemName}</span>
+                                  </div>
+                                )}
+                                {meta.borrowerName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Ausleiher:</span>
+                                    <span className="text-sm">{meta.borrowerName}</span>
+                                  </div>
+                                )}
+                                {meta.startDate && meta.endDate && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Zeitraum:</span>
+                                    <span className="text-sm">
+                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} - {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                    </span>
+                                  </div>
+                                )}
+                                {meta.reason && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Begr\u00fcndung:</span>
+                                    <span className="text-sm">{meta.reason}</span>
+                                  </div>
+                                )}
+                                {meta.revokedBy && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Widerrufen von:</span>
+                                    <span className="text-sm">{meta.revokedBy}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* Comment */}
                         {activity.comment && (

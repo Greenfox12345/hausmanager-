@@ -15,6 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
 import { BorrowReturnDialog } from "@/components/BorrowReturnDialog";
+import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
 import { compressImage } from "@/lib/imageCompression";
 
 export default function InventoryDetail() {
@@ -34,6 +35,8 @@ export default function InventoryDetail() {
   const [showBorrowDialog, setShowBorrowDialog] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [selectedReturnRequest, setSelectedReturnRequest] = useState<number | null>(null);
+  const [showRevokeDialog, setShowRevokeDialog] = useState(false);
+  const [revokeRequest, setRevokeRequest] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string } | null>(null);
 
   const utils = trpc.useUtils();
   const { data: item, isLoading } = trpc.inventory.getById.useQuery(
@@ -119,6 +122,18 @@ export default function InventoryDetail() {
     onSuccess: () => {
       toast.success("Anfrage abgelehnt");
       utils.borrow.listByItem.invalidate({ itemId });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const revokeMutation = trpc.borrow.revoke.useMutation({
+    onSuccess: () => {
+      toast.success("Genehmigung widerrufen");
+      utils.borrow.listByItem.invalidate({ itemId });
+      setShowRevokeDialog(false);
+      setRevokeRequest(null);
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -561,17 +576,35 @@ export default function InventoryDetail() {
                             </div>
                           )}
 
-                          {isActive && request.borrowerMemberId === member?.memberId && (
+                          {(isApproved || isActive) && (
                             <div className="flex gap-2 mt-3">
+                              {isActive && request.borrowerMemberId === member?.memberId && (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => {
+                                    setSelectedReturnRequest(request.id);
+                                    setShowReturnDialog(true);
+                                  }}
+                                >
+                                  Zurückgeben
+                                </Button>
+                              )}
                               <Button
                                 size="sm"
-                                variant="default"
+                                variant="destructive"
                                 onClick={() => {
-                                  setSelectedReturnRequest(request.id);
-                                  setShowReturnDialog(true);
+                                  const borrowerName = members.find(m => m.id === request.borrowerMemberId)?.memberName || 'Unbekannt';
+                                  setRevokeRequest({
+                                    id: request.id,
+                                    borrowerName,
+                                    startDate: new Date(request.startDate).toLocaleDateString('de-DE'),
+                                    endDate: new Date(request.endDate).toLocaleDateString('de-DE'),
+                                  });
+                                  setShowRevokeDialog(true);
                                 }}
                               >
-                                Zurückgeben
+                                Widerrufen
                               </Button>
                             </div>
                           )}
@@ -633,6 +666,30 @@ export default function InventoryDetail() {
             setShowReturnDialog(false);
             setSelectedReturnRequest(null);
           }}
+        />
+      )}
+
+      {revokeRequest && (
+        <RevokeApprovalDialog
+          open={showRevokeDialog}
+          onOpenChange={(open) => {
+            setShowRevokeDialog(open);
+            if (!open) setRevokeRequest(null);
+          }}
+          itemName={item.name}
+          borrowerName={revokeRequest.borrowerName}
+          startDate={revokeRequest.startDate}
+          endDate={revokeRequest.endDate}
+          onConfirm={(reason) => {
+            if (!member || !household) return;
+            revokeMutation.mutate({
+              requestId: revokeRequest.id,
+              revokerId: member.memberId,
+              revokerHouseholdId: household.householdId,
+              reason,
+            });
+          }}
+          isSubmitting={revokeMutation.isPending}
         />
       )}
 
