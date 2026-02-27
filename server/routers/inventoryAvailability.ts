@@ -1,6 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { borrowRequests } from "../../drizzle/schema";
+import { borrowRequests, householdMembers } from "../../drizzle/schema";
 import { and, eq, or, lte, gte } from "drizzle-orm";
 import { getDb } from "../db";
 
@@ -27,8 +27,16 @@ export const inventoryAvailabilityRouter = router({
       if (!db) return { status: "available" as const, conflictingBorrows: [] };
       
       const conflictingBorrows = await db
-        .select()
+        .select({
+          id: borrowRequests.id,
+          startDate: borrowRequests.startDate,
+          endDate: borrowRequests.endDate,
+          status: borrowRequests.status,
+          borrowerMemberId: borrowRequests.borrowerMemberId,
+          borrowerName: householdMembers.memberName,
+        })
         .from(borrowRequests)
+        .leftJoin(householdMembers, eq(borrowRequests.borrowerMemberId, householdMembers.id))
         .where(
           and(
             eq(borrowRequests.inventoryItemId, inventoryItemId),
@@ -59,12 +67,13 @@ export const inventoryAvailabilityRouter = router({
 
       return {
         status,
-        conflictingBorrows: conflictingBorrows.map((borrow: any) => ({
+        conflictingBorrows: conflictingBorrows.map((borrow) => ({
           id: borrow.id,
           startDate: borrow.startDate,
           endDate: borrow.endDate,
           status: borrow.status,
           borrowerMemberId: borrow.borrowerMemberId,
+          borrowerName: borrow.borrowerName || "Unbekannt",
         })),
       };
     }),

@@ -6,6 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Package, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
+type ConflictWarning = {
+  itemId: number;
+  itemName: string;
+  conflicts: Array<{
+    id: number;
+    borrowerName: string;
+    borrowerMemberId: number;
+    startDate: Date;
+    endDate: Date;
+    status: string;
+  }>;
+};
+
 // Availability Badge Component
 function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurrenceDate?: Date }) {
   const { data: availability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
@@ -70,11 +83,10 @@ export function ItemPickerDialog({
   occurrenceDate,
 }: ItemPickerDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [conflictWarning, setConflictWarning] = useState<{
-    itemId: number;
-    itemName: string;
-    conflicts: Array<{ id: number; startDate: Date; endDate: Date; status: string }>;
-  } | null>(null);
+  const [conflictWarning, setConflictWarning] = useState<ConflictWarning | null>(null);
+
+  // tRPC utils for imperative queries
+  const utils = trpc.useUtils();
 
   // Load inventory items
   const { data: items, isLoading } = trpc.inventory.list.useQuery(
@@ -131,7 +143,7 @@ export function ItemPickerDialog({
                 onClick={async () => {
                   // Check availability if date is provided
                   if (occurrenceDate) {
-                    const availabilityCheck = await trpc.inventoryAvailability.checkItemAvailability.query({
+                    const availabilityCheck = await utils.inventoryAvailability.checkItemAvailability.fetch({
                       inventoryItemId: item.id,
                       startDate: occurrenceDate,
                       endDate: occurrenceDate,
@@ -216,14 +228,11 @@ export function ItemPickerDialog({
               </p>
 
               <div className="space-y-2">
-                {conflictWarning.conflicts.map((conflict) => (
-                  <div key={conflict.id} className="p-3 bg-muted rounded-lg">
-                    <div className="font-medium">Ausleihe #{conflict.id}</div>
+                {conflictWarning.conflicts.map((conflict, idx) => (
+                  <div key={idx} className="p-3 bg-muted rounded-lg">
+                    <div className="font-medium">{conflict.borrowerName}</div>
                     <div className="text-sm text-muted-foreground">
                       {new Date(conflict.startDate).toLocaleDateString("de-DE")} - {new Date(conflict.endDate).toLocaleDateString("de-DE")}
-                    </div>
-                    <div className="text-sm">
-                      Status: <Badge variant="outline">{conflict.status}</Badge>
                     </div>
                   </div>
                 ))}

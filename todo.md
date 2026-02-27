@@ -3085,3 +3085,9 @@
 
 ## Widerrufs-Benachrichtigung: Aufgabeninformation hinzufügen
 - [x] Server: Benachrichtigungstext erweitern um Aufgabenname und Terminnummer bei aufgabenverknüpften Ausleihen
+
+## ItemPickerDialog Button-Fehler
+- [x] Button-Logik analysieren: trpc.useUtils() wurde im onClick-Handler aufgerufen (React Hook Rules verletzt)
+- [x] Button-Handler repariert: utils auf Komponentenebene deklariert und in onClick verwendet
+- [x] Server erweitert: borrowerName wird jetzt in conflictingBorrows mitgesendet (JOIN mit household_members)
+- [x] TypeScript-Fehler behoben: ConflictWarning-Type korrigiert
