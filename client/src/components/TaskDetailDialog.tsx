@@ -727,14 +727,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         }
         
         // Delete items that are in DB but not in current list
-        for (const [key, itemId] of existingItemsMap) {
+        for (const [key, itemId] of Array.from(existingItemsMap)) {
           if (!currentItemsMap.has(key)) {
             await removeItemFromOccurrenceMutation.mutateAsync({ itemId });
           }
         }
         
         // Add items that are in current list but not in DB
-        for (const [key, { occurrenceNumber, itemId }] of currentItemsMap) {
+        for (const [key, { occurrenceNumber, itemId }] of Array.from(currentItemsMap)) {
           if (!existingItemsMap.has(key)) {
             await addItemToOccurrenceMutation.mutateAsync({
               taskId: task.id,

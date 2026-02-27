@@ -3046,3 +3046,10 @@
 - [x] Fix TaskDetailDialog: pre-existing TS error (Member type mapping for RequiredItemsSection)
 - [x] Add activity log description for recurring tasks with original and next due date
 - [x] Write vitest tests for recurring date calculation logic (18 tests passing)
+
+## Bug: Termine speichern nicht ohne Notizen/Verantwortliche
+- [x] Analysiere Datenbank-Schema für Aufgabentermine (task_rotation_schedule, task_occurrence_items)
+- [x] Analysiere Server-Mutationen für Termin-Speicherung
+- [x] Analysiere Frontend-Logik für Termin-Bearbeitung
+- [x] Identifiziere und fixe den Bug beim Speichern von Terminen ohne Notizen/Verantwortliche
+- [x] Erstelle Übersichtsdokumentation des gesamten Termin-Flows

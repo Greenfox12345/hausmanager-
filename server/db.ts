@@ -1306,18 +1306,18 @@ export async function setRotationSchedule(
       ? occurrence.isSkipped 
       : (skipStatusMap.get(occurrence.occurrenceNumber) || false);
 
-    // Insert notes if provided OR if isSkipped status exists OR if it's a special occurrence OR if specialDate is set (for irregular appointments)
-    if (occurrence.notes || isSkipped || occurrence.isSpecial || occurrence.specialDate) {
-      await db.insert(taskRotationOccurrenceNotes).values({
-        taskId,
-        occurrenceNumber: occurrence.occurrenceNumber,
-        notes: occurrence.notes || "",
-        isSkipped,
-        isSpecial: occurrence.isSpecial || false,
-        specialName: occurrence.specialName || null,
-        specialDate: occurrence.specialDate || null,
-      } as typeof taskRotationOccurrenceNotes.$inferInsert);
-    }
+    // Always insert a notes entry for every occurrence to ensure it persists
+    // even when the occurrence has no members, notes, or special status.
+    // Previously, occurrences without notes/skip/special/specialDate were silently dropped.
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber: occurrence.occurrenceNumber,
+      notes: occurrence.notes || "",
+      isSkipped,
+      isSpecial: occurrence.isSpecial || false,
+      specialName: occurrence.specialName || null,
+      specialDate: occurrence.specialDate || null,
+    } as typeof taskRotationOccurrenceNotes.$inferInsert);
   }
 
   return { success: true };
@@ -1346,14 +1346,12 @@ export async function extendRotationSchedule(
     });
   }
 
-  // Insert notes if provided
-  if (notes) {
-    await db.insert(taskRotationOccurrenceNotes).values({
-      taskId,
-      occurrenceNumber: newOccurrenceNumber,
-      notes,
-    });
-  }
+  // Always insert a notes entry to ensure the occurrence is tracked
+  await db.insert(taskRotationOccurrenceNotes).values({
+    taskId,
+    occurrenceNumber: newOccurrenceNumber,
+    notes: notes || "",
+  });
 
   return { success: true };
 }
@@ -1388,13 +1386,16 @@ export async function shiftRotationSchedule(taskId: number) {
       });
     }
 
-    if (occurrence.notes) {
-      await db.insert(taskRotationOccurrenceNotes).values({
-        taskId,
-        occurrenceNumber: newOccurrenceNumber,
-        notes: occurrence.notes,
-      });
-    }
+    // Always insert notes entry to preserve occurrence tracking
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber: newOccurrenceNumber,
+      notes: occurrence.notes || "",
+      isSkipped: occurrence.isSkipped || false,
+      isSpecial: occurrence.isSpecial || false,
+      specialName: occurrence.specialName || null,
+      specialDate: occurrence.specialDate || null,
+    } as typeof taskRotationOccurrenceNotes.$inferInsert);
   }
 
   return { success: true };
