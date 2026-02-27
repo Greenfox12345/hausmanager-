@@ -453,14 +453,14 @@ export const tasksRouter = router({
         assignedTo: z.array(z.number()).optional(),
         frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).optional(),
         customFrequencyDays: z.number().optional(),
-        repeatInterval: z.number().optional(),
-        repeatUnit: z.enum(["days", "weeks", "months", "irregular"]).optional(),
-        irregularRecurrence: z.boolean().optional(),
-        monthlyRecurrenceMode: z.enum(["same_date", "same_weekday"]).optional(),
-        monthlyWeekday: z.number().optional(),
-        monthlyOccurrence: z.number().optional(),
-        enableRotation: z.boolean().optional(),
-        requiredPersons: z.number().optional(),
+        repeatInterval: z.number().nullable().optional(),
+        repeatUnit: z.enum(["days", "weeks", "months", "irregular"]).nullable().optional(),
+        irregularRecurrence: z.boolean().nullable().optional(),
+        monthlyRecurrenceMode: z.enum(["same_date", "same_weekday"]).nullable().optional(),
+        monthlyWeekday: z.number().nullable().optional(),
+        monthlyOccurrence: z.number().nullable().optional(),
+        enableRotation: z.boolean().nullable().optional(),
+        requiredPersons: z.number().nullable().optional(),
         excludedMembers: z.array(z.number()).optional(),
         dueDate: z.string().optional(),
         dueTime: z.string().optional(),
@@ -517,9 +517,15 @@ export const tasksRouter = router({
         householdId,
       );
 
+      // Normalize nullable boolean fields: null -> false for notNull DB columns
+      // (null means "clear/reset", which maps to false for boolean fields)
+      const normalizedUpdates: any = { ...updates };
+      if (normalizedUpdates.enableRotation === null) normalizedUpdates.enableRotation = false;
+      if (normalizedUpdates.irregularRecurrence === null) normalizedUpdates.irregularRecurrence = false;
+
       // Update the task with all values in a single call
       await updateTask(taskId, {
-        ...updates,
+        ...normalizedUpdates,
         dueDate: dueDatetime,
       });
 

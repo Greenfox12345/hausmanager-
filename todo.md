@@ -3152,3 +3152,14 @@
 ## Verlaufsanzeige: borrow_rejected
 - [x] Frontend: History.tsx um borrow_rejected (rot) mit Metadata-Box erweitert
 - [x] Frontend: History.tsx Filtertyp "Ausleihen" hinzugefügt (filtert alle borrow_* Aktionen)
+
+## Bug: Aufgabe auf "ohne Wiederholung" setzen löscht Felder nicht korrekt
+- [x] Analysieren: Frontend sendet undefined statt null für repeatInterval/repeatUnit bei repeatMode="none"
+- [x] Analysieren: Server-Zod-Schema erlaubt kein null für repeat-Felder
+- [x] Fix: Frontend sendet null für repeatInterval, repeatUnit bei repeatMode="none"
+- [x] Fix: Server-Zod-Schema erweitert auf .nullable().optional() für repeat-Felder
+- [x] Fix: Server normalisiert enableRotation null -> false vor DB-Update
+- [x] Fix: hasRepeat-Berechnung im Frontend nutzt repeatUnit als primäre Wahrheitsquelle (nicht frequency)
+- [x] Fix: Alle Anzeige-Bedingungen (task.enableRepeat || task.repeatUnit) auf task.repeatUnit vereinfacht
+- [x] Fix: rotationScheduleData-Query deaktiviert wenn repeatUnit null ist
+- [x] Test: 16 Unit-Tests für hasRepeat-Logik und Payload-Konstruktion (alle bestanden)

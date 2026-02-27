@@ -162,7 +162,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load rotation schedule
   const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
     { taskId: task?.id ?? 0 },
-    { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit || !!task?.enableRepeat) }
+    { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit) }
   );
   
   // Load task occurrence items
@@ -385,7 +385,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setDurationTime(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`);
       
       // Map task data to repeat mode
-      const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
+      // Primary source of truth: repeatUnit (null = no repeat, set = has repeat)
+      // Fallback: enableRepeat flag for legacy data
+      const hasRepeat = Boolean(task.repeatUnit) || Boolean(task.enableRepeat);
       if (!hasRepeat) {
         setRepeatMode("none");
       } else if (task.repeatUnit === "irregular") {
@@ -401,8 +403,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           if (task.repeatInterval) {
             setRepeatInterval(task.repeatInterval.toString());
           }
-        } else if (task.frequency) {
-          // Use new frequency field if available, otherwise map old repeat fields
+        } else if (task.repeatUnit) {
+          // Use repeatUnit as primary source of truth
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
+          setRepeatInterval(task.repeatInterval ? task.repeatInterval.toString() : "1");
+          if (task.monthlyRecurrenceMode) {
+            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
+              setMonthlyWeekday(task.monthlyWeekday);
+            }
+            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
+              setMonthlyOccurrence(task.monthlyOccurrence);
+            }
+          }
+        } else if (task.frequency && task.frequency !== "once") {
+          // Fallback: derive from frequency field (legacy data)
           if (task.frequency === "daily") {
             setRepeatInterval("1");
             setRepeatUnit("days");
@@ -415,18 +430,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           } else if (task.frequency === "custom" && task.customFrequencyDays) {
             setRepeatInterval(task.customFrequencyDays.toString());
             setRepeatUnit("days");
-          }
-        } else if (task.repeatInterval && task.repeatUnit) {
-          setRepeatInterval(task.repeatInterval.toString());
-          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
-          if (task.monthlyRecurrenceMode) {
-            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
-            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
-              setMonthlyWeekday(task.monthlyWeekday);
-            }
-            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
-              setMonthlyOccurrence(task.monthlyOccurrence);
-            }
           }
         }
       } else {
@@ -450,7 +453,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Load rotation schedule when data arrives (for rotation AND recurring tasks)
   useEffect(() => {
-    if (rotationScheduleData && task && open && (task.enableRotation || task.enableRepeat || task.repeatUnit)) {
+    if (rotationScheduleData && task && open && (task.enableRotation || task.repeatUnit)) {
       // Group items by occurrence number
       const itemsByOccurrence = new Map<number, Array<{ itemId: number; itemName: string }>>();
       if (taskOccurrenceItemsData) {
@@ -525,7 +528,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       });
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.enableRepeat, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
@@ -668,13 +671,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         })(),
         frequency: frequency,
         customFrequencyDays: customFrequencyDays,
-        repeatInterval: repeatMode !== "none" ? parseInt(repeatInterval) : undefined,
-        repeatUnit: repeatMode !== "none" ? repeatUnit : undefined,
-        irregularRecurrence: repeatMode === "irregular",
+        // When repeatMode is "none", explicitly send null to clear old values in DB
+        repeatInterval: repeatMode !== "none" ? parseInt(repeatInterval) : null,
+        repeatUnit: repeatMode !== "none" ? repeatUnit : null,
+        irregularRecurrence: repeatMode === "irregular" ? true : false,
         monthlyRecurrenceMode: repeatMode === "regular" && repeatUnit === "months" ? monthlyRecurrenceMode : undefined,
         monthlyWeekday: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : undefined,
         monthlyOccurrence: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : undefined,
-        enableRotation: repeatMode !== "none" && enableRotation,
+        enableRotation: repeatMode !== "none" ? enableRotation : false,
         requiredPersons: repeatMode !== "none" && enableRotation ? requiredPersons : undefined,
         excludedMembers: repeatMode !== "none" && enableRotation ? excludedMembers : undefined,
         projectIds: isProjectTask ? selectedProjectIds : [],
@@ -820,7 +824,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setDurationTime(`${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`);
       
       // Map task data to repeat mode
-      const hasRepeat = Boolean(task.enableRepeat) || (task.frequency && task.frequency !== "once");
+      // Primary source of truth: repeatUnit (null = no repeat, set = has repeat)
+      // Fallback: enableRepeat flag for legacy data
+      const hasRepeat = Boolean(task.repeatUnit) || Boolean(task.enableRepeat);
       if (!hasRepeat) {
         setRepeatMode("none");
       } else if (task.repeatUnit === "irregular") {
@@ -836,8 +842,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           if (task.repeatInterval) {
             setRepeatInterval(task.repeatInterval.toString());
           }
-        } else if (task.frequency) {
-          // Use new frequency field if available, otherwise map old repeat fields
+        } else if (task.repeatUnit) {
+          // Use repeatUnit as primary source of truth
+          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
+          setRepeatInterval(task.repeatInterval ? task.repeatInterval.toString() : "1");
+          if (task.monthlyRecurrenceMode) {
+            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
+            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
+              setMonthlyWeekday(task.monthlyWeekday);
+            }
+            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
+              setMonthlyOccurrence(task.monthlyOccurrence);
+            }
+          }
+        } else if (task.frequency && task.frequency !== "once") {
+          // Fallback: derive from frequency field (legacy data)
           if (task.frequency === "daily") {
             setRepeatInterval("1");
             setRepeatUnit("days");
@@ -850,18 +869,6 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           } else if (task.frequency === "custom" && task.customFrequencyDays) {
             setRepeatInterval(task.customFrequencyDays.toString());
             setRepeatUnit("days");
-          }
-        } else if (task.repeatInterval && task.repeatUnit) {
-          setRepeatInterval(task.repeatInterval.toString());
-          setRepeatUnit(task.repeatUnit as "days" | "weeks" | "months" | "irregular");
-          if (task.monthlyRecurrenceMode) {
-            setMonthlyRecurrenceMode(task.monthlyRecurrenceMode as "same_date" | "same_weekday");
-            if (task.monthlyWeekday !== undefined && task.monthlyWeekday !== null) {
-              setMonthlyWeekday(task.monthlyWeekday);
-            }
-            if (task.monthlyOccurrence !== undefined && task.monthlyOccurrence !== null) {
-              setMonthlyOccurrence(task.monthlyOccurrence);
-            }
           }
         }
       } else {
@@ -2363,7 +2370,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
              id: task.id,
              name: task.name,
              description: task.description || undefined,
-             isRecurring: Boolean(task.enableRepeat || task.repeatUnit),
+             isRecurring: Boolean(task.repeatUnit),
            }}
           taskId={task.id}
           linkedShoppingItems={linkedShoppingItems}
