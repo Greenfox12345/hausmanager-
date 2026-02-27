@@ -257,6 +257,23 @@ export const borrowRouter = router({
         metadata,
       });
 
+      // Notify borrower about approval
+      const approverMember = await getHouseholdMemberById(input.approverId);
+      const approverName = approverMember?.memberName || "Eigentümer";
+      const startFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
+      const endFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
+      const approvalTaskInfo = linkedOccurrence
+        ? ` für Aufgabe "${linkedOccurrence.taskName}" (Termin ${linkedOccurrence.occurrenceNumber})`
+        : "";
+      await createNotification({
+        householdId: request.borrowerHouseholdId,
+        memberId: request.borrowerMemberId,
+        type: "general",
+        title: "Ausleih-Anfrage genehmigt",
+        message: `${approverName} hat deine Anfrage für "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo} genehmigt.`,
+        relatedTaskId: linkedOccurrence?.taskId,
+      });
+
       // Create calendar events for borrow start and return
       const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId);
       const borrowerName = borrowerMember?.memberName || "Ausleiher";
@@ -330,6 +347,8 @@ export const borrowRouter = router({
       // Item already fetched above for validation
       
       // Create activity log
+      const rejecterMember = await getHouseholdMemberById(input.approverId);
+      const rejecterName = rejecterMember?.memberName || "Eigentümer";
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
@@ -338,8 +357,27 @@ export const borrowRouter = router({
         description: `Ausleih-Anfrage für "${item?.name}" wurde abgelehnt`,
         metadata: {
           itemId: request.inventoryItemId,
+          itemName: item?.name,
           requestId: input.requestId,
+          startDate: request.startDate.toISOString(),
+          endDate: request.endDate.toISOString(),
+          rejectedBy: rejecterName,
+          responseMessage: input.responseMessage,
         },
+      });
+
+      // Notify borrower about rejection
+      const rejectStartFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
+      const rejectEndFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
+      const rejectMessage = input.responseMessage
+        ? `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt. Begründung: ${input.responseMessage}`
+        : `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt.`;
+      await createNotification({
+        householdId: request.borrowerHouseholdId,
+        memberId: request.borrowerMemberId,
+        type: "general",
+        title: "Ausleih-Anfrage abgelehnt",
+        message: rejectMessage,
       });
 
       return { success: true };

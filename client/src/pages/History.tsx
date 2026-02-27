@@ -47,8 +47,17 @@ export default function History() {
 
   // Auth check removed - AppLayout handles this
 
+  const borrowActions = ["borrow_requested", "borrow_approved", "borrow_auto_approved", "borrow_revoked", "borrow_rejected", "borrow_returned"];
+
   const filteredActivities = activities.filter((activity) => {
-    const matchesType = filterType === "all" || activity.activityType === filterType;
+    let matchesType: boolean;
+    if (filterType === "all") {
+      matchesType = true;
+    } else if (filterType === "borrow") {
+      matchesType = borrowActions.includes(activity.action);
+    } else {
+      matchesType = activity.activityType === filterType;
+    }
     const matchesSearch = 
       searchQuery === "" ||
       activity.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -62,6 +71,7 @@ export default function History() {
     if (action === "milestone") return <Target className="h-5 w-5" />;
     if (action === "reminder") return <Bell className="h-5 w-5" />;
     if (action === "borrow_revoked") return <Bell className="h-5 w-5" />;
+    if (action === "borrow_rejected") return <Bell className="h-5 w-5" />;
     if (action === "item_added") return <ShoppingCart className="h-5 w-5" />;
     if (action === "item_removed") return <ShoppingCart className="h-5 w-5" />;
     if (action === "borrow_approved") return <CheckCircle2 className="h-5 w-5" />;
@@ -76,6 +86,7 @@ export default function History() {
     if (action === "milestone") return "text-purple-600 bg-purple-50";
     if (action === "reminder") return "text-yellow-600 bg-yellow-50";
     if (action === "borrow_revoked") return "text-red-600 bg-red-50";
+    if (action === "borrow_rejected") return "text-red-600 bg-red-50";
     if (action === "item_added") return "text-indigo-600 bg-indigo-50";
     if (action === "item_removed") return "text-orange-600 bg-orange-50";
     if (action === "borrow_approved") return "text-emerald-600 bg-emerald-50";
@@ -161,6 +172,7 @@ export default function History() {
                 <SelectItem value="task">Aufgaben</SelectItem>
                 <SelectItem value="project">Projekte</SelectItem>
                 <SelectItem value="member">Mitglieder</SelectItem>
+                <SelectItem value="borrow">Ausleihen</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -405,6 +417,43 @@ export default function History() {
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Borrow Rejected Details */}
+                        {activity.action === "borrow_rejected" && activity.metadata && (() => {
+                          const meta = activity.metadata as any;
+                          return (
+                            <div className="mt-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-900">
+                              <div className="space-y-1.5">
+                                {meta.itemName && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Gegenstand:</span>
+                                    <span className="text-sm">{meta.itemName}</span>
+                                  </div>
+                                )}
+                                {meta.startDate && meta.endDate && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Zeitraum:</span>
+                                    <span className="text-sm">
+                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                    </span>
+                                  </div>
+                                )}
+                                {meta.rejectedBy && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Abgelehnt von:</span>
+                                    <span className="text-sm">{meta.rejectedBy}</span>
+                                  </div>
+                                )}
+                                {meta.responseMessage && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Begründung:</span>
+                                    <span className="text-sm">{meta.responseMessage}</span>
                                   </div>
                                 )}
                               </div>

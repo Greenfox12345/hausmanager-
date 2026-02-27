@@ -2125,7 +2125,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 )}
 
                 {/* Required Items Section */}
-                {task && rotationSchedule.length > 0 && (
+                {task && rotationSchedule.length > 0 && (task.enableRepeat || task.repeatUnit) && (
                   <RequiredItemsSection
                     taskId={task.id}
                     householdId={task.householdId ?? 0}

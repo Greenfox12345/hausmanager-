@@ -3133,3 +3133,22 @@
 - [x] Server: Verlaufseintrag bei Annahme von Anfragen / auto-approve (action: "borrow_auto_approved") mit Aufgabeninfo, Zeitraum
 - [x] Server: Benachrichtigung an Eigentümer bei persönlichen Gegenständen (mit Aufgabeninfo)
 - [x] Frontend: History.tsx um item_removed (orange), borrow_requested (blau), borrow_auto_approved (grün) erweitert
+
+## Bug: Aufgabendetails zeigen alte Termine nach Zurücksetzen von Wiederholungen
+- [ ] Analysieren: Wie werden Termine in Aufgabendetails geladen (rotationSchedule Query)?
+- [ ] Analysieren: Wird beim Speichern ohne Wiederholung die rotationSchedule in der DB gelöscht?
+- [ ] Fix: Sicherstellen, dass beim Deaktivieren von Wiederholungen die alten Termine aus der DB entfernt werden
+- [ ] Fix: Aufgabendetails korrekt aktualisieren nach Speichern
+
+## Fix: Termine-Tabellen nur bei aktiver Wiederholung anzeigen
+- [x] TaskDetailDialog: Kommende Termine und Benötigte Gegenstände nur anzeigen wenn repeatInterval/repeatUnit gesetzt ist
+
+## Benachrichtigungssystem: Fehlende Trigger implementieren
+- [x] Analyse: Alle vorhandenen Benachrichtigungstrigger dokumentiert
+- [x] Server: Benachrichtigung an Ausleiher bei Genehmigung (borrow.approve)
+- [x] Server: Benachrichtigung an Ausleiher bei Ablehnung (borrow.reject) mit optionaler Begründung
+- [x] Server: Verlaufseintrag bei Ablehnung mit erweiterter Metadata (itemName, Zeitraum, rejectedBy, responseMessage)
+
+## Verlaufsanzeige: borrow_rejected
+- [x] Frontend: History.tsx um borrow_rejected (rot) mit Metadata-Box erweitert
+- [x] Frontend: History.tsx Filtertyp "Ausleihen" hinzugefügt (filtert alle borrow_* Aktionen)
