@@ -1107,7 +1107,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-due-date">Fälligkeitsdatum</Label>
+                  <Label htmlFor="task-due-date">{repeatMode !== "none" ? "Erster Termin" : "Fälligkeitsdatum"}</Label>
                   <Input
                     id="task-due-date"
                     type="date"
@@ -1864,7 +1864,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <span className="text-muted-foreground">Fällig:</span>{" "}
+                      <span className="text-muted-foreground">
+                        {(task.enableRepeat || task.repeatUnit) ? "Nächster Termin:" : "Fällig:"}
+                      </span>{" "}
                       <strong>
                         {format(new Date(task.dueDate), "PPP 'um' HH:mm 'Uhr'", { locale: de })}
                       </strong>
@@ -2225,7 +2227,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onClick={() => setShowCompleteDialog(true)}
                           >
                             <CheckCircle2 className="h-4 w-4 mr-2" />
-                            Abschließen
+                            {(task.enableRepeat || task.repeatUnit) ? "Termin abschließen" : "Abschließen"}
                           </Button>
                           <Button
                             variant="outline"
@@ -2354,14 +2356,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     {/* Action Dialogs */}
     {task && household && member && (
       <>
-        <CompleteTaskDialog
-          open={showCompleteDialog}
-          onOpenChange={setShowCompleteDialog}
-          task={{
-            id: task.id,
-            name: task.name,
-            description: task.description || undefined,
-          }}
+         <CompleteTaskDialog
+           open={showCompleteDialog}
+           onOpenChange={setShowCompleteDialog}
+           task={{
+             id: task.id,
+             name: task.name,
+             description: task.description || undefined,
+             isRecurring: Boolean(task.enableRepeat || task.repeatUnit),
+           }}
           taskId={task.id}
           linkedShoppingItems={linkedShoppingItems}
           onComplete={async (data) => {

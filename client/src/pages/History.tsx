@@ -217,7 +217,9 @@ export default function History() {
                               )}
                               {(activity.taskDetails.dueDate || (activity.metadata && (activity.metadata as any).originalDueDate)) && (
                                 <div className="flex items-start gap-2">
-                                  <span className="text-xs font-semibold text-accent">Fällig:</span>
+                                  <span className="text-xs font-semibold text-accent">
+                                    {activity.action === "completed" ? "Termin am:" : "Fällig:"}
+                                  </span>
                                   <span className="text-sm">
                                     {new Date(
                                       (activity.metadata && (activity.metadata as any).originalDueDate) || activity.taskDetails.dueDate

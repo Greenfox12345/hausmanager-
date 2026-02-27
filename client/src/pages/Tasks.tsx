@@ -1359,7 +1359,8 @@ export default function Tasks() {
                               : "bg-muted text-muted-foreground border border-border"
                           }`}>
                             <Calendar className="h-3 w-3" />
-                            Fällig: {new Date(task.dueDate).toLocaleDateString("de-DE", {
+                            {(task.repeatUnit || (task.frequency && task.frequency !== "once")) ? "Nächster Termin:" : "Fällig:"}{" "}
+                            {new Date(task.dueDate).toLocaleDateString("de-DE", {
                               day: "2-digit",
                               month: "2-digit",
                               year: "numeric",
@@ -1468,7 +1469,7 @@ export default function Tasks() {
         <CompleteTaskDialog
           open={completeDialogOpen}
           onOpenChange={setCompleteDialogOpen}
-          task={selectedTask}
+          task={{ ...selectedTask, isRecurring: Boolean(selectedTask.enableRepeat || selectedTask.repeatUnit || selectedTask.repeatInterval) }}
           onComplete={handleCompleteTask}
         />
       )}

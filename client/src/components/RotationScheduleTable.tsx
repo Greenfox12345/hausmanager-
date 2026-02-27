@@ -460,7 +460,7 @@ export function RotationScheduleTable({
           <p>
             {repeatUnit === "irregular" 
               ? "Die Rotationsplanung wird geladen..."
-              : "Setzen Sie ein Fälligkeitsdatum um die Rotationsplanung zu starten"}
+              : "Setzen Sie ein Startdatum (Erster Termin) um die Terminplanung zu starten"}
           </p>
         </div>
       </div>

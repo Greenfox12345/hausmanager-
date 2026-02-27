@@ -84,18 +84,24 @@ export async function notifyTaskDue(
   memberId: number,
   taskId: number,
   taskTitle: string,
-  daysUntilDue: number
+  daysUntilDue: number,
+  isRecurring?: boolean
 ) {
+  const label = isRecurring ? "Termin" : "Aufgabe";
   const message =
     daysUntilDue === 0
-      ? `Die Aufgabe "${taskTitle}" ist heute fällig!`
-      : `Die Aufgabe "${taskTitle}" ist in ${daysUntilDue} Tag(en) fällig`;
+      ? isRecurring
+        ? `Der nächste Termin für "${taskTitle}" ist heute!`
+        : `Die Aufgabe "${taskTitle}" ist heute fällig!`
+      : isRecurring
+        ? `Der nächste Termin für "${taskTitle}" ist in ${daysUntilDue} Tag(en)`
+        : `Die Aufgabe "${taskTitle}" ist in ${daysUntilDue} Tag(en) fällig`;
 
   await createNotification({
     householdId,
     memberId,
     type: "task_due",
-    title: "Aufgabe fällig",
+    title: isRecurring ? "Termin anstehend" : "Aufgabe fällig",
     message,
     relatedTaskId: taskId,
   });

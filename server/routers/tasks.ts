@@ -206,7 +206,8 @@ async function buildUpdateChanges(
     const oldDate = currentTask.dueDate ? formatDateTime(currentTask.dueDate) : "–";
     const newDate = formatDateTime(dueDatetime);
     if (oldDate !== newDate) {
-      changes.push(`Fälligkeitsdatum geändert von '${oldDate}' zu '${newDate}'`);
+      const isRecurring = updates.repeatInterval && updates.repeatUnit;
+      changes.push(`${isRecurring ? "Termindatum" : "Fälligkeitsdatum"} geändert von '${oldDate}' zu '${newDate}'`);
       metadata.fieldChanges.dueDate = {
         old: currentTask.dueDate?.toString(),
         new: dueDatetime.toISOString(),
@@ -372,7 +373,10 @@ export const tasksRouter = router({
       const details: string[] = [];
       details.push(`Aufgabe erstellt: '${input.name}'`);
       if (input.description) details.push(`Beschreibung: ${input.description}`);
-      if (dueDatetime) details.push(`Fällig am: ${formatDateTime(dueDatetime)}`);
+      if (dueDatetime) {
+        const hasRepeat = input.repeatInterval && input.repeatUnit;
+        details.push(`${hasRepeat ? "Erster Termin am" : "Fällig am"}: ${formatDateTime(dueDatetime)}`);
+      }
       details.push(`Häufigkeit: ${frequencyLabels[input.frequency] ?? input.frequency}`);
       if (input.repeatInterval && input.repeatUnit) {
         details.push(`Wiederholung: alle ${input.repeatInterval} ${repeatUnitLabels[input.repeatUnit] ?? input.repeatUnit}`);

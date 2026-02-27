@@ -3057,3 +3057,15 @@
 ## Sondertermine chronologisch einsortieren
 - [x] Kommende Termine Tabelle: Sondertermine nach Datum chronologisch einsortieren
 - [x] Benötigte Gegenstände Tabelle: Sondertermine nach Datum chronologisch einsortieren
+
+## Wording: "Fällig" → "Kommender Termin" / "Termin am [Datum]" bei Aufgaben mit mehreren Terminen
+- [x] Alle Stellen mit "Fällig"-Wording im Code identifizieren
+- [x] TaskDetailDialog (Detailansicht): "Fällig:" → "Nächster Termin:" bei wiederkehrenden Aufgaben
+- [x] TaskDetailDialog (Bearbeitungsansicht): "Fälligkeitsdatum" → "Erster Termin" bei Wiederholung
+- [x] TaskDetailDialog: "Abschließen" Button → "Termin abschließen" bei wiederkehrenden Aufgaben
+- [x] CompleteTaskDialog (Abschluss): Titel und Button dynamisch angepasst
+- [x] Verlauf/Activity-Log: "Fällig:" → "Termin am:" bei abgeschlossenen Aktivitäten
+- [x] Aufgabenliste (Tasks.tsx): Badge "Fällig:" → "Nächster Termin:" bei wiederkehrenden Aufgaben
+- [x] Server: Activity-Log Wording angepasst (Erstellen + Bearbeiten)
+- [x] Benachrichtigungen: "Aufgabe fällig" → "Termin anstehend" bei wiederkehrenden Aufgaben
+- [x] RotationScheduleTable: "Fälligkeitsdatum" → "Startdatum (Erster Termin)"

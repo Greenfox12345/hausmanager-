@@ -1420,7 +1420,7 @@ export default function Calendar() {
           <CompleteTaskDialog
             open={completeDialogOpen}
             onOpenChange={setCompleteDialogOpen}
-            task={actionTask}
+            task={{ ...actionTask, isRecurring: Boolean(actionTask.enableRepeat || actionTask.repeatUnit || actionTask.repeatInterval) }}
             onComplete={handleCompleteTask}
           />
           <MilestoneDialog

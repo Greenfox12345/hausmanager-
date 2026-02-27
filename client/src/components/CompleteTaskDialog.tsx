@@ -43,6 +43,7 @@ interface Task {
   id: number;
   name: string;
   description?: string;
+  isRecurring?: boolean;
 }
 
 interface CompleteTaskDialogProps {
@@ -201,10 +202,12 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-600" />
-            Aufgabe abschließen
+            {task.isRecurring ? "Termin abschließen" : "Aufgabe abschließen"}
           </DialogTitle>
           <DialogDescription>
-            Sie sind dabei, die Aufgabe "{task.name}" als erledigt zu markieren.
+            {task.isRecurring
+              ? `Sie sind dabei, den aktuellen Termin der Aufgabe "${task.name}" als erledigt zu markieren.`
+              : `Sie sind dabei, die Aufgabe "${task.name}" als erledigt zu markieren.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -639,7 +642,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                 Wird gespeichert...
               </>
             ) : (
-              "Aufgabe abschließen"
+              task.isRecurring ? "Termin abschließen" : "Aufgabe abschließen"
             )}
           </Button>
         </DialogFooter>
