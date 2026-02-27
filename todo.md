@@ -3107,3 +3107,8 @@
 - [x] InventoryDetail: Keine Änderung nötig (nicht aufgabenverknüpft, taskId/taskName optional)
 - [x] RequiredItemsSection: taskId, taskName und occurrenceNumber an Dialog übergeben
 - [x] Server: Benachrichtigung mit relatedTaskId erweitert für direkten Link zu Aufgabendetails
+
+## ReminderDialog: User-ID durch Benutzername ersetzen
+- [x] ReminderDialog analysieren: assignedTo zeigt User-IDs statt Namen
+- [x] TaskDetailDialog: assignedTo-Array zu Mitgliedernamen mappen (ownMembers)
+- [x] Calendar.tsx: actionTask.assignedTo zu Mitgliedernamen mappen (members)

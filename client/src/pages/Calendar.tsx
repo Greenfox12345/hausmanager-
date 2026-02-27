@@ -1432,7 +1432,12 @@ export default function Calendar() {
           <ReminderDialog
             open={reminderDialogOpen}
             onOpenChange={setReminderDialogOpen}
-            task={actionTask}
+            task={actionTask ? {
+              ...actionTask,
+              assignedTo: actionTask.assignedTo && actionTask.assignedTo.length > 0
+                ? actionTask.assignedTo.map((id: number) => members.find(m => m.id === id)?.memberName).filter(Boolean).join(", ")
+                : undefined,
+            } : null}
             onSendReminder={handleSendReminder}
           />
         </>

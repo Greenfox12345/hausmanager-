@@ -2442,7 +2442,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             id: task.id,
             name: task.name,
             description: task.description || undefined,
-            assignedTo: task.assignedTo?.toString(),
+            assignedTo: task.assignedTo && task.assignedTo.length > 0 
+              ? task.assignedTo.map(id => ownMembers.find(m => m.id === id)?.memberName).filter(Boolean).join(", ")
+              : undefined,
           }}
           onSendReminder={async (data) => {
             if (!household || !member) return;
