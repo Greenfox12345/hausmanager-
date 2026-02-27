@@ -3117,3 +3117,6 @@
 - [x] /tasks: ReminderDialog-Aufruf analysieren und User-Namen-Mapping implementieren
 - [x] /inventory: ReminderDialog wird nicht verwendet (keine Änderung nötig)
 - [x] Server: sendReminder-Mutation erweitert - Benachrichtigungen an alle zugewiesenen Mitglieder mit relatedTaskId
+
+## User-ID-zu-Namen in /projects
+- [x] /projects: ReminderDialog-Verwendung analysieren und User-Namen-Mapping implementieren
