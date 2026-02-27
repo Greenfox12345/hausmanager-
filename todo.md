@@ -3091,3 +3091,8 @@
 - [x] Button-Handler repariert: utils auf Komponentenebene deklariert und in onClick verwendet
 - [x] Server erweitert: borrowerName wird jetzt in conflictingBorrows mitgesendet (JOIN mit household_members)
 - [x] TypeScript-Fehler behoben: ConflictWarning-Type korrigiert
+
+## RequiredItemsSection: Daten nach Ausleih-Anfrage nicht aktualisiert
+- [x] Datenfluss analysieren: BorrowRequestDialog → automatische Bestätigung → RequiredItemsSection
+- [x] Problem identifiziert: borrowStartDate und borrowEndDate wurden nicht in taskOccurrenceItems gespeichert
+- [x] Fix implementiert: Daten werden jetzt beim updateBorrowMutation mitgegeben

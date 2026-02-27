@@ -422,13 +422,15 @@ export function RequiredItemsSection({
               requestMessage: data.message || `Für Aufgabe #${taskId}, Termin ${selectedItem.occurrenceNumber}`,
             });
             
-            // Update item with borrow request ID and borrow status
+            // Update item with borrow request ID, borrow status, and dates
             // borrowStatus tracks the item's borrow state (pending/borrowed/returned/overdue)
             // NOT the request approval state (that's tracked via borrow_requests.status)
             await updateBorrowMutation.mutateAsync({
               itemId: selectedItem.id,
               borrowRequestId: result.requestId,
               borrowStatus: "pending",
+              borrowStartDate: data.startDate.toISOString(),
+              borrowEndDate: data.endDate.toISOString(),
             });
             
             await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
