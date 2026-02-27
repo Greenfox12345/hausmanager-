@@ -23,7 +23,9 @@ export const inventoryAvailabilityRouter = router({
       const checkEnd = endDate || new Date();
 
       // Find active or approved borrow requests that overlap with the requested period
-      const db = getDb();
+      const db = await getDb();
+      if (!db) return { status: "available" as const, conflictingBorrows: [] };
+      
       const conflictingBorrows = await db
         .select()
         .from(borrowRequests)
@@ -48,7 +50,7 @@ export const inventoryAvailabilityRouter = router({
         status = "available";
       } else {
         // Check if entire period is blocked
-        const isFullyBlocked = conflictingBorrows.some(borrow => 
+        const isFullyBlocked = conflictingBorrows.some((borrow: any) => 
           borrow.startDate <= checkStart && borrow.endDate >= checkEnd
         );
         
@@ -57,7 +59,7 @@ export const inventoryAvailabilityRouter = router({
 
       return {
         status,
-        conflictingBorrows: conflictingBorrows.map(borrow => ({
+        conflictingBorrows: conflictingBorrows.map((borrow: any) => ({
           id: borrow.id,
           startDate: borrow.startDate,
           endDate: borrow.endDate,

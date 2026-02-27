@@ -802,8 +802,13 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
-      const isRecurring = task.frequency !== "once" || (task.repeatInterval && task.repeatUnit);
-      console.log('[completeTask] Task found:', { id: task.id, name: task.name, frequency: task.frequency, isRecurring });
+      // Determine if task is recurring: check repeatInterval+repeatUnit first, then frequency
+      const isRecurring = (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') 
+        || task.frequency === "daily" 
+        || task.frequency === "weekly" 
+        || task.frequency === "monthly" 
+        || (task.frequency === "custom" && (task.customFrequencyDays || (task.repeatInterval && task.repeatUnit)));
+      console.log('[completeTask] Task found:', { id: task.id, name: task.name, frequency: task.frequency, repeatInterval: task.repeatInterval, repeatUnit: task.repeatUnit, isRecurring });
 
       // Save original due date before updating (for activity history)
       const originalDueDate = task.dueDate;
@@ -820,7 +825,7 @@ export const tasksRouter = router({
         items: { itemName: string; borrowStatus: string }[];
       } | null = null;
 
-      const { getRotationSchedule, deleteRotationOccurrence } = await import("../db");
+      const { getRotationSchedule, deleteRotationOccurrence, extendRotationSchedule: extendSchedule } = await import("../db");
       
       if (isRecurring) {
         try {
@@ -871,53 +876,68 @@ export const tasksRouter = router({
         }
       }
 
-      // ===== 2. Mark task as completed =====
-      await updateTask(input.taskId, {
-        isCompleted: true,
-        completedBy: input.memberId,
-        completedAt: new Date(),
-        completionPhotoUrls: input.photoUrls || [],
-        completionFileUrls: input.fileUrls || [],
-      });
-
-      // ===== 3. Update due date if recurring =====
+      // ===== 2. Calculate next due date for recurring tasks =====
+      let nextDueDate: Date | null = null;
       if (isRecurring && task.dueDate) {
-        let nextDueDate = new Date(task.dueDate);
+        const currentDueDate = task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate);
+        nextDueDate = new Date(currentDueDate);
 
-        switch (task.frequency) {
-          case "daily":
-            nextDueDate.setDate(nextDueDate.getDate() + 1);
-            break;
-          case "weekly":
-            nextDueDate.setDate(nextDueDate.getDate() + 7);
-            break;
-          case "monthly":
-            nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-            break;
-          case "custom":
-            if (task.repeatInterval && task.repeatUnit) {
-              switch (task.repeatUnit) {
-                case "days":
-                  nextDueDate.setDate(nextDueDate.getDate() + task.repeatInterval);
-                  break;
-                case "weeks":
-                  nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval * 7));
-                  break;
-                case "months":
-                  nextDueDate.setMonth(nextDueDate.getMonth() + task.repeatInterval);
-                  break;
-              }
-            } else if (task.customFrequencyDays) {
-              nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
+        // Use repeatInterval + repeatUnit as primary source (more reliable than frequency)
+        if (task.repeatInterval && task.repeatUnit) {
+          if (task.repeatUnit === "days") {
+            nextDueDate.setDate(nextDueDate.getDate() + task.repeatInterval);
+          } else if (task.repeatUnit === "weeks") {
+            nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval * 7));
+          } else if (task.repeatUnit === "months") {
+            // Use monthlyRecurrenceMode if set
+            const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
+            const mode = task.monthlyRecurrenceMode || "same_date";
+            nextDueDate = getNextMonthlyOccurrence(currentDueDate, task.repeatInterval, mode);
+          }
+        } else {
+          // Fallback to frequency field
+          switch (task.frequency) {
+            case "daily":
+              nextDueDate.setDate(nextDueDate.getDate() + 1);
+              break;
+            case "weekly":
+              nextDueDate.setDate(nextDueDate.getDate() + 7);
+              break;
+            case "monthly": {
+              const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
+              const mode = task.monthlyRecurrenceMode || "same_date";
+              nextDueDate = getNextMonthlyOccurrence(currentDueDate, 1, mode);
+              break;
             }
-            break;
+            case "custom":
+              if (task.customFrequencyDays) {
+                nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
+              }
+              break;
+          }
         }
+        console.log('[completeTask] Next due date calculated:', nextDueDate.toISOString());
+      }
 
+      // ===== 3. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
+      if (isRecurring && nextDueDate) {
+        // For recurring tasks: update to next occurrence in a SINGLE write (no intermediate isCompleted=true)
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
           isCompleted: false,
           completedBy: null,
           completedAt: null,
+          completionPhotoUrls: input.photoUrls || [],
+          completionFileUrls: input.fileUrls || [],
+        });
+      } else {
+        // For non-recurring tasks: mark as completed
+        await updateTask(input.taskId, {
+          isCompleted: true,
+          completedBy: input.memberId,
+          completedAt: new Date(),
+          completionPhotoUrls: input.photoUrls || [],
+          completionFileUrls: input.fileUrls || [],
         });
       }
 
@@ -964,13 +984,45 @@ export const tasksRouter = router({
             }
             console.log('[completeTask] Occurrence items shifted successfully');
           }
+
+          // Check if we need to extend the schedule (less than 3 future occurrences)
+          const updatedSchedule = await getRotationSchedule(input.taskId);
+          if (updatedSchedule.length < 3 && task.requiredPersons) {
+            const db2 = await getDb();
+            if (db2) {
+              const { taskRotationExclusions: excTable } = await import("../../drizzle/schema");
+              const exclusions = await db2.select().from(excTable)
+                .where(eq(excTable.taskId, input.taskId));
+              const excludedIds = exclusions.map(e => e.memberId);
+              
+              const members = await getHouseholdMembers(input.householdId);
+              const availableMembers = members.filter(m => m.isActive && !excludedIds.includes(m.id));
+              
+              const newOccurrenceNumber = updatedSchedule.length + 1;
+              const newMembers: { position: number; memberId: number }[] = [];
+              
+              for (let i = 0; i < task.requiredPersons; i++) {
+                if (availableMembers.length > 0) {
+                  const memberIndex = (newOccurrenceNumber - 1 + i) % availableMembers.length;
+                  newMembers.push({
+                    position: i + 1,
+                    memberId: availableMembers[memberIndex].id,
+                  });
+                }
+              }
+              
+              if (newMembers.length > 0) {
+                await extendSchedule(input.taskId, newOccurrenceNumber, newMembers);
+              }
+            }
+          }
         } catch (e) {
           console.error('[completeTask] Error removing occurrence:', e);
         }
       }
 
       // ===== 5. Handle rotation if enabled (assign next person) =====
-      if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
+      if (isRecurring && (task.enableRotation || occurrenceDetails)) {
         try {
           // After occurrence removal, the new first occurrence has the next assignees
           // Update task.assignedTo to match the new first occurrence
@@ -984,22 +1036,24 @@ export const tasksRouter = router({
         } catch (e) {
           console.error('[completeTask] Error updating rotation assignee:', e);
           // Fallback: old rotation logic
-          const members = await getHouseholdMembers(input.householdId);
-          const activeMembers = members.filter(m => m.isActive);
-          const db = await getDb();
-          if (db) {
-            const exclusions = await db.select()
-              .from(taskRotationExclusions)
-              .where(eq(taskRotationExclusions.taskId, input.taskId));
-            const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
-            const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
-            if (eligibleMembers.length > 0) {
-              const currentAssigneeId = task.assignedTo[0];
-              const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
-              const nextIndex = (currentIndex + 1) % eligibleMembers.length;
-              const nextMember = eligibleMembers[nextIndex];
-              if (nextMember) {
-                await updateTask(input.taskId, { assignedTo: [nextMember.id] });
+          if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
+            const members = await getHouseholdMembers(input.householdId);
+            const activeMembers = members.filter(m => m.isActive);
+            const db = await getDb();
+            if (db) {
+              const exclusions = await db.select()
+                .from(taskRotationExclusions)
+                .where(eq(taskRotationExclusions.taskId, input.taskId));
+              const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
+              const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
+              if (eligibleMembers.length > 0) {
+                const currentAssigneeId = task.assignedTo[0];
+                const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
+                const nextIndex = (currentIndex + 1) % eligibleMembers.length;
+                const nextMember = eligibleMembers[nextIndex];
+                if (nextMember) {
+                  await updateTask(input.taskId, { assignedTo: [nextMember.id] });
+                }
               }
             }
           }
@@ -1007,7 +1061,12 @@ export const tasksRouter = router({
       }
 
       // ===== 6. Build activity log with occurrence details =====
-      const descParts: string[] = [`Aufgabe abgeschlossen: '${task.name}'`];
+      const descParts: string[] = isRecurring 
+        ? [`Wiederkehrende Aufgabe abgeschlossen: '${task.name}' (Termin: ${formatDate(originalDueDate)})`]
+        : [`Aufgabe abgeschlossen: '${task.name}'`];
+      if (isRecurring && nextDueDate) {
+        descParts.push(`Nächster Termin: ${formatDate(nextDueDate)}`);
+      }
       if (occurrenceDetails) {
         if (occurrenceDetails.specialName) {
           descParts.push(`Sondertermin: ${occurrenceDetails.specialName}`);
@@ -1110,7 +1169,7 @@ export const tasksRouter = router({
         }
       }
 
-      return { success: true };
+      return { success: true, isRecurring: !!isRecurring, nextDueDate: nextDueDate?.toISOString() };
     }),
 
   // Add milestone (intermediate goal)

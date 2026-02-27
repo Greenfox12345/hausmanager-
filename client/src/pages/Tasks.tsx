@@ -221,9 +221,13 @@ export default function Tasks() {
   });
 
   const completeTaskMutation = trpc.tasks.completeTask.useMutation({
-    onSuccess: () => {
+    onSuccess: (result) => {
       utils.tasks.list.invalidate();
-      toast.success("Aufgabe abgeschlossen!");
+      if (result.isRecurring) {
+        toast.success("Termin abgeschlossen – nächster Termin eingestellt");
+      } else {
+        toast.success("Aufgabe abgeschlossen!");
+      }
     },
     onError: (error: any) => {
       toast.error(error.message);

@@ -3027,3 +3027,22 @@
 - [x] task_occurrence_items werden ebenfalls verschoben und umnummeriert
 - [x] Rotation Schedule nach Abschluss aktualisiert (neuer erster Termin wird assignee)
 - [x] Activity-Log enthält: Verantwortliche, Notizen, Sondertermin-Name, Gegenstände
+
+## Bug Fix: Aufgaben-Abschließen in Aufgabendetails (TaskDetailDialog)
+- [ ] Abschließen-Button/Logik in TaskDetailDialog funktioniert nicht korrekt
+- [ ] Completion-Flow in TaskDetailDialog analysieren
+- [ ] Vergleich mit funktionierender Tabellen-Logik
+- [ ] Fix implementieren und testen
+
+## Fix: Task Completion from Detail Dialog
+- [x] Fix completeTask mutation: recurring date calculation now uses repeatInterval+repeatUnit as primary source
+- [x] Fix completeTask mutation: no longer sets isCompleted=true first for recurring tasks (single atomic update)
+- [x] Fix completeTask mutation: returns isRecurring flag so frontend can react properly
+- [x] Fix TaskDetailDialog: onComplete callback now refetches task from server for recurring tasks
+- [x] Fix TaskDetailDialog: added proper error handling (try/catch) for completeTask call
+- [x] Fix TaskDetailDialog: recurring tasks show correct toast "Termin abgeschlossen – nächster Termin eingestellt"
+- [x] Fix Tasks.tsx: completeTask mutation shows correct toast for recurring vs one-time tasks
+- [x] Fix inventoryAvailability.ts: pre-existing TS error (getDb returns Promise)
+- [x] Fix TaskDetailDialog: pre-existing TS error (Member type mapping for RequiredItemsSection)
+- [x] Add activity log description for recurring tasks with original and next due date
+- [x] Write vitest tests for recurring date calculation logic (18 tests passing)

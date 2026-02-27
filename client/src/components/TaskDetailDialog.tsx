@@ -2120,9 +2120,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {task && rotationSchedule.length > 0 && (
                   <RequiredItemsSection
                     taskId={task.id}
-                    householdId={task.householdId}
+                    householdId={task.householdId ?? 0}
                     taskName={task.name}
-                    members={members}
+                    members={members.map(m => ({ id: m.memberId, name: m.memberName }))}
                     rotationSchedule={rotationSchedule}
                     onItemAdded={() => {
                       // Invalidate queries to reload items
@@ -2356,23 +2356,44 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           linkedShoppingItems={linkedShoppingItems}
           onComplete={async (data) => {
             if (!household || !member) return;
-            await utils.client.tasks.completeTask.mutate({
-              taskId: task.id,
-              householdId: household.householdId,
-              memberId: member.memberId,
-              comment: data.comment,
-              photoUrls: data.photoUrls,
-              fileUrls: data.fileUrls,
-              shoppingItemsToInventory: data.shoppingItemsToInventory,
-            });
-            setShowCompleteDialog(false);
-            setActiveTab("history");
-            utils.tasks.list.invalidate();
-            utils.activities.getByTaskId.invalidate();
-            if (onTaskUpdated) {
-              onTaskUpdated({ ...task, isCompleted: true, completed: true });
+            try {
+              const result = await utils.client.tasks.completeTask.mutate({
+                taskId: task.id,
+                householdId: household.householdId,
+                memberId: member.memberId,
+                comment: data.comment,
+                photoUrls: data.photoUrls,
+                fileUrls: data.fileUrls,
+                shoppingItemsToInventory: data.shoppingItemsToInventory,
+              });
+              setShowCompleteDialog(false);
+              setActiveTab("history");
+              
+              // Invalidate all relevant queries
+              await utils.tasks.list.invalidate();
+              await utils.activities.getByTaskId.invalidate();
+              await utils.tasks.getRotationSchedule.invalidate({ taskId: task.id });
+              await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId: task.id });
+              
+              // For recurring tasks: refetch the updated task from server
+              // instead of assuming isCompleted: true
+              if (result.isRecurring) {
+                const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+                const updatedTask = refreshedTasks.find((t: any) => t.id === task.id);
+                if (updatedTask && onTaskUpdated) {
+                  onTaskUpdated(updatedTask);
+                }
+                toast.success("Termin abgeschlossen – nächster Termin eingestellt");
+              } else {
+                if (onTaskUpdated) {
+                  onTaskUpdated({ ...task, isCompleted: true, completed: true });
+                }
+                toast.success("Aufgabe abgeschlossen");
+              }
+            } catch (error: any) {
+              console.error('[TaskDetailDialog] completeTask error:', error);
+              toast.error(error.message || "Fehler beim Abschließen der Aufgabe");
             }
-            toast.success("Aufgabe abgeschlossen");
           }}
         />
         
