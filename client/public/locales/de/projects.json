@@ -1,11 +1,20 @@
 {
   "title": "Projekte",
   "newProject": "Neues Projekt",
+  "createProject": "Neues Projekt erstellen",
   "editProject": "Projekt bearbeiten",
   "deleteProject": "Projekt löschen",
   "projectDetails": "Projektdetails",
+  "projectList": "Projektliste",
+  "projectName": "Projektname",
+  "projectNamePlaceholder": "z.B. Gartenrenovierung",
+  "descriptionPlaceholder": "Projektbeschreibung...",
+  "projectTasks": "Projektaufgaben",
+  "archived": "Archiv",
   "noProjects": "Keine Projekte vorhanden",
   "noProjectsHint": "Erstelle dein erstes Projekt.",
+  "confirmDelete": "Möchten Sie dieses Projekt wirklich löschen?",
+  "confirmArchive": "Möchten Sie dieses Projekt archivieren?",
   "fields": {
     "name": "Projektname",
     "description": "Beschreibung",
@@ -22,7 +31,11 @@
     "active": "Aktiv",
     "onHold": "Pausiert",
     "completed": "Abgeschlossen",
-    "cancelled": "Storniert"
+    "cancelled": "Abgebrochen"
+  },
+  "actions": {
+    "archive": "Archivieren",
+    "restore": "Wiederherstellen"
   },
   "tasks": {
     "title": "Projektaufgaben",
@@ -34,14 +47,24 @@
     "newMilestone": "Neuer Meilenstein",
     "noMilestones": "Keine Meilensteine"
   },
+  "validation": {
+    "nameRequired": "Bitte geben Sie einen Projektnamen ein",
+    "noProject": "Kein Projekt ausgewählt"
+  },
   "messages": {
-    "created": "Projekt erstellt",
-    "updated": "Projekt aktualisiert",
-    "deleted": "Projekt gelöscht",
+    "created": "Projekt erfolgreich erstellt",
+    "updated": "Projekt erfolgreich aktualisiert",
+    "deleted": "Projekt erfolgreich gelöscht",
+    "archived": "Projekt erfolgreich archiviert",
+    "restored": "Projekt erfolgreich wiederhergestellt",
     "completed": "Projekt abgeschlossen",
+    "tasksAssigned": "Aufgaben erfolgreich zugeordnet",
     "createError": "Fehler beim Erstellen des Projekts",
     "updateError": "Fehler beim Aktualisieren des Projekts",
     "deleteError": "Fehler beim Löschen des Projekts",
+    "archiveError": "Fehler beim Archivieren des Projekts",
+    "restoreError": "Fehler beim Wiederherstellen des Projekts",
+    "assignError": "Fehler beim Zuordnen der Aufgaben",
     "deleteConfirm": "Möchtest du dieses Projekt wirklich löschen?"
   }
 }

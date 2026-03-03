@@ -180,5 +180,17 @@
     "of": "von",
     "itemsPerPage": "Einträge pro Seite",
     "showingOf": "{{from}}-{{to}} von {{total}}"
-  }
+  },
+  "time": "Uhrzeit",
+  "all": "Alle",
+  "open": "Offen",
+  "done": "Erledigt",
+  "overdue": "Fällig",
+  "today": "Heute",
+  "assignedTo": "Verantwortlicher",
+  "sortBy": "Sortieren nach",
+  "dueDate": "Fälligkeitsdatum",
+  "creationDate": "Erstellungsdatum",
+  "notEnoughMembers": "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}",
+  "minOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen"
 }

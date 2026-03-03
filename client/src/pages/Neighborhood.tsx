@@ -12,12 +12,14 @@ import { toast } from "sonner";
 import { Users, UserPlus, Search, Check, X, Trash2, Bell } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 export default function Neighborhood() {
   const { household, member } = useCompatAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const utils = trpc.useUtils();
+  const { t } = useTranslation(["neighborhood", "common"]);
 
   // Queries
   const { data: connectedHouseholds = [], isLoading: loadingConnected } = trpc.neighborhood.getConnectedHouseholds.useQuery(
@@ -38,7 +40,7 @@ export default function Neighborhood() {
   // Mutations
   const sendInvitationMutation = trpc.neighborhood.sendInvitation.useMutation({
     onSuccess: () => {
-      toast.success("Einladung gesendet!");
+      toast.success(t("neighborhood:messages.invitationSent", "Einladung gesendet!"));
       setSearchQuery("");
       setInviteDialogOpen(false);
     },
@@ -51,21 +53,21 @@ export default function Neighborhood() {
     onSuccess: () => {
       utils.neighborhood.getPendingInvitations.invalidate();
       utils.neighborhood.getConnectedHouseholds.invalidate();
-      toast.success("Einladung angenommen!");
+      toast.success(t("neighborhood:messages.invitationAccepted", "Einladung angenommen!"));
     },
   });
 
   const rejectInvitationMutation = trpc.neighborhood.rejectInvitation.useMutation({
     onSuccess: () => {
       utils.neighborhood.getPendingInvitations.invalidate();
-      toast.success("Einladung abgelehnt");
+      toast.success(t("neighborhood:messages.invitationRejected", "Einladung abgelehnt"));
     },
   });
 
   const removeConnectionMutation = trpc.neighborhood.removeConnection.useMutation({
     onSuccess: () => {
       utils.neighborhood.getConnectedHouseholds.invalidate();
-      toast.success("Verbindung entfernt");
+      toast.success(t("neighborhood:messages.connectionRemoved", "Verbindung entfernt"));
     },
   });
 
@@ -88,7 +90,7 @@ export default function Neighborhood() {
 
   const handleRemoveConnection = (targetHouseholdId: number) => {
     if (!household) return;
-    if (confirm("Möchten Sie diese Verbindung wirklich entfernen?")) {
+    if (confirm(t("neighborhood:messages.confirmRemoveConnection", "Möchten Sie diese Verbindung wirklich entfernen?"))) {
       removeConnectionMutation.mutate({
         householdId: household.householdId,
         targetHouseholdId,
@@ -104,33 +106,33 @@ export default function Neighborhood() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Users className="h-8 w-8" />
-              Nachbarschaft
+              {t("neighborhood:title", "Nachbarschaft")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Vernetzen Sie sich mit anderen Haushalten für gemeinsame Aufgaben und Projekte
+              {t("neighborhood:description", "Vernetzen Sie sich mit anderen Haushalten für gemeinsame Aufgaben und Projekte")}
             </p>
           </div>
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <UserPlus className="h-4 w-4 mr-2" />
-                Haushalt einladen
+                {t("neighborhood:actions.inviteHousehold", "Haushalt einladen")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Haushalt einladen</DialogTitle>
+                <DialogTitle>{t("neighborhood:actions.inviteHousehold", "Haushalt einladen")}</DialogTitle>
                 <DialogDescription>
-                  Geben Sie den Einladungscode des Haushalts ein, den Sie verbinden möchten
+                  {t("neighborhood:messages.enterInviteCodeDescription", "Geben Sie den Einladungscode des Haushalts ein, den Sie verbinden möchten")}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="search">Einladungscode eingeben</Label>
+                  <Label htmlFor="search">{t("neighborhood:fields.inviteCode", "Einladungscode eingeben")}</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       id="search"
-                      placeholder="z.B. ABC123"
+                      placeholder={t("neighborhood:fields.inviteCodePlaceholder", "z.B. ABC123")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                     />
@@ -140,13 +142,13 @@ export default function Neighborhood() {
                 {/* Search Results - only show exact match */}
                 {searchResults.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Haushalt gefunden</Label>
+                    <Label>{t("neighborhood:messages.householdFound", "Haushalt gefunden")}</Label>
                     {searchResults.map((result) => (
                       <Card key={result.id} className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium">{result.name}</p>
-                            <p className="text-sm text-muted-foreground">Code: {result.inviteCode}</p>
+                            <p className="text-sm text-muted-foreground">{t("neighborhood:fields.code", "Code:")} {result.inviteCode}</p>
                           </div>
                           <Button
                             size="sm"
@@ -154,7 +156,7 @@ export default function Neighborhood() {
                             disabled={sendInvitationMutation.isPending}
                           >
                             <UserPlus className="h-4 w-4 mr-1" />
-                            Einladen
+                            {t("neighborhood:actions.invite", "Einladen")}
                           </Button>
                         </div>
                       </Card>
@@ -164,7 +166,7 @@ export default function Neighborhood() {
 
                 {searchQuery.length > 0 && searchResults.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Kein Haushalt mit diesem Einladungscode gefunden
+                    {t("neighborhood:messages.noHouseholdFound", "Kein Haushalt mit diesem Einladungscode gefunden")}
                   </p>
                 )}
               </div>
@@ -178,11 +180,11 @@ export default function Neighborhood() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Ausstehende Einladungen
+                {t("neighborhood:messages.pendingInvitations", "Ausstehende Einladungen")}
                 <Badge variant="secondary">{pendingInvitations.length}</Badge>
               </CardTitle>
               <CardDescription>
-                Einladungen von anderen Haushalten
+                {t("neighborhood:messages.invitationsFromOtherHouseholds", "Einladungen von anderen Haushalten")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -192,7 +194,7 @@ export default function Neighborhood() {
                     <div>
                       <p className="font-medium">{invitation.requestingHouseholdName}</p>
                       <p className="text-sm text-muted-foreground">
-                        Eingeladen von {invitation.requesterName} · {" "}
+                        {t("neighborhood:messages.invitedBy", "Eingeladen von")} {invitation.requesterName} · {" "}
                         {invitation.createdAt && format(new Date(invitation.createdAt), "PPP", { locale: de })}
                       </p>
                     </div>
@@ -204,7 +206,7 @@ export default function Neighborhood() {
                         disabled={acceptInvitationMutation.isPending}
                       >
                         <Check className="h-4 w-4 mr-1" />
-                        Annehmen
+                        {t("neighborhood:actions.accept", "Annehmen")}
                       </Button>
                       <Button
                         size="sm"
@@ -213,7 +215,7 @@ export default function Neighborhood() {
                         disabled={rejectInvitationMutation.isPending}
                       >
                         <X className="h-4 w-4 mr-1" />
-                        Ablehnen
+                        {t("neighborhood:actions.reject", "Ablehnen")}
                       </Button>
                     </div>
                   </div>
@@ -228,22 +230,22 @@ export default function Neighborhood() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Verbundene Haushalte
+              {t("neighborhood:messages.connectedHouseholds", "Verbundene Haushalte")}
               <Badge variant="secondary">{connectedHouseholds.length}</Badge>
             </CardTitle>
             <CardDescription>
-              Haushalte, mit denen Sie Aufgaben und Projekte teilen können
+              {t("neighborhood:messages.householdsToShareTasks", "Haushalte, mit denen Sie Aufgaben und Projekte teilen können")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {loadingConnected ? (
-              <p className="text-muted-foreground text-center py-8">Lade...</p>
+              <p className="text-muted-foreground text-center py-8">{t("common:status.loading", "Lade...")}</p>
             ) : connectedHouseholds.length === 0 ? (
               <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">Noch keine verbundenen Haushalte</p>
+                <p className="text-muted-foreground">{t("neighborhood:messages.noConnectedHouseholds", "Noch keine verbundenen Haushalte")}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Laden Sie andere Haushalte ein, um gemeinsam Aufgaben zu planen
+                  {t("neighborhood:messages.inviteOthersToPlanTasks", "Laden Sie andere Haushalte ein, um gemeinsam Aufgaben zu planen")}
                 </p>
               </div>
             ) : (
@@ -254,7 +256,7 @@ export default function Neighborhood() {
                       <div>
                         <p className="font-medium text-lg">{connectedHousehold.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Verbunden seit {format(new Date(connectedHousehold.createdAt), "PPP", { locale: de })}
+                          {t("neighborhood:messages.connectedSince", "Verbunden seit")} {format(new Date(connectedHousehold.createdAt), "PPP", { locale: de })}
                         </p>
                       </div>
                       <Button
@@ -264,7 +266,7 @@ export default function Neighborhood() {
                         disabled={removeConnectionMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
-                        Entfernen
+                        {t("neighborhood:actions.remove", "Entfernen")}
                       </Button>
                     </div>
                   </Card>
@@ -277,20 +279,20 @@ export default function Neighborhood() {
         {/* Info Card */}
         <Card className="bg-muted/30">
           <CardHeader>
-            <CardTitle className="text-base">So funktioniert's</CardTitle>
+            <CardTitle className="text-base">{t("neighborhood:messages.howItWorks", "So funktioniert's")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <strong>1. Haushalte verbinden:</strong> Geben Sie den Einladungscode eines anderen Haushalts ein, um eine Verbindung herzustellen
+              <strong>1. {t("neighborhood:messages.connectHouseholdsTitle", "Haushalte verbinden:")}</strong> {t("neighborhood:messages.connectHouseholdsDescription", "Geben Sie den Einladungscode eines anderen Haushalts ein, um eine Verbindung herzustellen")}
             </p>
             <p>
-              <strong>2. Aufgaben teilen:</strong> Beim Erstellen von Aufgaben können Sie verbundene Haushalte auswählen
+              <strong>2. {t("neighborhood:messages.shareTasksTitle", "Aufgaben teilen:")}</strong> {t("neighborhood:messages.shareTasksDescription", "Beim Erstellen von Aufgaben können Sie verbundene Haushalte auswählen")}
             </p>
             <p>
-              <strong>3. Mitglieder zuweisen:</strong> Weisen Sie Aufgaben Mitgliedern aus allen verbundenen Haushalten zu
+              <strong>3. {t("neighborhood:messages.assignMembersTitle", "Mitglieder zuweisen:")}</strong> {t("neighborhood:messages.assignMembersDescription", "Weisen Sie Aufgaben Mitgliedern aus allen verbundenen Haushalten zu")}
             </p>
             <p>
-              <strong>4. Gemeinsam verwalten:</strong> Alle Mitglieder verbundener Haushalte können geteilte Aufgaben bearbeiten
+              <strong>4. {t("neighborhood:messages.manageTogetherTitle", "Gemeinsam verwalten:")}</strong> {t("neighborhood:messages.manageTogetherDescription", "Alle Mitglieder verbundener Haushalte können geteilte Aufgaben bearbeiten")}
             </p>
           </CardContent>
         </Card>

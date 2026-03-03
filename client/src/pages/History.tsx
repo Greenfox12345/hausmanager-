@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import AppLayout from "@/components/AppLayout";
@@ -24,6 +25,7 @@ import { de } from "date-fns/locale";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
+  const { t } = useTranslation(["history", "common"]);
   const [, setLocation] = useLocation();
   const { household, isAuthenticated } = useCompatAuth();
   const [filterType, setFilterType] = useState<string>("all");
@@ -144,8 +146,8 @@ export default function History() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Aktivitätsverlauf</h1>
-            <p className="text-muted-foreground">{household?.householdName || "Kein Haushalt ausgewählt"}</p>
+            <h1 className="text-3xl font-bold">{t("history:title", "Aktivitätsverlauf")}</h1>
+            <p className="text-muted-foreground">{household?.householdName || t("common:labels.noHousehold", "Kein Haushalt ausgewählt")}</p>
           </div>
         </div>
 
@@ -154,7 +156,7 @@ export default function History() {
           <div className="flex items-center gap-2 flex-1">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Suchen..."
+              placeholder={t("common:actions.search", "Suchen...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
@@ -167,12 +169,12 @@ export default function History() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle Typen</SelectItem>
-                <SelectItem value="shopping">Einkäufe</SelectItem>
-                <SelectItem value="task">Aufgaben</SelectItem>
-                <SelectItem value="project">Projekte</SelectItem>
-                <SelectItem value="member">Mitglieder</SelectItem>
-                <SelectItem value="borrow">Ausleihen</SelectItem>
+                <SelectItem value="all">{t("common:labels.allTypes", "Alle Typen")}</SelectItem>
+                <SelectItem value="shopping">{t("shopping:title", "Einkäufe")}</SelectItem>
+                <SelectItem value="task">{t("tasks:title", "Aufgaben")}</SelectItem>
+                <SelectItem value="project">{t("projects:title", "Projekte")}</SelectItem>
+                <SelectItem value="member">{t("members:title", "Mitglieder")}</SelectItem>
+                <SelectItem value="borrow">{t("borrows:title", "Ausleihen")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -181,14 +183,14 @@ export default function History() {
         {/* Activities list */}
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
-            Lädt Verlauf...
+            {t("common:loading", "Lädt...")}
           </div>
         ) : filteredActivities.length === 0 ? (
           <Card className="shadow-sm">
             <CardContent className="py-12 text-center text-muted-foreground">
               {searchQuery || filterType !== "all"
-                ? "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
-                : "Noch keine Aktivitäten vorhanden."}
+                ? t("history:noActivitiesFiltered", "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen.")
+                : t("history:noActivities", "Noch keine Aktivitäten vorhanden.")}
             </CardContent>
           </Card>
         ) : (
@@ -216,7 +218,7 @@ export default function History() {
 
                         {/* Member name */}
                         <p className="text-sm text-muted-foreground mb-2">
-                          von {activity.memberName || "Unbekannt"}
+                          {t("common:labels.by", "von")} {activity.memberName || t("common:labels.unknown", "Unbekannt")}
                         </p>
 
                         {/* Task details */}
@@ -242,7 +244,7 @@ export default function History() {
                               {(activity.taskDetails.dueDate || (activity.metadata && (activity.metadata as any).originalDueDate)) && (
                                 <div className="flex items-start gap-2">
                                   <span className="text-xs font-semibold text-accent">
-                                    {activity.action === "completed" ? "Termin am:" : "Fällig:"}
+                                    {activity.action === "completed" ? t("calendar:completedOn", "Termin am:") : t("tasks:dueDate", "Fällig:")}
                                   </span>
                                   <span className="text-sm">
                                     {new Date(
@@ -319,7 +321,7 @@ export default function History() {
                                 {meta.occurrenceNumber && (
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Termin:</span>
-                                    <span className="text-sm">Termin {meta.occurrenceNumber}</span>
+                                    <span className="text-sm">{t("calendar:occurrence", "Termin")} {meta.occurrenceNumber}</span>
                                   </div>
                                 )}
                                 {meta.inventoryItemName && (
@@ -348,7 +350,7 @@ export default function History() {
                                 {meta.occurrenceNumber && (
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Termin:</span>
-                                    <span className="text-sm">Termin {meta.occurrenceNumber}</span>
+                                    <span className="text-sm">{t("calendar:occurrence", "Termin")} {meta.occurrenceNumber}</span>
                                   </div>
                                 )}
                                 {meta.inventoryItemName && (

@@ -39,9 +39,10 @@ import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { BottomNav } from "@/components/BottomNav";
-
+import { useTranslation } from "react-i18next";
 
 export default function Projects() {
+  const { t } = useTranslation(["projects", "tasks", "common"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
@@ -299,7 +300,7 @@ export default function Projects() {
   };
 
   const handleDeleteProject = (projectId: number) => {
-    if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
+    if (confirm(t("projects:confirmDelete", "Möchten Sie dieses Projekt wirklich löschen?"))) {
       deleteProjectMutation.mutate({ id: projectId });
     }
   };
@@ -468,13 +469,13 @@ export default function Projects() {
   };
 
   const getMemberName = (memberId: number | null) => {
-    if (!memberId) return "Nicht zugewiesen";
+    if (!memberId) return t("common:labels.unassigned", "Nicht zugewiesen");
     const memberData = members.find((m) => m.id === memberId);
-    return memberData?.memberName || "Unbekannt";
+    return memberData?.memberName || t("common:labels.unknown", "Unbekannt");
   };
   
   const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
-    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    if (memberIds === null || memberIds === undefined) return t("common:labels.unassigned", "Nicht zugewiesen");
     let ids: number[] = [];
     if (Array.isArray(memberIds)) {
       ids = memberIds;
@@ -488,10 +489,10 @@ export default function Projects() {
         ids = [];
       }
     }
-    if (ids.length === 0) return "Nicht zugewiesen";
+    if (ids.length === 0) return t("common:labels.unassigned", "Nicht zugewiesen");
     return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
-      return memberData?.memberName || "Unbekannt";
+      return memberData?.memberName || t("common:labels.unknown", "Unbekannt");
     }).join(", ");
   };
 
@@ -502,21 +503,21 @@ export default function Projects() {
     const unit = task.repeatUnit;
     
     if (interval === 1) {
-      if (unit === "days") return "Täglich";
-      if (unit === "weeks") return "Wöchentlich";
-      if (unit === "months") return "Monatlich";
+      if (unit === "days") return t("tasks:repeat.daily", "Täglich");
+      if (unit === "weeks") return t("tasks:repeat.weekly", "Wöchentlich");
+      if (unit === "months") return t("tasks:repeat.monthly", "Monatlich");
     }
     
-    const unitText = unit === "days" ? "Tag" : unit === "weeks" ? "Woche" : "Monat";
-    return `Alle ${interval} ${unitText}${interval > 1 ? "e" : ""}`;
+    const unitText = unit === "days" ? t("tasks:repeat.day", "Tag") : unit === "weeks" ? t("tasks:repeat.week", "Woche") : t("tasks:repeat.month", "Monat");
+    return `${t("tasks:repeat.every", "Alle")} ${interval} ${unitText}${interval > 1 ? "e" : ""}`;
   };
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      planning: { label: "Planung", variant: "outline" as const },
-      active: { label: "Aktiv", variant: "default" as const },
-      completed: { label: "Abgeschlossen", variant: "outline" as const },
-      cancelled: { label: "Abgebrochen", variant: "destructive" as const },
+      planning: { label: t("projects:status.planning", "Planung"), variant: "outline" as const },
+      active: { label: t("projects:status.active", "Aktiv"), variant: "default" as const },
+      completed: { label: t("projects:status.completed", "Abgeschlossen"), variant: "outline" as const },
+      cancelled: { label: t("projects:status.cancelled", "Abgebrochen"), variant: "destructive" as const },
     };
     return statusMap[status as keyof typeof statusMap] || statusMap.planning;
   };
@@ -548,7 +549,7 @@ export default function Projects() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Projekte</h1>
+              <h1 className="text-3xl font-bold">{t("projects:title")}</h1>
               <p className="text-muted-foreground">{household.householdName}</p>
             </div>
           </div>
@@ -557,53 +558,53 @@ export default function Projects() {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                Neues Projekt
+                {t("projects:newProject", "Neues Projekt")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Neues Projekt erstellen</DialogTitle>
+                <DialogTitle>{t("projects:createProject", "Neues Projekt erstellen")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Projektname *</Label>
+                  <Label htmlFor="name">{t("projects:projectName", "Projektname")} *</Label>
                   <Input
                     id="name"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="z.B. Gartenrenovierung"
+                    placeholder={t("projects:projectNamePlaceholder", "z.B. Gartenrenovierung")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Beschreibung</Label>
+                  <Label htmlFor="description">{t("common:labels.description", "Beschreibung")}</Label>
                   <Textarea
                     id="description"
                     value={projectDescription}
                     onChange={(e) => setProjectDescription(e.target.value)}
-                    placeholder="Projektbeschreibung..."
+                    placeholder={t("projects:descriptionPlaceholder", "Projektbeschreibung...")}
                     rows={3}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status">{t("common:labels.status", "Status")}</Label>
                   <Select value={projectStatus} onValueChange={(value: any) => setProjectStatus(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="planning">Planung</SelectItem>
-                      <SelectItem value="active">Aktiv</SelectItem>
-                      <SelectItem value="completed">Abgeschlossen</SelectItem>
-                      <SelectItem value="cancelled">Abgebrochen</SelectItem>
+                      <SelectItem value="planning">{t("projects:status.planning", "Planung")}</SelectItem>
+                      <SelectItem value="active">{t("projects:status.active", "Aktiv")}</SelectItem>
+                      <SelectItem value="completed">{t("projects:status.completed", "Abgeschlossen")}</SelectItem>
+                      <SelectItem value="cancelled">{t("projects:status.cancelled", "Abgebrochen")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="startDate">Startdatum</Label>
+                    <Label htmlFor="startDate">{t("common:labels.startDate", "Startdatum")}</Label>
                     <Input
                       id="startDate"
                       type="date"
@@ -613,7 +614,7 @@ export default function Projects() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="endDate">Enddatum</Label>
+                    <Label htmlFor="endDate">{t("common:labels.endDate", "Enddatum")}</Label>
                     <Input
                       id="endDate"
                       type="date"
@@ -625,10 +626,10 @@ export default function Projects() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Abbrechen
+                  {t("common:actions.cancel")}
                 </Button>
                 <Button onClick={handleCreateProject}>
-                  Projekt erstellen
+                  {t("projects:createProject", "Projekt erstellen")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -640,21 +641,21 @@ export default function Projects() {
           <div className="lg:col-span-1 space-y-3">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <FolderKanban className="h-5 w-5" />
-              Projektliste
+              {t("projects:projectList", "Projektliste")}
             </h2>
 
             {/* Archive Tabs */}
             <Tabs value={projectView} onValueChange={(v) => setProjectView(v as "active" | "archived")} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="active">Aktiv</TabsTrigger>
-                <TabsTrigger value="archived">Archiv</TabsTrigger>
+                <TabsTrigger value="active">{t("projects:status.active", "Aktiv")}</TabsTrigger>
+                <TabsTrigger value="archived">{t("projects:archived", "Archiv")}</TabsTrigger>
               </TabsList>
             </Tabs>
 
             {projectsLoading ? (
               <Card className="shadow-sm">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Lade Projekte...</p>
+                  <p className="text-sm text-muted-foreground">{t("common:loading", "Lädt...")}</p>
                 </CardContent>
               </Card>
             ) : filteredProjects.length === 0 ? (
@@ -719,11 +720,11 @@ export default function Projects() {
                                   className="h-7 w-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (confirm("Möchten Sie dieses Projekt archivieren?")) {
+                                    if (confirm(t("projects:confirmArchive", "Möchten Sie dieses Projekt archivieren?"))) {
                                       archiveProjectMutation.mutate({ id: project.id });
                                     }
                                   }}
-                                  title="Archivieren"
+                                  title={t("projects:actions.archive", "Archivieren")}
                                 >
                                   <Archive className="h-3 w-3" />
                                 </Button>
@@ -749,7 +750,7 @@ export default function Projects() {
                                 e.stopPropagation();
                                 unarchiveProjectMutation.mutate({ id: project.id });
                               }}
-                              title="Wiederherstellen"
+                              title={t("projects:actions.restore", "Wiederherstellen")}
                             >
                               <CheckCircle2 className="h-3 w-3" />
                             </Button>
@@ -835,7 +836,7 @@ export default function Projects() {
                             variant="destructive"
                             size="sm"
                             onClick={() => {
-                              if (confirm("Möchten Sie dieses Projekt wirklich löschen?")) {
+                              if (confirm(t("projects:confirmDelete", "Möchten Sie dieses Projekt wirklich löschen?"))) {
                                 deleteProjectMutation.mutate({ id: selectedProject.id });
                               }
                             }}
@@ -852,14 +853,14 @@ export default function Projects() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                if (confirm("Möchten Sie dieses Projekt archivieren?")) {
+                                if (confirm(t("projects:confirmArchive", "Möchten Sie dieses Projekt archivieren?"))) {
                                   archiveProjectMutation.mutate({ id: selectedProject.id });
                                 }
                               }}
-                              title="Archivieren"
+                              title={t("projects:actions.archive", "Archivieren")}
                             >
                               <Archive className="h-4 w-4 mr-1" />
-                              Archivieren
+                              {t("projects:actions.archive", "Archivieren")}
                             </Button>
                           </div>
                         )}
@@ -871,10 +872,10 @@ export default function Projects() {
                               onClick={() => {
                                 unarchiveProjectMutation.mutate({ id: selectedProject.id });
                               }}
-                              title="Wiederherstellen"
+                              title={t("projects:actions.restore", "Wiederherstellen")}
                             >
                               <CheckCircle2 className="h-4 w-4 mr-1" />
-                              Wiederherstellen
+                              {t("projects:actions.restore", "Wiederherstellen")}
                             </Button>
                           </div>
                         )}
@@ -923,7 +924,7 @@ export default function Projects() {
                   <TabsContent value="list">
                     <Card className="shadow-md">
                       <CardHeader>
-                        <CardTitle className="text-lg">Aufgaben</CardTitle>
+                        <CardTitle className="text-lg">{t("tasks:title", "Aufgaben")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {projectTasks.length === 0 ? (
@@ -1015,7 +1016,7 @@ export default function Projects() {
                                                 setCompleteDialogOpen(true);
                                               }}
                                               className="touch-target text-green-600 hover:text-green-600 hover:bg-green-50"
-                                              title="Aufgabe abschließen"
+                                              title={t("tasks:actions.complete", "Aufgabe abschließen")}
                                             >
                                               <CheckCircle2 className="h-4 w-4" />
                                             </Button>
@@ -1028,7 +1029,7 @@ export default function Projects() {
                                                 setReminderDialogOpen(true);
                                               }}
                                               className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
-                                              title="Erinnerung senden"
+                                              title={t("tasks:actions.sendReminder", "Erinnerung senden")}
                                             >
                                               <Bell className="h-4 w-4" />
                                             </Button>
@@ -1041,7 +1042,7 @@ export default function Projects() {
                                                 setMilestoneDialogOpen(true);
                                               }}
                                               className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                                              title="Zwischenziel dokumentieren"
+                                              title={t("tasks:actions.recordMilestone", "Zwischenziel dokumentieren")}
                                             >
                                               <Target className="h-4 w-4" />
                                             </Button>
@@ -1055,7 +1056,7 @@ export default function Projects() {
                                             handleDeleteTask(task.id);
                                           }}
                                           className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
-                                          title="Aufgabe löschen"
+                                          title={t("tasks:actions.delete", "Aufgabe löschen")}
                                         >
                                           <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -1197,19 +1198,19 @@ export default function Projects() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task-description">Beschreibung</Label>
+                <Label htmlFor="task-description">{t("common:labels.description", "Beschreibung")}</Label>
                 <Textarea
                   id="task-description"
                   value={taskDescription}
                   onChange={(e) => setTaskDescription(e.target.value)}
-                  placeholder="Aufgabenbeschreibung..."
+                  placeholder={t("tasks:descriptionPlaceholder", "Aufgabenbeschreibung...")}
                   rows={3}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-dueDate">Fälligkeitsdatum</Label>
+                  <Label htmlFor="task-dueDate">{t("tasks:dueDate", "Fälligkeitsdatum")}</Label>
                   <Input
                     id="task-dueDate"
                     type="date"
@@ -1219,7 +1220,7 @@ export default function Projects() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="task-dueTime">Uhrzeit</Label>
+                  <Label htmlFor="task-dueTime">{t("common:labels.time", "Uhrzeit")}</Label>
                   <Input
                     id="task-dueTime"
                     type="time"
@@ -1344,7 +1345,7 @@ export default function Projects() {
                       {/* Project tasks */}
                       {projectTasks.filter(t => !t.isCompleted).length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
                           {projectTasks.filter(t => !t.isCompleted).map((task) => (
                             <div key={`prereq-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
@@ -1404,7 +1405,7 @@ export default function Projects() {
                       {/* Project tasks */}
                       {projectTasks.filter(t => !t.isCompleted).length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Projektaufgaben</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
                           {projectTasks.filter(t => !t.isCompleted).map((task) => (
                             <div key={`followup-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
@@ -1504,7 +1505,7 @@ export default function Projects() {
                   <>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div className="space-y-2">
-                        <Label htmlFor="repeat-interval">Intervall</Label>
+                        <Label htmlFor="repeat-interval">{t("tasks:repeat.interval", "Intervall")}</Label>
                         <Input
                           id="repeat-interval"
                           type="number"
@@ -1515,15 +1516,15 @@ export default function Projects() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="repeat-unit">Einheit</Label>
+                        <Label htmlFor="repeat-unit">{t("tasks:repeat.unit", "Einheit")}</Label>
                         <Select value={repeatUnit} onValueChange={(value: any) => setRepeatUnit(value)}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="days">Tage</SelectItem>
-                            <SelectItem value="weeks">Wochen</SelectItem>
-                            <SelectItem value="months">Monate</SelectItem>
+                            <SelectItem value="days">{t("tasks:repeat.days", "Tage")}</SelectItem>
+                            <SelectItem value="weeks">{t("tasks:repeat.weeks", "Wochen")}</SelectItem>
+                            <SelectItem value="months">{t("tasks:repeat.months", "Monate")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1593,7 +1594,7 @@ export default function Projects() {
                 Abbrechen
               </Button>
               <Button onClick={handleAddTask} disabled={addTaskMutation.isPending}>
-                {addTaskMutation.isPending ? "Wird hinzugefügt..." : "Aufgabe hinzufügen"}
+                {addTaskMutation.isPending ? t("common:loading", "Lädt...") : t("tasks:addTask", "Aufgabe hinzufügen")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1603,7 +1604,7 @@ export default function Projects() {
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Projekt bearbeiten</DialogTitle>
+              <DialogTitle>{t("projects:editProject", "Projekt bearbeiten")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -1617,34 +1618,34 @@ export default function Projects() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Beschreibung</Label>
+                <Label htmlFor="edit-description">{t("common:labels.description", "Beschreibung")}</Label>
                 <Textarea
                   id="edit-description"
                   value={projectDescription}
                   onChange={(e) => setProjectDescription(e.target.value)}
-                  placeholder="Projektbeschreibung..."
+                  placeholder={t("projects:descriptionPlaceholder", "Projektbeschreibung...")}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit-status">Status</Label>
+                <Label htmlFor="edit-status">{t("common:labels.status", "Status")}</Label>
                 <Select value={projectStatus} onValueChange={(value: any) => setProjectStatus(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="planning">Planung</SelectItem>
-                    <SelectItem value="active">Aktiv</SelectItem>
-                    <SelectItem value="completed">Abgeschlossen</SelectItem>
-                    <SelectItem value="cancelled">Abgebrochen</SelectItem>
+                    <SelectItem value="planning">{t("projects:status.planning", "Planung")}</SelectItem>
+                    <SelectItem value="active">{t("projects:status.active", "Aktiv")}</SelectItem>
+                    <SelectItem value="completed">{t("projects:status.completed", "Abgeschlossen")}</SelectItem>
+                    <SelectItem value="cancelled">{t("projects:status.cancelled", "Abgebrochen")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-startDate">Startdatum</Label>
+                  <Label htmlFor="edit-startDate">{t("common:labels.startDate", "Startdatum")}</Label>
                   <Input
                     id="edit-startDate"
                     type="date"
@@ -1654,7 +1655,7 @@ export default function Projects() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit-endDate">Enddatum</Label>
+                  <Label htmlFor="edit-endDate">{t("common:labels.endDate", "Enddatum")}</Label>
                   <Input
                     id="edit-endDate"
                     type="date"

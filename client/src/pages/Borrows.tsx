@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Package, User, Clock } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected";
 
@@ -20,15 +21,10 @@ const statusColors: Record<string, string> = {
   rejected: "bg-red-100 text-red-800",
 };
 
-const statusLabels: Record<string, string> = {
-  pending: "Ausstehend",
-  approved: "Genehmigt",
-  active: "Aktiv",
-  completed: "Abgeschlossen",
-  rejected: "Abgelehnt",
-};
+// statusLabels are now handled via t() in the component
 
 export default function Borrows() {
+  const { t } = useTranslation(["borrows", "common"]);
   const { household, member, isAuthenticated } = useCompatAuth();
   const [borrowerStatus, setBorrowerStatus] = useState<BorrowStatus>("all");
   const [lenderStatus, setLenderStatus] = useState<BorrowStatus>("all");
@@ -74,7 +70,7 @@ export default function Borrows() {
       <div className="container mx-auto py-6 pb-24">
         <div className="flex items-center gap-3 mb-6">
           <Package className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Ausleihen</h1>
+          <h1 className="text-3xl font-bold">{t("borrows:title")}</h1>
         </div>
 
         <Tabs defaultValue="borrower" className="w-full">
@@ -88,15 +84,15 @@ export default function Borrows() {
             <div className="mb-4">
               <Select value={borrowerStatus} onValueChange={(v) => setBorrowerStatus(v as BorrowStatus)}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Status filtern" />
+                  <SelectValue placeholder={t("borrows:filterStatus", "Status filtern")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="pending">Ausstehend</SelectItem>
-                  <SelectItem value="approved">Genehmigt</SelectItem>
-                  <SelectItem value="active">Aktiv</SelectItem>
-                  <SelectItem value="completed">Abgeschlossen</SelectItem>
-                  <SelectItem value="rejected">Abgelehnt</SelectItem>
+                  <SelectItem value="all">{t("borrows:allStatuses", "Alle Status")}</SelectItem>
+                  <SelectItem value="pending">{t("borrows:status.pending", "Ausstehend")}</SelectItem>
+                  <SelectItem value="approved">{t("borrows:status.approved", "Genehmigt")}</SelectItem>
+                  <SelectItem value="active">{t("borrows:status.active", "Aktiv")}</SelectItem>
+                  <SelectItem value="completed">{t("borrows:status.completed", "Abgeschlossen")}</SelectItem>
+                  <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -110,7 +106,7 @@ export default function Borrows() {
             ) : filteredMyBorrows.length === 0 ? (
               <Card>
                 <CardContent className="p-6">
-                  <p className="text-muted-foreground">Keine Ausleihen gefunden</p>
+                  <p className="text-muted-foreground">{t("borrows:noBorrows", "Keine Ausleihen gefunden")}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -122,11 +118,11 @@ export default function Borrows() {
                         <div className="flex-1">
                           <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Eigentümer: {borrow.ownerName}
+                            {t("borrows:owner", "Eigentümer")}: {borrow.ownerName}
                           </p>
                         </div>
                         <Badge className={statusColors[borrow.status]}>
-                          {statusLabels[borrow.status]}
+                          {t(`borrows:status.${borrow.status}`, borrow.status)}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -134,16 +130,16 @@ export default function Borrows() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>Von: {formatDate(borrow.startDate)}</span>
+                          <span>{t("borrows:from", "Von")}: {formatDate(borrow.startDate)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>Bis: {formatDate(borrow.endDate)}</span>
+                          <span>{t("borrows:until", "Bis")}: {formatDate(borrow.endDate)}</span>
                         </div>
                       </div>
                       {borrow.status === "pending" && (
                         <p className="text-sm text-muted-foreground mt-3">
-                          Warte auf Genehmigung vom Eigentümer
+                          {t("borrows:waitingApproval", "Warte auf Genehmigung vom Eigentümer")}
                         </p>
                       )}
                       {borrow.status === "approved" && (
@@ -168,15 +164,15 @@ export default function Borrows() {
             <div className="mb-4">
               <Select value={lenderStatus} onValueChange={(v) => setLenderStatus(v as BorrowStatus)}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Status filtern" />
+                  <SelectValue placeholder={t("borrows:filterStatus", "Status filtern")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="pending">Ausstehend</SelectItem>
-                  <SelectItem value="approved">Genehmigt</SelectItem>
-                  <SelectItem value="active">Aktiv</SelectItem>
-                  <SelectItem value="completed">Abgeschlossen</SelectItem>
-                  <SelectItem value="rejected">Abgelehnt</SelectItem>
+                  <SelectItem value="all">{t("borrows:allStatuses", "Alle Status")}</SelectItem>
+                  <SelectItem value="pending">{t("borrows:status.pending", "Ausstehend")}</SelectItem>
+                  <SelectItem value="approved">{t("borrows:status.approved", "Genehmigt")}</SelectItem>
+                  <SelectItem value="active">{t("borrows:status.active", "Aktiv")}</SelectItem>
+                  <SelectItem value="completed">{t("borrows:status.completed", "Abgeschlossen")}</SelectItem>
+                  <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -190,7 +186,7 @@ export default function Borrows() {
             ) : filteredLentItems.length === 0 ? (
               <Card>
                 <CardContent className="p-6">
-                  <p className="text-muted-foreground">Keine verliehenen Items gefunden</p>
+                  <p className="text-muted-foreground">{t("borrows:noLends", "Keine verliehenen Items gefunden")}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -202,11 +198,11 @@ export default function Borrows() {
                         <div className="flex-1">
                           <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Ausleiher: {borrow.borrowerName}
+                            {t("borrows:borrower", "Ausleiher")}: {borrow.borrowerName}
                           </p>
                         </div>
                         <Badge className={statusColors[borrow.status]}>
-                          {statusLabels[borrow.status]}
+                          {t(`borrows:status.${borrow.status}`, borrow.status)}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -214,11 +210,11 @@ export default function Borrows() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>Von: {formatDate(borrow.startDate)}</span>
+                          <span>{t("borrows:from", "Von")}: {formatDate(borrow.startDate)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>Bis: {formatDate(borrow.endDate)}</span>
+                          <span>{t("borrows:until", "Bis")}: {formatDate(borrow.endDate)}</span>
                         </div>
                       </div>
                       {borrow.status === "pending" && (

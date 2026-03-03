@@ -180,5 +180,17 @@
     "of": "of",
     "itemsPerPage": "Items per page",
     "showingOf": "{{from}}-{{to}} of {{total}}"
-  }
+  },
+  "time": "Time",
+  "all": "All",
+  "open": "Open",
+  "done": "Done",
+  "overdue": "Overdue",
+  "today": "Today",
+  "assignedTo": "Assigned to",
+  "sortBy": "Sort by",
+  "dueDate": "Due date",
+  "creationDate": "Creation date",
+  "notEnoughMembers": "Not enough available members! Required: {{required}}, Available: {{available}}",
+  "minOneAssignee": "Please select at least one assignee"
 }

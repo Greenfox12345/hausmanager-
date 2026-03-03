@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -34,6 +35,7 @@ const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: stri
 };
 
 export default function Inventory() {
+  const { t } = useTranslation(["inventory", "common"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
 
@@ -95,7 +97,7 @@ export default function Inventory() {
       utils.shopping.listCategories.invalidate();
       setNewCategoryName("");
       setNewCategoryColor("#3b82f6");
-      toast.success("Kategorie hinzugefügt");
+      toast.success(t("inventory:messages.categoryAdded", "Kategorie hinzugefügt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -106,7 +108,7 @@ export default function Inventory() {
     onSuccess: () => {
       utils.shopping.listCategories.invalidate();
       setEditingCategory(null);
-      toast.success("Kategorie aktualisiert");
+      toast.success(t("inventory:messages.categoryUpdated", "Kategorie aktualisiert"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -116,7 +118,7 @@ export default function Inventory() {
   const deleteCategoryMutation = trpc.shopping.deleteCategory.useMutation({
     onSuccess: () => {
       utils.shopping.listCategories.invalidate();
-      toast.success("Kategorie gelöscht");
+      toast.success(t("inventory:messages.categoryDeleted", "Kategorie gelöscht"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -127,7 +129,7 @@ export default function Inventory() {
     onSuccess: (data: { url: string, filename: string }) => {
       setNewItemPhotos([...newItemPhotos, { url: data.url, filename: data.filename }]);
       setUploadingPhoto(false);
-      toast.success("Foto hochgeladen");
+      toast.success(t("inventory:messages.photoUploaded", "Foto hochgeladen"));
     },
     onError: (error: any) => {
       setUploadingPhoto(false);
@@ -145,7 +147,7 @@ export default function Inventory() {
       setNewItemOwnershipType("household");
       setNewItemOwnerIds([]);
       setNewItemPhotos([]);
-      toast.success("Artikel hinzugefügt");
+      toast.success(t("inventory:messages.itemAdded", "Artikel hinzugefügt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -155,7 +157,7 @@ export default function Inventory() {
   const deleteItemMutation = trpc.inventory.delete.useMutation({
     onSuccess: () => {
       utils.inventory.list.invalidate();
-      toast.success("Artikel gelöscht");
+      toast.success(t("inventory:messages.itemDeleted", "Artikel gelöscht"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -192,7 +194,7 @@ export default function Inventory() {
   };
 
   const handleDeleteCategory = (categoryId: number) => {
-    if (confirm("Kategorie wirklich löschen?")) {
+    if (confirm(t("common:messages.confirmDelete", "Kategorie wirklich löschen?"))) {
       deleteCategoryMutation.mutate({ 
         categoryId, 
         householdId: household.householdId, 
@@ -202,7 +204,7 @@ export default function Inventory() {
   };
 
   const handleDeleteItem = (itemId: number) => {
-    if (confirm("Artikel wirklich löschen?")) {
+    if (confirm(t("common:messages.confirmDelete", "Artikel wirklich löschen?"))) {
       deleteItemMutation.mutate({ itemId });
     }
   };
@@ -212,7 +214,7 @@ export default function Inventory() {
     if (!file) return;
 
     if (newItemPhotos.length >= 5) {
-      toast.error("Maximal 5 Fotos erlaubt");
+      toast.error(t("inventory:messages.maxPhotos", "Maximal 5 Fotos erlaubt"));
       return;
     }
 
@@ -233,7 +235,7 @@ export default function Inventory() {
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.error('Compression error:', error);
-      toast.error('Fehler beim Komprimieren des Bildes');
+      toast.error(t("inventory:messages.compressionError", 'Fehler beim Komprimieren des Bildes'));
       setUploadingPhoto(false);
     }
   };
@@ -253,12 +255,12 @@ export default function Inventory() {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemName.trim() || !newItemCategoryId) {
-      toast.error("Name und Kategorie sind erforderlich");
+      toast.error(t("inventory:messages.nameCategoryRequired", "Name und Kategorie sind erforderlich"));
       return;
     }
 
     if (newItemOwnershipType === 'personal' && newItemOwnerIds.length === 0) {
-      toast.error("Bitte wähle mindestens einen Eigentümer");
+      toast.error(t("inventory:messages.selectOwner", "Bitte wähle mindestens einen Eigentümer"));
       return;
     }
 
@@ -296,12 +298,12 @@ export default function Inventory() {
       <div className="container py-6 max-w-4xl pb-24">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Inventar</h1>
-            <p className="text-muted-foreground">Verwalte dein Haushaltsinventar</p>
+            <h1 className="text-3xl font-bold">{t('inventory:title')}</h1>
+            <p className="text-muted-foreground">{t('inventory:description', 'Verwalte dein Haushaltsinventar')}</p>
           </div>
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Artikel hinzufügen
+            {t('inventory:newItem')}
           </Button>
         </div>
 
@@ -309,207 +311,172 @@ export default function Inventory() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
-              <Filter className="h-5 w-5 mr-2" />
-              Filter
+              <Filter className="h-4 w-4 mr-2" />
+              {t('common:actions.filter')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Kategorie</Label>
-                <Select
-                  value={filterCategory?.toString() || "all"}
-                  onValueChange={(value) => setFilterCategory(value === "all" ? null : Number(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle Kategorien</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Eigentümer</Label>
-                <Select
-                  value={filterOwner?.toString() || "all"}
-                  onValueChange={(value) => setFilterOwner(value === "all" ? null : Number(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle Eigentümer</SelectItem>
-                    <SelectItem value="household">Haushaltseigentum</SelectItem>
-                    {members.map((m) => (
-                      <SelectItem key={m.id} value={m.id.toString()}>
-                        {m.memberName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <Label>{t('inventory:fields.category')}</Label>
+              <Select
+                value={filterCategory?.toString() || 'all'}
+                onValueChange={(value) => setFilterCategory(value === 'all' ? null : Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('inventory:filter.allCategories', 'Alle Kategorien')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('inventory:filter.allCategories', 'Alle Kategorien')}</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{t('inventory:fields.owner')}</Label>
+              <Select
+                value={filterOwner?.toString() || 'all'}
+                onValueChange={(value) => setFilterOwner(value === 'all' ? null : value === 'household' ? 0 : Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('inventory:filter.allOwners', 'Alle Eigentümer')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('inventory:filter.allOwners', 'Alle Eigentümer')}</SelectItem>
+                  <SelectItem value="household">{t('inventory:filter.onlyHousehold', 'Nur Haushalt')}</SelectItem>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id.toString()}>
+                      {m.memberName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button variant="ghost" onClick={() => setShowCategoryDialog(true)} title={t('inventory:categories.manage', 'Kategorien verwalten')}>
+                <FolderPlus className="h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Items List */}
+        {/* Item List */}
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">Lädt...</div>
+          <p>{t('common:status.loading', 'Lade Inventar...')}</p>
         ) : filteredItems.length === 0 ? (
-          <Card>
-            <CardContent className="py-12">
-              <div className="text-center text-muted-foreground">
-                <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Keine Artikel gefunden</p>
-                <p className="text-sm mt-2">Füge deinen ersten Artikel hinzu</p>
-              </div>
-            </CardContent>
-          </Card>
+          <p className="text-center text-muted-foreground py-8">
+            {t('inventory:messages.noItems', 'Keine Artikel gefunden.')}
+          </p>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredItems.map((item) => (
-              <Card key={item.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg">{item.name}</h3>
-                        <span
-                          className="px-2 py-0.5 rounded-full text-xs border"
-                          style={getCategoryStyle(item.categoryColor || '#3b82f6')}
-                        >
-                          {item.categoryName}
-                        </span>
-                        {pendingCountMap.get(item.id) && (
-                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                            {pendingCountMap.get(item.id)} Anfrage{pendingCountMap.get(item.id) > 1 ? 'n' : ''}
-                          </span>
-                        )}
-                      </div>
-                      {item.details && (
-                        <p className="text-sm text-muted-foreground mb-2">{item.details}</p>
-                      )}
-                      {item.photoUrls && item.photoUrls.length > 0 && (() => {
-                        const photos = normalizePhotoUrls(item.photoUrls);
-                        return (
-                          <div className="flex gap-1 mt-2 mb-2">
-                            {photos.slice(0, 3).map((photo, idx) => (
-                              <img
-                                key={idx}
-                                src={photo.url}
-                                alt={photo.filename}
-                                className="w-12 h-12 object-cover rounded border"
-                              />
-                            ))}
-                            {photos.length > 3 && (
-                              <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                                +{photos.length - 3}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>
-                          {item.ownershipType === 'household' 
-                            ? 'Haushaltseigentum' 
-                            : `Eigentum: ${item.owners.map((o: any) => o.memberName).join(', ')}`
-                          }
-                        </span>
-                      </div>
+              <Card key={item.id}>
+                <CardHeader className="p-0 relative">
+                  {normalizePhotoUrls(item.photoUrls)[0] ? (
+                    <img
+                      src={normalizePhotoUrls(item.photoUrls)[0].url}
+                      alt={item.name}
+                      className="w-full h-40 object-cover rounded-t-lg cursor-pointer"
+                      onClick={() => setLocation(`/inventory/${item.id}`)}
+                    />
+                  ) : (
+                    <div className="w-full h-40 bg-muted rounded-t-lg flex items-center justify-center cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>
+                      <Package className="h-12 w-12 text-muted-foreground" />
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setLocation(`/inventory/${item.id}`)}
-                      >
-                        <Edit2 className="h-4 w-4" />
+                  )}
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="bg-background/80 hover:bg-background"
+                      onClick={() => setLocation(`/inventory/edit/${item.id}`)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="bg-background/80 hover:bg-background"
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 space-y-2">
+                  <h3 className="font-bold truncate cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>{item.name}</h3>
+                  {item.categoryId && categories.find(c => c.id === item.categoryId) && (
+                    <span 
+                      className="text-xs font-semibold px-2 py-1 rounded-full border"
+                      style={getCategoryStyle(categories.find(c => c.id === item.categoryId)?.color || '#ccc')}
+                    >
+                      {categories.find(c => c.id === item.categoryId)?.name}
+                    </span>
+                  )}
+                  {item.ownershipType === 'household' ? (
+                    <p className="text-xs text-muted-foreground">{t('inventory:fields.ownershipHousehold', 'Eigentum: Haushalt')}</p>
+                  ) : (
+                    <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
+                  )}
+                  <div className="flex gap-2 pt-2">
+                    <Button size="sm" onClick={() => setLocation(`/borrows/new/${item.id}`)}>
+                      {t('inventory:actions.borrow', 'Ausleihen')}
+                    </Button>
+                    {pendingCountMap.has(item.id) && (
+                      <Button size="sm" variant="outline" onClick={() => setLocation(`/borrows/requests/${item.id}`)}>
+                        {pendingCountMap.get(item.id) || 0} {t('inventory:actions.requests', 'Anfragen')}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
-
-        {/* Category Management */}
-        <Card className="mt-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Kategorien verwalten</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setShowCategoryDialog(true)}>
-                <FolderPlus className="h-4 w-4 mr-2" />
-                Neue Kategorie
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {categories.map((cat) => (
-                <div key={cat.id} className="flex items-center justify-between p-2 rounded hover:bg-accent">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-full border-2"
-                      style={{ backgroundColor: cat.color, borderColor: cat.color }}
-                    />
-                    <span>{cat.name}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setEditingCategory(cat)}
-                    >
-                      <Edit2 className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteCategory(cat.id)}
-                    >
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Add Category Dialog */}
+      {/* Manage Categories Dialog */}
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Neue Kategorie</DialogTitle>
+            <DialogTitle>{t('inventory:categories.manage', 'Kategorien verwalten')}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleAddCategory} className="space-y-4">
+          <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+            {categories.map((cat) => (
+              <div key={cat.id} className="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-muted">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                  <span>{cat.name}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => setEditingCategory(cat)}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteCategory(cat.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <form onSubmit={handleAddCategory} className="space-y-4 border-t pt-4">
+            <DialogHeader>
+              <DialogTitle>{t('inventory:categories.new', 'Neue Kategorie')}</DialogTitle>
+            </DialogHeader>
             <div>
-              <Label htmlFor="categoryName">Name</Label>
+              <Label htmlFor="categoryName">{t('inventory:fields.name')}</Label>
               <Input
                 id="categoryName"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="z.B. Elektronik"
+                placeholder={t('inventory:categories.namePlaceholder', 'z.B. Elektronik')}
               />
             </div>
             <div>
-              <Label htmlFor="categoryColor">Farbe</Label>
+              <Label htmlFor="categoryColor">{t('common:labels.color')}</Label>
               <Input
                 id="categoryColor"
                 type="color"
@@ -519,9 +486,9 @@ export default function Inventory() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowCategoryDialog(false)}>
-                Abbrechen
+                {t('common:actions.cancel')}
               </Button>
-              <Button type="submit">Hinzufügen</Button>
+              <Button type="submit">{t('common:actions.add')}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -531,12 +498,12 @@ export default function Inventory() {
       <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Kategorie bearbeiten</DialogTitle>
+            <DialogTitle>{t('inventory:categories.edit', 'Kategorie bearbeiten')}</DialogTitle>
           </DialogHeader>
           {editingCategory && (
             <form onSubmit={handleUpdateCategory} className="space-y-4">
               <div>
-                <Label htmlFor="editCategoryName">Name</Label>
+                <Label htmlFor="editCategoryName">{t('inventory:fields.name')}</Label>
                 <Input
                   id="editCategoryName"
                   value={editingCategory.name}
@@ -544,7 +511,7 @@ export default function Inventory() {
                 />
               </div>
               <div>
-                <Label htmlFor="editCategoryColor">Farbe</Label>
+                <Label htmlFor="editCategoryColor">{t('common:labels.color')}</Label>
                 <Input
                   id="editCategoryColor"
                   type="color"
@@ -554,9 +521,9 @@ export default function Inventory() {
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditingCategory(null)}>
-                  Abbrechen
+                  {t('common:actions.cancel')}
                 </Button>
-                <Button type="submit">Speichern</Button>
+                <Button type="submit">{t('common:actions.save')}</Button>
               </DialogFooter>
             </form>
           )}
@@ -567,38 +534,38 @@ export default function Inventory() {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Neuer Artikel</DialogTitle>
+            <DialogTitle>{t('inventory:newItem')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleAddItem} className="space-y-4">
             <div>
-              <Label htmlFor="itemName">Name *</Label>
+              <Label htmlFor="itemName">{t('inventory:fields.name')} *</Label>
               <Input
                 id="itemName"
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
-                placeholder="z.B. Laptop"
+                placeholder={t('inventory:fields.namePlaceholder', 'z.B. Laptop')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="itemDetails">Details</Label>
+              <Label htmlFor="itemDetails">{t('inventory:fields.details')}</Label>
               <Input
                 id="itemDetails"
                 value={newItemDetails}
                 onChange={(e) => setNewItemDetails(e.target.value)}
-                placeholder="z.B. MacBook Pro 2023"
+                placeholder={t('inventory:fields.detailsPlaceholder', 'z.B. MacBook Pro 2023')}
               />
             </div>
 
             <div>
-              <Label htmlFor="itemCategory">Kategorie *</Label>
+              <Label htmlFor="itemCategory">{t('inventory:fields.category')} *</Label>
               <Select
                 value={newItemCategoryId?.toString() || ""}
                 onValueChange={(value) => setNewItemCategoryId(Number(value))}
               >
                 <SelectTrigger id="itemCategory">
-                  <SelectValue placeholder="Kategorie wählen" />
+                  <SelectValue placeholder={t('inventory:fields.selectCategory', 'Kategorie wählen')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -611,7 +578,7 @@ export default function Inventory() {
             </div>
 
             <div>
-              <Label>Fotos (max. 5)</Label>
+              <Label>{t('inventory:fields.photos', 'Fotos (max. 5)')}</Label>
               <div className="space-y-2">
                 {newItemPhotos.map((photo, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -634,14 +601,14 @@ export default function Inventory() {
                       onChange={handlePhotoUpload}
                       disabled={uploadingPhoto}
                     />
-                    {uploadingPhoto && <p className="text-sm text-muted-foreground mt-1">Lädt hoch...</p>}
+                    {uploadingPhoto && <p className="text-sm text-muted-foreground mt-1">{t('common:status.uploading', 'Lädt hoch...')}</p>}
                   </div>
                 )}
               </div>
             </div>
 
             <div>
-              <Label>Eigentum *</Label>
+              <Label>{t('inventory:fields.ownership', 'Eigentum')} *</Label>
               <Select
                 value={newItemOwnershipType}
                 onValueChange={(value: "personal" | "household") => {
@@ -655,15 +622,15 @@ export default function Inventory() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="household">Haushaltseigentum</SelectItem>
-                  <SelectItem value="personal">Persönliches Eigentum</SelectItem>
+                  <SelectItem value="household">{t('inventory:fields.ownershipHousehold', 'Haushaltseigentum')}</SelectItem>
+                  <SelectItem value="personal">{t('inventory:fields.ownershipPersonal', 'Persönliches Eigentum')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {newItemOwnershipType === 'personal' && (
               <div>
-                <Label>Eigentümer auswählen *</Label>
+                <Label>{t('inventory:fields.selectOwners', 'Eigentümer auswählen')} *</Label>
                 <div className="space-y-2 mt-2">
                   {members.map((m) => (
                     <div key={m.id} className="flex items-center gap-2">
@@ -685,9 +652,9 @@ export default function Inventory() {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
-                Abbrechen
+                {t('common:actions.cancel')}
               </Button>
-              <Button type="submit">Hinzufügen</Button>
+              <Button type="submit">{t('common:actions.add')}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

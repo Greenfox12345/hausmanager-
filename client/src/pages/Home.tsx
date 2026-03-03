@@ -4,10 +4,12 @@ import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
 import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, currentHousehold } = useUserAuth();
+  const { t } = useTranslation(["common", "shopping", "tasks", "calendar", "projects", "inventory", "history", "neighborhood", "members"]);
 
   useEffect(() => {
     // Check user auth
@@ -32,64 +34,64 @@ export default function Home() {
 
   const features = [
     {
-      title: "Einkaufsliste",
-      description: "Verwalten Sie Ihre Einkäufe mit Kategorien",
+      title: t("shopping.title", "Einkaufsliste"),
+      description: t("shopping.messages.manageCategories", "Verwalten Sie Ihre Einkäufe mit Kategorien"),
       icon: ShoppingBag,
       href: "/shopping",
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: "Haushaltsaufgaben",
-      description: "Aufgaben mit Rotation und Zeitplänen",
+      title: t("tasks.title", "Haushaltsaufgaben"),
+      description: t("tasks.messages.rotationAndSchedules", "Aufgaben mit Rotation und Zeitplänen"),
       icon: CheckSquare,
       href: "/tasks",
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
-      title: "Terminübersicht",
-      description: "Kalender und alle Aufgaben im Überblick",
+      title: t("calendar.title", "Terminübersicht"),
+      description: t("calendar.messages.overview", "Kalender und alle Aufgaben im Überblick"),
       icon: Calendar,
       href: "/calendar",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
-      title: "Projekte",
-      description: "Gemeinsame Projekte planen und verwalten",
+      title: t("projects.title", "Projekte"),
+      description: t("projects.messages.planAndManage", "Gemeinsame Projekte planen und verwalten"),
       icon: FolderKanban,
       href: "/projects",
       color: "text-accent",
       bgColor: "bg-accent/10",
     },
     {
-      title: "Inventar",
-      description: "Haushaltsgegenstände verwalten und organisieren",
+      title: t("inventory.title", "Inventar"),
+      description: t("inventory.messages.manageAndOrganize", "Haushaltsgegenstände verwalten und organisieren"),
       icon: Package,
       href: "/inventory",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
     {
-      title: "Verlauf",
-      description: "Aktivitäten und Fortschritte verfolgen",
+      title: t("history.title", "Verlauf"),
+      description: t("history.messages.trackActivities", "Aktivitäten und Fortschritte verfolgen"),
       icon: History,
       href: "/history",
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: "Nachbarschaft",
-      description: "Zusammenarbeit mit anderen Haushalten",
+      title: t("neighborhood.title", "Nachbarschaft"),
+      description: t("neighborhood.messages.collaborate", "Zusammenarbeit mit anderen Haushalten"),
       icon: Building2,
       href: "/neighborhood",
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
-      title: "Mitglieder",
-      description: "Haushaltsmitglieder verwalten",
+      title: t("members.title", "Mitglieder"),
+      description: t("members.messages.manageMembers", "Haushaltsmitglieder verwalten"),
       icon: Users,
       href: "/members",
       color: "text-accent",
@@ -102,10 +104,10 @@ export default function Home() {
       <div className="container py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2">
-            Willkommen, {currentHousehold.memberName}!
+            {t("common.messages.welcome", "Willkommen")}, {currentHousehold.memberName}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            Haushalt: {displayHousehold}
+            {t("household.label", "Haushalt")}: {displayHousehold}
           </p>
         </div>
 
@@ -131,7 +133,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-sm text-muted-foreground">
-                    Klicken Sie hier, um zu beginnen →
+                    {t("common.actions.clickToStart", "Klicken Sie hier, um zu beginnen →")}
                   </div>
                 </CardContent>
               </Card>

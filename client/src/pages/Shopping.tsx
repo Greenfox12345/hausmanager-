@@ -17,6 +17,7 @@ import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDia
 import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
+import { useTranslation } from "react-i18next";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -38,6 +39,7 @@ const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: stri
 };
 
 export default function Shopping() {
+  const { t } = useTranslation(["shopping", "common"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [newItemName, setNewItemName] = useState("");
@@ -127,7 +129,7 @@ export default function Shopping() {
       setNewItemName("");
       setNewItemDetails("");
       setNewItemPhotoUrls([]);
-      toast.success("Artikel hinzugefügt");
+      toast.success(t("shopping:messages.itemAdded", "Artikel hinzugefügt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -153,7 +155,7 @@ export default function Shopping() {
         { householdId: household?.householdId ?? 0 },
         context?.previousItems
       );
-      toast.error("Fehler beim Aktualisieren");
+      toast.error(t("shopping:messages.updateError", "Fehler beim Aktualisieren"));
     },
     onSettled: () => {
       utils.shopping.list.invalidate();
@@ -164,7 +166,7 @@ export default function Shopping() {
     onSuccess: () => {
       utils.shopping.list.invalidate();
       setShowEditDialog(false);
-      toast.success("Artikel aktualisiert");
+      toast.success(t("shopping:messages.itemUpdated", "Artikel aktualisiert"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -174,14 +176,14 @@ export default function Shopping() {
   const deleteMutation = trpc.shopping.delete.useMutation({
     onSuccess: () => {
       utils.shopping.list.invalidate();
-      toast.success("Artikel gelöscht");
+      toast.success(t("shopping:messages.itemDeleted", "Artikel gelöscht"));
     },
   });
 
   const completeMutation = trpc.shopping.completeShopping.useMutation({
     onSuccess: () => {
       utils.shopping.list.invalidate();
-      toast.success("Einkauf abgeschlossen!");
+      toast.success(t("shopping:messages.shoppingCompleted", "Einkauf abgeschlossen!"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -193,7 +195,7 @@ export default function Shopping() {
       utils.shopping.listCategories.invalidate();
       setShowCategoryDialog(false);
       setCategoryName("");
-      toast.success("Kategorie erstellt");
+      toast.success(t("shopping:messages.categoryCreated", "Kategorie erstellt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -206,7 +208,7 @@ export default function Shopping() {
       setShowCategoryDialog(false);
       setCategoryName("");
       setEditingCategoryId(null);
-      toast.success("Kategorie umbenannt");
+      toast.success(t("shopping:messages.categoryRenamed", "Kategorie umbenannt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -216,7 +218,7 @@ export default function Shopping() {
   const deleteCategoryMutation = trpc.shopping.deleteCategory.useMutation({
     onSuccess: () => {
       utils.shopping.listCategories.invalidate();
-      toast.success("Kategorie gelöscht");
+      toast.success(t("shopping:messages.categoryDeleted", "Kategorie gelöscht"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -280,7 +282,7 @@ export default function Shopping() {
       setTaskEnableDependencies(false);
       setTaskPrerequisites([]);
       setTaskFollowups([]);
-      toast.success("Aufgabe erstellt und verknüpft");
+      toast.success(t("shopping:messages.taskLinked", "Aufgabe erstellt und verknüpft"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -292,7 +294,7 @@ export default function Shopping() {
       utils.tasks.list.invalidate();
     },
     onError: (error: any) => {
-      toast.error("Fehler beim Verknüpfen der Aufgaben");
+      toast.error(t("shopping:messages.taskLinkError", "Fehler beim Verknüpfen der Aufgaben"));
     },
   });
 
@@ -301,7 +303,7 @@ export default function Shopping() {
       utils.shopping.list.invalidate();
     },
     onError: (error: any) => {
-      toast.error("Fehler beim Verknüpfen der Artikel");
+      toast.error(t("shopping:messages.itemLinkError", "Fehler beim Verknüpfen der Artikel"));
     },
   });
 
@@ -340,10 +342,9 @@ export default function Shopping() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     if (newItemPhotoUrls.length + files.length > 5) {
-      toast.error("Maximal 5 Fotos erlaubt");
+      toast.error(t("shopping:messages.maxPhotos", "Maximal 5 Fotos erlaubt"));
       return;
     }
-
     setIsUploadingNewItemPhoto(true);
     const uploadedFiles: {url: string, filename: string}[] = [];
 
@@ -365,10 +366,9 @@ export default function Shopping() {
 
         uploadedFiles.push({ url: result.url, filename: result.filename });
       } catch (error) {
-        toast.error("Foto-Upload fehlgeschlagen");
+        toast.error(t("shopping:messages.photoUploadError", "Foto-Upload fehlgeschlagen"));
       }
     }
-
     setNewItemPhotoUrls([...newItemPhotoUrls, ...uploadedFiles]);
     setIsUploadingNewItemPhoto(false);
     e.target.value = "";
@@ -391,10 +391,9 @@ export default function Shopping() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     if (editItemPhotoUrls.length + files.length > 5) {
-      toast.error("Maximal 5 Fotos erlaubt");
+      toast.error(t("shopping:messages.maxPhotos", "Maximal 5 Fotos erlaubt"));
       return;
     }
-
     setIsUploadingEditItemPhoto(true);
     const uploadedFiles: {url: string, filename: string}[] = [];
 
@@ -416,10 +415,9 @@ export default function Shopping() {
 
         uploadedFiles.push({ url: result.url, filename: result.filename });
       } catch (error) {
-        toast.error("Foto-Upload fehlgeschlagen");
+         toast.error(t("shopping:messages.photoUploadError", "Foto-Upload fehlgeschlagen"));
       }
     }
-
     setEditItemPhotoUrls([...editItemPhotoUrls, ...uploadedFiles]);
     setIsUploadingEditItemPhoto(false);
     e.target.value = "";
@@ -506,7 +504,7 @@ export default function Shopping() {
     }[];
   }) => {
     if (selectedItemIds.size === 0) {
-      toast.error("Keine ausgewählten Artikel zum Abschließen");
+      toast.error(t("shopping:messages.noItemsSelected", "Keine ausgewählten Artikel zum Abschließen"));
       return;
     }
 
@@ -583,7 +581,7 @@ export default function Shopping() {
   const handleDeleteCategory = (categoryId: number) => {
     const itemsInCategory = items.filter((item) => item.categoryId === categoryId);
     if (itemsInCategory.length > 0) {
-      toast.error(`Kategorie kann nicht gelöscht werden: ${itemsInCategory.length} Artikel verwenden sie noch`);
+      toast.error(t("shopping:messages.categoryInUse", { count: itemsInCategory.length, defaultValue: `Kategorie kann nicht gelöscht werden: ${itemsInCategory.length} Artikel verwenden sie noch` }));
       return;
     }
 
@@ -610,7 +608,7 @@ export default function Shopping() {
 
   const handleOpenTaskDialog = () => {
     if (selectedItemIds.size === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Artikel aus");
+      toast.error(t("shopping:messages.selectItems", "Bitte wählen Sie mindestens einen Artikel aus"));
       return;
     }
     
@@ -625,7 +623,7 @@ export default function Shopping() {
     if (!taskName.trim()) return;
     
     if (selectedAssignees.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      toast.error(t("shopping:messages.selectAssignee", "Bitte wählen Sie mindestens einen Verantwortlichen"));
       return;
     }
     
@@ -680,39 +678,39 @@ export default function Shopping() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Einkaufsliste</h1>
+            <h1 className="text-3xl font-bold">{t("shopping:title")}</h1>
             <p className="text-muted-foreground">{household?.householdName || 'Laden...'}</p>
           </div>
         </div>
 
         <Card className="mb-6 shadow-md">
           <CardHeader>
-            <CardTitle className="text-lg">Neuen Artikel hinzufügen</CardTitle>
+            <CardTitle className="text-lg">{t("shopping:addItem")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAddItem} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="itemName">Artikel</Label>
+                <Label htmlFor="itemName">{t("shopping:fields.item", "Artikel")}</Label>
                 <Input
                   id="itemName"
-                  placeholder="z.B. Milch, Brot, Äpfel..."
+                  placeholder={t("shopping:fields.itemPlaceholder", "z.B. Milch, Brot, Äpfel...")}
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="itemDetails">Details (optional)</Label>
+                <Label htmlFor="itemDetails">{t("shopping:fields.details", "Details")} ({t("common:labels.optional")})</Label>
                 <Input
                   id="itemDetails"
-                  placeholder="z.B. 2x, 500g, Bio..."
+                  placeholder={t("shopping:fields.detailsPlaceholder", "z.B. 2x, 500g, Bio...")}
                   value={newItemDetails}
                   onChange={(e) => setNewItemDetails(e.target.value)}
                   disabled={!newItemName.trim()}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="itemCategory">Kategorie</Label>
+                <Label htmlFor="itemCategory">{t("shopping:fields.category", "Kategorie")}</Label>
                 <div className="flex items-center gap-2">
                   <Select 
                     value={newItemCategoryId?.toString() || ""} 
@@ -748,7 +746,7 @@ export default function Shopping() {
                   disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
                 />
                 {isUploadingNewItemPhoto && (
-                  <p className="text-sm text-muted-foreground">Fotos werden hochgeladen...</p>
+                  <p className="text-sm text-muted-foreground">{t("shopping:messages.uploadingPhotos", "Fotos werden hochgeladen...")}</p>
                 )}
                 {newItemPhotoUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -915,7 +913,7 @@ export default function Shopping() {
         <Card className="mt-8 shadow-md">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Kategorien verwalten</CardTitle>
+              <CardTitle className="text-lg">{t("shopping:manageCategories", "Kategorien verwalten")}</CardTitle>
               <Button
                 variant="outline"
                 size="sm"
@@ -992,28 +990,28 @@ export default function Shopping() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Artikel bearbeiten</DialogTitle>
+            <DialogTitle>{t("shopping:editItem", "Artikel bearbeiten")}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditItem}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="editItemName">Artikelname</Label>
+                <Label htmlFor="editItemName">{t("shopping:fields.itemName", "Artikelname")}</Label>
                 <Input
                   id="editItemName"
-                  placeholder="z.B. Milch, Brot..."
+                  placeholder={t("shopping:fields.itemPlaceholder", "z.B. Milch, Brot...")}
                   value={editItemName}
                   onChange={(e) => setEditItemName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editItemCategory">Kategorie</Label>
+                <Label htmlFor="editItemCategory">{t("shopping:fields.category", "Kategorie")}</Label>
                 <Select
                   value={editItemCategoryId?.toString() || ""}
                   onValueChange={(value) => setEditItemCategoryId(Number(value))}
                 >
                   <SelectTrigger id="editItemCategory">
-                    <SelectValue placeholder="Kategorie wählen" />
+                    <SelectValue placeholder={t("shopping:fields.selectCategory", "Kategorie wählen")} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
@@ -1048,7 +1046,7 @@ export default function Shopping() {
                   disabled={isUploadingEditItemPhoto || editItemPhotoUrls.length >= 5}
                 />
                 {isUploadingEditItemPhoto && (
-                  <p className="text-sm text-muted-foreground">Fotos werden hochgeladen...</p>
+                  <p className="text-sm text-muted-foreground">{t("shopping:messages.uploadingPhotos", "Fotos werden hochgeladen...")}</p>
                 )}
                 {editItemPhotoUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -1098,17 +1096,17 @@ export default function Shopping() {
           <form onSubmit={handleCategoryDialogSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="categoryName">Kategoriename</Label>
+                <Label htmlFor="categoryName">{t("shopping:fields.categoryName", "Kategoriename")}</Label>
                 <Input
                   id="categoryName"
-                  placeholder="z.B. Getränke, Tierfutter..."
+                  placeholder={t("shopping:fields.categoryPlaceholder", "z.B. Getränke, Tierfutter...")}
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="categoryColor">Farbe</Label>
+                <Label htmlFor="categoryColor">{t("shopping:fields.color", "Farbe")}</Label>
                 <div className="flex items-center gap-3">
                   <Input
                     id="categoryColor"
@@ -1126,7 +1124,7 @@ export default function Shopping() {
                       borderColor: `${categoryColor}40`,
                     }}
                   >
-                    Vorschau
+                    {t("common:labels.preview", "Vorschau")}
                   </div>
                 </div>
               </div>
@@ -1137,13 +1135,13 @@ export default function Shopping() {
                 variant="outline"
                 onClick={() => setShowCategoryDialog(false)}
               >
-                Abbrechen
+                {t("common:actions.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={createCategoryMutation.isPending || renameCategoryMutation.isPending}
               >
-                {categoryDialogMode === "create" ? "Erstellen" : "Umbenennen"}
+                {categoryDialogMode === "create" ? t("common:actions.create") : t("shopping:renameCategory", "Umbenennen")}
               </Button>
             </DialogFooter>
           </form>
@@ -1154,21 +1152,21 @@ export default function Shopping() {
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Aufgabe aus Artikeln erstellen</DialogTitle>
+            <DialogTitle>{t("shopping:createTaskFromItems", "Aufgabe aus Artikeln erstellen")}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCreateTask} className="space-y-4">
             <div>
-              <Label htmlFor="taskName">Aufgabenname</Label>
+              <Label htmlFor="taskName">{t("tasks:fields.name")}</Label>
               <Input
                 id="taskName"
                 value={taskName}
                 onChange={(e) => setTaskName(e.target.value)}
-                placeholder="z.B. Einkauf erledigen"
+                placeholder={t("shopping:fields.taskPlaceholder", "z.B. Einkauf erledigen")}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="taskDueDate">Fälligkeitsdatum (optional)</Label>
+              <Label htmlFor="taskDueDate">{t("tasks:fields.dueDate")} ({t("common:labels.optional")})</Label>
               <Input
                 id="taskDueDate"
                 type="date"

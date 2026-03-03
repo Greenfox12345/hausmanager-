@@ -19,11 +19,12 @@ import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { BottomNav } from "@/components/BottomNav";
-
+import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 
 export default function Tasks() {
+  const { t } = useTranslation(["tasks", "common"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   
@@ -165,7 +166,7 @@ export default function Tasks() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       utils.projects.getAllDependencies.invalidate();
-      toast.success("Bidirektionale Verknüpfungen erstellt");
+      toast.success(t("tasks:messages.bidirectionalLinks"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -182,7 +183,7 @@ export default function Tasks() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       utils.shopping.list.invalidate();
-      toast.success("Aufgabe gelöscht");
+      toast.success(t("tasks:messages.taskDeleted"));
     },
   });
   
@@ -190,7 +191,7 @@ export default function Tasks() {
   const batchDeleteMutation = trpc.tasks.batchDelete.useMutation({
     onSuccess: (data) => {
       utils.tasks.list.invalidate();
-      toast.success(`${data.deletedCount} Aufgabe(n) gelöscht`);
+      toast.success(t("tasks:messages.deletedCount", { count: data.deletedCount }));
       exitBatchMode();
     },
     onError: (error: any) => {
@@ -201,7 +202,7 @@ export default function Tasks() {
   const batchAssignMutation = trpc.tasks.batchAssign.useMutation({
     onSuccess: (data) => {
       utils.tasks.list.invalidate();
-      toast.success(`${data.updatedCount} Aufgabe(n) zugewiesen`);
+      toast.success(t("tasks:messages.assignedCount", { count: data.updatedCount }));
       exitBatchMode();
     },
     onError: (error: any) => {
@@ -212,7 +213,7 @@ export default function Tasks() {
   const batchCompleteMutation = trpc.tasks.batchComplete.useMutation({
     onSuccess: (data) => {
       utils.tasks.list.invalidate();
-      toast.success(`${data.completedCount} Aufgabe(n) abgeschlossen`);
+      toast.success(t("tasks:messages.completedCount", { count: data.completedCount }));
       exitBatchMode();
     },
     onError: (error: any) => {
@@ -224,9 +225,9 @@ export default function Tasks() {
     onSuccess: (result) => {
       utils.tasks.list.invalidate();
       if (result.isRecurring) {
-        toast.success("Termin abgeschlossen – nächster Termin eingestellt");
+        toast.success(t("tasks:messages.completedRecurring"));
       } else {
-        toast.success("Aufgabe abgeschlossen!");
+        toast.success(t("tasks:messages.taskCompleted"));
       }
     },
     onError: (error: any) => {
@@ -236,7 +237,7 @@ export default function Tasks() {
 
   const milestoneMutation = trpc.tasks.addMilestone.useMutation({
     onSuccess: () => {
-      toast.success("Zwischensieg gespeichert!");
+      toast.success(t("tasks:messages.milestoneAdded"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -245,7 +246,7 @@ export default function Tasks() {
 
   const reminderMutation = trpc.tasks.sendReminder.useMutation({
     onSuccess: () => {
-      toast.success("Erinnerung gesendet!");
+      toast.success(t("tasks:messages.reminderSent"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -265,11 +266,11 @@ export default function Tasks() {
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!household || !member) {
-      toast.error("Haushaltsdaten nicht verfügbar");
+      toast.error(t("tasks:messages.noHousehold"));
       return;
     }
     if (!newTaskName.trim()) {
-      toast.error("Bitte geben Sie einen Aufgabennamen ein");
+      toast.error(t("tasks:messages.nameRequired"));
       return;
     }
 
@@ -605,25 +606,25 @@ export default function Tasks() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Haushaltsaufgaben</h1>
+            <h1 className="text-3xl font-bold">{t("tasks:title")}</h1>
             <p className="text-muted-foreground">{household.householdName}</p>
           </div>
         </div>
 
         <Card className="mb-6 shadow-md">
           <CardHeader>
-            <CardTitle className="text-lg">Neue Aufgabe erstellen</CardTitle>
+            <CardTitle className="text-lg">{t("tasks:newTask")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAddTask} className="space-y-4">
               {/* Task name */}
               <div className="space-y-2">
-                <Label htmlFor="taskName">Aufgabenname *</Label>
+                <Label htmlFor="taskName">{t("tasks:fields.name")} *</Label>
                 <Input
                   id="taskName"
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
-                  placeholder="z.B. Müll rausbringen"
+                  placeholder={t("tasks:fields.namePlaceholder", "z.B. Müll rausbringen")}
                   required
                 />
               </div>
@@ -633,12 +634,12 @@ export default function Tasks() {
                 <>
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="taskDescription">Beschreibung</Label>
+                <Label htmlFor="taskDescription">{t("tasks:fields.description")}</Label>
                 <Textarea
                   id="taskDescription"
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
-                  placeholder="Optionale Details zur Aufgabe"
+                  placeholder={t("tasks:fields.descriptionPlaceholder", "Optionale Details zur Aufgabe")}
                   rows={2}
                 />
               </div>
@@ -646,7 +647,7 @@ export default function Tasks() {
               {/* Date and time picker */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="dueDate">Termin (Datum)</Label>
+                  <Label htmlFor="dueDate">{t("tasks:fields.dueDate")}</Label>
                   <Input
                     id="dueDate"
                     type="date"
@@ -655,7 +656,7 @@ export default function Tasks() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dueTime">Uhrzeit</Label>
+                  <Label htmlFor="dueTime">{t("common:time")}</Label>
                   <Input
                     id="dueTime"
                     type="time"
@@ -809,9 +810,9 @@ export default function Tasks() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="full">Vollzugriff (alles bearbeiten)</SelectItem>
-                            <SelectItem value="milestones_reminders">Zwischenziele & Erinnerungen</SelectItem>
-                            <SelectItem value="view_only">Nur ansehen</SelectItem>
+                            <SelectItem value="full">{t("tasks:permissions.full", "Vollzugriff (alles bearbeiten)")}</SelectItem>
+                            <SelectItem value="milestones_reminders">{t("tasks:permissions.milestonesReminders", "Zwischenziele & Erinnerungen")}</SelectItem>
+                            <SelectItem value="view_only">{t("tasks:permissions.viewOnly", "Nur ansehen")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -829,7 +830,7 @@ export default function Tasks() {
                 />
                 <Label htmlFor="enableRepeat" className="cursor-pointer flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Wiederholung aktivieren
+                  {t("tasks:repeat.enable")}
                 </Label>
               </div>
 
@@ -838,7 +839,7 @@ export default function Tasks() {
                 <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                   {/* Repeat interval */}
                   <div className="space-y-2">
-                    <Label>Wiederholungsintervall</Label>
+                    <Label>{t("tasks:repeat.title")}</Label>
                     <div className="flex gap-2">
                       <Input
                         type="number"
@@ -852,9 +853,9 @@ export default function Tasks() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="days">Tage(n)</SelectItem>
-                          <SelectItem value="weeks">Woche(n)</SelectItem>
-                          <SelectItem value="months">Monat(e)</SelectItem>
+                          <SelectItem value="days">{t("tasks:repeat.days")}</SelectItem>
+                          <SelectItem value="weeks">{t("tasks:repeat.weeks")}</SelectItem>
+                          <SelectItem value="months">{t("tasks:repeat.months")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -937,15 +938,15 @@ export default function Tasks() {
                 <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                   {/* Project assignment section */}
                   <div className="space-y-3">
-                    <Label className="text-base font-semibold">Projektzuordnung</Label>
+                    <Label className="text-base font-semibold">{t("projects:assignment", "Projektzuordnung")}</Label>
                     
                     {/* Multi-select existing projects */}
                     <div className="space-y-2">
-                      <Label className="text-sm">Bestehende Projekte wählen</Label>
+                      <Label className="text-sm">{t("projects:selectExisting", "Bestehende Projekte wählen")}</Label>
                       <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
                         {projects.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">
-                            Keine Projekte verfügbar
+                            {t("projects:noProjects", "Keine Projekte verfügbar")}
                           </p>
                         ) : (
                           projects.map((project) => (
@@ -982,18 +983,18 @@ export default function Tasks() {
                           onCheckedChange={(checked) => setCreateNewProject(checked as boolean)}
                         />
                         <Label htmlFor="createNewProject" className="cursor-pointer text-sm font-medium">
-                          Neues Projekt erstellen
+                          {t("projects:createNew", "Neues Projekt erstellen")}
                         </Label>
                       </div>
                       {createNewProject && (
                         <div className="space-y-3 pl-6">
                           <div className="space-y-2">
-                            <Label htmlFor="newProjectName" className="text-sm">Projektname *</Label>
+                            <Label htmlFor="newProjectName" className="text-sm">{t("projects:fields.name", "Projektname")} *</Label>
                             <Input
                               id="newProjectName"
                               value={newProjectName}
                               onChange={(e) => setNewProjectName(e.target.value)}
-                              placeholder="Name wird von Aufgabe übernommen"
+                              placeholder={t("projects:fields.namePlaceholder", "Name wird von Aufgabe übernommen")}
                             />
                           </div>
                           <div className="space-y-2">
@@ -1016,11 +1017,11 @@ export default function Tasks() {
 
                   {/* Task dependencies section */}
                   <div className="space-y-3">
-                    <Label className="text-base font-semibold">Aufgabenverknüpfung</Label>
+                    <Label className="text-base font-semibold">{t("tasks:dependencies.title")}</Label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Prerequisites */}
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Voraussetzungen</Label>
+                        <Label className="text-sm font-medium">{t("tasks:dependencies.prerequisites")}</Label>
                         <p className="text-xs text-muted-foreground mb-2">
                           Aufgaben, die vorher erledigt sein müssen
                         </p>
@@ -1052,7 +1053,7 @@ export default function Tasks() {
 
                       {/* Follow-ups */}
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Folgeaufgaben</Label>
+                        <Label className="text-sm font-medium">{t("tasks:dependencies.followups")}</Label>
                         <p className="text-xs text-muted-foreground mb-2">
                           Aufgaben, die danach folgen sollen
                         </p>
@@ -1123,28 +1124,28 @@ export default function Tasks() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2">
                   {/* Status Filter */}
                   <div>
-                    <Label className="text-xs">Status</Label>
+                    <Label className="text-xs">{t("common:labels.status")}</Label>
                     <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
                       <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Alle</SelectItem>
-                        <SelectItem value="open">Offen</SelectItem>
-                        <SelectItem value="completed">Erledigt</SelectItem>
+                        <SelectItem value="all">{t("common:all")}</SelectItem>
+                        <SelectItem value="open">{t("common:open")}</SelectItem>
+                        <SelectItem value="completed">{t("common:done")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   {/* Assignee Filter */}
                   <div>
-                    <Label className="text-xs">Verantwortlicher</Label>
+                    <Label className="text-xs">{t("common:assignedTo")}</Label>
                     <Select value={assigneeFilter.toString()} onValueChange={(v) => setAssigneeFilter(v === "all" ? "all" : Number(v))}>
                       <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Alle</SelectItem>
+                        <SelectItem value="all">{t("common:all")}</SelectItem>
                         {members.map((m) => (
                           <SelectItem key={m.id} value={m.id.toString()}>
                             {m.memberName}
@@ -1156,33 +1157,33 @@ export default function Tasks() {
                   
                   {/* Due Date Filter */}
                   <div>
-                    <Label className="text-xs">Fälligkeit</Label>
+                    <Label className="text-xs">{t("common:dueDate")}</Label>
                     <Select value={dueDateFilter} onValueChange={(v: any) => setDueDateFilter(v)}>
                       <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Alle</SelectItem>
-                        <SelectItem value="overdue">Überfällig</SelectItem>
-                        <SelectItem value="today">Heute</SelectItem>
-                        <SelectItem value="week">Diese Woche</SelectItem>
-                        <SelectItem value="month">Diesen Monat</SelectItem>
+                        <SelectItem value="all">{t("common:all")}</SelectItem>
+                        <SelectItem value="overdue">{t("common:overdue")}</SelectItem>
+                        <SelectItem value="today">{t("common:today")}</SelectItem>
+                        <SelectItem value="week">{t("common:time.thisWeek")}</SelectItem>
+                        <SelectItem value="month">{t("common:time.thisMonth")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   {/* Sort By */}
                   <div>
-                    <Label className="text-xs">Sortieren nach</Label>
+                    <Label className="text-xs">{t("common:sortBy")}</Label>
                     <div className="flex gap-1">
                       <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
                         <SelectTrigger className="h-9 flex-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="dueDate">Fälligkeitsdatum</SelectItem>
-                          <SelectItem value="name">Name</SelectItem>
-                          <SelectItem value="createdAt">Erstellungsdatum</SelectItem>
+                          <SelectItem value="dueDate">{t("common:dueDate")}</SelectItem>
+                          <SelectItem value="name">{t("common:labels.name")}</SelectItem>
+                          <SelectItem value="createdAt">{t("common:creationDate")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
@@ -1530,16 +1531,16 @@ export default function Tasks() {
       <Dialog open={showBatchAssignDialog} onOpenChange={setShowBatchAssignDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aufgaben zuweisen</DialogTitle>
+            <DialogTitle>{t("tasks:batch.assignTitle", "Aufgaben zuweisen")}</DialogTitle>
             <DialogDescription>
-              {selectedTaskIds.length} Aufgabe(n) einem Mitglied zuweisen
+              {t("tasks:batch.assignDesc", { count: selectedTaskIds.length, defaultValue: `${selectedTaskIds.length} Aufgabe(n) einem Mitglied zuweisen` })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Label>Mitglied auswählen</Label>
+            <Label>{t("members:selectMember", "Mitglied auswählen")}</Label>
             <Select value={batchAssignTo?.toString() || ""} onValueChange={(value) => setBatchAssignTo(Number(value))}>
               <SelectTrigger>
-                <SelectValue placeholder="Mitglied auswählen" />
+                <SelectValue placeholder={t("members:selectMember", "Mitglied auswählen")} />
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (
@@ -1552,7 +1553,7 @@ export default function Tasks() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBatchAssignDialog(false)}>
-              Abbrechen
+              {t("common:actions.cancel")}
             </Button>
             <Button
               onClick={() => {
@@ -1567,7 +1568,7 @@ export default function Tasks() {
               }}
               disabled={!batchAssignTo || batchAssignMutation.isPending}
             >
-              Zuweisen
+              {t("tasks:batch.assign", "Zuweisen")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1577,14 +1578,14 @@ export default function Tasks() {
       <Dialog open={showBatchDeleteDialog} onOpenChange={setShowBatchDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aufgaben löschen</DialogTitle>
+            <DialogTitle>{t("tasks:batch.deleteTitle", "Aufgaben löschen")}</DialogTitle>
             <DialogDescription>
-              Möchten Sie wirklich {selectedTaskIds.length} Aufgabe(n) löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+              {t("tasks:batch.deleteDesc", { count: selectedTaskIds.length, defaultValue: `Möchten Sie wirklich ${selectedTaskIds.length} Aufgabe(n) löschen?` })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBatchDeleteDialog(false)}>
-              Abbrechen
+              {t("common:actions.cancel")}
             </Button>
             <Button
               variant="destructive"

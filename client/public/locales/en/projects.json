@@ -1,6 +1,15 @@
 {
   "title": "Projects",
   "newProject": "New Project",
+  "createProject": "Create New Project",
+  "projectList": "Project List",
+  "projectName": "Project Name",
+  "projectNamePlaceholder": "e.g. Garden Renovation",
+  "descriptionPlaceholder": "Project description...",
+  "projectTasks": "Project Tasks",
+  "archived": "Archive",
+  "confirmDelete": "Are you sure you want to delete this project?",
+  "confirmArchive": "Are you sure you want to archive this project?",
   "editProject": "Edit Project",
   "deleteProject": "Delete Project",
   "projectDetails": "Project Details",
@@ -24,6 +33,14 @@
     "completed": "Completed",
     "cancelled": "Cancelled"
   },
+  "actions": {
+    "archive": "Archive",
+    "restore": "Restore"
+  },
+  "validation": {
+    "nameRequired": "Please enter a project name",
+    "noProject": "No project selected"
+  },
   "tasks": {
     "title": "Tasks",
     "addTask": "Add Task",
@@ -35,13 +52,19 @@
     "noMilestones": "No milestones yet"
   },
   "messages": {
-    "created": "Project created successfully.",
-    "updated": "Project updated successfully.",
-    "deleted": "Project deleted successfully.",
-    "completed": "Project completed successfully.",
-    "createError": "Error creating project.",
-    "updateError": "Error updating project.",
-    "deleteError": "Error deleting project.",
+    "created": "Project created successfully",
+    "updated": "Project updated successfully",
+    "deleted": "Project deleted successfully",
+    "archived": "Project archived successfully",
+    "restored": "Project restored successfully",
+    "completed": "Project completed",
+    "tasksAssigned": "Tasks assigned successfully",
+    "createError": "Error creating project",
+    "updateError": "Error updating project",
+    "deleteError": "Error deleting project",
+    "archiveError": "Error archiving project",
+    "restoreError": "Error restoring project",
+    "assignError": "Error assigning tasks",
     "deleteConfirm": "Are you sure you want to delete this project?"
   }
 }

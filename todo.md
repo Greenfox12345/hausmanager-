@@ -3190,3 +3190,18 @@
 - [x] Haushalts-Spracheinstellung: HouseholdSettings Seite mit Admin-Kontrolle für Haushaltssprache
 - [x] /settings Route in App.tsx registriert, Einstellungen in Navigation hinzugefügt
 - [x] Tests: 18 Unit-Tests für i18n-Konfiguration und Sprachlogik (alle bestanden)
+
+## i18n: Seiten und Komponenten übersetzen
+- [x] Tasks.tsx: alle Toast-Nachrichten, Filter, Buttons, Formulare übersetzt
+- [x] Shopping.tsx: alle Toast-Nachrichten, Labels, Dialoge übersetzt
+- [x] Inventory.tsx: übersetzt (parallel)
+- [x] Home.tsx: übersetzt (parallel)
+- [x] Members.tsx: übersetzt (parallel)
+- [x] History.tsx: alle Strings übersetzt
+- [x] Calendar.tsx: alle Strings übersetzt (inkl. Bugfix für korruptes ü-Zeichen)
+- [x] Projects.tsx: alle 59 Strings übersetzt (Toast, Status, Buttons, Formulare, Dialoge)
+- [x] Borrows.tsx: alle Strings übersetzt
+- [x] Neighborhood.tsx: übersetzt (parallel)
+- [x] projects.json DE+EN: Fehlende Schlüssel ergänzt (actions, validation, messages)
+- [ ] TaskDetailDialog.tsx auf t()-Funktion umstellen (große Datei, nächster Schritt)
+- [ ] Weitere Dialoge und Komponenten übersetzen

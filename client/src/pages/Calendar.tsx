@@ -19,8 +19,10 @@ import { ReminderDialog } from "@/components/ReminderDialog";
 import { EventDetailDialog } from "@/components/EventDetailDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export default function Calendar() {
+  const { t } = useTranslation(["tasks", "common", "calendar"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -85,7 +87,7 @@ export default function Calendar() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       utils.shopping.list.invalidate();
-      toast.success("Aufgabe gelöscht");
+      toast.success(t("tasks:messages.deleted"));
     },
   });
 
@@ -94,7 +96,7 @@ export default function Calendar() {
       utils.tasks.list.invalidate();
       setCompleteDialogOpen(false);
       setActionTask(null);
-      toast.success("Aufgabe abgeschlossen!");
+      toast.success(t("tasks:messages.completed"));
     },
   });
 
@@ -103,7 +105,7 @@ export default function Calendar() {
       utils.tasks.list.invalidate();
       setMilestoneDialogOpen(false);
       setActionTask(null);
-      toast.success("Zwischenziel vermerkt!");
+      toast.success(t("tasks:messages.milestoneRecorded", "Zwischenziel vermerkt!"));
     },
   });
 
@@ -111,7 +113,7 @@ export default function Calendar() {
     onSuccess: () => {
       setReminderDialogOpen(false);
       setActionTask(null);
-      toast.success("Erinnerung gesendet!");
+      toast.success(t("tasks:messages.reminderSent", "Erinnerung gesendet!"));
     },
   });
 
@@ -119,14 +121,14 @@ export default function Calendar() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       utils.activities.list.invalidate();
-      toast.success("Abschluss rückgängig gemacht!");
+      toast.success(t("tasks:messages.undone", "Abschluss rükgängig gemacht!"));;
     },
   });
 
   const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
-      toast.success("Termin ausgelassen!");
+      toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
   });
 
@@ -135,7 +137,7 @@ export default function Calendar() {
       utils.calendar.getEvents.invalidate();
       setEventDetailDialogOpen(false);
       setSelectedEvent(null);
-      toast.success("Als zurückgegeben markiert!");
+      toast.success(t("tasks:messages.markedReturned", "Als zurückgegeben markiert!"));
     },
     onError: (error) => {
       toast.error("Fehler: " + error.message);
@@ -410,13 +412,13 @@ export default function Calendar() {
     : [];
 
   const getMemberName = (memberId: number | null) => {
-    if (!memberId) return "Nicht zugewiesen";
+    if (!memberId) return t("common:labels.unassigned", "Nicht zugewiesen");
     const memberData = members.find((m) => m.id === memberId);
-    return memberData?.memberName || "Unbekannt";
+    return memberData?.memberName || t("common:labels.unknown", "Unbekannt");
   };
   
   const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
-    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    if (memberIds === null || memberIds === undefined) return t("common:labels.unassigned", "Nicht zugewiesen");
     // Handle single number (legacy data)
     let ids: number[] = [];
     if (Array.isArray(memberIds)) {
@@ -431,10 +433,10 @@ export default function Calendar() {
         ids = [];
       }
     }
-    if (ids.length === 0) return "Nicht zugewiesen";
+    if (ids.length === 0) return t("common:labels.unassigned", "Nicht zugewiesen");
     return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
-      return memberData?.memberName || "Unbekannt";
+      return memberData?.memberName || t("common:labels.unknown", "Unbekannt");
     }).join(", ");
   };
 
@@ -452,19 +454,19 @@ export default function Calendar() {
     const unit = task.repeatUnit;
     
     if (interval === 1) {
-      if (unit === "days") return "Täglich";
-      if (unit === "weeks") return "Wöchentlich";
-      if (unit === "months") return "Monatlich";
+      if (unit === "days") return t("tasks:repeat.daily", "Täglich");
+      if (unit === "weeks") return t("tasks:repeat.weekly", "Wöchentlich");
+      if (unit === "months") return t("tasks:repeat.monthly", "Monatlich");
     }
     
-    const unitText = unit === "days" ? "Tag" : unit === "weeks" ? "Woche" : "Monat";
-    return `Alle ${interval} ${unitText}${interval > 1 ? "e" : ""}`;
+    const unitText = unit === "days" ? t("tasks:repeat.day", "Tag") : unit === "weeks" ? t("tasks:repeat.week", "Woche") : t("tasks:repeat.month", "Monat");
+    return t("tasks:repeat.every", { interval, unit: unitText, defaultValue: `Alle ${interval} ${unitText}${interval > 1 ? "e" : ""}` });
   };
 
   const handleDelete = (task: any, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!household || !member) return;
-    if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
+    if (confirm(t("tasks:messages.confirmDelete", "Möchten Sie diese Aufgabe wirklich löschen?"))) {
       deleteMutation.mutate({
         taskId: task.id,
         householdId: household.householdId,
@@ -529,7 +531,7 @@ export default function Calendar() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Terminübersicht</h1>
+            <h1 className="text-3xl font-bold">{t("calendar:title")}</h1>
             {household && <p className="text-muted-foreground">{household.householdName}</p>}
           </div>
         </div>
@@ -538,11 +540,11 @@ export default function Calendar() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4" />
-              Kalenderansicht
+              {t("calendar:calendarView", "Kalenderansicht")}
             </TabsTrigger>
             <TabsTrigger value="all" className="flex items-center gap-2">
               <List className="h-4 w-4" />
-              Alle Aufgaben
+              {t("tasks:allTasks", "Alle Aufgaben")}
             </TabsTrigger>
           </TabsList>
 
@@ -558,12 +560,12 @@ export default function Calendar() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Select value={eventTypeFilter} onValueChange={(value: any) => setEventTypeFilter(value)}>
                       <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter" />
+                        <SelectValue placeholder={t("common:actions.filter")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Alle Einträge</SelectItem>
-                        <SelectItem value="tasks">Nur Aufgaben</SelectItem>
-                        <SelectItem value="borrow_events">Nur Ausleihen</SelectItem>
+                        <SelectItem value="all">{t("calendar:filter.all", "Alle Einträge")}</SelectItem>
+                        <SelectItem value="tasks">{t("calendar:filter.tasksOnly", "Nur Aufgaben")}</SelectItem>
+                        <SelectItem value="borrow_events">{t("calendar:filter.borrowsOnly", "Nur Ausleihen")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -571,21 +573,21 @@ export default function Calendar() {
                       size="sm"
                       onClick={goToPreviousMonth}
                     >
-                      ← Zurück
+                      ← {t("common:navigation.back", "Zurück")}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={goToToday}
                     >
-                      Heute
+                      {t("calendar:today", "Heute")}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={goToNextMonth}
                     >
-                      Weiter →
+                      {t("common:navigation.next", "Weiter")} →
                     </Button>
                   </div>
                 </div>
@@ -663,9 +665,9 @@ export default function Calendar() {
                                     isCalendarEvent
                                       ? item.icon + " " + item.title
                                       : item.isCompletedOccurrence
-                                      ? "Erledigter Termin"
+                                      ? t("calendar:completedOccurrence", "Erledigter Termin")
                                       : item.isFutureOccurrence
-                                      ? "Folgetermin"
+                                      ? t("calendar:futureOccurrence", "Folgetermin")
                                       : ""
                                 }
                               />
@@ -686,11 +688,11 @@ export default function Calendar() {
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4" />
-                      Aufgaben am {format(selectedDate, "d. MMMM yyyy", { locale: de })}
+                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, "d. MMMM yyyy", { locale: de })}
                     </h3>
                     {selectedDateTasks.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">
-                        Keine Aufgaben an diesem Tag
+                        {t("calendar:noTasksOnDay", "Keine Aufgaben an diesem Tag")}
                       </p>
                     ) : (
                       <div className="space-y-2">
@@ -725,12 +727,12 @@ export default function Calendar() {
                                               : "bg-gray-50 text-gray-700 border-gray-200"
                                           }
                                         >
-                                          {item.eventType === "borrow_start" ? "Ausleihe" : item.eventType === "borrow_return" ? "Rückgabe" : "Event"}
+                                          {item.eventType === "borrow_start" ? t("borrows:borrowing", "Ausleihe") : item.eventType === "borrow_return" ? t("borrows:return", "Rückgabe") : "Event"}
                                         </Badge>
                                         {item.isCompleted && (
                                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                             <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            Erledigt
+                                            {t("tasks:status.completed", "Erledigt")}
                                           </Badge>
                                         )}
                                       </div>
@@ -773,18 +775,18 @@ export default function Calendar() {
                                       {task.isCompleted && (
                                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                                          Erledigt
+                                          {t("tasks:status.completed", "Erledigt")}
                                         </Badge>
                                       )}
                                       {task.isCompletedOccurrence && (
                                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                                          Erledigter Termin
+                                          {t("calendar:completedOccurrence", "Erledigter Termin")}
                                         </Badge>
                                       )}
                                       {task.isFutureOccurrence && (
                                         <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                                          Folgetermin
+                                          {t("calendar:futureOccurrence", "Folgetermin")}
                                         </Badge>
                                       )}
                                       {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
@@ -819,7 +821,7 @@ export default function Calendar() {
                                       {task.enableRotation && (
                                         <Badge variant="outline" className="text-xs">
                                           <Target className="h-3 w-3 mr-1" />
-                                          Rotation
+                                          {t("tasks:rotation", "Rotation")}
                                         </Badge>
                                       )}
                                     </div>
@@ -844,7 +846,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <ArrowLeft className="h-4 w-4 mr-1" />
-                                          Rückgängig machen
+                                          {t("common:actions.undo", "Rükgängig machen")}
                                         </Button>
                                       )}
                                       {task.isFutureOccurrence && (
@@ -857,11 +859,11 @@ export default function Calendar() {
                                               e.stopPropagation();
                                               const nextDate = findNextOpenOccurrence(task);
                                               setCurrentMonth(nextDate);
-                                              toast.info("Zu aktuellem Termin gesprungen");
+                                              toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
                                             }}
                                           >
                                             <ArrowRight className="h-4 w-4 mr-1" />
-                                            Zu aktuellem Termin
+                                            {t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
                                           </Button>
                                           <Button
                                             size="sm"
@@ -869,7 +871,7 @@ export default function Calendar() {
                                             className="w-full text-orange-600 hover:bg-orange-50"
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                              if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
                                                 const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                                 skipOccurrenceMutation.mutate({
                                                   taskId: task.id,
@@ -881,9 +883,14 @@ export default function Calendar() {
                                             }}
                                           >
                                             <X className="h-4 w-4 mr-1" />
-                                            Auslassen
+                                            {t("calendar:skip", "Auslassen")}
                                           </Button>
                                         </>
+                                      )}
+                                      {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
+                                        <Badge variant="destructive" className="text-xs col-span-2">
+                                          {t("tasks:status.overdue", "Überfällig")}
+                                        </Badge>
                                       )}
                                       {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
                                         <>
@@ -898,7 +905,7 @@ export default function Calendar() {
                                             }}
                                           >
                                             <Check className="h-4 w-4 mr-1" />
-                                            Abschließen
+                                            {t("tasks:actions.complete", "Abschließen")}
                                           </Button>
                                           <Button
                                             size="sm"
@@ -911,7 +918,7 @@ export default function Calendar() {
                                             }}
                                           >
                                             <Target className="h-4 w-4 mr-1" />
-                                            Zwischenziel
+                                            {t("tasks:actions.milestone", "Zwischenziel")}
                                           </Button>
                                         </>
                                       )}
@@ -928,7 +935,7 @@ export default function Calendar() {
                                             }}
                                           >
                                             <Bell className="h-4 w-4 mr-1" />
-                                            Erinnern
+                                            {t("tasks:actions.remind", "Erinnern")}
                                           </Button>
                                           <Button
                                             size="sm"
@@ -937,7 +944,7 @@ export default function Calendar() {
                                             onClick={(e) => handleDelete(task, e)}
                                           >
                                             <Trash2 className="h-4 w-4 mr-1" />
-                                            Löschen
+                                            {t("common:actions.delete")}
                                           </Button>
                                         </>
                                       )}
@@ -963,10 +970,10 @@ export default function Calendar() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <List className="h-5 w-5" />
-                    Alle Aufgaben (chronologisch)
+                    {t("calendar:allTasksChronological", "Alle Aufgaben (chronologisch)")}
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm text-muted-foreground">Zeitraum:</label>
+                    <label className="text-sm text-muted-foreground">{t("calendar:period", "Zeitraum")}:</label>
                     <select 
                       className="border rounded px-2 py-1 text-sm"
                       value={chronologicalRange}
@@ -984,7 +991,7 @@ export default function Calendar() {
                 {chronologicalTasks.length === 0 ? (
                   <div className="py-16 text-center">
                     <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Keine Aufgaben vorhanden</p>
+                    <p className="text-muted-foreground">{t("tasks:noTasks", "Keine Aufgaben vorhanden")}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -1114,7 +1121,7 @@ export default function Calendar() {
                                             e.stopPropagation();
                                             const nextDate = findNextOpenOccurrence(task);
                                             setCurrentMonth(nextDate);
-                                            toast.info("Zu aktuellem Termin gesprungen");
+                                            toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
                                           }}
                                         >
                                           <ArrowRight className="h-4 w-4 mr-1" />
@@ -1218,7 +1225,7 @@ export default function Calendar() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <List className="h-5 w-5" />
-                    Aufgaben ohne Termine ({tasksWithoutDates.length})
+                    {t("calendar:tasksWithoutDates", "Aufgaben ohne Termine")} ({tasksWithoutDates.length})
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     {/* Assignee Filter */}
@@ -1228,10 +1235,10 @@ export default function Calendar() {
                     >
                       <SelectTrigger className="w-[180px]">
                         <Filter className="h-4 w-4 mr-2" />
-                        <SelectValue placeholder="Alle Mitglieder" />
+                        <SelectValue placeholder={t("members:allMembers", "Alle Mitglieder")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Alle Mitglieder</SelectItem>
+                        <SelectItem value="all">{t("members:allMembers", "Alle Mitglieder")}</SelectItem>
                         {members.map(m => (
                           <SelectItem key={m.id} value={m.id.toString()}>
                             {m.memberName}
@@ -1250,8 +1257,8 @@ export default function Calendar() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="createdAt">Erstellungsdatum</SelectItem>
-                        <SelectItem value="name">Name</SelectItem>
+                        <SelectItem value="createdAt">{t("common:labels.createdAt", "Erstellungsdatum")}</SelectItem>
+                        <SelectItem value="name">{t("common:labels.name")}</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -1260,7 +1267,7 @@ export default function Calendar() {
                       variant="outline"
                       size="icon"
                       onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
-                      title={sortOrder === "asc" ? "Aufsteigend" : "Absteigend"}
+                      title={sortOrder === "asc" ? t("common:sort.ascending", "Aufsteigend") : t("common:sort.descending", "Absteigend")}
                     >
                       <ArrowUpDown className="h-4 w-4" />
                     </Button>
@@ -1271,8 +1278,8 @@ export default function Calendar() {
                 {tasksWithoutDates.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground">
                     {filterAssignee !== null
-                      ? "Keine Aufgaben ohne Termine für dieses Mitglied"
-                      : "Keine Aufgaben ohne Termine"}
+                      ? t("calendar:noTasksWithoutDatesForMember", "Keine Aufgaben ohne Termine für dieses Mitglied")
+                      : t("calendar:noTasksWithoutDates", "Keine Aufgaben ohne Termine")}
                   </div>
                 ) : (
                   <div className="space-y-2">

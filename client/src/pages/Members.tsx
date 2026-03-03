@@ -11,12 +11,14 @@ import { toast } from "sonner";
 import { ArrowLeft, Users, LogOut, Plus, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 export default function Members() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated, logout } = useCompatAuth();
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { t } = useTranslation(["members", "common"]);
 
   const { data: members = [], isLoading } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -28,10 +30,10 @@ export default function Members() {
     try {
       await navigator.clipboard.writeText(household.inviteCode);
       setCopied(true);
-      toast.success("Einladungscode kopiert!");
+      toast.success(t("members.messages.inviteCodeCopied", "Einladungscode kopiert!"));
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error("Fehler beim Kopieren");
+      toast.error(t("common.messages.copyError", "Fehler beim Kopieren"));
     }
   };
 
@@ -64,12 +66,12 @@ export default function Members() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">Haushaltsmitglieder</h1>
+            <h1 className="text-3xl font-bold">{t("members.title", "Haushaltsmitglieder")}</h1>
             <p className="text-muted-foreground">{household?.householdName}</p>
           </div>
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
-            Abmelden
+            {t("common.actions.logout", "Abmelden")}
           </Button>
         </div>
 
@@ -77,17 +79,17 @@ export default function Members() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Aktuelle Mitglieder
+              {t("members.currentMembers", "Aktuelle Mitglieder")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">
-                Lädt Mitglieder...
+                {t("members.messages.loadingMembers", "Lädt Mitglieder...")}
               </div>
             ) : members.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                Keine Mitglieder gefunden.
+                {t("members.messages.noMembersFound", "Keine Mitglieder gefunden.")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -111,12 +113,12 @@ export default function Members() {
                         {m.memberName}
                         {m.id === member?.memberId && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                            Sie
+                            {t("members.you", "Sie")}
                           </span>
                         )}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {m.isActive ? "Aktiv" : "Inaktiv"}
+                        {m.isActive ? t("common.status.active", "Aktiv") : t("common.status.inactive", "Inaktiv")}
                       </div>
                     </div>
                   </div>
@@ -131,11 +133,11 @@ export default function Members() {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
-                Neues Mitglied einladen
+                {t("members.newMember", "Neues Mitglied einladen")}
               </span>
               {!showInviteCode && (
                 <Button onClick={() => setShowInviteCode(true)} size="sm">
-                  Einladungscode anzeigen
+                  {t("members.actions.showInviteCode", "Einladungscode anzeigen")}
                 </Button>
               )}
             </CardTitle>
@@ -144,7 +146,7 @@ export default function Members() {
             {showInviteCode ? (
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
-                  <p>👥 Teilen Sie diesen Einladungscode mit neuen Mitgliedern:</p>
+                  <p>{t("members.messages.shareInviteCode", "👥 Teilen Sie diesen Einladungscode mit neuen Mitgliedern:")}</p>
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -164,12 +166,12 @@ export default function Members() {
                 </div>
 
                 <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                  <p><strong>💡 So funktioniert's:</strong></p>
+                  <p><strong>{t("common.messages.howItWorks", "💡 So funktioniert's:")}</strong></p>
                   <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>Neue Person registriert sich auf der Registrierungsseite</li>
-                    <li>Bei der Haushaltsauswahl klickt sie auf "Haushalt beitreten"</li>
-                    <li>Einladungscode eingeben und bestätigen</li>
-                    <li>Fertig! Die Person ist jetzt Mitglied Ihres Haushalts</li>
+                    <li>{t("members.messages.step1", "Neue Person registriert sich auf der Registrierungsseite")}</li>
+                    <li>{t("members.messages.step2", "Bei der Haushaltsauswahl klickt sie auf \"Haushalt beitreten\"")}</li>
+                    <li>{t("members.messages.step3", "Einladungscode eingeben und bestätigen")}</li>
+                    <li>{t("members.messages.step4", "Fertig! Die Person ist jetzt Mitglied Ihres Haushalts")}</li>
                   </ol>
                 </div>
 
@@ -178,13 +180,13 @@ export default function Members() {
                   onClick={() => setShowInviteCode(false)}
                   className="w-full"
                 >
-                  Schließen
+                  {t("common.actions.close", "Schließen")}
                 </Button>
               </div>
             ) : (
               <div className="text-center py-4 text-muted-foreground">
                 <p>
-                  Klicken Sie auf "Einladungscode anzeigen", um neue Mitglieder einzuladen.
+                  {t("members.messages.clickToShowInviteCode", "Klicken Sie auf \"Einladungscode anzeigen\", um neue Mitglieder einzuladen.")}
                 </p>
               </div>
             )}
