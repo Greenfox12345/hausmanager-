@@ -1,0 +1,54 @@
+{
+  "title": "Members",
+  "newMember": "New Member",
+  "editMember": "Edit Member",
+  "removeMember": "Remove Member",
+  "memberDetails": "Member Details",
+  "noMembers": "No Members Yet",
+  "invite": {
+    "title": "Invite Member",
+    "code": "Invitation Code",
+    "generate": "Generate Code",
+    "copy": "Copy Code",
+    "copied": "Copied!",
+    "share": "Share",
+    "expires": "Expires",
+    "join": "Join Household",
+    "enterCode": "Enter Invitation Code",
+    "invalidCode": "Invalid Code"
+  },
+  "roles": {
+    "admin": "Admin",
+    "member": "Member",
+    "guest": "Guest",
+    "changeRole": "Change Role",
+    "promoteToAdmin": "Promote to Admin",
+    "demoteToMember": "Demote to Member"
+  },
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joinedAt": "Joined At",
+    "avatar": "Avatar",
+    "color": "Color"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "myProfile": "My Profile",
+    "displayName": "Display Name",
+    "avatar": "Avatar",
+    "changeAvatar": "Change Avatar"
+  },
+  "messages": {
+    "invited": "Member invited successfully",
+    "joined": "Joined household successfully",
+    "removed": "Member removed successfully",
+    "roleChanged": "Member role changed successfully",
+    "removeConfirm": "Are you sure you want to remove this member?",
+    "removeError": "Failed to remove member",
+    "cannotRemoveSelf": "Cannot remove yourself",
+    "cannotRemoveLastAdmin": "Cannot remove the last admin"
+  }
+}

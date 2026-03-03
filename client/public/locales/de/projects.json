@@ -1,0 +1,47 @@
+{
+  "title": "Projekte",
+  "newProject": "Neues Projekt",
+  "editProject": "Projekt bearbeiten",
+  "deleteProject": "Projekt löschen",
+  "projectDetails": "Projektdetails",
+  "noProjects": "Keine Projekte vorhanden",
+  "noProjectsHint": "Erstelle dein erstes Projekt.",
+  "fields": {
+    "name": "Projektname",
+    "description": "Beschreibung",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "status": "Status",
+    "priority": "Priorität",
+    "assignedTo": "Zugewiesen an",
+    "budget": "Budget",
+    "progress": "Fortschritt"
+  },
+  "status": {
+    "planning": "Planung",
+    "active": "Aktiv",
+    "onHold": "Pausiert",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert"
+  },
+  "tasks": {
+    "title": "Projektaufgaben",
+    "addTask": "Aufgabe hinzufügen",
+    "noTasks": "Keine Aufgaben in diesem Projekt"
+  },
+  "milestones": {
+    "title": "Meilensteine",
+    "newMilestone": "Neuer Meilenstein",
+    "noMilestones": "Keine Meilensteine"
+  },
+  "messages": {
+    "created": "Projekt erstellt",
+    "updated": "Projekt aktualisiert",
+    "deleted": "Projekt gelöscht",
+    "completed": "Projekt abgeschlossen",
+    "createError": "Fehler beim Erstellen des Projekts",
+    "updateError": "Fehler beim Aktualisieren des Projekts",
+    "deleteError": "Fehler beim Löschen des Projekts",
+    "deleteConfirm": "Möchtest du dieses Projekt wirklich löschen?"
+  }
+}

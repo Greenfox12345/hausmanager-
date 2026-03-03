@@ -1,0 +1,1 @@
+ALTER TABLE `households` ADD `language` varchar(10) DEFAULT 'de' NOT NULL;

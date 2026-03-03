@@ -413,6 +413,122 @@ export const householdManagementRouter = router({
     }),
 
   /**
+   * Get household settings including language
+   */
+  getHouseholdSettings: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verify user is a member of this household
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a member of this household",
+        });
+      }
+
+      const [household] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+
+      if (!household) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Household not found" });
+      }
+
+      // Admin = the user who created the household
+      const isAdmin = household.createdBy === ctx.user.id;
+
+      return {
+        id: household.id,
+        name: household.name,
+        language: household.language || "de",
+        inviteCode: household.inviteCode,
+        isAdmin,
+      };
+    }),
+
+  /**
+   * Update household language (admin only)
+   * This language is used for history entries and notifications visible to all members
+   */
+  updateHouseholdLanguage: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        language: z.string().min(2).max(10),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verify user is an admin of this household
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a member of this household",
+        });
+      }
+
+      // Check if user is the household creator (admin)
+      const [household] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+
+      if (!household) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Household not found" });
+      }
+
+      if (household.createdBy !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the household creator can change the language",
+        });
+      }
+
+      await db
+        .update(households)
+        .set({ language: input.language })
+        .where(eq(households.id, input.householdId));
+
+      return { success: true, language: input.language };
+    }),
+
+  /**
    * Get current household member for authenticated user
    */
   getCurrentMember: protectedProcedure

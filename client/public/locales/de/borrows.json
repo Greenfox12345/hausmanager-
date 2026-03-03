@@ -1,0 +1,67 @@
+{
+  "title": "Ausleihen",
+  "myBorrows": "Meine Ausleihen",
+  "lentItems": "Verliehene Gegenstände",
+  "borrowRequests": "Ausleih-Anfragen",
+  "noBorrows": "Keine Ausleihen",
+  "noBorrowsHint": "Hier werden deine Ausleih-Anfragen und verliehenen Gegenstände angezeigt.",
+  "request": {
+    "title": "Ausleihe anfragen",
+    "item": "Gegenstand",
+    "from": "Von",
+    "startDate": "Von",
+    "endDate": "Bis",
+    "message": "Nachricht (optional)",
+    "messagePlaceholder": "Warum möchtest du diesen Gegenstand ausleihen?",
+    "submit": "Anfrage senden",
+    "cancel": "Abbrechen"
+  },
+  "approval": {
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "rejectReason": "Ablehnungsgrund (optional)",
+    "revoke": "Genehmigung widerrufen",
+    "revokeReason": "Grund für den Widerruf",
+    "revokeConfirm": "Möchtest du die Genehmigung wirklich widerrufen?"
+  },
+  "return": {
+    "title": "Rückgabe bestätigen",
+    "confirm": "Rückgabe bestätigen",
+    "notes": "Rückgabenotizen",
+    "condition": "Zustand bei Rückgabe"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "active": "Aktiv ausgeliehen",
+    "rejected": "Abgelehnt",
+    "returned": "Zurückgegeben",
+    "cancelled": "Storniert",
+    "overdue": "Überfällig",
+    "notRequested": "Nicht angefragt"
+  },
+  "fields": {
+    "item": "Gegenstand",
+    "borrower": "Ausleiher",
+    "owner": "Eigentümer",
+    "startDate": "Ausleih-Start",
+    "endDate": "Ausleih-Ende",
+    "requestDate": "Anfragedatum",
+    "returnDate": "Rückgabedatum",
+    "message": "Nachricht",
+    "task": "Aufgabe",
+    "occurrence": "Termin"
+  },
+  "messages": {
+    "requestSent": "Ausleih-Anfrage gesendet",
+    "autoApproved": "Ausleihe automatisch genehmigt",
+    "approved": "Ausleihe genehmigt",
+    "rejected": "Ausleihe abgelehnt",
+    "returned": "Rückgabe bestätigt",
+    "revoked": "Genehmigung widerrufen",
+    "requestError": "Fehler beim Senden der Anfrage",
+    "approveError": "Fehler beim Genehmigen",
+    "rejectError": "Fehler beim Ablehnen",
+    "returnError": "Fehler bei der Rückgabe"
+  }
+}

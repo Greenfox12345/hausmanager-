@@ -1,0 +1,50 @@
+{
+  "title": "Household",
+  "selection": {
+    "title": "Household Selection",
+    "subtitle": "Manage your households",
+    "noHouseholds": "No households found",
+    "noHouseholdsHint": "Create a new one or join an existing one.",
+    "createNew": "Create New Household",
+    "joinExisting": "Join Existing Household"
+  },
+  "create": {
+    "title": "Create New Household",
+    "namePlaceholder": "Household Name",
+    "addressPlaceholder": "Household Address",
+    "submit": "Create Household",
+    "success": "Household created successfully!",
+    "error": "Error creating household."
+  },
+  "join": {
+    "title": "Join Household",
+    "codePlaceholder": "Invitation Code",
+    "submit": "Join Household",
+    "success": "Joined household successfully!",
+    "invalidCode": "Invalid invitation code.",
+    "error": "Error joining household."
+  },
+  "settings": {
+    "title": "Household Settings",
+    "general": "General",
+    "name": "Name",
+    "address": "Address",
+    "language": "Language",
+    "languageHint": "Change the display language for this household.",
+    "save": "Save Changes",
+    "saved": "Settings saved!",
+    "danger": "Danger Zone",
+    "leave": "Leave Household",
+    "leaveConfirm": "Are you sure you want to leave this household?",
+    "delete": "Delete Household",
+    "deleteConfirm": "Are you sure you want to delete this household? This action cannot be undone.",
+    "deleteWarning": "All data associated with this household will be permanently deleted."
+  },
+  "neighborhood": {
+    "title": "Neighborhood",
+    "subtitle": "Connect with your neighbors",
+    "noNeighbors": "No neighbors found",
+    "addNeighbor": "Add Neighbor",
+    "borrowFromNeighbor": "Borrow from Neighbor"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "title": "Borrows",
+  "myBorrows": "My Borrows",
+  "lentItems": "Lent Items",
+  "borrowRequests": "Borrow Requests",
+  "noBorrows": "No Borrows",
+  "noBorrowsHint": "You haven't borrowed or lent any items yet.",
+  "request": {
+    "title": "Borrow Request",
+    "item": "Item",
+    "from": "From",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "message": "Message",
+    "messagePlaceholder": "Enter your message here...",
+    "submit": "Submit Request",
+    "cancel": "Cancel"
+  },
+  "approval": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectReason": "Reason for Rejection",
+    "revoke": "Revoke",
+    "revokeReason": "Reason for Revocation",
+    "revokeConfirm": "Are you sure you want to revoke this borrow?"
+  },
+  "return": {
+    "title": "Return Item",
+    "confirm": "Confirm Return",
+    "notes": "Notes",
+    "condition": "Condition"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "active": "Active",
+    "rejected": "Rejected",
+    "returned": "Returned",
+    "cancelled": "Cancelled",
+    "overdue": "Overdue",
+    "notRequested": "Not Requested"
+  },
+  "fields": {
+    "item": "Item",
+    "borrower": "Borrower",
+    "owner": "Owner",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "requestDate": "Request Date",
+    "returnDate": "Return Date",
+    "message": "Message",
+    "task": "Task",
+    "occurrence": "Occurrence"
+  },
+  "messages": {
+    "requestSent": "Borrow request sent successfully.",
+    "autoApproved": "Borrow request automatically approved.",
+    "approved": "Borrow request approved.",
+    "rejected": "Borrow request rejected.",
+    "returned": "Item returned successfully.",
+    "revoked": "Borrow revoked.",
+    "requestError": "Error sending borrow request.",
+    "approveError": "Error approving borrow request.",
+    "rejectError": "Error rejecting borrow request.",
+    "returnError": "Error returning item."
+  }
+}

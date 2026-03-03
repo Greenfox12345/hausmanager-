@@ -1,0 +1,136 @@
+{
+  "title": "Aufgaben",
+  "newTask": "Neue Aufgabe",
+  "editTask": "Aufgabe bearbeiten",
+  "deleteTask": "Aufgabe löschen",
+  "taskDetails": "Aufgabendetails",
+  "completeTask": "Aufgabe abschließen",
+  "noTasks": "Keine Aufgaben vorhanden",
+  "noTasksHint": "Erstelle deine erste Aufgabe, um loszulegen.",
+  "fields": {
+    "name": "Aufgabenname",
+    "description": "Beschreibung",
+    "assignedTo": "Zugewiesen an",
+    "dueDate": "Fälligkeitsdatum",
+    "priority": "Priorität",
+    "status": "Status",
+    "category": "Kategorie",
+    "notes": "Notizen",
+    "attachments": "Anhänge",
+    "frequency": "Häufigkeit",
+    "duration": "Dauer",
+    "durationDays": "Tage",
+    "durationHours": "Stunden"
+  },
+  "status": {
+    "open": "Offen",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert",
+    "overdue": "Überfällig"
+  },
+  "frequency": {
+    "once": "Einmalig",
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "biweekly": "Zweiwöchentlich",
+    "monthly": "Monatlich",
+    "quarterly": "Vierteljährlich",
+    "yearly": "Jährlich",
+    "irregular": "Unregelmäßig"
+  },
+  "repeat": {
+    "title": "Wiederholung",
+    "enable": "Wiederholung aktivieren",
+    "noRepeat": "Ohne Wiederholung",
+    "interval": "Intervall",
+    "unit": "Einheit",
+    "every": "Alle",
+    "days": "Tage",
+    "weeks": "Wochen",
+    "months": "Monate",
+    "irregular": "Unregelmäßig",
+    "rotation": "Rotation aktivieren",
+    "rotationHint": "Aufgabe wird unter Mitgliedern rotiert"
+  },
+  "occurrences": {
+    "title": "Kommende Termine",
+    "occurrence": "Termin",
+    "date": "Datum",
+    "assignedTo": "Zugewiesen an",
+    "specialDate": "Sondertermin",
+    "skip": "Überspringen",
+    "skipped": "Übersprungen",
+    "noOccurrences": "Keine Termine geplant"
+  },
+  "requiredItems": {
+    "title": "Benötigte Gegenstände",
+    "addItem": "Gegenstand hinzufügen",
+    "noItems": "Keine Gegenstände verknüpft",
+    "item": "Gegenstand",
+    "status": "Status",
+    "actions": "Aktionen",
+    "borrow": "Ausleihen",
+    "revoke": "Widerrufen"
+  },
+  "milestones": {
+    "title": "Zwischenziele",
+    "newMilestone": "Neues Zwischenziel",
+    "editMilestone": "Zwischenziel bearbeiten",
+    "noMilestones": "Keine Zwischenziele"
+  },
+  "dependencies": {
+    "title": "Aufgabenverknüpfungen",
+    "prerequisites": "Voraussetzungen",
+    "followups": "Folgeaufgaben",
+    "addPrerequisite": "Voraussetzung hinzufügen",
+    "addFollowup": "Folgeaufgabe hinzufügen"
+  },
+  "reminders": {
+    "title": "Erinnerungen",
+    "send": "Erinnerung senden",
+    "sent": "Erinnerung gesendet",
+    "schedule": "Erinnerung planen"
+  },
+  "completion": {
+    "title": "Aufgabe abschließen",
+    "confirmMessage": "Möchtest du diese Aufgabe als abgeschlossen markieren?",
+    "notes": "Abschlussnotizen",
+    "rating": "Bewertung",
+    "completedBy": "Abgeschlossen von",
+    "completedAt": "Abgeschlossen am"
+  },
+  "filter": {
+    "all": "Alle Aufgaben",
+    "myTasks": "Meine Aufgaben",
+    "overdue": "Überfällig",
+    "upcoming": "Bevorstehend",
+    "completed": "Abgeschlossen",
+    "byCategory": "Nach Kategorie",
+    "byPriority": "Nach Priorität",
+    "byStatus": "Nach Status"
+  },
+  "sort": {
+    "byDate": "Nach Datum",
+    "byPriority": "Nach Priorität",
+    "byName": "Nach Name",
+    "byStatus": "Nach Status"
+  },
+  "messages": {
+    "created": "Aufgabe erstellt",
+    "updated": "Aufgabe aktualisiert",
+    "deleted": "Aufgabe gelöscht",
+    "completed": "Aufgabe abgeschlossen",
+    "assigned": "Aufgabe zugewiesen",
+    "reminderSent": "Erinnerung gesendet",
+    "createError": "Fehler beim Erstellen der Aufgabe",
+    "updateError": "Fehler beim Aktualisieren der Aufgabe",
+    "deleteError": "Fehler beim Löschen der Aufgabe",
+    "deleteConfirm": "Möchtest du diese Aufgabe wirklich löschen?"
+  },
+  "gantt": {
+    "title": "Gantt-Diagramm",
+    "timeline": "Zeitplan",
+    "noTasks": "Keine Aufgaben für das Gantt-Diagramm"
+  }
+}

@@ -7,6 +7,8 @@ import superjson from "superjson";
 import App from "./App";
 // OAuth removed - using internal auth system
 import "./index.css";
+// Initialize i18n before app renders
+import "./lib/i18n";
 
 const queryClient = new QueryClient({
   defaultOptions: {

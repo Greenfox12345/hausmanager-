@@ -1,0 +1,54 @@
+{
+  "title": "Mitglieder",
+  "newMember": "Mitglied hinzufügen",
+  "editMember": "Mitglied bearbeiten",
+  "removeMember": "Mitglied entfernen",
+  "memberDetails": "Mitgliederdetails",
+  "noMembers": "Keine Mitglieder",
+  "invite": {
+    "title": "Mitglied einladen",
+    "code": "Einladungscode",
+    "generate": "Code generieren",
+    "copy": "Code kopieren",
+    "copied": "Code kopiert!",
+    "share": "Code teilen",
+    "expires": "Läuft ab am",
+    "join": "Haushalt beitreten",
+    "enterCode": "Einladungscode eingeben",
+    "invalidCode": "Ungültiger Einladungscode"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "member": "Mitglied",
+    "guest": "Gast",
+    "changeRole": "Rolle ändern",
+    "promoteToAdmin": "Zum Administrator befördern",
+    "demoteToMember": "Zum Mitglied herabstufen"
+  },
+  "fields": {
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "joinedAt": "Beigetreten am",
+    "avatar": "Profilbild",
+    "color": "Farbe"
+  },
+  "profile": {
+    "title": "Profil",
+    "editProfile": "Profil bearbeiten",
+    "myProfile": "Mein Profil",
+    "displayName": "Anzeigename",
+    "avatar": "Profilbild",
+    "changeAvatar": "Profilbild ändern"
+  },
+  "messages": {
+    "invited": "Einladung gesendet",
+    "joined": "Haushalt beigetreten",
+    "removed": "Mitglied entfernt",
+    "roleChanged": "Rolle geändert",
+    "removeConfirm": "Möchtest du dieses Mitglied wirklich entfernen?",
+    "removeError": "Fehler beim Entfernen des Mitglieds",
+    "cannotRemoveSelf": "Du kannst dich nicht selbst entfernen",
+    "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden"
+  }
+}

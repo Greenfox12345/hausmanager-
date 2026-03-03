@@ -1,0 +1,39 @@
+{
+  "title": "History",
+  "noHistory": "No history entries yet.",
+  "noHistoryHint": "All activities will be displayed here.",
+  "filter": {
+    "all": "All",
+    "tasks": "Tasks",
+    "shopping": "Shopping",
+    "inventory": "Inventory",
+    "members": "Members",
+    "borrows": "Borrows",
+    "projects": "Projects"
+  },
+  "actions": {
+    "task_created": "Task created",
+    "task_updated": "Task updated",
+    "task_completed": "Task completed",
+    "task_deleted": "Task deleted",
+    "task_assigned": "Task assigned",
+    "item_added": "Item added",
+    "item_updated": "Item updated",
+    "item_deleted": "Item deleted",
+    "shopping_created": "Shopping list created",
+    "shopping_completed": "Shopping list completed",
+    "member_joined": "Member joined",
+    "member_removed": "Member removed",
+    "borrow_requested": "Borrow requested",
+    "borrow_approved": "Borrow approved",
+    "borrow_rejected": "Borrow rejected",
+    "borrow_returned": "Borrow returned",
+    "reminder": "Reminder"
+  },
+  "fields": {
+    "date": "Date",
+    "member": "Member",
+    "action": "Action",
+    "details": "Details"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "title": "Kalender",
+  "noEvents": "Keine Termine",
+  "newEvent": "Neuer Termin",
+  "editEvent": "Termin bearbeiten",
+  "deleteEvent": "Termin löschen",
+  "eventDetails": "Termindetails",
+  "views": {
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "agenda": "Agenda"
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Beschreibung",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "startTime": "Startzeit",
+    "endTime": "Endzeit",
+    "allDay": "Ganztägig",
+    "location": "Ort",
+    "assignedTo": "Zugewiesen an",
+    "recurring": "Wiederkehrend",
+    "color": "Farbe"
+  },
+  "navigation": {
+    "today": "Heute",
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "messages": {
+    "created": "Termin erstellt",
+    "updated": "Termin aktualisiert",
+    "deleted": "Termin gelöscht",
+    "deleteConfirm": "Möchtest du diesen Termin wirklich löschen?"
+  }
+}

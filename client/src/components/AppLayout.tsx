@@ -32,6 +32,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
+import { Settings } from "lucide-react";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -41,6 +44,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
   const { user, currentHousehold, logout: userLogout, setCurrentHousehold } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { t } = useTranslation("common");
   
   // Detect desktop/mobile for conditional rendering
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -70,58 +74,64 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const navigationItems = [
     {
-      title: "Home",
+      title: t("nav.home"),
       icon: HomeIcon,
       href: "/",
       color: "text-foreground",
     },
     {
-      title: "Einkaufsliste",
+      title: t("nav.shopping"),
       icon: ShoppingBag,
       href: "/shopping",
       color: "text-primary",
     },
     {
-      title: "Haushaltsaufgaben",
+      title: t("nav.tasks"),
       icon: CheckSquare,
       href: "/tasks",
       color: "text-secondary",
     },
     {
-      title: "Terminübersicht",
+      title: t("nav.calendar"),
       icon: Calendar,
       href: "/calendar",
       color: "text-purple-600",
     },
     {
-      title: "Projekte",
+      title: t("nav.projects"),
       icon: FolderKanban,
       href: "/projects",
       color: "text-accent",
     },
     {
-      title: "Inventar",
+      title: t("nav.inventory"),
       icon: Package,
       href: "/inventory",
       color: "text-orange-600",
     },
     {
-      title: "Verlauf",
+      title: t("nav.history"),
       icon: History,
       href: "/history",
       color: "text-primary",
     },
     {
-      title: "Nachbarschaft",
+      title: t("nav.neighborhood"),
       icon: Building2,
       href: "/neighborhood",
       color: "text-secondary",
     },
     {
-      title: "Mitglieder",
+      title: t("nav.members"),
       icon: Users,
       href: "/members",
       color: "text-accent",
+    },
+    {
+      title: t("nav.settings"),
+      icon: Settings,
+      href: "/settings",
+      color: "text-muted-foreground",
     },
   ];
 
@@ -144,7 +154,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       };
       setCurrentHousehold(newHouseholdData);
       
-      toast.success(`Zu Haushalt "${householdName}" gewechselt`);
+      toast.success(`${t("household.select")}: "${householdName}"`);
       
       // Reload current page to refresh data
       window.location.reload();
@@ -155,10 +165,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b">
+        <div className="p-6 border-b">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold">Haushaltsmanager</h2>
-          <NotificationBell />
+          <h2 className="text-xl font-bold">{t("app.name")}</h2>
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher compact />
+            <NotificationBell />
+          </div>
         </div>
         
         <DropdownMenu>
@@ -169,13 +182,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
               disabled={switchHouseholdMutation.isPending}
             >
               <span className="text-sm font-medium truncate">
-                {household?.householdName || "Haushalt wählen"}
+                {household?.householdName || t("household.select")}
               </span>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[280px]" align="start">
-            <DropdownMenuLabel>Haushalt wechseln</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {userHouseholds.map((h) => (
               <DropdownMenuItem
@@ -233,7 +246,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           }}
         >
           <UserCircle className="h-4 w-4" />
-          Profil
+          {t("auth.profile", "Profil")}
         </Button>
         <Button
           variant="outline"
@@ -241,7 +254,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />
-          Abmelden
+          {t("nav.logout")}
         </Button>
       </div>
     </div>
@@ -275,7 +288,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-64">
-              <DropdownMenuLabel>Haushalt wechseln</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {userHouseholds.map((h) => (
                 <DropdownMenuItem

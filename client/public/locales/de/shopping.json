@@ -1,0 +1,45 @@
+{
+  "title": "Einkauf",
+  "newList": "Neue Einkaufsliste",
+  "editList": "Liste bearbeiten",
+  "deleteList": "Liste löschen",
+  "newItem": "Neuer Artikel",
+  "addItem": "Artikel hinzufügen",
+  "noLists": "Keine Einkaufslisten",
+  "noListsHint": "Erstelle deine erste Einkaufsliste.",
+  "noItems": "Keine Artikel in dieser Liste",
+  "fields": {
+    "name": "Name",
+    "quantity": "Menge",
+    "unit": "Einheit",
+    "category": "Kategorie",
+    "store": "Geschäft",
+    "price": "Preis",
+    "notes": "Notizen",
+    "assignedTo": "Zugewiesen an",
+    "dueDate": "Bis wann"
+  },
+  "status": {
+    "open": "Offen",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert"
+  },
+  "actions": {
+    "markBought": "Als gekauft markieren",
+    "markNotBought": "Als nicht gekauft markieren",
+    "completeList": "Liste abschließen",
+    "shareList": "Liste teilen"
+  },
+  "messages": {
+    "listCreated": "Einkaufsliste erstellt",
+    "listUpdated": "Einkaufsliste aktualisiert",
+    "listDeleted": "Einkaufsliste gelöscht",
+    "listCompleted": "Einkaufsliste abgeschlossen",
+    "itemAdded": "Artikel hinzugefügt",
+    "itemUpdated": "Artikel aktualisiert",
+    "itemDeleted": "Artikel gelöscht",
+    "itemBought": "Artikel als gekauft markiert",
+    "deleteConfirm": "Möchtest du diese Liste wirklich löschen?"
+  }
+}

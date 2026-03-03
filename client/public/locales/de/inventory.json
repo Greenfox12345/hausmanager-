@@ -1,0 +1,79 @@
+{
+  "title": "Inventar",
+  "newItem": "Neuer Gegenstand",
+  "editItem": "Gegenstand bearbeiten",
+  "deleteItem": "Gegenstand löschen",
+  "itemDetails": "Gegenstandsdetails",
+  "noItems": "Keine Gegenstände vorhanden",
+  "noItemsHint": "Füge deinen ersten Gegenstand zum Inventar hinzu.",
+  "fields": {
+    "name": "Name",
+    "description": "Beschreibung",
+    "category": "Kategorie",
+    "location": "Standort",
+    "quantity": "Menge",
+    "unit": "Einheit",
+    "purchaseDate": "Kaufdatum",
+    "purchasePrice": "Kaufpreis",
+    "condition": "Zustand",
+    "serialNumber": "Seriennummer",
+    "notes": "Notizen",
+    "photos": "Fotos",
+    "borrowable": "Ausleihbar",
+    "owner": "Eigentümer"
+  },
+  "condition": {
+    "new": "Neu",
+    "good": "Gut",
+    "fair": "Akzeptabel",
+    "poor": "Schlecht",
+    "broken": "Defekt"
+  },
+  "categories": {
+    "title": "Kategorien",
+    "newCategory": "Neue Kategorie",
+    "editCategory": "Kategorie bearbeiten",
+    "deleteCategory": "Kategorie löschen",
+    "noCategories": "Keine Kategorien",
+    "uncategorized": "Ohne Kategorie"
+  },
+  "borrow": {
+    "title": "Ausleihe",
+    "request": "Ausleihe anfragen",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "return": "Zurückgeben",
+    "revoke": "Genehmigung widerrufen",
+    "borrowedBy": "Ausgeliehen von",
+    "borrowedUntil": "Ausgeliehen bis",
+    "borrowStart": "Ausleih-Start",
+    "borrowEnd": "Ausleih-Ende",
+    "requestMessage": "Nachricht",
+    "responseMessage": "Antwort",
+    "guidelines": "Ausleihrichtlinien",
+    "status": {
+      "available": "Verfügbar",
+      "borrowed": "Ausgeliehen",
+      "pending": "Angefragt",
+      "returned": "Zurückgegeben",
+      "overdue": "Überfällig"
+    }
+  },
+  "filter": {
+    "all": "Alle Gegenstände",
+    "byCategory": "Nach Kategorie",
+    "byCondition": "Nach Zustand",
+    "borrowable": "Ausleihbar",
+    "borrowed": "Ausgeliehen",
+    "available": "Verfügbar"
+  },
+  "messages": {
+    "created": "Gegenstand hinzugefügt",
+    "updated": "Gegenstand aktualisiert",
+    "deleted": "Gegenstand gelöscht",
+    "createError": "Fehler beim Hinzufügen",
+    "updateError": "Fehler beim Aktualisieren",
+    "deleteError": "Fehler beim Löschen",
+    "deleteConfirm": "Möchtest du diesen Gegenstand wirklich löschen?"
+  }
+}

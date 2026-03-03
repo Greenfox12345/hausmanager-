@@ -1,0 +1,50 @@
+{
+  "title": "Haushalt",
+  "selection": {
+    "title": "Haushalt auswählen",
+    "subtitle": "Wähle einen Haushalt aus oder erstelle einen neuen",
+    "noHouseholds": "Noch kein Haushalt",
+    "noHouseholdsHint": "Erstelle einen neuen Haushalt oder tritt einem bestehenden bei.",
+    "createNew": "Neuen Haushalt erstellen",
+    "joinExisting": "Bestehendem Haushalt beitreten"
+  },
+  "create": {
+    "title": "Haushalt erstellen",
+    "namePlaceholder": "z.B. Familie Müller",
+    "addressPlaceholder": "Adresse (optional)",
+    "submit": "Haushalt erstellen",
+    "success": "Haushalt erstellt",
+    "error": "Fehler beim Erstellen des Haushalts"
+  },
+  "join": {
+    "title": "Haushalt beitreten",
+    "codePlaceholder": "Einladungscode eingeben",
+    "submit": "Beitreten",
+    "success": "Erfolgreich beigetreten",
+    "invalidCode": "Ungültiger oder abgelaufener Einladungscode",
+    "error": "Fehler beim Beitreten"
+  },
+  "settings": {
+    "title": "Haushaltseinstellungen",
+    "general": "Allgemein",
+    "name": "Haushaltsname",
+    "address": "Adresse",
+    "language": "Haushaltssprache",
+    "languageHint": "Diese Sprache wird für Verlaufseinträge und Benachrichtigungen verwendet, die alle Mitglieder sehen.",
+    "save": "Einstellungen speichern",
+    "saved": "Einstellungen gespeichert",
+    "danger": "Gefahrenzone",
+    "leave": "Haushalt verlassen",
+    "leaveConfirm": "Möchtest du diesen Haushalt wirklich verlassen?",
+    "delete": "Haushalt löschen",
+    "deleteConfirm": "Möchtest du diesen Haushalt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteWarning": "Alle Daten werden unwiderruflich gelöscht."
+  },
+  "neighborhood": {
+    "title": "Nachbarschaft",
+    "subtitle": "Verbinde dich mit Nachbarn und tausche Gegenstände aus",
+    "noNeighbors": "Noch keine Nachbarn verbunden",
+    "addNeighbor": "Nachbarn hinzufügen",
+    "borrowFromNeighbor": "Von Nachbarn ausleihen"
+  }
+}

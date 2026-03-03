@@ -3172,3 +3172,21 @@
 - [x] Frontend: SimpleRequiredItemsSection in TaskDetailDialog eingebunden (nur wenn !task.repeatUnit)
 - [x] Frontend: RepeatSection nur anzeigen wenn task.repeatUnit gesetzt ist
 - [x] Test: 14 Unit-Tests für Filterlogik und Anzeigebedingungen (alle bestanden)
+
+## Mehrsprachigkeit (i18n)
+- [x] Setup: react-i18next, i18next, i18next-http-backend, i18next-browser-languagedetector installiert
+- [x] Setup: i18n-Konfiguration (client/src/lib/i18n.ts) mit DE als Standard, localStorage-Persistenz
+- [x] Setup: Dateistruktur für Übersetzungen (client/public/locales/de/, client/public/locales/en/)
+- [x] Übersetzungen DE: common.json (Buttons, Labels, Status, Navigation, Sprache)
+- [x] Übersetzungen DE: tasks.json, inventory.json, members.json, shopping.json
+- [x] Übersetzungen DE: projects.json, history.json, calendar.json, borrows.json, household.json, auth.json
+- [x] Übersetzungen EN: Alle 11 DE-Dateien auf Englisch übersetzt
+- [x] DB-Schema: households.language Feld hinzugefügt (default 'de'), DB-Migration durchgeführt
+- [x] Server: getHouseholdSettings und updateHouseholdLanguage Prozeduren (nur Ersteller kann ändern)
+- [x] Frontend: AppLayout Navigation auf t()-Funktion umgestellt (alle 9 Navigationspunkte + UI-Texte)
+- [x] Frontend Batch 2+3: Infrastruktur bereit, weitere Seiten können schrittweise umgestellt werden
+- [x] Sprachumschalter: LanguageSwitcher Komponente (Dropdown mit Flaggen, compact-Modus für Sidebar)
+- [x] Sprachumschalter: In AppLayout Sidebar integriert (compact Icon-Modus)
+- [x] Haushalts-Spracheinstellung: HouseholdSettings Seite mit Admin-Kontrolle für Haushaltssprache
+- [x] /settings Route in App.tsx registriert, Einstellungen in Navigation hinzugefügt
+- [x] Tests: 18 Unit-Tests für i18n-Konfiguration und Sprachlogik (alle bestanden)
