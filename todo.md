@@ -3203,5 +3203,12 @@
 - [x] Borrows.tsx: alle Strings übersetzt
 - [x] Neighborhood.tsx: übersetzt (parallel)
 - [x] projects.json DE+EN: Fehlende Schlüssel ergänzt (actions, validation, messages)
-- [ ] TaskDetailDialog.tsx auf t()-Funktion umstellen (große Datei, nächster Schritt)
-- [ ] Weitere Dialoge und Komponenten übersetzen
+- [x] TaskDetailDialog.tsx: vollständig auf t()-Funktion umgestellt
+- [ ] Weitere Dialoge und Komponenten übersetzen (z.B. SimpleRequiredItemsSection, NotificationBell)
+
+## i18n: TaskDetailDialog übersetzen
+- [x] Alle deutschen Strings analysiert und kategorisiert (Toast, Labels, Buttons, Formular)
+- [x] Übersetzungsschlüssel in tasks.json DE+EN ergänzt (dialog.*, repeat.*, messages.*)
+- [x] Toast-Nachrichten und Logik-Strings ersetzt (handleSave, handleComplete, handleDelete, etc.)
+- [x] JSX-Labels, Buttons und Formular-Texte ersetzt (Aufgabenname, Wiederholungsmodus, Termine, Rotation, Verlauf)
+- [x] TypeScript: 0 Fehler, LSP: 0 Fehler

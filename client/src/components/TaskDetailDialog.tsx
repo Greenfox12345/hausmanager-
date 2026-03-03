@@ -28,6 +28,7 @@ import { RequiredItemsSection } from "./RequiredItemsSection";
 import { SimpleRequiredItemsSection } from "./SimpleRequiredItemsSection";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: number;
@@ -80,6 +81,7 @@ interface TaskDetailDialogProps {
 
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask, taskList, currentTaskIndex, onNavigatePrevious, onNavigateNext }: TaskDetailDialogProps) {
   const [, setLocation] = useLocation();
+  const { t } = useTranslation(["tasks", "common"]);
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
@@ -573,7 +575,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // All coordination happens in handleSave
     },
     onError: (error) => {
-      toast.error(`Fehler: ${error.message}`);
+      toast.error(t("messages.genericError", { message: error.message }));
     },
   });
   
@@ -597,7 +599,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Restore task mutation
   const restoreTask = trpc.tasks.toggleComplete.useMutation({
     onSuccess: () => {
-      toast.success("Aufgabe wiederhergestellt");
+      toast.success(t("messages.restored"));
       utils.tasks.list.invalidate();
       utils.activities.getByTaskId.invalidate();
       if (onTaskUpdated && task) {
@@ -605,14 +607,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
     },
     onError: () => {
-      toast.error("Fehler beim Wiederherstellen der Aufgabe");
+      toast.error(t("messages.restoreError"));
     },
   });
   
   // Restore skipped date mutation
   const restoreSkippedDateMutation = trpc.tasks.restoreSkippedDate.useMutation({
     onSuccess: () => {
-      toast.success("Ausgelassener Termin wiederhergestellt");
+      toast.success(t("messages.occurrenceRestored"));
       utils.tasks.list.invalidate();
       if (onTaskUpdated && task) {
         // Refresh the task to show updated skippedDates
@@ -620,7 +622,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
     },
     onError: () => {
-      toast.error("Fehler beim Wiederherstellen des Termins");
+      toast.error(t("messages.occurrenceRestoreError"));
     },
   });
 
@@ -628,7 +630,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     if (!household || !task) return;
     
     if (selectedAssignees.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      toast.error(t("messages.assigneeRequired"));
       return;
     }
 
@@ -787,9 +789,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       // Step 6: Update UI state
       setIsEditing(false);
-      toast.success("Aufgabe aktualisiert");
+      toast.success(t("messages.updated"));
     } catch (error: any) {
-      toast.error(error.message || "Fehler beim Aktualisieren der Aufgabe");
+      toast.error(error.message || t("messages.updateError"));
     }
   };
 
@@ -892,8 +894,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const assignedMemberIds = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? (typeof task.assignedTo === 'string' ? (() => { try { const p = JSON.parse(task.assignedTo as any); return Array.isArray(p) ? p : [p]; } catch { return []; } })() : [task.assignedTo as any]) : []);
   const assignedMemberNames = assignedMemberIds.map((id: number) => {
     const member = ownMembers.find(m => m.id === id) || members.find(m => m.memberId === id);
-    return member?.memberName || "Unbekannt";
-  }).join(", ") || "Nicht zugewiesen";
+    return member?.memberName || t("dialog.unknown");
+  }).join(", ") || t("dialog.unassigned");
 
   return (
     <>
@@ -927,7 +929,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </Button>
                 </div>
               )}
-              <span>{isEditing ? "Aufgabe bearbeiten" : "Aufgabendetails"}</span>
+              <span>{isEditing ? t("dialog.editTitle") : t("dialog.viewTitle")}</span>
             </div>
             {!isEditing && (
               <Button
@@ -937,7 +939,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 className="gap-2"
               >
                 <Edit className="h-4 w-4" />
-                Bearbeiten
+                {t("common:actions.edit")}
               </Button>
             )}
           </DialogTitle>
@@ -948,28 +950,28 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             // Edit Mode
             <>
               <div className="space-y-2">
-                <Label htmlFor="task-name">Aufgabenname *</Label>
+                <Label htmlFor="task-name">{t("dialog.taskName")} *</Label>
                 <Input
                   id="task-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="z.B. Müll rausbringen"
+                  placeholder={t("dialog.namePlaceholder")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task-description">Beschreibung</Label>
+                <Label htmlFor="task-description">{t("dialog.description")}</Label>
                 <Textarea
                   id="task-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Zusätzliche Details zur Aufgabe..."
+                  placeholder={t("dialog.descriptionPlaceholder")}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Verantwortliche *</Label>
+                <Label>{t("dialog.assignees")} *</Label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                   {/* Own household members */}
                   {ownMembers.map((m) => (
@@ -1016,7 +1018,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   }
                 </div>
                 {selectedAssignees.length === 0 && (
-                  <p className="text-xs text-destructive">Bitte wählen Sie mindestens einen Verantwortlichen</p>
+                  <p className="text-xs text-destructive">{t("messages.assigneeRequired")}</p>
                 )}
               </div>
 
@@ -1063,10 +1065,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {enableSharing && (
                   <>
                     <div className="space-y-2">
-                      <Label className="text-sm">Haushalte auswählen</Label>
+                      <Label className="text-sm">{t("dialog.selectHouseholds")}</Label>
                       <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                         {connectedHouseholds.length === 0 ? (
-                          <p className="text-xs text-muted-foreground">Keine verbundenen Haushalte</p>
+                          <p className="text-xs text-muted-foreground">{t("dialog.noConnectedHouseholds")}</p>
                         ) : (
                           connectedHouseholds.map((h: any) => (
                             <div key={h.id} className="flex items-center space-x-2 p-2 rounded border hover:bg-muted/50 transition-colors">
@@ -1099,13 +1101,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="full">Vollzugriff (alles bearbeiten)</SelectItem>
-                            <SelectItem value="milestones_reminders">Zwischenziele & Erinnerungen</SelectItem>
-                            <SelectItem value="view_only">Nur ansehen</SelectItem>
+                            <SelectItem value="full">{t("dialog.fullAccess")}</SelectItem>
+                            <SelectItem value="milestones_reminders">{t("dialog.milestonesReminders")}</SelectItem>
+                            <SelectItem value="view_only">{t("dialog.viewOnly")}</SelectItem>
                           </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
-                          Legt fest, was Mitglieder aus verbundenen Haushalten ändern dürfen.
+                          {t("dialog.permissionHint")}
                         </p>
                       </div>
                     )}
@@ -1115,7 +1117,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-due-date">{repeatMode !== "none" ? "Erster Termin" : "Fälligkeitsdatum"}</Label>
+                  <Label htmlFor="task-due-date">{repeatMode !== "none" ? t("dialog.firstOccurrence") : t("dialog.dueDate")}</Label>
                   <Input
                     id="task-due-date"
                     type="date"
@@ -1124,7 +1126,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="task-due-time">Uhrzeit</Label>
+                  <Label htmlFor="task-due-time">{t("dialog.time")}</Label>
                   <Input
                     id="task-due-time"
                     type="time"
@@ -1137,7 +1139,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               {/* Duration fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-duration-time">Dauer (Stunden:Minuten)</Label>
+                  <Label htmlFor="task-duration-time">{t("dialog.durationHours")}</Label>
                   <Input
                     id="task-duration-time"
                     type="time"
@@ -1147,7 +1149,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="task-duration-days">Dauer (Tage)</Label>
+                  <Label htmlFor="task-duration-days">{t("dialog.durationDays")}</Label>
                   <Input
                     id="task-duration-days"
                     type="number"
@@ -1186,7 +1188,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 <div className="space-y-2">
                   <Label htmlFor="repeatMode" className="flex items-center gap-2">
                     <Repeat className="h-4 w-4" />
-                    Wiederholungsmodus
+                    {t("repeat.repeatMode")}
                   </Label>
                   <Select value={repeatMode} onValueChange={(v) => {
                     setRepeatMode(v as any);
@@ -1200,9 +1202,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Ohne Wiederholung</SelectItem>
-                      <SelectItem value="irregular">Unregelmäßig wiederholen</SelectItem>
-                      <SelectItem value="regular">Regelmäßig wiederholen</SelectItem>
+                      <SelectItem value="none">{t("repeat.noRepeat")}</SelectItem>
+                      <SelectItem value="irregular">{t("repeat.irregularMode")}</SelectItem>
+                      <SelectItem value="regular">{t("repeat.regularMode")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1211,13 +1213,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                     {repeatMode === "irregular" && (
                       <p className="text-sm text-muted-foreground">
-                        Bei unregelmäßiger Wiederholung werden Termine als "Termin 1", "Termin 2" usw. angezeigt.
+                        {t("repeat.irregularHint")}
                       </p>
                     )}
                     
                     {repeatMode === "regular" && (
                       <div className="space-y-2">
-                        <Label>Wiederholungsintervall</Label>
+                        <Label>{t("repeat.intervalLabel")}</Label>
                         <div className="flex gap-2">
                           <Input
                             type="number"
@@ -1231,9 +1233,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="days">Tage(n)</SelectItem>
-                              <SelectItem value="weeks">Woche(n)</SelectItem>
-                              <SelectItem value="months">Monat(e)</SelectItem>
+                              <SelectItem value="days">{t("repeat.daysN")}</SelectItem>
+                              <SelectItem value="weeks">{t("repeat.weeksN")}</SelectItem>
+                              <SelectItem value="months">{t("repeat.monthsN")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1243,14 +1245,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     {/* Monthly recurrence mode - only shown when repeatUnit is months and mode is regular */}
                     {repeatMode === "regular" && repeatUnit === "months" && (
                       <div className="space-y-2 pl-6 border-l-2 border-muted">
-                        <Label>Monatliche Wiederholung</Label>
+                        <Label>{t("repeat.monthlyRepeat")}</Label>
                         <Select value={monthlyRecurrenceMode} onValueChange={(v) => setMonthlyRecurrenceMode(v as any)}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="same_date">Am gleichen Tag (z.B. jeden 15.)</SelectItem>
-                            <SelectItem value="same_weekday">Fester Wochentag</SelectItem>
+                            <SelectItem value="same_date">{t("repeat.sameDate")}</SelectItem>
+                            <SelectItem value="same_weekday">{t("repeat.sameWeekday")}</SelectItem>
                           </SelectContent>
                         </Select>
                         
@@ -1258,35 +1260,35 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         {monthlyRecurrenceMode === "same_weekday" && (
                           <div className="space-y-3 mt-3 pl-4 border-l-2 border-muted">
                             <div className="space-y-2">
-                              <Label>Welcher im Monat</Label>
+                              <Label>{t("repeat.whichInMonth")}</Label>
                               <Select value={monthlyOccurrence.toString()} onValueChange={(v) => setMonthlyOccurrence(parseInt(v))}>
                                 <SelectTrigger>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="1">1. (erster)</SelectItem>
-                                  <SelectItem value="2">2. (zweiter)</SelectItem>
-                                  <SelectItem value="3">3. (dritter)</SelectItem>
-                                  <SelectItem value="4">4. (vierter)</SelectItem>
-                                  <SelectItem value="5">Letzter</SelectItem>
+                                  <SelectItem value="1">{t("repeat.first")}</SelectItem>
+                                  <SelectItem value="2">{t("repeat.second")}</SelectItem>
+                                  <SelectItem value="3">{t("repeat.third")}</SelectItem>
+                                  <SelectItem value="4">{t("repeat.fourth")}</SelectItem>
+                                  <SelectItem value="5">{t("weekdays.last")}</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                             
                             <div className="space-y-2">
-                              <Label>Wochentag</Label>
+                              <Label>{t("weekdays.weekday")}</Label>
                               <Select value={monthlyWeekday.toString()} onValueChange={(v) => setMonthlyWeekday(parseInt(v))}>
                                 <SelectTrigger>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="1">Montag</SelectItem>
-                                  <SelectItem value="2">Dienstag</SelectItem>
-                                  <SelectItem value="3">Mittwoch</SelectItem>
-                                  <SelectItem value="4">Donnerstag</SelectItem>
-                                  <SelectItem value="5">Freitag</SelectItem>
-                                  <SelectItem value="6">Samstag</SelectItem>
-                                  <SelectItem value="0">Sonntag</SelectItem>
+                                  <SelectItem value="1">{t("weekdays.monday")}</SelectItem>
+                                  <SelectItem value="2">{t("weekdays.tuesday")}</SelectItem>
+                                  <SelectItem value="3">{t("weekdays.wednesday")}</SelectItem>
+                                  <SelectItem value="4">{t("weekdays.thursday")}</SelectItem>
+                                  <SelectItem value="5">{t("weekdays.friday")}</SelectItem>
+                                  <SelectItem value="6">{t("weekdays.saturday")}</SelectItem>
+                                  <SelectItem value="0">{t("weekdays.sunday")}</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -1305,9 +1307,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           >
                             <ChevronDown className={`h-4 w-4 transition-transform ${isTerminePlanenExpanded ? 'rotate-0' : '-rotate-90'}`} />
                             <div className="space-y-1">
-                              <Label className="text-sm font-medium cursor-pointer">Termine Planen</Label>
+                              <Label className="text-sm font-medium cursor-pointer">{t("repeat.planAppointments")}</Label>
                               <p className="text-xs text-muted-foreground">
-                                Fügen Sie Notizen für spezifische Termine hinzu
+                                {t("repeat.planAppointmentsHint")}
                               </p>
                             </div>
                           </button>
@@ -1335,9 +1337,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <table className="w-full">
                             <thead className="bg-muted">
                               <tr>
-                                <th className="p-2 text-left text-sm font-medium w-32">Datum</th>
-                                <th className="p-2 text-left text-sm font-medium">Notizen</th>
-                                <th className="p-2 text-center text-sm font-medium w-40">Aktionen</th>
+                                <th className="p-2 text-left text-sm font-medium w-32">{t("dialog.date")}</th>
+                                <th className="p-2 text-left text-sm font-medium">{t("dialog.notes")}</th>
+                                <th className="p-2 text-center text-sm font-medium w-40">{t("dialog.actionsCol")}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1363,7 +1365,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                 );
                                               }}
                                               className="h-7 text-sm text-yellow-700 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1"
-                                              placeholder="Sondertermin-Name"
+                                              placeholder={t("dialog.specialOccurrenceName")}
                                             />
                                             <Button
                                               type="button"
@@ -1371,7 +1373,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                               size="icon"
                                               className="h-7 w-7 shrink-0"
                                               onClick={() => {
-                                                if (confirm("Möchten Sie diesen Sondertermin wirklich zurücksetzen? Er wird zu einem regulären Termin.")) {
+                                                if (confirm(t("dialog.specialOccurrenceReset"))) {
                                                   handleRotationScheduleChange(
                                                     rotationSchedule.map(o =>
                                                       o.occurrenceNumber === occ.occurrenceNumber
@@ -1381,7 +1383,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                   );
                                                 }
                                               }}
-                                              title="Sondertermin zurücksetzen"
+                                              title={t("dialog.specialOccurrenceResetTitle")}
                                             >
                                               <RotateCcw className="h-3.5 w-3.5" />
                                             </Button>
@@ -1410,7 +1412,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                 <Calendar className="h-3 w-3 mr-1" />
                                                 {occ.specialDate 
                                                   ? format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })
-                                                  : "Datum eingeben"
+                                                  : t("dialog.enterDate")
                                                 }
                                               </Button>
                                             </PopoverTrigger>
@@ -1445,7 +1447,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     </td>
                                     <td className="p-2">
                                       <Textarea
-                                        placeholder="Notiz hinzufügen..."
+                                        placeholder={t("dialog.addNote")}
                                         value={occ.notes || ""}
                                         onChange={(e) => {
                                           handleRotationScheduleChange(
@@ -1495,7 +1497,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                               );
                                             }
                                           }}
-                                          title={occ.isSkipped ? "Überspringen rückgängig machen" : "Überspringen"}
+                                          title={occ.isSkipped ? t("dialog.skipUndo") : t("dialog.skip")}
                                           className={`h-7 w-7 p-0 ${occ.isSkipped ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
                                         >
                                           <SkipForward className="h-3.5 w-3.5" />
@@ -1509,7 +1511,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                             const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
                                             handleRotationScheduleChange(renumbered);
                                           }}
-                                          title="Löschen"
+                                          title={t("dialog.delete")}
                                           className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                                         >
                                           <Trash2 className="h-3.5 w-3.5" />
@@ -1543,7 +1545,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           className="w-full gap-2"
                         >
                           <Plus className="h-4 w-4" />
-                          Termin hinzufügen
+                          {t("repeat.addAppointment")}
                         </Button>
                         </>)}
                       </div>
@@ -1563,7 +1565,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       />
                       <Label htmlFor="enableRotation" className="cursor-pointer flex items-center gap-2">
                         <Users className="h-4 w-4" />
-                        Verantwortung rotieren
+                        {t("repeat.rotateResponsibility")}
                       </Label>
                     </div>
 
@@ -1582,9 +1584,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         </div>
                         
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Freistellen</Label>
+                          <Label className="text-sm font-medium">{t("repeat.exempt")}</Label>
                           <p className="text-xs text-muted-foreground mb-2">
-                            Mitglieder, die von der Rotation ausgeschlossen werden
+                            {t("repeat.exemptHint")}
                           </p>
                           <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
                             {ownMembers.map((m) => (
@@ -1617,12 +1619,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity"
                             >
                               <ChevronDown className={`h-4 w-4 transition-transform ${isRotationPlanExpanded ? 'rotate-0' : '-rotate-90'}`} />
-                              <Label className="text-sm font-medium cursor-pointer">Rotationsplan</Label>
+                              <Label className="text-sm font-medium cursor-pointer">{t("repeat.rotationPlan")}</Label>
                             </button>
                             {isRotationPlanExpanded && (
                               <div className="space-y-3">
                                 <p className="text-xs text-muted-foreground">
-                                  Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist
+                                  {t("repeat.planRotationHint")}
                                 </p>
                                 <RotationScheduleTable
                             taskId={task?.id}
@@ -1665,7 +1667,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             className="w-full gap-2 mt-3"
                           >
                             <Plus className="h-4 w-4" />
-                            Termin hinzufügen
+                            {t("repeat.addAppointment")}
                           </Button>
                               </div>
                             )}
@@ -1674,7 +1676,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <div className="space-y-2 border-t pt-4 mt-4">
                             <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
                               <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                              <p>Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar</p>
+                              <p>{t("repeat.rotationAvailableAfterCreate")}</p>
                             </div>
                           </div>
                         )}
@@ -1709,7 +1711,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             }}
                           >
                             <RotateCcw className="h-3 w-3 mr-1" />
-                            Wiederherstellen
+                            {t("common:actions.restore")}
                           </Button>
                         </div>
                       ))}
@@ -1727,18 +1729,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     onCheckedChange={(checked) => setIsProjectTask(checked as boolean)}
                   />
                   <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
-                    Aufgabenverknüpfung
+                    {t("dialog.taskLinks")}
                   </Label>
                 </div>
 
                 {isProjectTask && (
                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                     <div className="space-y-2">
-                      <Label>Projekte wählen (Mehrfachauswahl möglich)</Label>
+                      <Label>{t("dialog.selectProjects")}</Label>
                       <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
                         {projects.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">
-                            Keine Projekte verfügbar
+                            {t("dialog.noProjects")}
                           </p>
                         ) : (
                           projects.map((project: any) => (
@@ -1768,17 +1770,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
                     {/* Prerequisites and Follow-ups */}
                     <div className="space-y-3">
-                      <Label className="text-base font-semibold">Aufgabenverknüpfung</Label>
+                      <Label className="text-base font-semibold">{t("dialog.taskLinks")}</Label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Prerequisites */}
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Voraussetzungen</Label>
+                          <Label className="text-sm font-medium">{t("dialog.prerequisites")}</Label>
                           <p className="text-xs text-muted-foreground mb-2">
-                            Aufgaben, die vorher erledigt sein müssen
+                            {t("dialog.prerequisitesHint")}
                           </p>
                           <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
                             {availableTasks.length === 0 ? (
-                              <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                              <p className="text-xs text-muted-foreground p-2">{t("dialog.noTasksAvailable")}</p>
                             ) : (
                               availableTasks.map((availableTask: any) => (
                                 <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
@@ -1804,13 +1806,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
                         {/* Follow-ups */}
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Folgeaufgaben</Label>
+                          <Label className="text-sm font-medium">{t("dialog.followUpTasks")}</Label>
                           <p className="text-xs text-muted-foreground mb-2">
-                            Aufgaben, die danach folgen
+                            {t("dialog.followUpHint")}
                           </p>
                           <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
                             {availableTasks.length === 0 ? (
-                              <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                              <p className="text-xs text-muted-foreground p-2">{t("dialog.noTasksAvailable")}</p>
                             ) : (
                               availableTasks.map((availableTask: any) => (
                                 <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
@@ -1843,10 +1845,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             // View Mode with Tabs
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="details">{t("dialog.tabDetails")}</TabsTrigger>
                 <TabsTrigger value="history">
                   <HistoryIcon className="h-4 w-4 mr-2" />
-                  Verlauf ({taskHistory.length})
+                  {t("dialog.tabHistory")} ({taskHistory.length})
                 </TabsTrigger>
               </TabsList>
               
@@ -1862,7 +1864,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <span className="text-muted-foreground">Verantwortlich:</span>{" "}
+                      <span className="text-muted-foreground">{t("dialog.responsible")}:</span>{" "}
                       <strong>{assignedMemberNames}</strong>
                     </span>
                   </div>
@@ -1873,7 +1875,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
                       <span className="text-muted-foreground">
-                        {(task.enableRepeat || task.repeatUnit) ? "Nächster Termin:" : "Fällig:"}
+                        {(task.enableRepeat || task.repeatUnit) ? t("dialog.nextOccurrence") : t("dialog.dueLabel")}
                       </span>{" "}
                       <strong>
                         {format(new Date(task.dueDate), "PPP 'um' HH:mm 'Uhr'", { locale: de })}
@@ -1905,11 +1907,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="flex items-center gap-2">
                     <Repeat className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <span className="text-muted-foreground">Wiederholung:</span>{" "}
+                      <span className="text-muted-foreground">{t("dialog.repeatLabel")}:</span>{" "}
                       <strong>
                         {task.repeatUnit === "irregular" 
-                          ? "Unregelmäßig" 
-                          : `Alle ${task.repeatInterval} ${task.repeatUnit === "days" ? "Tage" : task.repeatUnit === "weeks" ? "Wochen" : "Monate"}`}
+                          ? t("repeat.irregular") 
+                          : t("repeat.every", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("repeat.days") : task.repeatUnit === "weeks" ? t("repeat.weeks") : t("repeat.months") })}
                       </strong>
                     </span>
                   </div>
@@ -1926,7 +1928,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <ChevronDown className={`h-4 w-4 transition-transform ${isUpcomingTermineExpanded ? 'rotate-0' : '-rotate-90'}`} />
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <Calendar className="h-4 w-4" />
-                        Kommende Termine
+                        {t("dialog.upcomingOccurrences")}
                       </div>
                     </button>
                     {isUpcomingTermineExpanded && (
@@ -2060,7 +2062,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
                              {task.projectIds && task.projectIds.length > 0 && (
                   <div className="space-y-2">
-                    <Badge variant="outline">Projektaufgabe</Badge>
+                    <Badge variant="outline">{t("dialog.projectTask")}</Badge>
                     <div className="flex flex-wrap gap-2">
                       {task.projectIds.map(projectId => {
                         const project = projects.find(p => p.id === projectId);
@@ -2097,12 +2099,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <div className="text-xs text-muted-foreground space-y-1">
                       {task.createdBy && (
                         <div>
-                          Erstellt von: <strong>{ownMembers.find(m => m.id === task.createdBy)?.memberName || members.find(m => m.memberId === task.createdBy)?.memberName || "Unbekannt"}</strong>
+                          {t("dialog.createdBy")}: <strong>{ownMembers.find(m => m.id === task.createdBy)?.memberName || members.find(m => m.memberId === task.createdBy)?.memberName || t("dialog.unknown")}</strong>
                         </div>
                       )}
                       {task.createdAt && (
                         <div>
-                          Erstellt am: <strong>{format(new Date(task.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}</strong>
+                          {t("dialog.createdAt")}: <strong>{format(new Date(task.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}</strong>
                         </div>
                       )}
                     </div>
@@ -2163,11 +2165,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Dependencies */}
                 {taskDependencies && (taskDependencies.prerequisites.length > 0 || taskDependencies.followups.length > 0) && (
                   <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-3">Aufgabenverknüpfungen</h4>
+                    <h4 className="text-sm font-semibold mb-3">{t("dialog.taskLinks")}</h4>
                     
                     {taskDependencies.prerequisites.length > 0 && (
                       <div className="mb-3">
-                        <Label className="text-xs text-muted-foreground">Voraussetzungen</Label>
+                        <Label className="text-xs text-muted-foreground">{t("dialog.prerequisites")}</Label>
                         <div className="space-y-1 mt-1">
                           {taskDependencies.prerequisites.map((prereq: any) => (
                             <Button
@@ -2190,7 +2192,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     
                     {taskDependencies.followups.length > 0 && (
                       <div>
-                        <Label className="text-xs text-muted-foreground">Folgeaufgaben</Label>
+                        <Label className="text-xs text-muted-foreground">{t("dialog.followUpTasks")}</Label>
                         <div className="space-y-1 mt-1">
                           {taskDependencies.followups.map((followup: any) => (
                             <Button
@@ -2216,7 +2218,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Action Buttons */}
                 {!isEditing && (
                   <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-3">Aktionen</h4>
+                    <h4 className="text-sm font-semibold mb-3">{t("dialog.actionsSection")}</h4>
                     <div className="grid grid-cols-2 gap-2">
                       {task.isCompleted || task.completed ? (
                         <Button
@@ -2244,7 +2246,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onClick={() => setShowCompleteDialog(true)}
                           >
                             <CheckCircle2 className="h-4 w-4 mr-2" />
-                            {(task.enableRepeat || task.repeatUnit) ? "Termin abschließen" : "Abschließen"}
+                            {(task.enableRepeat || task.repeatUnit) ? t("dialog.completeOccurrence") : t("common:actions.complete")}
                           </Button>
                           <Button
                             variant="outline"
@@ -2252,7 +2254,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onClick={() => setShowMilestoneDialog(true)}
                           >
                             <Target className="h-4 w-4 mr-2" />
-                            Zwischenziel
+                            {t("dialog.milestone")}
                           </Button>
                           <Button
                             variant="outline"
@@ -2260,7 +2262,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onClick={() => setShowReminderDialog(true)}
                           >
                             <Bell className="h-4 w-4 mr-2" />
-                            Erinnerung senden
+                            {t("dialog.sendReminder")}
                           </Button>
                         </>
                       )}
@@ -2273,7 +2275,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {taskHistory.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <HistoryIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Noch keine Aktivitäten für diese Aufgabe</p>
+                    <p>{t("dialog.noHistory")}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -2354,11 +2356,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             <>
               <Button variant="outline" onClick={handleCancel}>
                 <X className="h-4 w-4 mr-2" />
-                Abbrechen
+                {t("common:actions.cancel")}
               </Button>
               <Button onClick={handleSave} disabled={!name || updateTask.isPending}>
                 <Check className="h-4 w-4 mr-2" />
-                Speichern
+                {t("common:actions.save")}
               </Button>
             </>
           ) : (
@@ -2413,16 +2415,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 if (updatedTask && onTaskUpdated) {
                   onTaskUpdated(updatedTask);
                 }
-                toast.success("Termin abgeschlossen – nächster Termin eingestellt");
+                toast.success(t("messages.completedRecurring"));
               } else {
                 if (onTaskUpdated) {
                   onTaskUpdated({ ...task, isCompleted: true, completed: true });
                 }
-                toast.success("Aufgabe abgeschlossen");
+                toast.success(t("messages.completed"));
               }
             } catch (error: any) {
               console.error('[TaskDetailDialog] completeTask error:', error);
-              toast.error(error.message || "Fehler beim Abschließen der Aufgabe");
+              toast.error(error.message || t("messages.completeError"));
             }
           }}
         />
@@ -2448,7 +2450,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             setShowMilestoneDialog(false);
             setActiveTab("history");
             utils.activities.getByTaskId.invalidate();
-            toast.success("Zwischenziel dokumentiert");
+            toast.success(t("messages.milestoneDocumented"));
           }}
         />
         
@@ -2474,7 +2476,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             setShowReminderDialog(false);
             setActiveTab("history");
             utils.activities.getByTaskId.invalidate();
-            toast.success("Erinnerung gesendet");
+            toast.success(t("messages.reminderSentShort"));
           }}
         />
       </>
@@ -2494,14 +2496,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             
             {selectedShoppingItem.details && (
               <div>
-                <Label className="text-muted-foreground">Details</Label>
+                <Label className="text-muted-foreground">{t("dialog.tabDetails")}</Label>
                 <p className="text-sm">{selectedShoppingItem.details}</p>
               </div>
             )}
             
             {selectedShoppingItem.photoUrls && selectedShoppingItem.photoUrls.length > 0 && (
               <div>
-                <Label className="text-muted-foreground">Fotos</Label>
+                <Label className="text-muted-foreground">{t("dialog.photos")}</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {(() => {
                     const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
