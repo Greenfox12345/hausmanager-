@@ -3212,3 +3212,8 @@
 - [x] Toast-Nachrichten und Logik-Strings ersetzt (handleSave, handleComplete, handleDelete, etc.)
 - [x] JSX-Labels, Buttons und Formular-Texte ersetzt (Aufgabenname, Wiederholungsmodus, Termine, Rotation, Verlauf)
 - [x] TypeScript: 0 Fehler, LSP: 0 Fehler
+
+## Bug: Inventar "Ausleihen" Button führt zu 404
+- [x] Fehlerursache: Inventory.tsx navigierte zu /borrows/new/{id} - Route existiert nicht in App.tsx
+- [x] Fix: Button navigiert jetzt zu /inventory/{id} (InventoryDetail hat BorrowRequestDialog bereits integriert)
+- [x] Testen: TypeScript 0 Fehler, Server läuft

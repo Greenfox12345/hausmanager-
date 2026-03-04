@@ -422,11 +422,11 @@ export default function Inventory() {
                     <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
                   )}
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" onClick={() => setLocation(`/borrows/new/${item.id}`)}>
+                    <Button size="sm" onClick={() => setLocation(`/inventory/${item.id}`)}>
                       {t('inventory:actions.borrow', 'Ausleihen')}
                     </Button>
                     {pendingCountMap.has(item.id) && (
-                      <Button size="sm" variant="outline" onClick={() => setLocation(`/borrows/requests/${item.id}`)}>
+                      <Button size="sm" variant="outline" onClick={() => setLocation(`/inventory/${item.id}`)}>
                         {pendingCountMap.get(item.id) || 0} {t('inventory:actions.requests', 'Anfragen')}
                       </Button>
                     )}
