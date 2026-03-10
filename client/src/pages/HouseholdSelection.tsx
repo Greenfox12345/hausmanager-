@@ -11,12 +11,15 @@ import { toast } from "sonner";
 import { Home, Plus, LogIn, Users, User, Settings } from "lucide-react";
 import { InviteCodeDialog } from "@/components/InviteCodeDialog";
 import { UserProfileDialog } from "@/components/UserProfileDialog";
+import { useTranslation } from "react-i18next";
+import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
   const { setCurrentHousehold, token, isAuthenticated } = useUserAuth();
+  const { t } = useTranslation(["auth", "common"]);
+  const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
-  
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [inviteCodeDialogOpen, setInviteCodeDialogOpen] = useState(false);
@@ -50,27 +53,26 @@ export default function HouseholdSelection() {
       refetchHouseholds();
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Erstellen des Haushalts");
+      toast.error(error.message || t("householdSelection.createError", "Fehler beim Erstellen des Haushalts"));
     },
   });
 
   // Join household mutation
   const joinHouseholdMutation = trpc.householdManagement.joinHousehold.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`Sie sind dem Haushalt "${data.household.name}" beigetreten.`);
+      toast.success(t("householdSelection.joinSuccess", "Sie sind dem Haushalt \"{{name}}\" beigetreten.", { name: data.household.name }));
       setJoinDialogOpen(false);
       setInviteCode("");
       refetchHouseholds();
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Beitreten");
+      toast.error(error.message || t("householdSelection.joinError", "Fehler beim Beitreten"));
     },
   });
 
   // Switch household mutation
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation({
     onSuccess: (data: any) => {
-      // Update context (also updates localStorage)
       setCurrentHousehold({
         householdId: data.householdId,
         householdName: data.householdName,
@@ -78,23 +80,19 @@ export default function HouseholdSelection() {
         memberName: data.memberName,
         inviteCode: data.inviteCode,
       });
-      
-      toast.success(`Willkommen im Haushalt "${data.householdName}"!`);
-      
-      // Redirect to home
+      toast.success(t("householdSelection.switchSuccess", "Willkommen im Haushalt \"{{name}}\"!", { name: data.householdName }));
       setLocation("/");
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Wechseln des Haushalts");
+      toast.error(error.message || t("householdSelection.switchError", "Fehler beim Wechseln des Haushalts"));
     },
   });
 
   const handleCreateHousehold = () => {
     if (!newHouseholdName.trim()) {
-      toast.error("Bitte geben Sie einen Haushaltsnamen ein.");
+      toast.error(t("householdSelection.enterHouseholdName", "Bitte geben Sie einen Haushaltsnamen ein."));
       return;
     }
-
     createHouseholdMutation.mutate({
       householdName: newHouseholdName.trim(),
     } as any);
@@ -102,10 +100,9 @@ export default function HouseholdSelection() {
 
   const handleJoinHousehold = () => {
     if (!inviteCode.trim()) {
-      toast.error("Bitte geben Sie einen Einladungscode ein.");
+      toast.error(t("householdSelection.enterInviteCode", "Bitte geben Sie einen Einladungscode ein."));
       return;
     }
-
     joinHouseholdMutation.mutate({
       inviteCode: inviteCode.trim(),
     } as any);
@@ -116,16 +113,17 @@ export default function HouseholdSelection() {
   };
 
   const handleLogout = () => {
-    // Clear new auth system
     localStorage.removeItem("auth_token");
     localStorage.removeItem("current_household");
-    
-    // Clear old auth system (to prevent conflicts)
     localStorage.removeItem("household");
     localStorage.removeItem("member");
-    
-    toast.success("Sie wurden erfolgreich abgemeldet.");
+    toast.success(t("auth:logout.success", "Sie wurden erfolgreich abgemeldet."));
     setLocation("/login");
+  };
+
+  const handleLanguageChange = async (code: SupportedLanguageCode) => {
+    await changeLanguage(code);
+    setCurrentLang(code);
   };
 
   // Redirect to login only if no token exists
@@ -137,7 +135,7 @@ export default function HouseholdSelection() {
   if (userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Laden...</p>
+        <p>{t("common:common.messages.loading", "Laden...")}</p>
       </div>
     );
   }
@@ -145,27 +143,45 @@ export default function HouseholdSelection() {
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Fehler beim Laden des Benutzers...</p>
+        <p>{t("householdSelection.userLoadError", "Fehler beim Laden des Benutzers...")}</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      {/* Language flag buttons – top right corner */}
+      <div className="fixed top-4 right-4 flex items-center gap-1">
+        {SUPPORTED_LANGUAGES.map((lang) => (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            title={lang.name}
+            className={`text-xl leading-none rounded-md px-1.5 py-1 transition-all ${
+              currentLang === lang.code
+                ? "ring-2 ring-blue-500 bg-white/80 shadow-sm scale-110"
+                : "opacity-60 hover:opacity-100 hover:bg-white/60"
+            }`}
+          >
+            {lang.flag}
+          </button>
+        ))}
+      </div>
+
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
                 <Home className="h-6 w-6 text-blue-600" />
-                Haushaltsauswahl
+                {t("householdSelection.title", "Haushaltsauswahl")}
               </CardTitle>
               <CardDescription className="mt-2">
-                Willkommen, {currentUser.name}! Wählen Sie einen Haushalt aus oder erstellen Sie einen neuen.
+                {t("householdSelection.subtitle", "Willkommen, {{name}}! Wählen Sie einen Haushalt aus oder erstellen Sie einen neuen.", { name: currentUser.name })}
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={handleLogout}>
-              Abmelden
+              {t("auth:logout.action", "Abmelden")}
             </Button>
           </div>
         </CardHeader>
@@ -176,9 +192,9 @@ export default function HouseholdSelection() {
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
                   {currentUser.profileImageUrl ? (
-                    <img 
-                      src={currentUser.profileImageUrl} 
-                      alt={currentUser.name} 
+                    <img
+                      src={currentUser.profileImageUrl}
+                      alt={currentUser.name}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -190,13 +206,13 @@ export default function HouseholdSelection() {
                   <p className="text-sm text-gray-600">{currentUser.email}</p>
                 </div>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setProfileDialogOpen(true)}
               >
                 <Settings className="mr-2 h-4 w-4" />
-                Profil bearbeiten
+                {t("householdSelection.editProfile", "Profil bearbeiten")}
               </Button>
             </CardContent>
           </Card>
@@ -207,22 +223,22 @@ export default function HouseholdSelection() {
               <DialogTrigger asChild>
                 <Button className="w-full" variant="default">
                   <Plus className="mr-2 h-4 w-4" />
-                  Neuen Haushalt erstellen
+                  {t("householdSelection.createNew", "Neuen Haushalt erstellen")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Neuen Haushalt erstellen</DialogTitle>
+                  <DialogTitle>{t("householdSelection.createNew", "Neuen Haushalt erstellen")}</DialogTitle>
                   <DialogDescription>
-                    Geben Sie einen Namen für Ihren neuen Haushalt ein.
+                    {t("householdSelection.createDescription", "Geben Sie einen Namen für Ihren neuen Haushalt ein.")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="householdName">Haushaltsname</Label>
+                    <Label htmlFor="householdName">{t("householdSelection.householdName", "Haushaltsname")}</Label>
                     <Input
                       id="householdName"
-                      placeholder="z.B. Familie Müller"
+                      placeholder={t("householdSelection.householdNamePlaceholder", "z.B. Familie Müller")}
                       value={newHouseholdName}
                       onChange={(e) => setNewHouseholdName(e.target.value)}
                     />
@@ -232,7 +248,9 @@ export default function HouseholdSelection() {
                     disabled={createHouseholdMutation.isPending}
                     className="w-full"
                   >
-                    {createHouseholdMutation.isPending ? "Erstelle..." : "Haushalt erstellen"}
+                    {createHouseholdMutation.isPending
+                      ? t("householdSelection.creating", "Erstelle...")
+                      : t("householdSelection.createButton", "Haushalt erstellen")}
                   </Button>
                 </div>
               </DialogContent>
@@ -242,22 +260,22 @@ export default function HouseholdSelection() {
               <DialogTrigger asChild>
                 <Button className="w-full" variant="outline">
                   <LogIn className="mr-2 h-4 w-4" />
-                  Haushalt beitreten
+                  {t("householdSelection.join", "Haushalt beitreten")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Haushalt beitreten</DialogTitle>
+                  <DialogTitle>{t("householdSelection.join", "Haushalt beitreten")}</DialogTitle>
                   <DialogDescription>
-                    Geben Sie den Einladungscode ein, den Sie erhalten haben.
+                    {t("householdSelection.joinDescription", "Geben Sie den Einladungscode ein, den Sie erhalten haben.")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="inviteCode">Einladungscode</Label>
+                    <Label htmlFor="inviteCode">{t("householdSelection.inviteCode", "Einladungscode")}</Label>
                     <Input
                       id="inviteCode"
-                      placeholder="z.B. ABC123XYZ"
+                      placeholder={t("householdSelection.inviteCodePlaceholder", "z.B. ABC123XYZ")}
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                     />
@@ -267,7 +285,9 @@ export default function HouseholdSelection() {
                     disabled={joinHouseholdMutation.isPending}
                     className="w-full"
                   >
-                    {joinHouseholdMutation.isPending ? "Trete bei..." : "Beitreten"}
+                    {joinHouseholdMutation.isPending
+                      ? t("householdSelection.joining", "Trete bei...")
+                      : t("householdSelection.joinButton", "Beitreten")}
                   </Button>
                 </div>
               </DialogContent>
@@ -278,18 +298,18 @@ export default function HouseholdSelection() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="h-4 w-4" />
-              <span className="font-medium">Ihre Haushalte</span>
+              <span className="font-medium">{t("householdSelection.yourHouseholds", "Ihre Haushalte")}</span>
             </div>
-            
+
             {!households || households.length === 0 ? (
               <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-8 text-center">
                   <Users className="h-12 w-12 text-gray-400 mb-3" />
                   <p className="text-sm text-gray-600">
-                    Sie sind noch keinem Haushalt zugeordnet.
+                    {t("householdSelection.noHouseholds", "Sie sind noch keinem Haushalt zugeordnet.")}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Erstellen Sie einen neuen Haushalt oder treten Sie einem bestehenden bei.
+                    {t("householdSelection.noHouseholdsHint", "Erstellen Sie einen neuen Haushalt oder treten Sie einem bestehenden bei.")}
                   </p>
                 </CardContent>
               </Card>
@@ -305,11 +325,11 @@ export default function HouseholdSelection() {
                       <div>
                         <h3 className="font-semibold text-lg">{household.householdName}</h3>
                         <p className="text-sm text-gray-600">
-                          Als: {household.memberName} • {household.role}
+                          {t("householdSelection.memberAs", "Als")}: {household.memberName} • {household.role}
                         </p>
                       </div>
                       <Button variant="ghost" size="sm">
-                        Auswählen
+                        {t("householdSelection.select", "Auswählen")}
                       </Button>
                     </CardContent>
                   </Card>

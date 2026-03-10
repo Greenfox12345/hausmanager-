@@ -43,7 +43,8 @@
     "apply": "Anwenden",
     "loading": "Wird geladen...",
     "saving": "Wird gespeichert...",
-    "deleting": "Wird gelöscht..."
+    "deleting": "Wird gelöscht...",
+    "clickToStart": "Klicken Sie hier, um zu beginnen →"
   },
   "status": {
     "active": "Aktiv",
@@ -111,7 +112,9 @@
     "saveError": "Fehler beim Speichern",
     "deleteSuccess": "Erfolgreich gelöscht",
     "deleteError": "Fehler beim Löschen",
-    "featureComingSoon": "Diese Funktion ist in Kürze verfügbar"
+    "featureComingSoon": "Diese Funktion ist in Kürze verfügbar",
+    "welcome": "Willkommen",
+    "loading": "Laden..."
   },
   "household": {
     "select": "Haushalt auswählen",

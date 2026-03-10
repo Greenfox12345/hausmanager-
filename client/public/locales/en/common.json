@@ -43,7 +43,8 @@
     "apply": "Apply",
     "loading": "Loading...",
     "saving": "Saving...",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "clickToStart": "Click here to get started →"
   },
   "status": {
     "active": "Active",
@@ -111,7 +112,9 @@
     "saveError": "Error saving",
     "deleteSuccess": "Deleted successfully",
     "deleteError": "Error deleting",
-    "featureComingSoon": "This feature is coming soon"
+    "featureComingSoon": "This feature is coming soon",
+    "welcome": "Welcome",
+    "loading": "Loading..."
   },
   "household": {
     "select": "Select household",

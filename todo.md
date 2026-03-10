@@ -3224,3 +3224,10 @@
 - [x] Members-Seite: Haushalts-Spracheinstellung (aus HouseholdSettings) integrieren
 - [x] Sidebar + BottomNav: "Einstellungen"-Tab entfernen
 - [x] common.json DE+EN: nav.household hinzugefügt
+
+## i18n: Login, HouseholdSelection, Home übersetzen
+- [x] UserLogin.tsx: alle Texte durch t() ersetzen
+- [x] HouseholdSelection.tsx: alle Texte durch t() ersetzen
+- [x] Home.tsx: alle Texte durch t() ersetzen
+- [x] auth.json DE+EN: fehlende Schlüssel ergänzen
+- [x] common.json DE+EN: fehlende Schlüssel ergänzen

@@ -9,10 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Home } from "lucide-react";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 export default function UserLogin() {
   const [, setLocation] = useLocation();
   const { login } = useUserAuth();
+  const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
   const [formData, setFormData] = useState({
@@ -25,13 +27,13 @@ export default function UserLogin() {
       // Update auth context with token
       login(data.token);
       
-      toast.success(`Willkommen zurück, ${data.user.name}!`);
+      toast.success(t("login.welcomeBack", "Willkommen zurück, {{name}}!", { name: data.user.name }));
       
       // Redirect to household selection
       setLocation("/household-selection");
     },
     onError: (error) => {
-      toast.error(error.message || "Anmeldung fehlgeschlagen");
+      toast.error(error.message || t("login.error", "Anmeldung fehlgeschlagen"));
     },
   });
 
@@ -44,7 +46,7 @@ export default function UserLogin() {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      toast.error("Bitte füllen Sie alle Felder aus.");
+      toast.error(t("login.fillAllFields", "Bitte füllen Sie alle Felder aus."));
       return;
     }
 
@@ -81,17 +83,17 @@ export default function UserLogin() {
           </div>
           <CardTitle className="text-2xl font-bold">Haushaltsmanager</CardTitle>
           <CardDescription>
-            Melden Sie sich mit Ihrem Benutzerkonto an
+            {t("login.subtitle", "Melden Sie sich mit Ihrem Benutzerkonto an")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-Mail</Label>
+              <Label htmlFor="email">{t("login.email", "E-Mail")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="ihre.email@beispiel.de"
+                placeholder={t("login.emailPlaceholder", "ihre.email@beispiel.de")}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled={loginMutation.isPending}
@@ -99,11 +101,11 @@ export default function UserLogin() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password">{t("login.password", "Passwort")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Ihr Passwort"
+                placeholder={t("login.passwordPlaceholder", "Ihr Passwort")}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 disabled={loginMutation.isPending}
@@ -115,17 +117,17 @@ export default function UserLogin() {
               className="w-full"
               disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? "Anmelden..." : "Anmelden"}
+              {loginMutation.isPending ? t("login.loading", "Anmelden...") : t("login.submit", "Anmelden")}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              Noch kein Konto?{" "}
+              {t("login.noAccount", "Noch kein Konto?")}{" "}
               <button
                 type="button"
                 onClick={() => setLocation("/register")}
                 className="text-blue-600 hover:underline"
               >
-                Jetzt registrieren
+                {t("login.register", "Jetzt registrieren")}
               </button>
             </div>
           </form>

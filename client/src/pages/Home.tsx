@@ -90,7 +90,7 @@ export default function Home() {
       bgColor: "bg-secondary/10",
     },
     {
-      title: t("members.title", "Mitglieder"),
+      title: t("nav.household", "Haushalt"),
       description: t("members.messages.manageMembers", "Haushaltsmitglieder verwalten"),
       icon: Users,
       href: "/members",
@@ -104,10 +104,10 @@ export default function Home() {
       <div className="container py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2">
-            {t("common.messages.welcome", "Willkommen")}, {currentHousehold.memberName}!
+            {t("messages.welcome", "Willkommen")}, {currentHousehold.memberName}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            {t("household.label", "Haushalt")}: {displayHousehold}
+            {t("household.name", "Haushalt")}: {displayHousehold}
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-sm text-muted-foreground">
-                    {t("common.actions.clickToStart", "Klicken Sie hier, um zu beginnen →")}
+                    {t("actions.clickToStart", "Klicken Sie hier, um zu beginnen →")}
                   </div>
                 </CardContent>
               </Card>
