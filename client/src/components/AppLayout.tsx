@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { Settings } from "lucide-react";
+
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -122,16 +122,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       color: "text-secondary",
     },
     {
-      title: t("nav.members"),
+      title: t("nav.household"),
       icon: Users,
       href: "/members",
       color: "text-accent",
-    },
-    {
-      title: t("nav.settings"),
-      icon: Settings,
-      href: "/settings",
-      color: "text-muted-foreground",
     },
   ];
 

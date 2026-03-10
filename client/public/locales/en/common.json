@@ -15,7 +15,8 @@
     "borrows": "Borrows",
     "neighborhood": "Neighborhood",
     "settings": "Settings",
-    "logout": "Log out"
+    "logout": "Log out",
+    "household": "Household"
   },
   "actions": {
     "save": "Save",
@@ -96,26 +97,7 @@
     "high": "High",
     "urgent": "Urgent"
   },
-  "time": {
-    "today": "Today",
-    "yesterday": "Yesterday",
-    "tomorrow": "Tomorrow",
-    "thisWeek": "This week",
-    "nextWeek": "Next week",
-    "thisMonth": "This month",
-    "days": "Days",
-    "weeks": "Weeks",
-    "months": "Months",
-    "years": "Years",
-    "hours": "Hours",
-    "minutes": "Minutes",
-    "day": "Day",
-    "week": "Week",
-    "month": "Month",
-    "year": "Year",
-    "hour": "Hour",
-    "minute": "Minute"
-  },
+  "time": "Time",
   "messages": {
     "success": "Success",
     "error": "Error",
@@ -144,7 +126,8 @@
     "member": "Member",
     "inviteCode": "Invite code",
     "leaveHousehold": "Leave household",
-    "deleteHousehold": "Delete household"
+    "deleteHousehold": "Delete household",
+    "adminOnly": "Only the household creator can change the household language."
   },
   "language": {
     "select": "Select language",
@@ -155,7 +138,8 @@
     "fr": "French",
     "es": "Spanish",
     "tr": "Turkish",
-    "zh": "Chinese"
+    "zh": "Chinese",
+    "title": "Language Settings"
   },
   "auth": {
     "login": "Log in",
@@ -181,7 +165,6 @@
     "itemsPerPage": "Items per page",
     "showingOf": "{{from}}-{{to}} of {{total}}"
   },
-  "time": "Time",
   "all": "All",
   "open": "Open",
   "done": "Done",

@@ -3217,3 +3217,10 @@
 - [x] Fehlerursache: Inventory.tsx navigierte zu /borrows/new/{id} - Route existiert nicht in App.tsx
 - [x] Fix: Button navigiert jetzt zu /inventory/{id} (InventoryDetail hat BorrowRequestDialog bereits integriert)
 - [x] Testen: TypeScript 0 Fehler, Server läuft
+
+## UI-Verbesserungen: Sprache & Navigation
+- [x] Login-Seite: Flaggen-Sprachauswahl als kompakte Buttons oben rechts
+- [x] Members-Seite: Umbenennen zu "Haushalt" (Titel + Nav-Eintrag)
+- [x] Members-Seite: Haushalts-Spracheinstellung (aus HouseholdSettings) integrieren
+- [x] Sidebar + BottomNav: "Einstellungen"-Tab entfernen
+- [x] common.json DE+EN: nav.household hinzugefügt

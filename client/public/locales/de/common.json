@@ -15,7 +15,8 @@
     "borrows": "Ausleihen",
     "neighborhood": "Nachbarschaft",
     "settings": "Einstellungen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "household": "Haushalt"
   },
   "actions": {
     "save": "Speichern",
@@ -96,26 +97,7 @@
     "high": "Hoch",
     "urgent": "Dringend"
   },
-  "time": {
-    "today": "Heute",
-    "yesterday": "Gestern",
-    "tomorrow": "Morgen",
-    "thisWeek": "Diese Woche",
-    "nextWeek": "Nächste Woche",
-    "thisMonth": "Diesen Monat",
-    "days": "Tage",
-    "weeks": "Wochen",
-    "months": "Monate",
-    "years": "Jahre",
-    "hours": "Stunden",
-    "minutes": "Minuten",
-    "day": "Tag",
-    "week": "Woche",
-    "month": "Monat",
-    "year": "Jahr",
-    "hour": "Stunde",
-    "minute": "Minute"
-  },
+  "time": "Uhrzeit",
   "messages": {
     "success": "Erfolgreich",
     "error": "Fehler",
@@ -144,7 +126,8 @@
     "member": "Mitglied",
     "inviteCode": "Einladungscode",
     "leaveHousehold": "Haushalt verlassen",
-    "deleteHousehold": "Haushalt löschen"
+    "deleteHousehold": "Haushalt löschen",
+    "adminOnly": "Nur der Haushaltsersteller kann die Haushaltssprache ändern."
   },
   "language": {
     "select": "Sprache auswählen",
@@ -155,7 +138,8 @@
     "fr": "Französisch",
     "es": "Spanisch",
     "tr": "Türkisch",
-    "zh": "Chinesisch"
+    "zh": "Chinesisch",
+    "title": "Spracheinstellungen"
   },
   "auth": {
     "login": "Anmelden",
@@ -181,7 +165,6 @@
     "itemsPerPage": "Einträge pro Seite",
     "showingOf": "{{from}}-{{to}} von {{total}}"
   },
-  "time": "Uhrzeit",
   "all": "Alle",
   "open": "Offen",
   "done": "Erledigt",

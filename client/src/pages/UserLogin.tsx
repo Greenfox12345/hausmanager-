@@ -8,12 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Home } from "lucide-react";
+import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 
 export default function UserLogin() {
   const [, setLocation] = useLocation();
   const { login } = useUserAuth();
+  const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
-  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -34,6 +35,11 @@ export default function UserLogin() {
     },
   });
 
+  const handleLanguageChange = async (code: SupportedLanguageCode) => {
+    await changeLanguage(code);
+    setCurrentLang(code);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -50,6 +56,24 @@ export default function UserLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      {/* Language flag buttons – top right corner */}
+      <div className="fixed top-4 right-4 flex items-center gap-1">
+        {SUPPORTED_LANGUAGES.map((lang) => (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            title={lang.name}
+            className={`text-xl leading-none rounded-md px-1.5 py-1 transition-all ${
+              currentLang === lang.code
+                ? "ring-2 ring-blue-500 bg-white/80 shadow-sm scale-110"
+                : "opacity-60 hover:opacity-100 hover:bg-white/60"
+            }`}
+          >
+            {lang.flag}
+          </button>
+        ))}
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
