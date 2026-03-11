@@ -65,6 +65,7 @@
     "archiveError": "Fehler beim Archivieren des Projekts",
     "restoreError": "Fehler beim Wiederherstellen des Projekts",
     "assignError": "Fehler beim Zuordnen der Aufgaben",
-    "deleteConfirm": "Möchtest du dieses Projekt wirklich löschen?"
+    "deleteConfirm": "Möchtest du dieses Projekt wirklich löschen?",
+    "planAndManage": "Gemeinsame Haushaltsprojekte planen"
   }
 }

@@ -3231,3 +3231,9 @@
 - [x] Home.tsx: alle Texte durch t() ersetzen
 - [x] auth.json DE+EN: fehlende Schlüssel ergänzen
 - [x] common.json DE+EN: fehlende Schlüssel ergänzen
+
+## i18n: Registrierung und Home-Landingpage
+- [x] UserRegister.tsx: alle Texte durch t() ersetzen + Flaggen-Sprachauswahl
+- [x] Home.tsx: verbleibende hartcodierte Texte übersetzen
+- [x] auth.json DE+EN: register-Schlüssel ergänzt
+- [x] common.json DE+EN: fehlende Schlüssel ergänzt

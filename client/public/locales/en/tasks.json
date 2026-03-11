@@ -45,7 +45,7 @@
     "noRepeat": "No repetition",
     "interval": "Interval",
     "unit": "Unit",
-    "every": "Every",
+    "every": "Every {{interval}} {{unit}}",
     "days": "Days",
     "weeks": "Weeks",
     "months": "Months",
@@ -76,8 +76,7 @@
     "addAppointment": "Add appointment",
     "rotateResponsibility": "Rotate responsibility",
     "planRotationHint": "Plan in advance who is responsible for which appointment",
-    "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task",
-    "every": "Every {{interval}} {{unit}}"
+    "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task"
   },
   "weekdays": {
     "monday": "Monday",
@@ -225,7 +224,7 @@
     "assignedCount": "{{count}} task(s) assigned",
     "completedCount": "{{count}} task(s) completed",
     "completed": "Task completed",
-    "completedRecurring": "Occurrence completed \u2013 next occurrence scheduled",
+    "completedRecurring": "Occurrence completed – next occurrence scheduled",
     "milestoneAdded": "Milestone saved!",
     "taskDeleted": "Task deleted",
     "taskCompleted": "Task completed!",
@@ -246,7 +245,8 @@
     "completeError": "Error completing task",
     "milestoneDocumented": "Milestone documented",
     "reminderSentShort": "Reminder sent",
-    "genericError": "Error: {{message}}"
+    "genericError": "Error: {{message}}",
+    "rotationAndSchedules": "Manage tasks with rotation and schedules"
   },
   "gantt": {
     "title": "Gantt chart",

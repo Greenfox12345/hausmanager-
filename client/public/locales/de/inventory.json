@@ -74,6 +74,7 @@
     "createError": "Fehler beim Hinzufügen",
     "updateError": "Fehler beim Aktualisieren",
     "deleteError": "Fehler beim Löschen",
-    "deleteConfirm": "Möchtest du diesen Gegenstand wirklich löschen?"
+    "deleteConfirm": "Möchtest du diesen Gegenstand wirklich löschen?",
+    "manageAndOrganize": "Haushaltsgegenstände verwalten und organisieren"
   }
 }

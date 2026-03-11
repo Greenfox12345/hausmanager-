@@ -45,7 +45,7 @@
     "noRepeat": "Ohne Wiederholung",
     "interval": "Intervall",
     "unit": "Einheit",
-    "every": "Alle",
+    "every": "Alle {{interval}} {{unit}}",
     "days": "Tage",
     "weeks": "Wochen",
     "months": "Monate",
@@ -76,8 +76,7 @@
     "addAppointment": "Termin hinzufügen",
     "rotateResponsibility": "Verantwortung rotieren",
     "planRotationHint": "Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist",
-    "rotationAvailableAfterCreate": "Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar",
-    "every": "Alle {{interval}} {{unit}}"
+    "rotationAvailableAfterCreate": "Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar"
   },
   "weekdays": {
     "monday": "Montag",
@@ -148,15 +147,11 @@
     "repeatLabel": "Wiederholung",
     "responsible": "Verantwortlich",
     "createdAt": "Erstellt am",
-    "projectTask": "Projektaufgabe",
     "actionsSection": "Aktionen",
     "milestone": "Zwischenziel",
     "sendReminder": "Erinnerung senden",
     "fullAccess": "Vollzugriff (alles bearbeiten)",
-    "milestonesReminders": "Zwischenziele & Erinnerungen",
-    "viewOnly": "Nur ansehen",
-    "unknown": "Unbekannt",
-    "completeOccurrence": "Termin abschließen"
+    "milestonesReminders": "Zwischenziele & Erinnerungen"
   },
   "occurrences": {
     "title": "Kommende Termine",
@@ -250,7 +245,8 @@
     "completeError": "Fehler beim Abschließen der Aufgabe",
     "milestoneDocumented": "Zwischenziel dokumentiert",
     "reminderSentShort": "Erinnerung gesendet",
-    "genericError": "Fehler: {{message}}"
+    "genericError": "Fehler: {{message}}",
+    "rotationAndSchedules": "Aufgaben mit Rotation und Zeitplänen verwalten"
   },
   "gantt": {
     "title": "Gantt-Diagramm",

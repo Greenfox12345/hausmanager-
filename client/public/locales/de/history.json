@@ -35,5 +35,8 @@
     "member": "Mitglied",
     "action": "Aktion",
     "details": "Details"
+  },
+  "messages": {
+    "trackActivities": "Aktivitäten und Fortschritte im Haushalt verfolgen"
   }
 }

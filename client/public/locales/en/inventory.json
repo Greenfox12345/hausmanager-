@@ -74,6 +74,7 @@
     "createError": "Error creating item.",
     "updateError": "Error updating item.",
     "deleteError": "Error deleting item.",
-    "deleteConfirm": "Are you sure you want to delete this item?"
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "manageAndOrganize": "Manage and organise household items"
   }
 }

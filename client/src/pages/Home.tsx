@@ -35,7 +35,7 @@ export default function Home() {
   const features = [
     {
       title: t("shopping.title", "Einkaufsliste"),
-      description: t("shopping.messages.manageCategories", "Verwalten Sie Ihre Einkäufe mit Kategorien"),
+      description: t("shopping.messages.manageCategories", "Einkäufe mit Kategorien verwalten"),
       icon: ShoppingBag,
       href: "/shopping",
       color: "text-primary",
@@ -43,7 +43,7 @@ export default function Home() {
     },
     {
       title: t("tasks.title", "Haushaltsaufgaben"),
-      description: t("tasks.messages.rotationAndSchedules", "Aufgaben mit Rotation und Zeitplänen"),
+      description: t("tasks.messages.rotationAndSchedules", "Aufgaben mit Rotation und Zeitplänen verwalten"),
       icon: CheckSquare,
       href: "/tasks",
       color: "text-secondary",
@@ -51,7 +51,7 @@ export default function Home() {
     },
     {
       title: t("calendar.title", "Terminübersicht"),
-      description: t("calendar.messages.overview", "Kalender und alle Aufgaben im Überblick"),
+      description: t("calendar.messages.overview", "Kalender und alle Termine im Überblick"),
       icon: Calendar,
       href: "/calendar",
       color: "text-purple-600",
@@ -59,7 +59,7 @@ export default function Home() {
     },
     {
       title: t("projects.title", "Projekte"),
-      description: t("projects.messages.planAndManage", "Gemeinsame Projekte planen und verwalten"),
+      description: t("projects.messages.planAndManage", "Gemeinsame Haushaltsprojekte planen"),
       icon: FolderKanban,
       href: "/projects",
       color: "text-accent",
@@ -75,7 +75,7 @@ export default function Home() {
     },
     {
       title: t("history.title", "Verlauf"),
-      description: t("history.messages.trackActivities", "Aktivitäten und Fortschritte verfolgen"),
+      description: t("history.messages.trackActivities", "Aktivitäten und Fortschritte im Haushalt verfolgen"),
       icon: History,
       href: "/history",
       color: "text-primary",
@@ -83,7 +83,7 @@ export default function Home() {
     },
     {
       title: t("neighborhood.title", "Nachbarschaft"),
-      description: t("neighborhood.messages.collaborate", "Zusammenarbeit mit anderen Haushalten"),
+      description: t("neighborhood.messages.collaborate", "Mit anderen Haushalten zusammenarbeiten"),
       icon: Building2,
       href: "/neighborhood",
       color: "text-secondary",
@@ -91,7 +91,7 @@ export default function Home() {
     },
     {
       title: t("nav.household", "Haushalt"),
-      description: t("members.messages.manageMembers", "Haushaltsmitglieder verwalten"),
+      description: t("members.messages.manageMembers", "Haushaltsmitglieder und Einstellungen"),
       icon: Users,
       href: "/members",
       color: "text-accent",

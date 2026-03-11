@@ -49,6 +49,7 @@
     "removeConfirm": "Möchtest du dieses Mitglied wirklich entfernen?",
     "removeError": "Fehler beim Entfernen des Mitglieds",
     "cannotRemoveSelf": "Du kannst dich nicht selbst entfernen",
-    "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden"
+    "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden",
+    "manageMembers": "Haushaltsmitglieder und Einstellungen"
   }
 }

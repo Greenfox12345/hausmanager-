@@ -40,6 +40,7 @@
     "itemUpdated": "Artikel aktualisiert",
     "itemDeleted": "Artikel gelöscht",
     "itemBought": "Artikel als gekauft markiert",
-    "deleteConfirm": "Möchtest du diese Liste wirklich löschen?"
+    "deleteConfirm": "Möchtest du diese Liste wirklich löschen?",
+    "manageCategories": "Einkäufe mit Kategorien verwalten"
   }
 }

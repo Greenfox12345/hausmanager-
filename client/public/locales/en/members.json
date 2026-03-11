@@ -49,6 +49,7 @@
     "removeConfirm": "Are you sure you want to remove this member?",
     "removeError": "Failed to remove member",
     "cannotRemoveSelf": "Cannot remove yourself",
-    "cannotRemoveLastAdmin": "Cannot remove the last admin"
+    "cannotRemoveLastAdmin": "Cannot remove the last admin",
+    "manageMembers": "Household members and settings"
   }
 }
