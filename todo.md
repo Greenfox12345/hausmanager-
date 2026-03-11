@@ -3237,3 +3237,6 @@
 - [x] Home.tsx: verbleibende hartcodierte Texte übersetzen
 - [x] auth.json DE+EN: register-Schlüssel ergänzt
 - [x] common.json DE+EN: fehlende Schlüssel ergänzt
+
+## Bug: Einkaufsliste - Auswahl nach Abschluss nicht geleert
+- [x] Shopping.tsx: selectedItems nach completeList-Erfolg zurücksetzen

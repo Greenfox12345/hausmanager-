@@ -183,6 +183,8 @@ export default function Shopping() {
   const completeMutation = trpc.shopping.completeShopping.useMutation({
     onSuccess: () => {
       utils.shopping.list.invalidate();
+      setSelectedItemIds(new Set());
+      setShowCompleteDialog(false);
       toast.success(t("shopping:messages.shoppingCompleted", "Einkauf abgeschlossen!"));
     },
     onError: (error: any) => {
