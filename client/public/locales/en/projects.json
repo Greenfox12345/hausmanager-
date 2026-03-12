@@ -35,7 +35,8 @@
   },
   "actions": {
     "archive": "Archive",
-    "restore": "Restore"
+    "restore": "Restore",
+    "assignTasks": "Assign {{count}} task(s)"
   },
   "validation": {
     "nameRequired": "Please enter a project name",
@@ -66,6 +67,10 @@
     "restoreError": "Error restoring project",
     "assignError": "Error assigning tasks",
     "deleteConfirm": "Are you sure you want to delete this project?",
-    "planAndManage": "Plan shared household projects"
+    "planAndManage": "Plan shared household projects",
+    "tasksAssignError": "Error assigning tasks: ",
+    "selectTask": "Please select at least one task",
+    "noProject": "No project selected",
+    "nameRequired": "Please enter a project name"
   }
 }

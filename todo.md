@@ -3240,3 +3240,9 @@
 
 ## Bug: Einkaufsliste - Auswahl nach Abschluss nicht geleert
 - [x] Shopping.tsx: selectedItems nach completeList-Erfolg zurücksetzen
+
+## i18n: Tasks, Inventory, Projects übersetzen
+- [x] Tasks.tsx: alle hartcodierten Texte durch t() ersetzen
+- [x] Inventory.tsx: alle hartcodierten Texte durch t() ersetzen
+- [x] Projects.tsx: alle hartcodierten Texte durch t() ersetzen
+- [x] tasks.json / inventory.json / projects.json DE+EN: fehlende Schlüssel ergänzen

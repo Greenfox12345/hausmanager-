@@ -119,62 +119,62 @@ export default function Projects() {
 
   const createProjectMutation = trpc.projects.create.useMutation({
     onSuccess: () => {
-      toast.success("Projekt erfolgreich erstellt");
+      toast.success(t("projects:messages.created", "Projekt erfolgreich erstellt"));
       refetchProjects();
       setIsCreateDialogOpen(false);
       resetForm();
     },
     onError: (error) => {
-      toast.error("Fehler beim Erstellen des Projekts: " + error.message);
+      toast.error(t("projects:messages.createError", "Fehler beim Erstellen des Projekts: ") + error.message);
     },
   });
 
   const updateProjectMutation = trpc.projects.update.useMutation({
     onSuccess: () => {
-      toast.success("Projekt erfolgreich aktualisiert");
+      toast.success(t("projects:messages.updated", "Projekt erfolgreich aktualisiert"));
       refetchProjects();
       setIsEditDialogOpen(false);
       setEditingProject(null);
       resetForm();
     },
     onError: (error) => {
-      toast.error("Fehler beim Aktualisieren des Projekts: " + error.message);
+      toast.error(t("projects:messages.updateError", "Fehler beim Aktualisieren des Projekts: ") + error.message);
     },
   });
 
   const deleteProjectMutation = trpc.projects.delete.useMutation({
     onSuccess: () => {
-      toast.success("Projekt erfolgreich gelöscht");
+      toast.success(t("projects:messages.deleted", "Projekt erfolgreich gelöscht"));
       refetchProjects();
       if (selectedProjectId === editingProject?.id) {
         setSelectedProjectId(null);
       }
     },
     onError: (error) => {
-      toast.error("Fehler beim Löschen des Projekts: " + error.message);
+      toast.error(t("projects:messages.deleteError", "Fehler beim Löschen des Projekts: ") + error.message);
     },
   });
 
   const archiveProjectMutation = trpc.projects.archive.useMutation({
     onSuccess: () => {
-      toast.success("Projekt erfolgreich archiviert");
+      toast.success(t("projects:messages.archived", "Projekt erfolgreich archiviert"));
       refetchProjects();
       if (selectedProjectId) {
         setSelectedProjectId(null);
       }
     },
     onError: (error) => {
-      toast.error("Fehler beim Archivieren des Projekts: " + error.message);
+      toast.error(t("projects:messages.archiveError", "Fehler beim Archivieren des Projekts: ") + error.message);
     },
   });
 
   const unarchiveProjectMutation = trpc.projects.unarchive.useMutation({
     onSuccess: () => {
-      toast.success("Projekt erfolgreich wiederhergestellt");
+      toast.success(t("projects:messages.restored", "Projekt erfolgreich wiederhergestellt"));
       refetchProjects();
     },
     onError: (error) => {
-      toast.error("Fehler beim Wiederherstellen des Projekts: " + error.message);
+      toast.error(t("projects:messages.restoreError", "Fehler beim Wiederherstellen des Projekts: ") + error.message);
     },
   });
 
@@ -185,7 +185,7 @@ export default function Projects() {
     onSuccess: () => {
       utils.tasks.list.invalidate();
       utils.projects.getAllDependencies.invalidate();
-      toast.success("Bidirektionale Verknüpfungen erstellt");
+      toast.success(t("tasks:messages.bidirectionalLinks", "Bidirektionale Verknüpfungen erstellt"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -194,7 +194,7 @@ export default function Projects() {
   
   const completeTaskMutation = trpc.tasks.completeTask.useMutation({
     onSuccess: () => {
-      toast.success("Aufgabe erfolgreich abgeschlossen!");
+      toast.success(t("tasks:messages.taskCompleted", "Aufgabe erfolgreich abgeschlossen!"));
       utils.tasks.list.invalidate();
       setCompleteDialogOpen(false);
     },
@@ -205,7 +205,7 @@ export default function Projects() {
 
   const milestoneMutation = trpc.tasks.addMilestone.useMutation({
     onSuccess: () => {
-      toast.success("Zwischensieg gespeichert!");
+      toast.success(t("tasks:messages.milestoneAdded", "Zwischensieg gespeichert!"));
       utils.tasks.list.invalidate();
       setMilestoneDialogOpen(false);
     },
@@ -216,7 +216,7 @@ export default function Projects() {
 
   const reminderMutation = trpc.tasks.sendReminder.useMutation({
     onSuccess: () => {
-      toast.success("Erinnerung gesendet!");
+      toast.success(t("tasks:messages.reminderSent", "Erinnerung gesendet!"));
       setReminderDialogOpen(false);
     },
     onError: (error: any) => {
@@ -226,7 +226,7 @@ export default function Projects() {
 
   const deleteTaskMutation = trpc.tasks.delete.useMutation({
     onSuccess: () => {
-      toast.success("Aufgabe erfolgreich gelöscht");
+      toast.success(t("tasks:messages.taskDeleted", "Aufgabe erfolgreich gelöscht"));
       utils.tasks.list.invalidate();
       utils.shopping.list.invalidate();
     },
@@ -236,7 +236,7 @@ export default function Projects() {
   });
 
   const handleDeleteTask = (taskId: number) => {
-    if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
+    if (confirm(t("tasks:messages.deleteConfirm", "Möchten Sie diese Aufgabe wirklich löschen?"))) {
       deleteTaskMutation.mutate({
         taskId,
         householdId: household!.householdId,
@@ -267,7 +267,7 @@ export default function Projects() {
 
   const handleCreateProject = () => {
     if (!projectName.trim()) {
-      toast.error("Bitte geben Sie einen Projektnamen ein");
+      toast.error(t("projects:messages.nameRequired", "Bitte geben Sie einen Projektnamen ein"));
       return;
     }
 
@@ -284,7 +284,7 @@ export default function Projects() {
 
   const handleUpdateProject = () => {
     if (!editingProject || !projectName.trim()) {
-      toast.error("Bitte geben Sie einen Projektnamen ein");
+      toast.error(t("projects:messages.nameRequired", "Bitte geben Sie einen Projektnamen ein"));
       return;
     }
 
@@ -330,7 +330,7 @@ export default function Projects() {
 
   const addTaskMutation = trpc.tasks.add.useMutation({
     onError: (error) => {
-      toast.error("Fehler beim Hinzufügen der Aufgabe: " + error.message);
+      toast.error(t("tasks:messages.createError", "Fehler beim Erstellen der Aufgabe") + ": " + error.message);
     },
   });
 
@@ -338,13 +338,13 @@ export default function Projects() {
 
   const updateTaskMutation = trpc.tasks.update.useMutation({
     onSuccess: () => {
-      toast.success("Aufgaben erfolgreich zugeordnet");
+      toast.success(t("projects:messages.tasksAssigned", "Aufgaben erfolgreich zugeordnet"));
       utils.tasks.list.invalidate();
       setIsAssignTaskDialogOpen(false);
       setSelectedExistingTasks([]);
     },
     onError: (error) => {
-      toast.error("Fehler beim Zuordnen der Aufgaben: " + error.message);
+      toast.error(t("projects:messages.tasksAssignError", "Fehler beim Zuordnen der Aufgaben: ") + error.message);
     },
   });
 
@@ -363,17 +363,17 @@ export default function Projects() {
 
   const handleAddTask = async () => {
     if (!taskName.trim()) {
-      toast.error("Bitte geben Sie einen Aufgabennamen ein");
+      toast.error(t("tasks:messages.nameRequired", "Bitte geben Sie einen Aufgabennamen ein"));
       return;
     }
 
     if (taskAssignees.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen aus");
+      toast.error(t("tasks:messages.selectAtLeastOneAssignee", "Bitte wählen Sie mindestens einen Verantwortlichen"));
       return;
     }
 
     if (!household || !selectedProjectId) {
-      toast.error("Kein Projekt ausgewählt");
+                    toast.error(t("projects:messages.noProject", "Kein Projekt ausgewählt"));
       return;
     }
 
@@ -460,11 +460,11 @@ export default function Projects() {
         setSelectedTask(newTask);
         setIsTaskDetailDialogOpen(true);
       } else {
-        toast.success("Aufgabe erfolgreich hinzugefügt");
+        toast.success(t("tasks:messages.created", "Aufgabe hinzugefügt"));
       }
     } catch (error) {
       console.error("Error adding task:", error);
-      toast.error("Fehler beim Hinzufügen der Aufgabe");
+      toast.error(t("tasks:messages.createError", "Fehler beim Erstellen der Aufgabe"));
     }
   };
 
@@ -1144,17 +1144,17 @@ export default function Projects() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAssignTaskDialogOpen(false)}>
-                Abbrechen
+                {t("common:actions.cancel", "Abbrechen")}
               </Button>
               <Button
                 onClick={async () => {
                   if (selectedExistingTasks.length === 0) {
-                    toast.error("Bitte wählen Sie mindestens eine Aufgabe aus");
+                    toast.error(t("projects:messages.selectTask", "Bitte wählen Sie mindestens eine Aufgabe aus"));
                     return;
                   }
 
                   if (!selectedProjectId) {
-                    toast.error("Kein Projekt ausgewählt");
+                    toast.error(t("projects:messages.noProject", "Kein Projekt ausgewählt"));
                     return;
                   }
 
@@ -1174,7 +1174,7 @@ export default function Projects() {
                 }}
                 disabled={selectedExistingTasks.length === 0}
               >
-                {selectedExistingTasks.length} Aufgabe(n) zuordnen
+                {t("projects:actions.assignTasks", "{{count}} Aufgabe(n) zuordnen", { count: selectedExistingTasks.length })}
               </Button>
             </DialogFooter>
           </DialogContent>

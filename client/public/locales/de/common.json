@@ -114,7 +114,8 @@
     "deleteError": "Fehler beim Löschen",
     "featureComingSoon": "Diese Funktion ist in Kürze verfügbar",
     "welcome": "Willkommen",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "unknown": "Unbekannt"
   },
   "household": {
     "select": "Haushalt auswählen",

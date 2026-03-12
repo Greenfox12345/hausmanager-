@@ -37,7 +37,14 @@
     "monthly": "Monatlich",
     "quarterly": "Vierteljährlich",
     "yearly": "Jährlich",
-    "irregular": "Unregelmäßig"
+    "irregular": "Unregelmäßig",
+    "custom": "Benutzerdefiniert",
+    "every": "Alle {{interval}} {{unit}}",
+    "days": "Tage",
+    "weeks": "Wochen",
+    "months": "Monate",
+    "rotation": "Rotation",
+    "persons": "Pers."
   },
   "repeat": {
     "title": "Wiederholung",
@@ -246,11 +253,24 @@
     "milestoneDocumented": "Zwischenziel dokumentiert",
     "reminderSentShort": "Erinnerung gesendet",
     "genericError": "Fehler: {{message}}",
-    "rotationAndSchedules": "Aufgaben mit Rotation und Zeitplänen verwalten"
+    "rotationAndSchedules": "Aufgaben mit Rotation und Zeitplänen verwalten",
+    "notEnoughMembers": "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}",
+    "selectAtLeastOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+    "unassigned": "Nicht zugewiesen",
+    "linkedWith": "Verknüpft mit",
+    "otherHousehold": "anderem Haushalt",
+    "sharedWith": "Geteilt mit"
   },
   "gantt": {
     "title": "Gantt-Diagramm",
     "timeline": "Zeitplan",
     "noTasks": "Keine Aufgaben für das Gantt-Diagramm"
+  },
+  "actions": {
+    "create": "Aufgabe erstellen",
+    "complete": "Aufgabe abschließen",
+    "sendReminder": "Erinnerung senden",
+    "milestone": "Zwischensieg dokumentieren",
+    "delete": "Aufgabe löschen"
   }
 }

@@ -260,7 +260,7 @@ export default function Tasks() {
   
   // Validation error
   const rotationError = enableRotation && enableRepeat && requiredCount > 0 && availableCount < requiredCount
-    ? `Nicht genügend verfügbare Mitglieder! Benötigt: ${requiredCount}, Verfügbar: ${availableCount}`
+    ? t("tasks:messages.notEnoughMembers", "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}", { required: requiredCount, available: availableCount })
     : null;
 
   const handleAddTask = async (e: React.FormEvent) => {
@@ -280,7 +280,7 @@ export default function Tasks() {
     }
 
     if (selectedAssignees.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Verantwortlichen");
+      toast.error(t("tasks:messages.selectAtLeastOneAssignee", "Bitte wählen Sie mindestens einen Verantwortlichen"));
       return;
     }
 
@@ -409,16 +409,16 @@ export default function Tasks() {
         setSelectedTask(newTask);
         setDetailDialogOpen(true);
       } else {
-        toast.success("Aufgabe hinzugefügt");
+        toast.success(t("tasks:messages.created", "Aufgabe hinzugefügt"));
       }
     } catch (error: any) {
-      toast.error(error.message || "Fehler beim Erstellen der Aufgabe");
+      toast.error(error.message || t("tasks:messages.createError", "Fehler beim Erstellen der Aufgabe"));
     }
   };
 
   const handleDelete = (taskId: number) => {
     if (!household || !member) return;
-    if (confirm("Möchten Sie diese Aufgabe wirklich löschen?")) {
+    if (confirm(t("tasks:messages.deleteConfirm", "Möchten Sie diese Aufgabe wirklich löschen?"))) {
       deleteMutation.mutate({
         taskId,
         householdId: household.householdId,
@@ -477,13 +477,13 @@ export default function Tasks() {
   };
 
   const getMemberName = (memberId: number | null) => {
-    if (!memberId) return "Nicht zugewiesen";
+    if (!memberId) return t("tasks:messages.unassigned", "Nicht zugewiesen");
     const memberData = members.find((m) => m.id === memberId);
-    return memberData?.memberName || "Unbekannt";
+    return memberData?.memberName || t("common:messages.unknown", "Unbekannt");
   };
   
   const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
-    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    if (memberIds === null || memberIds === undefined) return t("tasks:messages.unassigned", "Nicht zugewiesen");
     let ids: number[] = [];
     if (Array.isArray(memberIds)) {
       ids = memberIds;
@@ -497,10 +497,10 @@ export default function Tasks() {
         ids = [];
       }
     }
-    if (ids.length === 0) return "Nicht zugewiesen";
+    if (ids.length === 0) return t("tasks:messages.unassigned", "Nicht zugewiesen");
     return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
-      return memberData?.memberName || "Unbekannt";
+      return memberData?.memberName || t("common:messages.unknown", "Unbekannt");
     }).join(", ");
   };
   
@@ -1090,7 +1090,7 @@ export default function Tasks() {
               {newTaskName.trim() && (
                 <Button type="submit" className="w-full" disabled={addMutation.isPending || !!rotationError}>
                   <Plus className="mr-2 h-4 w-4" />
-                  {addMutation.isPending ? "Wird erstellt..." : "Aufgabe erstellen"}
+                  {addMutation.isPending ? t("common:actions.loading", "Wird geladen...") : t("tasks:actions.create", "Aufgabe erstellen")}
                 </Button>
               )}
               </>
@@ -1373,30 +1373,30 @@ export default function Tasks() {
                         {task.frequency && task.frequency !== "once" && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
                             <RefreshCw className="h-3 w-3" />
-                            {task.frequency === "daily" && "Täglich"}
-                            {task.frequency === "weekly" && "Wöchentlich"}
-                            {task.frequency === "monthly" && "Monatlich"}
+                            {task.frequency === "daily" && t("tasks:frequency.daily", "Täglich")}
+                            {task.frequency === "weekly" && t("tasks:frequency.weekly", "Wöchentlich")}
+                            {task.frequency === "monthly" && t("tasks:frequency.monthly", "Monatlich")}
                             {task.frequency === "custom" && task.repeatInterval && task.repeatUnit
-                              ? `Alle ${task.repeatInterval} ${task.repeatUnit === "days" ? "Tage" : task.repeatUnit === "weeks" ? "Wochen" : "Monate"}`
-                              : "Benutzerdefiniert"}
+                              ? t("tasks:frequency.every", "Alle {{interval}} {{unit}}", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("tasks:frequency.days", "Tage") : task.repeatUnit === "weeks" ? t("tasks:frequency.weeks", "Wochen") : t("tasks:frequency.months", "Monate") })
+                              : t("tasks:frequency.custom", "Benutzerdefiniert")}
                           </span>
                         )}
                         {task.enableRotation && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             <RefreshCw className="h-3 w-3" />
-                            Rotation {task.requiredPersons ? `(${task.requiredPersons} Pers.)` : ""}
+                            {t("tasks:frequency.rotation", "Rotation")} {task.requiredPersons ? `(${task.requiredPersons} ${t("tasks:frequency.persons", "Pers.")})` : ""}
                           </span>
                         )}
                         {(task as any).isSharedWithUs && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                             <Users className="h-3 w-3" />
-                            Verknüpft mit {(task as any).householdName || "anderem Haushalt"}
+                            {t("tasks:messages.linkedWith", "Verknüpft mit")} {(task as any).householdName || t("tasks:messages.otherHousehold", "anderem Haushalt")}
                           </span>
                         )}
                         {!(task as any).isSharedWithUs && (task as any).sharedHouseholdCount > 0 && (task as any).sharedHouseholdNames && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
                             <Users className="h-3 w-3" />
-                            Geteilt mit {(task as any).sharedHouseholdNames}
+                            {t("tasks:messages.sharedWith", "Geteilt mit")} {(task as any).sharedHouseholdNames}
                           </span>
                         )}
                       </div>
@@ -1413,7 +1413,7 @@ export default function Tasks() {
                               setCompleteDialogOpen(true);
                             }}
                             className="touch-target text-green-600 hover:text-green-600 hover:bg-green-50"
-                            title="Aufgabe abschließen"
+                            title={t("tasks:actions.complete", "Aufgabe abschließen")}
                           >
                             <CheckCircle2 className="h-4 w-4" />
                           </Button>
@@ -1426,7 +1426,7 @@ export default function Tasks() {
                               setReminderDialogOpen(true);
                             }}
                             className="touch-target text-yellow-600 hover:text-yellow-600 hover:bg-yellow-50"
-                            title="Erinnerung senden"
+                            title={t("tasks:actions.sendReminder", "Erinnerung senden")}
                           >
                             <Bell className="h-4 w-4" />
                           </Button>
@@ -1439,7 +1439,7 @@ export default function Tasks() {
                               setMilestoneDialogOpen(true);
                             }}
                             className="touch-target text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                            title="Zwischensieg dokumentieren"
+                            title={t("tasks:actions.milestone", "Zwischensieg dokumentieren")}
                           >
                             <Target className="h-4 w-4" />
                           </Button>
@@ -1453,7 +1453,7 @@ export default function Tasks() {
                           handleDelete(task.id);
                         }}
                         className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
-                        title="Aufgabe löschen"
+                        title={t("tasks:actions.delete", "Aufgabe löschen")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

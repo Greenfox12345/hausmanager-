@@ -114,7 +114,8 @@
     "deleteError": "Error deleting",
     "featureComingSoon": "This feature is coming soon",
     "welcome": "Welcome",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "unknown": "Unknown"
   },
   "household": {
     "select": "Select household",

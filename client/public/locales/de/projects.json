@@ -35,7 +35,8 @@
   },
   "actions": {
     "archive": "Archivieren",
-    "restore": "Wiederherstellen"
+    "restore": "Wiederherstellen",
+    "assignTasks": "{{count}} Aufgabe(n) zuordnen"
   },
   "tasks": {
     "title": "Projektaufgaben",
@@ -66,6 +67,10 @@
     "restoreError": "Fehler beim Wiederherstellen des Projekts",
     "assignError": "Fehler beim Zuordnen der Aufgaben",
     "deleteConfirm": "Möchtest du dieses Projekt wirklich löschen?",
-    "planAndManage": "Gemeinsame Haushaltsprojekte planen"
+    "planAndManage": "Gemeinsame Haushaltsprojekte planen",
+    "tasksAssignError": "Fehler beim Zuordnen der Aufgaben: ",
+    "selectTask": "Bitte wählen Sie mindestens eine Aufgabe aus",
+    "noProject": "Kein Projekt ausgewählt",
+    "nameRequired": "Bitte geben Sie einen Projektnamen ein"
   }
 }

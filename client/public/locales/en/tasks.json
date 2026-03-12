@@ -37,7 +37,14 @@
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "yearly": "Yearly",
-    "irregular": "Irregular"
+    "irregular": "Irregular",
+    "custom": "Custom",
+    "every": "Every {{interval}} {{unit}}",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "rotation": "Rotation",
+    "persons": "pers."
   },
   "repeat": {
     "title": "Repetition",
@@ -246,11 +253,24 @@
     "milestoneDocumented": "Milestone documented",
     "reminderSentShort": "Reminder sent",
     "genericError": "Error: {{message}}",
-    "rotationAndSchedules": "Manage tasks with rotation and schedules"
+    "rotationAndSchedules": "Manage tasks with rotation and schedules",
+    "notEnoughMembers": "Not enough available members! Required: {{required}}, Available: {{available}}",
+    "selectAtLeastOneAssignee": "Please select at least one assignee",
+    "unassigned": "Unassigned",
+    "linkedWith": "Linked with",
+    "otherHousehold": "another household",
+    "sharedWith": "Shared with"
   },
   "gantt": {
     "title": "Gantt chart",
     "timeline": "Timeline",
     "noTasks": "No tasks for the Gantt chart"
+  },
+  "actions": {
+    "create": "Create task",
+    "complete": "Complete task",
+    "sendReminder": "Send reminder",
+    "milestone": "Document milestone",
+    "delete": "Delete task"
   }
 }
