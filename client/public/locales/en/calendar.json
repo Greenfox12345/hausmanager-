@@ -34,6 +34,11 @@
     "updated": "Event updated successfully.",
     "deleted": "Event deleted successfully.",
     "deleteConfirm": "Are you sure you want to delete this event?",
-    "overview": "Calendar and all appointments at a glance"
+    "overview": "Calendar and all appointments at a glance",
+    "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
+    "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar."
+  },
+  "labels": {
+    "occurrence": "Occurrence"
   }
 }

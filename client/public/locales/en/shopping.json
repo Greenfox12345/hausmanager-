@@ -29,7 +29,10 @@
     "markBought": "Mark as Bought",
     "markNotBought": "Mark as Not Bought",
     "completeList": "Complete List",
-    "shareList": "Share List"
+    "shareList": "Share List",
+    "addItem": "Add item",
+    "createCategory": "Create new category",
+    "renameCategory": "Rename category"
   },
   "messages": {
     "listCreated": "Shopping list created successfully.",
@@ -41,6 +44,13 @@
     "itemDeleted": "Item deleted.",
     "itemBought": "Item marked as bought.",
     "deleteConfirm": "Are you sure you want to delete this list?",
-    "manageCategories": "Manage shopping with categories"
+    "manageCategories": "Manage shopping with categories",
+    "confirmDeleteItem": "Are you sure you want to delete this item?",
+    "confirmDeleteCategory": "Are you sure you want to delete this category?",
+    "emptyList": "No items in the shopping list. Add a new item above!",
+    "emptyCategory": "No items in this category."
+  },
+  "labels": {
+    "itemCount": "{{count}} item(s)"
   }
 }

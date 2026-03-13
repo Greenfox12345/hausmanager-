@@ -90,7 +90,8 @@
     "unit": "Einheit",
     "quantity": "Menge",
     "price": "Preis",
-    "language": "Sprache"
+    "language": "Sprache",
+    "reason": "Begründung"
   },
   "priority": {
     "low": "Niedrig",
@@ -179,5 +180,8 @@
   "dueDate": "Fälligkeitsdatum",
   "creationDate": "Erstellungsdatum",
   "notEnoughMembers": "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}",
-  "minOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen"
+  "minOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+  "errors": {
+    "generic": "Fehler: "
+  }
 }

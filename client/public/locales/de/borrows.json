@@ -63,5 +63,11 @@
     "approveError": "Fehler beim Genehmigen",
     "rejectError": "Fehler beim Ablehnen",
     "returnError": "Fehler bei der Rückgabe"
+  },
+  "labels": {
+    "borrower": "Ausleiher",
+    "period": "Zeitraum",
+    "revokedBy": "Widerrufen von",
+    "rejectedBy": "Abgelehnt von"
   }
 }

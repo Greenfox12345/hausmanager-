@@ -90,7 +90,8 @@
     "unit": "Unit",
     "quantity": "Quantity",
     "price": "Price",
-    "language": "Language"
+    "language": "Language",
+    "reason": "Reason"
   },
   "priority": {
     "low": "Low",
@@ -179,5 +180,8 @@
   "dueDate": "Due date",
   "creationDate": "Creation date",
   "notEnoughMembers": "Not enough available members! Required: {{required}}, Available: {{available}}",
-  "minOneAssignee": "Please select at least one assignee"
+  "minOneAssignee": "Please select at least one assignee",
+  "errors": {
+    "generic": "Error: "
+  }
 }

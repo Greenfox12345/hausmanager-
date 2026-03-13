@@ -63,5 +63,11 @@
     "approveError": "Error approving borrow request.",
     "rejectError": "Error rejecting borrow request.",
     "returnError": "Error returning item."
+  },
+  "labels": {
+    "borrower": "Borrower",
+    "period": "Period",
+    "revokedBy": "Revoked by",
+    "rejectedBy": "Rejected by"
   }
 }

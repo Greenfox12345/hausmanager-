@@ -29,7 +29,10 @@
     "markBought": "Als gekauft markieren",
     "markNotBought": "Als nicht gekauft markieren",
     "completeList": "Liste abschließen",
-    "shareList": "Liste teilen"
+    "shareList": "Liste teilen",
+    "addItem": "Artikel hinzufügen",
+    "createCategory": "Neue Kategorie erstellen",
+    "renameCategory": "Kategorie umbenennen"
   },
   "messages": {
     "listCreated": "Einkaufsliste erstellt",
@@ -41,6 +44,13 @@
     "itemDeleted": "Artikel gelöscht",
     "itemBought": "Artikel als gekauft markiert",
     "deleteConfirm": "Möchtest du diese Liste wirklich löschen?",
-    "manageCategories": "Einkäufe mit Kategorien verwalten"
+    "manageCategories": "Einkäufe mit Kategorien verwalten",
+    "confirmDeleteItem": "Möchten Sie diesen Artikel wirklich löschen?",
+    "confirmDeleteCategory": "Möchten Sie diese Kategorie wirklich löschen?",
+    "emptyList": "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!",
+    "emptyCategory": "Keine Artikel in dieser Kategorie."
+  },
+  "labels": {
+    "itemCount": "{{count}} Artikel"
   }
 }

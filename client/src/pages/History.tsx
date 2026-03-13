@@ -226,18 +226,18 @@ export default function History() {
                           <div className="mt-2 p-3 bg-accent/10 rounded-lg border border-accent/20">
                             <div className="space-y-1.5">
                               <div className="flex items-start gap-2">
-                                <span className="text-xs font-semibold text-accent">Aufgabe:</span>
+                                <span className="text-xs font-semibold text-accent">{t("tasks:title", "Aufgabe")}:</span>
                                 <span className="text-sm font-medium">{activity.taskDetails.name}</span>
                               </div>
                               {activity.taskDetails.description && (
                                 <div className="flex items-start gap-2">
-                                  <span className="text-xs font-semibold text-accent">Beschreibung:</span>
+                                  <span className="text-xs font-semibold text-accent">{t("common:labels.description", "Beschreibung")}:</span>
                                   <span className="text-sm text-muted-foreground">{activity.taskDetails.description}</span>
                                 </div>
                               )}
                               {activity.taskDetails.assignedToName && (
                                 <div className="flex items-start gap-2">
-                                  <span className="text-xs font-semibold text-accent">Verantwortlich:</span>
+                                  <span className="text-xs font-semibold text-accent">{t("tasks:labels.assignedTo", "Verantwortlich")}:</span>
                                   <span className="text-sm">{activity.taskDetails.assignedToName}</span>
                                 </div>
                               )}
@@ -271,19 +271,19 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.itemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.itemName}</span>
                                   </div>
                                 )}
                                 {meta.borrowerName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Ausleiher:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.borrower", "Ausleiher")}:</span>
                                     <span className="text-sm">{meta.borrowerName}</span>
                                   </div>
                                 )}
                                 {meta.startDate && meta.endDate && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Zeitraum:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} - {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
@@ -291,13 +291,13 @@ export default function History() {
                                 )}
                                 {meta.reason && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Begr\u00fcndung:</span>
+                                      <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("common:labels.reason", "Begründung")}:</span>
                                     <span className="text-sm">{meta.reason}</span>
                                   </div>
                                 )}
                                 {meta.revokedBy && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Widerrufen von:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.revokedBy", "Widerrufen von")}:</span>
                                     <span className="text-sm">{meta.revokedBy}</span>
                                   </div>
                                 )}
@@ -314,19 +314,19 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.taskName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Aufgabe:</span>
+                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{t("tasks:title", "Aufgabe")}:</span>
                                     <span className="text-sm">{meta.taskName}</span>
                                   </div>
                                 )}
                                 {meta.occurrenceNumber && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Termin:</span>
+                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{t("calendar:labels.occurrence", "Termin")}:</span>
                                     <span className="text-sm">{t("calendar:occurrence", "Termin")} {meta.occurrenceNumber}</span>
                                   </div>
                                 )}
                                 {meta.inventoryItemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.inventoryItemName}</span>
                                   </div>
                                 )}
@@ -343,19 +343,19 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.taskName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Aufgabe:</span>
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">{t("tasks:title", "Aufgabe")}:</span>
                                     <span className="text-sm">{meta.taskName}</span>
                                   </div>
                                 )}
                                 {meta.occurrenceNumber && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Termin:</span>
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">{t("calendar:labels.occurrence", "Termin")}:</span>
                                     <span className="text-sm">{t("calendar:occurrence", "Termin")} {meta.occurrenceNumber}</span>
                                   </div>
                                 )}
                                 {meta.inventoryItemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.inventoryItemName}</span>
                                   </div>
                                 )}
@@ -372,19 +372,19 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.itemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.itemName}</span>
                                   </div>
                                 )}
                                 {meta.taskName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Aufgabe:</span>
-                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (Termin ${meta.occurrenceNumber})` : ""}</span>
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{t("tasks:title", "Aufgabe")}:</span>
+                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (${t("calendar:labels.occurrence", "Termin")} ${meta.occurrenceNumber})` : ""}</span>
                                   </div>
                                 )}
                                 {meta.startDate && meta.endDate && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Zeitraum:</span>
+                                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
@@ -403,19 +403,19 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.itemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.itemName}</span>
                                   </div>
                                 )}
                                 {meta.taskName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Aufgabe:</span>
-                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (Termin ${meta.occurrenceNumber})` : ""}</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("tasks:title", "Aufgabe")}:</span>
+                                    <span className="text-sm">{meta.taskName}{meta.occurrenceNumber ? ` (${t("calendar:labels.occurrence", "Termin")} ${meta.occurrenceNumber})` : ""}</span>
                                   </div>
                                 )}
                                 {meta.startDate && meta.endDate && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Zeitraum:</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
@@ -434,13 +434,13 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.itemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.itemName}</span>
                                   </div>
                                 )}
                                 {meta.startDate && meta.endDate && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Zeitraum:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
@@ -448,13 +448,13 @@ export default function History() {
                                 )}
                                 {meta.rejectedBy && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Abgelehnt von:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.rejectedBy", "Abgelehnt von")}:</span>
                                     <span className="text-sm">{meta.rejectedBy}</span>
                                   </div>
                                 )}
                                 {meta.responseMessage && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">Begründung:</span>
+                                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("common:labels.reason", "Begründung")}:</span>
                                     <span className="text-sm">{meta.responseMessage}</span>
                                   </div>
                                 )}
@@ -471,25 +471,25 @@ export default function History() {
                               <div className="space-y-1.5">
                                 {meta.itemName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Gegenstand:</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("inventory:labels.item", "Gegenstand")}:</span>
                                     <span className="text-sm">{meta.itemName}</span>
                                   </div>
                                 )}
                                 {meta.taskName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Aufgabe:</span>
-                                    <span className="text-sm">{meta.taskName} (Termin {meta.occurrenceNumber})</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("tasks:title", "Aufgabe")}:</span>
+                                    <span className="text-sm">{meta.taskName} ({t("calendar:labels.occurrence", "Termin")} {meta.occurrenceNumber})</span>
                                   </div>
                                 )}
                                 {meta.borrowerName && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Ausleiher:</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("borrows:labels.borrower", "Ausleiher")}:</span>
                                     <span className="text-sm">{meta.borrowerName}</span>
                                   </div>
                                 )}
                                 {meta.startDate && meta.endDate && (
                                   <div className="flex items-start gap-2">
-                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Zeitraum:</span>
+                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
                                       {new Date(meta.startDate).toLocaleDateString('de-DE')} - {new Date(meta.endDate).toLocaleDateString('de-DE')}
                                     </span>
@@ -516,7 +516,7 @@ export default function History() {
                             <div className="flex items-center gap-2 mb-2">
                               <ImageIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm text-muted-foreground">
-                                {photoUrls.length} Foto{photoUrls.length > 1 ? "s" : ""}
+                                {t("history:labels.photoCount", "{{count}} Foto(s)", { count: photoUrls.length })}
                               </span>
                             </div>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -545,7 +545,7 @@ export default function History() {
                               <div className="flex items-center gap-2 mb-2">
                                 <FileText className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm text-muted-foreground">
-                                  {fileUrls.length} PDF{fileUrls.length > 1 ? "s" : ""}
+                                  {t("history:labels.pdfCount", "{{count}} PDF(s)", { count: fileUrls.length })}
                                 </span>
                               </div>
                               <div className="space-y-2">

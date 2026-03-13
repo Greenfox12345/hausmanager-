@@ -140,7 +140,7 @@ export default function Calendar() {
       toast.success(t("tasks:messages.markedReturned", "Als zurückgegeben markiert!"));
     },
     onError: (error) => {
-      toast.error("Fehler: " + error.message);
+      toast.error(t("common:errors.generic", "Fehler: ") + error.message);
     },
   });
 
@@ -1097,7 +1097,7 @@ export default function Calendar() {
                                         className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.")) {
+                                          if (confirm(t("calendar:messages.confirmUndo", "Möchten Sie den Abschluss dieses Termins rükgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt."))) {
                                             undoCompletionMutation.mutate({
                                               taskId: task.id,
                                               householdId: household?.householdId ?? 0,
@@ -1133,7 +1133,7 @@ export default function Calendar() {
                                           className="w-full text-orange-600 hover:bg-orange-50"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            if (confirm("Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.")) {
+                                            if (confirm(t("calendar:messages.confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
                                               const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                               skipOccurrenceMutation.mutate({
                                                 taskId: task.id,

@@ -38,5 +38,9 @@
   },
   "messages": {
     "trackActivities": "Aktivitäten und Fortschritte im Haushalt verfolgen"
+  },
+  "labels": {
+    "photoCount": "{{count}} Foto(s)",
+    "pdfCount": "{{count}} PDF(s)"
   }
 }

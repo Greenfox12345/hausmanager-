@@ -454,7 +454,7 @@ export default function Shopping() {
   };
 
   const handleDelete = (itemId: number) => {
-    if (confirm("Möchten Sie diesen Artikel wirklich löschen?")) {
+    if (confirm(t("shopping:messages.confirmDeleteItem", "Möchten Sie diesen Artikel wirklich löschen?"))) {
       deleteMutation.mutate({
         itemId,
         householdId: household.householdId,
@@ -587,7 +587,7 @@ export default function Shopping() {
       return;
     }
 
-    if (confirm("Möchten Sie diese Kategorie wirklich löschen?")) {
+    if (confirm(t("shopping:messages.confirmDeleteCategory", "Möchten Sie diese Kategorie wirklich löschen?"))) {
       deleteCategoryMutation.mutate({
         categoryId,
         householdId: household.householdId,
@@ -663,7 +663,7 @@ export default function Shopping() {
         projectIds: taskEnableProject && finalProjectIds.length > 0 ? finalProjectIds : undefined,
       });
     } catch (error: any) {
-      toast.error(error.message || "Fehler beim Erstellen der Aufgabe");
+      toast.error(error.message || t("tasks:messages.createError", "Fehler beim Erstellen der Aufgabe"));
     }
   };
 
@@ -769,7 +769,7 @@ export default function Shopping() {
               </div>
               <Button type="submit" className="w-full" disabled={addMutation.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
-                {addMutation.isPending ? "Wird hinzugefügt..." : "Artikel hinzufügen"}
+                {addMutation.isPending ? t("common:actions.loading", "Wird geladen...") : t("shopping:actions.addItem", "Artikel hinzufügen")}
               </Button>
             </form>
           </CardContent>
@@ -825,8 +825,8 @@ export default function Shopping() {
           <Card className="shadow-sm">
             <CardContent className="py-12 text-center text-muted-foreground">
               {filterCategoryId === "all"
-                ? "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!"
-                : `Keine Artikel in dieser Kategorie.`}
+                ? t("shopping:messages.emptyList", "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!")
+                : t("shopping:messages.emptyCategory", "Keine Artikel in dieser Kategorie.")}
             </CardContent>
           </Card>
         ) : (
@@ -948,7 +948,7 @@ export default function Shopping() {
                           {category.name}
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          {itemCount} {itemCount === 1 ? "Artikel" : "Artikel"}
+                          {t("shopping:labels.itemCount", "{{count}} Artikel", { count: itemCount })}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1092,7 +1092,7 @@ export default function Shopping() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {categoryDialogMode === "create" ? "Neue Kategorie erstellen" : "Kategorie umbenennen"}
+              {categoryDialogMode === "create" ? t("shopping:actions.createCategory", "Neue Kategorie erstellen") : t("shopping:actions.renameCategory", "Kategorie umbenennen")}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCategoryDialogSubmit}>
