@@ -3258,3 +3258,8 @@
 - [x] Borrow-Anfragen-UI: externe Haushalte kennzeichnen
 - [x] Item-Auswahl: nach Haushalten sortiert, externe Items einbeziehen
 - [x] Neighborhood: Tab-Navigation "Haushalte verbinden" / "Gegenstände ausleihen"
+
+## Bug: Sichtbarkeitseinstellung wird beim Bearbeiten nicht gespeichert
+- [x] InventoryDetail.tsx: useEffect für allowedHouseholdIds auch bei leerem Array ausführen
+- [x] InventoryDetail.tsx: visibility + allowedHouseholdIds in updateMutation integriert (keine Race Condition mehr)
+- [x] Server inventory.update: visibility und allowedHouseholdIds atomar verarbeiten

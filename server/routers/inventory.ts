@@ -55,10 +55,21 @@ export const inventoryRouter = router({
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         ownershipType: z.enum(["personal", "household"]).optional(),
         ownerIds: z.array(z.number()).optional(),
+        visibility: z.enum(["private", "connected", "selected"]).optional(),
+        allowedHouseholdIds: z.array(z.number()).optional(),
       })
     )
     .mutation(async ({ input }) => {
-      return await updateInventoryItem(input);
+      const result = await updateInventoryItem(input);
+      // Update visibility atomically in the same mutation to avoid race conditions
+      if (input.visibility !== undefined) {
+        await setInventoryItemVisibility({
+          itemId: input.itemId,
+          visibility: input.visibility,
+          allowedHouseholdIds: input.visibility === 'selected' ? (input.allowedHouseholdIds ?? []) : [],
+        });
+      }
+      return result;
     }),
 
   delete: protectedProcedure

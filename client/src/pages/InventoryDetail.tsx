@@ -91,6 +91,8 @@ export default function InventoryDetail() {
     onSuccess: () => {
       utils.inventory.getById.invalidate({ itemId });
       utils.inventory.list.invalidate();
+      utils.inventory.getAllowedHouseholds.invalidate({ itemId });
+      utils.inventory.listAll.invalidate();
       setIsEditing(false);
       toast.success("Artikel aktualisiert");
     },
@@ -205,9 +207,8 @@ export default function InventoryDetail() {
   }, [item]);
 
   useEffect(() => {
-    if (allowedHouseholdIds.length > 0) {
-      setEditAllowedHouseholdIds(allowedHouseholdIds);
-    }
+    // Always sync allowedHouseholdIds (even when empty, to reset stale state)
+    setEditAllowedHouseholdIds(allowedHouseholdIds);
   }, [allowedHouseholdIds]);
 
   if (!isAuthenticated || !household || !member) return null;
@@ -285,6 +286,7 @@ export default function InventoryDetail() {
       return;
     }
 
+    // Send visibility together with the update to avoid race conditions
     updateMutation.mutate({
       itemId,
       name: editName.trim(),
@@ -293,10 +295,6 @@ export default function InventoryDetail() {
       photoUrls: editPhotos,
       ownershipType: editOwnershipType,
       ownerIds: editOwnershipType === 'personal' ? editOwnerIds : [],
-    });
-
-    setVisibilityMutation.mutate({
-      itemId,
       visibility: editVisibility,
       allowedHouseholdIds: editVisibility === 'selected' ? editAllowedHouseholdIds : [],
     });
