@@ -232,6 +232,13 @@
       "when": 1772543087921,
       "tag": "0032_smooth_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1773575567491,
+      "tag": "0033_giant_selene",
+      "breakpoints": true
     }
   ]
 }

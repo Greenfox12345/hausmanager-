@@ -3246,3 +3246,15 @@
 - [x] Inventory.tsx: alle hartcodierten Texte durch t() ersetzen
 - [x] Projects.tsx: alle hartcodierten Texte durch t() ersetzen
 - [x] tasks.json / inventory.json / projects.json DE+EN: fehlende Schlüssel ergänzen
+
+## Feature: Haushaltsübergreifende Inventargegenstände
+- [x] DB: visibility-Feld für inventory_items (private/connected/selected)
+- [x] DB: inventory_item_allowed_households-Tabelle
+- [x] Server: getConnectedHouseholds-Helper in db.ts
+- [x] Server: getSharedInventoryItems-Prozedur (Items anderer Haushalte abrufen)
+- [x] Server: setItemVisibility-Mutation
+- [x] Server: borrow.request externe Haushalte erlauben
+- [x] Inventar-UI: Sichtbarkeitseinstellung pro Item
+- [x] Borrow-Anfragen-UI: externe Haushalte kennzeichnen
+- [x] Item-Auswahl: nach Haushalten sortiert, externe Items einbeziehen
+- [x] Neighborhood: Tab-Navigation "Haushalte verbinden" / "Gegenstände ausleihen"

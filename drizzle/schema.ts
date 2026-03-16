@@ -279,6 +279,13 @@ export const inventoryItems = mysqlTable("inventory_items", {
   categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
   photoUrls: json("photoUrls").$type<string[] | {url: string, filename: string}[]>().default([]),
   ownershipType: mysqlEnum("ownershipType", ["personal", "household"]).default("household").notNull(),
+  /**
+   * Visibility controls who can see and borrow this item:
+   * - private: only within own household (default)
+   * - connected: all connected/linked households
+   * - selected: only specific households listed in inventory_item_allowed_households
+   */
+  visibility: mysqlEnum("visibility", ["private", "connected", "selected"]).default("private").notNull(),
   createdBy: int("createdBy").notNull().references(() => householdMembers.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -286,6 +293,20 @@ export const inventoryItems = mysqlTable("inventory_items", {
 
 export type InventoryItem = typeof inventoryItems.$inferSelect;
 export type InsertInventoryItem = typeof inventoryItems.$inferInsert;
+
+/**
+ * Allowed households for inventory items with 'selected' visibility
+ * Lists which specific households are allowed to see and borrow an item
+ */
+export const inventoryItemAllowedHouseholds = mysqlTable("inventory_item_allowed_households", {
+  id: int("id").autoincrement().primaryKey(),
+  inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  allowedHouseholdId: int("allowedHouseholdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InventoryItemAllowedHousehold = typeof inventoryItemAllowedHouseholds.$inferSelect;
+export type InsertInventoryItemAllowedHousehold = typeof inventoryItemAllowedHouseholds.$inferInsert;
 
 /**
  * Inventory ownership - tracks personal ownership of inventory items

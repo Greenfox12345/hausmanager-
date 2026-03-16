@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, or } from "drizzle-orm";
+import { eq, and, desc, sql, or, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -16,6 +16,8 @@ import {
   taskRotationOccurrenceNotes,
   inventoryItems,
   inventoryOwnership,
+  inventoryItemAllowedHouseholds,
+  householdConnections,
   borrowRequests,
   borrowGuidelines,
   borrowReturnPhotos,
@@ -29,6 +31,7 @@ import {
   type ActivityHistory,
   type InventoryItem,
   type InventoryOwnership,
+  type InventoryItemAllowedHousehold,
   type BorrowRequest,
   type BorrowGuideline,
   type BorrowReturnPhoto,
@@ -1517,4 +1520,158 @@ export async function moveRotationOccurrence(
   await setRotationSchedule(taskId, updatedSchedule);
 
   return { success: true };
+}
+
+// ===== Cross-Household Inventory Functions =====
+
+/**
+ * Get all household IDs that are connected (accepted) to a given household
+ */
+export async function getConnectedHouseholdIds(householdId: number): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const connections = await db.select({
+    requestingHouseholdId: householdConnections.requestingHouseholdId,
+    targetHouseholdId: householdConnections.targetHouseholdId,
+  })
+    .from(householdConnections)
+    .where(
+      and(
+        or(
+          eq(householdConnections.requestingHouseholdId, householdId),
+          eq(householdConnections.targetHouseholdId, householdId)
+        ),
+        eq(householdConnections.status, "accepted")
+      )
+    );
+  return connections.map(c =>
+    c.requestingHouseholdId === householdId ? c.targetHouseholdId : c.requestingHouseholdId
+  );
+}
+
+/**
+ * Get inventory items from connected households that are visible to the requesting household.
+ * Returns items grouped by household with household name.
+ */
+export async function getSharedInventoryItems(requestingHouseholdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const connectedIds = await getConnectedHouseholdIds(requestingHouseholdId);
+  if (connectedIds.length === 0) return [];
+
+  // Get items with visibility = 'connected' from all connected households
+  const connectedItems = await db.select({
+    id: inventoryItems.id,
+    householdId: inventoryItems.householdId,
+    householdName: households.name,
+    name: inventoryItems.name,
+    details: inventoryItems.details,
+    categoryId: inventoryItems.categoryId,
+    categoryName: shoppingCategories.name,
+    categoryColor: shoppingCategories.color,
+    photoUrls: inventoryItems.photoUrls,
+    ownershipType: inventoryItems.ownershipType,
+    visibility: inventoryItems.visibility,
+    createdAt: inventoryItems.createdAt,
+  })
+    .from(inventoryItems)
+    .leftJoin(shoppingCategories, eq(inventoryItems.categoryId, shoppingCategories.id))
+    .leftJoin(households, eq(inventoryItems.householdId, households.id))
+    .where(
+      and(
+        inArray(inventoryItems.householdId, connectedIds),
+        eq(inventoryItems.visibility, "connected")
+      )
+    )
+    .orderBy(inventoryItems.householdId, desc(inventoryItems.createdAt));
+
+  // Get items with visibility = 'selected' where requestingHouseholdId is in allowed list
+  const selectedItems = await db.select({
+    id: inventoryItems.id,
+    householdId: inventoryItems.householdId,
+    householdName: households.name,
+    name: inventoryItems.name,
+    details: inventoryItems.details,
+    categoryId: inventoryItems.categoryId,
+    categoryName: shoppingCategories.name,
+    categoryColor: shoppingCategories.color,
+    photoUrls: inventoryItems.photoUrls,
+    ownershipType: inventoryItems.ownershipType,
+    visibility: inventoryItems.visibility,
+    createdAt: inventoryItems.createdAt,
+  })
+    .from(inventoryItems)
+    .leftJoin(shoppingCategories, eq(inventoryItems.categoryId, shoppingCategories.id))
+    .leftJoin(households, eq(inventoryItems.householdId, households.id))
+    .innerJoin(
+      inventoryItemAllowedHouseholds,
+      and(
+        eq(inventoryItemAllowedHouseholds.inventoryItemId, inventoryItems.id),
+        eq(inventoryItemAllowedHouseholds.allowedHouseholdId, requestingHouseholdId)
+      )
+    )
+    .where(
+      and(
+        inArray(inventoryItems.householdId, connectedIds),
+        eq(inventoryItems.visibility, "selected")
+      )
+    )
+    .orderBy(inventoryItems.householdId, desc(inventoryItems.createdAt));
+
+  const allItems = [...connectedItems, ...selectedItems];
+
+  // Deduplicate by id
+  const seen = new Set<number>();
+  const unique = allItems.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+
+  return unique;
+}
+
+/**
+ * Set visibility for an inventory item and update allowed households list
+ */
+export async function setInventoryItemVisibility(data: {
+  itemId: number;
+  visibility: 'private' | 'connected' | 'selected';
+  allowedHouseholdIds?: number[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(inventoryItems)
+    .set({ visibility: data.visibility })
+    .where(eq(inventoryItems.id, data.itemId));
+
+  // Always clear existing allowed households
+  await db.delete(inventoryItemAllowedHouseholds)
+    .where(eq(inventoryItemAllowedHouseholds.inventoryItemId, data.itemId));
+
+  // If 'selected', insert new allowed households
+  if (data.visibility === 'selected' && data.allowedHouseholdIds && data.allowedHouseholdIds.length > 0) {
+    await Promise.all(data.allowedHouseholdIds.map(hid =>
+      db.insert(inventoryItemAllowedHouseholds).values({
+        inventoryItemId: data.itemId,
+        allowedHouseholdId: hid,
+      })
+    ));
+  }
+
+  return { success: true };
+}
+
+/**
+ * Get allowed household IDs for a specific inventory item
+ */
+export async function getInventoryItemAllowedHouseholds(itemId: number): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ allowedHouseholdId: inventoryItemAllowedHouseholds.allowedHouseholdId })
+    .from(inventoryItemAllowedHouseholds)
+    .where(eq(inventoryItemAllowedHouseholds.inventoryItemId, itemId));
+  return rows.map(r => r.allowedHouseholdId);
 }

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Search, Package, CheckCircle2, XCircle, AlertCircle, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 type ConflictWarning = {
@@ -88,18 +88,108 @@ export function ItemPickerDialog({
   // tRPC utils for imperative queries
   const utils = trpc.useUtils();
 
-  // Load inventory items
-  const { data: items, isLoading } = trpc.inventory.list.useQuery(
+  // Load own inventory items
+  const { data: ownItems, isLoading: ownLoading } = trpc.inventory.list.useQuery(
     { householdId },
     { enabled: open }
   );
 
-  // Filter items based on search query and exclusions
-  const filteredItems = (items || []).filter((item) => {
+  // Load shared items from connected households
+  const { data: allData, isLoading: sharedLoading } = trpc.inventory.listAll.useQuery(
+    { householdId },
+    { enabled: open }
+  );
+
+  const sharedItems = allData?.shared ?? [];
+  const isLoading = ownLoading || sharedLoading;
+
+  // Group shared items by household
+  const sharedByHousehold = sharedItems.reduce<Record<string, { householdName: string; items: typeof sharedItems }>>((acc, item) => {
+    const key = String(item.householdId);
+    if (!acc[key]) {
+      acc[key] = { householdName: (item as any).householdName ?? `Haushalt #${item.householdId}`, items: [] };
+    }
+    acc[key].items.push(item);
+    return acc;
+  }, {});
+
+  // Filter own items
+  const filteredOwn = (ownItems || []).filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     const notExcluded = !excludeItemIds.includes(item.id);
     return matchesSearch && notExcluded;
   });
+
+  // Filter shared items
+  const filteredSharedByHousehold = Object.entries(sharedByHousehold).reduce<typeof sharedByHousehold>((acc, [key, group]) => {
+    const filtered = group.items.filter((item) => {
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const notExcluded = !excludeItemIds.includes(item.id);
+      return matchesSearch && notExcluded;
+    });
+    if (filtered.length > 0) {
+      acc[key] = { ...group, items: filtered };
+    }
+    return acc;
+  }, {});
+
+  const hasShared = Object.keys(filteredSharedByHousehold).length > 0;
+
+  const handleItemClick = async (item: { id: number; name: string }) => {
+    if (occurrenceDate) {
+      const availabilityCheck = await utils.inventoryAvailability.checkItemAvailability.fetch({
+        inventoryItemId: item.id,
+        startDate: occurrenceDate,
+        endDate: occurrenceDate,
+      });
+
+      if (availabilityCheck.status !== "available" && availabilityCheck.conflictingBorrows.length > 0) {
+        setConflictWarning({
+          itemId: item.id,
+          itemName: item.name,
+          conflicts: availabilityCheck.conflictingBorrows,
+        });
+        return;
+      }
+    }
+    onSelectItem(item.id, item.name);
+    onOpenChange(false);
+    setSearchQuery("");
+  };
+
+  const renderItem = (item: { id: number; name: string; details?: string | null; photoUrls?: any }, isExternal = false) => (
+    <button
+      key={item.id}
+      onClick={() => handleItemClick(item)}
+      className={`w-full p-3 border rounded-lg hover:bg-accent transition-colors text-left flex items-start gap-3 ${isExternal ? 'border-amber-300 dark:border-amber-700' : ''}`}
+    >
+      {/* Item Photo */}
+      {item.photoUrls && item.photoUrls.length > 0 ? (
+        <img
+          src={typeof item.photoUrls[0] === 'string' ? item.photoUrls[0] : item.photoUrls[0].url}
+          alt={item.name}
+          className="w-12 h-12 object-cover rounded"
+        />
+      ) : (
+        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+          <Package className="h-6 w-6 text-muted-foreground" />
+        </div>
+      )}
+
+      {/* Item Info */}
+      <div className="flex-1 min-w-0">
+        <div className="font-medium">{item.name}</div>
+        {item.details && (
+          <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+            {item.details}
+          </div>
+        )}
+      </div>
+
+      {/* Availability Badge */}
+      <AvailabilityBadge itemId={item.id} occurrenceDate={occurrenceDate} />
+    </button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,12 +213,12 @@ export function ItemPickerDialog({
         </div>
 
         {/* Items List */}
-        <div className="flex-1 overflow-y-auto space-y-2 min-h-[300px]">
+        <div className="flex-1 overflow-y-auto space-y-4 min-h-[300px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Lade Gegenstände...
             </div>
-          ) : filteredItems.length === 0 ? (
+          ) : filteredOwn.length === 0 && !hasShared ? (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
               <Package className="h-12 w-12 mb-2 opacity-50" />
               <p>Keine Gegenstände gefunden</p>
@@ -137,63 +227,32 @@ export function ItemPickerDialog({
               )}
             </div>
           ) : (
-            filteredItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={async () => {
-                  // Check availability if date is provided
-                  if (occurrenceDate) {
-                    const availabilityCheck = await utils.inventoryAvailability.checkItemAvailability.fetch({
-                      inventoryItemId: item.id,
-                      startDate: occurrenceDate,
-                      endDate: occurrenceDate,
-                    });
-
-                    // Show warning if item is borrowed or partially available
-                    if (availabilityCheck.status !== "available" && availabilityCheck.conflictingBorrows.length > 0) {
-                      setConflictWarning({
-                        itemId: item.id,
-                        itemName: item.name,
-                        conflicts: availabilityCheck.conflictingBorrows,
-                      });
-                      return;
-                    }
-                  }
-
-                  // No conflicts, proceed with selection
-                  onSelectItem(item.id, item.name);
-                  onOpenChange(false);
-                  setSearchQuery("");
-                }}
-                className="w-full p-3 border rounded-lg hover:bg-accent transition-colors text-left flex items-start gap-3"
-              >
-                {/* Item Photo */}
-                {item.photoUrls && item.photoUrls.length > 0 ? (
-                  <img
-                    src={typeof item.photoUrls[0] === 'string' ? item.photoUrls[0] : item.photoUrls[0].url}
-                    alt={item.name}
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                    <Package className="h-6 w-6 text-muted-foreground" />
+            <>
+              {/* Own household items */}
+              {filteredOwn.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
+                    Dieser Haushalt
                   </div>
-                )}
-
-                {/* Item Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium">{item.name}</div>
-                  {item.details && (
-                    <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                      {item.details}
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    {filteredOwn.map((item) => renderItem(item, false))}
+                  </div>
                 </div>
+              )}
 
-                {/* Availability Badge */}
-                <AvailabilityBadge itemId={item.id} occurrenceDate={occurrenceDate} />
-              </button>
-            ))
+              {/* Shared items grouped by household */}
+              {hasShared && Object.entries(filteredSharedByHousehold).map(([key, group]) => (
+                <div key={key}>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2 px-1">
+                    <Globe className="h-3.5 w-3.5" />
+                    {group.householdName}
+                  </div>
+                  <div className="space-y-2">
+                    {group.items.map((item) => renderItem(item, true))}
+                  </div>
+                </div>
+              ))}
+            </>
           )}
         </div>
 
