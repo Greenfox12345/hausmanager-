@@ -12,24 +12,31 @@ import { toast } from "sonner";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, currentHousehold, user, setCurrentHousehold } = useUserAuth();
-  const { t } = useTranslation(["common", "shopping", "tasks", "calendar", "projects", "inventory", "history", "neighborhood", "members"]);
+  const { isAuthenticated, isLoading, currentHousehold, user, setCurrentHousehold } = useUserAuth();
+  const { t } = useTranslation("common");
+  const { t: tShopping } = useTranslation("shopping");
+  const { t: tTasks } = useTranslation("tasks");
+  const { t: tCalendar } = useTranslation("calendar");
+  const { t: tProjects } = useTranslation("projects");
+  const { t: tInventory } = useTranslation("inventory");
+  const { t: tHistory } = useTranslation("history");
+  const { t: tNeighborhood } = useTranslation("neighborhood");
 
   useEffect(() => {
-    // Check user auth
+    // Wait for auth check to complete before redirecting
+    if (isLoading) return;
     if (!isAuthenticated) {
       setLocation("/login");
       return;
     }
-    // If user is logged in but no household selected, redirect to household selection
     if (!currentHousehold) {
       setLocation("/household-selection");
       return;
     }
-  }, [isAuthenticated, currentHousehold, setLocation]);
+  }, [isAuthenticated, isLoading, currentHousehold, setLocation]);
 
   // Show loading while checking auth
-  if (!isAuthenticated || !currentHousehold) {
+  if (isLoading || !isAuthenticated || !currentHousehold) {
     return null;
   }
 
@@ -42,8 +49,10 @@ export default function Home() {
     { enabled: !!user?.id }
   );
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+  const utils = trpc.useUtils();
 
   const handleSwitchHousehold = async (householdId: number, householdName: string) => {
+    if (householdId === currentHousehold.householdId) return;
     try {
       const result = await switchHouseholdMutation.mutateAsync({ householdId });
       setCurrentHousehold({
@@ -53,73 +62,74 @@ export default function Home() {
         memberName: result.memberName,
         inviteCode: result.inviteCode,
       });
-      toast.success(`${t("household.select", { ns: "common" })}: "${householdName}"`);
-      window.location.reload();
+      // Invalidate all queries so data refreshes for the new household
+      await utils.invalidate();
+      toast.success(`${t("household.select")}: "${householdName}"`);
     } catch (error: any) {
-      toast.error(error.message || t("messages.error", { ns: "common" }));
+      toast.error(error.message || t("messages.error"));
     }
   };
 
   const features = [
     {
-      title: t("shopping.title", "Einkaufsliste"),
-      description: t("shopping.messages.manageCategories", "Einkäufe mit Kategorien verwalten"),
+      title: tShopping("title"),
+      description: tShopping("messages.manageCategories"),
       icon: ShoppingBag,
       href: "/shopping",
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: t("tasks.title", "Haushaltsaufgaben"),
-      description: t("tasks.messages.rotationAndSchedules", "Aufgaben mit Rotation und Zeitplänen verwalten"),
+      title: tTasks("title"),
+      description: tTasks("messages.rotationAndSchedules"),
       icon: CheckSquare,
       href: "/tasks",
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
-      title: t("calendar.title", "Terminübersicht"),
-      description: t("calendar.messages.overview", "Kalender und alle Termine im Überblick"),
+      title: tCalendar("title"),
+      description: tCalendar("messages.overview"),
       icon: Calendar,
       href: "/calendar",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
-      title: t("projects.title", "Projekte"),
-      description: t("projects.messages.planAndManage", "Gemeinsame Haushaltsprojekte planen"),
+      title: tProjects("title"),
+      description: tProjects("messages.planAndManage"),
       icon: FolderKanban,
       href: "/projects",
       color: "text-accent",
       bgColor: "bg-accent/10",
     },
     {
-      title: t("inventory.title", "Inventar"),
-      description: t("inventory.messages.manageAndOrganize", "Haushaltsgegenstände verwalten und organisieren"),
+      title: tInventory("title"),
+      description: tInventory("messages.manageAndOrganize"),
       icon: Package,
       href: "/inventory",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
     {
-      title: t("history.title", "Verlauf"),
-      description: t("history.messages.trackActivities", "Aktivitäten und Fortschritte im Haushalt verfolgen"),
+      title: tHistory("title"),
+      description: tHistory("messages.trackActivities"),
       icon: History,
       href: "/history",
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: t("neighborhood.title", "Nachbarschaft"),
-      description: t("neighborhood.messages.collaborate", "Mit anderen Haushalten zusammenarbeiten"),
+      title: tNeighborhood("title"),
+      description: tNeighborhood("messages.collaborate"),
       icon: Building2,
       href: "/neighborhood",
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
-      title: t("nav.household", "Haushalt"),
-      description: t("members.messages.manageMembers", "Haushaltsmitglieder und Einstellungen"),
+      title: t("nav.household"),
+      description: t("household.members"),
       icon: Users,
       href: "/members",
       color: "text-accent",
@@ -132,10 +142,10 @@ export default function Home() {
       <div className="container py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2">
-            {t("messages.welcome", "Willkommen")}, {currentHousehold.memberName}!
+            {t("messages.welcome")}, {currentHousehold.memberName}!
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-muted-foreground text-lg">{t("household.name", "Haushalt")}:</span>
+            <span className="text-muted-foreground text-lg">{t("household.name")}:</span>
             {userHouseholds.length > 1 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -149,7 +159,7 @@ export default function Home() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-64">
-                  <DropdownMenuLabel>{t("household.select", "Haushalt wechseln", { ns: "common" })}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {userHouseholds.map((h) => (
                     <DropdownMenuItem
@@ -197,7 +207,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-sm text-muted-foreground">
-                    {t("actions.clickToStart", "Klicken Sie hier, um zu beginnen →")}
+                    {t("actions.clickToStart")}
                   </div>
                 </CardContent>
               </Card>
