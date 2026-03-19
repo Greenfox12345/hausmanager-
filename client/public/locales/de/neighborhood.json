@@ -1,6 +1,59 @@
 {
   "title": "Nachbarschaft",
+  "description": "Vernetzen Sie sich mit anderen Haushalten für gemeinsame Aufgaben und Projekte",
+  "tabs": {
+    "connect": "Haushalte verbinden",
+    "borrow": "Gegenstände ausleihen"
+  },
+  "actions": {
+    "inviteHousehold": "Haushalt einladen",
+    "invite": "Einladen",
+    "accept": "Annehmen",
+    "reject": "Ablehnen",
+    "remove": "Entfernen",
+    "requestBorrow": "Ausleihen anfragen"
+  },
+  "fields": {
+    "inviteCode": "Einladungscode eingeben",
+    "inviteCodePlaceholder": "z.B. ABC123",
+    "code": "Code:",
+    "household": "Haushalt",
+    "allHouseholds": "Alle Haushalte",
+    "item": "Gegenstand",
+    "items": "Gegenstände"
+  },
   "messages": {
-    "collaborate": "Mit anderen Haushalten zusammenarbeiten"
+    "collaborate": "Mit anderen Haushalten zusammenarbeiten",
+    "invitationSent": "Einladung gesendet!",
+    "invitationAccepted": "Einladung angenommen!",
+    "invitationRejected": "Einladung abgelehnt",
+    "connectionRemoved": "Verbindung entfernt",
+    "confirmRemoveConnection": "Möchten Sie diese Verbindung wirklich entfernen?",
+    "borrowAutoApproved": "Ausleih-Anfrage automatisch genehmigt",
+    "borrowRequestSent": "Ausleih-Anfrage gesendet. Warte auf Genehmigung.",
+    "pendingInvitations": "Ausstehende Einladungen",
+    "invitationsFromOtherHouseholds": "Einladungen von anderen Haushalten",
+    "invitedBy": "Eingeladen von",
+    "connectedHouseholds": "Verbundene Haushalte",
+    "householdsToShareTasks": "Haushalte, mit denen Sie Aufgaben und Projekte teilen können",
+    "noConnectedHouseholds": "Noch keine verbundenen Haushalte",
+    "inviteOthersToPlanTasks": "Laden Sie andere Haushalte ein, um gemeinsam Aufgaben zu planen",
+    "connectedSince": "Verbunden seit",
+    "howItWorks": "So funktioniert's",
+    "connectHouseholdsTitle": "Haushalte verbinden:",
+    "connectHouseholdsDescription": "Geben Sie den Einladungscode eines anderen Haushalts ein, um eine Verbindung herzustellen",
+    "shareTasksTitle": "Aufgaben teilen:",
+    "shareTasksDescription": "Beim Erstellen von Aufgaben können Sie verbundene Haushalte auswählen",
+    "assignMembersTitle": "Mitglieder zuweisen:",
+    "assignMembersDescription": "Weisen Sie Aufgaben Mitgliedern aus allen verbundenen Haushalten zu",
+    "manageTogetherTitle": "Gemeinsam verwalten:",
+    "manageTogetherDescription": "Alle Mitglieder verbundener Haushalte können geteilte Aufgaben bearbeiten",
+    "enterInviteCodeDescription": "Geben Sie den Einladungscode des Haushalts ein, den Sie verbinden möchten",
+    "householdFound": "Haushalt gefunden",
+    "noHouseholdFound": "Kein Haushalt mit diesem Einladungscode gefunden",
+    "loadingItems": "Lade Gegenstände...",
+    "noItemsAvailable": "Keine Gegenstände verfügbar",
+    "noItemsHint": "Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.",
+    "noItemsForHousehold": "Keine Gegenstände für diesen Haushalt gefunden."
   }
 }

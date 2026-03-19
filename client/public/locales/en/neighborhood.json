@@ -1,6 +1,59 @@
 {
   "title": "Neighbourhood",
+  "description": "Connect with other households for shared tasks and projects",
+  "tabs": {
+    "connect": "Connect Households",
+    "borrow": "Borrow Items"
+  },
+  "actions": {
+    "inviteHousehold": "Invite Household",
+    "invite": "Invite",
+    "accept": "Accept",
+    "reject": "Reject",
+    "remove": "Remove",
+    "requestBorrow": "Request to Borrow"
+  },
+  "fields": {
+    "inviteCode": "Enter invite code",
+    "inviteCodePlaceholder": "e.g. ABC123",
+    "code": "Code:",
+    "household": "Household",
+    "allHouseholds": "All Households",
+    "item": "item",
+    "items": "items"
+  },
   "messages": {
-    "collaborate": "Collaborate with other households"
+    "collaborate": "Collaborate with other households",
+    "invitationSent": "Invitation sent!",
+    "invitationAccepted": "Invitation accepted!",
+    "invitationRejected": "Invitation rejected",
+    "connectionRemoved": "Connection removed",
+    "confirmRemoveConnection": "Are you sure you want to remove this connection?",
+    "borrowAutoApproved": "Borrow request automatically approved",
+    "borrowRequestSent": "Borrow request sent. Waiting for approval.",
+    "pendingInvitations": "Pending Invitations",
+    "invitationsFromOtherHouseholds": "Invitations from other households",
+    "invitedBy": "Invited by",
+    "connectedHouseholds": "Connected Households",
+    "householdsToShareTasks": "Households you can share tasks and projects with",
+    "noConnectedHouseholds": "No connected households yet",
+    "inviteOthersToPlanTasks": "Invite other households to plan tasks together",
+    "connectedSince": "Connected since",
+    "howItWorks": "How it works",
+    "connectHouseholdsTitle": "Connect households:",
+    "connectHouseholdsDescription": "Enter the invite code of another household to establish a connection",
+    "shareTasksTitle": "Share tasks:",
+    "shareTasksDescription": "When creating tasks, you can select connected households",
+    "assignMembersTitle": "Assign members:",
+    "assignMembersDescription": "Assign tasks to members from all connected households",
+    "manageTogetherTitle": "Manage together:",
+    "manageTogetherDescription": "All members of connected households can edit shared tasks",
+    "enterInviteCodeDescription": "Enter the invite code of the household you want to connect with",
+    "householdFound": "Household found",
+    "noHouseholdFound": "No household found with this invite code",
+    "loadingItems": "Loading items...",
+    "noItemsAvailable": "No items available",
+    "noItemsHint": "Connected households need to share their items first.",
+    "noItemsForHousehold": "No items found for this household."
   }
 }

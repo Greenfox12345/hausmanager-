@@ -113,9 +113,9 @@ export default function Neighborhood() {
       setBorrowDialogOpen(false);
       setSelectedItemForBorrow(null);
       if (data.autoApproved) {
-        toast.success("Ausleih-Anfrage automatisch genehmigt");
+        toast.success(t("neighborhood:messages.borrowAutoApproved", "Ausleih-Anfrage automatisch genehmigt"));
       } else {
-        toast.success("Ausleih-Anfrage gesendet. Warte auf Genehmigung.");
+        toast.success(t("neighborhood:messages.borrowRequestSent", "Ausleih-Anfrage gesendet. Warte auf Genehmigung."));
       }
     },
     onError: (error) => {
@@ -195,7 +195,7 @@ export default function Neighborhood() {
             }`}
           >
             <Users className="h-4 w-4" />
-            Haushalte verbinden
+            {t("neighborhood:tabs.connect", "Haushalte verbinden")}
           </button>
           <button
             onClick={() => setActiveTab("borrow")}
@@ -206,7 +206,7 @@ export default function Neighborhood() {
             }`}
           >
             <Package className="h-4 w-4" />
-            Gegenstände ausleihen
+            {t("neighborhood:tabs.borrow", "Gegenstände ausleihen")}
             {sharedItems.length > 0 && (
               <Badge variant="secondary" className="ml-1">{sharedItems.length}</Badge>
             )}
@@ -411,13 +411,13 @@ export default function Neighborhood() {
             {/* Filter by household */}
             {Object.keys(sharedByHousehold).length > 1 && (
               <div className="flex items-center gap-3">
-                <Label className="shrink-0 text-sm text-muted-foreground">Haushalt:</Label>
+                <Label className="shrink-0 text-sm text-muted-foreground">{t("neighborhood:fields.household", "Haushalt")}:</Label>
                 <Select value={filterHouseholdId} onValueChange={setFilterHouseholdId}>
                   <SelectTrigger className="w-[220px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Alle Haushalte</SelectItem>
+                    <SelectItem value="all">{t("neighborhood:fields.allHouseholds", "Alle Haushalte")}</SelectItem>
                     {Object.values(sharedByHousehold).map((g) => (
                       <SelectItem key={g.householdId} value={String(g.householdId)}>
                         {g.householdName}
@@ -429,22 +429,22 @@ export default function Neighborhood() {
             )}
 
             {loadingInventory ? (
-              <div className="text-center py-12 text-muted-foreground">Lade Gegenstände...</div>
+              <div className="text-center py-12 text-muted-foreground">{t("neighborhood:messages.loadingItems", "Lade Gegenstände...")}</div>
             ) : sharedItems.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-                <p className="text-lg font-medium text-muted-foreground">Keine Gegenstände verfügbar</p>
+                <p className="text-lg font-medium text-muted-foreground">{t("neighborhood:messages.noItemsAvailable", "Keine Gegenstände verfügbar")}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.
+                  {t("neighborhood:messages.noItemsHint", "Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.")}
                 </p>
                 <Button variant="outline" className="mt-4" onClick={() => setActiveTab("connect")}>
                   <Users className="h-4 w-4 mr-2" />
-                  Haushalte verbinden
+                  {t("neighborhood:tabs.connect", "Haushalte verbinden")}
                 </Button>
               </div>
             ) : filteredGroups.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                Keine Gegenstände für diesen Haushalt gefunden.
+                {t("neighborhood:messages.noItemsForHousehold", "Keine Gegenstände für diesen Haushalt gefunden.")}
               </div>
             ) : (
               <div className="space-y-8">
@@ -457,7 +457,7 @@ export default function Neighborhood() {
                         {group.householdName}
                       </h2>
                       <Badge variant="outline" className="text-xs">
-                        {group.items.length} {group.items.length === 1 ? "Gegenstand" : "Gegenstände"}
+                        {group.items.length} {group.items.length === 1 ? t("neighborhood:fields.item", "Gegenstand") : t("neighborhood:fields.items", "Gegenstände")}
                       </Badge>
                     </div>
 
@@ -507,7 +507,7 @@ export default function Neighborhood() {
                               }}
                             >
                               <Calendar className="h-4 w-4 mr-2" />
-                              Ausleihen anfragen
+                              {t("neighborhood:actions.requestBorrow", "Ausleihen anfragen")}
                             </Button>
                           </CardContent>
                         </Card>
