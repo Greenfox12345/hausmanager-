@@ -2,13 +2,17 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, ChevronsUpDown, Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, currentHousehold } = useUserAuth();
+  const { isAuthenticated, currentHousehold, user, setCurrentHousehold } = useUserAuth();
   const { t } = useTranslation(["common", "shopping", "tasks", "calendar", "projects", "inventory", "history", "neighborhood", "members"]);
 
   useEffect(() => {
@@ -31,6 +35,30 @@ export default function Home() {
 
   // Get household info
   const displayHousehold = currentHousehold.householdName;
+
+  // Household switcher
+  const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
+    { userId: user?.id },
+    { enabled: !!user?.id }
+  );
+  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+
+  const handleSwitchHousehold = async (householdId: number, householdName: string) => {
+    try {
+      const result = await switchHouseholdMutation.mutateAsync({ householdId });
+      setCurrentHousehold({
+        householdId: result.householdId,
+        householdName: result.householdName,
+        memberId: result.memberId,
+        memberName: result.memberName,
+        inviteCode: result.inviteCode,
+      });
+      toast.success(`${t("household.select", { ns: "common" })}: "${householdName}"`);
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error.message || t("messages.error", { ns: "common" }));
+    }
+  };
 
   const features = [
     {
@@ -106,9 +134,45 @@ export default function Home() {
           <h1 className="text-4xl font-bold mb-2">
             {t("messages.welcome", "Willkommen")}, {currentHousehold.memberName}!
           </h1>
-          <p className="text-muted-foreground text-lg">
-            {t("household.name", "Haushalt")}: {displayHousehold}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-muted-foreground text-lg">{t("household.name", "Haushalt")}:</span>
+            {userHouseholds.length > 1 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-auto p-0 text-lg font-medium text-foreground hover:bg-transparent hover:text-primary flex items-center gap-1"
+                    disabled={switchHouseholdMutation.isPending}
+                  >
+                    {displayHousehold}
+                    <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel>{t("household.select", "Haushalt wechseln", { ns: "common" })}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {userHouseholds.map((h) => (
+                    <DropdownMenuItem
+                      key={h.householdId}
+                      onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        {currentHousehold.householdId === h.householdId && (
+                          <Check className="h-4 w-4 shrink-0" />
+                        )}
+                        <span className={currentHousehold.householdId !== h.householdId ? "ml-6" : ""}>
+                          {h.householdName}
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <span className="text-lg font-medium">{displayHousehold}</span>
+            )}
+          </div>
         </div>
 
         {/* Desktop Grid */}
