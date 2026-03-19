@@ -13,6 +13,8 @@ import { toast } from "sonner";
 export default function Home() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading, currentHousehold, user, setCurrentHousehold } = useUserAuth();
+
+  // All translations – must be called unconditionally
   const { t } = useTranslation("common");
   const { t: tShopping } = useTranslation("shopping");
   const { t: tTasks } = useTranslation("tasks");
@@ -21,6 +23,14 @@ export default function Home() {
   const { t: tInventory } = useTranslation("inventory");
   const { t: tHistory } = useTranslation("history");
   const { t: tNeighborhood } = useTranslation("neighborhood");
+
+  // Household switcher – must be called unconditionally (Rules of Hooks)
+  const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
+    { userId: user?.id },
+    { enabled: !!user?.id }
+  );
+  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+  const utils = trpc.useUtils();
 
   useEffect(() => {
     // Wait for auth check to complete before redirecting
@@ -35,24 +45,8 @@ export default function Home() {
     }
   }, [isAuthenticated, isLoading, currentHousehold, setLocation]);
 
-  // Show loading while checking auth
-  if (isLoading || !isAuthenticated || !currentHousehold) {
-    return null;
-  }
-
-  // Get household info
-  const displayHousehold = currentHousehold.householdName;
-
-  // Household switcher
-  const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
-    { userId: user?.id },
-    { enabled: !!user?.id }
-  );
-  const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
-  const utils = trpc.useUtils();
-
   const handleSwitchHousehold = async (householdId: number, householdName: string) => {
-    if (householdId === currentHousehold.householdId) return;
+    if (householdId === currentHousehold?.householdId) return;
     try {
       const result = await switchHouseholdMutation.mutateAsync({ householdId });
       setCurrentHousehold({
@@ -62,13 +56,19 @@ export default function Home() {
         memberName: result.memberName,
         inviteCode: result.inviteCode,
       });
-      // Invalidate all queries so data refreshes for the new household
       await utils.invalidate();
       toast.success(`${t("household.select")}: "${householdName}"`);
     } catch (error: any) {
       toast.error(error.message || t("messages.error"));
     }
   };
+
+  // Show loading while checking auth
+  if (isLoading || !isAuthenticated || !currentHousehold) {
+    return null;
+  }
+
+  const displayHousehold = currentHousehold.householdName;
 
   const features = [
     {
