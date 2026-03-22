@@ -905,4 +905,80 @@ export const borrowRouter = router({
 
       return itemCounts;
     }),
+
+  // Get ALL requests for a household (admin view) enriched with borrower household name
+  getAllHouseholdRequests: publicProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const requests = await getBorrowRequestsByOwner(input.householdId);
+      const db = await getDb();
+      const { households } = await import("../../drizzle/schema");
+      const { eq: eqOp } = await import("drizzle-orm");
+      const enriched = await Promise.all(
+        requests.map(async (req) => {
+          const item = await getInventoryItemById(req.inventoryItemId);
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          let borrowerHouseholdName = "Unbekannt";
+          if (db && req.borrowerHouseholdId) {
+            const [hh] = await db.select({ name: households.name })
+              .from(households).where(eqOp(households.id, req.borrowerHouseholdId));
+            borrowerHouseholdName = hh?.name || "Unbekannt";
+          }
+          return {
+            id: req.id,
+            itemId: req.inventoryItemId,
+            itemName: item?.name || "Unknown",
+            borrowerName: borrower?.memberName || "Unbekannt",
+            borrowerHouseholdName,
+            borrowerHouseholdId: req.borrowerHouseholdId,
+            ownerHouseholdId: req.ownerHouseholdId,
+            isExternal: req.borrowerHouseholdId !== input.householdId,
+            status: req.status,
+            startDate: req.startDate,
+            endDate: req.endDate,
+            message: req.requestMessage,
+            responseMessage: req.responseMessage,
+          };
+        })
+      );
+      return enriched;
+    }),
+
+  // Get pending requests the current member can handle
+  getPendingForMember: publicProcedure
+    .input(z.object({ householdId: z.number(), memberId: z.number() }))
+    .query(async ({ input }) => {
+      const allRequests = await getBorrowRequestsByOwner(input.householdId);
+      const pending = allRequests.filter(r => r.status === "pending");
+      const db = await getDb();
+      const { households } = await import("../../drizzle/schema");
+      const { eq: eqOp } = await import("drizzle-orm");
+      const enriched = await Promise.all(
+        pending.map(async (req) => {
+          const item = await getInventoryItemById(req.inventoryItemId);
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          let borrowerHouseholdName = "Unbekannt";
+          if (db && req.borrowerHouseholdId) {
+            const [hh] = await db.select({ name: households.name })
+              .from(households).where(eqOp(households.id, req.borrowerHouseholdId));
+            borrowerHouseholdName = hh?.name || "Unbekannt";
+          }
+          return {
+            id: req.id,
+            itemId: req.inventoryItemId,
+            itemName: item?.name || "Unknown",
+            borrowerName: borrower?.memberName || "Unbekannt",
+            borrowerHouseholdName,
+            borrowerHouseholdId: req.borrowerHouseholdId,
+            ownerHouseholdId: req.ownerHouseholdId,
+            isExternal: req.borrowerHouseholdId !== input.householdId,
+            status: req.status,
+            startDate: req.startDate,
+            endDate: req.endDate,
+            message: req.requestMessage,
+          };
+        })
+      );
+      return enriched;
+    }),
 });
