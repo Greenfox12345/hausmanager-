@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, HandCoins } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
@@ -18,6 +18,7 @@ export default function Home() {
   const { t: tCalendar } = useTranslation("calendar");
   const { t: tProjects } = useTranslation("projects");
   const { t: tInventory } = useTranslation("inventory");
+  const { t: tBorrows } = useTranslation("borrows");
   const { t: tHistory } = useTranslation("history");
   const { t: tNeighborhood } = useTranslation("neighborhood");
 
@@ -81,6 +82,14 @@ export default function Home() {
       href: "/inventory",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
+    },
+    {
+      title: tBorrows("title"),
+      description: tBorrows("messages.description"),
+      icon: HandCoins,
+      href: "/borrows",
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50",
     },
     {
       title: tHistory("title"),

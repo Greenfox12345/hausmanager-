@@ -28,7 +28,8 @@ import {
   Check,
   Calendar,
   UserCircle,
-  Package
+  Package,
+  HandCoins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -108,6 +109,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: Package,
       href: "/inventory",
       color: "text-orange-600",
+    },
+    {
+      title: t("nav.borrows"),
+      icon: HandCoins,
+      href: "/borrows",
+      color: "text-yellow-600",
     },
     {
       title: t("nav.history"),

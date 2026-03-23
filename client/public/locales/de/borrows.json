@@ -62,7 +62,8 @@
     "requestError": "Fehler beim Senden der Anfrage",
     "approveError": "Fehler beim Genehmigen",
     "rejectError": "Fehler beim Ablehnen",
-    "returnError": "Fehler bei der Rückgabe"
+    "returnError": "Fehler bei der Rückgabe",
+    "description": "Gegenstände ausleihen und verwalten"
   },
   "labels": {
     "borrower": "Ausleiher",

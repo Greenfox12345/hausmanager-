@@ -3263,3 +3263,9 @@
 - [x] InventoryDetail.tsx: useEffect für allowedHouseholdIds auch bei leerem Array ausführen
 - [x] InventoryDetail.tsx: visibility + allowedHouseholdIds in updateMutation integriert (keine Race Condition mehr)
 - [x] Server inventory.update: visibility und allowedHouseholdIds atomar verarbeiten
+
+## Feature: /borrows in Sidebar und Home ergänzen
+- [x] AppLayout.tsx: Ausleihen-NavItem zwischen Inventar und Verlauf einfügen
+- [x] BottomNav.tsx: Ausleihen-Eintrag ergänzen
+- [x] Home.tsx: Ausleihen-Feature-Karte zwischen Inventar und Verlauf einfügen
+- [x] i18n-Schlüssel prüfen
