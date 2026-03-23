@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Package, User, Clock, CheckCircle, XCircle, Building2, Search, Home, Globe } from "lucide-react";
+import { Calendar, Package, User, Clock, CheckCircle, XCircle, Building2, Search, Home, Globe, HandCoins } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -210,7 +210,7 @@ export default function Borrows() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Package className="w-8 h-8 text-primary" />
+            <HandCoins className="w-8 h-8 text-yellow-600" />
             <h1 className="text-3xl font-bold">{t("borrows:title", "Ausleihen")}</h1>
           </div>
           {/* View mode selector */}
