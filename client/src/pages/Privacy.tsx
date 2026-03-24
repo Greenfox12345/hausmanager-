@@ -55,8 +55,8 @@ function PrivacyDE() {
               <p>Deutschland</p>
               <p className="mt-2">
                 E-Mail:{" "}
-                <a href="mailto:datenschutz@hausmanager.xyz" className="underline text-primary">
-                  datenschutz@hausmanager.xyz
+                <a href="mailto:greenfoxhaushalt@gmail.com" className="underline text-primary">
+                  greenfoxhaushalt@gmail.com
                 </a>
               </p>
             </address>
@@ -197,8 +197,8 @@ function PrivacyDE() {
             </ul>
             <p className="mt-3">
               Zur Ausübung Ihrer Rechte wenden Sie sich bitte per E-Mail an:{" "}
-              <a href="mailto:datenschutz@hausmanager.xyz" className="underline text-primary">
-                datenschutz@hausmanager.xyz
+              <a href="mailto:greenfoxhaushalt@gmail.com" className="underline text-primary">
+                greenfoxhaushalt@gmail.com
               </a>
             </p>
             <p className="mt-3">
@@ -267,8 +267,8 @@ function PrivacyEN() {
               <p>Germany</p>
               <p className="mt-2">
                 Email:{" "}
-                <a href="mailto:datenschutz@hausmanager.xyz" className="underline text-primary">
-                  datenschutz@hausmanager.xyz
+                <a href="mailto:greenfoxhaushalt@gmail.com" className="underline text-primary">
+                  greenfoxhaushalt@gmail.com
                 </a>
               </p>
             </address>
@@ -396,8 +396,8 @@ function PrivacyEN() {
             </ul>
             <p className="mt-3">
               To exercise your rights, please contact us by email at:{" "}
-              <a href="mailto:datenschutz@hausmanager.xyz" className="underline text-primary">
-                datenschutz@hausmanager.xyz
+              <a href="mailto:greenfoxhaushalt@gmail.com" className="underline text-primary">
+                greenfoxhaushalt@gmail.com
               </a>
             </p>
             <p className="mt-3">
