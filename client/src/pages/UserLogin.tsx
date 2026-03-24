@@ -130,6 +130,15 @@ export default function UserLogin() {
                 {t("login.register", "Jetzt registrieren")}
               </button>
             </div>
+            <div className="text-center text-xs text-gray-400 mt-1">
+              <button
+                type="button"
+                onClick={() => setLocation("/privacy")}
+                className="hover:underline"
+              >
+                {t("login.privacy", "Datenschutzerklärung")}
+              </button>
+            </div>
           </form>
         </CardContent>
       </Card>

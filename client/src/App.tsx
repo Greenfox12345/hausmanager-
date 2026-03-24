@@ -20,6 +20,7 @@ import Members from "./pages/Members";
 import Inventory from "./pages/Inventory";
 import InventoryDetail from "./pages/InventoryDetail";
 import Borrows from "./pages/Borrows";
+import { Privacy } from "./pages/Privacy";
 import HouseholdSettings from "./pages/HouseholdSettings";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/inventory" component={Inventory} />
       <Route path="/inventory/:id" component={InventoryDetail} />
       <Route path="/borrows" component={Borrows} />
+      <Route path="/privacy" component={Privacy} />
       <Route path="/settings" component={HouseholdSettings} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
