@@ -130,13 +130,21 @@ export default function UserLogin() {
                 {t("login.register", "Jetzt registrieren")}
               </button>
             </div>
-            <div className="text-center text-xs text-gray-400 mt-1">
+            <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setLocation("/privacy")}
                 className="hover:underline"
               >
                 {t("login.privacy", "Datenschutzerklärung")}
+              </button>
+              <span>·</span>
+              <button
+                type="button"
+                onClick={() => setLocation("/imprint")}
+                className="hover:underline"
+              >
+                {t("login.imprint", "Impressum")}
               </button>
             </div>
           </form>

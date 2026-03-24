@@ -161,13 +161,21 @@ export default function Register() {
                 {t("register.login", "Jetzt anmelden")}
               </button>
             </div>
-            <div className="text-center text-xs text-gray-400 mt-1">
+            <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setLocation("/privacy")}
                 className="hover:underline"
               >
                 {t("register.privacy", "Datenschutzerklärung")}
+              </button>
+              <span>·</span>
+              <button
+                type="button"
+                onClick={() => setLocation("/imprint")}
+                className="hover:underline"
+              >
+                {t("register.imprint", "Impressum")}
               </button>
             </div>
           </form>
