@@ -548,9 +548,16 @@ export default function Borrows() {
                             </div>
                           </div>
                         </div>
-                        <Badge className={statusColors[borrow.status] ?? ""}>
-                          {t(`borrows:status.${borrow.status}`, borrow.status)}
-                        </Badge>
+                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                          {borrow.status === "active" && borrow.endDate && new Date(borrow.endDate) < new Date() && (
+                            <Badge className="bg-red-600 text-white text-xs">
+                              {t("borrows:status.overdue", "Überfällig")}
+                            </Badge>
+                          )}
+                          <Badge className={statusColors[borrow.status] ?? ""}>
+                            {t(`borrows:status.${borrow.status}`, borrow.status)}
+                          </Badge>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
