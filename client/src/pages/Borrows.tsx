@@ -105,8 +105,8 @@ export default function Borrows() {
   }, [pendingForMe, pendingFilter]);
 
   const filteredMyBorrows = useMemo(() => {
-    if (myBorrowsStatus === "all") return myBorrows;
-    return myBorrows.filter(b => b.status === myBorrowsStatus);
+    const filtered = myBorrowsStatus === "all" ? myBorrows : myBorrows.filter(b => b.status === myBorrowsStatus);
+    return [...filtered].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
   }, [myBorrows, myBorrowsStatus]);
 
   const ownItems = useMemo(() => {
