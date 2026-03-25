@@ -743,7 +743,7 @@ export default function InventoryDetail() {
                 <BorrowGuidelinesEditor
                   itemId={itemId}
                   memberId={member?.memberId ?? 0}
-                  onSave={() => toast.success("Ausleihvorgaben gespeichert")}
+                  onSave={() => {}}
                 />
               </div>
             )}

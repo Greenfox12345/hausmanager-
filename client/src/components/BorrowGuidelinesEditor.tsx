@@ -5,11 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { X, Plus, Upload, Image as ImageIcon } from "lucide-react";
+import { X, Plus, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/imageCompression";
-
 
 interface BorrowGuidelinesEditorProps {
   itemId: number;
@@ -30,13 +29,24 @@ interface PhotoRequirement {
   required: boolean;
 }
 
+/** Converts an ArrayBuffer to a base64 string without hitting the call-stack limit
+ *  that btoa(String.fromCharCode(...largeArray)) causes for files > ~100 KB. */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.byteLength; i += chunkSize) {
+    binary += String.fromCharCode(...Array.from(bytes.subarray(i, i + chunkSize)));
+  }
+  return btoa(binary);
+}
+
 export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuidelinesEditorProps) {
   const [instructionsText, setInstructionsText] = useState("");
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
   const [photoRequirements, setPhotoRequirements] = useState<PhotoRequirement[]>([]);
   const [uploadingExample, setUploadingExample] = useState<string | null>(null);
 
-  // Load existing guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery({ itemId });
   const saveMutation = trpc.borrow.saveGuidelines.useMutation();
   const uploadMutation = trpc.storage.upload.useMutation();
@@ -90,38 +100,55 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
   const handleExamplePhotoUpload = async (reqId: string, file: File) => {
     try {
       setUploadingExample(reqId);
-      
-      // Show immediate preview
+
+      // Show immediate blob preview (only for display – NOT saved to DB yet)
       const previewUrl = URL.createObjectURL(file);
       updatePhotoRequirement(reqId, { examplePhotoUrl: previewUrl });
-      
+
       // Compress image
       const compressedFile = await compressImage(file);
-      
-      // Upload to S3
+
+      // Convert to base64 safely (chunked to avoid call-stack overflow)
       const arrayBuffer = await compressedFile.arrayBuffer();
-      const buffer = new Uint8Array(arrayBuffer);
-      const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
-      
+      const base64 = arrayBufferToBase64(arrayBuffer);
+
+      // Upload to S3
       const { url } = await uploadMutation.mutateAsync({
-        key: `borrow-examples/${itemId}/${reqId}-${compressedFile.name}`,
+        key: `borrow-examples/${itemId}/${reqId}-${Date.now()}.${compressedFile.name.split(".").pop() ?? "jpg"}`,
         data: base64,
-        contentType: compressedFile.type,
+        contentType: compressedFile.type || "image/jpeg",
       });
 
-      // Replace preview with actual URL
+      // Replace blob preview with permanent S3 URL
       URL.revokeObjectURL(previewUrl);
       updatePhotoRequirement(reqId, { examplePhotoUrl: url });
       toast.success("Beispielfoto hochgeladen");
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Fehler beim Hochladen");
+      // Revert to no photo on failure so the blob URL isn't saved
+      updatePhotoRequirement(reqId, { examplePhotoUrl: undefined });
+      toast.error("Fehler beim Hochladen des Beispielfotos");
     } finally {
       setUploadingExample(null);
     }
   };
 
   const handleSave = async () => {
+    // Block save if any photo is still uploading
+    if (uploadingExample) {
+      toast.error("Bitte warte, bis das Foto hochgeladen wurde");
+      return;
+    }
+
+    // Warn if any photo requirement still has a blob URL (upload failed silently)
+    const hasBlobUrl = photoRequirements.some(
+      (req) => req.examplePhotoUrl?.startsWith("blob:")
+    );
+    if (hasBlobUrl) {
+      toast.error("Ein Beispielfoto konnte nicht hochgeladen werden. Bitte erneut versuchen.");
+      return;
+    }
+
     try {
       await saveMutation.mutateAsync({
         inventoryItemId: itemId,
@@ -255,8 +282,14 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                     <img
                       src={req.examplePhotoUrl}
                       alt="Beispiel"
-                      className="h-16 w-16 object-cover rounded"
+                      className="h-16 w-16 object-cover rounded border"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
                     />
+                    {req.examplePhotoUrl.startsWith("blob:") && (
+                      <span className="text-xs text-amber-600">Wird hochgeladen…</span>
+                    )}
                     <Button
                       type="button"
                       variant="outline"
@@ -290,7 +323,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                       disabled={uploadingExample === req.id}
                     >
                       {uploadingExample === req.id ? (
-                        <>Wird hochgeladen...</>
+                        <>Wird hochgeladen…</>
                       ) : (
                         <>
                           <ImageIcon className="h-4 w-4 mr-1" />
@@ -309,9 +342,9 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
         <div className="flex justify-end">
           <Button
             onClick={handleSave}
-            disabled={saveMutation.isPending}
+            disabled={saveMutation.isPending || !!uploadingExample}
           >
-            {saveMutation.isPending ? "Speichert..." : "Vorgaben speichern"}
+            {saveMutation.isPending ? "Speichert…" : "Vorgaben speichern"}
           </Button>
         </div>
       </CardContent>
