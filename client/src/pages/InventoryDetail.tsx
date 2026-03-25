@@ -632,6 +632,7 @@ export default function InventoryDetail() {
                       const isCompleted = request.status === 'completed';
                       const isRejected = request.status === 'rejected';
                       const isExternal = isExternalRequest(request);
+                      const isOverdue = isActive && request.endDate && new Date(request.endDate) < new Date();
 
                       return (
                         <div key={request.id} className={`border rounded-lg p-4 ${isExternal ? 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-950/30' : ''}`}>
@@ -667,9 +668,16 @@ export default function InventoryDetail() {
                                 </span>
                               )}
                               {isActive && (
-                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                  Ausgeliehen
-                                </span>
+                                <div className="flex flex-col items-end gap-1">
+                                  {isOverdue && (
+                                    <span className="px-2 py-1 rounded-full text-xs bg-red-600 text-white font-semibold">
+                                      Überfällig
+                                    </span>
+                                  )}
+                                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                    Ausgeliehen
+                                  </span>
+                                </div>
                               )}
                               {isCompleted && (
                                 <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
