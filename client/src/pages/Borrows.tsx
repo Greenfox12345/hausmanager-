@@ -38,6 +38,7 @@ export default function Borrows() {
   const { isLoading } = trpc.auth.me.useQuery();
 
   const [myBorrowsStatus, setMyBorrowsStatus] = useState<BorrowStatus>("all");
+  const [showPastBorrows, setShowPastBorrows] = useState(false);
   const [pendingFilter, setPendingFilter] = useState<"all" | "internal" | "external">("all");
   const [itemSearch, setItemSearch] = useState("");
 
@@ -105,9 +106,18 @@ export default function Borrows() {
   }, [pendingForMe, pendingFilter]);
 
   const filteredMyBorrows = useMemo(() => {
-    const filtered = myBorrowsStatus === "all" ? myBorrows : myBorrows.filter(b => b.status === myBorrowsStatus);
+    const now = new Date();
+    let filtered = myBorrowsStatus === "all" ? myBorrows : myBorrows.filter(b => b.status === myBorrowsStatus);
+    if (!showPastBorrows) {
+      filtered = filtered.filter(b => {
+        const end = b.endDate ? new Date(b.endDate) : null;
+        // Vergangen = Enddatum überschritten UND Status abgeschlossen oder abgelehnt
+        const isPast = end && end < now && (b.status === 'completed' || b.status === 'rejected');
+        return !isPast;
+      });
+    }
     return [...filtered].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-  }, [myBorrows, myBorrowsStatus]);
+  }, [myBorrows, myBorrowsStatus, showPastBorrows]);
 
   const ownItems = useMemo(() => {
     if (!allItems?.own) return [];
@@ -474,7 +484,7 @@ export default function Borrows() {
 
           {/* ── My Borrows ── */}
           <TabsContent value="myborrows">
-            <div className="mb-4">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
               <Select value={myBorrowsStatus} onValueChange={(v) => setMyBorrowsStatus(v as BorrowStatus)}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder={t("borrows:filterStatus", "Status filtern")} />
@@ -488,8 +498,18 @@ export default function Borrows() {
                   <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
                 </SelectContent>
               </Select>
+              <Button
+                variant={showPastBorrows ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowPastBorrows(v => !v)}
+                className="flex items-center gap-1.5"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                {showPastBorrows
+                  ? t("borrows:hidePast", "Vergangene ausblenden")
+                  : t("borrows:showPast", "Vergangene anzeigen")}
+              </Button>
             </div>
-
             {loadingMyBorrows ? (
               <p className="text-muted-foreground text-center py-8">{t("common:loading", "Laden...")}</p>
             ) : filteredMyBorrows.length === 0 ? (
