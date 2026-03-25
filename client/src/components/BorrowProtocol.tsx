@@ -1,0 +1,212 @@
+import { ChevronDown, ChevronUp, Camera, MessageSquare, Clock, User, Calendar } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+interface BorrowProtocolProps {
+  request: any;
+  members: any[];
+  isExternal: boolean;
+  getExternalHouseholdName: (req: any) => string;
+  expandedRequests: Set<number>;
+  toggleExpanded: (id: number) => void;
+}
+
+function PhotoGrid({ photos, label }: { photos: { photoUrl: string; label?: string }[]; label: string }) {
+  if (!photos.length) return null;
+  return (
+    <div className="mt-2">
+      <p className="text-xs font-medium text-muted-foreground mb-1">{label}</p>
+      <div className="grid grid-cols-2 gap-2">
+        {photos.map((p, i) => (
+          <div key={i} className="space-y-0.5">
+            <img
+              src={p.photoUrl}
+              alt={p.label || `Foto ${i + 1}`}
+              className="w-full h-24 object-cover rounded"
+              loading="lazy"
+            />
+            {p.label && <p className="text-xs text-muted-foreground truncate">{p.label}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProtocolSection({
+  color,
+  title,
+  timestamp,
+  comment,
+  mainPhotoUrl,
+  requirementPhotos,
+  guideline,
+  phase,
+}: {
+  color: "green" | "blue";
+  title: string;
+  timestamp?: Date | null;
+  comment?: string | null;
+  mainPhotoUrl?: string | null;
+  requirementPhotos: any[];
+  guideline: any;
+  phase: "pickup" | "return";
+}) {
+  const bg = color === "green"
+    ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
+    : "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800";
+  const titleColor = color === "green"
+    ? "text-green-700 dark:text-green-400"
+    : "text-blue-700 dark:text-blue-400";
+
+  // Map requirement photos to their labels from guideline
+  const reqPhotosWithLabels = requirementPhotos.map((rp) => {
+    const req = guideline?.photoRequirements?.find((pr: any) => pr.id === rp.photoRequirementId);
+    return { photoUrl: rp.photoUrl, label: req?.label ?? rp.filename ?? "Foto" };
+  });
+
+  const hasContent = mainPhotoUrl || comment || reqPhotosWithLabels.length > 0;
+  if (!hasContent) return null;
+
+  return (
+    <div className={`p-3 rounded-md border ${bg}`}>
+      <div className="flex items-center justify-between mb-2">
+        <p className={`text-xs font-semibold flex items-center gap-1 ${titleColor}`}>
+          <Camera className="w-3.5 h-3.5" /> {title}
+        </p>
+        {timestamp && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {new Date(timestamp).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}
+          </p>
+        )}
+      </div>
+
+      {mainPhotoUrl && (
+        <img
+          src={mainPhotoUrl}
+          alt={title}
+          className="w-full max-h-48 object-cover rounded mb-2"
+          loading="lazy"
+        />
+      )}
+
+      {comment && (
+        <p className="text-xs text-muted-foreground flex items-start gap-1 mb-2">
+          <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span className="italic">„{comment}"</span>
+        </p>
+      )}
+
+      <PhotoGrid photos={reqPhotosWithLabels} label="Pflichtfotos" />
+    </div>
+  );
+}
+
+export function BorrowProtocol({
+  request,
+  members,
+  isExternal,
+  getExternalHouseholdName,
+  expandedRequests,
+  toggleExpanded,
+}: BorrowProtocolProps) {
+  const isExpanded = expandedRequests.has(request.id);
+
+  // Fetch requirement photos for this request
+  const { data: returnPhotos = [] } = trpc.borrow.getReturnPhotos.useQuery(
+    { requestId: request.id },
+    { enabled: isExpanded }
+  );
+
+  // Fetch guideline for label mapping
+  const { data: guideline } = trpc.borrow.getGuidelines.useQuery(
+    { itemId: request.inventoryItemId },
+    { enabled: isExpanded }
+  );
+
+  const pickupReqPhotos = returnPhotos.filter(
+    (p: any) => p.photoRequirementId && p.uploadedAt && request.borrowedAt &&
+      new Date(p.uploadedAt).getTime() <= new Date(request.borrowedAt).getTime() + 60_000
+  );
+  // All other photos are return photos (uploaded after pickup)
+  const returnReqPhotos = returnPhotos.filter(
+    (p: any) => !pickupReqPhotos.includes(p)
+  );
+
+  const borrowerName = isExternal
+    ? (request.borrowerMemberName || getExternalHouseholdName(request))
+    : (members.find((m: any) => m.id === request.borrowerMemberId)?.memberName || "Unbekannt");
+
+  const hasAnyData =
+    request.pickupPhotoUrl || request.pickupComment || pickupReqPhotos.length > 0 ||
+    request.returnPhotoUrl || request.returnComment || returnReqPhotos.length > 0;
+
+  if (!hasAnyData) return null;
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={() => toggleExpanded(request.id)}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        {isExpanded ? "Protokoll ausblenden" : "Abhol-/Rückgabeprotokoll anzeigen"}
+      </button>
+
+      {isExpanded && (
+        <div className="mt-3 space-y-3">
+          {/* Meta-Infos */}
+          <div className="p-2 bg-muted/40 rounded text-xs space-y-1">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <User className="w-3.5 h-3.5" />
+              <span>Ausleiher: <strong>{borrowerName}</strong></span>
+            </div>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>
+                {new Date(request.startDate).toLocaleDateString("de-DE")} – {new Date(request.endDate).toLocaleDateString("de-DE")}
+              </span>
+            </div>
+            {request.requestMessage && (
+              <div className="flex items-start gap-1 text-muted-foreground">
+                <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                <span className="italic">Anfrage: „{request.requestMessage}"</span>
+              </div>
+            )}
+            {request.responseMessage && (
+              <div className="flex items-start gap-1 text-muted-foreground">
+                <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                <span className="italic">Antwort: „{request.responseMessage}"</span>
+              </div>
+            )}
+          </div>
+
+          {/* Abholprotokoll */}
+          <ProtocolSection
+            color="green"
+            title="Zustand bei Abholung"
+            timestamp={request.borrowedAt}
+            comment={request.pickupComment}
+            mainPhotoUrl={request.pickupPhotoUrl}
+            requirementPhotos={pickupReqPhotos}
+            guideline={guideline}
+            phase="pickup"
+          />
+
+          {/* Rückgabeprotokoll */}
+          <ProtocolSection
+            color="blue"
+            title="Zustand bei Rückgabe"
+            timestamp={request.returnedAt}
+            comment={request.returnComment}
+            mainPhotoUrl={request.returnPhotoUrl}
+            requirementPhotos={returnReqPhotos}
+            guideline={guideline}
+            phase="return"
+          />
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1045,6 +1045,29 @@ export const borrowRouter = router({
         } as any)
         .where(eq(borrowRequests.id, input.requestId));
 
+      // Save requirement photos
+      if (input.requirementPhotos && input.requirementPhotos.length > 0) {
+        const { storagePut: sp2 } = await import("../storage");
+        const { nanoid: nanoid2 } = await import("nanoid");
+        const { borrowReturnPhotos: brpTable } = await import("../../drizzle/schema");
+        for (const reqPhoto of input.requirementPhotos) {
+          const m = reqPhoto.photoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          if (m) {
+            const buf = Buffer.from(m[2], "base64");
+            const ext = reqPhoto.photoFilename.split(".").pop() || "jpg";
+            const { url: rUrl } = await sp2(`borrow-req-photos/${nanoid2()}.${ext}`, buf, m[1]);
+            await db.insert(brpTable).values({
+              borrowRequestId: input.requestId,
+              photoRequirementId: reqPhoto.requirementId,
+              photoUrl: rUrl,
+              filename: reqPhoto.photoFilename,
+              uploadedBy: input.memberId,
+              uploadedAt: new Date(),
+            } as any);
+          }
+        }
+      }
+
       return { success: true };
     }),
 
@@ -1095,6 +1118,29 @@ export const borrowRouter = router({
           returnPhotoUrl: photoUrl ?? null,
         } as any)
         .where(eq(borrowRequests.id, input.requestId));
+
+      // Save requirement photos
+      if (input.requirementPhotos && input.requirementPhotos.length > 0) {
+        const { storagePut: sp3 } = await import("../storage");
+        const { nanoid: nanoid3 } = await import("nanoid");
+        const { borrowReturnPhotos: brpTable2 } = await import("../../drizzle/schema");
+        for (const reqPhoto of input.requirementPhotos) {
+          const m = reqPhoto.photoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          if (m) {
+            const buf = Buffer.from(m[2], "base64");
+            const ext = reqPhoto.photoFilename.split(".").pop() || "jpg";
+            const { url: rUrl } = await sp3(`borrow-ret-req-photos/${nanoid3()}.${ext}`, buf, m[1]);
+            await db.insert(brpTable2).values({
+              borrowRequestId: input.requestId,
+              photoRequirementId: reqPhoto.requirementId,
+              photoUrl: rUrl,
+              filename: reqPhoto.photoFilename,
+              uploadedBy: input.memberId,
+              uploadedAt: new Date(),
+            } as any);
+          }
+        }
+      }
 
       // Notify item owner about the return
       try {

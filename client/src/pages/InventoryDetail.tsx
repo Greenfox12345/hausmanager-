@@ -11,12 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Edit2, Trash2, Calendar, Globe, Lock, Users, ChevronDown, ChevronUp, Camera, MessageSquare } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, Calendar, Globe, Lock, Users } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
 import { BorrowReturnDialog } from "@/components/BorrowReturnDialog";
 import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
+import { BorrowProtocol } from "@/components/BorrowProtocol";
 import { compressImage } from "@/lib/imageCompression";
 
 type Visibility = "private" | "connected" | "selected";
@@ -707,66 +708,16 @@ export default function InventoryDetail() {
                             </div>
                           )}
 
-                          {/* Aufklappbare Foto-Detailansicht für abgeschlossene Ausleihen */}
-                          {(isCompleted || isActive) && ((request as any).pickupPhotoUrl || (request as any).pickupComment || (request as any).returnPhotoUrl || (request as any).returnComment) && (
-                            <div className="mt-2">
-                              <button
-                                type="button"
-                                onClick={() => toggleExpanded(request.id)}
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                {expandedRequests.has(request.id) ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                                {expandedRequests.has(request.id) ? 'Protokoll ausblenden' : 'Abhol-/Rückgabeprotokoll anzeigen'}
-                              </button>
-                              {expandedRequests.has(request.id) && (
-                                <div className="mt-3 space-y-3">
-                                  {/* Abholprotokoll */}
-                                  {((request as any).pickupPhotoUrl || (request as any).pickupComment) && (
-                                    <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800">
-                                      <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-1">
-                                        <Camera className="w-3.5 h-3.5" /> Zustand bei Abholung
-                                      </p>
-                                      {(request as any).pickupPhotoUrl && (
-                                        <img
-                                          src={(request as any).pickupPhotoUrl}
-                                          alt="Abholung"
-                                          className="w-full max-h-48 object-cover rounded mb-2"
-                                          loading="lazy"
-                                        />
-                                      )}
-                                      {(request as any).pickupComment && (
-                                        <p className="text-xs text-muted-foreground flex items-start gap-1">
-                                          <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                                          <span className="italic">„{(request as any).pickupComment}“</span>
-                                        </p>
-                                      )}
-                                    </div>
-                                  )}
-                                  {/* Rückgabeprotokoll */}
-                                  {((request as any).returnPhotoUrl || (request as any).returnComment) && (
-                                    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800">
-                                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-1">
-                                        <Camera className="w-3.5 h-3.5" /> Zustand bei Rückgabe
-                                      </p>
-                                      {(request as any).returnPhotoUrl && (
-                                        <img
-                                          src={(request as any).returnPhotoUrl}
-                                          alt="Rückgabe"
-                                          className="w-full max-h-48 object-cover rounded mb-2"
-                                          loading="lazy"
-                                        />
-                                      )}
-                                      {(request as any).returnComment && (
-                                        <p className="text-xs text-muted-foreground flex items-start gap-1">
-                                          <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                                          <span className="italic">„{(request as any).returnComment}“</span>
-                                        </p>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
+                          {/* Aufklappbare Protokoll-Ansicht */}
+                          {(isCompleted || isActive) && (
+                            <BorrowProtocol
+                              request={request}
+                              members={members}
+                              isExternal={isExternal}
+                              getExternalHouseholdName={getExternalHouseholdName}
+                              expandedRequests={expandedRequests}
+                              toggleExpanded={toggleExpanded}
+                            />
                           )}
 
                           {isPending && (
