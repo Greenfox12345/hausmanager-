@@ -625,7 +625,7 @@ export default function InventoryDetail() {
                   <p className="text-sm text-muted-foreground py-4 text-center">Keine Ausleih-Anfragen vorhanden.</p>
                 ) : (
                   <div className="space-y-4 pt-4">
-                    {borrowRequests.map((request: any) => {
+                    {[...borrowRequests].sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((request: any) => {
                       const isPending = request.status === 'pending';
                       const isApproved = request.status === 'approved';
                       const isActive = request.status === 'active';
