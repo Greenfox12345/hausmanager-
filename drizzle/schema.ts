@@ -361,7 +361,11 @@ export const borrowRequests = mysqlTable("borrow_requests", {
   approvedBy: int("approvedBy").references(() => householdMembers.id),
   approvedAt: timestamp("approvedAt"),
   borrowedAt: timestamp("borrowedAt"), // When item was actually picked up
+  pickupComment: text("pickupComment"), // Comment at pickup
+  pickupPhotoUrl: text("pickupPhotoUrl"), // Photo taken at pickup
   returnedAt: timestamp("returnedAt"), // When item was actually returned
+  returnComment: text("returnComment"), // Comment at return
+  returnPhotoUrl: text("returnPhotoUrl"), // Photo taken at return
   calendarEventId: int("calendarEventId"), // Link to calendar event (future)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

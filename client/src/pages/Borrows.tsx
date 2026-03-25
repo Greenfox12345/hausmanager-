@@ -11,11 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Package, User, Clock, CheckCircle, XCircle, Building2, Search, Home, Globe, HandCoins } from "lucide-react";
+import { Calendar, Package, User, Clock, CheckCircle, XCircle, Building2, Search, Home, Globe, HandCoins, PackageCheck, Undo2, ImageIcon } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
+import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 
 type ViewMode = "mine" | "household";
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected";
@@ -49,6 +50,11 @@ export default function Borrows() {
   // Borrow request dialog state
   const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ id: number; name: string } | null>(null);
+
+  // Pickup / Return dialog state
+  const [pickupDialogOpen, setPickupDialogOpen] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedBorrowDetail, setSelectedBorrowDetail] = useState<BorrowRequestDetail | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -202,6 +208,44 @@ export default function Borrows() {
       endDate: data.endDate.toISOString(),
       requestMessage: data.message,
     });
+  };
+
+  // Open pickup dialog with borrow data
+  const handleOpenPickup = (borrow: any) => {
+    setSelectedBorrowDetail({
+      id: borrow.id,
+      status: borrow.status,
+      itemName: borrow.itemName,
+      itemPhotoUrl: borrow.itemPhotoUrl ?? null,
+      itemDescription: borrow.itemDescription ?? null,
+      borrowerName: borrow.borrowerName ?? "",
+      startDate: borrow.startDate,
+      endDate: borrow.endDate,
+      requestMessage: borrow.requestMessage ?? null,
+      pickupComment: borrow.pickupComment ?? null,
+      pickupPhotoUrl: borrow.pickupPhotoUrl ?? null,
+      guideline: borrow.guideline ?? null,
+    });
+    setPickupDialogOpen(true);
+  };
+
+  // Open return dialog with borrow data
+  const handleOpenReturn = (borrow: any) => {
+    setSelectedBorrowDetail({
+      id: borrow.id,
+      status: borrow.status,
+      itemName: borrow.itemName,
+      itemPhotoUrl: borrow.itemPhotoUrl ?? null,
+      itemDescription: borrow.itemDescription ?? null,
+      borrowerName: borrow.borrowerName ?? "",
+      startDate: borrow.startDate,
+      endDate: borrow.endDate,
+      requestMessage: borrow.requestMessage ?? null,
+      pickupComment: borrow.pickupComment ?? null,
+      pickupPhotoUrl: borrow.pickupPhotoUrl ?? null,
+      guideline: borrow.guideline ?? null,
+    });
+    setReturnDialogOpen(true);
   };
 
   return (
@@ -516,11 +560,27 @@ export default function Borrows() {
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                <User className="w-3 h-3 inline mr-1" />
-                                {t("borrows:fields.owner", "Eigentümer")}: {borrow.ownerName}
-                              </p>
+                              {/* Item photo + name */}
+                              <div className="flex items-center gap-3">
+                                {(borrow as any).itemPhotoUrl ? (
+                                  <img
+                                    src={(borrow as any).itemPhotoUrl}
+                                    alt={borrow.itemName}
+                                    className="w-12 h-12 rounded-md object-cover shrink-0"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center shrink-0">
+                                    <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div>
+                                  <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
+                                  <p className="text-sm text-muted-foreground mt-0.5">
+                                    <User className="w-3 h-3 inline mr-1" />
+                                    {t("borrows:fields.owner", "Eigentümer")}: {borrow.ownerName}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                             <Badge className={statusColors[borrow.status] ?? ""}>
                               {t(`borrows:status.${borrow.status}`, borrow.status)}
@@ -528,7 +588,7 @@ export default function Borrows() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-muted-foreground" />
                               <span>{t("borrows:fields.startDate", "Von")}: {formatDate(borrow.startDate)}</span>
@@ -538,18 +598,83 @@ export default function Borrows() {
                               <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(borrow.endDate)}</span>
                             </div>
                           </div>
+
+                          {/* Pickup record (shown when active or completed) */}
+                          {(borrow.status === "active" || borrow.status === "completed") && ((borrow as any).pickupPhotoUrl || (borrow as any).pickupComment) && (
+                            <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800 text-sm">
+                              <p className="font-medium text-green-700 dark:text-green-400 mb-1">
+                                {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
+                              </p>
+                              {(borrow as any).pickupPhotoUrl && (
+                                <img
+                                  src={(borrow as any).pickupPhotoUrl}
+                                  alt="Abholung"
+                                  className="w-full max-h-32 object-cover rounded mb-1"
+                                />
+                              )}
+                              {(borrow as any).pickupComment && (
+                                <p className="text-muted-foreground italic">„{(borrow as any).pickupComment}"</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Return record (shown when completed) */}
+                          {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
+                            <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800 text-sm">
+                              <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+                                {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
+                              </p>
+                              {(borrow as any).returnPhotoUrl && (
+                                <img
+                                  src={(borrow as any).returnPhotoUrl}
+                                  alt="Rückgabe"
+                                  className="w-full max-h-32 object-cover rounded mb-1"
+                                />
+                              )}
+                              {(borrow as any).returnComment && (
+                                <p className="text-muted-foreground italic">„{(borrow as any).returnComment}"</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Status messages + action buttons */}
                           {borrow.status === "pending" && (
-                            <p className="text-sm text-muted-foreground mt-3">
+                            <p className="text-sm text-muted-foreground">
                               {t("borrows:waitingApproval", "Warte auf Genehmigung")}
                             </p>
                           )}
                           {borrow.status === "approved" && (
-                            <p className="text-sm text-green-600 dark:text-green-400 mt-3">
-                              {t("borrows:approvedPickup", "Genehmigt – bitte abholen")}
-                            </p>
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <p className="text-sm text-blue-600 dark:text-blue-400">
+                                {t("borrows:approvedPickup", "Genehmigt – bitte abholen")}
+                              </p>
+                              <Button
+                                size="sm"
+                                onClick={() => handleOpenPickup(borrow)}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                              >
+                                <PackageCheck className="w-4 h-4 mr-1" />
+                                {t("borrows:confirmPickup", "Abholung bestätigen")}
+                              </Button>
+                            </div>
+                          )}
+                          {borrow.status === "active" && (
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                {t("borrows:activeReturn", "Aktiv – bitte zurückgeben")}
+                              </p>
+                              <Button
+                                size="sm"
+                                onClick={() => handleOpenReturn(borrow)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                <Undo2 className="w-4 h-4 mr-1" />
+                                {t("borrows:confirmReturn", "Rückgabe bestätigen")}
+                              </Button>
+                            </div>
                           )}
                           {borrow.status === "rejected" && borrow.responseMessage && (
-                            <p className="text-sm text-red-600 dark:text-red-400 mt-3">
+                            <p className="text-sm text-red-600 dark:text-red-400">
                               {t("borrows:rejectedReason", "Abgelehnt")}: {borrow.responseMessage}
                             </p>
                           )}
@@ -603,6 +728,34 @@ export default function Borrows() {
           itemId={selectedItem.id}
           onSubmit={handleBorrowSubmit}
           isSubmitting={createBorrowMutation.isPending}
+        />
+      )}
+
+      {/* Pickup Dialog */}
+      {selectedBorrowDetail && (
+        <PickupDialog
+          open={pickupDialogOpen}
+          onOpenChange={setPickupDialogOpen}
+          request={selectedBorrowDetail}
+          memberId={member.memberId}
+          onSuccess={() => {
+            utils.borrow.getMyBorrows.invalidate();
+            setSelectedBorrowDetail(null);
+          }}
+        />
+      )}
+
+      {/* Return Dialog */}
+      {selectedBorrowDetail && (
+        <ReturnDialog
+          open={returnDialogOpen}
+          onOpenChange={setReturnDialogOpen}
+          request={selectedBorrowDetail}
+          memberId={member.memberId}
+          onSuccess={() => {
+            utils.borrow.getMyBorrows.invalidate();
+            setSelectedBorrowDetail(null);
+          }}
         />
       )}
 

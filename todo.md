@@ -3269,3 +3269,11 @@
 - [x] BottomNav.tsx: Ausleihen-Eintrag ergänzen
 - [x] Home.tsx: Ausleihen-Feature-Karte zwischen Inventar und Verlauf einfügen
 - [x] i18n-Schlüssel prüfen
+
+## Abhol- und Rückgabe-Workflow
+- [x] DB-Schema: pickup/return Felder in borrow_requests (pickupAt, pickupComment, pickupPhotoUrl, returnAt, returnComment, returnPhotoUrl)
+- [x] Server: confirmPickup-Prozedur (Status → active, Foto + Kommentar speichern)
+- [x] Server: confirmReturn-Prozedur (Status → returned, Foto + Kommentar speichern)
+- [x] Frontend: PickupDialog (zeigt Item-Fotos + Anforderungen, Foto-Upload + Kommentar)
+- [x] Frontend: ReturnDialog (zeigt Abholfotos/-kommentare, eigenes Foto + Kommentar)
+- [x] Frontend: Buttons in Borrows.tsx einbinden

@@ -981,4 +981,123 @@ export const borrowRouter = router({
       );
       return enriched;
     }),
+
+  // Confirm pickup: borrower confirms they picked up the item
+  confirmPickup: publicProcedure
+    .input(
+      z.object({
+        requestId: z.number(),
+        memberId: z.number(),
+        comment: z.string().optional(),
+        photoBase64: z.string().optional(),
+        photoFilename: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) throw new Error("Borrow request not found");
+      if (request.borrowerMemberId !== input.memberId) throw new Error("Not authorized");
+      if (request.status !== "approved") throw new Error("Request must be approved before pickup");
+
+      let photoUrl: string | undefined;
+      if (input.photoBase64 && input.photoFilename) {
+        const { storagePut } = await import("../storage");
+        const { nanoid } = await import("nanoid");
+        const matches = input.photoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches) {
+          const mimeType = matches[1];
+          const buffer = Buffer.from(matches[2], "base64");
+          const ext = input.photoFilename.split(".").pop() || "jpg";
+          const { url } = await storagePut(`borrow-pickup/${nanoid()}.${ext}`, buffer, mimeType);
+          photoUrl = url;
+        }
+      }
+
+      await db.update(borrowRequests)
+        .set({
+          status: "active",
+          borrowedAt: new Date(),
+          pickupComment: input.comment ?? null,
+          pickupPhotoUrl: photoUrl ?? null,
+        } as any)
+        .where(eq(borrowRequests.id, input.requestId));
+
+      return { success: true };
+    }),
+
+  // Confirm return: borrower confirms they returned the item
+  confirmReturn: publicProcedure
+    .input(
+      z.object({
+        requestId: z.number(),
+        memberId: z.number(),
+        comment: z.string().optional(),
+        photoBase64: z.string().optional(),
+        photoFilename: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) throw new Error("Borrow request not found");
+      if (request.borrowerMemberId !== input.memberId) throw new Error("Not authorized");
+      if (request.status !== "active") throw new Error("Request must be active to return");
+
+      let photoUrl: string | undefined;
+      if (input.photoBase64 && input.photoFilename) {
+        const { storagePut } = await import("../storage");
+        const { nanoid } = await import("nanoid");
+        const matches = input.photoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches) {
+          const mimeType = matches[1];
+          const buffer = Buffer.from(matches[2], "base64");
+          const ext = input.photoFilename.split(".").pop() || "jpg";
+          const { url } = await storagePut(`borrow-return/${nanoid()}.${ext}`, buffer, mimeType);
+          photoUrl = url;
+        }
+      }
+
+      await db.update(borrowRequests)
+        .set({
+          status: "completed",
+          returnedAt: new Date(),
+          returnComment: input.comment ?? null,
+          returnPhotoUrl: photoUrl ?? null,
+        } as any)
+        .where(eq(borrowRequests.id, input.requestId));
+
+      return { success: true };
+    }),
+
+  // Get full borrow request details including item info and guideline (for dialogs)
+  getBorrowRequestDetail: publicProcedure
+    .input(z.object({ requestId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) return null;
+
+      const item = await getInventoryItemById(request.inventoryItemId);
+      const borrower = await getHouseholdMemberById(request.borrowerMemberId);
+      const { borrowGuidelines } = await import("../../drizzle/schema");
+      const { eq: eqOp } = await import("drizzle-orm");
+      const [guideline] = await db.select().from(borrowGuidelines)
+        .where(eqOp(borrowGuidelines.inventoryItemId, request.inventoryItemId));
+
+      return {
+        ...request,
+        itemName: item?.name ?? "Unbekannt",
+        itemPhotoUrl: (item as any)?.photoUrl ?? null,
+        itemDescription: (item as any)?.description ?? null,
+        borrowerName: borrower?.memberName ?? "Unbekannt",
+        guideline: guideline ?? null,
+      };
+    }),
 });
