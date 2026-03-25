@@ -113,12 +113,12 @@ export function BorrowRequestDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] flex flex-col max-h-[90vh]">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Item ausleihen</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1">
           <div className="space-y-2">
             <Label className="text-sm font-medium">Item</Label>
             <div className="text-sm text-muted-foreground">{itemName}</div>
@@ -195,7 +195,11 @@ export function BorrowRequestDialog({
                                 <img
                                   src={req.examplePhotoUrl}
                                   alt="Beispiel"
-                                  className="h-16 w-16 object-cover rounded border"
+                                  className="h-20 w-20 object-cover rounded border"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                                  }}
+                                  loading="lazy"
                                 />
                               </div>
                             )}
@@ -302,7 +306,7 @@ export function BorrowRequestDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="shrink-0 pt-2 border-t">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
