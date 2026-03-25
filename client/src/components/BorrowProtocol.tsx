@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Camera, MessageSquare, Clock, User, Calendar } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 
 interface BorrowProtocolProps {
   request: any;
@@ -10,7 +12,20 @@ interface BorrowProtocolProps {
   toggleExpanded: (id: number) => void;
 }
 
-function PhotoGrid({ photos, label }: { photos: { photoUrl: string; label?: string }[]; label: string }) {
+interface LightboxState {
+  photos: { url: string; label?: string }[];
+  index: number;
+}
+
+function PhotoGrid({
+  photos,
+  label,
+  onOpen,
+}: {
+  photos: { photoUrl: string; label?: string }[];
+  label: string;
+  onOpen: (index: number) => void;
+}) {
   if (!photos.length) return null;
   return (
     <div className="mt-2">
@@ -18,11 +33,11 @@ function PhotoGrid({ photos, label }: { photos: { photoUrl: string; label?: stri
       <div className="grid grid-cols-2 gap-2">
         {photos.map((p, i) => (
           <div key={i} className="space-y-0.5">
-            <img
+            <ClickablePhoto
               src={p.photoUrl}
               alt={p.label || `Foto ${i + 1}`}
               className="w-full h-24 object-cover rounded"
-              loading="lazy"
+              onClick={() => onOpen(i)}
             />
             {p.label && <p className="text-xs text-muted-foreground truncate">{p.label}</p>}
           </div>
@@ -40,7 +55,6 @@ function ProtocolSection({
   mainPhotoUrl,
   requirementPhotos,
   guideline,
-  phase,
 }: {
   color: "green" | "blue";
   title: string;
@@ -51,6 +65,8 @@ function ProtocolSection({
   guideline: any;
   phase: "pickup" | "return";
 }) {
+  const [lightbox, setLightbox] = useState<LightboxState | null>(null);
+
   const bg = color === "green"
     ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
     : "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800";
@@ -58,47 +74,75 @@ function ProtocolSection({
     ? "text-green-700 dark:text-green-400"
     : "text-blue-700 dark:text-blue-400";
 
-  // Map requirement photos to their labels from guideline
   const reqPhotosWithLabels = requirementPhotos.map((rp) => {
     const req = guideline?.photoRequirements?.find((pr: any) => pr.id === rp.photoRequirementId);
     return { photoUrl: rp.photoUrl, label: req?.label ?? rp.filename ?? "Foto" };
   });
 
+  // Build all photos for lightbox navigation
+  const allPhotos: { url: string; label?: string }[] = [];
+  if (mainPhotoUrl) allPhotos.push({ url: mainPhotoUrl, label: title });
+  reqPhotosWithLabels.forEach((p) => allPhotos.push({ url: p.photoUrl, label: p.label }));
+
+  const openLightbox = (index: number) => setLightbox({ photos: allPhotos, index });
+  const closeLightbox = () => setLightbox(null);
+  const nextPhoto = () => setLightbox((lb) => lb ? { ...lb, index: (lb.index + 1) % lb.photos.length } : null);
+  const prevPhoto = () => setLightbox((lb) => lb ? { ...lb, index: (lb.index - 1 + lb.photos.length) % lb.photos.length } : null);
+
   const hasContent = mainPhotoUrl || comment || reqPhotosWithLabels.length > 0;
   if (!hasContent) return null;
 
+  // Offset for req photos in allPhotos array (main photo takes index 0 if present)
+  const reqPhotoOffset = mainPhotoUrl ? 1 : 0;
+
   return (
-    <div className={`p-3 rounded-md border ${bg}`}>
-      <div className="flex items-center justify-between mb-2">
-        <p className={`text-xs font-semibold flex items-center gap-1 ${titleColor}`}>
-          <Camera className="w-3.5 h-3.5" /> {title}
-        </p>
-        {timestamp && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {new Date(timestamp).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}
+    <>
+      <div className={`p-3 rounded-md border ${bg}`}>
+        <div className="flex items-center justify-between mb-2">
+          <p className={`text-xs font-semibold flex items-center gap-1 ${titleColor}`}>
+            <Camera className="w-3.5 h-3.5" /> {title}
+          </p>
+          {timestamp && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {new Date(timestamp).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}
+            </p>
+          )}
+        </div>
+
+        {mainPhotoUrl && (
+          <ClickablePhoto
+            src={mainPhotoUrl}
+            alt={title}
+            className="w-full max-h-48 object-cover rounded mb-2"
+            onClick={() => openLightbox(0)}
+          />
+        )}
+
+        {comment && (
+          <p className="text-xs text-muted-foreground flex items-start gap-1 mb-2">
+            <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span className="italic">„{comment}"</span>
           </p>
         )}
+
+        <PhotoGrid
+          photos={reqPhotosWithLabels}
+          label="Pflichtfotos"
+          onOpen={(i) => openLightbox(i + reqPhotoOffset)}
+        />
       </div>
 
-      {mainPhotoUrl && (
-        <img
-          src={mainPhotoUrl}
-          alt={title}
-          className="w-full max-h-48 object-cover rounded mb-2"
-          loading="lazy"
+      {lightbox && (
+        <PhotoLightbox
+          photos={lightbox.photos}
+          currentIndex={lightbox.index}
+          onClose={closeLightbox}
+          onNext={lightbox.photos.length > 1 ? nextPhoto : undefined}
+          onPrev={lightbox.photos.length > 1 ? prevPhoto : undefined}
         />
       )}
-
-      {comment && (
-        <p className="text-xs text-muted-foreground flex items-start gap-1 mb-2">
-          <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span className="italic">„{comment}"</span>
-        </p>
-      )}
-
-      <PhotoGrid photos={reqPhotosWithLabels} label="Pflichtfotos" />
-    </div>
+    </>
   );
 }
 
@@ -112,13 +156,11 @@ export function BorrowProtocol({
 }: BorrowProtocolProps) {
   const isExpanded = expandedRequests.has(request.id);
 
-  // Fetch requirement photos for this request
   const { data: returnPhotos = [] } = trpc.borrow.getReturnPhotos.useQuery(
     { requestId: request.id },
     { enabled: isExpanded }
   );
 
-  // Fetch guideline for label mapping
   const { data: guideline } = trpc.borrow.getGuidelines.useQuery(
     { itemId: request.inventoryItemId },
     { enabled: isExpanded }
@@ -128,7 +170,6 @@ export function BorrowProtocol({
     (p: any) => p.photoRequirementId && p.uploadedAt && request.borrowedAt &&
       new Date(p.uploadedAt).getTime() <= new Date(request.borrowedAt).getTime() + 60_000
   );
-  // All other photos are return photos (uploaded after pickup)
   const returnReqPhotos = returnPhotos.filter(
     (p: any) => !pickupReqPhotos.includes(p)
   );

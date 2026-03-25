@@ -18,9 +18,11 @@ import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
 import { BorrowReturnDialog } from "@/components/BorrowReturnDialog";
 import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
 import { BorrowProtocol } from "@/components/BorrowProtocol";
+import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 import { compressImage } from "@/lib/imageCompression";
 
 type Visibility = "private" | "connected" | "selected";
+interface LightboxState { photos: { url: string; label?: string }[]; index: number; }
 
 export default function InventoryDetail() {
   const params = useParams<{ id: string }>();
@@ -45,6 +47,7 @@ export default function InventoryDetail() {
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
   const [revokeRequest, setRevokeRequest] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string } | null>(null);
   const [detailTab, setDetailTab] = useState<"requests" | "guidelines">("requests");
+  const [lightbox, setLightbox] = useState<LightboxState | null>(null);
   const [expandedRequests, setExpandedRequests] = useState<Set<number>>(new Set());
 
   const toggleExpanded = (id: number) => {
@@ -598,15 +601,31 @@ export default function InventoryDetail() {
                     <Label className="text-muted-foreground mb-2 block">Fotos</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {item.photoUrls.map((photo: string | {url: string, filename: string}, index: number) => (
-                        <img
+                        <ClickablePhoto
                           key={index}
                           src={typeof photo === 'string' ? photo : photo.url}
                           alt={typeof photo === 'string' ? `${item.name} ${index + 1}` : photo.filename}
                           className="w-full h-48 object-cover rounded-lg"
+                          onClick={() => setLightbox({
+                            photos: (item.photoUrls ?? []).map((p: string | {url: string, filename: string}, i: number) => ({
+                              url: typeof p === 'string' ? p : p.url,
+                              label: typeof p === 'string' ? `${item.name} ${i + 1}` : p.filename,
+                            })),
+                            index,
+                          })}
                         />
                       ))}
                     </div>
                   </div>
+                )}
+                {lightbox && (
+                  <PhotoLightbox
+                    photos={lightbox.photos}
+                    currentIndex={lightbox.index}
+                    onClose={() => setLightbox(null)}
+                    onNext={lightbox.photos.length > 1 ? () => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % lb.photos.length } : null) : undefined}
+                    onPrev={lightbox.photos.length > 1 ? () => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + lb.photos.length) % lb.photos.length } : null) : undefined}
+                  />
                 )}
               </CardContent>
             </Card>
