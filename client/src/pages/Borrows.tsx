@@ -11,7 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Package, User, Clock, CheckCircle, XCircle, Building2, Search, Home, Globe, HandCoins, PackageCheck, Undo2, ImageIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import {
+  Calendar, Package, User, Clock, CheckCircle, XCircle,
+  Building2, Search, Home, Globe, HandCoins, PackageCheck, Undo2, ImageIcon
+} from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -31,23 +35,19 @@ const statusColors: Record<string, string> = {
 export default function Borrows() {
   const { t } = useTranslation(["borrows", "common"]);
   const { household, member, isAuthenticated } = useCompatAuth();
-  const { data: authData, isLoading } = trpc.auth.me.useQuery();
+  const { isLoading } = trpc.auth.me.useQuery();
 
-  // Filters
   const [myBorrowsStatus, setMyBorrowsStatus] = useState<BorrowStatus>("all");
   const [pendingFilter, setPendingFilter] = useState<"all" | "internal" | "external">("all");
   const [itemSearch, setItemSearch] = useState("");
 
-  // Approve/Reject dialog state
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
-  // Borrow request dialog state
   const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ id: number; name: string } | null>(null);
 
-  // Pickup / Return dialog state
   const [pickupDialogOpen, setPickupDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [selectedBorrowDetail, setSelectedBorrowDetail] = useState<BorrowRequestDetail | null>(null);
@@ -97,7 +97,6 @@ export default function Borrows() {
     onError: (e) => toast.error(e.message),
   });
 
-  // Filtered data
   const filteredPending = useMemo(() => {
     const base = pendingForMe as any[];
     if (pendingFilter === "internal") return base.filter((r: any) => !r.isExternal);
@@ -231,406 +230,388 @@ export default function Borrows() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto py-6 pb-24">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+      <div className="container mx-auto py-6 pb-24 space-y-6">
+
+        {/* ── Header ── */}
+        <div className="flex items-center gap-3">
           <HandCoins className="w-8 h-8 text-yellow-600" />
           <h1 className="text-3xl font-bold">{t("borrows:title", "Ausleihen")}</h1>
         </div>
 
-        <Tabs defaultValue="browse" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="browse">
-              <Package className="w-4 h-4 mr-2" />
-              {t("borrows:tabBrowse", "Gegenstände & Ausleihen")}
-            </TabsTrigger>
-            <TabsTrigger value="requests" className="relative">
-              {t("borrows:tabRequests", "Anfragen verwalten")}
+        {/* ── Anfragen-Sektion (immer sichtbar, oben) ── */}
+        <div>
+          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">{t("borrows:tabRequests", "Anfragen verwalten")}</h2>
               {filteredPending.length > 0 && (
-                <Badge className="ml-2 bg-primary text-primary-foreground text-xs px-1.5 py-0.5">
+                <Badge className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5">
                   {filteredPending.length}
                 </Badge>
               )}
+            </div>
+            <Select value={pendingFilter} onValueChange={(v) => setPendingFilter(v as typeof pendingFilter)}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("borrows:filterAll", "Alle Anfragen")}</SelectItem>
+                <SelectItem value="internal">{t("borrows:filterInternal", "Haushaltsintern")}</SelectItem>
+                <SelectItem value="external">{t("borrows:filterExternal", "Externe Haushalte")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {loadingPending ? (
+            <p className="text-sm text-muted-foreground">{t("common:loading", "Laden...")}</p>
+          ) : filteredPending.length === 0 ? (
+            <Card>
+              <CardContent className="p-6 flex items-center gap-3 text-muted-foreground">
+                <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                <p className="text-sm">{t("borrows:noPending", "Keine ausstehenden Anfragen")}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {filteredPending.map((req: any) => (
+                <Card key={req.id} className={req.isExternal ? "border-amber-400 dark:border-amber-600" : ""}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">{req.itemName}</CardTitle>
+                          {req.isExternal && (
+                            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
+                              <Globe className="w-3 h-3 mr-1" />
+                              {t("borrows:externalHousehold", "Externer Haushalt")}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          <User className="w-3 h-3 inline mr-1" />
+                          {req.borrowerName}
+                          {req.isExternal && req.borrowerHouseholdName && (
+                            <span className="ml-1 text-amber-600 dark:text-amber-400">
+                              ({req.borrowerHouseholdName})
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <Badge className={statusColors["pending"]}>
+                        {t("borrows:status.pending", "Ausstehend")}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>{t("borrows:fields.startDate", "Von")}: {formatDate(req.startDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(req.endDate)}</span>
+                      </div>
+                    </div>
+                    {req.message && (
+                      <p className="text-sm text-muted-foreground italic mb-3">"{req.message}"</p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleApprove(req.id)}
+                        disabled={approveMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {t("borrows:approval.approve", "Genehmigen")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRejectOpen(req.id)}
+                        disabled={rejectMutation.isPending}
+                        className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        {t("borrows:approval.reject", "Ablehnen")}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* ── Sub-Tabs: Gegenstände & Meine Ausleihen ── */}
+        <Tabs defaultValue="items" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="items">
+              <Package className="w-4 h-4 mr-2" />
+              {t("borrows:tabItems", "Anfragbare Gegenstände")}
+            </TabsTrigger>
+            <TabsTrigger value="myborrows">
+              <Clock className="w-4 h-4 mr-2" />
+              {t("borrows:tabMyBorrows", "Meine Ausleihen")}
             </TabsTrigger>
           </TabsList>
 
-          {/* ─── TAB 1: Gegenstände & Ausleihen ─── */}
-          <TabsContent value="browse">
-            <Tabs defaultValue="items" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="items">
-                  <Package className="w-4 h-4 mr-2" />
-                  {t("borrows:tabItems", "Anfragbare Gegenstände")}
-                </TabsTrigger>
-                <TabsTrigger value="myborrows">
-                  <Clock className="w-4 h-4 mr-2" />
-                  {t("borrows:tabMyBorrows", "Meine Ausleihen")}
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Items sub-tab */}
-              <TabsContent value="items">
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder={t("borrows:searchItems", "Gegenstände suchen...")}
-                    value={itemSearch}
-                    onChange={(e) => setItemSearch(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-
-                {loadingItems ? (
-                  <p className="text-muted-foreground text-center py-8">{t("common:loading", "Laden...")}</p>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Own household items */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Home className="w-4 h-4 text-primary" />
-                        <h3 className="font-semibold">{t("borrows:ownHousehold", "Eigener Haushalt")}</h3>
-                        <Badge variant="secondary">{ownItems.length}</Badge>
-                      </div>
-                      {ownItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground pl-6">{t("borrows:noItems", "Keine Gegenstände gefunden")}</p>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {ownItems.map((item) => (
-                            <Card key={item.id} className="hover:shadow-md transition-shadow">
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium truncate">{item.name}</p>
-                                    {item.categoryName && (
-                                      <p className="text-xs text-muted-foreground mt-0.5">{item.categoryName}</p>
-                                    )}
-                                    {item.details && (
-                                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.details}</p>
-                                    )}
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleBorrowRequest({ id: item.id, name: item.name })}
-                                    className="shrink-0"
-                                  >
-                                    {t("borrows:requestBorrow", "Anfragen")}
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Shared items from other households */}
-                    {sharedByHousehold.length > 0 && (
-                      <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Globe className="w-4 h-4 text-amber-500" />
-                          <h3 className="font-semibold">{t("borrows:otherHouseholds", "Andere Haushalte")}</h3>
-                        </div>
-                        <div className="space-y-4">
-                          {sharedByHousehold.map((group) => (
-                            <div key={group.householdName}>
-                              <div className="flex items-center gap-2 mb-2">
-                                <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
-                                <p className="text-sm font-medium text-muted-foreground">{group.householdName}</p>
-                                <Badge variant="outline" className="text-xs">{group.items.length}</Badge>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-5">
-                                {group.items.map((item) => (
-                                  <Card key={item.id} className="border-amber-200 dark:border-amber-800 hover:shadow-md transition-shadow">
-                                    <CardContent className="p-4">
-                                      <div className="flex items-start justify-between gap-2">
-                                        <div className="flex-1 min-w-0">
-                                          <p className="font-medium truncate">{item.name}</p>
-                                          {item.categoryName && (
-                                            <p className="text-xs text-muted-foreground mt-0.5">{item.categoryName}</p>
-                                          )}
-                                          {item.details && (
-                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.details}</p>
-                                          )}
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => handleBorrowRequest({ id: item.id, name: item.name })}
-                                          className="shrink-0 border-amber-300 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
-                                        >
-                                          {t("borrows:requestBorrow", "Anfragen")}
-                                        </Button>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {ownItems.length === 0 && sharedByHousehold.length === 0 && (
-                      <Card>
-                        <CardContent className="p-8 text-center">
-                          <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                          <p className="text-muted-foreground">{t("borrows:noItemsAtAll", "Keine anfragbaren Gegenstände gefunden")}</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* My Borrows sub-tab */}
-              <TabsContent value="myborrows">
-                <div className="mb-4">
-                  <Select value={myBorrowsStatus} onValueChange={(v) => setMyBorrowsStatus(v as BorrowStatus)}>
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder={t("borrows:filterStatus", "Status filtern")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t("borrows:allStatuses", "Alle Status")}</SelectItem>
-                      <SelectItem value="pending">{t("borrows:status.pending", "Ausstehend")}</SelectItem>
-                      <SelectItem value="approved">{t("borrows:status.approved", "Genehmigt")}</SelectItem>
-                      <SelectItem value="active">{t("borrows:status.active", "Aktiv")}</SelectItem>
-                      <SelectItem value="completed">{t("borrows:status.completed", "Abgeschlossen")}</SelectItem>
-                      <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {loadingMyBorrows ? (
-                  <p className="text-muted-foreground text-center py-8">{t("common:loading", "Laden...")}</p>
-                ) : filteredMyBorrows.length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground">{t("borrows:noBorrows", "Keine Ausleihen gefunden")}</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    {filteredMyBorrows.map((borrow) => (
-                      <Card key={borrow.id}>
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3">
-                                {(borrow as any).itemPhotoUrl ? (
-                                  <img
-                                    src={(borrow as any).itemPhotoUrl}
-                                    alt={borrow.itemName}
-                                    className="w-12 h-12 rounded-md object-cover shrink-0"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center shrink-0">
-                                    <ImageIcon className="w-5 h-5 text-muted-foreground" />
-                                  </div>
-                                )}
-                                <div>
-                                  <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
-                                  <p className="text-sm text-muted-foreground mt-0.5">
-                                    <User className="w-3 h-3 inline mr-1" />
-                                    {t("borrows:fields.owner", "Eigentümer")}: {borrow.ownerName}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                            <Badge className={statusColors[borrow.status] ?? ""}>
-                              {t(`borrows:status.${borrow.status}`, borrow.status)}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-muted-foreground" />
-                              <span>{t("borrows:fields.startDate", "Von")}: {formatDate(borrow.startDate)}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-muted-foreground" />
-                              <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(borrow.endDate)}</span>
-                            </div>
-                          </div>
-
-                          {/* Pickup record */}
-                          {(borrow.status === "active" || borrow.status === "completed") && ((borrow as any).pickupPhotoUrl || (borrow as any).pickupComment) && (
-                            <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800 text-sm">
-                              <p className="font-medium text-green-700 dark:text-green-400 mb-1">
-                                {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
-                              </p>
-                              {(borrow as any).pickupPhotoUrl && (
-                                <img src={(borrow as any).pickupPhotoUrl} alt="Abholung" className="w-full max-h-32 object-cover rounded mb-1" />
-                              )}
-                              {(borrow as any).pickupComment && (
-                                <p className="text-muted-foreground italic">„{(borrow as any).pickupComment}"</p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Return record */}
-                          {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
-                            <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800 text-sm">
-                              <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
-                                {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
-                              </p>
-                              {(borrow as any).returnPhotoUrl && (
-                                <img src={(borrow as any).returnPhotoUrl} alt="Rückgabe" className="w-full max-h-32 object-cover rounded mb-1" />
-                              )}
-                              {(borrow as any).returnComment && (
-                                <p className="text-muted-foreground italic">„{(borrow as any).returnComment}"</p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Action buttons */}
-                          {borrow.status === "pending" && (
-                            <p className="text-sm text-muted-foreground">
-                              {t("borrows:waitingApproval", "Warte auf Genehmigung")}
-                            </p>
-                          )}
-                          {borrow.status === "approved" && (
-                            <div className="flex items-center justify-between gap-2 flex-wrap">
-                              <p className="text-sm text-blue-600 dark:text-blue-400">
-                                {t("borrows:approvedPickup", "Genehmigt – bitte abholen")}
-                              </p>
-                              <Button
-                                size="sm"
-                                onClick={() => handleOpenPickup(borrow)}
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                              >
-                                <PackageCheck className="w-4 h-4 mr-1" />
-                                {t("borrows:confirmPickup", "Abholung bestätigen")}
-                              </Button>
-                            </div>
-                          )}
-                          {borrow.status === "active" && (
-                            <div className="flex items-center justify-between gap-2 flex-wrap">
-                              <p className="text-sm text-green-600 dark:text-green-400">
-                                {t("borrows:activeReturn", "Aktiv – bitte zurückgeben")}
-                              </p>
-                              <Button
-                                size="sm"
-                                onClick={() => handleOpenReturn(borrow)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                              >
-                                <Undo2 className="w-4 h-4 mr-1" />
-                                {t("borrows:confirmReturn", "Rückgabe bestätigen")}
-                              </Button>
-                            </div>
-                          )}
-                          {borrow.status === "rejected" && borrow.responseMessage && (
-                            <p className="text-sm text-red-600 dark:text-red-400">
-                              {t("borrows:rejectedReason", "Abgelehnt")}: {borrow.responseMessage}
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-
-          {/* ─── TAB 2: Anfragen verwalten ─── */}
-          <TabsContent value="requests">
-            <div className="flex items-center gap-3 mb-4 flex-wrap">
-              <Select value={pendingFilter} onValueChange={(v) => setPendingFilter(v as typeof pendingFilter)}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("borrows:filterAll", "Alle Anfragen")}</SelectItem>
-                  <SelectItem value="internal">{t("borrows:filterInternal", "Haushaltsintern")}</SelectItem>
-                  <SelectItem value="external">{t("borrows:filterExternal", "Externe Haushalte")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground">
-                {loadingPending
-                  ? t("common:loading", "Laden...")
-                  : `${filteredPending.length} ${t("borrows:pendingCount", "ausstehende Anfragen")}`}
-              </p>
+          {/* ── Items ── */}
+          <TabsContent value="items">
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder={t("borrows:searchItems", "Gegenstände suchen...")}
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+                className="pl-9"
+              />
             </div>
 
-            {filteredPending.length === 0 ? (
+            {loadingItems ? (
+              <p className="text-muted-foreground text-center py-8">{t("common:loading", "Laden...")}</p>
+            ) : (
+              <div className="space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Home className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold">{t("borrows:ownHousehold", "Eigener Haushalt")}</h3>
+                    <Badge variant="secondary">{ownItems.length}</Badge>
+                  </div>
+                  {ownItems.length === 0 ? (
+                    <p className="text-sm text-muted-foreground pl-6">{t("borrows:noItems", "Keine Gegenstände gefunden")}</p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {ownItems.map((item) => (
+                        <Card key={item.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{item.name}</p>
+                                {item.categoryName && (
+                                  <p className="text-xs text-muted-foreground mt-0.5">{item.categoryName}</p>
+                                )}
+                                {item.details && (
+                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.details}</p>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleBorrowRequest({ id: item.id, name: item.name })}
+                                className="shrink-0"
+                              >
+                                {t("borrows:requestBorrow", "Anfragen")}
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {sharedByHousehold.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Globe className="w-4 h-4 text-amber-500" />
+                      <h3 className="font-semibold">{t("borrows:otherHouseholds", "Andere Haushalte")}</h3>
+                    </div>
+                    <div className="space-y-4">
+                      {sharedByHousehold.map((group) => (
+                        <div key={group.householdName}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+                            <p className="text-sm font-medium text-muted-foreground">{group.householdName}</p>
+                            <Badge variant="outline" className="text-xs">{group.items.length}</Badge>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-5">
+                            {group.items.map((item) => (
+                              <Card key={item.id} className="border-amber-200 dark:border-amber-800 hover:shadow-md transition-shadow">
+                                <CardContent className="p-4">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium truncate">{item.name}</p>
+                                      {item.categoryName && (
+                                        <p className="text-xs text-muted-foreground mt-0.5">{item.categoryName}</p>
+                                      )}
+                                      {item.details && (
+                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.details}</p>
+                                      )}
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleBorrowRequest({ id: item.id, name: item.name })}
+                                      className="shrink-0 border-amber-300 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
+                                    >
+                                      {t("borrows:requestBorrow", "Anfragen")}
+                                    </Button>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {ownItems.length === 0 && sharedByHousehold.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-muted-foreground">{t("borrows:noItemsAtAll", "Keine anfragbaren Gegenstände gefunden")}</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ── My Borrows ── */}
+          <TabsContent value="myborrows">
+            <div className="mb-4">
+              <Select value={myBorrowsStatus} onValueChange={(v) => setMyBorrowsStatus(v as BorrowStatus)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder={t("borrows:filterStatus", "Status filtern")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("borrows:allStatuses", "Alle Status")}</SelectItem>
+                  <SelectItem value="pending">{t("borrows:status.pending", "Ausstehend")}</SelectItem>
+                  <SelectItem value="approved">{t("borrows:status.approved", "Genehmigt")}</SelectItem>
+                  <SelectItem value="active">{t("borrows:status.active", "Aktiv")}</SelectItem>
+                  <SelectItem value="completed">{t("borrows:status.completed", "Abgeschlossen")}</SelectItem>
+                  <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {loadingMyBorrows ? (
+              <p className="text-muted-foreground text-center py-8">{t("common:loading", "Laden...")}</p>
+            ) : filteredMyBorrows.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                  <p className="text-muted-foreground">{t("borrows:noPending", "Keine ausstehenden Anfragen")}</p>
+                  <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">{t("borrows:noBorrows", "Keine Ausleihen gefunden")}</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {filteredPending.map((req: any) => (
-                  <Card key={req.id} className={req.isExternal ? "border-amber-400 dark:border-amber-600" : ""}>
+                {filteredMyBorrows.map((borrow) => (
+                  <Card key={borrow.id}>
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-lg">{req.itemName}</CardTitle>
-                            {req.isExternal && (
-                              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
-                                <Globe className="w-3 h-3 mr-1" />
-                                {t("borrows:externalHousehold", "Externer Haushalt")}
-                              </Badge>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            {(borrow as any).itemPhotoUrl ? (
+                              <img
+                                src={(borrow as any).itemPhotoUrl}
+                                alt={borrow.itemName}
+                                className="w-12 h-12 rounded-md object-cover shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center shrink-0">
+                                <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                              </div>
                             )}
+                            <div>
+                              <CardTitle className="text-lg">{borrow.itemName}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                <User className="w-3 h-3 inline mr-1" />
+                                {t("borrows:fields.owner", "Eigentümer")}: {borrow.ownerName}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            <User className="w-3 h-3 inline mr-1" />
-                            {req.borrowerName}
-                            {req.isExternal && req.borrowerHouseholdName && (
-                              <span className="ml-1 text-amber-600 dark:text-amber-400">
-                                ({req.borrowerHouseholdName})
-                              </span>
-                            )}
-                          </p>
                         </div>
-                        <Badge className={statusColors["pending"]}>
-                          {t("borrows:status.pending", "Ausstehend")}
+                        <Badge className={statusColors[borrow.status] ?? ""}>
+                          {t(`borrows:status.${borrow.status}`, borrow.status)}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                      <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>{t("borrows:fields.startDate", "Von")}: {formatDate(req.startDate)}</span>
+                          <span>{t("borrows:fields.startDate", "Von")}: {formatDate(borrow.startDate)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(req.endDate)}</span>
+                          <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(borrow.endDate)}</span>
                         </div>
                       </div>
-                      {req.message && (
-                        <p className="text-sm text-muted-foreground italic mb-4">
-                          "{req.message}"
+
+                      {(borrow.status === "active" || borrow.status === "completed") && ((borrow as any).pickupPhotoUrl || (borrow as any).pickupComment) && (
+                        <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800 text-sm">
+                          <p className="font-medium text-green-700 dark:text-green-400 mb-1">
+                            {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
+                          </p>
+                          {(borrow as any).pickupPhotoUrl && (
+                            <img src={(borrow as any).pickupPhotoUrl} alt="Abholung" className="w-full max-h-32 object-cover rounded mb-1" />
+                          )}
+                          {(borrow as any).pickupComment && (
+                            <p className="text-muted-foreground italic">„{(borrow as any).pickupComment}"</p>
+                          )}
+                        </div>
+                      )}
+
+                      {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
+                        <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800 text-sm">
+                          <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+                            {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
+                          </p>
+                          {(borrow as any).returnPhotoUrl && (
+                            <img src={(borrow as any).returnPhotoUrl} alt="Rückgabe" className="w-full max-h-32 object-cover rounded mb-1" />
+                          )}
+                          {(borrow as any).returnComment && (
+                            <p className="text-muted-foreground italic">„{(borrow as any).returnComment}"</p>
+                          )}
+                        </div>
+                      )}
+
+                      {borrow.status === "pending" && (
+                        <p className="text-sm text-muted-foreground">
+                          {t("borrows:waitingApproval", "Warte auf Genehmigung")}
                         </p>
                       )}
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleApprove(req.id)}
-                          disabled={approveMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          {t("borrows:approval.approve", "Genehmigen")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRejectOpen(req.id)}
-                          disabled={rejectMutation.isPending}
-                          className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          {t("borrows:approval.reject", "Ablehnen")}
-                        </Button>
-                      </div>
+                      {borrow.status === "approved" && (
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <p className="text-sm text-blue-600 dark:text-blue-400">
+                            {t("borrows:approvedPickup", "Genehmigt – bitte abholen")}
+                          </p>
+                          <Button
+                            size="sm"
+                            onClick={() => handleOpenPickup(borrow)}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <PackageCheck className="w-4 h-4 mr-1" />
+                            {t("borrows:confirmPickup", "Abholung bestätigen")}
+                          </Button>
+                        </div>
+                      )}
+                      {borrow.status === "active" && (
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <p className="text-sm text-green-600 dark:text-green-400">
+                            {t("borrows:activeReturn", "Aktiv – bitte zurückgeben")}
+                          </p>
+                          <Button
+                            size="sm"
+                            onClick={() => handleOpenReturn(borrow)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Undo2 className="w-4 h-4 mr-1" />
+                            {t("borrows:confirmReturn", "Rückgabe bestätigen")}
+                          </Button>
+                        </div>
+                      )}
+                      {borrow.status === "rejected" && borrow.responseMessage && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {t("borrows:rejectedReason", "Abgelehnt")}: {borrow.responseMessage}
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -659,18 +640,13 @@ export default function Borrows() {
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
               {t("common:cancel", "Abbrechen")}
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleRejectConfirm}
-              disabled={rejectMutation.isPending}
-            >
+            <Button variant="destructive" onClick={handleRejectConfirm} disabled={rejectMutation.isPending}>
               {t("borrows:approval.reject", "Ablehnen")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Borrow Request Dialog */}
       {selectedItem && (
         <BorrowRequestDialog
           open={borrowDialogOpen}
@@ -682,7 +658,6 @@ export default function Borrows() {
         />
       )}
 
-      {/* Pickup Dialog */}
       {selectedBorrowDetail && (
         <PickupDialog
           open={pickupDialogOpen}
@@ -696,7 +671,6 @@ export default function Borrows() {
         />
       )}
 
-      {/* Return Dialog */}
       {selectedBorrowDetail && (
         <ReturnDialog
           open={returnDialogOpen}
