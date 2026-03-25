@@ -159,15 +159,15 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-lg flex flex-col" style={{maxHeight: "90dvh"}}>
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <PackageCheck className="h-5 w-5 text-green-600" />
             {t("pickup.title", "Abholung bestätigen")}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
           {/* Item info */}
           <div className="flex gap-3 p-3 bg-muted/50 rounded-lg">
             {request.itemPhotoUrl ? (
@@ -253,7 +253,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 shrink-0 pt-2 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={confirmPickup.isPending}>
             {t("common.cancel", "Abbrechen")}
           </Button>
@@ -318,15 +318,15 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-lg flex flex-col" style={{maxHeight: "90dvh"}}>
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Undo2 className="h-5 w-5 text-blue-600" />
             {t("return.title", "Rückgabe bestätigen")}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
           {/* Item info */}
           <div className="flex gap-3 p-3 bg-muted/50 rounded-lg">
             {request.itemPhotoUrl ? (
@@ -430,7 +430,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 shrink-0 pt-2 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={confirmReturn.isPending}>
             {t("common.cancel", "Abbrechen")}
           </Button>
