@@ -1,11 +1,11 @@
-/**
+/*
  * BorrowPickupReturnDialogs.tsx
  *
  * Two dialogs:
  *  - PickupDialog: shown when borrower confirms they picked up the item
- *    → shows item photo, description, borrow guidelines/checklist, allows photo + comment
+ *    → shows item photo, description, borrow guidelines/checklist/photo-requirements, allows photo + comment
  *  - ReturnDialog: shown when borrower returns the item
- *    → shows pickup photo/comment prominently for comparison, then allows return photo + comment
+ *    → shows pickup photo/comment prominently for comparison, then guidelines + return photo + comment
  */
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Camera, CheckCircle2, ImageIcon, Loader2, PackageCheck, Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,6 @@ function PhotoCapture({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Client-side compression to ~800px max
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new Image();
@@ -87,6 +87,82 @@ function PhotoCapture({
         className="hidden"
         onChange={handleFile}
       />
+    </div>
+  );
+}
+
+// ─── Guideline section (shared between both dialogs) ─────────────────────────
+
+function GuidelineSection({
+  guideline,
+  checkedItems,
+  onToggleCheck,
+  showChecklist = true,
+}: {
+  guideline: BorrowRequestDetail["guideline"];
+  checkedItems: Set<string>;
+  onToggleCheck: (id: string, checked: boolean) => void;
+  showChecklist?: boolean;
+}) {
+  if (!guideline) return null;
+
+  const { instructionsText, checklistItems, photoRequirements } = guideline;
+  const hasContent = instructionsText || (checklistItems && checklistItems.length > 0) || (photoRequirements && photoRequirements.length > 0);
+  if (!hasContent) return null;
+
+  return (
+    <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-3 space-y-3">
+      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+        Ausleihvorgaben
+      </p>
+
+      {/* Instructions text */}
+      {instructionsText && (
+        <p className="text-sm text-foreground whitespace-pre-wrap">{instructionsText}</p>
+      )}
+
+      {/* Checklist */}
+      {showChecklist && checklistItems && checklistItems.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">Checkliste</p>
+          {checklistItems.map((item) => (
+            <label key={item.id} className="flex items-center gap-2 cursor-pointer text-sm py-0.5">
+              <input
+                type="checkbox"
+                checked={checkedItems.has(item.id)}
+                onChange={(e) => onToggleCheck(item.id, e.target.checked)}
+                className="rounded"
+              />
+              <span>{item.label}</span>
+              {item.required && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
+                  Pflicht
+                </Badge>
+              )}
+            </label>
+          ))}
+        </div>
+      )}
+
+      {/* Photo requirements */}
+      {photoRequirements && photoRequirements.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">Erforderliche Fotos</p>
+          <div className="space-y-2">
+            {photoRequirements.map((req) => (
+              <div key={req.id} className="flex items-center gap-2 text-sm">
+                <Camera className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span>{req.label}</span>
+                {req.required && (
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
+                    Pflicht
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -140,12 +216,19 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
       onOpenChange(false);
       setComment("");
       setPhotoBase64(null);
+      setCheckedItems(new Set());
     },
     onError: (err) => toast.error(err.message),
   });
 
   const checklist = request.guideline?.checklistItems ?? [];
   const requiredChecked = checklist.filter((c) => c.required).every((c) => checkedItems.has(c.id));
+
+  const handleToggleCheck = (id: string, checked: boolean) => {
+    const next = new Set(checkedItems);
+    checked ? next.add(id) : next.delete(id);
+    setCheckedItems(next);
+  };
 
   const handleSubmit = () => {
     confirmPickup.mutate({
@@ -159,7 +242,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg flex flex-col" style={{maxHeight: "90dvh"}}>
+      <DialogContent className="max-w-lg flex flex-col" style={{ maxHeight: "90dvh" }}>
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <PackageCheck className="h-5 w-5 text-green-600" />
@@ -193,45 +276,14 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           </div>
 
-          {/* Guidelines / instructions */}
-          {request.guideline?.instructionsText && (
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">{t("pickup.instructions", "Hinweise")}</Label>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-                {request.guideline.instructionsText}
-              </p>
-            </div>
-          )}
+          {/* Ausleihvorgaben */}
+          <GuidelineSection
+            guideline={request.guideline}
+            checkedItems={checkedItems}
+            onToggleCheck={handleToggleCheck}
+            showChecklist={true}
+          />
 
-          {/* Checklist */}
-          {checklist.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{t("pickup.checklist", "Checkliste")}</Label>
-              <div className="space-y-1">
-                {checklist.map((item) => (
-                  <label
-                    key={item.id}
-                    className="flex items-center gap-2 cursor-pointer text-sm py-1"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checkedItems.has(item.id)}
-                      onChange={(e) => {
-                        const next = new Set(checkedItems);
-                        e.target.checked ? next.add(item.id) : next.delete(item.id);
-                        setCheckedItems(next);
-                      }}
-                      className="rounded"
-                    />
-                    <span>{item.label}</span>
-                    {item.required && <span className="text-red-500 text-xs">*</span>}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Divider */}
           <div className="h-px bg-border" />
 
           {/* Photo */}
@@ -290,6 +342,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
   const [comment, setComment] = useState("");
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [photoFilename, setPhotoFilename] = useState<string>("");
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
   const utils = trpc.useUtils();
   const confirmReturn = trpc.borrow.confirmReturn.useMutation({
@@ -300,9 +353,19 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
       onOpenChange(false);
       setComment("");
       setPhotoBase64(null);
+      setCheckedItems(new Set());
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const checklist = request.guideline?.checklistItems ?? [];
+  const requiredChecked = checklist.filter((c) => c.required).every((c) => checkedItems.has(c.id));
+
+  const handleToggleCheck = (id: string, checked: boolean) => {
+    const next = new Set(checkedItems);
+    checked ? next.add(id) : next.delete(id);
+    setCheckedItems(next);
+  };
 
   const handleSubmit = () => {
     confirmReturn.mutate({
@@ -318,7 +381,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg flex flex-col" style={{maxHeight: "90dvh"}}>
+      <DialogContent className="max-w-lg flex flex-col" style={{ maxHeight: "90dvh" }}>
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Undo2 className="h-5 w-5 text-blue-600" />
@@ -401,15 +464,13 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           </div>
 
-          {/* Guidelines */}
-          {request.guideline?.instructionsText && (
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">{t("return.instructions", "Rückgabe-Hinweise")}</Label>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-                {request.guideline.instructionsText}
-              </p>
-            </div>
-          )}
+          {/* Ausleihvorgaben (Rückgabe-Hinweise + Checkliste + Foto-Anforderungen) */}
+          <GuidelineSection
+            guideline={request.guideline}
+            checkedItems={checkedItems}
+            onToggleCheck={handleToggleCheck}
+            showChecklist={true}
+          />
 
           {/* Return photo */}
           <PhotoCapture
@@ -436,7 +497,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={confirmReturn.isPending}
+            disabled={confirmReturn.isPending || !requiredChecked}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {confirmReturn.isPending ? (

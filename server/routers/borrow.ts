@@ -784,6 +784,9 @@ export const borrowRouter = router({
             ownerName = item.owners.map(o => o.memberName).join(", ");
           }
           
+          // Load guideline for this item
+          const guideline = await getBorrowGuidelineByItemId(req.inventoryItemId);
+
           return {
             id: req.id,
             itemId: req.inventoryItemId,
@@ -800,6 +803,11 @@ export const borrowRouter = router({
             pickupPhotoUrl: req.pickupPhotoUrl ?? null,
             returnComment: req.returnComment ?? null,
             returnPhotoUrl: req.returnPhotoUrl ?? null,
+            guideline: guideline ? {
+              instructionsText: guideline.instructionsText ?? null,
+              checklistItems: (guideline.checklistItems as any) ?? null,
+              photoRequirements: (guideline.photoRequirements as any) ?? null,
+            } : null,
           };
         })
       );
