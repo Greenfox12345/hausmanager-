@@ -18,7 +18,6 @@ import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 
-type ViewMode = "mine" | "household";
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected";
 
 const statusColors: Record<string, string> = {
@@ -33,9 +32,6 @@ export default function Borrows() {
   const { t } = useTranslation(["borrows", "common"]);
   const { household, member, isAuthenticated } = useCompatAuth();
   const { data: authData, isLoading } = trpc.auth.me.useQuery();
-
-  // View mode: own requests vs. all household requests
-  const [viewMode, setViewMode] = useState<ViewMode>("mine");
 
   // Filters
   const [myBorrowsStatus, setMyBorrowsStatus] = useState<BorrowStatus>("all");
@@ -58,14 +54,8 @@ export default function Borrows() {
 
   const utils = trpc.useUtils();
 
-  // All hooks must be before any conditional returns
   const { data: pendingForMe = [], isLoading: loadingPending } = trpc.borrow.getPendingForMember.useQuery(
     { householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0 },
-    { enabled: !!household && !!member }
-  );
-
-  const { data: householdAllRequests = [], isLoading: loadingHouseholdAll } = trpc.borrow.getAllHouseholdRequests.useQuery(
-    { householdId: household?.householdId ?? 0 },
     { enabled: !!household && !!member }
   );
 
@@ -83,7 +73,6 @@ export default function Borrows() {
     onSuccess: () => {
       toast.success(t("borrows:messages.approved", "Ausleihe genehmigt"));
       utils.borrow.getPendingForMember.invalidate();
-      utils.borrow.getAllHouseholdRequests.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
@@ -94,7 +83,6 @@ export default function Borrows() {
       setRejectDialogOpen(false);
       setRejectReason("");
       utils.borrow.getPendingForMember.invalidate();
-      utils.borrow.getAllHouseholdRequests.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
@@ -111,11 +99,11 @@ export default function Borrows() {
 
   // Filtered data
   const filteredPending = useMemo(() => {
-    const base = viewMode === "mine" ? pendingForMe : (householdAllRequests as any[]).filter((r: any) => r.status === "pending");
+    const base = pendingForMe as any[];
     if (pendingFilter === "internal") return base.filter((r: any) => !r.isExternal);
     if (pendingFilter === "external") return base.filter((r: any) => r.isExternal);
     return base;
-  }, [viewMode, pendingForMe, householdAllRequests, pendingFilter]);
+  }, [pendingForMe, pendingFilter]);
 
   const filteredMyBorrows = useMemo(() => {
     if (myBorrowsStatus === "all") return myBorrows;
@@ -125,20 +113,15 @@ export default function Borrows() {
   const ownItems = useMemo(() => {
     if (!allItems?.own) return [];
     const q = itemSearch.toLowerCase();
-    return allItems.own.filter(item =>
-      !q || item.name.toLowerCase().includes(q)
-    );
+    return allItems.own.filter(item => !q || item.name.toLowerCase().includes(q));
   }, [allItems, itemSearch]);
 
   const sharedItems = useMemo(() => {
     if (!allItems?.shared) return [];
     const q = itemSearch.toLowerCase();
-    return allItems.shared.filter(item =>
-      !q || item.name.toLowerCase().includes(q)
-    );
+    return allItems.shared.filter(item => !q || item.name.toLowerCase().includes(q));
   }, [allItems, itemSearch]);
 
-  // Group shared items by household
   const sharedByHousehold = useMemo(() => {
     const groups: Record<string, { householdName: string; items: typeof sharedItems }> = {};
     for (const item of sharedItems) {
@@ -210,7 +193,6 @@ export default function Borrows() {
     });
   };
 
-  // Open pickup dialog with borrow data
   const handleOpenPickup = (borrow: any) => {
     setSelectedBorrowDetail({
       id: borrow.id,
@@ -229,7 +211,6 @@ export default function Borrows() {
     setPickupDialogOpen(true);
   };
 
-  // Open return dialog with borrow data
   const handleOpenReturn = (borrow: any) => {
     setSelectedBorrowDetail({
       id: borrow.id,
@@ -252,35 +233,17 @@ export default function Borrows() {
     <AppLayout>
       <div className="container mx-auto py-6 pb-24">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <HandCoins className="w-8 h-8 text-yellow-600" />
-            <h1 className="text-3xl font-bold">{t("borrows:title", "Ausleihen")}</h1>
-          </div>
-          {/* View mode selector */}
-          <Select value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-            <SelectTrigger className="w-[240px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mine">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  {t("borrows:viewMine", "Meine Anfragen")}
-                </div>
-              </SelectItem>
-              <SelectItem value="household">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4" />
-                  {t("borrows:viewHousehold", "Alle Haushaltsanfragen")}
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-3 mb-6">
+          <HandCoins className="w-8 h-8 text-yellow-600" />
+          <h1 className="text-3xl font-bold">{t("borrows:title", "Ausleihen")}</h1>
         </div>
 
-        <Tabs defaultValue="requests" className="w-full">
+        <Tabs defaultValue="browse" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="browse">
+              <Package className="w-4 h-4 mr-2" />
+              {t("borrows:tabBrowse", "Gegenstände & Ausleihen")}
+            </TabsTrigger>
             <TabsTrigger value="requests" className="relative">
               {t("borrows:tabRequests", "Anfragen verwalten")}
               {filteredPending.length > 0 && (
@@ -289,114 +252,9 @@ export default function Borrows() {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="browse">
-              {t("borrows:tabBrowse", "Gegenstände & Ausleihen")}
-            </TabsTrigger>
           </TabsList>
 
-          {/* ─── TAB 1: Anfragen verwalten ─── */}
-          <TabsContent value="requests">
-            <div className="flex items-center gap-3 mb-4 flex-wrap">
-              <Select value={pendingFilter} onValueChange={(v) => setPendingFilter(v as typeof pendingFilter)}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("borrows:filterAll", "Alle Anfragen")}</SelectItem>
-                  <SelectItem value="internal">{t("borrows:filterInternal", "Haushaltsintern")}</SelectItem>
-                  <SelectItem value="external">{t("borrows:filterExternal", "Externe Haushalte")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground">
-                {loadingPending || loadingHouseholdAll
-                  ? t("common:loading", "Laden...")
-                  : `${filteredPending.length} ${t("borrows:pendingCount", "ausstehende Anfragen")}`}
-              </p>
-            </div>
-
-            {filteredPending.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                  <p className="text-muted-foreground">{t("borrows:noPending", "Keine ausstehenden Anfragen")}</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {filteredPending.map((req) => (
-                  <Card key={req.id} className={req.isExternal ? "border-amber-400 dark:border-amber-600" : ""}>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-lg">{req.itemName}</CardTitle>
-                            {req.isExternal && (
-                              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
-                                <Globe className="w-3 h-3 mr-1" />
-                                {t("borrows:externalHousehold", "Externer Haushalt")}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            <User className="w-3 h-3 inline mr-1" />
-                            {req.borrowerName}
-                            {req.isExternal && req.borrowerHouseholdName && (
-                              <span className="ml-1 text-amber-600 dark:text-amber-400">
-                                ({req.borrowerHouseholdName})
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                        <Badge className={statusColors["pending"]}>
-                          {t("borrows:status.pending", "Ausstehend")}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-3 text-sm mb-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>{t("borrows:fields.startDate", "Von")}: {formatDate(req.startDate)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(req.endDate)}</span>
-                        </div>
-                      </div>
-                      {req.message && (
-                        <p className="text-sm text-muted-foreground italic mb-4">
-                          "{req.message}"
-                        </p>
-                      )}
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleApprove(req.id)}
-                          disabled={approveMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          {t("borrows:approval.approve", "Genehmigen")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRejectOpen(req.id)}
-                          disabled={rejectMutation.isPending}
-                          className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          {t("borrows:approval.reject", "Ablehnen")}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* ─── TAB 2: Gegenstände & Ausleihen ─── */}
+          {/* ─── TAB 1: Gegenstände & Ausleihen ─── */}
           <TabsContent value="browse">
             <Tabs defaultValue="items" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -560,7 +418,6 @@ export default function Borrows() {
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              {/* Item photo + name */}
                               <div className="flex items-center gap-3">
                                 {(borrow as any).itemPhotoUrl ? (
                                   <img
@@ -599,18 +456,14 @@ export default function Borrows() {
                             </div>
                           </div>
 
-                          {/* Pickup record (shown when active or completed) */}
+                          {/* Pickup record */}
                           {(borrow.status === "active" || borrow.status === "completed") && ((borrow as any).pickupPhotoUrl || (borrow as any).pickupComment) && (
                             <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800 text-sm">
                               <p className="font-medium text-green-700 dark:text-green-400 mb-1">
                                 {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
                               </p>
                               {(borrow as any).pickupPhotoUrl && (
-                                <img
-                                  src={(borrow as any).pickupPhotoUrl}
-                                  alt="Abholung"
-                                  className="w-full max-h-32 object-cover rounded mb-1"
-                                />
+                                <img src={(borrow as any).pickupPhotoUrl} alt="Abholung" className="w-full max-h-32 object-cover rounded mb-1" />
                               )}
                               {(borrow as any).pickupComment && (
                                 <p className="text-muted-foreground italic">„{(borrow as any).pickupComment}"</p>
@@ -618,18 +471,14 @@ export default function Borrows() {
                             </div>
                           )}
 
-                          {/* Return record (shown when completed) */}
+                          {/* Return record */}
                           {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
                             <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800 text-sm">
                               <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
                                 {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
                               </p>
                               {(borrow as any).returnPhotoUrl && (
-                                <img
-                                  src={(borrow as any).returnPhotoUrl}
-                                  alt="Rückgabe"
-                                  className="w-full max-h-32 object-cover rounded mb-1"
-                                />
+                                <img src={(borrow as any).returnPhotoUrl} alt="Rückgabe" className="w-full max-h-32 object-cover rounded mb-1" />
                               )}
                               {(borrow as any).returnComment && (
                                 <p className="text-muted-foreground italic">„{(borrow as any).returnComment}"</p>
@@ -637,7 +486,7 @@ export default function Borrows() {
                             </div>
                           )}
 
-                          {/* Status messages + action buttons */}
+                          {/* Action buttons */}
                           {borrow.status === "pending" && (
                             <p className="text-sm text-muted-foreground">
                               {t("borrows:waitingApproval", "Warte auf Genehmigung")}
@@ -685,6 +534,108 @@ export default function Borrows() {
                 )}
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          {/* ─── TAB 2: Anfragen verwalten ─── */}
+          <TabsContent value="requests">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              <Select value={pendingFilter} onValueChange={(v) => setPendingFilter(v as typeof pendingFilter)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("borrows:filterAll", "Alle Anfragen")}</SelectItem>
+                  <SelectItem value="internal">{t("borrows:filterInternal", "Haushaltsintern")}</SelectItem>
+                  <SelectItem value="external">{t("borrows:filterExternal", "Externe Haushalte")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                {loadingPending
+                  ? t("common:loading", "Laden...")
+                  : `${filteredPending.length} ${t("borrows:pendingCount", "ausstehende Anfragen")}`}
+              </p>
+            </div>
+
+            {filteredPending.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                  <p className="text-muted-foreground">{t("borrows:noPending", "Keine ausstehenden Anfragen")}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {filteredPending.map((req: any) => (
+                  <Card key={req.id} className={req.isExternal ? "border-amber-400 dark:border-amber-600" : ""}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <CardTitle className="text-lg">{req.itemName}</CardTitle>
+                            {req.isExternal && (
+                              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
+                                <Globe className="w-3 h-3 mr-1" />
+                                {t("borrows:externalHousehold", "Externer Haushalt")}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <User className="w-3 h-3 inline mr-1" />
+                            {req.borrowerName}
+                            {req.isExternal && req.borrowerHouseholdName && (
+                              <span className="ml-1 text-amber-600 dark:text-amber-400">
+                                ({req.borrowerHouseholdName})
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                        <Badge className={statusColors["pending"]}>
+                          {t("borrows:status.pending", "Ausstehend")}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span>{t("borrows:fields.startDate", "Von")}: {formatDate(req.startDate)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(req.endDate)}</span>
+                        </div>
+                      </div>
+                      {req.message && (
+                        <p className="text-sm text-muted-foreground italic mb-4">
+                          "{req.message}"
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(req.id)}
+                          disabled={approveMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {t("borrows:approval.approve", "Genehmigen")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectOpen(req.id)}
+                          disabled={rejectMutation.isPending}
+                          className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          {t("borrows:approval.reject", "Ablehnen")}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
