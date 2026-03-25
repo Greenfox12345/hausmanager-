@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
+import { BorrowCalendar } from "@/components/BorrowCalendar";
 
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
 
@@ -357,7 +358,7 @@ export default function Borrows() {
 
         {/* ── Sub-Tabs: Gegenstände & Meine Ausleihen ── */}
         <Tabs defaultValue="items" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="items">
               <Package className="w-4 h-4 mr-2" />
               {t("borrows:tabItems", "Anfragbare Gegenstände")}
@@ -365,6 +366,10 @@ export default function Borrows() {
             <TabsTrigger value="myborrows">
               <Clock className="w-4 h-4 mr-2" />
               {t("borrows:tabMyBorrows", "Meine Ausleihen")}
+            </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <Calendar className="w-4 h-4 mr-2" />
+              {t("borrows:tabCalendar", "Kalender")}
             </TabsTrigger>
           </TabsList>
 
@@ -645,6 +650,20 @@ export default function Borrows() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* ── Kalender-Tab ── */}
+          <TabsContent value="calendar">
+            <BorrowCalendar
+              borrows={myBorrows.map((b: any) => ({
+                id: b.id,
+                itemName: b.itemName,
+                startDate: b.startDate,
+                endDate: b.endDate,
+                status: b.status,
+                borrowerName: b.borrowerName ?? undefined,
+              }))}
+            />
           </TabsContent>
         </Tabs>
       </div>
