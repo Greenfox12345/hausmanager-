@@ -67,11 +67,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
   // Query user's households for switcher
   const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
     { userId: user?.id },
-    { enabled: !!user?.id } // Only load when user is logged in
+    { enabled: !!user?.id }
   );
 
   // Mutation to switch household
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+
+  // Pending borrow requests count for badge
+  const { data: pendingData } = trpc.borrow.getPendingRequestsCount.useQuery(
+    {
+      householdId: member?.householdId ?? 0,
+      ownerId: member?.memberId ?? 0,
+    },
+    {
+      enabled: !!member?.householdId && !!member?.memberId,
+      refetchInterval: 60_000, // refresh every minute
+    }
+  );
+  const pendingCount = pendingData?.count ?? 0;
 
   const navigationItems = [
     {
@@ -115,6 +128,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: HandCoins,
       href: "/borrows",
       color: "text-yellow-600",
+      badge: pendingCount,
     },
     {
       title: t("nav.history"),
@@ -215,6 +229,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = window.location.pathname === item.href;
+          const badgeCount = (item as any).badge ?? 0;
           
           return (
             <button
@@ -231,7 +246,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             >
               <Icon className={cn("h-5 w-5", isActive ? "text-primary" : item.color)} />
               <span className="flex-1 text-left">{item.title}</span>
-              {isActive && <ChevronRight className="h-4 w-4" />}
+              {badgeCount > 0 && (
+                <span className="ml-auto min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center leading-none">
+                  {badgeCount > 99 ? "99+" : badgeCount}
+                </span>
+              )}
+              {isActive && badgeCount === 0 && <ChevronRight className="h-4 w-4" />}
             </button>
           );
         })}
@@ -268,8 +288,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="container flex items-center justify-between h-16">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="relative">
                 <Menu className="h-6 w-6" />
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[1.1rem] h-[1.1rem] px-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
+                )}
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
