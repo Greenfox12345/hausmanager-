@@ -5,7 +5,7 @@
  *  - PickupDialog: shown when borrower confirms they picked up the item
  *    → shows item photo, description, borrow guidelines/checklist, allows photo + comment
  *  - ReturnDialog: shown when borrower returns the item
- *    → shows pickup photo/comment (if any), allows return photo + comment
+ *    → shows pickup photo/comment prominently for comparison, then allows return photo + comment
  */
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Camera, CheckCircle2, ImageIcon, Loader2, PackageCheck, Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -232,7 +231,8 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           )}
 
-          <Separator />
+          {/* Divider */}
+          <div className="h-px bg-border" />
 
           {/* Photo */}
           <PhotoCapture
@@ -314,6 +314,8 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
     });
   };
 
+  const hasPickupData = !!(request.pickupPhotoUrl || request.pickupComment);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -347,26 +349,57 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           </div>
 
-          {/* Pickup info (from when item was collected) */}
-          {(request.pickupPhotoUrl || request.pickupComment) && (
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">
+          {/* ── Zustand bei Abholung (Vergleichsbereich) ── */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="h-2.5 w-2.5 rounded-full bg-green-500 shrink-0" />
+              <Label className="text-sm font-semibold">
                 {t("return.pickupRecord", "Zustand bei Abholung")}
               </Label>
-              <div className="bg-muted/40 rounded-lg p-3 space-y-2">
+            </div>
+
+            {hasPickupData ? (
+              <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 space-y-2">
                 {request.pickupPhotoUrl && (
                   <img
                     src={request.pickupPhotoUrl}
-                    alt="Abholung"
-                    className="w-full max-h-48 object-cover rounded-md"
+                    alt={t("return.pickupPhoto", "Foto bei Abholung")}
+                    className="w-full max-h-52 object-cover rounded-md"
                   />
                 )}
                 {request.pickupComment && (
-                  <p className="text-sm italic text-muted-foreground">„{request.pickupComment}"</p>
+                  <p className="text-sm italic text-muted-foreground">
+                    &bdquo;{request.pickupComment}&ldquo;
+                  </p>
                 )}
               </div>
+            ) : (
+              <div className="bg-muted/40 border border-dashed rounded-lg p-3">
+                <p className="text-sm text-muted-foreground">
+                  {t("return.noPickupData", "Kein Foto / Kommentar bei Abholung hinterlegt")}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Vergleichs-Trennlinie */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground px-2 shrink-0">
+              {t("return.compareHint", "Jetzt bei Rückgabe festhalten")} ↓
+            </span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* ── Zustand bei Rückgabe ── */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0" />
+              <Label className="text-sm font-semibold">
+                {t("return.returnRecord", "Zustand bei Rückgabe")}
+              </Label>
             </div>
-          )}
+          </div>
 
           {/* Guidelines */}
           {request.guideline?.instructionsText && (
@@ -377,8 +410,6 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
               </p>
             </div>
           )}
-
-          <Separator />
 
           {/* Return photo */}
           <PhotoCapture

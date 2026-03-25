@@ -788,11 +788,18 @@ export const borrowRouter = router({
             id: req.id,
             itemId: req.inventoryItemId,
             itemName: item?.name || "Unknown",
+            itemPhotoUrl: (item as any)?.photoUrl ?? null,
+            itemDescription: (item as any)?.description ?? null,
             ownerName,
             status: req.status,
             startDate: req.startDate,
             endDate: req.endDate,
+            requestMessage: req.requestMessage,
             responseMessage: req.responseMessage,
+            pickupComment: req.pickupComment ?? null,
+            pickupPhotoUrl: req.pickupPhotoUrl ?? null,
+            returnComment: req.returnComment ?? null,
+            returnPhotoUrl: req.returnPhotoUrl ?? null,
           };
         })
       );
