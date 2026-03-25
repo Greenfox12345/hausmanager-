@@ -1006,6 +1006,11 @@ export const borrowRouter = router({
         comment: z.string().optional(),
         photoBase64: z.string().optional(),
         photoFilename: z.string().optional(),
+        requirementPhotos: z.array(z.object({
+          requirementId: z.string(),
+          photoBase64: z.string(),
+          photoFilename: z.string(),
+        })).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -1052,6 +1057,11 @@ export const borrowRouter = router({
         comment: z.string().optional(),
         photoBase64: z.string().optional(),
         photoFilename: z.string().optional(),
+        requirementPhotos: z.array(z.object({
+          requirementId: z.string(),
+          photoBase64: z.string(),
+          photoFilename: z.string(),
+        })).optional(),
       })
     )
     .mutation(async ({ input }) => {

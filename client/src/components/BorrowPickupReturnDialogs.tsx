@@ -3,7 +3,7 @@
  *
  * Two dialogs:
  *  - PickupDialog: shown when borrower confirms they picked up the item
- *    → shows item photo, description, borrow guidelines/checklist/photo-requirements, allows photo + comment
+ *    → shows item photo, description, borrow guidelines/checklist/photo-requirements (with example + upload), allows general photo + comment
  *  - ReturnDialog: shown when borrower returns the item
  *    → shows pickup photo/comment prominently for comparison, then guidelines + return photo + comment
  */
@@ -27,6 +27,26 @@ import { cn } from "@/lib/utils";
 
 // ─── shared photo capture helper ────────────────────────────────────────────
 
+function compressToBase64(file: File): Promise<{ base64: string; filename: string }> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve({ base64: canvas.toDataURL("image/jpeg", 0.82), filename: file.name });
+      };
+      img.src = ev.target!.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function PhotoCapture({
   label,
   photoPreview,
@@ -38,25 +58,11 @@ function PhotoCapture({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX = 800;
-        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const base64 = canvas.toDataURL("image/jpeg", 0.82);
-        onPhoto(base64, file.name);
-      };
-      img.src = ev.target!.result as string;
-    };
-    reader.readAsDataURL(file);
+    const { base64, filename } = await compressToBase64(file);
+    onPhoto(base64, filename);
   };
 
   return (
@@ -91,23 +97,142 @@ function PhotoCapture({
   );
 }
 
-// ─── Guideline section (shared between both dialogs) ─────────────────────────
+// ─── types ───────────────────────────────────────────────────────────────────
+
+export interface BorrowRequestDetail {
+  id: number;
+  status: string;
+  itemName: string;
+  itemPhotoUrl?: string | null;
+  itemDescription?: string | null;
+  borrowerName: string;
+  startDate: Date | string;
+  endDate: Date | string;
+  requestMessage?: string | null;
+  pickupComment?: string | null;
+  pickupPhotoUrl?: string | null;
+  returnComment?: string | null;
+  returnPhotoUrl?: string | null;
+  guideline?: {
+    instructionsText?: string | null;
+    checklistItems?: Array<{ id: string; label: string; required: boolean }> | null;
+    photoRequirements?: Array<{ id: string; label: string; required: boolean; examplePhotoUrl?: string | null }> | null;
+  } | null;
+}
+
+// ─── per-requirement photo upload section ────────────────────────────────────
+
+function PhotoRequirementsSection({
+  requirements,
+  uploads,
+  onUpload,
+}: {
+  requirements: NonNullable<NonNullable<BorrowRequestDetail["guideline"]>["photoRequirements"]>;
+  uploads: Record<string, { base64: string; filename: string }>;
+  onUpload: (reqId: string, base64: string, filename: string) => void;
+}) {
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const handleFile = async (reqId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const { base64, filename } = await compressToBase64(file);
+    onUpload(reqId, base64, filename);
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        Erforderliche Fotos
+      </p>
+      {requirements.map((req) => {
+        const uploaded = uploads[req.id];
+        return (
+          <div key={req.id} className="rounded-lg border bg-muted/30 p-3 space-y-2">
+            {/* Header */}
+            <div className="flex items-center gap-2">
+              <Camera className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm font-medium flex-1">{req.label}</span>
+              {req.required && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
+                  Pflicht
+                </Badge>
+              )}
+            </div>
+
+            {/* Example photo */}
+            {req.examplePhotoUrl && (
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Beispiel:</p>
+                <img
+                  src={req.examplePhotoUrl}
+                  alt={`Beispiel: ${req.label}`}
+                  className="w-full max-h-36 object-cover rounded-md border"
+                  loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              </div>
+            )}
+
+            {/* Upload area */}
+            <div
+              className={cn(
+                "relative border-2 border-dashed rounded-lg overflow-hidden cursor-pointer transition-colors",
+                uploaded ? "border-green-400/60 h-32" : "h-24 flex items-center justify-center hover:border-primary/60"
+              )}
+              onClick={() => fileRefs.current[req.id]?.click()}
+            >
+              {uploaded ? (
+                <>
+                  <img src={uploaded.base64} alt="upload preview" className="w-full h-full object-cover" />
+                  <div className="absolute top-1 right-1 bg-green-500 rounded-full p-0.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-1 text-muted-foreground text-xs">
+                  <Camera className="h-5 w-5" />
+                  <span>Dein Foto hochladen</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={(el) => { fileRefs.current[req.id] = el; }}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => handleFile(req.id, e)}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Guideline section ────────────────────────────────────────────────────────
 
 function GuidelineSection({
   guideline,
   checkedItems,
   onToggleCheck,
-  showChecklist = true,
+  reqUploads,
+  onReqUpload,
 }: {
   guideline: BorrowRequestDetail["guideline"];
   checkedItems: Set<string>;
   onToggleCheck: (id: string, checked: boolean) => void;
-  showChecklist?: boolean;
+  reqUploads: Record<string, { base64: string; filename: string }>;
+  onReqUpload: (reqId: string, base64: string, filename: string) => void;
 }) {
   if (!guideline) return null;
 
   const { instructionsText, checklistItems, photoRequirements } = guideline;
-  const hasContent = instructionsText || (checklistItems && checklistItems.length > 0) || (photoRequirements && photoRequirements.length > 0);
+  const hasContent =
+    instructionsText ||
+    (checklistItems && checklistItems.length > 0) ||
+    (photoRequirements && photoRequirements.length > 0);
   if (!hasContent) return null;
 
   return (
@@ -122,7 +247,7 @@ function GuidelineSection({
       )}
 
       {/* Checklist */}
-      {showChecklist && checklistItems && checklistItems.length > 0 && (
+      {checklistItems && checklistItems.length > 0 && (
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">Checkliste</p>
           {checklistItems.map((item) => (
@@ -144,50 +269,16 @@ function GuidelineSection({
         </div>
       )}
 
-      {/* Photo requirements */}
+      {/* Photo requirements with example + upload */}
       {photoRequirements && photoRequirements.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Erforderliche Fotos</p>
-          <div className="space-y-2">
-            {photoRequirements.map((req) => (
-              <div key={req.id} className="flex items-center gap-2 text-sm">
-                <Camera className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span>{req.label}</span>
-                {req.required && (
-                  <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
-                    Pflicht
-                  </Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <PhotoRequirementsSection
+          requirements={photoRequirements}
+          uploads={reqUploads}
+          onUpload={onReqUpload}
+        />
       )}
     </div>
   );
-}
-
-// ─── types ───────────────────────────────────────────────────────────────────
-
-export interface BorrowRequestDetail {
-  id: number;
-  status: string;
-  itemName: string;
-  itemPhotoUrl?: string | null;
-  itemDescription?: string | null;
-  borrowerName: string;
-  startDate: Date | string;
-  endDate: Date | string;
-  requestMessage?: string | null;
-  pickupComment?: string | null;
-  pickupPhotoUrl?: string | null;
-  returnComment?: string | null;
-  returnPhotoUrl?: string | null;
-  guideline?: {
-    instructionsText?: string | null;
-    checklistItems?: Array<{ id: string; label: string; required: boolean }> | null;
-    photoRequirements?: Array<{ id: string; label: string; required: boolean }> | null;
-  } | null;
 }
 
 // ─── PickupDialog ────────────────────────────────────────────────────────────
@@ -206,6 +297,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [photoFilename, setPhotoFilename] = useState<string>("");
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [reqUploads, setReqUploads] = useState<Record<string, { base64: string; filename: string }>>({});
 
   const utils = trpc.useUtils();
   const confirmPickup = trpc.borrow.confirmPickup.useMutation({
@@ -217,6 +309,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
       setComment("");
       setPhotoBase64(null);
       setCheckedItems(new Set());
+      setReqUploads({});
     },
     onError: (err) => toast.error(err.message),
   });
@@ -224,19 +317,36 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
   const checklist = request.guideline?.checklistItems ?? [];
   const requiredChecked = checklist.filter((c) => c.required).every((c) => checkedItems.has(c.id));
 
+  const photoReqs = request.guideline?.photoRequirements ?? [];
+  const requiredPhotosUploaded = photoReqs.filter((r) => r.required).every((r) => !!reqUploads[r.id]);
+
+  const canSubmit = requiredChecked && requiredPhotosUploaded && !confirmPickup.isPending;
+
   const handleToggleCheck = (id: string, checked: boolean) => {
     const next = new Set(checkedItems);
     checked ? next.add(id) : next.delete(id);
     setCheckedItems(next);
   };
 
+  const handleReqUpload = (reqId: string, base64: string, filename: string) => {
+    setReqUploads((prev) => ({ ...prev, [reqId]: { base64, filename } }));
+  };
+
   const handleSubmit = () => {
+    // Build requirementPhotos array for server
+    const requirementPhotos = Object.entries(reqUploads).map(([reqId, { base64, filename }]) => ({
+      requirementId: reqId,
+      photoBase64: base64,
+      photoFilename: filename,
+    }));
+
     confirmPickup.mutate({
       requestId: request.id,
       memberId,
       comment: comment || undefined,
       photoBase64: photoBase64 || undefined,
       photoFilename: photoFilename || undefined,
+      requirementPhotos: requirementPhotos.length > 0 ? requirementPhotos : undefined,
     });
   };
 
@@ -276,19 +386,20 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           </div>
 
-          {/* Ausleihvorgaben */}
+          {/* Ausleihvorgaben (instructions + checklist + photo requirements with example + upload) */}
           <GuidelineSection
             guideline={request.guideline}
             checkedItems={checkedItems}
             onToggleCheck={handleToggleCheck}
-            showChecklist={true}
+            reqUploads={reqUploads}
+            onReqUpload={handleReqUpload}
           />
 
           <div className="h-px bg-border" />
 
-          {/* Photo */}
+          {/* General photo */}
           <PhotoCapture
-            label={t("pickup.photoLabel", "Foto bei Abholung (optional)")}
+            label={t("pickup.photoLabel", "Allgemeines Foto bei Abholung (optional)")}
             photoPreview={photoBase64}
             onPhoto={(b64, name) => { setPhotoBase64(b64); setPhotoFilename(name); }}
           />
@@ -311,7 +422,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={confirmPickup.isPending || !requiredChecked}
+            disabled={!canSubmit}
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             {confirmPickup.isPending ? (
@@ -343,6 +454,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [photoFilename, setPhotoFilename] = useState<string>("");
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [reqUploads, setReqUploads] = useState<Record<string, { base64: string; filename: string }>>({});
 
   const utils = trpc.useUtils();
   const confirmReturn = trpc.borrow.confirmReturn.useMutation({
@@ -354,6 +466,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
       setComment("");
       setPhotoBase64(null);
       setCheckedItems(new Set());
+      setReqUploads({});
     },
     onError: (err) => toast.error(err.message),
   });
@@ -361,19 +474,35 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
   const checklist = request.guideline?.checklistItems ?? [];
   const requiredChecked = checklist.filter((c) => c.required).every((c) => checkedItems.has(c.id));
 
+  const photoReqs = request.guideline?.photoRequirements ?? [];
+  const requiredPhotosUploaded = photoReqs.filter((r) => r.required).every((r) => !!reqUploads[r.id]);
+
+  const canSubmit = requiredChecked && requiredPhotosUploaded && !confirmReturn.isPending;
+
   const handleToggleCheck = (id: string, checked: boolean) => {
     const next = new Set(checkedItems);
     checked ? next.add(id) : next.delete(id);
     setCheckedItems(next);
   };
 
+  const handleReqUpload = (reqId: string, base64: string, filename: string) => {
+    setReqUploads((prev) => ({ ...prev, [reqId]: { base64, filename } }));
+  };
+
   const handleSubmit = () => {
+    const requirementPhotos = Object.entries(reqUploads).map(([reqId, { base64, filename }]) => ({
+      requirementId: reqId,
+      photoBase64: base64,
+      photoFilename: filename,
+    }));
+
     confirmReturn.mutate({
       requestId: request.id,
       memberId,
       comment: comment || undefined,
       photoBase64: photoBase64 || undefined,
       photoFilename: photoFilename || undefined,
+      requirementPhotos: requirementPhotos.length > 0 ? requirementPhotos : undefined,
     });
   };
 
@@ -464,17 +593,18 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
             </div>
           </div>
 
-          {/* Ausleihvorgaben (Rückgabe-Hinweise + Checkliste + Foto-Anforderungen) */}
+          {/* Ausleihvorgaben (instructions + checklist + photo requirements with example + upload) */}
           <GuidelineSection
             guideline={request.guideline}
             checkedItems={checkedItems}
             onToggleCheck={handleToggleCheck}
-            showChecklist={true}
+            reqUploads={reqUploads}
+            onReqUpload={handleReqUpload}
           />
 
-          {/* Return photo */}
+          {/* General return photo */}
           <PhotoCapture
-            label={t("return.photoLabel", "Foto bei Rückgabe (optional)")}
+            label={t("return.photoLabel", "Allgemeines Foto bei Rückgabe (optional)")}
             photoPreview={photoBase64}
             onPhoto={(b64, name) => { setPhotoBase64(b64); setPhotoFilename(name); }}
           />
@@ -497,7 +627,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={confirmReturn.isPending || !requiredChecked}
+            disabled={!canSubmit}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {confirmReturn.isPending ? (
