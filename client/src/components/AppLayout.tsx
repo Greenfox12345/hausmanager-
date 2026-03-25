@@ -288,13 +288,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="container flex items-center justify-between h-16">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
-                {pendingCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[1.1rem] h-[1.1rem] px-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                    {pendingCount > 99 ? "99+" : pendingCount}
-                  </span>
-                )}
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
