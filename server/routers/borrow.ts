@@ -1096,6 +1096,37 @@ export const borrowRouter = router({
         } as any)
         .where(eq(borrowRequests.id, input.requestId));
 
+      // Notify item owner about the return
+      try {
+        const item = await getInventoryItemById(request.inventoryItemId);
+        const borrower = await getHouseholdMemberById(request.borrowerMemberId);
+        const borrowerName = borrower?.memberName ?? "Unbekannt";
+        const returnDateFormatted = new Date().toLocaleDateString("de-DE");
+        const commentPart = input.comment ? ` Kommentar: "${input.comment}"` : "";
+
+        if (item?.owners && item.owners.length > 0) {
+          for (const owner of item.owners as any[]) {
+            if (owner.memberId && owner.memberId !== input.memberId) {
+              await createNotification({
+                householdId: item.householdId,
+                memberId: owner.memberId,
+                type: "general",
+                title: "Gegenstand zurückgegeben",
+                message: `${borrowerName} hat "${item.name}" am ${returnDateFormatted} zurückgegeben.${commentPart}`,
+              });
+            }
+          }
+        } else if (item?.householdId) {
+          // Household item – notify the household owner via notifyOwner
+          await notifyOwner({
+            title: "Gegenstand zurückgegeben",
+            content: `${borrowerName} hat "${item?.name ?? "Unbekannt"}" am ${returnDateFormatted} zurückgegeben.${commentPart}`,
+          });
+        }
+      } catch (_notifyErr) {
+        // Non-critical – don't fail the mutation if notification fails
+      }
+
       return { success: true };
     }),
 
