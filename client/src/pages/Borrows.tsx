@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 
-type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected";
+type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -112,7 +112,7 @@ export default function Borrows() {
       filtered = filtered.filter(b => {
         const end = b.endDate ? new Date(b.endDate) : null;
         // Vergangen = Enddatum überschritten UND Status abgeschlossen oder abgelehnt
-        const isPast = end && end < now && (b.status === 'completed' || b.status === 'rejected');
+        const isPast = b.status === 'cancelled' || (end && end < now && (b.status === 'completed' || b.status === 'rejected'));
         return !isPast;
       });
     }
@@ -496,6 +496,7 @@ export default function Borrows() {
                   <SelectItem value="active">{t("borrows:status.active", "Aktiv")}</SelectItem>
                   <SelectItem value="completed">{t("borrows:status.completed", "Abgeschlossen")}</SelectItem>
                   <SelectItem value="rejected">{t("borrows:status.rejected", "Abgelehnt")}</SelectItem>
+                  <SelectItem value="cancelled">{t("borrows:status.cancelled", "Storniert")}</SelectItem>
                 </SelectContent>
               </Select>
               <Button
