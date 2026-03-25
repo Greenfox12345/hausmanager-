@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Edit2, Trash2, Calendar, Globe, Lock, Users } from "lucide-react";
@@ -42,6 +43,7 @@ export default function InventoryDetail() {
   const [selectedReturnRequest, setSelectedReturnRequest] = useState<number | null>(null);
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
   const [revokeRequest, setRevokeRequest] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string } | null>(null);
+  const [detailTab, setDetailTab] = useState<"requests" | "guidelines">("requests");
 
   const utils = trpc.useUtils();
 
@@ -599,14 +601,30 @@ export default function InventoryDetail() {
               </CardContent>
             </Card>
 
-            {/* Borrow Requests */}
-            {borrowRequests.length > 0 && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Ausleih-Anfragen</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+            {/* Tabs: Anfragen + Vorgaben */}
+            <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v as "requests" | "guidelines")} className="mb-6">
+              <TabsList className="w-full">
+                <TabsTrigger value="requests" className="flex-1">
+                  Ausleih-Anfragen
+                  {borrowRequests.filter((r: any) => r.status === 'pending').length > 0 && (
+                    <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs w-4 h-4">
+                      {borrowRequests.filter((r: any) => r.status === 'pending').length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                {(item.ownershipType === 'household' ||
+                  (item.ownershipType === 'personal' && item.owners?.some((owner: any) => owner.memberId === member?.memberId))
+                ) && (
+                  <TabsTrigger value="guidelines" className="flex-1">Ausleihvorgaben</TabsTrigger>
+                )}
+              </TabsList>
+
+              {/* Anfragen Tab */}
+              <TabsContent value="requests">
+                {borrowRequests.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Keine Ausleih-Anfragen vorhanden.</p>
+                ) : (
+                  <div className="space-y-4 pt-4">
                     {borrowRequests.map((request: any) => {
                       const isPending = request.status === 'pending';
                       const isApproved = request.status === 'approved';
@@ -731,22 +749,24 @@ export default function InventoryDetail() {
                       );
                     })}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </TabsContent>
 
-            {/* Guidelines Editor */}
-            {item && (item.ownershipType === 'household' ||
-              (item.ownershipType === 'personal' && item.owners?.some((owner: any) => owner.memberId === member?.memberId))
-            ) && (
-              <div className="mb-6">
-                <BorrowGuidelinesEditor
-                  itemId={itemId}
-                  memberId={member?.memberId ?? 0}
-                  onSave={() => {}}
-                />
-              </div>
-            )}
+              {/* Vorgaben Tab */}
+              {(item.ownershipType === 'household' ||
+                (item.ownershipType === 'personal' && item.owners?.some((owner: any) => owner.memberId === member?.memberId))
+              ) && (
+                <TabsContent value="guidelines">
+                  <div className="pt-4">
+                    <BorrowGuidelinesEditor
+                      itemId={itemId}
+                      memberId={member?.memberId ?? 0}
+                      onSave={() => {}}
+                    />
+                  </div>
+                </TabsContent>
+              )}
+            </Tabs>
           </>
         )}
       </div>
