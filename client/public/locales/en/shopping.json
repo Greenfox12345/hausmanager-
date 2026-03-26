@@ -66,6 +66,7 @@
     "emptyCategory": "No items in this category.",
     "noCategories": "No categories yet. Create a new category."
   },
+  "manageCategories": "Manage Categories",
   "labels": {
     "itemCount": "{{count}} item(s)"
   }

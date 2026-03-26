@@ -66,6 +66,7 @@
     "emptyCategory": "Keine Artikel in dieser Kategorie.",
     "noCategories": "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie."
   },
+  "manageCategories": "Kategorien verwalten",
   "labels": {
     "itemCount": "{{count}} Artikel"
   }
