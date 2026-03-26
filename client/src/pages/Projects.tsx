@@ -1194,7 +1194,7 @@ export default function Projects() {
                   id="task-name"
                   value={taskName}
                   onChange={(e) => setTaskName(e.target.value)}
-                  placeholder="z.B. Rasen mähen"
+                  placeholder={t("projects:fields.taskNamePlaceholder")}
                 />
               </div>
 
@@ -1614,7 +1614,7 @@ export default function Projects() {
                   id="edit-name"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  placeholder="z.B. Gartenrenovierung"
+                  placeholder={t("projects:fields.projectNamePlaceholder")}
                 />
               </div>
 

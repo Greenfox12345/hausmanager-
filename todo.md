@@ -3316,3 +3316,8 @@
 
 ## Projects.tsx Z.665 – nicht übersetzter Text
 - [x] Ursache diagnostizieren und dauerhaft beheben (hardcoded JSX-String + Prüfung 5 in lint-i18n.ts)
+
+## Lint-Erweiterung: aria-label/title-Attribute + EN-Texte
+- [x] Lint-Prüfung 5 auf aria-label/title-Attribute ausweiten (kein Treffer – alle bereits mit t() versehen)
+- [x] EN-Text für projects:messages.noProjects verfeinern
+- [x] Alle hardcodierten placeholder-Strings in Projects.tsx beheben (taskNamePlaceholder, projectNamePlaceholder)

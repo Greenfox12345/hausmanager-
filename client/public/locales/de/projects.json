@@ -26,7 +26,9 @@
     "budget": "Budget",
     "progress": "Fortschritt",
     "namePlaceholder": "Name wird von Aufgabe übernommen",
-    "descriptionPlaceholder": "Optionale Projektbeschreibung"
+    "descriptionPlaceholder": "Optionale Projektbeschreibung",
+    "taskNamePlaceholder": "z.B. Rasen mähen",
+    "projectNamePlaceholder": "z.B. Gartenrenovierung"
   },
   "status": {
     "planning": "Planung",

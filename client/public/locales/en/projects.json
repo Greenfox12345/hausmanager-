@@ -26,7 +26,9 @@
     "budget": "Budget",
     "progress": "Progress",
     "namePlaceholder": "Name is taken from the task",
-    "descriptionPlaceholder": "Optional project description"
+    "descriptionPlaceholder": "Optional project description",
+    "taskNamePlaceholder": "e.g. Mow the lawn",
+    "projectNamePlaceholder": "e.g. Garden renovation"
   },
   "status": {
     "planning": "Planning",
@@ -114,7 +116,7 @@
     "noAvailableTasks": "No available tasks without project assignment",
     "noOtherProjects": "No other projects available",
     "selectProject": "Select a project from the list to view details and tasks",
-    "noProjects": "No projects yet. Create your first project!"
+    "noProjects": "No projects yet. Click 'New Project' to get started!"
   },
   "taskProgress": "{{completed}} / {{total}} tasks completed"
 }
