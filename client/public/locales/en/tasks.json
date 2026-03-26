@@ -194,8 +194,8 @@
     "noOccurrences": "No appointments scheduled"
   },
   "requiredItems": {
-    "title": "Required items",
-    "addItem": "Add item",
+    "title": "Required Items",
+    "addItem": "+ Item",
     "noItems": "No items linked",
     "item": "Item",
     "status": "Status",
@@ -488,10 +488,6 @@
   "prerequisitePluralSuffix": "s",
   "followup": "Follow-up Task",
   "followupPluralSuffix": "s",
-  "requiredItems": {
-    "title": "Required Items",
-    "addItem": "+ Item"
-  },
   "upcomingOccurrences": {
     "empty": "No upcoming appointments planned",
     "noDate": "No date",

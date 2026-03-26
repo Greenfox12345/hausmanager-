@@ -60,7 +60,8 @@
     "overdue": "Overdue",
     "open": "Open",
     "done": "Done",
-    "inProgress": "In Progress"
+    "inProgress": "In Progress",
+    "creating": "Creating..."
   },
   "labels": {
     "name": "Name",
@@ -95,7 +96,13 @@
     "price": "Price",
     "language": "Language",
     "reason": "Reason",
-    "preview": "Preview"
+    "preview": "Preview",
+    "photo": "Photo",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "fullscreen": "Full screen",
+    "today": "Today",
+    "on": "on"
   },
   "priority": {
     "low": "Low",
@@ -190,7 +197,9 @@
   "notEnoughMembers": "Not enough available members! Required: {{required}}, Available: {{available}}",
   "minOneAssignee": "Please select at least one assignee",
   "errors": {
-    "generic": "Error: "
+    "generic": "Error: ",
+    "saveFailed": "Error saving",
+    "notLoggedIn": "Please log in"
   },
   "profile": {
     "title": "Edit Profile",
@@ -359,21 +368,5 @@
     "compressionError": "Error compressing {{name}}",
     "fileTooLarge": "{{name}} is too large (max. {{max}})",
     "uploadError": "Error uploading {{label}}s"
-  },
-  "labels": {
-    "photo": "Photo",
-    "prevPhoto": "Previous photo",
-    "nextPhoto": "Next photo",
-    "fullscreen": "Full screen",
-    "today": "Today",
-    "on": "on",
-    "unknown": "Unknown"
-  },
-  "errors": {
-    "saveFailed": "Error saving",
-    "notLoggedIn": "Please log in"
-  },
-  "status": {
-    "creating": "Creating..."
   }
 }

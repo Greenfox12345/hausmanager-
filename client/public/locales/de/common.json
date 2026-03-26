@@ -60,7 +60,8 @@
     "overdue": "Überfällig",
     "open": "Offen",
     "done": "Erledigt",
-    "inProgress": "In Bearbeitung"
+    "inProgress": "In Bearbeitung",
+    "creating": "Wird erstellt..."
   },
   "labels": {
     "name": "Name",
@@ -95,7 +96,13 @@
     "price": "Preis",
     "language": "Sprache",
     "reason": "Begründung",
-    "preview": "Vorschau"
+    "preview": "Vorschau",
+    "photo": "Foto",
+    "prevPhoto": "Vorheriges Foto",
+    "nextPhoto": "Nächstes Foto",
+    "fullscreen": "Vollbild",
+    "today": "Heute",
+    "on": "am"
   },
   "priority": {
     "low": "Niedrig",
@@ -190,7 +197,9 @@
   "notEnoughMembers": "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}",
   "minOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
   "errors": {
-    "generic": "Fehler: "
+    "generic": "Fehler: ",
+    "saveFailed": "Fehler beim Speichern",
+    "notLoggedIn": "Bitte anmelden"
   },
   "profile": {
     "title": "Profil bearbeiten",
@@ -359,21 +368,5 @@
     "compressionError": "Fehler beim Komprimieren von {{name}}",
     "fileTooLarge": "{{name}} ist zu groß (max. {{max}})",
     "uploadError": "Fehler beim Hochladen der {{label}}s"
-  },
-  "labels": {
-    "photo": "Foto",
-    "prevPhoto": "Vorheriges Foto",
-    "nextPhoto": "N\u00e4chstes Foto",
-    "fullscreen": "Vollbild",
-    "today": "Heute",
-    "on": "am",
-    "unknown": "Unbekannt"
-  },
-  "errors": {
-    "saveFailed": "Fehler beim Speichern",
-    "notLoggedIn": "Bitte anmelden"
-  },
-  "status": {
-    "creating": "Wird erstellt..."
   }
 }

@@ -20,7 +20,11 @@
     "notes": "Notizen",
     "photos": "Fotos",
     "borrowable": "Ausleihbar",
-    "owner": "Eigentümer"
+    "owner": "Eigentümer",
+    "details": "Details",
+    "ownership": "Eigentum",
+    "selectOwners": "Eigentümer auswählen",
+    "createdBy": "Erstellt von"
   },
   "condition": {
     "new": "Neu",
@@ -94,17 +98,7 @@
   "labels": {
     "item": "Gegenstand"
   },
-  "fields": {
-    "name": "Name",
-    "details": "Details",
-    "category": "Kategorie",
-    "photos": "Fotos",
-    "ownership": "Eigentum",
-    "selectOwners": "Eigentümer auswählen",
-    "createdBy": "Erstellt von"
-  },
   "notFound": "Artikel nicht gefunden",
-  "editItem": "Artikel bearbeiten",
   "ownershipHousehold": "Haushaltseigentum",
   "ownershipPersonal": "Persönliches Eigentum",
   "visibilityLabel": "Sichtbarkeit für andere Haushalte",

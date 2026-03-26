@@ -20,7 +20,11 @@
     "notes": "Notes",
     "photos": "Photos",
     "borrowable": "Borrowable",
-    "owner": "Owner"
+    "owner": "Owner",
+    "details": "Details",
+    "ownership": "Ownership",
+    "selectOwners": "Select owners",
+    "createdBy": "Created by"
   },
   "condition": {
     "new": "New",
@@ -94,17 +98,7 @@
   "labels": {
     "item": "Item"
   },
-  "fields": {
-    "name": "Name",
-    "details": "Details",
-    "category": "Category",
-    "photos": "Photos",
-    "ownership": "Ownership",
-    "selectOwners": "Select owners",
-    "createdBy": "Created by"
-  },
   "notFound": "Item not found",
-  "editItem": "Edit item",
   "ownershipHousehold": "Household property",
   "ownershipPersonal": "Personal property",
   "visibilityLabel": "Visibility for other households",

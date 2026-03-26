@@ -58,7 +58,7 @@
   "pickupRecord": "Recorded at pickup",
   "returnRecord": "Recorded at return",
   "confirmPickup": "Confirm pickup",
-  "activeReturn": "Active \u2013 please return",
+  "activeReturn": "Active – please return",
   "confirmReturn": "Confirm return",
   "cancelRequest": "Cancel request",
   "cancelDialog": {

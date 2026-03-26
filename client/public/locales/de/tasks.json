@@ -195,7 +195,7 @@
   },
   "requiredItems": {
     "title": "Benötigte Gegenstände",
-    "addItem": "Gegenstand hinzufügen",
+    "addItem": "+ Gegenstand",
     "noItems": "Keine Gegenstände verknüpft",
     "item": "Gegenstand",
     "status": "Status",
@@ -488,10 +488,6 @@
   "prerequisitePluralSuffix": "en",
   "followup": "Folgeaufgabe",
   "followupPluralSuffix": "n",
-  "requiredItems": {
-    "title": "Benötigte Gegenstände",
-    "addItem": "+ Gegenstand"
-  },
   "upcomingOccurrences": {
     "empty": "Keine kommenden Termine geplant",
     "noDate": "Kein Datum",

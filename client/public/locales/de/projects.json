@@ -37,7 +37,9 @@
     "archive": "Archivieren",
     "restore": "Wiederherstellen",
     "assignTasks_one": "{{count}} Aufgabe zuordnen",
-    "assignTasks_other": "{{count}} Aufgaben zuordnen"
+    "assignTasks_other": "{{count}} Aufgaben zuordnen",
+    "newTask": "Neue Aufgabe",
+    "assignExisting": "Bestehende zuordnen"
   },
   "tasks": {
     "title": "Projektaufgaben",
@@ -75,10 +77,6 @@
   "selectExisting": "Bestehende Projekte wählen",
   "createNew": "Neues Projekt erstellen",
   "autoSelectHint": "Das neue Projekt wird automatisch ausgewählt. Zieltermin und Verantwortliche werden von der Aufgabe übernommen.",
-  "newProject": "Neues Projekt erstellen",
-  "projectName": "Projektname",
-  "projectNamePlaceholder": "Name des neuen Projekts",
-  "descriptionPlaceholder": "Projektbeschreibung",
   "views": {
     "list": "Listenansicht",
     "gantt": "Gantt-Diagramm"
@@ -114,10 +112,5 @@
     "noOtherProjects": "Keine weiteren Projekte verfügbar",
     "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen"
   },
-  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt",
-  "neighborhood": "Nachbarschaft",
-  "actions": {
-    "newTask": "Neue Aufgabe",
-    "assignExisting": "Bestehende zuordnen"
-  }
+  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt"
 }

@@ -37,7 +37,9 @@
     "archive": "Archive",
     "restore": "Restore",
     "assignTasks_one": "Assign {{count}} task",
-    "assignTasks_other": "Assign {{count}} tasks"
+    "assignTasks_other": "Assign {{count}} tasks",
+    "newTask": "New Task",
+    "assignExisting": "Assign Existing"
   },
   "validation": {
     "nameRequired": "Please enter a project name",
@@ -75,10 +77,6 @@
   "selectExisting": "Select existing projects",
   "createNew": "Create new project",
   "autoSelectHint": "The new project will be automatically selected. Due date and assignees will be taken from the task.",
-  "newProject": "Create new project",
-  "projectName": "Project name",
-  "projectNamePlaceholder": "Name of the new project",
-  "descriptionPlaceholder": "Project description",
   "views": {
     "list": "List View",
     "gantt": "Gantt Chart"
@@ -114,10 +112,5 @@
     "noOtherProjects": "No other projects available",
     "selectProject": "Select a project from the list to view details and tasks"
   },
-  "taskProgress": "{{completed}} / {{total}} tasks completed",
-  "neighborhood": "Neighborhood",
-  "actions": {
-    "newTask": "New Task",
-    "assignExisting": "Assign Existing"
-  }
+  "taskProgress": "{{completed}} / {{total}} tasks completed"
 }
