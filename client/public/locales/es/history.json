@@ -27,27 +27,27 @@
     "delete": "Eliminado",
     "complete": "Completado",
     "create": "Creado",
-    "task_created": "Aufgabe erstellt",
-    "task_updated": "Aufgabe aktualisiert",
-    "task_completed": "Aufgabe abgeschlossen",
-    "task_deleted": "Aufgabe gelöscht",
-    "task_assigned": "Aufgabe zugewiesen",
-    "item_added": "Gegenstand hinzugefügt",
-    "item_updated": "Gegenstand aktualisiert",
-    "item_deleted": "Gegenstand gelöscht",
-    "shopping_created": "Einkaufsliste erstellt",
-    "shopping_completed": "Einkaufsliste abgeschlossen",
-    "member_joined": "Mitglied beigetreten",
-    "member_removed": "Mitglied entfernt",
-    "borrow_requested": "Ausleihe angefragt",
-    "borrow_approved": "Ausleihe genehmigt",
-    "borrow_rejected": "Ausleihe abgelehnt",
-    "borrow_returned": "Gegenstand zurückgegeben",
-    "reminder": "Erinnerung gesendet"
+    "task_created": "Tarea creada",
+    "task_updated": "Tarea actualizada",
+    "task_completed": "Tarea completada",
+    "task_deleted": "Tarea eliminada",
+    "task_assigned": "Tarea asignada",
+    "item_added": "Artículo añadido",
+    "item_updated": "Artículo actualizado",
+    "item_deleted": "Artículo eliminado",
+    "shopping_created": "Lista de compras creada",
+    "shopping_completed": "Lista de compras completada",
+    "member_joined": "Miembro unido",
+    "member_removed": "Miembro eliminado",
+    "borrow_requested": "Solicitud enviada",
+    "borrow_approved": "Préstamo aprobado",
+    "borrow_rejected": "Préstamo rechazado",
+    "borrow_returned": "Artículo devuelto",
+    "reminder": "Recordatorio enviado"
   },
   "messages": {
     "loadError": "Error al cargar el historial.",
-    "trackActivities": "Aktivitäten und Fortschritte im Haushalt verfolgen"
+    "trackActivities": "Seguir actividades y progresos en el hogar"
   },
   "loading": "Cargando historial...",
   "fields": {
@@ -55,16 +55,16 @@
     "action": "Acción",
     "user": "Usuario",
     "details": "Detalles",
-    "member": "Mitglied"
+    "member": "Miembro"
   },
   "labels": {
-    "photoCount_one": "{{count}} Foto",
-    "photoCount_other": "{{count}} Fotos",
+    "photoCount_one": "{{count}} foto",
+    "photoCount_other": "{{count}} fotos",
     "pdfCount_one": "{{count}} PDF",
     "pdfCount_other": "{{count}} PDFs",
     "pdfCount": "{{count}} PDF",
-    "photoCount": "{{count}} Foto"
+    "photoCount": "{{count}} foto"
   },
-  "noActivities": "Noch keine Aktivitäten vorhanden.",
-  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
+  "noActivities": "Aún no hay actividades.",
+  "noActivitiesFiltered": "No se encontraron actividades que coincidan con sus criterios de filtro."
 }

@@ -7,7 +7,7 @@
     "noHouseholdsHint": "Crea un nuevo hogar o únete a uno existente.",
     "createNew": "Crear nuevo hogar",
     "join": "Unirse a un hogar",
-    "joinExisting": "Bestehendem Haushalt beitreten"
+    "joinExisting": "Unirse a un hogar existente"
   },
   "settings": {
     "title": "Configuración del hogar",
@@ -19,14 +19,14 @@
     "save": "Guardar",
     "saved": "Guardado",
     "languageHint": "El idioma se usa para entradas del historial.",
-    "general": "Allgemein",
-    "address": "Adresse",
-    "danger": "Gefahrenzone",
-    "leave": "Haushalt verlassen",
-    "leaveConfirm": "Möchtest du diesen Haushalt wirklich verlassen?",
-    "delete": "Haushalt löschen",
-    "deleteConfirm": "Möchtest du diesen Haushalt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteWarning": "Alle Daten werden unwiderruflich gelöscht."
+    "general": "General",
+    "address": "Dirección",
+    "danger": "Zona de peligro",
+    "leave": "Abandonar hogar",
+    "leaveConfirm": "¿Realmente deseas abandonar este hogar?",
+    "delete": "Eliminar hogar",
+    "deleteConfirm": "¿Realmente deseas eliminar este hogar? Esta acción no se puede deshacer.",
+    "deleteWarning": "Todos los datos se eliminarán de forma irreversible."
   },
   "members": {
     "title": "Miembros",
@@ -55,20 +55,20 @@
     "language": "Idioma",
     "submit": "Crear",
     "cancel": "Cancelar",
-    "namePlaceholder": "z.B. Familie Müller",
-    "addressPlaceholder": "Adresse (optional)",
-    "success": "Haushalt erstellt",
-    "error": "Fehler beim Erstellen des Haushalts"
+    "namePlaceholder": "p.ej. Familia García",
+    "addressPlaceholder": "Dirección (opcional)",
+    "success": "Hogar creado",
+    "error": "Error al crear el hogar"
   },
   "join": {
     "title": "Unirse a un hogar",
     "code": "Código de invitación",
     "submit": "Unirse",
     "cancel": "Cancelar",
-    "codePlaceholder": "Einladungscode eingeben",
-    "success": "Erfolgreich beigetreten",
-    "invalidCode": "Ungültiger oder abgelaufener Einladungscode",
-    "error": "Fehler beim Beitreten"
+    "codePlaceholder": "Introducir código de invitación",
+    "success": "Unido correctamente",
+    "invalidCode": "Código de invitación inválido o expirado",
+    "error": "Error al unirse"
   },
   "leave": {
     "title": "Abandonar hogar",
@@ -83,19 +83,19 @@
     "cancel": "Cancelar"
   },
   "inviteDialog": {
-    "title": "Haushalt erfolgreich erstellt!",
-    "description": "Teilen Sie diesen Einladungscode mit anderen Personen, damit sie Ihrem Haushalt \"{{householdName}}\" beitreten können.",
-    "copied": "Einladungscode kopiert!",
-    "copyError": "Fehler beim Kopieren",
-    "hint": "Hinweis",
-    "hintText": "Neue Mitglieder können sich mit diesem Code registrieren und Ihrem Haushalt beitreten.",
-    "understood": "Verstanden"
+    "title": "¡Hogar creado correctamente!",
+    "description": "Comparta este código de invitación con otras personas para que puedan unirse a su hogar \"{{householdName}}\".",
+    "copied": "¡Código de invitación copiado!",
+    "copyError": "Error al copiar",
+    "hint": "Aviso",
+    "hintText": "Los nuevos miembros pueden registrarse con este código y unirse a su hogar.",
+    "understood": "Entendido"
   },
   "neighborhood": {
-    "title": "Nachbarschaft",
-    "subtitle": "Verbinde dich mit Nachbarn und tausche Gegenstände aus",
-    "noNeighbors": "Noch keine Nachbarn verbunden",
-    "addNeighbor": "Nachbarn hinzufügen",
-    "borrowFromNeighbor": "Von Nachbarn ausleihen"
+    "title": "Vecindario",
+    "subtitle": "Conéctate con vecinos e intercambia artículos",
+    "noNeighbors": "Aún no hay vecinos conectados",
+    "addNeighbor": "Agregar vecinos",
+    "borrowFromNeighbor": "Tomar prestado de vecinos"
   }
 }

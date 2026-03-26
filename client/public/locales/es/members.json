@@ -15,14 +15,14 @@
     "copyCode": "Copiar código",
     "shareCode": "Compartir código",
     "expiresAt": "Expira el",
-    "generate": "Code generieren",
-    "copy": "Code kopieren",
-    "copied": "Code kopiert!",
-    "share": "Code teilen",
-    "expires": "Läuft ab am",
-    "join": "Haushalt beitreten",
-    "enterCode": "Einladungscode eingeben",
-    "invalidCode": "Ungültiger Einladungscode"
+    "generate": "Generar código",
+    "copy": "Copiar código",
+    "copied": "¡Código copiado!",
+    "share": "Compartir código",
+    "expires": "Expira el",
+    "join": "Unirse a un hogar",
+    "enterCode": "Introducir código de invitación",
+    "invalidCode": "Código de invitación inválido"
   },
   "actions": {
     "invite": "Invitar",
@@ -43,15 +43,15 @@
     "step4": "4. Introduce el código de invitación",
     "clickToShowInviteCode": "Haz clic en \"Mostrar código de invitación\" para ver el código.",
     "inviteCodeCopied": "¡Código de invitación copiado!",
-    "invited": "Einladung gesendet",
-    "joined": "Haushalt beigetreten",
-    "removed": "Mitglied entfernt",
-    "roleChanged": "Rolle geändert",
-    "removeConfirm": "Möchtest du dieses Mitglied wirklich entfernen?",
-    "removeError": "Fehler beim Entfernen des Mitglieds",
-    "cannotRemoveSelf": "Du kannst dich nicht selbst entfernen",
-    "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden",
-    "manageMembers": "Haushaltsmitglieder und Einstellungen"
+    "invited": "Invitación enviada",
+    "joined": "Unido al hogar",
+    "removed": "Miembro eliminado",
+    "roleChanged": "Rol cambiado",
+    "removeConfirm": "¿Realmente deseas eliminar a este miembro?",
+    "removeError": "Error al eliminar el miembro",
+    "cannotRemoveSelf": "No puedes eliminarte a ti mismo",
+    "cannotRemoveLastAdmin": "No se puede eliminar al último administrador",
+    "manageMembers": "Miembros y configuración del hogar"
   },
   "household": {
     "language": "Idioma del hogar",
@@ -109,29 +109,29 @@
     "es": "Español"
   },
   "roles": {
-    "admin": "Administrator",
-    "member": "Mitglied",
-    "guest": "Gast",
-    "changeRole": "Rolle ändern",
-    "promoteToAdmin": "Zum Administrator befördern",
-    "demoteToMember": "Zum Mitglied herabstufen"
+    "admin": "Administrador",
+    "member": "Miembro",
+    "guest": "Invitado",
+    "changeRole": "Cambiar rol",
+    "promoteToAdmin": "Promover a administrador",
+    "demoteToMember": "Degradar a miembro"
   },
   "fields": {
-    "name": "Name",
-    "email": "E-Mail",
-    "role": "Rolle",
-    "joinedAt": "Beigetreten am",
-    "avatar": "Profilbild",
-    "color": "Farbe"
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "joinedAt": "Unido el",
+    "avatar": "Foto de perfil",
+    "color": "Color"
   },
   "profile": {
-    "title": "Profil",
-    "editProfile": "Profil bearbeiten",
-    "myProfile": "Mein Profil",
-    "displayName": "Anzeigename",
-    "avatar": "Profilbild",
-    "changeAvatar": "Profilbild ändern"
+    "title": "Perfil",
+    "editProfile": "Editar perfil",
+    "myProfile": "Mi perfil",
+    "displayName": "Nombre para mostrar",
+    "avatar": "Foto de perfil",
+    "changeAvatar": "Cambiar foto de perfil"
   },
-  "allMembers": "Alle Mitglieder",
-  "selectMember": "Mitglied auswählen"
+  "allMembers": "Todos los miembros",
+  "selectMember": "Seleccionar miembro"
 }

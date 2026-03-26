@@ -19,16 +19,16 @@
     "allDay": "Todo el día",
     "location": "Lugar",
     "color": "Color",
-    "startTime": "Startzeit",
-    "endTime": "Endzeit",
-    "assignedTo": "Zugewiesen an",
-    "recurring": "Wiederkehrend"
+    "startTime": "Hora de inicio",
+    "endTime": "Hora de fin",
+    "assignedTo": "Asignado a",
+    "recurring": "Recurrente"
   },
   "filter": {
     "all": "Todo",
     "tasksOnly": "Solo tareas",
     "eventsOnly": "Solo eventos",
-    "borrowsOnly": "Nur Ausleihen"
+    "borrowsOnly": "Solo préstamos"
   },
   "calendarView": "Vista de calendario",
   "today": "Hoy",
@@ -45,14 +45,14 @@
     "deleteSuccess": "Evento eliminado.",
     "saveSuccess": "Evento guardado.",
     "loadError": "Error al cargar el calendario.",
-    "created": "Termin erstellt",
-    "updated": "Termin aktualisiert",
-    "deleted": "Termin gelöscht",
-    "overview": "Kalender und alle Termine im Überblick",
-    "confirmUndo": "Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.",
-    "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
-    "jumpedToCurrent": "Zu aktuellem Termin gesprungen",
-    "occurrenceSkipped": "Termin ausgelassen!"
+    "created": "Cita creada",
+    "updated": "Cita actualizada",
+    "deleted": "Cita eliminada",
+    "overview": "Calendario y todas las citas de un vistazo",
+    "confirmUndo": "¿Desea deshacer la finalización de esta cita? La tarea se restablecerá a esta fecha.",
+    "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
+    "jumpedToCurrent": "Saltado a la cita actual",
+    "occurrenceSkipped": "¡Cita omitida!"
   },
   "month": "Mes",
   "week": "Semana",
@@ -94,36 +94,36 @@
     "sun": "Dom"
   },
   "labels": {
-    "occurrence": "Termin"
+    "occurrence": "Ocurrencia"
   },
-  "futureOccurrence": "Folgetermin",
-  "completedOccurrence": "Erledigter Termin",
+  "futureOccurrence": "Cita siguiente",
+  "completedOccurrence": "Cita completada",
   "actions": {
-    "undo": "Rükgängig machen",
-    "jumpToCurrent": "Zu aktuellem Termin",
-    "skip": "Auslassen"
+    "undo": "Deshacer",
+    "jumpToCurrent": "A la cita actual",
+    "skip": "Omitir"
   },
   "eventDetail": {
-    "borrowStart": "Ausleihe-Start",
-    "borrowReturn": "Rückgabe-Termin",
-    "event": "Termin",
-    "completed": "Erledigt",
-    "date": "Datum",
-    "description": "Beschreibung",
-    "relatedItem": "Verknüpftes Item",
-    "goToItem": "Zum Item",
-    "markReturned": "Als zurückgegeben markieren",
-    "viewItem": "Item ansehen"
+    "borrowStart": "Inicio del préstamo",
+    "borrowReturn": "Fecha de devolución",
+    "event": "Ocurrencia",
+    "completed": "Hecho",
+    "date": "Fecha",
+    "description": "Descripción",
+    "relatedItem": "Artículo vinculado",
+    "goToItem": "Al artículo",
+    "markReturned": "Marcar como devuelto",
+    "viewItem": "Ver artículo"
   },
-  "allTasksChronological": "Alle Aufgaben (chronologisch)",
-  "completedOn": "Termin am:",
-  "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
-  "jumpToCurrent": "Zu aktuellem Termin",
-  "noTasksOnDay": "Keine Aufgaben an diesem Tag",
-  "noTasksWithoutDates": "Keine Aufgaben ohne Termine",
-  "noTasksWithoutDatesForMember": "Keine Aufgaben ohne Termine für dieses Mitglied",
-  "occurrence": "Termin",
-  "skip": "Auslassen",
-  "tasksOn": "Aufgaben am",
-  "tasksWithoutDates": "Aufgaben ohne Termine"
+  "allTasksChronological": "Todas las tareas (cronológico)",
+  "completedOn": "Cita el:",
+  "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
+  "jumpToCurrent": "A la cita actual",
+  "noTasksOnDay": "No hay tareas para este día",
+  "noTasksWithoutDates": "No hay tareas sin citas",
+  "noTasksWithoutDatesForMember": "No hay tareas sin citas para este miembro",
+  "occurrence": "Ocurrencia",
+  "skip": "Omitir",
+  "tasksOn": "Tareas el",
+  "tasksWithoutDates": "Tareas sin citas"
 }

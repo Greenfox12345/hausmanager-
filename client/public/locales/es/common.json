@@ -82,14 +82,14 @@
     "yes": "Sí",
     "no": "No",
     "ok": "Aceptar",
-    "loading": "Wird geladen...",
-    "saving": "Wird gespeichert...",
-    "deleting": "Wird gelöscht...",
-    "clickToStart": "Klicken Sie hier, um zu beginnen →",
-    "deselectAll": "Alle abwählen",
-    "editDetails": "Details bearbeiten",
-    "showLess": "Weniger anzeigen",
-    "undo": "Rükgängig machen"
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "deleting": "Eliminando...",
+    "clickToStart": "Haga clic aquí para comenzar →",
+    "deselectAll": "Deseleccionar todas",
+    "editDetails": "Editar detalles",
+    "showLess": "Mostrar menos",
+    "undo": "Deshacer"
   },
   "status": {
     "active": "Activo",
@@ -138,8 +138,8 @@
     "saved": "Guardado correctamente",
     "deleted": "Eliminado correctamente",
     "pleaseLogin": "Por favor, inicie sesión",
-    "welcome": "Willkommen",
-    "unknown": "Unbekannt"
+    "welcome": "Bienvenido",
+    "unknown": "Desconocido"
   },
   "labels": {
     "name": "Nombre",
@@ -168,37 +168,37 @@
     "language": "Idioma",
     "optional": "Opcional",
     "required": "Obligatorio",
-    "startDate": "Startdatum",
-    "endDate": "Enddatum",
-    "assignedTo": "Zugewiesen an",
-    "all": "Alle",
-    "none": "Keine",
-    "yes": "Ja",
-    "no": "Nein",
-    "unknown": "Unbekannt",
-    "other": "Sonstiges",
-    "total": "Gesamt",
-    "count": "Anzahl",
-    "amount": "Betrag",
-    "unit": "Einheit",
-    "quantity": "Menge",
-    "price": "Preis",
-    "reason": "Begründung",
-    "preview": "Vorschau",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "assignedTo": "Asignado a",
+    "all": "Todos",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No",
+    "unknown": "Desconocido",
+    "other": "Otros",
+    "total": "Total",
+    "count": "Cantidad",
+    "amount": "Importe",
+    "unit": "Unidad",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "reason": "Justificación",
+    "preview": "Vista previa",
     "photo": "Foto",
-    "prevPhoto": "Vorheriges Foto",
-    "nextPhoto": "Nächstes Foto",
-    "fullscreen": "Vollbild",
-    "today": "Heute",
-    "on": "am",
-    "allTypes": "Alle Typen",
-    "by": "von",
-    "clock": "Uhr",
-    "details": "Details",
-    "noHousehold": "Kein Haushalt ausgewählt",
+    "prevPhoto": "Foto anterior",
+    "nextPhoto": "Foto siguiente",
+    "fullscreen": "Pantalla completa",
+    "today": "Hoy",
+    "on": "el",
+    "allTypes": "Todos los tipos",
+    "by": "de",
+    "clock": "h",
+    "details": "Detalles",
+    "noHousehold": "Ningún hogar seleccionado",
     "photos": "Fotos",
-    "unassigned": "Nicht zugewiesen",
-    "selectDate": "Datum auswählen"
+    "unassigned": "Sin asignar",
+    "selectDate": "Seleccionar fecha"
   },
   "household": {
     "select": "Seleccionar hogar",
@@ -229,9 +229,9 @@
     "de": "Alemán",
     "en": "Inglés",
     "es": "Español",
-    "fr": "Französisch",
-    "tr": "Türkisch",
-    "zh": "Chinesisch"
+    "fr": "Francés",
+    "tr": "Turco",
+    "zh": "Chino"
   },
   "time": {
     "today": "Hoy",
@@ -245,7 +245,7 @@
     "hoursAgo": "hace {{count}} horas",
     "minutesAgo": "hace {{count}} minutos",
     "justNow": "Ahora mismo",
-    "label": "Uhrzeit"
+    "label": "Hora"
   },
   "pleaseLogin": "Por favor, inicia sesión",
   "fields": {
@@ -263,239 +263,239 @@
     "priority": "Prioridad"
   },
   "priority": {
-    "low": "Niedrig",
-    "medium": "Mittel",
-    "high": "Hoch",
-    "urgent": "Dringend"
+    "low": "Bajo",
+    "medium": "Medio",
+    "high": "Alto",
+    "urgent": "Urgente"
   },
   "auth": {
-    "login": "Anmelden",
-    "logout": "Abmelden",
-    "register": "Registrieren",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "username": "Benutzername",
-    "loginPrompt": "Bitte melde dich an, um fortzufahren",
-    "logoutConfirm": "Möchtest du dich wirklich abmelden?",
-    "signInToContinue": "Sign in to continue",
-    "accessRequiresAuth": "Access to this dashboard requires authentication. Continue to launch the login flow.",
-    "signIn": "Sign in",
-    "signOut": "Sign out"
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "username": "Nombre de usuario",
+    "loginPrompt": "Por favor, inicia sesión para continuar",
+    "logoutConfirm": "¿Realmente deseas cerrar sesión?",
+    "signInToContinue": "Inicia sesión para continuar",
+    "accessRequiresAuth": "El acceso a este panel requiere autenticación. Continúe para iniciar el flujo de inicio de sesión.",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión"
   },
   "notifications": {
-    "title": "Benachrichtigungen",
-    "markAllRead": "Alle als gelesen markieren",
-    "noNotifications": "Keine neuen Benachrichtigungen",
-    "settings": "Benachrichtigungseinstellungen"
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "noNotifications": "Sin nuevas notificaciones",
+    "settings": "Configuración de notificaciones"
   },
   "pagination": {
-    "previous": "Zurück",
-    "next": "Weiter",
-    "page": "Seite",
-    "of": "von",
-    "itemsPerPage": "Einträge pro Seite",
-    "showingOf": "{{from}}-{{to}} von {{total}}"
+    "previous": "Atrás",
+    "next": "Continuar",
+    "page": "Página",
+    "of": "de",
+    "itemsPerPage": "Entradas por página",
+    "showingOf": "{{from}}-{{to}} de {{total}}"
   },
-  "all": "Alle",
-  "open": "Offen",
-  "done": "Erledigt",
-  "overdue": "Fällig",
-  "today": "Heute",
-  "assignedTo": "Verantwortlicher",
-  "sortBy": "Sortieren nach",
-  "dueDate": "Fälligkeitsdatum",
-  "creationDate": "Erstellungsdatum",
-  "notEnoughMembers": "Nicht genügend verfügbare Mitglieder! Benötigt: {{required}}, Verfügbar: {{available}}",
-  "minOneAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+  "all": "Todos",
+  "open": "Abiertos",
+  "done": "Hecho",
+  "overdue": "Vence",
+  "today": "Hoy",
+  "assignedTo": "Responsable",
+  "sortBy": "Ordenar por",
+  "dueDate": "Fecha de vencimiento",
+  "creationDate": "Fecha de creación",
+  "notEnoughMembers": "¡No hay suficientes miembros disponibles! Necesarios: {{required}}, Disponibles: {{available}}",
+  "minOneAssignee": "Por favor, seleccione al menos un responsable",
   "errors": {
-    "generic": "Fehler: ",
-    "saveFailed": "Fehler beim Speichern",
-    "notLoggedIn": "Bitte anmelden"
+    "generic": "Error: ",
+    "saveFailed": "Error al guardar",
+    "notLoggedIn": "Por favor, inicie sesión"
   },
   "profile": {
-    "title": "Profil bearbeiten",
-    "description": "Ändern Sie Ihre persönlichen Informationen oder Ihr Passwort.",
-    "tabGeneral": "Allgemein",
-    "tabPassword": "Passwort ändern",
-    "profileImage": "Profilbild",
-    "uploading": "Hochladen...",
-    "upload": "Hochladen",
-    "changeImage": "Bild ändern",
-    "uploadImage": "Bild hochladen",
-    "imageHint": "JPEG, PNG oder WebP, max. 5MB",
-    "namePlaceholder": "Ihr Name",
-    "emailPlaceholder": "ihre.email@beispiel.de",
-    "currentPassword": "Aktuelles Passwort",
-    "newPassword": "Neues Passwort",
-    "confirmPassword": "Passwort bestätigen",
-    "passwordMinLength": "Mindestens 8 Zeichen",
-    "changePassword": "Passwort ändern",
-    "changingPassword": "Ändere...",
-    "updated": "Profil erfolgreich aktualisiert",
-    "updateError": "Fehler beim Aktualisieren des Profils",
-    "imageUploaded": "Profilbild erfolgreich hochgeladen",
-    "imageUploadError": "Fehler beim Hochladen des Profilbilds",
-    "imageDeleted": "Profilbild erfolgreich entfernt",
-    "imageDeleteError": "Fehler beim Entfernen des Profilbilds",
-    "confirmDeleteImage": "Möchten Sie Ihr Profilbild wirklich entfernen?",
-    "passwordChanged": "Passwort erfolgreich geändert",
-    "passwordChangeError": "Fehler beim Ändern des Passworts",
-    "nameRequired": "Name darf nicht leer sein",
-    "emailRequired": "E-Mail darf nicht leer sein",
-    "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-    "currentPasswordRequired": "Bitte geben Sie Ihr aktuelles Passwort ein",
-    "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein",
-    "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
-    "passwordMismatch": "Passwörter stimmen nicht überein"
+    "title": "Editar perfil",
+    "description": "Cambie su información personal o contraseña.",
+    "tabGeneral": "General",
+    "tabPassword": "Cambiar contraseña",
+    "profileImage": "Foto de perfil",
+    "uploading": "Subiendo...",
+    "upload": "Subir",
+    "changeImage": "Cambiar imagen",
+    "uploadImage": "Subir imagen",
+    "imageHint": "JPEG, PNG o WebP, máx. 5MB",
+    "namePlaceholder": "Su nombre",
+    "emailPlaceholder": "su.email@ejemplo.es",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "passwordMinLength": "Al menos 8 caracteres",
+    "changePassword": "Cambiar contraseña",
+    "changingPassword": "Cambiar...",
+    "updated": "Perfil actualizado correctamente",
+    "updateError": "Error al actualizar el perfil",
+    "imageUploaded": "Foto de perfil subida correctamente",
+    "imageUploadError": "Error al subir la foto de perfil",
+    "imageDeleted": "Foto de perfil eliminada correctamente",
+    "imageDeleteError": "Error al eliminar la foto de perfil",
+    "confirmDeleteImage": "¿Desea realmente eliminar su foto de perfil?",
+    "passwordChanged": "Contraseña cambiada correctamente",
+    "passwordChangeError": "Error al cambiar la contraseña",
+    "nameRequired": "El nombre no puede estar vacío",
+    "emailRequired": "El correo electrónico no puede estar vacío",
+    "emailInvalid": "Por favor, introduzca una dirección de correo electrónico válida",
+    "currentPasswordRequired": "Por favor, introduzca su contraseña actual",
+    "newPasswordRequired": "Por favor, introduzca una nueva contraseña",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden"
   },
   "cancel": {
-    "label": "Abbrechen"
+    "label": "Cancelar"
   },
   "add": {
-    "label": "Hinzufügen"
+    "label": "Agregar"
   },
   "toast": {
-    "settingsSaved": "Einstellungen gespeichert",
-    "permissionDenied": "Benachrichtigungen wurden nicht erlaubt",
-    "browserNotificationsEnabled": "Browser-Benachrichtigungen aktiviert"
+    "settingsSaved": "Configuración guardada",
+    "permissionDenied": "Las notificaciones no fueron permitidas",
+    "browserNotificationsEnabled": "Notificaciones del navegador activadas"
   },
   "dialog": {
-    "title": "Benachrichtigungseinstellungen",
-    "description": "Passen Sie an, welche Benachrichtigungen Sie erhalten möchten"
+    "title": "Configuración de notificaciones",
+    "description": "Personalice qué notificaciones desea recibir"
   },
   "browserPush": {
-    "label": "Browser-Benachrichtigungen",
-    "description": "Erhalten Sie Benachrichtigungen auch wenn der Browser geschlossen ist",
-    "blockedMessage": "Benachrichtigungen wurden blockiert. Bitte aktivieren Sie sie in den Browser-Einstellungen."
+    "label": "Notificaciones del navegador",
+    "description": "Reciba notificaciones incluso cuando el navegador esté cerrado",
+    "blockedMessage": "Las notificaciones han sido bloqueadas. Por favor, actívelas en la configuración del navegador."
   },
   "notificationTypes": {
-    "title": "Benachrichtigungstypen",
-    "taskAssigned": "Aufgabenzuweisungen",
-    "taskDue": "Fällige Aufgaben",
-    "taskCompleted": "Erledigte Aufgaben",
-    "comments": "Kommentare"
+    "title": "Tipos de notificaciones",
+    "taskAssigned": "Asignaciones de tareas",
+    "taskDue": "Tareas vencidas",
+    "taskCompleted": "Tareas completadas",
+    "comments": "Comentarios"
   },
   "dnd": {
-    "title": "Nicht stören",
-    "description": "Keine Benachrichtigungen während dieser Zeit",
-    "from": "Von",
-    "to": "Bis",
-    "activeMessage": "Aktiv von {{dndStartTime}} bis {{dndEndTime}} Uhr"
+    "title": "No molestar",
+    "description": "Sin notificaciones durante este período",
+    "from": "De",
+    "to": "Hasta",
+    "activeMessage": "Activo de {{dndStartTime}} a {{dndEndTime}} h"
   },
-  "autoSaveMessage": "Einstellungen werden automatisch gespeichert",
-  "closeButton": "Schließen",
+  "autoSaveMessage": "La configuración se guarda automáticamente",
+  "closeButton": "Cerrar",
   "notificationBell": {
-    "title": "Benachrichtigungen",
-    "markAllAsRead": "Alle als gelesen markieren",
-    "noNotifications": "Keine Benachrichtigungen"
+    "title": "Notificaciones",
+    "markAllAsRead": "Marcar todo como leído",
+    "noNotifications": "Sin notificaciones"
   },
   "pdfViewer": {
-    "documentType": "PDF-Dokument",
-    "openExternal": "Extern öffnen",
-    "download": "Herunterladen"
+    "documentType": "Documento PDF",
+    "openExternal": "Abrir externamente",
+    "download": "Descargar"
   },
   "photoLightbox": {
-    "closeButtonAriaLabel": "Schließen",
-    "previousPhotoAriaLabel": "Vorheriges Foto",
+    "closeButtonAriaLabel": "Cerrar",
+    "previousPhotoAriaLabel": "Foto anterior",
     "photoAltText": "Foto",
-    "nextPhotoAriaLabel": "Nächstes Foto"
+    "nextPhotoAriaLabel": "Foto siguiente"
   },
   "clickablePhoto": {
     "photoAltText": "Foto"
   },
   "upcomingOccurrencesTable": {
-    "noOccurrencesPlanned": "Keine kommenden Termine geplant",
-    "noDate": "Kein Datum",
-    "stillOpen": "Noch offen"
+    "noOccurrencesPlanned": "No hay próximas citas planificadas",
+    "noDate": "Sin fecha",
+    "stillOpen": "Pendiente"
   },
   "errorBoundary": {
-    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
-    "reloadPage": "Seite neu laden"
+    "unexpectedError": "Se ha producido un error inesperado.",
+    "reloadPage": "Recargar página"
   },
   "chatBox": {
-    "placeholder": "Nachricht eingeben...",
-    "emptyStateMessage": "Starten Sie eine Unterhaltung mit der KI",
-    "suggestedPrompt1": "Quantencomputing erklären",
-    "suggestedPrompt2": "Ein Hallo Welt in Python schreiben"
+    "placeholder": "Introducir mensaje...",
+    "emptyStateMessage": "Inicie una conversación con la IA",
+    "suggestedPrompt1": "Explicar computación cuántica",
+    "suggestedPrompt2": "Escribir un Hola Mundo en Python"
   },
   "photoUpload": {
-    "maxPhotosAllowed": "Maximal {{maxPhotos}} {{fileTypeLabel}}s erlaubt",
-    "notAPDF": "{{fileName}} ist kein PDF",
-    "notAnImage": "{{fileName}} ist kein Bild",
-    "compressionError": "Fehler beim Komprimieren von {{fileName}}",
-    "fileTooLarge": "{{fileName}} ist zu groß (max. {{maxSize}})",
-    "uploadError": "Fehler beim Hochladen der {{fileTypeLabel}}s",
-    "uploading": "Hochladen...",
-    "addFiles": "{{fileTypeLabel}}s hinzufügen ({{current}}/{{max}})",
-    "removeFile": "{{fileTypeLabel}} entfernen"
+    "maxPhotosAllowed": "Máximo {{maxPhotos}} {{fileTypeLabel}}s permitidos",
+    "notAPDF": "{{fileName}} no es un PDF",
+    "notAnImage": "{{fileName}} no es una imagen",
+    "compressionError": "Error al comprimir {{fileName}}",
+    "fileTooLarge": "{{fileName}} es demasiado grande (máx. {{maxSize}})",
+    "uploadError": "Error al subir los {{fileTypeLabel}}s",
+    "uploading": "Subiendo...",
+    "addFiles": "Agregar {{fileTypeLabel}}s ({{current}}/{{max}})",
+    "removeFile": "Eliminar {{fileTypeLabel}}"
   },
   "imageCropEditor": {
-    "title": "Bild zuschneiden",
+    "title": "Recortar imagen",
     "zoomLabel": "Zoom",
-    "processing": "Verarbeite...",
+    "processing": "Procesando...",
     "helperText": {
-      "dragAndZoom": "Ziehen Sie das Bild, um es zu positionieren. Verwenden Sie den Slider zum Zoomen."
+      "dragAndZoom": "Arrastre la imagen para posicionarla. Use el control deslizante para hacer zoom."
     },
     "errors": {
-      "canvasContext": "Fehler beim Abrufen des Canvas-Kontexts"
+      "canvasContext": "Error al obtener el contexto del canvas"
     }
   },
-  "apply": "Übernehmen",
+  "apply": "Aplicar",
   "category": {
     "create": {
-      "success": "Kategorie \"${name}\" erstellt",
-      "error": "Fehler beim Erstellen der Kategorie",
-      "buttonTitle": "Neue Kategorie erstellen",
-      "dialogTitle": "Neue Kategorie erstellen",
-      "dialogDescription": "Erstellen Sie eine neue {type}-Kategorie."
+      "success": "Categoría \"${name}\" creada",
+      "error": "Error al crear la categoría",
+      "buttonTitle": "Crear nueva categoría",
+      "dialogTitle": "Crear nueva categoría",
+      "dialogDescription": "Cree una nueva categoría de {type}."
     },
     "type": {
-      "shopping": "Einkaufs",
-      "inventory": "Inventar"
+      "shopping": "Compras",
+      "inventory": "Inventario"
     },
-    "nameLabel": "Kategoriename",
-    "namePlaceholder": "z.B. Lebensmittel, Elektronik...",
-    "colorLabel": "Farbe"
+    "nameLabel": "Nombre de la categoría",
+    "namePlaceholder": "p.ej. Alimentos, Electrónica...",
+    "colorLabel": "Color"
   },
   "button": {
-    "cancel": "Abbrechen",
-    "creating": "Erstelle...",
-    "create": "Erstellen"
+    "cancel": "Cancelar",
+    "creating": "Creando...",
+    "create": "Crear"
   },
   "sidebar": {
-    "toggleNavigation": "Toggle navigation",
-    "navigation": "Navigation"
+    "toggleNavigation": "Alternar navegación",
+    "navigation": "Navegación"
   },
   "menu": {
-    "menu": "Menu"
+    "menu": "Menú"
   },
   "upload": {
-    "uploading": "Hochladen...",
-    "addFiles": "{{label}}s hinzufügen ({{current}}/{{max}})",
-    "removeFile": "{{label}} entfernen",
-    "maxFilesError": "Maximal {{max}} {{label}}s erlaubt",
-    "notAPdf": "{{name}} ist kein PDF",
-    "notAnImage": "{{name}} ist kein Bild",
-    "compressionError": "Fehler beim Komprimieren von {{name}}",
-    "fileTooLarge": "{{name}} ist zu groß (max. {{max}})",
-    "uploadError": "Fehler beim Hochladen der {{label}}s"
+    "uploading": "Subiendo...",
+    "addFiles": "Agregar {{label}}s ({{current}}/{{max}})",
+    "removeFile": "Eliminar {{label}}",
+    "maxFilesError": "Máximo {{max}} {{label}}s permitidos",
+    "notAPdf": "{{name}} no es un PDF",
+    "notAnImage": "{{name}} no es una imagen",
+    "compressionError": "Error al comprimir {{name}}",
+    "fileTooLarge": "{{name}} es demasiado grande (máx. {{max}})",
+    "uploadError": "Error al subir los {{label}}s"
   },
   "sort": {
     "asc": "A–Z",
     "desc": "Z–A",
-    "ascending": "Aufsteigend sortieren",
-    "descending": "Absteigend sortieren"
+    "ascending": "Ordenar ascendente",
+    "descending": "Ordenar descendente"
   },
-  "back": "Zurück",
+  "back": "Atrás",
   "common": {
     "messages": {
-      "loading": "Laden..."
+      "loading": "Cargando..."
     }
   },
-  "loading": "Laden...",
+  "loading": "Cargando...",
   "navigation": {
-    "back": "Zurück",
-    "next": "Weiter"
+    "back": "Atrás",
+    "next": "Continuar"
   },
-  "uploading": "Lädt hoch..."
+  "uploading": "Subiendo..."
 }
