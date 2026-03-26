@@ -1,9 +1,17 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getDb, createActivityLog } from "../db";
+import { getDb, createActivityLog, getHouseholdById } from "../db";
 import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests, householdMembers } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { occurrenceItemAdded, occurrenceItemRemoved } from "../activityTexts";
+
+type OccLang = "de" | "en" | "es";
+async function getOccLang(householdId: number): Promise<OccLang> {
+  const hh = await getHouseholdById(householdId);
+  const l = hh?.language ?? "de";
+  return (l === "en" || l === "es") ? l as OccLang : "de";
+}
 
 /**
  * Task Occurrence Items Router
@@ -131,12 +139,13 @@ export const taskOccurrenceItemsRouter = router({
 
       if (member) {
         // Create activity log entry
+        const occAddLang = await getOccLang(task.householdId);
         await createActivityLog({
           householdId: task.householdId,
           memberId: member.id,
           activityType: "task",
           action: "item_added",
-          description: `Gegenstand "${item.name}" zu Termin ${input.occurrenceNumber} hinzugefügt`,
+          description: occurrenceItemAdded(occAddLang, item.name, task.name, input.occurrenceNumber),
           relatedItemId: input.taskId,
           metadata: {
             taskId: input.taskId,
@@ -218,12 +227,13 @@ export const taskOccurrenceItemsRouter = router({
           .limit(1);
 
         if (member) {
-          await createActivityLog({
-            householdId: occurrenceItem.householdId!,
-            memberId: member.id,
-            activityType: "task",
-            action: "item_removed",
-            description: `Gegenstand "${occurrenceItem.itemName}" von Termin ${occurrenceItem.occurrenceNumber} entfernt`,
+            const occRemLang = await getOccLang(occurrenceItem.householdId ?? 0);
+            await createActivityLog({
+              householdId: occurrenceItem.householdId ?? 0,
+              memberId: member.id,
+              activityType: "task",
+              action: "item_removed",
+              description: occurrenceItemRemoved(occRemLang, occurrenceItem.itemName ?? "?", occurrenceItem.taskName ?? "?", occurrenceItem.occurrenceNumber),
             relatedItemId: occurrenceItem.taskId,
             metadata: {
               taskId: occurrenceItem.taskId,

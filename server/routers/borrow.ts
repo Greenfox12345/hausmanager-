@@ -27,6 +27,23 @@ import {
 import { notifyOwner } from "../_core/notification";
 import { createNotification } from "../notificationHelpers";
 import { taskOccurrenceItems, tasks as tasksTable } from "../../drizzle/schema";
+import {
+  borrowRequested,
+  borrowAutoApproved,
+  borrowApproved,
+  borrowRejected,
+  borrowReturned,
+  borrowRevoked,
+  borrowCancelled,
+} from "../activityTexts";
+import { getHouseholdById } from "../db";
+
+type BorrowLang = "de" | "en" | "es";
+async function getBorrowLang(householdId: number): Promise<BorrowLang> {
+  const hh = await getHouseholdById(householdId);
+  const l = hh?.language ?? "de";
+  return (l === "en" || l === "es") ? l as BorrowLang : "de";
+}
 
 export const borrowRouter = router({
   // Create a new borrow request
@@ -79,12 +96,16 @@ export const borrowRouter = router({
       if (input.taskName) baseMetadata.taskName = input.taskName;
       if (input.occurrenceNumber) baseMetadata.occurrenceNumber = input.occurrenceNumber;
 
-      // Activity log: Anfrage abgeschickt
-      const requestDescription = input.taskName
-        ? `Ausleih-Anfrage für "${item.name}" (Aufgabe: ${input.taskName}${
-            input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""
-          })`
-        : `Ausleih-Anfrage für "${item.name}"`;
+      // Activity log: Anfrage abgeschickt (multilingual)
+      const borrowerMemberObj = await getHouseholdMemberById(input.borrowerMemberId);
+      const borrowerMemberName = borrowerMemberObj?.memberName ?? `#${input.borrowerMemberId}`;
+      const reqLang = await getBorrowLang(input.borrowerHouseholdId);
+      const taskSuffix = input.taskName
+        ? (reqLang === "en" ? ` (task: ${input.taskName}${input.occurrenceNumber ? `, occurrence ${input.occurrenceNumber}` : ""})`
+          : reqLang === "es" ? ` (tarea: ${input.taskName}${input.occurrenceNumber ? `, cita ${input.occurrenceNumber}` : ""})`
+          : ` (Aufgabe: ${input.taskName}${input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""})`)
+        : undefined;
+      const requestDescription = borrowRequested(reqLang, item.name, borrowerMemberName, taskSuffix ?? undefined);
 
       await createActivityLog({
         householdId: input.borrowerHouseholdId,
@@ -98,18 +119,12 @@ export const borrowRouter = router({
 
       // If auto-approved, also log the approval
       if (autoApproved) {
-        const approvedDescription = input.taskName
-          ? `Ausleihe von "${item.name}" automatisch genehmigt (Aufgabe: ${input.taskName}${
-              input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""
-            })`
-          : `Ausleihe von "${item.name}" automatisch genehmigt`;
-
         await createActivityLog({
           householdId: input.borrowerHouseholdId,
           memberId: input.borrowerMemberId,
           activityType: "task",
           action: "borrow_auto_approved",
-          description: approvedDescription,
+          description: borrowAutoApproved(reqLang, item.name, borrowerMemberName),
           relatedItemId: input.taskId,
           metadata: baseMetadata,
         });
@@ -245,14 +260,17 @@ export const borrowRouter = router({
         metadata.occurrenceNumber = linkedOccurrence.occurrenceNumber;
       }
 
+      const approveLang = await getBorrowLang(request.borrowerHouseholdId);
+      const approverMemberObj = await getHouseholdMemberById(input.approverId);
+      const approverMemberName = approverMemberObj?.memberName ?? `#${input.approverId}`;
+      const borrowerMemberObj2 = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrowerMemberName2 = borrowerMemberObj2?.memberName ?? `#${request.borrowerMemberId}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         activityType: linkedOccurrence ? "task" : "inventory",
         action: "borrow_approved",
-        description: linkedOccurrence
-          ? `Ausleih-Anfrage für "${item.name}" (Aufgabe "${linkedOccurrence.taskName}", Termin ${linkedOccurrence.occurrenceNumber}) wurde genehmigt`
-          : `Ausleih-Anfrage für "${item.name}" wurde genehmigt`,
+        description: borrowApproved(approveLang, item.name, borrowerMemberName2, approverMemberName),
         relatedItemId: linkedOccurrence?.taskId,
         metadata,
       });
@@ -346,15 +364,18 @@ export const borrowRouter = router({
 
       // Item already fetched above for validation
       
-      // Create activity log
+      // Create activity log (multilingual)
       const rejecterMember = await getHouseholdMemberById(input.approverId);
       const rejecterName = rejecterMember?.memberName || "Eigentümer";
+      const rejectLang = await getBorrowLang(request.borrowerHouseholdId);
+      const rejectBorrowerObj = await getHouseholdMemberById(request.borrowerMemberId);
+      const rejectBorrowerName = rejectBorrowerObj?.memberName ?? `#${request.borrowerMemberId}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         activityType: "inventory",
         action: "borrow_rejected",
-        description: `Ausleih-Anfrage für "${item?.name}" wurde abgelehnt`,
+        description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage),
         metadata: {
           itemId: request.inventoryItemId,
           itemName: item?.name,
@@ -435,13 +456,16 @@ export const borrowRouter = router({
 
       // Item already fetched above for validation
       
-      // Create activity log
+      // Create activity log (multilingual)
+      const returnLang = await getBorrowLang(request.borrowerHouseholdId);
+      const returnMemberObj = await getHouseholdMemberById(request.borrowerMemberId);
+      const returnMemberName = returnMemberObj?.memberName ?? `#${request.borrowerMemberId}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         activityType: "inventory",
         action: "borrow_returned",
-        description: `"${item?.name}" wurde zurückgegeben`,
+        description: borrowReturned(returnLang, item?.name ?? "?", returnMemberName),
         metadata: {
           itemId: request.inventoryItemId,
           requestId: input.requestId,
@@ -523,13 +547,14 @@ export const borrowRouter = router({
             relatedTaskId: occ.taskId,
           });
 
-          // Create activity log entry with full details
+          // Create activity log entry with full details (multilingual)
+          const revokeLang = await getBorrowLang(input.revokerHouseholdId);
           await createActivityLog({
             householdId: input.revokerHouseholdId,
             memberId: input.revokerId,
             activityType: "inventory",
             action: "borrow_revoked",
-            description: `Ausleihgenehmigung für "${item.name}" widerrufen`,
+            description: borrowRevoked(revokeLang, item.name, revokerName, input.reason),
             metadata: {
               itemId: request.inventoryItemId,
               itemName: item.name,
@@ -565,12 +590,13 @@ export const borrowRouter = router({
             message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
           });
 
+          const revokeLang2 = await getBorrowLang(input.revokerHouseholdId);
           await createActivityLog({
             householdId: input.revokerHouseholdId,
             memberId: input.revokerId,
             activityType: "inventory",
             action: "borrow_revoked",
-            description: `Ausleihgenehmigung für "${item.name}" widerrufen`,
+            description: borrowRevoked(revokeLang2, item.name, revokerName, input.reason),
             metadata: {
               itemId: request.inventoryItemId,
               itemName: item.name,
@@ -646,14 +672,15 @@ export const borrowRouter = router({
         }
       }
 
-      // Activity log
+      // Activity log (multilingual)
       if (item) {
+        const cancelLang = await getBorrowLang(request.borrowerHouseholdId);
         await createActivityLog({
           householdId: request.borrowerHouseholdId,
           memberId: input.borrowerMemberId,
           activityType: "inventory",
           action: "borrow_cancelled",
-          description: `Ausleih-Anfrage für "${item.name}" storniert`,
+          description: borrowCancelled(cancelLang, item.name, borrowerName),
           metadata: {
             itemId: request.inventoryItemId,
             itemName: item.name,
@@ -808,13 +835,16 @@ export const borrowRouter = router({
       // Get item details for activity log
       const item = await getInventoryItemById(request.inventoryItemId);
 
-      // Create activity log
+      // Create activity log (multilingual)
+      const ownerReturnLang = await getBorrowLang(request.borrowerHouseholdId);
+      const ownerReturnMemberObj = await getHouseholdMemberById(request.borrowerMemberId);
+      const ownerReturnMemberName = ownerReturnMemberObj?.memberName ?? `#${request.borrowerMemberId}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         activityType: "inventory",
         action: "borrow_returned",
-        description: `"${item?.name}" wurde zurückgegeben`,
+        description: borrowReturned(ownerReturnLang, item?.name ?? "?", ownerReturnMemberName),
         metadata: {
           itemId: request.inventoryItemId,
           requestId: input.requestId,

@@ -22,6 +22,25 @@ import {
   moveRotationOccurrence,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
+import {
+  taskCreated,
+  taskUpdated,
+  taskCompleted,
+  taskUncompleted,
+  taskDeleted,
+  taskRotated,
+  taskMilestone,
+  taskReminder,
+  taskSkipped,
+  taskRestored,
+} from "../activityTexts";
+
+type Lang = "de" | "en" | "es";
+async function getHouseholdLang(householdId: number): Promise<Lang> {
+  const hh = await getHouseholdById(householdId);
+  const l = hh?.language ?? "de";
+  return (l === "en" || l === "es") ? l as Lang : "de";
+}
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { inArray } from "drizzle-orm";
 
@@ -370,26 +389,15 @@ export const tasksRouter = router({
         await createTaskRotationExclusions(taskId, input.excludedMembers);
       }
 
-      // Build detailed creation description
-      const details: string[] = [];
-      details.push(`Aufgabe erstellt: '${input.name}'`);
-      if (input.description) details.push(`Beschreibung: ${input.description}`);
-      if (dueDatetime) {
-        const hasRepeat = input.repeatInterval && input.repeatUnit;
-        details.push(`${hasRepeat ? "Erster Termin am" : "Fällig am"}: ${formatDateTime(dueDatetime)}`);
-      }
-      details.push(`Häufigkeit: ${frequencyLabels[input.frequency] ?? input.frequency}`);
-      if (input.repeatInterval && input.repeatUnit) {
-        details.push(`Wiederholung: alle ${input.repeatInterval} ${repeatUnitLabels[input.repeatUnit] ?? input.repeatUnit}`);
-      }
-      if (input.enableRotation) details.push("Rotation aktiviert");
-
-      // Resolve assignee names
+      // Build detailed creation description (multilingual)
+      const lang = await getHouseholdLang(input.householdId);
+      let assigneeNames: string[] | undefined;
       if (input.assignedTo && input.assignedTo.length > 0) {
         const members = await getHouseholdMembers(input.householdId);
-        const names = memberIdsToNames(input.assignedTo, members);
-        details.push(`Verantwortliche: ${names}`);
+        assigneeNames = input.assignedTo
+          .map((id) => members.find((m) => m.id === id)?.memberName ?? `#${id}`);
       }
+      const creationDescription = taskCreated(lang, input.name, assigneeNames);
 
       const creationMetadata: Record<string, any> = {
         name: input.name,
@@ -408,7 +416,7 @@ export const tasksRouter = router({
         memberId: input.memberId,
         activityType: "task",
         action: "created",
-        description: details.join(" | "),
+        description: creationDescription,
         relatedItemId: taskId,
         metadata: creationMetadata,
       });
@@ -529,16 +537,11 @@ export const tasksRouter = router({
         dueDate: dueDatetime,
       });
 
-      // Build description string
+      // Build description string (multilingual)
       const taskName = updates.name ?? currentTask.name;
-      let description: string;
-      if (changes.length === 0) {
-        description = `Aufgabe '${taskName}' gespeichert (keine Änderungen)`;
-      } else if (changes.length === 1) {
-        description = `Aufgabe '${taskName}' bearbeitet: ${changes[0]}`;
-      } else {
-        description = `Aufgabe '${taskName}' bearbeitet: ${changes.join(" | ")}`;
-      }
+      const updateLang = await getHouseholdLang(householdId);
+      const changesStr = changes.length > 0 ? changes.join(" | ") : undefined;
+      const description = taskUpdated(updateLang, taskName, changesStr);
 
       await createActivityLog({
         householdId,
@@ -613,12 +616,17 @@ export const tasksRouter = router({
                 .map(id => members.find(m => m.id === id)?.memberName || `#${id}`)
                 .join(", ");
               
+              const rotateLang1 = await getHouseholdLang(input.householdId);
+              const prevNames1 = (task.assignedTo as number[] | null)?.map(id => {
+                const m = ([] as {id:number;memberName:string}[]).find(x => x.id === id);
+                return m?.memberName ?? `#${id}`;
+              }).join(", ") ?? "–";
               await createActivityLog({
                 householdId: input.householdId,
                 memberId: input.memberId,
                 activityType: "task",
                 action: "rotated",
-                description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche sind ${nextMemberNames}`,
+                description: taskRotated(rotateLang1, task.name, prevNames1, nextMemberNames),
                 relatedItemId: input.taskId,
                 metadata: {
                   previousAssignee: task.assignedTo,
@@ -678,12 +686,15 @@ export const tasksRouter = router({
               if (nextMember) {
                 nextAssignee = [nextMember.id];
 
+                const rotateLang2 = await getHouseholdLang(input.householdId);
+                const prevMember2 = members.find(m => m.id === (task.assignedTo as number[])[0]);
+                const prevName2 = prevMember2?.memberName ?? `#${(task.assignedTo as number[])[0]}`;
                 await createActivityLog({
                   householdId: input.householdId,
                   memberId: input.memberId,
                   activityType: "task",
                   action: "rotated",
-                  description: `Aufgabe '${task.name}' rotiert: Nächste Verantwortliche ist ${nextMember.memberName}`,
+                  description: taskRotated(rotateLang2, task.name, prevName2, nextMember.memberName),
                   relatedItemId: input.taskId,
                   metadata: {
                     previousAssignee: task.assignedTo,
@@ -706,12 +717,16 @@ export const tasksRouter = router({
         });
 
         // Log completion of THIS occurrence with ORIGINAL due date
+        const recurLang = await getHouseholdLang(input.householdId);
+        const recurMembers = await getHouseholdMembers(input.householdId);
+        const recurMember = recurMembers.find(m => m.id === input.memberId);
+        const recurMemberName = recurMember?.memberName ?? `#${input.memberId}`;
         await createActivityLog({
           householdId: input.householdId,
           memberId: input.memberId,
           activityType: "task",
           action: "completed",
-          description: `Wiederkehrende Aufgabe '${task.name}' abgeschlossen (Termin: ${formatDate(originalDueDate)}). Nächster Termin: ${formatDate(nextDueDate)}`,
+          description: taskCompleted(recurLang, task.name, recurMemberName, formatDate(originalDueDate)),
           relatedItemId: input.taskId,
           completedDate: originalDueDate || new Date(),
           metadata: {
@@ -728,13 +743,17 @@ export const tasksRouter = router({
           completedAt: input.isCompleted ? new Date() : null,
         });
 
+        const toggleLang = await getHouseholdLang(input.householdId);
+        const toggleMembers = await getHouseholdMembers(input.householdId);
+        const toggleMember = toggleMembers.find(m => m.id === input.memberId);
+        const toggleMemberName = toggleMember?.memberName ?? `#${input.memberId}`;
         if (input.isCompleted) {
           await createActivityLog({
             householdId: input.householdId,
             memberId: input.memberId,
             activityType: "task",
             action: "completed",
-            description: `Aufgabe '${task.name}' als erledigt markiert`,
+            description: taskCompleted(toggleLang, task.name, toggleMemberName),
             relatedItemId: input.taskId,
             metadata: { taskName: task.name },
           });
@@ -744,7 +763,7 @@ export const tasksRouter = router({
             memberId: input.memberId,
             activityType: "task",
             action: "uncompleted",
-            description: `Aufgabe '${task.name}' als unerledigt markiert`,
+            description: taskUncompleted(toggleLang, task.name, toggleMemberName),
             relatedItemId: input.taskId,
             metadata: { taskName: task.name },
           });
@@ -771,12 +790,13 @@ export const tasksRouter = router({
 
       await deleteTask(input.taskId);
 
+      const deleteLang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "deleted",
-        description: `Aufgabe '${taskName}' gelöscht`,
+        description: taskDeleted(deleteLang, taskName),
         relatedItemId: input.taskId,
         metadata: { taskName },
       });
@@ -1071,33 +1091,67 @@ export const tasksRouter = router({
         }
       }
 
-      // ===== 6. Build activity log with occurrence details =====
-      const descParts: string[] = isRecurring 
-        ? [`Wiederkehrende Aufgabe abgeschlossen: '${task.name}' (Termin: ${formatDate(originalDueDate)})`]
-        : [`Aufgabe abgeschlossen: '${task.name}'`];
+      // ===== 6. Build activity log with occurrence details (multilingual) =====
+      const completeLang = await getHouseholdLang(input.householdId);
+      const completeMembersList = await getHouseholdMembers(input.householdId);
+      const completeMemberObj = completeMembersList.find(m => m.id === input.memberId);
+      const completeMemberName = completeMemberObj?.memberName ?? `#${input.memberId}`;
+      const completeDesc = taskCompleted(
+        completeLang,
+        task.name,
+        completeMemberName,
+        isRecurring ? formatDate(originalDueDate) : undefined
+      );
+      const descParts: string[] = [completeDesc];
       if (isRecurring && nextDueDate) {
-        descParts.push(`Nächster Termin: ${formatDate(nextDueDate)}`);
+        const nextLabel = completeLang === "en" ? `Next due: ${formatDate(nextDueDate)}`
+          : completeLang === "es" ? `Próxima fecha: ${formatDate(nextDueDate)}`
+          : `Nächster Termin: ${formatDate(nextDueDate)}`;
+        descParts.push(nextLabel);
       }
       if (occurrenceDetails) {
         if (occurrenceDetails.specialName) {
-          descParts.push(`Sondertermin: ${occurrenceDetails.specialName}`);
+          const specLabel = completeLang === "en" ? `Special: ${occurrenceDetails.specialName}`
+            : completeLang === "es" ? `Especial: ${occurrenceDetails.specialName}`
+            : `Sondertermin: ${occurrenceDetails.specialName}`;
+          descParts.push(specLabel);
         }
         if (occurrenceDetails.memberNames.length > 0) {
-          descParts.push(`Verantwortlich: ${occurrenceDetails.memberNames.join(', ')}`);
+          const respLabel = completeLang === "en" ? `Responsible: ${occurrenceDetails.memberNames.join(', ')}`
+            : completeLang === "es" ? `Responsable: ${occurrenceDetails.memberNames.join(', ')}`
+            : `Verantwortlich: ${occurrenceDetails.memberNames.join(', ')}`;
+          descParts.push(respLabel);
         }
         if (occurrenceDetails.notes) {
-          descParts.push(`Notizen: ${occurrenceDetails.notes}`);
+          const notesLabel = completeLang === "en" ? `Notes: ${occurrenceDetails.notes}`
+            : completeLang === "es" ? `Notas: ${occurrenceDetails.notes}`
+            : `Notizen: ${occurrenceDetails.notes}`;
+          descParts.push(notesLabel);
         }
         if (occurrenceDetails.items.length > 0) {
-          descParts.push(`Gegenstände: ${occurrenceDetails.items.map(i => i.itemName).join(', ')}`);
+          const itemsLabel = completeLang === "en" ? `Items: ${occurrenceDetails.items.map(i => i.itemName).join(', ')}`
+            : completeLang === "es" ? `Artículos: ${occurrenceDetails.items.map(i => i.itemName).join(', ')}`
+            : `Gegenstände: ${occurrenceDetails.items.map(i => i.itemName).join(', ')}`;
+          descParts.push(itemsLabel);
         }
       }
-      if (input.comment) descParts.push(`Kommentar: ${input.comment}`);
+      if (input.comment) {
+        const commentLabel = completeLang === "en" ? `Comment: ${input.comment}`
+          : completeLang === "es" ? `Comentario: ${input.comment}`
+          : `Kommentar: ${input.comment}`;
+        descParts.push(commentLabel);
+      }
       if (input.photoUrls && input.photoUrls.length > 0) {
-        descParts.push(`${input.photoUrls.length} Foto(s) angehängt`);
+        const photoLabel = completeLang === "en" ? `${input.photoUrls.length} photo(s) attached`
+          : completeLang === "es" ? `${input.photoUrls.length} foto(s) adjunta(s)`
+          : `${input.photoUrls.length} Foto(s) angehängt`;
+        descParts.push(photoLabel);
       }
       if (input.fileUrls && input.fileUrls.length > 0) {
-        descParts.push(`${input.fileUrls.length} Datei(en) angehängt`);
+        const fileLabel = completeLang === "en" ? `${input.fileUrls.length} file(s) attached`
+          : completeLang === "es" ? `${input.fileUrls.length} archivo(s) adjunto(s)`
+          : `${input.fileUrls.length} Datei(en) angehängt`;
+        descParts.push(fileLabel);
       }
 
       // Create activity log with occurrence metadata
@@ -1203,14 +1257,29 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
-      // Build detailed milestone description
-      const descParts: string[] = [`Zwischensieg bei Aufgabe: '${task.name}'`];
-      if (input.comment) descParts.push(`Kommentar: ${input.comment}`);
+      // Build detailed milestone description (multilingual)
+      const milestoneLang = await getHouseholdLang(input.householdId);
+      const milestoneLabel = milestoneLang === "en" ? "Progress"
+        : milestoneLang === "es" ? "Progreso"
+        : "Zwischensieg";
+      const descParts: string[] = [taskMilestone(milestoneLang, task.name, milestoneLabel)];
+      if (input.comment) {
+        const commentLabel = milestoneLang === "en" ? `Comment: ${input.comment}`
+          : milestoneLang === "es" ? `Comentario: ${input.comment}`
+          : `Kommentar: ${input.comment}`;
+        descParts.push(commentLabel);
+      }
       if (input.photoUrls && input.photoUrls.length > 0) {
-        descParts.push(`${input.photoUrls.length} Foto(s) angehängt`);
+        const photoLabel = milestoneLang === "en" ? `${input.photoUrls.length} photo(s) attached`
+          : milestoneLang === "es" ? `${input.photoUrls.length} foto(s) adjunta(s)`
+          : `${input.photoUrls.length} Foto(s) angehängt`;
+        descParts.push(photoLabel);
       }
       if (input.fileUrls && input.fileUrls.length > 0) {
-        descParts.push(`${input.fileUrls.length} Datei(en) angehängt`);
+        const fileLabel = milestoneLang === "en" ? `${input.fileUrls.length} file(s) attached`
+          : milestoneLang === "es" ? `${input.fileUrls.length} archivo(s) adjunto(s)`
+          : `${input.fileUrls.length} Datei(en) angehängt`;
+        descParts.push(fileLabel);
       }
 
       await createActivityLog({
@@ -1252,15 +1321,23 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
-      const descParts: string[] = [`Erinnerung gesendet für Aufgabe: '${task.name}'`];
-      if (input.comment) descParts.push(`Nachricht: ${input.comment}`);
-
+       const reminderLang = await getHouseholdLang(input.householdId);
+      const reminderMembersList = await getHouseholdMembers(input.householdId);
+      const reminderMemberObj = reminderMembersList.find(m => m.id === input.memberId);
+      const reminderMemberName = reminderMemberObj?.memberName ?? `#${input.memberId}`;
+      const reminderDescParts: string[] = [taskReminder(reminderLang, task.name, reminderMemberName)];
+      if (input.comment) {
+        const msgLabel = reminderLang === "en" ? `Message: ${input.comment}`
+          : reminderLang === "es" ? `Mensaje: ${input.comment}`
+          : `Nachricht: ${input.comment}`;
+        reminderDescParts.push(msgLabel);
+      }
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "reminder",
-        description: descParts.join(" | "),
+        description: reminderDescParts.join(" | "),
         relatedItemId: input.taskId,
         comment: input.comment,
         metadata: { taskName: task.name },
@@ -1366,15 +1443,19 @@ export const tasksRouter = router({
               completedAt: new Date(),
             });
 
-            await createActivityLog({
-              householdId: input.householdId,
-              memberId: input.memberId,
-              activityType: "task",
-              action: "completed",
-              description: `Aufgabe '${task.name}' als erledigt markiert`,
-              relatedItemId: taskId,
-              metadata: { taskName: task.name },
-            });
+        const batchLang = await getHouseholdLang(input.householdId);
+        const batchMembers = await getHouseholdMembers(input.householdId);
+        const batchMember = batchMembers.find(m => m.id === input.memberId);
+        const batchMemberName = batchMember?.memberName ?? `#${input.memberId}`;
+        await createActivityLog({
+          householdId: input.householdId,
+          memberId: input.memberId,
+          activityType: "task",
+          action: "completed",
+          description: taskCompleted(batchLang, task.name, batchMemberName),
+          relatedItemId: taskId,
+          metadata: { taskName: task.name },
+        });
 
             return 1;
           } catch (error) {
@@ -1504,13 +1585,15 @@ export const tasksRouter = router({
         skippedDates: updatedSkippedDates,
       });
 
-      const formattedDate = new Date(input.dateToSkip).toLocaleDateString('de-DE');
+      const skipLang = await getHouseholdLang(input.householdId);
+      const skipLocale = skipLang === "en" ? "en-GB" : skipLang === "es" ? "es-ES" : "de-DE";
+      const formattedDate = new Date(input.dateToSkip).toLocaleDateString(skipLocale);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "skipped",
-        description: `Termin übersprungen am ${formattedDate} für Aufgabe '${task.name}'`,
+        description: taskSkipped(skipLang, task.name, formattedDate),
         relatedItemId: input.taskId,
         metadata: { skippedDate: input.dateToSkip, taskName: task.name },
       });
@@ -1544,13 +1627,15 @@ export const tasksRouter = router({
         skippedDates: updatedSkippedDates,
       });
 
-      const formattedDate = new Date(input.dateToRestore).toLocaleDateString('de-DE');
+      const restoreLang = await getHouseholdLang(input.householdId);
+      const restoreLocale = restoreLang === "en" ? "en-GB" : restoreLang === "es" ? "es-ES" : "de-DE";
+      const formattedDate = new Date(input.dateToRestore).toLocaleDateString(restoreLocale);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "task",
         action: "restored",
-        description: `Übersprungener Termin am ${formattedDate} wiederhergestellt für Aufgabe '${task.name}'`,
+        description: taskRestored(restoreLang, task.name, formattedDate),
         relatedItemId: input.taskId,
         metadata: { restoredDate: input.dateToRestore, taskName: task.name },
       });

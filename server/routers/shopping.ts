@@ -13,7 +13,27 @@ import {
   linkItemsToTask,
   unlinkItemsFromTask,
   addInventoryItem,
+  getHouseholdById,
 } from "../db";
+import {
+  shoppingItemAdded,
+  shoppingItemUpdated,
+  shoppingItemDeleted,
+  shoppingBatchCompleted,
+  shoppingCategoryAdded,
+  shoppingCategoryUpdated,
+  shoppingCategoryDeleted,
+  shoppingTaskLinked,
+  shoppingTaskUnlinked,
+} from "../activityTexts";
+
+type Lang = "de" | "en" | "es";
+
+async function getHouseholdLang(householdId: number): Promise<Lang> {
+  const hh = await getHouseholdById(householdId);
+  const l = hh?.language ?? "de";
+  return (l === "en" || l === "es") ? l : "de";
+}
 
 export const shoppingRouter = router({
   // Get all shopping items for a household
@@ -47,13 +67,13 @@ export const shoppingRouter = router({
         addedBy: input.memberId,
       });
 
-      // Log activity
+      const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "added",
-        description: `Added shopping item: ${input.name}`,
+        description: shoppingItemAdded(lang, input.name),
         relatedItemId: itemId,
       });
 
@@ -76,15 +96,21 @@ export const shoppingRouter = router({
     )
     .mutation(async ({ input }) => {
       const { itemId, householdId, memberId, ...updates } = input;
-      
+
+      // Fetch current item name for a meaningful log entry
+      const items = await getShoppingItems(householdId);
+      const item = items.find((i) => i.id === itemId);
+      const itemName = item?.name ?? String(itemId);
+
       await updateShoppingItem(itemId, updates);
 
+      const lang = await getHouseholdLang(householdId);
       await createActivityLog({
         householdId,
         memberId,
         activityType: "shopping",
         action: "updated",
-        description: `Updated shopping item`,
+        description: shoppingItemUpdated(lang, itemName),
         relatedItemId: itemId,
       });
 
@@ -120,17 +146,24 @@ export const shoppingRouter = router({
         itemId: z.number(),
         householdId: z.number(),
         memberId: z.number(),
+        itemName: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
+      // Fetch item name before deletion
+      const items = await getShoppingItems(input.householdId);
+      const item = items.find((i) => i.id === input.itemId);
+      const itemName = input.itemName ?? item?.name ?? String(input.itemId);
+
       await deleteShoppingItem(input.itemId);
 
+      const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "deleted",
-        description: `Deleted shopping item`,
+        description: shoppingItemDeleted(lang, itemName),
         relatedItemId: input.itemId,
       });
 
@@ -167,7 +200,6 @@ export const shoppingRouter = router({
       // Transfer items to inventory if requested
       if (input.itemsToInventory && input.itemsToInventory.length > 0) {
         for (const invItem of input.itemsToInventory) {
-          // Create inventory item (addInventoryItem handles ownership automatically)
           await addInventoryItem({
             householdId: input.householdId,
             memberId: input.memberId,
@@ -186,8 +218,9 @@ export const shoppingRouter = router({
         await deleteShoppingItem(itemId);
       }
 
-      // Create single activity log entry for entire shopping
-      const description = `Einkauf abgeschlossen: ${completedItemNames.join(", ")}`;
+      const lang = await getHouseholdLang(input.householdId);
+      const description = shoppingBatchCompleted(lang, input.itemIds.length);
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
@@ -229,12 +262,13 @@ export const shoppingRouter = router({
         color: input.color,
       });
 
+      const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "added",
-        description: `Created shopping category: ${input.name}`,
+        description: shoppingCategoryAdded(lang, input.name),
       });
 
       return { categoryId };
@@ -246,22 +280,31 @@ export const shoppingRouter = router({
         categoryId: z.number(),
         householdId: z.number(),
         memberId: z.number(),
+        oldName: z.string().optional(),
         name: z.string().min(1),
         color: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
       })
     )
     .mutation(async ({ input }) => {
-      await updateShoppingCategory(input.categoryId, { 
+      // Fetch old name if not provided
+      let oldName = input.oldName;
+      if (!oldName) {
+        const cats = await getShoppingCategories(input.householdId);
+        oldName = cats.find((c) => c.id === input.categoryId)?.name ?? String(input.categoryId);
+      }
+
+      await updateShoppingCategory(input.categoryId, {
         name: input.name,
         color: input.color,
       });
 
+      const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "updated",
-        description: `Renamed shopping category to: ${input.name}`,
+        description: shoppingCategoryUpdated(lang, oldName, input.name),
       });
 
       return { success: true };
@@ -276,14 +319,20 @@ export const shoppingRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      // Fetch category name before deletion
+      const cats = await getShoppingCategories(input.householdId);
+      const cat = cats.find((c) => c.id === input.categoryId);
+      const catName = cat?.name ?? String(input.categoryId);
+
       await deleteShoppingCategory(input.categoryId);
 
+      const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "deleted",
-        description: `Deleted shopping category`,
+        description: shoppingCategoryDeleted(lang, catName),
       });
 
       return { success: true };
@@ -295,6 +344,7 @@ export const shoppingRouter = router({
       z.object({
         itemIds: z.array(z.number()),
         taskId: z.number(),
+        taskName: z.string().optional(),
         householdId: z.number(),
         memberId: z.number(),
       })
@@ -302,12 +352,18 @@ export const shoppingRouter = router({
     .mutation(async ({ input }) => {
       await linkItemsToTask(input.itemIds, input.taskId);
 
+      const lang = await getHouseholdLang(input.householdId);
+      const taskName = input.taskName ?? `#${input.taskId}`;
+      const items = await getShoppingItems(input.householdId);
+      const linkedNames = items.filter((i) => input.itemIds.includes(i.id)).map((i) => i.name);
+      const itemLabel = linkedNames.length > 0 ? linkedNames.join(", ") : `${input.itemIds.length}`;
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "linked",
-        description: `Linked ${input.itemIds.length} shopping items to task`,
+        description: shoppingTaskLinked(lang, itemLabel, taskName),
       });
 
       return { success: true };
@@ -318,6 +374,7 @@ export const shoppingRouter = router({
     .input(
       z.object({
         itemIds: z.array(z.number()),
+        taskName: z.string().optional(),
         householdId: z.number(),
         memberId: z.number(),
       })
@@ -325,12 +382,18 @@ export const shoppingRouter = router({
     .mutation(async ({ input }) => {
       await unlinkItemsFromTask(input.itemIds);
 
+      const lang = await getHouseholdLang(input.householdId);
+      const taskName = input.taskName ?? "–";
+      const items = await getShoppingItems(input.householdId);
+      const unlinkedNames = items.filter((i) => input.itemIds.includes(i.id)).map((i) => i.name);
+      const itemLabel = unlinkedNames.length > 0 ? unlinkedNames.join(", ") : `${input.itemIds.length}`;
+
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
         activityType: "shopping",
         action: "unlinked",
-        description: `Unlinked ${input.itemIds.length} shopping items from task`,
+        description: shoppingTaskUnlinked(lang, itemLabel, taskName),
       });
 
       return { success: true };
