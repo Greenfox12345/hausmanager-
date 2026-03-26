@@ -560,3 +560,16 @@ export const sharedTasksRelations = relations(sharedTasks, ({ one }) => ({
     references: [households.id],
   }),
 }));
+
+/**
+ * Household dissolve votes - tracks which members have voted to dissolve the household
+ * Dissolution requires a majority vote (> 50% of active members)
+ */
+export const householdDissolveVotes = mysqlTable("household_dissolve_votes", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type HouseholdDissolveVote = typeof householdDissolveVotes.$inferSelect;
+export type InsertHouseholdDissolveVote = typeof householdDissolveVotes.$inferInsert;

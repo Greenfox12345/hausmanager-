@@ -2,8 +2,8 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { households, householdMembers, users, shoppingCategories } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { households, householdMembers, users, shoppingCategories, householdDissolveVotes } from "../../drizzle/schema";
+import { eq, and, count } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -577,5 +577,226 @@ export const householdManagementRouter = router({
       }
 
       return member;
+    }),
+
+  /**
+   * Leave a household.
+   * If the household has no active members left after leaving, it is automatically dissolved.
+   */
+  leaveHousehold: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Find the member record for this user in this household
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "You are not a member of this household" });
+      }
+
+      // Deactivate the member
+      await db
+        .update(householdMembers)
+        .set({ isActive: false })
+        .where(eq(householdMembers.id, member.id));
+
+      // Count remaining active members
+      const [{ value: remaining }] = await db
+        .select({ value: count() })
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        );
+
+      // If no members left, dissolve the household
+      if (remaining === 0) {
+        await db.delete(households).where(eq(households.id, input.householdId));
+        return { success: true, dissolved: true };
+      }
+
+      return { success: true, dissolved: false };
+    }),
+
+  /**
+   * Vote to dissolve the household.
+   * Dissolution happens automatically when a strict majority (> 50%) of active members have voted.
+   */
+  voteDissolveHousehold: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verify membership
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "You are not a member of this household" });
+      }
+
+      // Prevent duplicate votes
+      const existingVote = await db
+        .select()
+        .from(householdDissolveVotes)
+        .where(
+          and(
+            eq(householdDissolveVotes.householdId, input.householdId),
+            eq(householdDissolveVotes.memberId, member.id)
+          )
+        )
+        .limit(1);
+
+      if (existingVote.length > 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "You have already voted to dissolve this household" });
+      }
+
+      // Record vote
+      await db.insert(householdDissolveVotes).values({
+        householdId: input.householdId,
+        memberId: member.id,
+      });
+
+      // Count active members and votes
+      const [{ value: totalMembers }] = await db
+        .select({ value: count() })
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        );
+
+      const [{ value: voteCount }] = await db
+        .select({ value: count() })
+        .from(householdDissolveVotes)
+        .where(eq(householdDissolveVotes.householdId, input.householdId));
+
+      // Majority reached? (strict majority: more than half)
+      if (voteCount > totalMembers / 2) {
+        await db.delete(households).where(eq(households.id, input.householdId));
+        return { success: true, dissolved: true, voteCount, totalMembers };
+      }
+
+      return { success: true, dissolved: false, voteCount, totalMembers };
+    }),
+
+  /**
+   * Retract a previously cast dissolve vote.
+   */
+  retractDissolveVote: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "You are not a member of this household" });
+      }
+
+      await db
+        .delete(householdDissolveVotes)
+        .where(
+          and(
+            eq(householdDissolveVotes.householdId, input.householdId),
+            eq(householdDissolveVotes.memberId, member.id)
+          )
+        );
+
+      return { success: true };
+    }),
+
+  /**
+   * Get dissolve vote status for a household.
+   */
+  getDissolveStatus: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      const [{ value: totalMembers }] = await db
+        .select({ value: count() })
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        );
+
+      const [{ value: voteCount }] = await db
+        .select({ value: count() })
+        .from(householdDissolveVotes)
+        .where(eq(householdDissolveVotes.householdId, input.householdId));
+
+      const hasVoted = member
+        ? (await db
+            .select()
+            .from(householdDissolveVotes)
+            .where(
+              and(
+                eq(householdDissolveVotes.householdId, input.householdId),
+                eq(householdDissolveVotes.memberId, member.id)
+              )
+            )
+            .limit(1)).length > 0
+        : false;
+
+      return {
+        totalMembers,
+        voteCount,
+        hasVoted,
+        majorityNeeded: Math.floor(totalMembers / 2) + 1,
+      };
     }),
 });

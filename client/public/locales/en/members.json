@@ -68,5 +68,28 @@
   "you": "You",
   "actions": {
     "showInviteCode": "Show Invitation Code"
+  },
+  "household": {
+    "dangerZone": "Danger Zone",
+    "dangerZoneDescription": "These actions cannot be undone.",
+    "leaveTitle": "Leave Household",
+    "leaveDescription": "You will leave this household. If you are the last active member, the household will be automatically dissolved.",
+    "leaveButton": "Leave Household",
+    "leaveConfirmTitle": "Really leave household?",
+    "leaveConfirmDescription": "You are leaving the household \"{{name}}\". This action cannot be undone.",
+    "leftSuccess": "You have successfully left the household.",
+    "dissolvedAfterLeave": "Household dissolved – you were the last member.",
+    "dissolveTitle": "Dissolve Household",
+    "dissolveDescription": "Dissolution requires a majority vote ({{needed}} of {{total}} votes). All data will be permanently deleted.",
+    "dissolveVoteButton": "Vote to Dissolve",
+    "dissolveConfirmTitle": "Vote to dissolve the household?",
+    "dissolveConfirmDescription": "You are voting to dissolve \"{{name}}\". Once {{needed}} of {{total}} members have agreed, the household will be permanently deleted.",
+    "dissolvedByVote": "Majority reached – household has been dissolved.",
+    "voteRecorded": "Your vote has been recorded ({{count}} of {{total}}, needed: {{needed}}).",
+    "alreadyVoted": "Already voted",
+    "retractVote": "Retract vote",
+    "voteRetracted": "Your vote has been retracted.",
+    "votesCount": "{{count}} of {{total}} votes",
+    "votesNeeded": "Needed: {{needed}}"
   }
 }

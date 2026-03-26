@@ -9,8 +9,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock } from "lucide-react";
+import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
@@ -20,7 +32,7 @@ import { SUPPORTED_LANGUAGES, type SupportedLanguageCode } from "@/lib/i18n";
 export default function Members() {
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated, logout } = useCompatAuth();
-  const { currentHousehold } = useUserAuth();
+  const { currentHousehold, setCurrentHousehold } = useUserAuth();
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation(["members", "common"]);
@@ -38,10 +50,67 @@ export default function Members() {
     { enabled: !!householdId }
   );
 
+  // Dissolve vote status
+  const { data: dissolveStatus, refetch: refetchDissolveStatus } = trpc.householdManagement.getDissolveStatus.useQuery(
+    { householdId: householdId! },
+    { enabled: !!householdId }
+  );
+
   const updateLanguageMutation = trpc.householdManagement.updateHouseholdLanguage.useMutation({
     onSuccess: () => {
       toast.success(t("common:household.settings.saved"));
       refetchSettings();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Leave household mutation
+  const leaveHouseholdMutation = trpc.householdManagement.leaveHousehold.useMutation({
+    onSuccess: (data) => {
+      if (data.dissolved) {
+        toast.success(t("members:household.dissolvedAfterLeave"));
+      } else {
+        toast.success(t("members:household.leftSuccess"));
+      }
+      // Clear local household state and redirect
+      logout();
+      setLocation("/household-selection");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Vote to dissolve mutation
+  const voteDisolveMutation = trpc.householdManagement.voteDissolveHousehold.useMutation({
+    onSuccess: (data) => {
+      if (data.dissolved) {
+        toast.success(t("members:household.dissolvedByVote"));
+        logout();
+        setLocation("/household-selection");
+      } else {
+        toast.success(
+          t("members:household.voteRecorded", {
+            count: data.voteCount,
+            total: data.totalMembers,
+            needed: Math.floor(data.totalMembers / 2) + 1,
+          })
+        );
+        refetchDissolveStatus();
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Retract dissolve vote mutation
+  const retractVoteMutation = trpc.householdManagement.retractDissolveVote.useMutation({
+    onSuccess: () => {
+      toast.success(t("members:household.voteRetracted"));
+      refetchDissolveStatus();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -81,6 +150,10 @@ export default function Members() {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const voteProgress = dissolveStatus
+    ? Math.round((dissolveStatus.voteCount / dissolveStatus.totalMembers) * 100)
+    : 0;
 
   return (
     <AppLayout>
@@ -226,7 +299,7 @@ export default function Members() {
         </Card>
 
         {/* Language Settings Card */}
-        <Card className="shadow-sm">
+        <Card className="mb-6 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Globe className="h-5 w-5" />
@@ -287,6 +360,143 @@ export default function Members() {
                 </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone Card */}
+        <Card className="shadow-sm border-destructive/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base text-destructive">
+              <Trash2 className="h-5 w-5" />
+              {t("members:household.dangerZone")}
+            </CardTitle>
+            <CardDescription>
+              {t("members:household.dangerZoneDescription")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+
+            {/* Leave Household */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{t("members:household.leaveTitle")}</p>
+              <p className="text-xs text-muted-foreground">{t("members:household.leaveDescription")}</p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                    disabled={leaveHouseholdMutation.isPending}
+                  >
+                    <DoorOpen className="h-4 w-4" />
+                    {t("members:household.leaveButton")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("members:household.leaveConfirmTitle")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("members:household.leaveConfirmDescription", { name: household?.householdName })}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive hover:bg-destructive/90"
+                      onClick={() => householdId && leaveHouseholdMutation.mutate({ householdId })}
+                    >
+                      {t("members:household.leaveButton")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            <Separator />
+
+            {/* Dissolve Household by Vote */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium">{t("members:household.dissolveTitle")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("members:household.dissolveDescription", {
+                  needed: dissolveStatus?.majorityNeeded ?? "?",
+                  total: dissolveStatus?.totalMembers ?? "?",
+                })}
+              </p>
+
+              {/* Vote progress */}
+              {dissolveStatus && dissolveStatus.totalMembers > 0 && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>
+                      {t("members:household.votesCount", {
+                        count: dissolveStatus.voteCount,
+                        total: dissolveStatus.totalMembers,
+                      })}
+                    </span>
+                    <span>
+                      {t("members:household.votesNeeded", { needed: dissolveStatus.majorityNeeded })}
+                    </span>
+                  </div>
+                  <Progress value={voteProgress} className="h-2" />
+                </div>
+              )}
+
+              <div className="flex gap-2 flex-wrap">
+                {!dissolveStatus?.hasVoted ? (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                        disabled={voteDisolveMutation.isPending}
+                      >
+                        <Vote className="h-4 w-4" />
+                        {t("members:household.dissolveVoteButton")}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{t("members:household.dissolveConfirmTitle")}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t("members:household.dissolveConfirmDescription", {
+                            name: household?.householdName,
+                            needed: dissolveStatus?.majorityNeeded ?? "?",
+                            total: dissolveStatus?.totalMembers ?? "?",
+                          })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive hover:bg-destructive/90"
+                          onClick={() => householdId && voteDisolveMutation.mutate({ householdId })}
+                        >
+                          {t("members:household.dissolveVoteButton")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Badge variant="destructive" className="gap-1">
+                      <Vote className="h-3 w-3" />
+                      {t("members:household.alreadyVoted")}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1 text-muted-foreground"
+                      onClick={() => householdId && retractVoteMutation.mutate({ householdId })}
+                      disabled={retractVoteMutation.isPending}
+                    >
+                      <Undo2 className="h-3 w-3" />
+                      {t("members:household.retractVote")}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
           </CardContent>
         </Card>
       </div>

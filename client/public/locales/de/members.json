@@ -68,5 +68,28 @@
   "you": "Sie",
   "actions": {
     "showInviteCode": "Einladungscode anzeigen"
+  },
+  "household": {
+    "dangerZone": "Gefahrenzone",
+    "dangerZoneDescription": "Diese Aktionen können nicht rückgängig gemacht werden.",
+    "leaveTitle": "Haushalt verlassen",
+    "leaveDescription": "Sie verlassen diesen Haushalt. Wenn Sie das letzte aktive Mitglied sind, wird der Haushalt automatisch aufgelöst.",
+    "leaveButton": "Haushalt verlassen",
+    "leaveConfirmTitle": "Haushalt wirklich verlassen?",
+    "leaveConfirmDescription": "Sie verlassen den Haushalt \"{{name}}\". Diese Aktion kann nicht rückgängig gemacht werden.",
+    "leftSuccess": "Sie haben den Haushalt erfolgreich verlassen.",
+    "dissolvedAfterLeave": "Haushalt aufgelöst – Sie waren das letzte Mitglied.",
+    "dissolveTitle": "Haushalt auflösen",
+    "dissolveDescription": "Für eine Auflösung ist eine Mehrheit erforderlich ({{needed}} von {{total}} Stimmen). Alle Daten werden unwiderruflich gelöscht.",
+    "dissolveVoteButton": "Für Auflösung stimmen",
+    "dissolveConfirmTitle": "Für Auflösung des Haushalts stimmen?",
+    "dissolveConfirmDescription": "Sie stimmen für die Auflösung von \"{{name}}\". Sobald {{needed}} von {{total}} Mitgliedern zugestimmt haben, wird der Haushalt unwiderruflich gelöscht.",
+    "dissolvedByVote": "Mehrheit erreicht – Haushalt wurde aufgelöst.",
+    "voteRecorded": "Ihre Stimme wurde gezählt ({{count}} von {{total}}, benötigt: {{needed}}).",
+    "alreadyVoted": "Bereits abgestimmt",
+    "retractVote": "Stimme zurückziehen",
+    "voteRetracted": "Ihre Stimme wurde zurückgezogen.",
+    "votesCount": "{{count}} von {{total}} Stimmen",
+    "votesNeeded": "Benötigt: {{needed}}"
   }
 }
