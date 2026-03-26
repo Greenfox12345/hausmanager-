@@ -16,7 +16,10 @@
     "neighborhood": "Nachbarschaft",
     "settings": "Einstellungen",
     "logout": "Abmelden",
-    "household": "Haushalt"
+    "household": "Haushalt",
+    "more": "Weiteres",
+    "shopping_label": "Einkaufen",
+    "calendar_label": "Termine"
   },
   "actions": {
     "save": "Speichern",

@@ -16,7 +16,10 @@
     "neighborhood": "Neighborhood",
     "settings": "Settings",
     "logout": "Log out",
-    "household": "Household"
+    "household": "Household",
+    "more": "More",
+    "shopping_label": "Shopping",
+    "calendar_label": "Calendar"
   },
   "actions": {
     "save": "Save",

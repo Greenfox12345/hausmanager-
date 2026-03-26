@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
+import { useTranslation } from "react-i18next";
 
 export function BottomNav() {
   const [location] = useLocation();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const { household, member } = useCompatAuth();
+  const { t } = useTranslation("common");
 
   // Get pending borrow requests count
   const { data: pendingData } = trpc.borrow.getPendingRequestsCount.useQuery(
@@ -46,7 +48,7 @@ export function BottomNav() {
               }`}
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="text-xs font-medium">Einkaufen</span>
+              <span className="text-xs font-medium">{t("nav.shopping_label")}</span>
             </a>
           </Link>
 
@@ -60,7 +62,7 @@ export function BottomNav() {
               }`}
             >
               <CheckSquare className="h-5 w-5" />
-              <span className="text-xs font-medium">Aufgaben</span>
+              <span className="text-xs font-medium">{t("nav.tasks")}</span>
             </a>
           </Link>
 
@@ -74,7 +76,7 @@ export function BottomNav() {
               }`}
             >
               <Calendar className="h-5 w-5" />
-              <span className="text-xs font-medium">Termine</span>
+              <span className="text-xs font-medium">{t("nav.calendar_label")}</span>
             </a>
           </Link>
 
@@ -89,7 +91,7 @@ export function BottomNav() {
                 }`}
               >
                 <MoreHorizontal className="h-5 w-5" />
-                <span className="text-xs font-medium">Weiteres</span>
+                <span className="text-xs font-medium">{t("nav.more")}</span>
                 {pendingCount > 0 && (
                   <span className="absolute top-1 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {pendingCount}
@@ -99,16 +101,16 @@ export function BottomNav() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/projects'}>
-                Projekte
+                {t("nav.projects")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/history'}>
-                Verlauf
+                {t("nav.history")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/members'}>
-                Haushalt
+                {t("nav.household")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer flex items-center justify-between" onClick={() => window.location.href = '/inventory'}>
-                <span>Inventar</span>
+                <span>{t("nav.inventory")}</span>
                 {pendingCount > 0 && (
                   <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
                     {pendingCount}
@@ -116,7 +118,7 @@ export function BottomNav() {
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer flex items-center justify-between" onClick={() => window.location.href = '/borrows'}>
-                <span>Ausleihen</span>
+                <span>{t("nav.borrows")}</span>
                 {pendingCount > 0 && (
                   <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-2">
                     {pendingCount}
