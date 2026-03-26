@@ -31,7 +31,8 @@
     "durationHours": "Hours",
     "durationTime": "Duration (Hours:Minutes)",
     "endDate": "End time",
-    "dueTime": "Time"
+    "dueTime": "Time",
+    "descriptionPlaceholder": "Optional details about the task"
   },
   "skippedDates": "Skipped occurrences",
   "linkedShoppingList": "Linked shopping list",
@@ -105,7 +106,8 @@
     "addAppointment": "Add appointment",
     "rotateResponsibility": "Rotate responsibility",
     "planRotationHint": "Plan in advance who is responsible for which appointment",
-    "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task"
+    "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task",
+    "excludeFromRotation": "Exempt from rotation"
   },
   "weekdays": {
     "monday": "Monday",

@@ -3284,3 +3284,10 @@
 - [x] Vitest-Test server/lint-i18n.test.ts schreiben
 - [x] npm-Skript "lint:i18n" in package.json eintragen
 - [x] In pnpm test-Workflow einbinden
+
+## Tasks.tsx UI-Korrekturen (visuelle Kommentare)
+- [x] Textarea-Placeholder übersetzen (tasks:fields.descriptionPlaceholder)
+- [x] Label "Von Rotation freistellen" in Sprachdatei hinterlegen (tasks:repeat.excludeFromRotation)
+- [x] Aufgabenzähler-Text im Filter-Panel entfernt
+- [x] Sortierrichtungs-Button von ↑↓ auf sprechende Labels (A–Z / Z–A) umgestellt
+- [x] common:sort.* Schlüssel in DE und EN ergänzt

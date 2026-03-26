@@ -368,5 +368,11 @@
     "compressionError": "Error compressing {{name}}",
     "fileTooLarge": "{{name}} is too large (max. {{max}})",
     "uploadError": "Error uploading {{label}}s"
+  },
+  "sort": {
+    "asc": "A–Z",
+    "desc": "Z–A",
+    "ascending": "Sort ascending",
+    "descending": "Sort descending"
   }
 }

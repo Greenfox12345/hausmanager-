@@ -639,7 +639,7 @@ export default function Tasks() {
                   id="taskDescription"
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
-                  placeholder={t("tasks:fields.descriptionPlaceholder", "Optionale Details zur Aufgabe")}
+                  placeholder={t("tasks:fields.descriptionPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -891,7 +891,7 @@ export default function Tasks() {
 
                       {/* Excluded members */}
                       <div className="space-y-2">
-                        <Label>{t("tasks:repeat.excludeFromRotation", "Von Rotation freistellen")}</Label>
+                        <Label>{t("tasks:repeat.excludeFromRotation")}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           {members.map((m) => (
                             <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -1188,19 +1188,18 @@ export default function Tasks() {
                       </Select>
                       <Button
                         variant="outline"
-                        size="icon"
-                        className="h-9 w-9"
+                        size="sm"
+                        className="h-9 px-2 text-xs"
                         onClick={() => setSortDirection(prev => prev === "asc" ? "desc" : "asc")}
+                        title={sortDirection === "asc" ? t("common:sort.ascending") : t("common:sort.descending")}
                       >
-                        {sortDirection === "asc" ? "↑" : "↓"}
+                        {sortDirection === "asc" ? t("common:sort.asc") : t("common:sort.desc")}
                       </Button>
                     </div>
                   </div>
                     </div>
                     
-                    <div className="text-xs text-muted-foreground mt-2">
-                      {t("tasks:filterSort.taskCount", { filtered: filteredAndSortedTasks.length, total: tasks.length })}
-                    </div>
+
                   </CollapsibleContent>
                 </div>
               </CardContent>

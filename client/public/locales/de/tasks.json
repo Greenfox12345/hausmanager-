@@ -31,7 +31,8 @@
     "durationHours": "Stunden",
     "durationTime": "Dauer (Stunden:Minuten)",
     "endDate": "Terminende",
-    "dueTime": "Uhrzeit"
+    "dueTime": "Uhrzeit",
+    "descriptionPlaceholder": "Optionale Details zur Aufgabe"
   },
   "skippedDates": "Ausgelassene Termine",
   "linkedShoppingList": "Verknüpfte Einkaufsliste",
@@ -105,7 +106,8 @@
     "addAppointment": "Termin hinzufügen",
     "rotateResponsibility": "Verantwortung rotieren",
     "planRotationHint": "Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist",
-    "rotationAvailableAfterCreate": "Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar"
+    "rotationAvailableAfterCreate": "Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar",
+    "excludeFromRotation": "Von Rotation freistellen"
   },
   "weekdays": {
     "monday": "Montag",
