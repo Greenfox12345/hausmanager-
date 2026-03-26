@@ -51,7 +51,7 @@ export function DatePickerInput({
 
   const displayLabel = selected
     ? format(selected, "PPP", { locale: dateFnsLocale })
-    : (placeholder ?? t("labels.selectDate", "Datum auswählen"));
+    : (placeholder ?? t("labels.selectDate"));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

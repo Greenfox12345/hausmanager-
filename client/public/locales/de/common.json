@@ -121,7 +121,8 @@
     "noHousehold": "Kein Haushalt ausgewählt",
     "photos": "Fotos",
     "time": "Uhrzeit",
-    "unassigned": "Nicht zugewiesen"
+    "unassigned": "Nicht zugewiesen",
+    "selectDate": "Datum auswählen"
   },
   "priority": {
     "low": "Niedrig",
