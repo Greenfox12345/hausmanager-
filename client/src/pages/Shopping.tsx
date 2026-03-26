@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus, ImageIcon } from "lucide-react";
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
-import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
@@ -192,12 +191,18 @@ export default function Shopping() {
     },
   });
 
+  const [pendingCategoryCallback, setPendingCategoryCallback] = useState<((id: number) => void) | null>(null);
+
   const createCategoryMutation = trpc.shopping.createCategory.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.shopping.listCategories.invalidate();
       setShowCategoryDialog(false);
       setCategoryName("");
       toast.success(t("shopping:messages.categoryCreated", "Kategorie erstellt"));
+      if (pendingCategoryCallback) {
+        pendingCategoryCallback(data.categoryId);
+        setPendingCategoryCallback(null);
+      }
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -729,12 +734,19 @@ export default function Shopping() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <QuickCategoryCreate
-                    householdId={household.householdId}
-                    memberId={member.memberId}
-                    onCategoryCreated={(categoryId) => setNewItemCategoryId(categoryId)}
-                    type="shopping"
-                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    onClick={() => {
+                      setPendingCategoryCallback(() => (id: number) => setNewItemCategoryId(id));
+                      handleOpenCreateCategory();
+                    }}
+                    title={t("shopping:actions.createCategory")}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               <div className="space-y-2">
