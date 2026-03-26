@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { lintI18n, checkUnregisteredNamespaces, readRegisteredNamespaces, checkHardcodedStrings } from "../scripts/lint-i18n";
+import { lintI18n, checkUnregisteredNamespaces, readRegisteredNamespaces, checkHardcodedStrings, checkUntranslatedCopies } from "../scripts/lint-i18n";
 
 // ─── Unit tests for isolated helpers ─────────────────────────────────────────
 
@@ -222,6 +222,37 @@ describe("lintI18n – hardcoded JSX string detection", () => {
       throw new Error(`Hardcoded JSX strings found:\n${summary}`);
     }
     expect(hardcoded).toHaveLength(0);
+  });
+});
+
+describe("lintI18n – untranslated EN copies (Prüfung 6)", () => {
+  it("detects EN value identical to DE with German domain word", () => {
+    const dir = makeTempLocales({
+      de: { calendar: { skip: "Auslassen", title: "Kalender" } },
+      en: { calendar: { skip: "Auslassen", title: "Calendar" } },
+    });
+    const errors = checkUntranslatedCopies(dir);
+    expect(errors.filter((e) => e.message.includes("skip"))).toHaveLength(1);
+    expect(errors.filter((e) => e.message.includes("title"))).toHaveLength(0);
+  });
+
+  it("does not flag EN values that differ from DE", () => {
+    const dir = makeTempLocales({
+      de: { calendar: { skip: "Auslassen" } },
+      en: { calendar: { skip: "Skip" } },
+    });
+    const errors = checkUntranslatedCopies(dir);
+    expect(errors).toHaveLength(0);
+  });
+
+  it("real project has no untranslated EN copies with German domain words", () => {
+    const errors = lintI18n();
+    const copies = errors.filter((e) => e.type === "untranslated_copy");
+    if (copies.length > 0) {
+      const summary = copies.map((e) => `  ${path.basename(e.file)}: ${e.message}`).join("\n");
+      throw new Error(`Untranslated EN copies found:\n${summary}`);
+    }
+    expect(copies).toHaveLength(0);
   });
 });
 

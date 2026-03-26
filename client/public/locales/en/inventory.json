@@ -29,7 +29,7 @@
     "detailsPlaceholder": "z.B. MacBook Pro 2023",
     "namePlaceholder": "z.B. Laptop",
     "owners": "Owners:",
-    "ownershipHousehold": "Eigentum: Haushalt",
+    "ownershipHousehold": "Ownership: Household",
     "ownershipPersonal": "Personal property",
     "selectCategory": "Select category"
   },
@@ -133,5 +133,5 @@
     "borrow": "Borrow",
     "requests": "Anfragen"
   },
-  "description": "Verwalte dein Haushaltsinventar"
+  "description": "Manage your household inventory"
 }

@@ -3328,3 +3328,8 @@
 
 ## Calendar.tsx – 5 nicht übersetzte Stellen
 - [x] Zeilen 540, 556, 578, 692, 805 übersetzt + 30 weitere EN-Kopien in 8 Namespaces korrigiert
+
+## Calendar.tsx – 4 weitere nicht übersetzte Stellen (Z.556, 692, 857, 871)
+- [x] Alle vier Stellen übersetzt (jumpToCurrent, skip, Monatsnamen, Datum-Format)
+- [x] 15 weitere EN-Kopien ohne Umlaute in calendar/inventory/shopping/tasks korrigiert
+- [x] Lint-Prüfung 6 (untranslated_copy) implementiert und 3 neue Tests hinzugefügt (22 Tests grün)

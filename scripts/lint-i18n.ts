@@ -33,7 +33,7 @@ const LANGUAGES = ["de", "en"];
 
 export interface LintError {
   file: string;
-  type: "duplicate" | "missing" | "missing_translation" | "unregistered_namespace" | "hardcoded_string";
+  type: "duplicate" | "missing" | "missing_translation" | "unregistered_namespace" | "hardcoded_string" | "untranslated_copy";
   message: string;
 }
 
@@ -320,6 +320,73 @@ const HARDCODE_SKIP_PATHS = [
 ];
 
 /**
+ * Check 6: Detect EN values that are identical to their DE counterparts and
+ * contain clearly German words (without umlauts), meaning they were copied
+ * from DE without being translated.
+ *
+ * The word list covers common German domain words used in this project.
+ */
+const GERMAN_DOMAIN_WORDS = [
+  "auslassen", "zu aktuellem", "termin", "aufgaben am",
+  "nur ausleihen", "nur aufgaben", "alle eintr",
+  "kalenderansicht", "alle aufgaben",
+  "ausleihe", "haushalt", "mitglied", "einkauf", "artikel",
+  "vollzugriff", "ansehen", "wiederholt", "zuweisen",
+  "rotation zwischen", "ausgeschlossene",
+];
+
+export function checkUntranslatedCopies(
+  localesDir: string
+): LintError[] {
+  const errors: LintError[] = [];
+
+  const deDir = path.join(localesDir, "de");
+  const enDir = path.join(localesDir, "en");
+  if (!fs.existsSync(deDir) || !fs.existsSync(enDir)) return errors;
+
+  for (const filename of fs.readdirSync(deDir).filter((f) => f.endsWith(".json"))) {
+    const deFile = path.join(deDir, filename);
+    const enFile = path.join(enDir, filename);
+    if (!fs.existsSync(enFile)) continue;
+
+    let deData: Record<string, unknown>;
+    let enData: Record<string, unknown>;
+    try {
+      deData = JSON.parse(fs.readFileSync(deFile, "utf-8")) as Record<string, unknown>;
+      enData = JSON.parse(fs.readFileSync(enFile, "utf-8")) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+
+    const deFlat = Object.fromEntries(
+      collectPaths(deData).map((k) => [k, getNestedValue(deData, k)])
+    );
+    const enFlat = Object.fromEntries(
+      collectPaths(enData).map((k) => [k, getNestedValue(enData, k)])
+    );
+
+    for (const [key, deVal] of Object.entries(deFlat)) {
+      const enVal = enFlat[key];
+      if (typeof deVal !== "string" || typeof enVal !== "string") continue;
+      if (deVal !== enVal) continue; // already translated
+      // Has umlauts → already caught by existing scan
+      if (/[äöüÄÖÜß]/.test(deVal)) continue;
+      // Check for German domain words
+      const lower = deVal.toLowerCase();
+      if (GERMAN_DOMAIN_WORDS.some((w) => lower.includes(w))) {
+        errors.push({
+          file: enFile,
+          type: "untranslated_copy",
+          message: `Key "${filename.replace(".json", "")}:${key}" EN value is identical to DE and contains German words: "${deVal}"`,
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
  * Check 4: Detect namespaces used in t() calls that are not registered in
  * the NAMESPACES array in client/src/lib/i18n.ts.
  * Unregistered namespaces are never loaded by i18next → all keys silently
@@ -441,6 +508,9 @@ export function lintI18n(
     allErrors.push(...checkHardcodedStrings(srcDir));
   }
 
+  // 6. Untranslated EN copies (DE identical, German domain words, no umlauts)
+  allErrors.push(...checkUntranslatedCopies(localesDir));
+
   return allErrors;
 }
 
@@ -470,7 +540,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
         e.type === "duplicate" ? "🔁" :
         e.type === "missing_translation" ? "🌐" :
         e.type === "unregistered_namespace" ? "🚫" :
-        e.type === "hardcoded_string" ? "📝" : "❓";
+        e.type === "hardcoded_string" ? "📝" :
+        e.type === "untranslated_copy" ? "🔤" : "❓";
       console.error(`      ${icon}  ${e.message}`);
     }
     console.error();

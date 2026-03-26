@@ -30,7 +30,7 @@
     "fileSelect": "Choose files",
     "noFileSelected": "No files selected",
     "selectCategory": "Select category",
-    "taskPlaceholder": "z.B. Einkauf erledigen"
+    "taskPlaceholder": "e.g. Go grocery shopping"
   },
   "status": {
     "open": "Open",
@@ -76,7 +76,7 @@
     "categoryInUse": "Category is still in use",
     "categoryRenamed": "Kategorie umbenannt",
     "selectAssignee": "Please select at least one assignee",
-    "shoppingCompleted": "Einkauf abgeschlossen!",
+    "shoppingCompleted": "Shopping completed!",
     "taskLinkError": "Error linking tasks",
     "taskLinked": "Task created and linked",
     "updateError": "Fehler beim Aktualisieren"
@@ -129,8 +129,8 @@
   "allCategories": "All categories",
   "completeShoppingCount": "{{count}} items completed",
   "createTaskFromItems": "Create task from items",
-  "editItem": "Artikel bearbeiten",
-  "itemDetails": "Artikel-Details",
+  "editItem": "Edit item",
+  "itemDetails": "Item details",
   "loadingList": "Loading shopping list...",
   "organizeAsTask": "Organise shopping as task",
   "selectedItems": "Selected items"

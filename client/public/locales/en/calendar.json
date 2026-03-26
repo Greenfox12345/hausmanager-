@@ -38,7 +38,7 @@
     "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
     "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
     "jumpedToCurrent": "Jumped to current appointment",
-    "occurrenceSkipped": "Termin ausgelassen!"
+    "occurrenceSkipped": "Appointment skipped!"
   },
   "labels": {
     "occurrence": "Occurrence"
@@ -64,20 +64,20 @@
   },
   "allTasksChronological": "All tasks (chronological)",
   "calendarView": "Calendar view",
-  "completedOn": "Termin am:",
+  "completedOn": "Completed on:",
   "confirmSkip": "Do you want to skip this appointment? It will no longer be shown in the calendar.",
   "filter": {
     "all": "All entries",
     "borrowsOnly": "Borrows only",
     "tasksOnly": "Tasks only"
   },
-  "jumpToCurrent": "Zu aktuellem Termin",
+  "jumpToCurrent": "Jump to current",
   "noTasksOnDay": "No tasks on this day",
   "noTasksWithoutDates": "No tasks without dates",
   "noTasksWithoutDatesForMember": "No tasks without dates for this member",
-  "occurrence": "Termin",
+  "occurrence": "Appointment",
   "period": "Zeitraum",
-  "skip": "Auslassen",
+  "skip": "Skip",
   "tasksOn": "Tasks on",
   "tasksWithoutDates": "Tasks without dates",
   "today": "Today"

@@ -114,7 +114,7 @@
     "excludeFromRotation": "Exempt from rotation",
     "daily": "Daily",
     "day": "Tag",
-    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "excludedMembers": "Excluded members",
     "month": "Monat",
     "monthly": "Monatlich",
     "repeats": "Task repeats",
@@ -562,17 +562,17 @@
     "assignedTo": "Verantwortlich"
   },
   "linkedWith": "Linked with",
-  "otherHousehold": "anderem Haushalt",
+  "otherHousehold": "another household",
   "permissions": {
     "full": "Full access (edit everything)",
     "milestonesReminders": "Zwischenziele & Erinnerungen",
     "viewOnly": "View only"
   },
   "rotation": {
-    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "excludedMembers": "Excluded members",
     "noMembers": "No members available",
     "requiredPersons": "Erforderliche Anzahl Personen",
-    "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern"
+    "rotationBetweenMembers": "Rotation between household members"
   },
   "sharedWith": "Geteilt mit"
 }
