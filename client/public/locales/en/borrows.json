@@ -53,7 +53,9 @@
     "task": "Task",
     "occurrence": "Occurrence",
     "pickup": "Pickup",
-    "return": "Return"
+    "return": "Return",
+    "borrowEnd": "Return",
+    "borrowStart": "Pickup"
   },
   "pickupRecord": "Recorded at pickup",
   "returnRecord": "Recorded at return",
@@ -84,7 +86,14 @@
     "approveError": "Error approving borrow request.",
     "rejectError": "Error rejecting borrow request.",
     "returnError": "Error returning item.",
-    "description": "Borrow and manage items"
+    "description": "Borrow and manage items",
+    "autoApprovedDesc": "Automatically approved",
+    "borrowEndUpdated": "Return date updated",
+    "borrowStartUpdated": "Pickup date updated",
+    "cancelled": "Ausleihe storniert",
+    "requestSentDesc": "Request has been sent",
+    "revokeError": "Error revoking",
+    "revokeSuccess": "Successfully revoked"
   },
   "labels": {
     "borrower": "Borrower",
@@ -232,5 +241,13 @@
   "guideline": {
     "title": "Borrow Guidelines",
     "checklist": "Checklist"
-  }
+  },
+  "actions": {
+    "request": "Request",
+    "revoke": "Revoke"
+  },
+  "borrowing": "Ausleihe",
+  "hidePast": "Vergangene ausblenden",
+  "showPast": "Vergangene anzeigen",
+  "tabCalendar": "Kalender"
 }

@@ -47,7 +47,14 @@
     "loading": "Wird geladen...",
     "saving": "Wird gespeichert...",
     "deleting": "Wird gelöscht...",
-    "clickToStart": "Klicken Sie hier, um zu beginnen →"
+    "clickToStart": "Klicken Sie hier, um zu beginnen →",
+    "complete": "Abschließen",
+    "deselectAll": "Alle abwählen",
+    "editDetails": "Details bearbeiten",
+    "restore": "Wiederherstellen",
+    "selectAll": "Alle auswählen",
+    "showLess": "Weniger anzeigen",
+    "undo": "Rükgängig machen"
   },
   "status": {
     "active": "Aktiv",
@@ -61,7 +68,9 @@
     "open": "Offen",
     "done": "Erledigt",
     "inProgress": "In Bearbeitung",
-    "creating": "Wird erstellt..."
+    "creating": "Wird erstellt...",
+    "loading": "Lade Inventar...",
+    "uploading": "Lädt hoch..."
   },
   "labels": {
     "name": "Name",
@@ -102,7 +111,17 @@
     "nextPhoto": "Nächstes Foto",
     "fullscreen": "Vollbild",
     "today": "Heute",
-    "on": "am"
+    "on": "am",
+    "allTypes": "Alle Typen",
+    "by": "von",
+    "clock": "Uhr",
+    "color": "Farbe",
+    "details": "Details",
+    "email": "E-Mail",
+    "noHousehold": "Kein Haushalt ausgewählt",
+    "photos": "Fotos",
+    "time": "Uhrzeit",
+    "unassigned": "Nicht zugewiesen"
   },
   "priority": {
     "low": "Niedrig",
@@ -137,7 +156,9 @@
     "select": "Haushalt auswählen",
     "create": "Haushalt erstellen",
     "join": "Haushalt beitreten",
-    "settings": "Haushaltseinstellungen",
+    "settings": {
+      "saved": "Einstellungen gespeichert"
+    },
     "language": "Haushaltssprache",
     "languageHint": "Diese Sprache wird für Verlaufseinträge und Benachrichtigungen verwendet, die alle Haushaltsmitglieder sehen.",
     "name": "Haushaltsname",
@@ -378,5 +399,18 @@
     "desc": "Z–A",
     "ascending": "Aufsteigend sortieren",
     "descending": "Absteigend sortieren"
-  }
+  },
+  "back": "Zurück",
+  "common": {
+    "messages": {
+      "loading": "Laden..."
+    }
+  },
+  "loading": "Laden...",
+  "navigation": {
+    "back": "Zurück",
+    "next": "Weiter"
+  },
+  "pleaseLogin": "Bitte anmelden",
+  "uploading": "Lädt hoch..."
 }

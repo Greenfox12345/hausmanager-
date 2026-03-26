@@ -43,6 +43,10 @@
     "photoCount_one": "{{count}} Foto",
     "photoCount_other": "{{count}} Fotos",
     "pdfCount_one": "{{count}} PDF",
-    "pdfCount_other": "{{count}} PDFs"
-  }
+    "pdfCount_other": "{{count}} PDFs",
+    "pdfCount": "{{count}} PDF",
+    "photoCount": "{{count}} Foto"
+  },
+  "noActivities": "Noch keine Aktivitäten vorhanden.",
+  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
 }

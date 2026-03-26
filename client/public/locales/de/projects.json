@@ -41,7 +41,8 @@
     "assignTasks_one": "{{count}} Aufgabe zuordnen",
     "assignTasks_other": "{{count}} Aufgaben zuordnen",
     "newTask": "Neue Aufgabe",
-    "assignExisting": "Bestehende zuordnen"
+    "assignExisting": "Bestehende zuordnen",
+    "assignTasks": "Aufgaben zuweisen"
   },
   "tasks": {
     "title": "Projektaufgaben",

@@ -28,7 +28,9 @@
     "dueDate": "Bis wann",
     "photos": "Fotos",
     "fileSelect": "Dateien auswählen",
-    "noFileSelected": "Keine Dateien ausgewählt"
+    "noFileSelected": "Keine Dateien ausgewählt",
+    "selectCategory": "Kategorie wählen",
+    "taskPlaceholder": "z.B. Einkauf erledigen"
   },
   "status": {
     "open": "Offen",
@@ -68,13 +70,23 @@
     "confirmDeleteCategory": "Möchten Sie diese Kategorie wirklich löschen?",
     "emptyList": "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!",
     "emptyCategory": "Keine Artikel in dieser Kategorie.",
-    "noCategories": "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie."
+    "noCategories": "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie.",
+    "categoryCreated": "Kategorie erstellt",
+    "categoryDeleted": "Kategorie gelöscht",
+    "categoryInUse": "Kategorie wird noch verwendet",
+    "categoryRenamed": "Kategorie umbenannt",
+    "selectAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+    "shoppingCompleted": "Einkauf abgeschlossen!",
+    "taskLinkError": "Fehler beim Verknüpfen der Aufgaben",
+    "taskLinked": "Aufgabe erstellt und verknüpft",
+    "updateError": "Fehler beim Aktualisieren"
   },
   "renameCategory": "Umbenennen",
   "manageCategories": "Kategorien verwalten",
   "labels": {
     "itemCount_one": "{{count}} Artikel",
-    "itemCount_other": "{{count}} Artikel"
+    "itemCount_other": "{{count}} Artikel",
+    "itemCount": "{{count}} Artikel"
   },
   "completeDialog": {
     "title": "Einkauf abschließen",
@@ -99,7 +111,9 @@
     "householdShort": "Haushalt",
     "personalShort": "Persönlich",
     "completing": "Wird abgeschlossen...",
-    "complete": "Abschließen"
+    "complete": "Abschließen",
+    "description": "Einkauf abschließen",
+    "inventorySummary": "Inventar-Zusammenfassung"
   },
   "completeShoppingDialog": {
     "title": "Einkauf abschließen",
@@ -111,5 +125,13 @@
     "cancelButton": "Abbrechen",
     "savingButton": "Wird gespeichert...",
     "completeButton": "Einkauf abschließen"
-  }
+  },
+  "allCategories": "Alle Kategorien",
+  "completeShoppingCount": "{{count}} Artikel abgeschlossen",
+  "createTaskFromItems": "Aufgabe aus Artikeln erstellen",
+  "editItem": "Artikel bearbeiten",
+  "itemDetails": "Artikel-Details",
+  "loadingList": "Lädt Einkaufsliste...",
+  "organizeAsTask": "Einkauf als Aufgabe organisieren",
+  "selectedItems": "Ausgewählte Artikel"
 }

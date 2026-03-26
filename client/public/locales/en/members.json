@@ -51,5 +51,7 @@
     "cannotRemoveSelf": "Cannot remove yourself",
     "cannotRemoveLastAdmin": "Cannot remove the last admin",
     "manageMembers": "Household members and settings"
-  }
+  },
+  "allMembers": "Alle Mitglieder",
+  "selectMember": "Mitglied auswählen"
 }

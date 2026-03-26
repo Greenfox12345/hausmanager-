@@ -3301,3 +3301,8 @@
 - [x] lint-i18n.ts um missing-keys-Prüfung erweitern (t()-Scan + JSON-Vergleich)
 - [x] Vitest-Tests für die neue Prüfung aktualisieren
 - [x] Bestehende 224 Lücken als bekannte Ausnahmen (allowlist) hinterlegen
+
+## Allowlist-Abbau: alle 224 Schlüssel in JSON-Dateien eintragen
+- [x] Fallback-Texte aus Quellcode extrahieren und DE/EN-JSON-Dateien befüllen
+- [x] Allowlist (scripts/i18n-allowlist.json) leeren
+- [x] CI-Lint und Tests bestätigen

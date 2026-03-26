@@ -28,7 +28,9 @@
     "dueDate": "Due Date",
     "photos": "Photos",
     "fileSelect": "Choose files",
-    "noFileSelected": "No files selected"
+    "noFileSelected": "No files selected",
+    "selectCategory": "Kategorie wählen",
+    "taskPlaceholder": "z.B. Einkauf erledigen"
   },
   "status": {
     "open": "Open",
@@ -68,13 +70,23 @@
     "confirmDeleteCategory": "Are you sure you want to delete this category?",
     "emptyList": "No items in the shopping list. Add a new item above!",
     "emptyCategory": "No items in this category.",
-    "noCategories": "No categories yet. Create a new category."
+    "noCategories": "No categories yet. Create a new category.",
+    "categoryCreated": "Kategorie erstellt",
+    "categoryDeleted": "Kategorie gelöscht",
+    "categoryInUse": "Category is still in use",
+    "categoryRenamed": "Kategorie umbenannt",
+    "selectAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+    "shoppingCompleted": "Einkauf abgeschlossen!",
+    "taskLinkError": "Fehler beim Verknüpfen der Aufgaben",
+    "taskLinked": "Aufgabe erstellt und verknüpft",
+    "updateError": "Fehler beim Aktualisieren"
   },
   "renameCategory": "Rename",
   "manageCategories": "Manage Categories",
   "labels": {
     "itemCount_one": "{{count}} item",
-    "itemCount_other": "{{count}} items"
+    "itemCount_other": "{{count}} items",
+    "itemCount": "{{count}} items"
   },
   "completeDialog": {
     "title": "Complete shopping",
@@ -99,7 +111,9 @@
     "householdShort": "Household",
     "personalShort": "Personal",
     "completing": "Completing...",
-    "complete": "Complete"
+    "complete": "Complete",
+    "description": "Complete shopping",
+    "inventorySummary": "Inventory summary"
   },
   "completeShoppingDialog": {
     "title": "Complete Shopping",
@@ -111,5 +125,13 @@
     "cancelButton": "Cancel",
     "savingButton": "Saving...",
     "completeButton": "Complete Shopping"
-  }
+  },
+  "allCategories": "Alle Kategorien",
+  "completeShoppingCount": "{{count}} items completed",
+  "createTaskFromItems": "Aufgabe aus Artikeln erstellen",
+  "editItem": "Artikel bearbeiten",
+  "itemDetails": "Artikel-Details",
+  "loadingList": "Lädt Einkaufsliste...",
+  "organizeAsTask": "Einkauf als Aufgabe organisieren",
+  "selectedItems": "Ausgewählte Artikel"
 }

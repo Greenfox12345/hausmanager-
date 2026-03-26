@@ -47,7 +47,14 @@
     "loading": "Loading...",
     "saving": "Saving...",
     "deleting": "Deleting...",
-    "clickToStart": "Click here to get started →"
+    "clickToStart": "Click here to get started →",
+    "complete": "Complete",
+    "deselectAll": "Alle abwählen",
+    "editDetails": "Details bearbeiten",
+    "restore": "Restore",
+    "selectAll": "Alle auswählen",
+    "showLess": "Weniger anzeigen",
+    "undo": "Rükgängig machen"
   },
   "status": {
     "active": "Active",
@@ -61,7 +68,9 @@
     "open": "Open",
     "done": "Done",
     "inProgress": "In Progress",
-    "creating": "Creating..."
+    "creating": "Creating...",
+    "loading": "Lade Inventar...",
+    "uploading": "Lädt hoch..."
   },
   "labels": {
     "name": "Name",
@@ -102,7 +111,17 @@
     "nextPhoto": "Next photo",
     "fullscreen": "Full screen",
     "today": "Today",
-    "on": "on"
+    "on": "on",
+    "allTypes": "Alle Typen",
+    "by": "von",
+    "clock": "Uhr",
+    "color": "Color",
+    "details": "Details",
+    "email": "E-Mail",
+    "noHousehold": "Kein Haushalt ausgewählt",
+    "photos": "Fotos",
+    "time": "Uhrzeit",
+    "unassigned": "Nicht zugewiesen"
   },
   "priority": {
     "low": "Low",
@@ -137,7 +156,9 @@
     "select": "Select household",
     "create": "Create household",
     "join": "Join household",
-    "settings": "Household settings",
+    "settings": {
+      "saved": "Einstellungen gespeichert"
+    },
     "language": "Household language",
     "languageHint": "This language is used for history entries and notifications visible to all household members.",
     "name": "Household name",
@@ -378,5 +399,18 @@
     "desc": "Z–A",
     "ascending": "Sort ascending",
     "descending": "Sort descending"
-  }
+  },
+  "back": "Zurück",
+  "common": {
+    "messages": {
+      "loading": "Loading..."
+    }
+  },
+  "loading": "Loading...",
+  "navigation": {
+    "back": "Zurück",
+    "next": "Weiter"
+  },
+  "pleaseLogin": "Bitte anmelden",
+  "uploading": "Lädt hoch..."
 }

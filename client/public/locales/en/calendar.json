@@ -37,7 +37,8 @@
     "overview": "Calendar and all appointments at a glance",
     "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
     "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
-    "jumpedToCurrent": "Jumped to current appointment"
+    "jumpedToCurrent": "Jumped to current appointment",
+    "occurrenceSkipped": "Termin ausgelassen!"
   },
   "labels": {
     "occurrence": "Occurrence"
@@ -60,5 +61,24 @@
     "goToItem": "Go to item",
     "markReturned": "Mark as returned",
     "viewItem": "View item"
-  }
+  },
+  "allTasksChronological": "Alle Aufgaben (chronologisch)",
+  "calendarView": "Kalenderansicht",
+  "completedOn": "Termin am:",
+  "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
+  "filter": {
+    "all": "Alle Einträge",
+    "borrowsOnly": "Nur Ausleihen",
+    "tasksOnly": "Nur Aufgaben"
+  },
+  "jumpToCurrent": "Zu aktuellem Termin",
+  "noTasksOnDay": "Keine Aufgaben an diesem Tag",
+  "noTasksWithoutDates": "Keine Aufgaben ohne Termine",
+  "noTasksWithoutDatesForMember": "Keine Aufgaben ohne Termine für dieses Mitglied",
+  "occurrence": "Termin",
+  "period": "Zeitraum",
+  "skip": "Auslassen",
+  "tasksOn": "Aufgaben am",
+  "tasksWithoutDates": "Aufgaben ohne Termine",
+  "today": "Heute"
 }

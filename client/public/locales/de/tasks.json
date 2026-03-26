@@ -33,7 +33,10 @@
     "endDate": "Terminende",
     "dueTime": "Uhrzeit",
     "descriptionPlaceholder": "Optionale Details zur Aufgabe",
-    "namePlaceholder": "z.B. Müll rausbringen"
+    "namePlaceholder": "z.B. Müll rausbringen",
+    "recurring": "Wiederkehrend",
+    "unassigned": "Nicht zugewiesen",
+    "unknown": "Unbekannt"
   },
   "skippedDates": "Ausgelassene Termine",
   "linkedShoppingList": "Verknüpfte Einkaufsliste",
@@ -108,7 +111,16 @@
     "rotateResponsibility": "Verantwortung rotieren",
     "planRotationHint": "Planen Sie im Voraus, wer bei welchem Termin verantwortlich ist",
     "rotationAvailableAfterCreate": "Rotationsplanung und Terminnotizen sind nach dem Erstellen der Aufgabe verfügbar",
-    "excludeFromRotation": "Von Rotation freistellen"
+    "excludeFromRotation": "Von Rotation freistellen",
+    "daily": "Täglich",
+    "day": "Tag",
+    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "month": "Monat",
+    "monthly": "Monatlich",
+    "repeats": "Aufgabe wiederholt sich",
+    "requiredPersons": "Benötigte Personen",
+    "week": "Woche",
+    "weekly": "Wöchentlich"
   },
   "weekdays": {
     "monday": "Montag",
@@ -293,7 +305,14 @@
     "otherHousehold": "anderem Haushalt",
     "sharedWith": "Geteilt mit",
     "itemAddedToOccurrence": "\"{{itemName}}\" zu Termin {{occurrence}} hinzugefügt",
-    "itemAddError": "Fehler beim Hinzufügen des Gegenstands"
+    "itemAddError": "Fehler beim Hinzufügen des Gegenstands",
+    "assignedCount": "{{count}} Aufgaben zugewiesen",
+    "completedCount": "{{count}} Aufgaben abgeschlossen",
+    "confirmDelete": "Möchten Sie diese Aufgabe wirklich löschen?",
+    "deletedCount": "{{count}} Aufgaben gelöscht",
+    "markedReturned": "Als zurückgegeben markiert!",
+    "milestoneRecorded": "Zwischenziel vermerkt!",
+    "undone": "Abschluss rükgängig gemacht!"
   },
   "gantt": {
     "title": "Gantt-Diagramm",
@@ -310,7 +329,10 @@
     "complete": "Abschließen",
     "sendReminder": "Erinnern",
     "milestone": "Zwischenziel",
-    "delete": "Aufgabe löschen"
+    "delete": "Aufgabe löschen",
+    "recordMilestone": "Zwischenziel dokumentieren",
+    "remind": "Erinnern",
+    "restore": "Wiederherstellen"
   },
   "overdue": "Überfällig",
   "completed": "Erledigt",
@@ -341,7 +363,11 @@
     "deselectAll": "Alle abwählen",
     "complete": "Abschließen",
     "assign": "Zuweisen",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "assignDesc": "Aufgaben einem Mitglied zuweisen",
+    "assignTitle": "Aufgaben zuweisen",
+    "deleteDesc": "Ausgewählte Aufgaben löschen",
+    "deleteTitle": "Aufgaben löschen"
   },
   "loading": "Lädt Aufgaben...",
   "noTasksCreate": "Keine Aufgaben vorhanden. Erstellen Sie oben eine neue Aufgabe!",
@@ -372,7 +398,9 @@
     "noCategory": "Keine Kategorie",
     "missingCategoriesTitle": "⚠️ Fehlende Kategorien",
     "missingCategoriesHint_one": "{{count}} Artikel hat keine Kategorie ausgewählt. Bitte wählen Sie eine Kategorie aus.",
-    "missingCategoriesHint_other": "{{count}} Artikel haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Artikel eine Kategorie aus."
+    "missingCategoriesHint_other": "{{count}} Artikel haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Artikel eine Kategorie aus.",
+    "inventorySummary": "Inventar-Zusammenfassung",
+    "missingCategoriesHint": "Fehlende Kategorien ergänzen"
   },
   "milestoneDialog": {
     "title": "Zwischensieg dokumentieren",
@@ -395,7 +423,9 @@
     "selectDate": "Datum wählen",
     "addTitle": "Sondertermin hinzufügen",
     "nameLabel": "Name des Sondertermins",
-    "nameExamplePlaceholder": "z.B. Urlaubsvertretung, Extra Reinigung"
+    "nameExamplePlaceholder": "z.B. Urlaubsvertretung, Extra Reinigung",
+    "badge": "Sondertermin",
+    "label": "Sondertermin"
   },
   "occurrence": {
     "label": "Termin {{occurrenceNumber}}",
@@ -516,5 +546,33 @@
       "hint": "Möchtest du den Gegenstand trotzdem hinzufügen? Du kannst später eine Ausleihe für einen anderen Zeitraum erstellen.",
       "addAnyway": "Trotzdem hinzufügen"
     }
-  }
+  },
+  "addTask": "Aufgabe hinzufügen",
+  "allTasks": "Alle Aufgaben",
+  "descriptionPlaceholder": "Aufgabenbeschreibung...",
+  "detail": {
+    "linkedWith": "Verknüpft mit",
+    "otherHousehold": "anderem Haushalt",
+    "shareWithNeighbors": "Mit Nachbarn teilen",
+    "sharedWith": "Geteilt mit",
+    "specialAppointment": "Sondertermin"
+  },
+  "dueDate": "Fällig:",
+  "labels": {
+    "assignedTo": "Verantwortlich"
+  },
+  "linkedWith": "Verknüpft mit",
+  "otherHousehold": "anderem Haushalt",
+  "permissions": {
+    "full": "Vollzugriff (alles bearbeiten)",
+    "milestonesReminders": "Zwischenziele & Erinnerungen",
+    "viewOnly": "Nur ansehen"
+  },
+  "rotation": {
+    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "noMembers": "Keine Mitglieder verfügbar",
+    "requiredPersons": "Erforderliche Anzahl Personen",
+    "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern"
+  },
+  "sharedWith": "Geteilt mit"
 }

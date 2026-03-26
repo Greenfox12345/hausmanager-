@@ -33,7 +33,10 @@
     "endDate": "End time",
     "dueTime": "Time",
     "descriptionPlaceholder": "Optional details about the task",
-    "namePlaceholder": "e.g. Take out the trash"
+    "namePlaceholder": "e.g. Take out the trash",
+    "recurring": "Recurring",
+    "unassigned": "Unassigned",
+    "unknown": "Unknown"
   },
   "skippedDates": "Skipped occurrences",
   "linkedShoppingList": "Linked shopping list",
@@ -108,7 +111,16 @@
     "rotateResponsibility": "Rotate responsibility",
     "planRotationHint": "Plan in advance who is responsible for which appointment",
     "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task",
-    "excludeFromRotation": "Exempt from rotation"
+    "excludeFromRotation": "Exempt from rotation",
+    "daily": "Täglich",
+    "day": "Tag",
+    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "month": "Monat",
+    "monthly": "Monatlich",
+    "repeats": "Aufgabe wiederholt sich",
+    "requiredPersons": "Benötigte Personen",
+    "week": "Woche",
+    "weekly": "Wöchentlich"
   },
   "weekdays": {
     "monday": "Monday",
@@ -293,7 +305,14 @@
     "otherHousehold": "another household",
     "sharedWith": "Shared with",
     "itemAddedToOccurrence": "\"{{itemName}}\" added to appointment {{occurrence}}",
-    "itemAddError": "Error adding item"
+    "itemAddError": "Error adding item",
+    "assignedCount": "{{count}} tasks assigned",
+    "completedCount": "{{count}} tasks completed",
+    "confirmDelete": "Möchten Sie diese Aufgabe wirklich löschen?",
+    "deletedCount": "{{count}} tasks deleted",
+    "markedReturned": "Als zurückgegeben markiert!",
+    "milestoneRecorded": "Zwischenziel vermerkt!",
+    "undone": "Abschluss rükgängig gemacht!"
   },
   "gantt": {
     "title": "Gantt chart",
@@ -310,7 +329,10 @@
     "complete": "Complete",
     "sendReminder": "Remind",
     "milestone": "Milestone",
-    "delete": "Delete task"
+    "delete": "Delete task",
+    "recordMilestone": "Zwischenziel dokumentieren",
+    "remind": "Erinnern",
+    "restore": "Restore"
   },
   "overdue": "Overdue",
   "completed": "Completed",
@@ -341,7 +363,11 @@
     "deselectAll": "Deselect all",
     "complete": "Complete",
     "assign": "Assign",
-    "delete": "Delete"
+    "delete": "Delete",
+    "assignDesc": "Assign tasks to a member",
+    "assignTitle": "Aufgaben zuweisen",
+    "deleteDesc": "Delete selected tasks",
+    "deleteTitle": "Aufgaben löschen"
   },
   "loading": "Loading tasks...",
   "noTasksCreate": "No tasks yet. Create a new task above!",
@@ -372,7 +398,9 @@
     "noCategory": "No category",
     "missingCategoriesTitle": "⚠️ Missing categories",
     "missingCategoriesHint_one": "{{count}} item has no category selected. Please select a category.",
-    "missingCategoriesHint_other": "{{count}} items have no category selected. Please select a category for all items."
+    "missingCategoriesHint_other": "{{count}} items have no category selected. Please select a category for all items.",
+    "inventorySummary": "Inventory summary",
+    "missingCategoriesHint": "Add missing categories"
   },
   "milestoneDialog": {
     "title": "Document milestone",
@@ -395,7 +423,9 @@
     "selectDate": "Select date",
     "addTitle": "Add special appointment",
     "nameLabel": "Name of special appointment",
-    "nameExamplePlaceholder": "e.g. Holiday cover, Extra cleaning"
+    "nameExamplePlaceholder": "e.g. Holiday cover, Extra cleaning",
+    "badge": "Special",
+    "label": "Special appointment"
   },
   "occurrence": {
     "label": "Appointment {{occurrenceNumber}}",
@@ -516,5 +546,33 @@
       "hint": "Do you still want to add the item? You can create a borrow for a different period later.",
       "addAnyway": "Add anyway"
     }
-  }
+  },
+  "addTask": "Aufgabe hinzufügen",
+  "allTasks": "Alle Aufgaben",
+  "descriptionPlaceholder": "Aufgabenbeschreibung...",
+  "detail": {
+    "linkedWith": "Linked with",
+    "otherHousehold": "another household",
+    "shareWithNeighbors": "Share with neighbors",
+    "sharedWith": "Shared with",
+    "specialAppointment": "Special appointment"
+  },
+  "dueDate": "Fällig:",
+  "labels": {
+    "assignedTo": "Verantwortlich"
+  },
+  "linkedWith": "Verknüpft mit",
+  "otherHousehold": "anderem Haushalt",
+  "permissions": {
+    "full": "Vollzugriff (alles bearbeiten)",
+    "milestonesReminders": "Zwischenziele & Erinnerungen",
+    "viewOnly": "Nur ansehen"
+  },
+  "rotation": {
+    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "noMembers": "Keine Mitglieder verfügbar",
+    "requiredPersons": "Erforderliche Anzahl Personen",
+    "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern"
+  },
+  "sharedWith": "Geteilt mit"
 }

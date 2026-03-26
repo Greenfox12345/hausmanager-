@@ -41,7 +41,8 @@
     "assignTasks_one": "Assign {{count}} task",
     "assignTasks_other": "Assign {{count}} tasks",
     "newTask": "New Task",
-    "assignExisting": "Assign Existing"
+    "assignExisting": "Assign Existing",
+    "assignTasks": "Assign tasks"
   },
   "validation": {
     "nameRequired": "Please enter a project name",

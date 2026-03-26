@@ -24,7 +24,14 @@
     "details": "Details",
     "ownership": "Ownership",
     "selectOwners": "Select owners",
-    "createdBy": "Created by"
+    "createdBy": "Created by",
+    "createdAt": "Erstellt am",
+    "detailsPlaceholder": "z.B. MacBook Pro 2023",
+    "namePlaceholder": "z.B. Laptop",
+    "owners": "Eigentümer:",
+    "ownershipHousehold": "Eigentum: Haushalt",
+    "ownershipPersonal": "Persönliches Eigentum",
+    "selectCategory": "Kategorie wählen"
   },
   "condition": {
     "new": "New",
@@ -39,7 +46,11 @@
     "editCategory": "Edit Category",
     "deleteCategory": "Delete Category",
     "noCategories": "No categories available",
-    "uncategorized": "Uncategorized"
+    "uncategorized": "Uncategorized",
+    "edit": "Kategorie bearbeiten",
+    "manage": "Kategorien verwalten",
+    "namePlaceholder": "z.B. Elektronik",
+    "new": "Neue Kategorie"
   },
   "borrow": {
     "title": "Borrow",
@@ -69,7 +80,10 @@
     "byCondition": "By Condition",
     "borrowable": "Borrowable",
     "borrowed": "Borrowed",
-    "available": "Available"
+    "available": "Available",
+    "allCategories": "Alle Kategorien",
+    "allOwners": "Alle Eigentümer",
+    "onlyHousehold": "Nur Haushalt"
   },
   "messages": {
     "created": "Item created successfully.",
@@ -93,7 +107,14 @@
     "nameAndCategoryRequired": "Name and category are required",
     "ownerRequired": "Please select at least one owner",
     "householdRequired": "Please select at least one household",
-    "confirmDelete": "Really delete this item?"
+    "confirmDelete": "Really delete this item?",
+    "categoryAdded": "Kategorie hinzugefügt",
+    "categoryDeleted": "Kategorie gelöscht",
+    "categoryUpdated": "Kategorie aktualisiert",
+    "itemAdded": "Artikel hinzugefügt",
+    "nameCategoryRequired": "Name und Kategorie sind erforderlich",
+    "noItems": "Keine Artikel gefunden.",
+    "selectOwner": "Bitte wähle mindestens einen Eigentümer"
   },
   "labels": {
     "item": "Item"
@@ -107,5 +128,10 @@
   "visibilitySelected": "Selected households",
   "selectHouseholds": "Select households:",
   "noConnectedHouseholds": "No connected households. Connect households first under \"Household\".",
-  "externalRequest": "Request from external household"
+  "externalRequest": "Request from external household",
+  "actions": {
+    "borrow": "Ausleihen",
+    "requests": "Anfragen"
+  },
+  "description": "Verwalte dein Haushaltsinventar"
 }

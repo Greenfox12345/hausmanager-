@@ -24,7 +24,14 @@
     "details": "Details",
     "ownership": "Eigentum",
     "selectOwners": "Eigentümer auswählen",
-    "createdBy": "Erstellt von"
+    "createdBy": "Erstellt von",
+    "createdAt": "Erstellt am",
+    "detailsPlaceholder": "z.B. MacBook Pro 2023",
+    "namePlaceholder": "z.B. Laptop",
+    "owners": "Eigentümer:",
+    "ownershipHousehold": "Eigentum: Haushalt",
+    "ownershipPersonal": "Persönliches Eigentum",
+    "selectCategory": "Kategorie wählen"
   },
   "condition": {
     "new": "Neu",
@@ -39,7 +46,11 @@
     "editCategory": "Kategorie bearbeiten",
     "deleteCategory": "Kategorie löschen",
     "noCategories": "Keine Kategorien",
-    "uncategorized": "Ohne Kategorie"
+    "uncategorized": "Ohne Kategorie",
+    "edit": "Kategorie bearbeiten",
+    "manage": "Kategorien verwalten",
+    "namePlaceholder": "z.B. Elektronik",
+    "new": "Neue Kategorie"
   },
   "borrow": {
     "title": "Ausleihe",
@@ -69,7 +80,10 @@
     "byCondition": "Nach Zustand",
     "borrowable": "Ausleihbar",
     "borrowed": "Ausgeliehen",
-    "available": "Verfügbar"
+    "available": "Verfügbar",
+    "allCategories": "Alle Kategorien",
+    "allOwners": "Alle Eigentümer",
+    "onlyHousehold": "Nur Haushalt"
   },
   "messages": {
     "created": "Gegenstand hinzugefügt",
@@ -93,7 +107,14 @@
     "nameAndCategoryRequired": "Name und Kategorie sind erforderlich",
     "ownerRequired": "Bitte wähle mindestens einen Eigentümer",
     "householdRequired": "Bitte wähle mindestens einen Haushalt aus",
-    "confirmDelete": "Artikel wirklich löschen?"
+    "confirmDelete": "Artikel wirklich löschen?",
+    "categoryAdded": "Kategorie hinzugefügt",
+    "categoryDeleted": "Kategorie gelöscht",
+    "categoryUpdated": "Kategorie aktualisiert",
+    "itemAdded": "Artikel hinzugefügt",
+    "nameCategoryRequired": "Name und Kategorie sind erforderlich",
+    "noItems": "Keine Artikel gefunden.",
+    "selectOwner": "Bitte wähle mindestens einen Eigentümer"
   },
   "labels": {
     "item": "Gegenstand"
@@ -107,5 +128,10 @@
   "visibilitySelected": "Ausgewählte Haushalte",
   "selectHouseholds": "Haushalte auswählen:",
   "noConnectedHouseholds": "Keine verknüpften Haushalte vorhanden. Verbinde zuerst Haushalte unter \"Haushalt\".",
-  "externalRequest": "Anfrage von externem Haushalt"
+  "externalRequest": "Anfrage von externem Haushalt",
+  "actions": {
+    "borrow": "Ausleihen",
+    "requests": "Anfragen"
+  },
+  "description": "Verwalte dein Haushaltsinventar"
 }

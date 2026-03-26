@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "return": "Zurückgeben",
+    "revoke": "Widerrufen"
+  },
+  "borrow": "Ausleihen",
+  "guidelines": "Ausleihvorgaben",
+  "noRequests": "Keine Ausleih-Anfragen vorhanden.",
+  "occurrence": "Occurrence",
+  "requestDialog": {
+    "endAfterStart": "Return date must be after pickup date",
+    "from": "From",
+    "guidelines": "Borrowing guidelines",
+    "instructions": "Instructions",
+    "item": "Item",
+    "message": "Message",
+    "messagePlaceholder": "Optional message to the owner...",
+    "requiredOnReturn": "Required on return",
+    "requiredPhotosReturn": "Photos required on return",
+    "returnChecklist": "Return checklist",
+    "selectDate": "Select date",
+    "send": "Send request",
+    "sending": "Sending...",
+    "title": "Borrow request",
+    "to": "To"
+  },
+  "requestMessagePrefix": "I would like to borrow",
+  "requestMessageSuffix": ".",
+  "requests": "Ausleih-Anfragen",
+  "responsible": "Responsible",
+  "returnDialog": {
+    "checklist": "Return checklist",
+    "checklistRequired": "Please check all items",
+    "conditionReport": "Condition report",
+    "conditionReportPlaceholder": "Describe the condition on return...",
+    "error": "Error during return",
+    "example": "Example",
+    "item": "Item",
+    "noGuidelines": "No return guidelines available",
+    "photoRequired": "Photo required",
+    "required": "Required",
+    "requiredPhotos": "Required photos",
+    "return": "Return",
+    "returning": "Returning...",
+    "success": "Successfully returned",
+    "title": "Return item",
+    "uploadPhoto": "Upload photo"
+  },
+  "revokeDialog": {
+    "borrower": "Borrower",
+    "description": "Are you sure you want to revoke this approval?",
+    "item": "Item",
+    "period": "Period",
+    "reason": "Reason",
+    "reasonPlaceholder": "Please provide a reason...",
+    "reasonRequired": "Please provide a reason",
+    "revoke": "Revoke",
+    "revoking": "Revoking...",
+    "title": "Revoke approval"
+  },
+  "status": {
+    "active": "Ausgeliehen",
+    "approved": "Genehmigt",
+    "completed": "Zurückgegeben",
+    "overdue": "Überfällig",
+    "pending": "Ausständig",
+    "rejected": "Abgelehnt"
+  },
+  "task": "Task"
+}

@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "return": "Zurückgeben",
+    "revoke": "Widerrufen"
+  },
+  "borrow": "Ausleihen",
+  "guidelines": "Ausleihvorgaben",
+  "noRequests": "Keine Ausleih-Anfragen vorhanden.",
+  "occurrence": "Termin",
+  "requestDialog": {
+    "endAfterStart": "Rückgabedatum muss nach dem Abholdatum liegen",
+    "from": "Von",
+    "guidelines": "Ausleihvorgaben",
+    "instructions": "Anweisungen",
+    "item": "Gegenstand",
+    "message": "Nachricht",
+    "messagePlaceholder": "Optionale Nachricht an den Eigentümer...",
+    "requiredOnReturn": "Bei Rückgabe erforderlich",
+    "requiredPhotosReturn": "Fotos bei Rückgabe erforderlich",
+    "returnChecklist": "Rückgabe-Checkliste",
+    "selectDate": "Datum auswählen",
+    "send": "Anfrage senden",
+    "sending": "Wird gesendet...",
+    "title": "Ausleih-Anfrage",
+    "to": "Bis"
+  },
+  "requestMessagePrefix": "Ich möchte",
+  "requestMessageSuffix": "ausleihen.",
+  "requests": "Ausleih-Anfragen",
+  "responsible": "Verantwortlich",
+  "returnDialog": {
+    "checklist": "Rückgabe-Checkliste",
+    "checklistRequired": "Bitte alle Punkte abhaken",
+    "conditionReport": "Zustandsbericht",
+    "conditionReportPlaceholder": "Beschreibung des Zustands bei Rückgabe...",
+    "error": "Fehler bei der Rückgabe",
+    "example": "Beispiel",
+    "item": "Gegenstand",
+    "noGuidelines": "Keine Rückgabevorgaben vorhanden",
+    "photoRequired": "Foto erforderlich",
+    "required": "Pflichtfeld",
+    "requiredPhotos": "Erforderliche Fotos",
+    "return": "Zurückgeben",
+    "returning": "Wird zurückgegeben...",
+    "success": "Erfolgreich zurückgegeben",
+    "title": "Gegenstand zurückgeben",
+    "uploadPhoto": "Foto hochladen"
+  },
+  "revokeDialog": {
+    "borrower": "Ausleiher",
+    "description": "Möchten Sie diese Genehmigung wirklich widerrufen?",
+    "item": "Gegenstand",
+    "period": "Zeitraum",
+    "reason": "Grund",
+    "reasonPlaceholder": "Bitte geben Sie einen Grund an...",
+    "reasonRequired": "Bitte geben Sie einen Grund an",
+    "revoke": "Widerrufen",
+    "revoking": "Wird widerrufen...",
+    "title": "Genehmigung widerrufen"
+  },
+  "status": {
+    "active": "Ausgeliehen",
+    "approved": "Genehmigt",
+    "completed": "Zurückgegeben",
+    "overdue": "Überfällig",
+    "pending": "Ausständig",
+    "rejected": "Abgelehnt"
+  },
+  "task": "Aufgabe"
+}

@@ -53,7 +53,9 @@
     "task": "Aufgabe",
     "occurrence": "Termin",
     "pickup": "Abholung",
-    "return": "Rückgabe"
+    "return": "Rückgabe",
+    "borrowEnd": "Rückgabe",
+    "borrowStart": "Abholung"
   },
   "pickupRecord": "Bei Abholung festgehalten",
   "returnRecord": "Bei Rückgabe festgehalten",
@@ -84,7 +86,14 @@
     "approveError": "Fehler beim Genehmigen",
     "rejectError": "Fehler beim Ablehnen",
     "returnError": "Fehler bei der Rückgabe",
-    "description": "Gegenstände ausleihen und verwalten"
+    "description": "Gegenstände ausleihen und verwalten",
+    "autoApprovedDesc": "Automatisch genehmigt",
+    "borrowEndUpdated": "Rückgabedatum aktualisiert",
+    "borrowStartUpdated": "Abholdatum aktualisiert",
+    "cancelled": "Ausleihe storniert",
+    "requestSentDesc": "Anfrage wurde gesendet",
+    "revokeError": "Fehler beim Widerrufen",
+    "revokeSuccess": "Erfolgreich widerrufen"
   },
   "labels": {
     "borrower": "Ausleiher",
@@ -232,5 +241,13 @@
   "guideline": {
     "title": "Ausleihvorgaben",
     "checklist": "Checkliste"
-  }
+  },
+  "actions": {
+    "request": "Anfragen",
+    "revoke": "Widerrufen"
+  },
+  "borrowing": "Ausleihe",
+  "hidePast": "Vergangene ausblenden",
+  "showPast": "Vergangene anzeigen",
+  "tabCalendar": "Kalender"
 }
