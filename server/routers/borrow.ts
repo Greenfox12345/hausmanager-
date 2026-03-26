@@ -589,17 +589,75 @@ export const borrowRouter = router({
       return { success: true };
     }),
 
-  // Cancel a borrow request
+  // Cancel a borrow request (by the borrower themselves)
   cancel: publicProcedure
-    .input(z.object({ requestId: z.number() }))
+    .input(z.object({
+      requestId: z.number(),
+      borrowerMemberId: z.number(),
+    }))
     .mutation(async ({ input }) => {
+      const request = await getBorrowRequestById(input.requestId);
+      if (!request) {
+        throw new Error("Ausleih-Anfrage nicht gefunden");
+      }
+
+      // Only the borrower can cancel their own request
+      if (request.borrowerMemberId !== input.borrowerMemberId) {
+        throw new Error("Nur der Ausleiher kann seine eigene Anfrage stornieren");
+      }
+
+      // Only pending or approved requests can be cancelled by the borrower
+      if (request.status !== "pending" && request.status !== "approved") {
+        throw new Error("Nur ausstehende oder genehmigte Anfragen können storniert werden");
+      }
+
+      const item = await getInventoryItemById(request.inventoryItemId);
+      const borrowerMember = await getHouseholdMemberById(input.borrowerMemberId);
+      const borrowerName = borrowerMember?.memberName ?? "Unbekannt";
+
       await updateBorrowRequestStatus({
         requestId: input.requestId,
         status: "cancelled",
+        responseMessage: `Storniert von ${borrowerName}`,
       });
 
       // Delete calendar events for cancelled borrow
       await deleteCalendarEventsByBorrowRequest(input.requestId);
+
+      // Notify the item owner if the request was already approved
+      if (request.status === "approved" && item) {
+        const startFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
+        const endFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
+        const ownerMemberId = item.owners?.[0]?.memberId;
+        if (ownerMemberId) {
+          await createNotification({
+            householdId: item.householdId,
+            memberId: ownerMemberId,
+            type: "general",
+            title: "Ausleihe storniert",
+            message: `${borrowerName} hat die genehmigte Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.`,
+          });
+        }
+      }
+
+      // Activity log
+      if (item) {
+        await createActivityLog({
+          householdId: request.borrowerHouseholdId,
+          memberId: input.borrowerMemberId,
+          activityType: "inventory",
+          action: "borrow_cancelled",
+          description: `Ausleih-Anfrage für "${item.name}" storniert`,
+          metadata: {
+            itemId: request.inventoryItemId,
+            itemName: item.name,
+            requestId: input.requestId,
+            startDate: request.startDate.toISOString(),
+            endDate: request.endDate.toISOString(),
+            previousStatus: request.status,
+          },
+        });
+      }
 
       return { success: true };
     }),

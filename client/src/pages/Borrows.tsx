@@ -58,6 +58,9 @@ export default function Borrows() {
   const [selectedBorrowDetail, setSelectedBorrowDetail] = useState<BorrowRequestDetail | null>(null);
   const [borrowsLightbox, setBorrowsLightbox] = useState<{ photos: { url: string; label?: string }[]; currentIndex: number } | null>(null);
 
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelBorrow, setCancelBorrow] = useState<{ id: number; itemName: string; status: string } | null>(null);
+
   const utils = trpc.useUtils();
 
   const { data: pendingForMe = [], isLoading: loadingPending } = trpc.borrow.getPendingForMember.useQuery(
@@ -89,6 +92,16 @@ export default function Borrows() {
       setRejectDialogOpen(false);
       setRejectReason("");
       utils.borrow.getPendingForMember.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const cancelMutation = trpc.borrow.cancel.useMutation({
+    onSuccess: () => {
+      toast.success(t("borrows:messages.cancelled", "Ausleihe storniert"));
+      setCancelDialogOpen(false);
+      setCancelBorrow(null);
+      utils.borrow.getMyBorrows.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
@@ -620,23 +633,45 @@ export default function Borrows() {
                       )}
 
                       {borrow.status === "pending" && (
-                        <p className="text-sm text-muted-foreground">
-                          {t("borrows:waitingApproval", "Warte auf Genehmigung")}
-                        </p>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <p className="text-sm text-muted-foreground">
+                            {t("borrows:waitingApproval", "Warte auf Genehmigung")}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setCancelBorrow({ id: borrow.id, itemName: borrow.itemName, status: borrow.status }); setCancelDialogOpen(true); }}
+                            className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            {t("borrows:cancelRequest", "Anfrage stornieren")}
+                          </Button>
+                        </div>
                       )}
                       {borrow.status === "approved" && (
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           <p className="text-sm text-blue-600 dark:text-blue-400">
                             {t("borrows:approvedPickup", "Genehmigt – bitte abholen")}
                           </p>
-                          <Button
-                            size="sm"
-                            onClick={() => handleOpenPickup(borrow)}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <PackageCheck className="w-4 h-4 mr-1" />
-                            {t("borrows:confirmPickup", "Abholung bestätigen")}
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => { setCancelBorrow({ id: borrow.id, itemName: borrow.itemName, status: borrow.status }); setCancelDialogOpen(true); }}
+                              className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            >
+                              <XCircle className="w-4 h-4 mr-1" />
+                              {t("borrows:cancelRequest", "Stornieren")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleOpenPickup(borrow)}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <PackageCheck className="w-4 h-4 mr-1" />
+                              {t("borrows:confirmPickup", "Abholung bestätigen")}
+                            </Button>
+                          </div>
                         </div>
                       )}
                       {borrow.status === "active" && (
@@ -763,6 +798,51 @@ export default function Borrows() {
           onClose={() => setBorrowsLightbox(null)}
         />
       )}
+
+      {/* Cancel / Stornierungsdialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={(open) => { if (!open) { setCancelDialogOpen(false); setCancelBorrow(null); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {cancelBorrow?.status === "pending"
+                ? t("borrows:cancelDialog.titlePending", "Anfrage stornieren")
+                : t("borrows:cancelDialog.titleApproved", "Genehmigte Ausleihe stornieren")}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-1">
+            <p className="text-sm text-muted-foreground">
+              {cancelBorrow?.status === "pending"
+                ? t("borrows:cancelDialog.confirmPending", `Möchtest du deine Anfrage für "${cancelBorrow?.itemName}" wirklich stornieren?`)
+                : t("borrows:cancelDialog.confirmApproved", `Möchtest du die genehmigte Ausleihe von "${cancelBorrow?.itemName}" wirklich stornieren? Der Eigentümer wird benachrichtigt.`)}
+            </p>
+            {cancelBorrow?.status === "approved" && (
+              <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-300">
+                <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                <span>{t("borrows:cancelDialog.approvedWarning", "Die Genehmigung wird zurückgezogen und der Gegenstand wieder als verfügbar markiert.")}</span>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCancelDialogOpen(false); setCancelBorrow(null); }}>
+              {t("common:back", "Zurück")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!cancelBorrow || !member) return;
+                cancelMutation.mutate({ requestId: cancelBorrow.id, borrowerMemberId: member.memberId });
+              }}
+              disabled={cancelMutation.isPending}
+            >
+              <XCircle className="w-4 h-4 mr-1" />
+              {cancelMutation.isPending
+                ? t("borrows:cancelDialog.cancelling", "Wird storniert...")
+                : t("borrows:cancelDialog.confirm", "Ja, stornieren")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </AppLayout>
   );
