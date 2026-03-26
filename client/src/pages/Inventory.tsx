@@ -392,7 +392,7 @@ export default function Inventory() {
                       variant="ghost"
                       size="icon"
                       className="bg-background/80 hover:bg-background"
-                      onClick={() => setLocation(`/inventory/edit/${item.id}`)}
+                      onClick={() => setLocation(`/inventory/${item.id}?edit=true`)}
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>

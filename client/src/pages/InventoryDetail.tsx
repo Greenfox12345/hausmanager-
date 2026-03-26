@@ -207,6 +207,14 @@ export default function InventoryDetail() {
     rejectMutation.mutate({ requestId, approverId: member.memberId });
   };
 
+  // Auto-open edit mode when navigated with ?edit=true
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("edit") === "true") {
+      setIsEditing(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (item) {
       setEditName(item.name);
