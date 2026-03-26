@@ -1,6 +1,6 @@
 {
   "title": "Members",
-  "newMember": "New Member",
+  "newMember": "Invite New Member",
   "editMember": "Edit Member",
   "removeMember": "Remove Member",
   "memberDetails": "Member Details",
@@ -42,7 +42,7 @@
     "changeAvatar": "Change Avatar"
   },
   "messages": {
-    "invited": "Member invited successfully",
+    "invited": "Invitation sent",
     "joined": "Joined household successfully",
     "removed": "Member removed successfully",
     "roleChanged": "Member role changed successfully",
@@ -50,8 +50,23 @@
     "removeError": "Failed to remove member",
     "cannotRemoveSelf": "Cannot remove yourself",
     "cannotRemoveLastAdmin": "Cannot remove the last admin",
-    "manageMembers": "Household members and settings"
+    "manageMembers": "Household members and settings",
+    "loadingMembers": "Loading members...",
+    "noMembersFound": "No members found.",
+    "shareInviteCode": "👥 Share this invitation code with new members:",
+    "step1": "New person registers on the registration page",
+    "step2": "On the household selection page, they click \"Join Household\"",
+    "step3": "Enter and confirm the invitation code",
+    "step4": "Done! The person is now a member of your household",
+    "clickToShowInviteCode": "Click \"Show Invitation Code\" to invite new members.",
+    "inviteCodeCopied": "Invitation code copied!"
   },
   "allMembers": "All members",
-  "selectMember": "Select member"
+  "selectMember": "Select member",
+  "householdTitle": "Household",
+  "currentMembers": "Current Members",
+  "you": "You",
+  "actions": {
+    "showInviteCode": "Show Invitation Code"
+  }
 }

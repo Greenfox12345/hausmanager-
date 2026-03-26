@@ -1,6 +1,6 @@
 {
   "title": "Mitglieder",
-  "newMember": "Mitglied hinzufügen",
+  "newMember": "Neues Mitglied einladen",
   "editMember": "Mitglied bearbeiten",
   "removeMember": "Mitglied entfernen",
   "memberDetails": "Mitgliederdetails",
@@ -50,8 +50,23 @@
     "removeError": "Fehler beim Entfernen des Mitglieds",
     "cannotRemoveSelf": "Du kannst dich nicht selbst entfernen",
     "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden",
-    "manageMembers": "Haushaltsmitglieder und Einstellungen"
+    "manageMembers": "Haushaltsmitglieder und Einstellungen",
+    "loadingMembers": "Lädt Mitglieder...",
+    "noMembersFound": "Keine Mitglieder gefunden.",
+    "shareInviteCode": "👥 Teilen Sie diesen Einladungscode mit neuen Mitgliedern:",
+    "step1": "Neue Person registriert sich auf der Registrierungsseite",
+    "step2": "Bei der Haushaltsauswahl klickt sie auf \"Haushalt beitreten\"",
+    "step3": "Einladungscode eingeben und bestätigen",
+    "step4": "Fertig! Die Person ist jetzt Mitglied Ihres Haushalts",
+    "clickToShowInviteCode": "Klicken Sie auf \"Einladungscode anzeigen\", um neue Mitglieder einzuladen.",
+    "inviteCodeCopied": "Einladungscode kopiert!"
   },
   "allMembers": "Alle Mitglieder",
-  "selectMember": "Mitglied auswählen"
+  "selectMember": "Mitglied auswählen",
+  "householdTitle": "Haushalt",
+  "currentMembers": "Aktuelle Mitglieder",
+  "you": "Sie",
+  "actions": {
+    "showInviteCode": "Einladungscode anzeigen"
+  }
 }

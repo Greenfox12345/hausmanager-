@@ -54,7 +54,8 @@
     "restore": "Wiederherstellen",
     "selectAll": "Alle auswählen",
     "showLess": "Weniger anzeigen",
-    "undo": "Rükgängig machen"
+    "undo": "Rükgängig machen",
+    "logout": "Abmelden"
   },
   "status": {
     "active": "Aktiv",
@@ -151,7 +152,9 @@
     "featureComingSoon": "Diese Funktion ist in Kürze verfügbar",
     "welcome": "Willkommen",
     "loading": "Laden...",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "howItWorks": "💡 So funktioniert's:",
+    "copyError": "Fehler beim Kopieren"
   },
   "household": {
     "select": "Haushalt auswählen",

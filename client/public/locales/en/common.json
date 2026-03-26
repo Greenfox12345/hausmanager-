@@ -54,7 +54,8 @@
     "restore": "Restore",
     "selectAll": "Select all",
     "showLess": "Weniger anzeigen",
-    "undo": "Undo"
+    "undo": "Undo",
+    "logout": "Log out"
   },
   "status": {
     "active": "Active",
@@ -151,7 +152,9 @@
     "featureComingSoon": "This feature is coming soon",
     "welcome": "Welcome",
     "loading": "Loading...",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "howItWorks": "💡 How it works:",
+    "copyError": "Failed to copy"
   },
   "household": {
     "select": "Select household",
