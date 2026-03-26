@@ -4,6 +4,7 @@ import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BorrowCard, type BorrowCardData } from "@/components/BorrowCard";
+import { useTranslation } from "react-i18next";
 
 type BorrowEntry = BorrowCardData;
 
@@ -44,6 +45,7 @@ interface SelectedInfo {
 }
 
 export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancelling }: BorrowCalendarProps) {
+  const { t, i18n } = useTranslation(["borrows", "common"]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selected, setSelected] = useState<SelectedInfo | null>(null);
 
@@ -125,7 +127,9 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
     setSelected(null);
   };
 
-  const DAY_HEADERS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  const DAY_HEADERS = i18n.language.startsWith("de")
+    ? ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const handleBarClick = (borrow: BorrowEntry, weekIndex: number) => {
     if (selected?.borrow.id === borrow.id && selected?.weekIndex === weekIndex) {
@@ -144,14 +148,14 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <h2 className="text-lg font-semibold min-w-[160px] text-center">
-            {format(currentMonth, "MMMM yyyy", { locale: de })}
+            {format(currentMonth, "MMMM yyyy", { locale: i18n.language.startsWith("de") ? de : undefined })}
           </h2>
           <Button variant="outline" size="icon" onClick={goToNextMonth}>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
         <Button variant="outline" size="sm" onClick={goToToday}>
-          <Calendar className="w-4 h-4 mr-1" /> Heute
+          <Calendar className="w-4 h-4 mr-1" /> {t("common:labels.today", "Heute")}
         </Button>
       </div>
 
@@ -169,11 +173,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
               } : { borderColor: "transparent" }}
             />
             <span className="text-muted-foreground">
-              {status === "active" ? "Aktiv" :
-               status === "approved" ? "Genehmigt" :
-               status === "pending" ? "Ausstehend" :
-               status === "returned" ? "Zurückgegeben" :
-               status === "rejected" ? "Abgelehnt" : "Storniert"}
+              {t(`borrows:status.${status}`, status)}
             </span>
           </div>
         ))}
@@ -286,7 +286,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
       {normalizedBorrows.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>Keine Ausleihen vorhanden</p>
+          <p>{t("borrows:noBorrows", "Keine Ausleihen vorhanden")}</p>
         </div>
       )}
     </div>

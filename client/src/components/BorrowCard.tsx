@@ -113,7 +113,7 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
                 size="icon"
                 className="w-7 h-7 shrink-0"
                 onClick={onClose}
-                aria-label="Schließen"
+                aria-label={t("common:actions.close")}
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -144,9 +144,9 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
             {borrow.pickupPhotoUrl && (
               <ClickablePhoto
                 src={borrow.pickupPhotoUrl}
-                alt="Abholung"
+                alt={t("borrows:fields.pickup")}
                 className="w-full max-h-32 object-cover rounded mb-1"
-                onClick={() => setLightbox({ photos: [{ url: borrow.pickupPhotoUrl!, label: "Abholung" }], currentIndex: 0 })}
+                onClick={() => setLightbox({ photos: [{ url: borrow.pickupPhotoUrl!, label: t("borrows:fields.pickup") }], currentIndex: 0 })}
               />
             )}
             {borrow.pickupComment && (
@@ -164,9 +164,9 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
             {borrow.returnPhotoUrl && (
               <ClickablePhoto
                 src={borrow.returnPhotoUrl}
-                alt="Rückgabe"
+                alt={t("borrows:fields.return")}
                 className="w-full max-h-32 object-cover rounded mb-1"
-                onClick={() => setLightbox({ photos: [{ url: borrow.returnPhotoUrl!, label: "Rückgabe" }], currentIndex: 0 })}
+                onClick={() => setLightbox({ photos: [{ url: borrow.returnPhotoUrl!, label: t("borrows:fields.return") }], currentIndex: 0 })}
               />
             )}
             {borrow.returnComment && (

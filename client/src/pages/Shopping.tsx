@@ -1212,7 +1212,7 @@ export default function Shopping() {
               />
             </div>
             <div>
-              <Label>Verantwortliche *</Label>
+              <Label>{t("tasks:fields.assignees", "Verantwortliche")} *</Label>
               <div className="space-y-2 mt-2">
                 {members.map((m) => (
                   <div key={m.id} className="flex items-center space-x-2">
@@ -1262,7 +1262,7 @@ export default function Shopping() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="days">Tage</SelectItem>
+                      <SelectItem value="days">{t("tasks:repeat.days", "Tage")}</SelectItem>
                       <SelectItem value="weeks">{t("tasks:repeat.weeks", "Wochen")}</SelectItem>
                       <SelectItem value="months">{t("tasks:repeat.months", "Monate")}</SelectItem>
                     </SelectContent>

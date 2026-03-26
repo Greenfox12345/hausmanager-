@@ -16,6 +16,9 @@
     "rotation": "Rotation",
     "description": "Beschreibung",
     "assignedTo": "Zugewiesen an",
+    "assignees": "Verantwortliche",
+    "assigneesFirstOccurrence": "Verantwortliche für ersten Termin",
+    "requiredPersons": "Regulär benötigte Personen",
     "dueDate": "Fälligkeitsdatum",
     "priority": "Priorität",
     "status": "Status",
@@ -30,6 +33,8 @@
     "endDate": "Terminende",
     "dueTime": "Uhrzeit"
   },
+  "skippedDates": "Ausgelassene Termine",
+  "linkedShoppingList": "Verknüpfte Einkaufsliste",
   "status": {
     "open": "Offen",
     "inProgress": "In Bearbeitung",

@@ -51,7 +51,27 @@
     "returnDate": "Rückgabedatum",
     "message": "Nachricht",
     "task": "Aufgabe",
-    "occurrence": "Termin"
+    "occurrence": "Termin",
+    "pickup": "Abholung",
+    "return": "Rückgabe"
+  },
+  "pickupRecord": "Bei Abholung festgehalten",
+  "returnRecord": "Bei Rückgabe festgehalten",
+  "confirmPickup": "Abholung bestätigen",
+  "activeReturn": "Aktiv – bitte zurückgeben",
+  "confirmReturn": "Rückgabe bestätigen",
+  "cancelRequest": "Anfrage stornieren",
+  "cancelDialog": {
+    "titlePending": "Anfrage stornieren",
+    "titleApproved": "Genehmigte Ausleihe stornieren",
+    "confirmPending": "Möchtest du deine Anfrage für \"{{itemName}}\" wirklich stornieren?",
+    "confirmApproved": "Möchtest du die genehmigte Ausleihe von \"{{itemName}}\" wirklich stornieren? Der Eigentümer wird benachrichtigt.",
+    "approvedWarning": "Die Genehmigung wird zurückgezogen und der Gegenstand wieder als verfügbar markiert.",
+    "reasonLabel": "Begründung",
+    "optional": "(optional)",
+    "reasonPlaceholder": "z. B. Pläne haben sich geändert...",
+    "cancelling": "Wird storniert...",
+    "confirm": "Ja, stornieren"
   },
   "messages": {
     "requestSent": "Ausleih-Anfrage gesendet",

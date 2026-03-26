@@ -603,9 +603,9 @@ export default function Borrows() {
                           {(borrow as any).pickupPhotoUrl && (
                             <ClickablePhoto
                               src={(borrow as any).pickupPhotoUrl}
-                              alt="Abholung"
+                              alt={t("borrows:fields.pickup")}
                               className="w-full max-h-32 object-cover rounded mb-1"
-                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).pickupPhotoUrl!, label: "Abholung" }], currentIndex: 0 })}
+                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).pickupPhotoUrl!, label: t("borrows:fields.pickup") }], currentIndex: 0 })}
                             />
                           )}
                           {(borrow as any).pickupComment && (
@@ -622,9 +622,9 @@ export default function Borrows() {
                           {(borrow as any).returnPhotoUrl && (
                             <ClickablePhoto
                               src={(borrow as any).returnPhotoUrl}
-                              alt="Rückgabe"
+                              alt={t("borrows:fields.return")}
                               className="w-full max-h-32 object-cover rounded mb-1"
-                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).returnPhotoUrl!, label: "Rückgabe" }], currentIndex: 0 })}
+                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).returnPhotoUrl!, label: t("borrows:fields.return") }], currentIndex: 0 })}
                             />
                           )}
                           {(borrow as any).returnComment && (

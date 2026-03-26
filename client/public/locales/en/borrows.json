@@ -51,7 +51,27 @@
     "returnDate": "Return Date",
     "message": "Message",
     "task": "Task",
-    "occurrence": "Occurrence"
+    "occurrence": "Occurrence",
+    "pickup": "Pickup",
+    "return": "Return"
+  },
+  "pickupRecord": "Recorded at pickup",
+  "returnRecord": "Recorded at return",
+  "confirmPickup": "Confirm pickup",
+  "activeReturn": "Active \u2013 please return",
+  "confirmReturn": "Confirm return",
+  "cancelRequest": "Cancel request",
+  "cancelDialog": {
+    "titlePending": "Cancel request",
+    "titleApproved": "Cancel approved borrow",
+    "confirmPending": "Do you really want to cancel your request for \"{{itemName}}\"?",
+    "confirmApproved": "Do you really want to cancel the approved borrow of \"{{itemName}}\"? The owner will be notified.",
+    "approvedWarning": "The approval will be revoked and the item will be marked as available again.",
+    "reasonLabel": "Reason",
+    "optional": "(optional)",
+    "reasonPlaceholder": "e.g. Plans have changed...",
+    "cancelling": "Cancelling...",
+    "confirm": "Yes, cancel"
   },
   "messages": {
     "requestSent": "Borrow request sent successfully.",

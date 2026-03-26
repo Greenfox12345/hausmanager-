@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 export default function Calendar() {
-  const { t } = useTranslation(["tasks", "common", "calendar"]);
+  const { t, i18n } = useTranslation(["tasks", "common", "calendar"]);
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -595,7 +595,10 @@ export default function Calendar() {
               <CardContent>
                 {/* Calendar Grid */}
                 <div className="grid grid-cols-7 gap-2 mb-4">
-                  {["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"].map(day => (
+                  {(i18n.language.startsWith("de")
+                    ? ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]
+                    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                  ).map(day => (
                     <div key={day} className="text-center text-sm font-semibold text-muted-foreground p-2">
                       {day}
                     </div>
@@ -1354,7 +1357,7 @@ export default function Calendar() {
                                       }}
                                     >
                                       <Check className="h-4 w-4 mr-1" />
-                                      Abschließen
+                                      {t("tasks:actions.complete")}
                                     </Button>
                                     <Button
                                       size="sm"
@@ -1367,7 +1370,7 @@ export default function Calendar() {
                                       }}
                                     >
                                       <Target className="h-4 w-4 mr-1" />
-                                      Zwischenziel
+                                      {t("tasks:actions.milestone")}
                                     </Button>
                                     <Button
                                       size="sm"
@@ -1380,7 +1383,7 @@ export default function Calendar() {
                                       }}
                                     >
                                       <Bell className="h-4 w-4 mr-1" />
-                                      Erinnern
+                                      {t("tasks:actions.remind")}
                                     </Button>
                                     <Button
                                       size="sm"
@@ -1389,7 +1392,7 @@ export default function Calendar() {
                                       onClick={(e) => handleDelete(task, e)}
                                     >
                                       <Trash2 className="h-4 w-4 mr-1" />
-                                      Löschen
+                                      {t("common:actions.delete")}
                                     </Button>
                                   </div>
                                 )}

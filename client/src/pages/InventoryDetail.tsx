@@ -96,7 +96,7 @@ export default function InventoryDetail() {
     onSuccess: (data: { url: string, filename: string }) => {
       setEditPhotos(prev => [...prev, { url: data.url, filename: data.filename }]);
       setUploadingPhoto(false);
-      toast.success("Foto hochgeladen");
+      toast.success(t("inventory:messages.photoUploaded", "Foto hochgeladen"));
     },
     onError: (error: any) => {
       setUploadingPhoto(false);
@@ -111,7 +111,7 @@ export default function InventoryDetail() {
       utils.inventory.getAllowedHouseholds.invalidate({ itemId });
       utils.inventory.listAll.invalidate();
       setIsEditing(false);
-      toast.success("Artikel aktualisiert");
+      toast.success(t("inventory:messages.itemUpdated", "Artikel aktualisiert"));
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -130,7 +130,7 @@ export default function InventoryDetail() {
 
   const deleteMutation = trpc.inventory.delete.useMutation({
     onSuccess: () => {
-      toast.success("Artikel gelöscht");
+      toast.success(t("inventory:messages.itemDeleted", "Artikel gelöscht"));
       setLocation("/inventory");
     },
     onError: (error: any) => {
@@ -142,9 +142,9 @@ export default function InventoryDetail() {
     onSuccess: (data) => {
       setShowBorrowDialog(false);
       if (data.autoApproved) {
-        toast.success("Ausleih-Anfrage automatisch genehmigt (Haushaltseigentum)");
+        toast.success(t("inventory:messages.borrowAutoApproved", "Ausleih-Anfrage automatisch genehmigt (Haushaltseigentum)"));
       } else {
-        toast.success("Ausleih-Anfrage gesendet. Warte auf Genehmigung.");
+        toast.success(t("inventory:messages.borrowRequested", "Ausleih-Anfrage gesendet. Warte auf Genehmigung."));
       }
       utils.borrow.listByItem.invalidate({ itemId });
     },
@@ -155,7 +155,7 @@ export default function InventoryDetail() {
 
   const approveMutation = trpc.borrow.approve.useMutation({
     onSuccess: () => {
-      toast.success("Anfrage genehmigt");
+      toast.success(t("inventory:messages.requestApproved", "Anfrage genehmigt"));
       utils.borrow.listByItem.invalidate({ itemId });
     },
     onError: (error: any) => {
@@ -165,7 +165,7 @@ export default function InventoryDetail() {
 
   const rejectMutation = trpc.borrow.reject.useMutation({
     onSuccess: () => {
-      toast.success("Anfrage abgelehnt");
+      toast.success(t("inventory:messages.requestRejected", "Anfrage abgelehnt"));
       utils.borrow.listByItem.invalidate({ itemId });
     },
     onError: (error: any) => {
@@ -175,7 +175,7 @@ export default function InventoryDetail() {
 
   const revokeMutation = trpc.borrow.revoke.useMutation({
     onSuccess: () => {
-      toast.success("Genehmigung widerrufen");
+      toast.success(t("inventory:messages.approvalRevoked", "Genehmigung widerrufen"));
       utils.borrow.listByItem.invalidate({ itemId });
       setShowRevokeDialog(false);
       setRevokeRequest(null);
@@ -254,7 +254,7 @@ export default function InventoryDetail() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (editPhotos.length >= 5) {
-      toast.error("Maximal 5 Fotos erlaubt");
+      toast.error(t("inventory:messages.maxPhotos", "Maximal 5 Fotos erlaubt"));
       return;
     }
     setUploadingPhoto(true);
@@ -268,7 +268,7 @@ export default function InventoryDetail() {
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.error('Compression error:', error);
-      toast.error('Fehler beim Komprimieren des Bildes');
+      toast.error(t("inventory:messages.compressionError", "Fehler beim Komprimieren des Bildes"));
       setUploadingPhoto(false);
     }
   };
@@ -291,15 +291,15 @@ export default function InventoryDetail() {
 
   const handleSave = () => {
     if (!editName.trim() || !editCategoryId) {
-      toast.error("Name und Kategorie sind erforderlich");
+      toast.error(t("inventory:messages.nameAndCategoryRequired", "Name und Kategorie sind erforderlich"));
       return;
     }
     if (editOwnershipType === 'personal' && editOwnerIds.length === 0) {
-      toast.error("Bitte wähle mindestens einen Eigentümer");
+      toast.error(t("inventory:messages.ownerRequired", "Bitte wähle mindestens einen Eigentümer"));
       return;
     }
     if (editVisibility === 'selected' && editAllowedHouseholdIds.length === 0) {
-      toast.error("Bitte wähle mindestens einen Haushalt aus");
+      toast.error(t("inventory:messages.householdRequired", "Bitte wähle mindestens einen Haushalt aus"));
       return;
     }
 
@@ -318,7 +318,7 @@ export default function InventoryDetail() {
   };
 
   const handleDelete = () => {
-    if (confirm("Artikel wirklich löschen?")) {
+    if (confirm(t("inventory:messages.confirmDelete", "Artikel wirklich löschen?"))) {
       deleteMutation.mutate({ itemId });
     }
   };
@@ -330,9 +330,9 @@ export default function InventoryDetail() {
   });
 
   const visibilityLabel = (v: string) => {
-    if (v === 'private') return 'Nur dieser Haushalt';
-    if (v === 'connected') return 'Alle verknüpften Haushalte';
-    if (v === 'selected') return 'Ausgewählte Haushalte';
+    if (v === 'private') return t("inventory:visibilityPrivate", "Nur dieser Haushalt");
+    if (v === 'connected') return t("inventory:visibilityConnected", "Alle verknüpften Haushalte");
+    if (v === 'selected') return t("inventory:visibilitySelected", "Ausgewählte Haushalte");
     return v;
   };
 
@@ -387,7 +387,7 @@ export default function InventoryDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="editName">Name *</Label>
+                <Label htmlFor="editName">{t("inventory:fields.name", "Name")} *</Label>
                 <Input
                   id="editName"
                   value={editName}
@@ -396,7 +396,7 @@ export default function InventoryDetail() {
               </div>
 
               <div>
-                <Label htmlFor="editDetails">Details</Label>
+                <Label htmlFor="editDetails">{t("inventory:fields.details", "Details")}</Label>
                 <Input
                   id="editDetails"
                   value={editDetails}
@@ -405,7 +405,7 @@ export default function InventoryDetail() {
               </div>
 
               <div>
-                <Label htmlFor="editCategory">Kategorie *</Label>
+                <Label htmlFor="editCategory">{t("inventory:fields.category", "Kategorie")} *</Label>
                 <Select
                   value={editCategoryId?.toString() || ""}
                   onValueChange={(value) => setEditCategoryId(Number(value))}
@@ -424,7 +424,7 @@ export default function InventoryDetail() {
               </div>
 
               <div>
-                <Label>Fotos (max. 5)</Label>
+                <Label>{t("inventory:fields.photos", "Fotos")} (max. 5)</Label>
                 <div className="space-y-2">
                   {editPhotos.map((photo, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -444,7 +444,7 @@ export default function InventoryDetail() {
               </div>
 
               <div>
-                <Label>Eigentum *</Label>
+                <Label>{t("inventory:fields.ownership", "Eigentum")} *</Label>
                 <Select
                   value={editOwnershipType}
                   onValueChange={(value: "personal" | "household") => {
@@ -464,7 +464,7 @@ export default function InventoryDetail() {
 
               {editOwnershipType === 'personal' && (
                 <div>
-                  <Label>Eigentümer auswählen *</Label>
+                  <Label>{t("inventory:fields.selectOwners", "Eigentümer auswählen")} *</Label>
                   <div className="space-y-2 mt-2">
                     {members.map((m) => (
                       <div key={m.id} className="flex items-center gap-2">
@@ -595,7 +595,7 @@ export default function InventoryDetail() {
 
                 <div>
                   <Label className="text-muted-foreground">{t("inventory:fields.createdBy", "Erstellt von")}</Label>
-                  <p>{item.creatorName} am {new Date(item.createdAt).toLocaleDateString('de-DE')}</p>
+                  <p>{item.creatorName} {t("common:labels.on", "am")} {new Date(item.createdAt).toLocaleDateString(undefined)}</p>
                 </div>
 
                 {item.photoUrls && item.photoUrls.length > 0 && (
@@ -671,7 +671,7 @@ export default function InventoryDetail() {
                           {isExternal && (
                             <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
                               <Globe className="h-3.5 w-3.5" />
-                              Anfrage von externem Haushalt: {getExternalHouseholdName(request)}
+                              {t("inventory:externalRequest", "Anfrage von externem Haushalt")}: {getExternalHouseholdName(request)}
                             </div>
                           )}
 
@@ -680,7 +680,7 @@ export default function InventoryDetail() {
                               <div className="font-medium">
                                 {isExternal
                                   ? (request.borrowerMemberName || `Mitglied von ${getExternalHouseholdName(request)}`)
-                                  : (members.find(m => m.id === request.borrowerMemberId)?.memberName || 'Unbekannt')
+                                  : (members.find(m => m.id === request.borrowerMemberId)?.memberName || t("common:labels.unknown", "Unbekannt"))
                                 }
                               </div>
                               <div className="text-sm text-muted-foreground">
@@ -782,7 +782,7 @@ export default function InventoryDetail() {
                                 onClick={() => {
                                   const borrowerName = isExternal
                                     ? (request.borrowerMemberName || getExternalHouseholdName(request))
-                                    : (members.find(m => m.id === request.borrowerMemberId)?.memberName || 'Unbekannt');
+                                    : (members.find(m => m.id === request.borrowerMemberId)?.memberName || t("common:labels.unknown", "Unbekannt"));
                                   setRevokeRequest({
                                     id: request.id,
                                     borrowerName,

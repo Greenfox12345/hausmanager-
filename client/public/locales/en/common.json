@@ -361,7 +361,13 @@
     "uploadError": "Error uploading {{label}}s"
   },
   "labels": {
-    "photo": "Photo"
+    "photo": "Photo",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "fullscreen": "Full screen",
+    "today": "Today",
+    "on": "on",
+    "unknown": "Unknown"
   },
   "errors": {
     "saveFailed": "Error saving",

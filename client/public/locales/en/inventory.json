@@ -75,9 +75,43 @@
     "updateError": "Error updating item.",
     "deleteError": "Error deleting item.",
     "deleteConfirm": "Are you sure you want to delete this item?",
-    "manageAndOrganize": "Manage and organise household items"
+    "manageAndOrganize": "Manage and organise household items",
+    "photoUploaded": "Photo uploaded",
+    "itemUpdated": "Item updated",
+    "itemDeleted": "Item deleted",
+    "borrowAutoApproved": "Borrow request auto-approved (household property)",
+    "borrowRequested": "Borrow request sent. Waiting for approval.",
+    "requestApproved": "Request approved",
+    "requestRejected": "Request rejected",
+    "approvalRevoked": "Approval revoked",
+    "maxPhotos": "Maximum 5 photos allowed",
+    "compressionError": "Error compressing image",
+    "nameAndCategoryRequired": "Name and category are required",
+    "ownerRequired": "Please select at least one owner",
+    "householdRequired": "Please select at least one household",
+    "confirmDelete": "Really delete this item?"
   },
   "labels": {
     "item": "Item"
-  }
+  },
+  "fields": {
+    "name": "Name",
+    "details": "Details",
+    "category": "Category",
+    "photos": "Photos",
+    "ownership": "Ownership",
+    "selectOwners": "Select owners",
+    "createdBy": "Created by"
+  },
+  "notFound": "Item not found",
+  "editItem": "Edit item",
+  "ownershipHousehold": "Household property",
+  "ownershipPersonal": "Personal property",
+  "visibilityLabel": "Visibility for other households",
+  "visibilityPrivate": "This household only",
+  "visibilityConnected": "All connected households",
+  "visibilitySelected": "Selected households",
+  "selectHouseholds": "Select households:",
+  "noConnectedHouseholds": "No connected households. Connect households first under \"Household\".",
+  "externalRequest": "Request from external household"
 }

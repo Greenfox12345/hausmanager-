@@ -1031,11 +1031,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                         {task.isSharedWithUs ? (
                           <>
-                            Diese Aufgabe ist verknüpft mit <span className="font-semibold">{task.householdName || "anderem Haushalt"}</span>
+                            {t("tasks:detail.linkedWith", { household: task.householdName || t("tasks:detail.otherHousehold") })}
                           </>
                         ) : (
                           <>
-                            Diese Aufgabe wurde geteilt mit <span className="font-semibold">{task.sharedHouseholdNames}</span>
+                            {t("tasks:detail.sharedWith", { households: task.sharedHouseholdNames })}
                           </>
                         )}
                       </p>
@@ -1058,7 +1058,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     }}
                   />
                   <Label htmlFor="enable-sharing" className="cursor-pointer font-semibold">
-                    Mit Nachbarn teilen
+                    {t("tasks:detail.shareWithNeighbors")}
                   </Label>
                 </div>
 
@@ -1326,7 +1326,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             className="gap-2 shrink-0"
                           >
                             <Star className="h-4 w-4" />
-                            Sondertermin
+                            {t("tasks:detail.specialAppointment")}
                           </Button>
                         </div>
                         
@@ -1688,7 +1688,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Skipped Dates */}
                 {task.repeatInterval && task.repeatUnit && task.skippedDates && task.skippedDates.length > 0 && (
                   <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-3">Ausgelassene Termine ({task.skippedDates.length})</h4>
+                    <h4 className="text-sm font-semibold mb-3">{t("tasks:skippedDates", "Ausgelassene Termine")} ({task.skippedDates.length})</h4>
                     <div className="space-y-2">
                       {task.skippedDates.map((dateStr: string, idx: number) => (
                         <div key={`${dateStr}-${idx}`} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
@@ -2088,7 +2088,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="flex items-center gap-2">
                     <Badge variant="default" className="bg-green-500">
                       <Check className="h-3 w-3 mr-1" />
-                      Erledigt
+                      {t("tasks:status.completed")}
                     </Badge>
                   </div>
                 )}
@@ -2114,7 +2114,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Linked Shopping Items */}
                 {linkedShoppingItems.length > 0 && (
                   <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-3">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</h4>
+                    <h4 className="text-sm font-semibold mb-3">{t("tasks:linkedShoppingList", "Verknüpfte Einkaufsliste")} ({linkedShoppingItems.length})</h4>
                     <div className="space-y-2">
                       {linkedShoppingItems.map((item: any) => (
                         <button
@@ -2236,7 +2236,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           disabled={restoreTask.isPending}
                         >
                           <RotateCcw className="h-4 w-4 mr-2" />
-                          Wiederherstellen
+                          {t("tasks:actions.restore")}
                         </Button>
                       ) : (
                         <>
@@ -2365,7 +2365,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             </>
           ) : (
             <Button variant="outline" onClick={handleClose}>
-              Schließen
+              {t("common:actions.close")}
             </Button>
           )}
         </DialogFooter>
@@ -2535,7 +2535,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           </div>
           <DialogFooter>
             <Button onClick={() => setShowShoppingItemDetail(false)}>
-              Schließen
+              {t("common:actions.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -16,6 +16,9 @@
     "rotation": "Rotation",
     "description": "Description",
     "assignedTo": "Assigned to",
+    "assignees": "Assignees",
+    "assigneesFirstOccurrence": "Assignees for first occurrence",
+    "requiredPersons": "Regularly required persons",
     "dueDate": "Due date",
     "priority": "Priority",
     "status": "Status",
@@ -30,6 +33,8 @@
     "endDate": "End time",
     "dueTime": "Time"
   },
+  "skippedDates": "Skipped occurrences",
+  "linkedShoppingList": "Linked shopping list",
   "status": {
     "open": "Open",
     "inProgress": "In Progress",

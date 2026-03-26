@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Photo {
   url: string;
@@ -15,6 +16,7 @@ interface PhotoLightboxProps {
 }
 
 export function PhotoLightbox({ photos, currentIndex, onClose, onNext, onPrev }: PhotoLightboxProps) {
+  const { t } = useTranslation(["common"]);
   const photo = photos[currentIndex];
   const hasMultiple = photos.length > 1;
 
@@ -44,7 +46,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onNext, onPrev }:
       <button
         className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
         onClick={onClose}
-        aria-label="Schließen"
+        aria-label={t("common:actions.close")}
       >
         <X className="w-6 h-6" />
       </button>
@@ -61,7 +63,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onNext, onPrev }:
         <button
           className="absolute left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          aria-label="Vorheriges Foto"
+          aria-label={t("common:labels.prevPhoto")}
         >
           <ChevronLeft className="w-7 h-7" />
         </button>
@@ -74,7 +76,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onNext, onPrev }:
       >
         <img
           src={photo.url}
-          alt={photo.label ?? "Foto"}
+          alt={photo.label ?? t("common:labels.photo")}
           className="max-w-full max-h-[78vh] object-contain rounded-lg shadow-2xl"
           draggable={false}
         />
@@ -88,7 +90,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onNext, onPrev }:
         <button
           className="absolute right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          aria-label="Nächstes Foto"
+          aria-label={t("common:labels.nextPhoto")}
         >
           <ChevronRight className="w-7 h-7" />
         </button>

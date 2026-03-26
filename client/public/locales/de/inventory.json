@@ -75,9 +75,43 @@
     "updateError": "Fehler beim Aktualisieren",
     "deleteError": "Fehler beim Löschen",
     "deleteConfirm": "Möchtest du diesen Gegenstand wirklich löschen?",
-    "manageAndOrganize": "Haushaltsgegenstände verwalten und organisieren"
+    "manageAndOrganize": "Haushaltsgegenstände verwalten und organisieren",
+    "photoUploaded": "Foto hochgeladen",
+    "itemUpdated": "Artikel aktualisiert",
+    "itemDeleted": "Artikel gelöscht",
+    "borrowAutoApproved": "Ausleih-Anfrage automatisch genehmigt (Haushaltseigentum)",
+    "borrowRequested": "Ausleih-Anfrage gesendet. Warte auf Genehmigung.",
+    "requestApproved": "Anfrage genehmigt",
+    "requestRejected": "Anfrage abgelehnt",
+    "approvalRevoked": "Genehmigung widerrufen",
+    "maxPhotos": "Maximal 5 Fotos erlaubt",
+    "compressionError": "Fehler beim Komprimieren des Bildes",
+    "nameAndCategoryRequired": "Name und Kategorie sind erforderlich",
+    "ownerRequired": "Bitte wähle mindestens einen Eigentümer",
+    "householdRequired": "Bitte wähle mindestens einen Haushalt aus",
+    "confirmDelete": "Artikel wirklich löschen?"
   },
   "labels": {
     "item": "Gegenstand"
-  }
+  },
+  "fields": {
+    "name": "Name",
+    "details": "Details",
+    "category": "Kategorie",
+    "photos": "Fotos",
+    "ownership": "Eigentum",
+    "selectOwners": "Eigentümer auswählen",
+    "createdBy": "Erstellt von"
+  },
+  "notFound": "Artikel nicht gefunden",
+  "editItem": "Artikel bearbeiten",
+  "ownershipHousehold": "Haushaltseigentum",
+  "ownershipPersonal": "Persönliches Eigentum",
+  "visibilityLabel": "Sichtbarkeit für andere Haushalte",
+  "visibilityPrivate": "Nur dieser Haushalt",
+  "visibilityConnected": "Alle verknüpften Haushalte",
+  "visibilitySelected": "Ausgewählte Haushalte",
+  "selectHouseholds": "Haushalte auswählen:",
+  "noConnectedHouseholds": "Keine verknüpften Haushalte vorhanden. Verbinde zuerst Haushalte unter \"Haushalt\".",
+  "externalRequest": "Anfrage von externem Haushalt"
 }

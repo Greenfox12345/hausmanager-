@@ -716,7 +716,7 @@ export default function Tasks() {
 
               {/* Multiple assignees */}
               <div className="space-y-2">
-                <Label>Verantwortliche für ersten Termin *</Label>
+                <Label>{t("tasks:fields.assigneesFirstOccurrence", "Verantwortliche für ersten Termin")} *</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {members.map((m) => (
                     <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -878,7 +878,7 @@ export default function Tasks() {
                     <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                       {/* Required persons */}
                       <div className="space-y-2">
-                        <Label htmlFor="requiredPersons">Regulär benötigte Personen *</Label>
+                        <Label htmlFor="requiredPersons">{t("tasks:fields.requiredPersons", "Regulär benötigte Personen")} *</Label>
                         <Input
                           id="requiredPersons"
                           type="number"

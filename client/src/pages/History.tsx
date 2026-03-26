@@ -109,7 +109,7 @@ export default function History() {
       }
       // Fallback to single photoUrl (old format)
       if (activity.photoUrl) {
-        return [{url: activity.photoUrl, filename: "Foto"}];
+        return [{url: activity.photoUrl, filename: t("common:labels.photo", "Foto")}];
       }
     } catch (error) {
       console.error("Error parsing photoUrls:", error);
@@ -584,7 +584,7 @@ export default function History() {
           <div className="max-w-4xl max-h-[90vh] w-full">
             <img
               src={selectedImage}
-              alt="Vollbild"
+              alt={t("common:labels.fullscreen", "Vollbild")}
               className="w-full h-full object-contain rounded-lg"
             />
           </div>
