@@ -29,6 +29,7 @@ import { SimpleRequiredItemsSection } from "./SimpleRequiredItemsSection";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 import { useTranslation } from "react-i18next";
+import { DatePickerInput } from "@/components/DatePickerInput";
 
 interface Task {
   id: number;
@@ -1119,12 +1120,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="task-due-date">{repeatMode !== "none" ? t("dialog.firstOccurrence") : t("dialog.dueDate")}</Label>
-                  <Input
+                  <DatePickerInput
                     id="task-due-date"
-                    type="date"
                     value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                  />
+                    onChange={(val) => setDueDate(val)}
+                    />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="task-due-time">{t("dialog.time")}</Label>

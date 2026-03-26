@@ -13,6 +13,7 @@ import { RevokeApprovalDialog } from "./RevokeApprovalDialog";
 import { format } from "date-fns";
 import { de, enGB } from "date-fns/locale";
 import { toast } from "sonner";
+import { DatePickerInput } from "@/components/DatePickerInput";
 
 interface RequiredItemsSectionProps {
   taskId: number;
@@ -271,11 +272,10 @@ export function RequiredItemsSection({
                               <div className="space-y-4">
                                 <div>
                                   <label className="text-sm font-medium">{t("borrows:fields.borrowStart")}</label>
-                                  <Input
-                                    type="date"
+                                  <DatePickerInput
                                     value={item.borrowStartDate ? format(new Date(item.borrowStartDate), "yyyy-MM-dd") : ""}
-                                    onChange={async (e) => {
-                                      const newDate = e.target.value ? new Date(e.target.value) : null;
+                                    onChange={async (val) => {
+                                      const newDate = val ? new Date(val) : null;
                                       try {
                                         await updateBorrowMutation.mutateAsync({
                                           itemId: item.id,
@@ -291,11 +291,10 @@ export function RequiredItemsSection({
                                 </div>
                                 <div>
                                   <label className="text-sm font-medium">{t("borrows:fields.borrowEnd")}</label>
-                                  <Input
-                                    type="date"
+                                  <DatePickerInput
                                     value={item.borrowEndDate ? format(new Date(item.borrowEndDate), "yyyy-MM-dd") : ""}
-                                    onChange={async (e) => {
-                                      const newDate = e.target.value ? new Date(e.target.value) : null;
+                                    onChange={async (val) => {
+                                      const newDate = val ? new Date(val) : null;
                                       try {
                                         await updateBorrowMutation.mutateAsync({
                                           itemId: item.id,

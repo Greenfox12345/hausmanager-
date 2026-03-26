@@ -41,6 +41,7 @@ import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
+import { DatePickerInput } from "@/components/DatePickerInput";
 
 export default function Projects() {
   const { t } = useTranslation(["projects", "tasks", "common"]);
@@ -606,21 +607,19 @@ export default function Projects() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="startDate">{t("common:labels.startDate", "Startdatum")}</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={projectStartDate}
-                      onChange={(e) => setProjectStartDate(e.target.value)}
+                    <DatePickerInput
+                    id="startDate"
+                    value={projectStartDate}
+                    onChange={(val) => setProjectStartDate(val)}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="endDate">{t("common:labels.endDate", "Enddatum")}</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={projectEndDate}
-                      onChange={(e) => setProjectEndDate(e.target.value)}
+                    <DatePickerInput
+                    id="endDate"
+                    value={projectEndDate}
+                    onChange={(val) => setProjectEndDate(val)}
                     />
                   </div>
                 </div>
@@ -1212,12 +1211,11 @@ export default function Projects() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="task-dueDate">{t("tasks:dueDate", "Fälligkeitsdatum")}</Label>
-                  <Input
+                  <DatePickerInput
                     id="task-dueDate"
-                    type="date"
                     value={taskDueDate}
-                    onChange={(e) => setTaskDueDate(e.target.value)}
-                  />
+                    onChange={(val) => setTaskDueDate(val)}
+                    />
                 </div>
 
                 <div className="space-y-2">
@@ -1647,22 +1645,20 @@ export default function Projects() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-startDate">{t("common:labels.startDate", "Startdatum")}</Label>
-                  <Input
+                  <DatePickerInput
                     id="edit-startDate"
-                    type="date"
                     value={projectStartDate}
-                    onChange={(e) => setProjectStartDate(e.target.value)}
-                  />
+                    onChange={(val) => setProjectStartDate(val)}
+                    />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="edit-endDate">{t("common:labels.endDate", "Enddatum")}</Label>
-                  <Input
+                  <DatePickerInput
                     id="edit-endDate"
-                    type="date"
                     value={projectEndDate}
-                    onChange={(e) => setProjectEndDate(e.target.value)}
-                  />
+                    onChange={(val) => setProjectEndDate(val)}
+                    />
                 </div>
               </div>
             </div>

@@ -17,6 +17,7 @@ import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDia
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
+import { DatePickerInput } from "@/components/DatePickerInput";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -1195,12 +1196,11 @@ export default function Shopping() {
             </div>
             <div>
               <Label htmlFor="taskDueDate">{t("tasks:fields.dueDate")} ({t("common:labels.optional")})</Label>
-              <Input
-                id="taskDueDate"
-                type="date"
-                value={taskDueDate}
-                onChange={(e) => setTaskDueDate(e.target.value)}
-              />
+              <DatePickerInput
+                    id="taskDueDate"
+                    value={taskDueDate}
+                    onChange={(val) => setTaskDueDate(val)}
+                    />
             </div>
             <div>
               <Label htmlFor="taskDueTime">{t("tasks:fields.dueTime", "Uhrzeit")} ({t("common:labels.optional")})</Label>

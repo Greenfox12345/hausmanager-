@@ -22,6 +22,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
+import { DatePickerInput } from "@/components/DatePickerInput";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -648,12 +649,11 @@ export default function Tasks() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="dueDate">{t("tasks:fields.dueDate")}</Label>
-                  <Input
+                  <DatePickerInput
                     id="dueDate"
-                    type="date"
                     value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                  />
+                    onChange={(val) => setDueDate(val)}
+                    />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dueTime">{t("common:time.label")}</Label>
