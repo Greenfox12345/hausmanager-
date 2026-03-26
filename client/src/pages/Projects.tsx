@@ -663,7 +663,7 @@ export default function Projects() {
               <Card className="shadow-sm">
                 <CardContent className="p-4">
                   <p className="text-sm text-muted-foreground">
-                    Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!
+                    {t("projects:messages.noProjects")}
                   </p>
                 </CardContent>
               </Card>

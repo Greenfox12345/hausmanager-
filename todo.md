@@ -3313,3 +3313,6 @@
 ## Übersetzungslücken-Diagnose und Behebung
 - [x] Diagnose: Warum erkennt lint:i18n die Lücken in Calendar/Projects/Members/Inventory nicht?
 - [x] Alle fehlenden Schlüssel in Calendar, Projects, Members und Inventory beheben
+
+## Projects.tsx Z.665 – nicht übersetzter Text
+- [x] Ursache diagnostizieren und dauerhaft beheben (hardcoded JSX-String + Prüfung 5 in lint-i18n.ts)

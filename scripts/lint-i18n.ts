@@ -33,7 +33,7 @@ const LANGUAGES = ["de", "en"];
 
 export interface LintError {
   file: string;
-  type: "duplicate" | "missing" | "missing_translation" | "unregistered_namespace";
+  type: "duplicate" | "missing" | "missing_translation" | "unregistered_namespace" | "hardcoded_string";
   message: string;
 }
 
@@ -249,6 +249,77 @@ function checkMissingTranslations(
 }
 
 /**
+ * Check 5: Detect hardcoded translatable strings in JSX that are not wrapped
+ * in a t() call. Scans for >SomeText< patterns in .tsx files.
+ *
+ * Files in the allowlist are excluded. Paths matching these patterns are
+ * intentionally NOT translated:
+ *   - components/ui/       (shadcn/ui library components)
+ *   - pages/ComponentShowcase.tsx  (demo/dev page)
+ *   - pages/Privacy.tsx            (static legal text)
+ *   - pages/Imprint.tsx            (static legal text)
+ */
+export function checkHardcodedStrings(
+  srcDir: string,
+  hardcodeAllowlistPaths: string[] = HARDCODE_SKIP_PATHS
+): LintError[] {
+  const HARDCODE_RE = />\s*([A-ZÄÖÜ][a-zA-ZäöüÄÖÜß ,\.\-!?:()]{8,})\s*</g;
+  const errors: LintError[] = [];
+
+  for (const file of collectSourceFiles(srcDir)) {
+    // Skip intentionally untranslated files
+    const relFile = file.replace(/\\/g, "/");
+    if (hardcodeAllowlistPaths.some((skip) => relFile.includes(skip))) continue;
+    // Only scan .tsx files (JSX)
+    if (!file.endsWith(".tsx")) continue;
+
+    let text: string;
+    try {
+      text = fs.readFileSync(file, "utf-8");
+    } catch {
+      continue;
+    }
+
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const stripped = line.trim();
+      // Skip lines that already use t()
+      if (stripped.includes("t(") || stripped.includes("{t(")) continue;
+      // Skip comments, imports, type defs
+      if (
+        stripped.startsWith("//") ||
+        stripped.startsWith("*") ||
+        stripped.startsWith("import ") ||
+        stripped.startsWith("console.")
+      ) continue;
+
+      HARDCODE_RE.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = HARDCODE_RE.exec(line)) !== null) {
+        const txt = m[1].trim();
+        // Must be multi-word or contain German chars
+        if (!txt.includes(" ") && !/[äöüÄÖÜß]/.test(txt)) continue;
+        errors.push({
+          file,
+          type: "hardcoded_string",
+          message: `Hardcoded JSX string at line ${i + 1}: "${txt}" – wrap in t()`,
+        });
+      }
+    }
+  }
+  return errors;
+}
+
+// Paths (substrings) that are intentionally not translated
+const HARDCODE_SKIP_PATHS = [
+  "components/ui/",
+  "pages/ComponentShowcase",
+  "pages/Privacy",
+  "pages/Imprint",
+];
+
+/**
  * Check 4: Detect namespaces used in t() calls that are not registered in
  * the NAMESPACES array in client/src/lib/i18n.ts.
  * Unregistered namespaces are never loaded by i18next → all keys silently
@@ -365,6 +436,11 @@ export function lintI18n(
     allErrors.push(...checkUnregisteredNamespaces(srcDir, i18nConfigPath));
   }
 
+  // 5. Hardcoded JSX strings
+  if (fs.existsSync(srcDir)) {
+    allErrors.push(...checkHardcodedStrings(srcDir));
+  }
+
   return allErrors;
 }
 
@@ -393,7 +469,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
       const icon =
         e.type === "duplicate" ? "🔁" :
         e.type === "missing_translation" ? "🌐" :
-        e.type === "unregistered_namespace" ? "🚫" : "❓";
+        e.type === "unregistered_namespace" ? "🚫" :
+        e.type === "hardcoded_string" ? "📝" : "❓";
       console.error(`      ${icon}  ${e.message}`);
     }
     console.error();

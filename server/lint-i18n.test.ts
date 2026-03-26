@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { lintI18n, checkUnregisteredNamespaces, readRegisteredNamespaces } from "../scripts/lint-i18n";
+import { lintI18n, checkUnregisteredNamespaces, readRegisteredNamespaces, checkHardcodedStrings } from "../scripts/lint-i18n";
 
 // ─── Unit tests for isolated helpers ─────────────────────────────────────────
 
@@ -187,6 +187,44 @@ describe("lintI18n – unregistered namespace detection", () => {
   });
 });
 
+describe("lintI18n – hardcoded JSX string detection", () => {
+  it("detects a hardcoded multi-word string in JSX", () => {
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const A = () => <p>Noch keine Projekte vorhanden</p>;`,
+    });
+    const errors = checkHardcodedStrings(srcDir, []);
+    expect(errors.length).toBeGreaterThanOrEqual(1);
+    expect(errors[0].type).toBe("hardcoded_string");
+    expect(errors[0].message).toMatch(/Noch keine Projekte/);
+  });
+
+  it("does not report a string already wrapped in t()", () => {
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const A = () => <p>{t("ns:key", "Noch keine Projekte")}</p>;`,
+    });
+    const errors = checkHardcodedStrings(srcDir, []);
+    expect(errors.filter((e) => e.message.includes("Noch keine Projekte"))).toHaveLength(0);
+  });
+
+  it("skips files in the skip-path list", () => {
+    const srcDir = makeTempSrc({
+      "components/ui/button.tsx": `export const B = () => <button>Toggle Sidebar</button>;`,
+    });
+    const errors = checkHardcodedStrings(srcDir, ["components/ui/"]);
+    expect(errors).toHaveLength(0);
+  });
+
+  it("real project has no hardcoded JSX strings outside skip-paths", () => {
+    const errors = lintI18n();
+    const hardcoded = errors.filter((e) => e.type === "hardcoded_string");
+    if (hardcoded.length > 0) {
+      const summary = hardcoded.map((e) => `  ${path.basename(e.file)}: ${e.message}`).join("\n");
+      throw new Error(`Hardcoded JSX strings found:\n${summary}`);
+    }
+    expect(hardcoded).toHaveLength(0);
+  });
+});
+
 describe("lintI18n – real locale files", () => {
   it("passes all real locale files without duplicate keys or missing translations", () => {
     // This test validates the actual project locale files.
@@ -240,7 +278,9 @@ function makeTempLocalesRaw(
 function makeTempSrc(files: Record<string, string>): string {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lint-i18n-src-"));
   for (const [filename, content] of Object.entries(files)) {
-    fs.writeFileSync(path.join(tmpDir, filename), content);
+    const fullPath = path.join(tmpDir, filename);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, content);
   }
   return tmpDir;
 }

@@ -113,7 +113,8 @@
     "noTasksInProject": "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.",
     "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
     "noOtherProjects": "Keine weiteren Projekte verfügbar",
-    "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen"
+    "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen",
+    "noProjects": "Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!"
   },
   "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt"
 }
