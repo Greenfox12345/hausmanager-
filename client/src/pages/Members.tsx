@@ -40,7 +40,7 @@ export default function Members() {
 
   const updateLanguageMutation = trpc.householdManagement.updateHouseholdLanguage.useMutation({
     onSuccess: () => {
-      toast.success(t("common:household.settings.saved", "Einstellungen gespeichert"));
+      toast.success(t("common:household.settings.saved"));
       refetchSettings();
     },
     onError: (error) => {
@@ -61,10 +61,10 @@ export default function Members() {
     try {
       await navigator.clipboard.writeText(household.inviteCode);
       setCopied(true);
-      toast.success(t("members.messages.inviteCodeCopied", "Einladungscode kopiert!"));
+      toast.success(t("members:messages.inviteCodeCopied"));
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error(t("common.messages.copyError", "Fehler beim Kopieren"));
+      toast.error(t("common:messages.copyError"));
     }
   };
 
@@ -98,13 +98,13 @@ export default function Members() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Home className="h-7 w-7 text-primary" />
-              {t("members.householdTitle", "Haushalt")}
+              {t("members:householdTitle")}
             </h1>
             <p className="text-muted-foreground">{household?.householdName}</p>
           </div>
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
-            {t("common.actions.logout", "Abmelden")}
+            {t("common:actions.logout")}
           </Button>
         </div>
 
@@ -113,17 +113,17 @@ export default function Members() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              {t("members.currentMembers", "Aktuelle Mitglieder")}
+              {t("members:currentMembers")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">
-                {t("members.messages.loadingMembers", "Lädt Mitglieder...")}
+                {t("members:messages.loadingMembers")}
               </div>
             ) : members.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {t("members.messages.noMembersFound", "Keine Mitglieder gefunden.")}
+                {t("members:messages.noMembersFound")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -147,12 +147,12 @@ export default function Members() {
                         {m.memberName}
                         {m.id === member?.memberId && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                            {t("members.you", "Sie")}
+                            {t("members:you")}
                           </span>
                         )}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {m.isActive ? t("common.status.active", "Aktiv") : t("common.status.inactive", "Inaktiv")}
+                        {m.isActive ? t("common:status.active") : t("common:status.inactive")}
                       </div>
                     </div>
                   </div>
@@ -168,11 +168,11 @@ export default function Members() {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
-                {t("members.newMember", "Neues Mitglied einladen")}
+                {t("members:newMember")}
               </span>
               {!showInviteCode && (
                 <Button onClick={() => setShowInviteCode(true)} size="sm">
-                  {t("members.actions.showInviteCode", "Einladungscode anzeigen")}
+                  {t("members:actions.showInviteCode")}
                 </Button>
               )}
             </CardTitle>
@@ -181,7 +181,7 @@ export default function Members() {
             {showInviteCode ? (
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
-                  <p>{t("members.messages.shareInviteCode", "👥 Teilen Sie diesen Einladungscode mit neuen Mitgliedern:")}</p>
+                  <p>{t("members:messages.shareInviteCode")}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Input
@@ -199,12 +199,12 @@ export default function Members() {
                   </Button>
                 </div>
                 <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                  <p><strong>{t("common.messages.howItWorks", "💡 So funktioniert's:")}</strong></p>
+                  <p><strong>{t("common:messages.howItWorks")}</strong></p>
                   <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>{t("members.messages.step1", "Neue Person registriert sich auf der Registrierungsseite")}</li>
-                    <li>{t("members.messages.step2", "Bei der Haushaltsauswahl klickt sie auf \"Haushalt beitreten\"")}</li>
-                    <li>{t("members.messages.step3", "Einladungscode eingeben und bestätigen")}</li>
-                    <li>{t("members.messages.step4", "Fertig! Die Person ist jetzt Mitglied Ihres Haushalts")}</li>
+                    <li>{t("members:messages.step1")}</li>
+                    <li>{t("members:messages.step2")}</li>
+                    <li>{t("members:messages.step3")}</li>
+                    <li>{t("members:messages.step4")}</li>
                   </ol>
                 </div>
                 <Button
@@ -212,13 +212,13 @@ export default function Members() {
                   onClick={() => setShowInviteCode(false)}
                   className="w-full"
                 >
-                  {t("common.actions.close", "Schließen")}
+                  {t("common:actions.close")}
                 </Button>
               </div>
             ) : (
               <div className="text-center py-4 text-muted-foreground">
                 <p>
-                  {t("members.messages.clickToShowInviteCode", "Klicken Sie auf \"Einladungscode anzeigen\", um neue Mitglieder einzuladen.")}
+                  {t("members:messages.clickToShowInviteCode")}
                 </p>
               </div>
             )}
@@ -230,14 +230,14 @@ export default function Members() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Globe className="h-5 w-5" />
-              {t("common:language.title", "Spracheinstellungen")}
+              {t("common:language.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* UI Language */}
             <div>
-              <p className="text-sm font-medium mb-1">{t("common:language.uiLanguage", "Meine Anzeigesprache")}</p>
-              <p className="text-xs text-muted-foreground mb-3">{t("common:language.uiLanguageHint", "Gilt nur für dieses Gerät")}</p>
+              <p className="text-sm font-medium mb-1">{t("common:language.uiLanguage")}</p>
+              <p className="text-xs text-muted-foreground mb-3">{t("common:language.uiLanguageHint")}</p>
               <LanguageSwitcher />
             </div>
 
@@ -245,8 +245,8 @@ export default function Members() {
 
             {/* Household Language */}
             <div>
-              <p className="text-sm font-medium mb-1">{t("common:household.language", "Haushaltssprache")}</p>
-              <p className="text-xs text-muted-foreground mb-3">{t("common:household.languageHint", "Wird für Verlauf und Benachrichtigungen verwendet")}</p>
+              <p className="text-sm font-medium mb-1">{t("common:household.language")}</p>
+              <p className="text-xs text-muted-foreground mb-3">{t("common:household.languageHint")}</p>
 
               {settings?.isAdmin ? (
                 <div className="space-y-3">
@@ -269,7 +269,7 @@ export default function Members() {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {t("common:household.adminOnly", "Nur Admins können die Haushaltssprache ändern.")}
+                    {t("common:household.adminOnly")}
                   </p>
                 </div>
               ) : (
@@ -277,11 +277,11 @@ export default function Members() {
                   <Lock className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-sm">
-                      {t("common:labels.language", "Sprache")}:{" "}
+                      {t("common:labels.language")}:{" "}
                       <strong>{currentLangInfo?.flag} {currentLangInfo?.name || currentHouseholdLang}</strong>
                     </p>
                     <p className="text-xs mt-1">
-                      {t("common:household.adminOnly", "Nur der Haushaltsersteller kann die Haushaltssprache ändern.")}
+                      {t("common:household.adminOnly")}
                     </p>
                   </div>
                 </div>

@@ -71,15 +71,15 @@
     "emptyList": "No items in the shopping list. Add a new item above!",
     "emptyCategory": "No items in this category.",
     "noCategories": "No categories yet. Create a new category.",
-    "categoryCreated": "Kategorie erstellt",
+    "categoryCreated": "Category created",
     "categoryDeleted": "Category deleted",
     "categoryInUse": "Category is still in use",
-    "categoryRenamed": "Kategorie umbenannt",
+    "categoryRenamed": "Category renamed",
     "selectAssignee": "Please select at least one assignee",
     "shoppingCompleted": "Shopping completed!",
     "taskLinkError": "Error linking tasks",
     "taskLinked": "Task created and linked",
-    "updateError": "Fehler beim Aktualisieren"
+    "updateError": "Error updating"
   },
   "renameCategory": "Rename",
   "manageCategories": "Manage Categories",

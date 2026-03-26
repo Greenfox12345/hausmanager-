@@ -247,7 +247,7 @@
     "revoke": "Revoke"
   },
   "borrowing": "Borrowing",
-  "hidePast": "Vergangene ausblenden",
-  "showPast": "Vergangene anzeigen",
+  "hidePast": "Hide past",
+  "showPast": "Show past",
   "tabCalendar": "Calendar"
 }

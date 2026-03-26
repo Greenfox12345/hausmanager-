@@ -1,12 +1,12 @@
 {
   "actions": {
-    "approve": "Genehmigen",
-    "reject": "Ablehnen",
+    "approve": "Approve",
+    "reject": "Reject",
     "return": "Return",
-    "revoke": "Widerrufen"
+    "revoke": "Revoke"
   },
   "borrow": "Borrow",
-  "guidelines": "Ausleihvorgaben",
+  "guidelines": "Loan Guidelines",
   "noRequests": "No borrow requests available.",
   "occurrence": "Occurrence",
   "requestDialog": {
@@ -28,7 +28,7 @@
   },
   "requestMessagePrefix": "I would like to borrow",
   "requestMessageSuffix": ".",
-  "requests": "Ausleih-Anfragen",
+  "requests": "Loan Requests",
   "responsible": "Responsible",
   "returnDialog": {
     "checklist": "Return checklist",
@@ -61,12 +61,12 @@
     "title": "Revoke approval"
   },
   "status": {
-    "active": "Ausgeliehen",
-    "approved": "Genehmigt",
+    "active": "On Loan",
+    "approved": "Approved",
     "completed": "Returned",
     "overdue": "Overdue",
     "pending": "Pending",
-    "rejected": "Abgelehnt"
+    "rejected": "Rejected"
   },
   "task": "Task"
 }

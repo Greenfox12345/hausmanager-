@@ -25,9 +25,9 @@
     "ownership": "Ownership",
     "selectOwners": "Select owners",
     "createdBy": "Created by",
-    "createdAt": "Erstellt am",
-    "detailsPlaceholder": "z.B. MacBook Pro 2023",
-    "namePlaceholder": "z.B. Laptop",
+    "createdAt": "Created on",
+    "detailsPlaceholder": "e.g. MacBook Pro 2023",
+    "namePlaceholder": "e.g. Laptop",
     "owners": "Owners:",
     "ownershipHousehold": "Ownership: Household",
     "ownershipPersonal": "Personal property",
@@ -47,10 +47,10 @@
     "deleteCategory": "Delete Category",
     "noCategories": "No categories available",
     "uncategorized": "Uncategorized",
-    "edit": "Kategorie bearbeiten",
-    "manage": "Kategorien verwalten",
-    "namePlaceholder": "z.B. Elektronik",
-    "new": "Neue Kategorie"
+    "edit": "Edit category",
+    "manage": "Manage categories",
+    "namePlaceholder": "e.g. Electronics",
+    "new": "New category"
   },
   "borrow": {
     "title": "Borrow",
@@ -110,9 +110,9 @@
     "confirmDelete": "Really delete this item?",
     "categoryAdded": "Category added",
     "categoryDeleted": "Category deleted",
-    "categoryUpdated": "Kategorie aktualisiert",
+    "categoryUpdated": "Category updated",
     "itemAdded": "Item added",
-    "nameCategoryRequired": "Name und Kategorie sind erforderlich",
+    "nameCategoryRequired": "Name and category are required",
     "noItems": "No items found.",
     "selectOwner": "Please select at least one owner"
   },
@@ -131,7 +131,7 @@
   "externalRequest": "Request from external household",
   "actions": {
     "borrow": "Borrow",
-    "requests": "Anfragen"
+    "requests": "Requests"
   },
   "description": "Manage your household inventory"
 }

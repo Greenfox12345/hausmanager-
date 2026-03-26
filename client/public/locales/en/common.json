@@ -50,10 +50,10 @@
     "clickToStart": "Click here to get started →",
     "complete": "Complete",
     "deselectAll": "Deselect all",
-    "editDetails": "Details bearbeiten",
+    "editDetails": "Edit details",
     "restore": "Restore",
     "selectAll": "Select all",
-    "showLess": "Weniger anzeigen",
+    "showLess": "Show less",
     "undo": "Undo",
     "logout": "Log out"
   },
@@ -70,7 +70,7 @@
     "done": "Done",
     "inProgress": "In Progress",
     "creating": "Creating...",
-    "loading": "Lade Inventar...",
+    "loading": "Loading inventory...",
     "uploading": "Uploading..."
   },
   "labels": {
@@ -114,15 +114,15 @@
     "today": "Today",
     "on": "on",
     "allTypes": "All types",
-    "by": "von",
-    "clock": "Uhr",
+    "by": "by",
+    "clock": "",
     "color": "Color",
     "details": "Details",
-    "email": "E-Mail",
+    "email": "Email",
     "noHousehold": "No household selected",
-    "photos": "Fotos",
-    "time": "Uhrzeit",
-    "unassigned": "Nicht zugewiesen",
+    "photos": "Photos",
+    "time": "Time",
+    "unassigned": "Unassigned",
     "selectDate": "Select date"
   },
   "priority": {
@@ -161,7 +161,7 @@
     "create": "Create household",
     "join": "Join household",
     "settings": {
-      "saved": "Einstellungen gespeichert"
+      "saved": "Settings saved"
     },
     "language": "Household language",
     "languageHint": "This language is used for history entries and notifications visible to all household members.",
@@ -415,6 +415,6 @@
     "back": "Back",
     "next": "Next"
   },
-  "pleaseLogin": "Bitte anmelden",
+  "pleaseLogin": "Please log in",
   "uploading": "Uploading..."
 }

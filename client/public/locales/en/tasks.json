@@ -113,13 +113,13 @@
     "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task",
     "excludeFromRotation": "Exempt from rotation",
     "daily": "Daily",
-    "day": "Tag",
+    "day": "day",
     "excludedMembers": "Excluded members",
-    "month": "Monat",
-    "monthly": "Monatlich",
+    "month": "month",
+    "monthly": "Monthly",
     "repeats": "Task repeats",
     "requiredPersons": "Required persons",
-    "week": "Woche",
+    "week": "week",
     "weekly": "Weekly"
   },
   "weekdays": {
@@ -311,7 +311,7 @@
     "confirmDelete": "Are you sure you want to delete this task?",
     "deletedCount": "{{count}} tasks deleted",
     "markedReturned": "Marked as returned!",
-    "milestoneRecorded": "Zwischenziel vermerkt!",
+    "milestoneRecorded": "Milestone recorded!",
     "undone": "Completion undone!"
   },
   "gantt": {
@@ -330,8 +330,8 @@
     "sendReminder": "Remind",
     "milestone": "Milestone",
     "delete": "Delete task",
-    "recordMilestone": "Zwischenziel dokumentieren",
-    "remind": "Erinnern",
+    "recordMilestone": "Record milestone",
+    "remind": "Remind",
     "restore": "Restore"
   },
   "overdue": "Overdue",
@@ -559,13 +559,13 @@
   },
   "dueDate": "Due:",
   "labels": {
-    "assignedTo": "Verantwortlich"
+    "assignedTo": "Responsible"
   },
   "linkedWith": "Linked with",
   "otherHousehold": "another household",
   "permissions": {
     "full": "Full access (edit everything)",
-    "milestonesReminders": "Zwischenziele & Erinnerungen",
+    "milestonesReminders": "Milestones & Reminders",
     "viewOnly": "View only"
   },
   "rotation": {
@@ -575,5 +575,5 @@
     "rotationBetweenMembers": "Rotation between household members",
     "requiredPersonsPlaceholder": "e.g. 2"
   },
-  "sharedWith": "Geteilt mit"
+  "sharedWith": "Shared with"
 }
