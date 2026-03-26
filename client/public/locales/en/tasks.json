@@ -272,5 +272,25 @@
     "sendReminder": "Send reminder",
     "milestone": "Document milestone",
     "delete": "Delete task"
-  }
+  },
+  "filterSort": {
+    "title": "Filter & Sort",
+    "reset": "Reset",
+    "taskCount": "{{filtered}} of {{total}} task(s)"
+  },
+  "batch": {
+    "select": "Select",
+    "cancel": "Cancel",
+    "selected_one": "{{count}} task selected",
+    "selected_other": "{{count}} tasks selected",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "complete": "Complete",
+    "assign": "Assign",
+    "delete": "Delete"
+  },
+  "loading": "Loading tasks...",
+  "noTasksCreate": "No tasks yet. Create a new task above!",
+  "nextDue": "Next appointment:",
+  "due": "Due:"
 }

@@ -272,5 +272,25 @@
     "sendReminder": "Erinnerung senden",
     "milestone": "Zwischensieg dokumentieren",
     "delete": "Aufgabe löschen"
-  }
+  },
+  "filterSort": {
+    "title": "Filter & Sortierung",
+    "reset": "Zurücksetzen",
+    "taskCount": "{{filtered}} von {{total}} Aufgabe(n)"
+  },
+  "batch": {
+    "select": "Auswählen",
+    "cancel": "Abbrechen",
+    "selected_one": "{{count}} Aufgabe ausgewählt",
+    "selected_other": "{{count}} Aufgaben ausgewählt",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "complete": "Abschließen",
+    "assign": "Zuweisen",
+    "delete": "Löschen"
+  },
+  "loading": "Lädt Aufgaben...",
+  "noTasksCreate": "Keine Aufgaben vorhanden. Erstellen Sie oben eine neue Aufgabe!",
+  "nextDue": "Nächster Termin:",
+  "due": "Fällig:"
 }

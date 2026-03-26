@@ -1108,14 +1108,14 @@ export default function Tasks() {
                   <div className="flex items-center justify-between">
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" size="sm" className="flex items-center gap-2 p-0 h-auto hover:bg-transparent">
-                        <h3 className="text-sm font-medium">Filter & Sortierung</h3>
+                        <h3 className="text-sm font-medium">{t("tasks:filterSort.title")}</h3>
                         <ChevronDown className={`h-4 w-4 transition-transform ${filterExpanded ? 'rotate-180' : ''}`} />
                       </Button>
                     </CollapsibleTrigger>
                     {filterExpanded && (
                       <Button variant="ghost" size="sm" onClick={resetFilters}>
                         <RefreshCw className="h-4 w-4 mr-1" />
-                        Zurücksetzen
+                        {t("tasks:filterSort.reset")}
                       </Button>
                     )}
                   </div>
@@ -1199,7 +1199,7 @@ export default function Tasks() {
                     </div>
                     
                     <div className="text-xs text-muted-foreground mt-2">
-                      {filteredAndSortedTasks.length} von {tasks.length} Aufgabe(n)
+                      {t("tasks:filterSort.taskCount", { filtered: filteredAndSortedTasks.length, total: tasks.length })}
                     </div>
                   </CollapsibleContent>
                 </div>
@@ -1216,25 +1216,25 @@ export default function Tasks() {
                 {batchMode ? (
                   <>
                     <Button variant="outline" size="sm" onClick={exitBatchMode}>
-                      Abbrechen
+                      {t("tasks:batch.cancel")}
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                      {selectedTaskIds.length} {selectedTaskIds.length === 1 ? 'Aufgabe' : 'Aufgaben'} ausgewählt
+                      {t(selectedTaskIds.length === 1 ? "tasks:batch.selected_one" : "tasks:batch.selected_other", { count: selectedTaskIds.length })}
                     </span>
                     {selectedTaskIds.length > 0 && (
                       <Button variant="ghost" size="sm" onClick={deselectAllTasks}>
-                        Alle abwählen
+                        {t("tasks:batch.deselectAll")}
                       </Button>
                     )}
                     {selectedTaskIds.length < tasks.filter(t => !t.isCompleted).length && (
                       <Button variant="ghost" size="sm" onClick={selectAllTasks}>
-                        Alle auswählen
+                        {t("tasks:batch.selectAll")}
                       </Button>
                     )}
                   </>
                 ) : (
                   <Button variant="outline" size="sm" onClick={() => setBatchMode(true)}>
-                    Auswählen
+                    {t("tasks:batch.select")}
                   </Button>
                 )}
               </div>
@@ -1259,7 +1259,7 @@ export default function Tasks() {
                       disabled={batchCompleteMutation.isPending}
                     >
                       <CheckCircle2 className="h-4 w-4 mr-1" />
-                      Abschließen
+                      {t("tasks:batch.complete")}
                     </Button>
                     
                     <Button
@@ -1268,7 +1268,7 @@ export default function Tasks() {
                       onClick={() => setShowBatchAssignDialog(true)}
                     >
                       <User className="h-4 w-4 mr-1" />
-                      Zuweisen
+                      {t("tasks:batch.assign")}
                     </Button>
                     
                     <Button
@@ -1277,7 +1277,7 @@ export default function Tasks() {
                       onClick={() => setShowBatchDeleteDialog(true)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Löschen
+                      {t("tasks:batch.delete")}
                     </Button>
                   </div>
                 </CardContent>
@@ -1288,12 +1288,12 @@ export default function Tasks() {
         
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
-            Lädt Aufgaben...
+            {t("tasks:loading")}
           </div>
         ) : tasks.length === 0 ? (
           <Card className="shadow-sm">
             <CardContent className="py-12 text-center text-muted-foreground">
-              Keine Aufgaben vorhanden. Erstellen Sie oben eine neue Aufgabe!
+              {t("tasks:noTasksCreate")}
             </CardContent>
           </Card>
         ) : (
@@ -1360,7 +1360,7 @@ export default function Tasks() {
                               : "bg-muted text-muted-foreground border border-border"
                           }`}>
                             <Calendar className="h-3 w-3" />
-                            {(task.repeatUnit || (task.frequency && task.frequency !== "once")) ? "Nächster Termin:" : "Fällig:"}{" "}
+                            {(task.repeatUnit || (task.frequency && task.frequency !== "once")) ? t("tasks:nextDue") : t("tasks:due")}{" "}
                             {new Date(task.dueDate).toLocaleDateString("de-DE", {
                               day: "2-digit",
                               month: "2-digit",
