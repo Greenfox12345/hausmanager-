@@ -155,7 +155,9 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-xs">
-        {Object.entries(STATUS_COLORS).map(([status, colors]) => (
+        {Object.entries(STATUS_COLORS)
+          .filter(([status]) => status !== "completed")
+          .map(([status, colors]) => (
           <div key={status} className="flex items-center gap-1">
             <div
               className={`w-3 h-3 rounded-sm ${colors.striped ? "" : colors.bar} border`}
@@ -169,7 +171,6 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
                status === "approved" ? "Genehmigt" :
                status === "pending" ? "Ausstehend" :
                status === "returned" ? "Zurückgegeben" :
-               status === "completed" ? "Abgeschlossen" :
                status === "rejected" ? "Abgelehnt" : "Storniert"}
             </span>
           </div>
