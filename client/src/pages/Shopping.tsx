@@ -738,7 +738,7 @@ export default function Shopping() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newItemPhotos">Fotos (optional, max. 5)</Label>
+                <Label htmlFor="newItemPhotos">{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
                 <Input
                   id="newItemPhotos"
                   type="file"
@@ -1038,7 +1038,7 @@ export default function Shopping() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editItemPhotos">Fotos (optional, max. 5)</Label>
+                <Label htmlFor="editItemPhotos">{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
                 <Input
                   id="editItemPhotos"
                   type="file"

@@ -10,6 +10,11 @@
   "noItems": "No items in this list.",
   "fields": {
     "name": "Name",
+    "item": "Item",
+    "itemName": "Item Name",
+    "itemPlaceholder": "e.g. Milk, Bread, Apples...",
+    "details": "Details",
+    "detailsPlaceholder": "e.g. 2x, 500g, Organic...",
     "quantity": "Quantity",
     "unit": "Unit",
     "category": "Category",
@@ -17,7 +22,10 @@
     "price": "Price",
     "notes": "Notes",
     "assignedTo": "Assigned To",
-    "dueDate": "Due Date"
+    "dueDate": "Due Date",
+    "photos": "Photos",
+    "fileSelect": "Choose files",
+    "noFileSelected": "No files selected"
   },
   "status": {
     "open": "Open",
@@ -35,6 +43,13 @@
     "renameCategory": "Rename category"
   },
   "messages": {
+    "uploadingPhotos": "Uploading photos...",
+    "maxPhotos": "Maximum 5 photos allowed",
+    "photoUploadError": "Photo upload failed",
+    "itemLinkError": "Error linking items",
+    "noItemsSelected": "No items selected to complete",
+    "selectItems": "Please select at least one item",
+    "categoryInUse": "Cannot delete category: {{count}} item(s) still use it",
     "listCreated": "Shopping list created successfully.",
     "listUpdated": "Shopping list updated successfully.",
     "listDeleted": "Shopping list deleted successfully.",

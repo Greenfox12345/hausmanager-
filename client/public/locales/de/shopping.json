@@ -10,6 +10,11 @@
   "noItems": "Keine Artikel in dieser Liste",
   "fields": {
     "name": "Name",
+    "item": "Artikel",
+    "itemName": "Artikelname",
+    "itemPlaceholder": "z.B. Milch, Brot, Äpfel...",
+    "details": "Details",
+    "detailsPlaceholder": "z.B. 2x, 500g, Bio...",
     "quantity": "Menge",
     "unit": "Einheit",
     "category": "Kategorie",
@@ -17,7 +22,10 @@
     "price": "Preis",
     "notes": "Notizen",
     "assignedTo": "Zugewiesen an",
-    "dueDate": "Bis wann"
+    "dueDate": "Bis wann",
+    "photos": "Fotos",
+    "fileSelect": "Dateien auswählen",
+    "noFileSelected": "Keine Dateien ausgewählt"
   },
   "status": {
     "open": "Offen",
@@ -35,6 +43,13 @@
     "renameCategory": "Kategorie umbenennen"
   },
   "messages": {
+    "uploadingPhotos": "Fotos werden hochgeladen...",
+    "maxPhotos": "Maximal 5 Fotos erlaubt",
+    "photoUploadError": "Foto-Upload fehlgeschlagen",
+    "itemLinkError": "Fehler beim Verknüpfen der Artikel",
+    "noItemsSelected": "Keine ausgewählten Artikel zum Abschließen",
+    "selectItems": "Bitte wählen Sie mindestens einen Artikel aus",
+    "categoryInUse": "Kategorie kann nicht gelöscht werden: {{count}} Artikel verwenden sie noch",
     "listCreated": "Einkaufsliste erstellt",
     "listUpdated": "Einkaufsliste aktualisiert",
     "listDeleted": "Einkaufsliste gelöscht",
