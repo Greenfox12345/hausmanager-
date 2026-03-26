@@ -687,12 +687,12 @@ export default function InventoryDetail() {
                             </div>
                             <div>
                               {isPending && (
-                                <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                <span className="px-2 py-1 rounded-full text-xs bg-amber-400 text-white">
                                   Ausstehend
                                 </span>
                               )}
                               {isApproved && (
-                                <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <span className="px-2 py-1 rounded-full text-xs bg-blue-500 text-white">
                                   Genehmigt
                                 </span>
                               )}
@@ -703,18 +703,18 @@ export default function InventoryDetail() {
                                       Überfällig
                                     </span>
                                   )}
-                                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                  <span className="px-2 py-1 rounded-full text-xs bg-green-500 text-white">
                                     Ausgeliehen
                                   </span>
                                 </div>
                               )}
                               {isCompleted && (
-                                <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                <span className="px-2 py-1 rounded-full text-xs bg-gray-500 text-white">
                                   Zurückgegeben
                                 </span>
                               )}
                               {isRejected && (
-                                <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                <span className="px-2 py-1 rounded-full text-xs bg-red-400 text-white">
                                   Abgelehnt
                                 </span>
                               )}
