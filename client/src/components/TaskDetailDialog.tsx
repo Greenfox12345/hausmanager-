@@ -1095,7 +1095,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     {/* Permission selector for shared tasks */}
                     {selectedSharedHouseholds.length > 0 && (
                       <div className="space-y-2">
-                        <Label className="text-sm">Berechtigungen für nicht-verantwortliche Mitglieder:</Label>
+                        <Label className="text-sm">{t("dialog.permissionsForNonResponsible", "Berechtigungen für nicht-verantwortliche Mitglieder")}:</Label>
                         <Select value={nonResponsiblePermission} onValueChange={(value: any) => setNonResponsiblePermission(value)}>
                           <SelectTrigger className="w-full">
                             <SelectValue />
@@ -1165,7 +1165,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               {(dueDate && (parseInt(durationDays) > 0 || durationTime !== "00:00")) && (
                 <div className="p-3 rounded-lg bg-muted/50 border border-border">
                   <p className="text-sm text-muted-foreground">
-                    <strong>Terminende:</strong>{" "}
+                    <strong>{t("fields.taskEnd", "Terminende")}:</strong>{" "}
                     {(() => {
                       const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
                       const daysInMs = (parseInt(durationDays) || 0) * 24 * 60 * 60 * 1000;
@@ -1572,7 +1572,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     {enableRotation && (
                       <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                         <div className="space-y-2">
-                          <Label htmlFor="required-persons">Anzahl Personen pro Durchgang</Label>
+                          <Label htmlFor="required-persons">{t("fields.personsPerRound", "Anzahl Personen pro Durchgang")}</Label>
                           <Input
                             id="required-persons"
                             type="number"
@@ -1889,7 +1889,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <span className="text-muted-foreground">Terminende:</span>{" "}
+                      <span className="text-muted-foreground">{t("fields.taskEnd", "Terminende")}:</span>{" "}
                       <strong>
                         {(() => {
                           const start = new Date(task.dueDate);
@@ -2033,8 +2033,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">
-                        <span className="text-muted-foreground">Rotation:</span>{" "}
-                        <strong>{task.requiredPersons} Person(en) pro Durchgang</strong>
+                        <span className="text-muted-foreground">{t("fields.rotation", "Rotation")}:</span>{" "}
+                        <strong>{task.requiredPersons} {t("fields.personsPerRoundShort", "Person(en) pro Durchgang")}</strong>
                       </span>
                     </div>
                     
@@ -2487,7 +2487,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       <Dialog open={showShoppingItemDetail} onOpenChange={setShowShoppingItemDetail}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Artikel-Details</DialogTitle>
+            <DialogTitle>{t("shopping:itemDetails", "Artikel-Details")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>

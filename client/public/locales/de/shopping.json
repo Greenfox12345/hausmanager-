@@ -73,5 +73,28 @@
   "manageCategories": "Kategorien verwalten",
   "labels": {
     "itemCount": "{{count}} Artikel"
+  },
+  "completeDialog": {
+    "title": "Einkauf abschließen",
+    "description": "{{count}} Item(s) als eingekauft markieren",
+    "addToInventory": "Ins Inventar aufnehmen",
+    "allToInventory": "Alle ins Inventar",
+    "hint": "Diese Items werden als eingekauft markiert. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:",
+    "categoryMissing": "Kategorie fehlt!",
+    "inventoryName": "Name im Inventar",
+    "inventoryNamePlaceholder": "Name des Items",
+    "categoryLabel": "Kategorie",
+    "selectCategory": "Kategorie wählen",
+    "detailsPlaceholder": "z.B. Farbe, Größe, Zustand...",
+    "ownership": "Eigentum",
+    "householdOwnership": "Haushalt (gemeinsam)",
+    "personalOwnership": "Persönlich",
+    "selectOwner": "Besitzer auswählen",
+    "inventorySummary": "{{count}} Item(s) werden ins Inventar aufgenommen",
+    "noCategory": "Keine Kategorie",
+    "householdShort": "Haushalt",
+    "personalShort": "Persönlich",
+    "completing": "Wird abgeschlossen...",
+    "complete": "Abschließen"
   }
 }

@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
+import { useTranslation } from "react-i18next";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -72,6 +73,7 @@ export function CompleteShoppingItemDialog({
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
   
+  const { t } = useTranslation(["shopping", "common", "tasks"]);
   const { household, member } = useCompatAuth();
   
   // Load shopping categories (use as inventory categories)
@@ -169,9 +171,9 @@ export function CompleteShoppingItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Einkauf abschließen</DialogTitle>
+          <DialogTitle>{t("shopping:completeDialog.title", "Einkauf abschließen")}</DialogTitle>
           <DialogDescription>
-            {items.length} Item(s) als eingekauft markieren
+            {t("shopping:completeDialog.description", "{{count}} Item(s) als eingekauft markieren", { count: items.length })}
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +184,7 @@ export function CompleteShoppingItemDialog({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-primary" />
-                  <Label className="text-base font-semibold">Ins Inventar aufnehmen</Label>
+                  <Label className="text-base font-semibold">{t("shopping:completeDialog.addToInventory", "Ins Inventar aufnehmen")}</Label>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -215,7 +217,7 @@ export function CompleteShoppingItemDialog({
                       }
                     }}
                   >
-                    {selectedItems.size === items.length ? "Alle abwählen" : "Alle auswählen"}
+                    {selectedItems.size === items.length ? t("common:actions.deselectAll", "Alle abwählen") : t("common:actions.selectAll", "Alle auswählen")}
                   </Button>
                   <Button
                     type="button"
@@ -238,12 +240,12 @@ export function CompleteShoppingItemDialog({
                       setInventoryData(newInventoryData);
                     }}
                   >
-                    Alle ins Inventar
+                    {t("shopping:completeDialog.allToInventory", "Alle ins Inventar")}
                   </Button>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Diese Items werden als eingekauft markiert. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:
+                {t("shopping:completeDialog.hint", "Diese Items werden als eingekauft markiert. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:")}
               </p>
               <div className="space-y-3">
                 {items.map((item: any) => (
@@ -300,19 +302,19 @@ export function CompleteShoppingItemDialog({
                             {expandedItems.has(item.id) ? (
                               <>
                                 <ChevronDown className="h-3 w-3 mr-1" />
-                                Weniger anzeigen
+                                {t("common:actions.showLess", "Weniger anzeigen")}
                               </>
                             ) : (
                               <>
                                 <ChevronRight className="h-3 w-3 mr-1" />
-                                Details bearbeiten
+                                {t("common:actions.editDetails", "Details bearbeiten")}
                               </>
                             )}
                           </Button>
                         )}
                       </div>
-                      {!inventoryData[item.id]?.categoryId && selectedItems.has(item.id) && (
-                        <span className="text-xs text-red-600 font-medium">Kategorie fehlt!</span>
+                        {!inventoryData[item.id]?.categoryId && selectedItems.has(item.id) && (
+                        <span className="text-xs text-red-600 font-medium">{t("shopping:completeDialog.categoryMissing", "Kategorie fehlt!")}</span>
                       )}
                     </div>
 
@@ -321,7 +323,7 @@ export function CompleteShoppingItemDialog({
                       <div className="pl-8 space-y-4 border-l-2 border-primary/20">
                         {/* Name */}
                         <div>
-                          <Label htmlFor={`name-${item.id}`}>Name im Inventar</Label>
+                          <Label htmlFor={`name-${item.id}`}>{t("shopping:completeDialog.inventoryName", "Name im Inventar")}</Label>
                           <Input
                             id={`name-${item.id}`}
                             value={inventoryData[item.id]?.name || ""}
@@ -334,16 +336,16 @@ export function CompleteShoppingItemDialog({
                                 }
                               }));
                             }}
-                            placeholder="Name des Items"
+                            placeholder={t("shopping:completeDialog.inventoryNamePlaceholder", "Name des Items")}
                           />
                         </div>
 
                         {/* Category */}
                         <div>
                           <Label htmlFor={`category-${item.id}`}>
-                            Kategorie *
+                            {t("shopping:completeDialog.categoryLabel", "Kategorie")} *
                             {!inventoryData[item.id]?.categoryId && (
-                              <span className="text-red-600 ml-1">(Pflichtfeld)</span>
+                              <span className="text-red-600 ml-1">({t("common:labels.required", "Pflichtfeld")})</span>
                             )}
                           </Label>
                           <div className="flex gap-2">
@@ -360,7 +362,7 @@ export function CompleteShoppingItemDialog({
                               }}
                             >
                               <SelectTrigger className={!inventoryData[item.id]?.categoryId ? "border-red-500" : ""}>
-                                <SelectValue placeholder="Kategorie wählen" />
+                                <SelectValue placeholder={t("shopping:completeDialog.selectCategory", "Kategorie wählen")} />
                               </SelectTrigger>
                               <SelectContent>
                                 {inventoryCategories.map((cat: any) => (
@@ -391,10 +393,10 @@ export function CompleteShoppingItemDialog({
 
                         {/* Details */}
                         <div>
-                          <Label htmlFor={`details-${item.id}`}>Details</Label>
+                          <Label htmlFor={`details-${item.id}`}>{t("common:labels.details", "Details")}</Label>
                           <Textarea
                             id={`details-${item.id}`}
-                            placeholder="z.B. Farbe, Größe, Zustand..."
+                            placeholder={t("shopping:completeDialog.detailsPlaceholder", "z.B. Farbe, Größe, Zustand...")}
                             value={inventoryData[item.id]?.details || ""}
                             onChange={(e) => {
                               setInventoryData(prev => ({
@@ -411,7 +413,7 @@ export function CompleteShoppingItemDialog({
 
                         {/* Ownership */}
                         <div>
-                          <Label>Eigentum</Label>
+                          <Label>{t("shopping:completeDialog.ownership", "Eigentum")}</Label>
                           <RadioGroup
                             value={inventoryData[item.id]?.ownershipType || "household"}
                             onValueChange={(value: "personal" | "household") => {
@@ -428,20 +430,20 @@ export function CompleteShoppingItemDialog({
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="household" id={`household-${item.id}`} />
                               <Label htmlFor={`household-${item.id}`} className="font-normal cursor-pointer">
-                                Haushalt (gemeinsam)
+                                {t("shopping:completeDialog.householdOwnership", "Haushalt (gemeinsam)")}
                               </Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="personal" id={`personal-${item.id}`} />
                               <Label htmlFor={`personal-${item.id}`} className="font-normal cursor-pointer">
-                                Persönlich
+                                {t("shopping:completeDialog.personalOwnership", "Persönlich")}
                               </Label>
                             </div>
                           </RadioGroup>
 
                           {inventoryData[item.id]?.ownershipType === "personal" && (
                             <div className="mt-3 pl-6 space-y-2">
-                              <Label className="text-sm">Besitzer auswählen:</Label>
+                              <Label className="text-sm">{t("shopping:completeDialog.selectOwner", "Besitzer auswählen")}:</Label>
                               {householdMembers.map((member: any) => (
                                 <div key={member.memberId} className="flex items-center space-x-2">
                                   <Checkbox
@@ -477,7 +479,7 @@ export function CompleteShoppingItemDialog({
 
                         {/* Photos */}
                         <div>
-                          <Label>Fotos</Label>
+                          <Label>{t("common:labels.photos", "Fotos")}</Label>
                           <PhotoUpload
                             photos={inventoryData[item.id]?.photoUrls || []}
                             onPhotosChange={(newPhotos) => {
@@ -503,7 +505,7 @@ export function CompleteShoppingItemDialog({
               {selectedItems.size > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
                   <p className="text-sm font-semibold text-green-800">
-                    {selectedItems.size} Item(s) werden ins Inventar aufgenommen
+                    {t("shopping:completeDialog.inventorySummary", "{{count}} Item(s) werden ins Inventar aufgenommen", { count: selectedItems.size })}
                   </p>
                   <div className="text-xs text-green-700 space-y-1">
                     {Array.from(selectedItems).map(itemId => {
@@ -514,7 +516,7 @@ export function CompleteShoppingItemDialog({
                         <div key={itemId} className="flex items-center justify-between">
                           <span>• {data?.name || item?.name}</span>
                           <span className="text-muted-foreground">
-                            {category?.name || "Keine Kategorie"} • {data?.ownershipType === "household" ? "Haushalt" : "Persönlich"}
+                            {category?.name || t("shopping:completeDialog.noCategory", "Keine Kategorie")} • {data?.ownershipType === "household" ? t("shopping:completeDialog.householdShort", "Haushalt") : t("shopping:completeDialog.personalShort", "Persönlich")}
                           </span>
                         </div>
                       );
@@ -533,7 +535,7 @@ export function CompleteShoppingItemDialog({
             onClick={handleCancel}
             disabled={isSubmitting || isUploading}
           >
-            Abbrechen
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -542,10 +544,10 @@ export function CompleteShoppingItemDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Wird abgeschlossen...
+                {t("shopping:completeDialog.completing", "Wird abgeschlossen...")}
               </>
             ) : (
-              "Abschließen"
+              t("shopping:completeDialog.complete", "Abschließen")
             )}
           </Button>
         </DialogFooter>

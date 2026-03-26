@@ -9,6 +9,7 @@ import { AlertCircle, Upload, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/imageCompression";
+import { useTranslation } from "react-i18next";
 
 interface BorrowReturnDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function BorrowReturnDialog({
   itemName,
   onSuccess,
 }: BorrowReturnDialogProps) {
+  const { t } = useTranslation(["borrow", "common"]);
   const [checklistState, setChecklistState] = useState<ChecklistState>({});
   const [photoState, setPhotoState] = useState<PhotoState>({});
   const [conditionReport, setConditionReport] = useState("");
@@ -97,7 +99,7 @@ export function BorrowReturnDialog({
     if (guidelines?.checklistItems) {
       (guidelines.checklistItems as any[]).forEach((item: any) => {
         if (item.required && !checklistState[item.id]) {
-          errors.push(`Checkliste: "${item.label}" muss abgehakt sein`);
+          errors.push(t("borrow:returnDialog.checklistRequired", { label: item.label }));
         }
       });
     }
@@ -106,7 +108,7 @@ export function BorrowReturnDialog({
     if (guidelines?.photoRequirements) {
       (guidelines.photoRequirements as any[]).forEach((req: any) => {
         if (req.required && !photoState[req.id]?.file) {
-          errors.push(`Foto erforderlich: "${req.label}"`);
+          errors.push(t("borrow:returnDialog.photoRequired", { label: req.label }));
         }
       });
     }
@@ -159,7 +161,7 @@ export function BorrowReturnDialog({
         conditionReport: conditionReport.trim() || undefined,
       });
 
-      toast.success("Item erfolgreich zurückgegeben");
+      toast.success(t("borrow:returnDialog.success"));
       onSuccess?.();
       onOpenChange(false);
 
@@ -169,7 +171,7 @@ export function BorrowReturnDialog({
       setConditionReport("");
     } catch (error: any) {
       console.error("Return error:", error);
-      toast.error(error.message || "Fehler beim Zurückgeben");
+      toast.error(error.message || t("borrow:returnDialog.error"));
     } finally {
       setIsUploading(false);
     }
@@ -183,18 +185,18 @@ export function BorrowReturnDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Item zurückgeben</DialogTitle>
+          <DialogTitle>{t("borrow:returnDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Item</Label>
+            <Label className="text-sm font-medium">{t("borrow:returnDialog.item")}</Label>
             <div className="text-sm text-muted-foreground">{itemName}</div>
           </div>
 
           {!hasGuidelines && (
             <div className="text-sm text-muted-foreground">
-              Keine Rückgabevorgaben definiert.
+              {t("borrow:returnDialog.noGuidelines")}
             </div>
           )}
 
@@ -204,7 +206,7 @@ export function BorrowReturnDialog({
               <CardContent className="pt-6 space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertCircle className="h-4 w-4" />
-                  <Label className="text-sm font-medium">Checkliste</Label>
+                  <Label className="text-sm font-medium">{t("borrow:returnDialog.checklist")}</Label>
                 </div>
                 {checklistItems.map((item: any) => (
                   <div key={item.id} className="flex items-center gap-2">
@@ -230,7 +232,7 @@ export function BorrowReturnDialog({
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertCircle className="h-4 w-4" />
-                  <Label className="text-sm font-medium">Erforderliche Fotos</Label>
+                  <Label className="text-sm font-medium">{t("borrow:returnDialog.requiredPhotos")}</Label>
                 </div>
                 {photoRequirements.map((req: any) => (
                   <div key={req.id} className="space-y-2">
@@ -243,11 +245,11 @@ export function BorrowReturnDialog({
                         {req.examplePhotoUrl && (
                           <div className="mt-2">
                             <div className="text-xs text-muted-foreground mb-1">
-                              Beispiel:
+                              {t("borrow:returnDialog.example")}:
                             </div>
                             <img
                               src={req.examplePhotoUrl}
-                              alt="Beispiel"
+                              alt={t("common:labels.preview")}
                               className="h-20 w-20 object-cover rounded border"
                             />
                           </div>
@@ -258,7 +260,7 @@ export function BorrowReturnDialog({
                           <div className="relative">
                             <img
                               src={photoState[req.id].preview}
-                              alt="Vorschau"
+                              alt={t("common:labels.preview")}
                               className="h-20 w-20 object-cover rounded border"
                             />
                             <Button
@@ -291,7 +293,7 @@ export function BorrowReturnDialog({
                               className="pointer-events-none"
                             >
                               <Upload className="h-4 w-4 mr-2" />
-                              Foto hochladen
+                              {t("borrow:returnDialog.uploadPhoto")}
                             </Button>
                           </div>
                         )}
@@ -305,10 +307,10 @@ export function BorrowReturnDialog({
 
           {/* Condition Report */}
           <div className="space-y-2">
-            <Label htmlFor="condition-report">Zustandsbericht (optional)</Label>
+            <Label htmlFor="condition-report">{t("borrow:returnDialog.conditionReport")}</Label>
             <Textarea
               id="condition-report"
-              placeholder="Beschreibe den Zustand des Items bei der Rückgabe..."
+              placeholder={t("borrow:returnDialog.conditionReportPlaceholder")}
               value={conditionReport}
               onChange={(e) => setConditionReport(e.target.value)}
               rows={3}
@@ -317,7 +319,7 @@ export function BorrowReturnDialog({
 
           {hasGuidelines && (
             <div className="text-xs text-muted-foreground pt-2 border-t">
-              <span className="text-destructive">*</span> = Pflichtfeld
+              <span className="text-destructive">*</span> = {t("borrow:returnDialog.required")}
             </div>
           )}
         </div>
@@ -328,15 +330,15 @@ export function BorrowReturnDialog({
             onClick={() => onOpenChange(false)}
             disabled={isUploading || returnMutation.isPending}
           >
-            Abbrechen
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isUploading || returnMutation.isPending}
           >
             {isUploading || returnMutation.isPending
-              ? "Wird zurückgegeben..."
-              : "Zurückgeben"}
+              ? t("borrow:returnDialog.returning")
+              : t("borrow:returnDialog.return")}
           </Button>
         </DialogFooter>
       </DialogContent>

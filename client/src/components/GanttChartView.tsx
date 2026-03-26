@@ -2,14 +2,15 @@ import { useMemo } from "react";
 import { format, differenceInDays, startOfDay, addDays, min, max } from "date-fns";
 import { de } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, Target, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, Target } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: number;
   name: string;
   dueDate: Date | null;
   isCompleted: boolean;
-  assignedTo: number[] | null; // Array of member IDs
+  assignedTo: number[] | null;
   enableRotation?: boolean;
   repeatInterval?: number | null;
   repeatUnit?: string | null;
@@ -26,16 +27,16 @@ interface GanttChartViewProps {
 }
 
 export default function GanttChartView({ tasks, members }: GanttChartViewProps) {
+  const { t } = useTranslation(["tasks", "common"]);
 
-  
   const getMemberName = (memberId: number | null) => {
-    if (!memberId) return "Nicht zugewiesen";
+    if (!memberId) return t("tasks:fields.unassigned");
     const memberData = members.find((m) => m.id === memberId);
-    return memberData?.memberName || "Unbekannt";
+    return memberData?.memberName || t("tasks:fields.unknown");
   };
   
   const getMemberNames = (memberIds: number[] | number | string | null | undefined) => {
-    if (memberIds === null || memberIds === undefined) return "Nicht zugewiesen";
+    if (memberIds === null || memberIds === undefined) return t("tasks:fields.unassigned");
     let ids: number[] = [];
     if (Array.isArray(memberIds)) {
       ids = memberIds;
@@ -49,16 +50,15 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
         ids = [];
       }
     }
-    if (ids.length === 0) return "Nicht zugewiesen";
+    if (ids.length === 0) return t("tasks:fields.unassigned");
     return ids.map(id => {
       const memberData = members.find((m) => m.id === id);
-      return memberData?.memberName || "Unbekannt";
+      return memberData?.memberName || t("tasks:fields.unknown");
     }).join(", ");
   };
 
   // Calculate date range for Gantt chart
   const { minDate, maxDate, totalDays } = useMemo(() => {
-
     const tasksWithDates = tasks.filter(t => t.dueDate);
     
     if (tasksWithDates.length === 0) {
@@ -74,28 +74,23 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
     const earliest = min(dates);
     const latest = max(dates);
     
-    // Add buffer days
     const bufferedMin = addDays(earliest, -3);
     const bufferedMax = addDays(latest, 7);
     const days = differenceInDays(bufferedMax, bufferedMin);
 
-    const result = {
+    return {
       minDate: bufferedMin,
       maxDate: bufferedMax,
-      totalDays: Math.min(Math.max(days, 14), 90), // Minimum 14 days, maximum 90 days
+      totalDays: Math.min(Math.max(days, 14), 90),
     };
-
-    return result;
   }, [tasks]);
 
   // Generate date labels for header
   const dateLabels = useMemo(() => {
-
     const labels: Date[] = [];
     for (let i = 0; i <= totalDays; i++) {
       labels.push(addDays(minDate, i));
     }
-
     return labels;
   }, [minDate, totalDays]);
 
@@ -105,8 +100,6 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
 
     const taskDate = startOfDay(new Date(task.dueDate));
     const daysFromStart = differenceInDays(taskDate, minDate);
-    
-    // Task duration: if recurring, show as 1-3 days, otherwise 1 day
     const duration = task.repeatInterval ? Math.min(task.repeatInterval, 3) : 1;
     
     const leftPercent = (daysFromStart / totalDays) * 100;
@@ -129,10 +122,9 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
           <div className="min-w-[800px]">
             {/* Date Header */}
             <div className="flex border-b mb-4 pb-2">
-              <div className="w-48 flex-shrink-0 font-semibold text-sm">Aufgabe</div>
+              <div className="w-48 flex-shrink-0 font-semibold text-sm">{t("tasks:gantt.task")}</div>
               <div className="flex-1 flex">
                 {dateLabels.map((date, i) => {
-                  // Show every 3rd date label to avoid crowding
                   if (i % 3 !== 0 && i !== dateLabels.length - 1) {
                     return <div key={i} className="flex-1" />;
                   }
@@ -211,7 +203,7 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
       {tasksWithoutDates.length > 0 && (
         <div className="border-t pt-4">
           <h3 className="text-sm font-semibold mb-3 text-muted-foreground">
-            Aufgaben ohne Fälligkeitsdatum
+            {t("tasks:gantt.noDueDate")}
           </h3>
           <div className="space-y-2">
             {tasksWithoutDates.map((task) => (
@@ -227,7 +219,7 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
                     {task.isCompleted && (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Erledigt
+                        {t("tasks:completed")}
                       </Badge>
                     )}
                   </div>
@@ -236,13 +228,13 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
                     {task.repeatInterval && task.repeatUnit && (
                       <Badge variant="outline" className="text-xs">
                         <Clock className="h-3 w-3 mr-1" />
-                        Wiederkehrend
+                        {t("tasks:fields.recurring")}
                       </Badge>
                     )}
                     {task.enableRotation && (
                       <Badge variant="outline" className="text-xs">
                         <Target className="h-3 w-3 mr-1" />
-                        Rotation
+                        {t("tasks:fields.rotation")}
                       </Badge>
                     )}
                   </div>
@@ -257,15 +249,15 @@ export default function GanttChartView({ tasks, members }: GanttChartViewProps) 
       <div className="flex items-center gap-6 text-xs text-muted-foreground border-t pt-4">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-blue-500 rounded" />
-          <span>Offen</span>
+          <span>{t("tasks:gantt.open")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-500 rounded" />
-          <span>Erledigt</span>
+          <span>{t("tasks:gantt.done")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-0.5 h-4 bg-red-500" />
-          <span>Heute</span>
+          <span>{t("tasks:gantt.today")}</span>
         </div>
       </div>
     </div>

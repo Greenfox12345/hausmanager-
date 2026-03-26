@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, User } from "lucide-react";
 import { useRef } from "react";
 import { ImageCropEditor } from "@/components/ImageCropEditor";
+import { useTranslation } from "react-i18next";
 
 interface UserProfileDialogProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface UserProfileDialogProps {
 }
 
 export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps) {
+  const { t } = useTranslation(["common"]);
   const utils = trpc.useUtils();
   
   // Get current profile
@@ -38,27 +40,27 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
   // Update profile mutation
   const updateProfileMutation = trpc.userProfile.updateProfile.useMutation({
     onSuccess: () => {
-      toast.success("Profil erfolgreich aktualisiert");
+      toast.success(t("common:profile.updated", "Profil erfolgreich aktualisiert"));
       utils.userProfile.getProfile.invalidate();
       utils.userAuth.getCurrentUser.invalidate();
       resetProfileForm();
     },
     onError: (error) => {
-      toast.error(error.message || "Fehler beim Aktualisieren des Profils");
+      toast.error(error.message || t("common:profile.updateError", "Fehler beim Aktualisieren des Profils"));
     },
   });
 
   // Upload profile image mutation
   const uploadProfileImageMutation = trpc.userProfile.uploadProfileImage.useMutation({
     onSuccess: (data) => {
-      toast.success("Profilbild erfolgreich hochgeladen");
+      toast.success(t("common:profile.imageUploaded", "Profilbild erfolgreich hochgeladen"));
       utils.userProfile.getProfile.invalidate();
       utils.userAuth.getCurrentUser.invalidate();
       setProfileImagePreview(null);
       setIsUploading(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Fehler beim Hochladen des Profilbilds");
+      toast.error(error.message || t("common:profile.imageUploadError", "Fehler beim Hochladen des Profilbilds"));
       setIsUploading(false);
     },
   });
@@ -66,23 +68,23 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
   // Delete profile image mutation
   const deleteProfileImageMutation = trpc.userProfile.deleteProfileImage.useMutation({
     onSuccess: () => {
-      toast.success("Profilbild erfolgreich entfernt");
+      toast.success(t("common:profile.imageDeleted", "Profilbild erfolgreich entfernt"));
       utils.userProfile.getProfile.invalidate();
       utils.userAuth.getCurrentUser.invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || "Fehler beim Entfernen des Profilbilds");
+      toast.error(error.message || t("common:profile.imageDeleteError", "Fehler beim Entfernen des Profilbilds"));
     },
   });
 
   // Change password mutation
   const changePasswordMutation = trpc.userProfile.changePassword.useMutation({
     onSuccess: () => {
-      toast.success("Passwort erfolgreich geändert");
+      toast.success(t("common:profile.passwordChanged", "Passwort erfolgreich geändert"));
       resetPasswordForm();
     },
     onError: (error) => {
-      toast.error(error.message || "Fehler beim Ändern des Passworts");
+      toast.error(error.message || t("common:profile.passwordChangeError", "Fehler beim Ändern des Passworts"));
     },
   });
 
@@ -161,26 +163,26 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
   };
 
   const handleDeleteImage = async () => {
-    if (confirm("Möchten Sie Ihr Profilbild wirklich entfernen?")) {
+    if (confirm(t("common:profile.confirmDeleteImage", "Möchten Sie Ihr Profilbild wirklich entfernen?"))) {
       await deleteProfileImageMutation.mutateAsync();
     }
   };
 
   const handleUpdateProfile = () => {
     if (!name.trim()) {
-      toast.error("Name darf nicht leer sein");
+      toast.error(t("common:profile.nameRequired", "Name darf nicht leer sein"));
       return;
     }
 
     if (!email.trim()) {
-      toast.error("E-Mail darf nicht leer sein");
+      toast.error(t("common:profile.emailRequired", "E-Mail darf nicht leer sein"));
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Bitte geben Sie eine gültige E-Mail-Adresse ein");
+      toast.error(t("common:profile.emailInvalid", "Bitte geben Sie eine gültige E-Mail-Adresse ein"));
       return;
     }
 
@@ -192,22 +194,22 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
 
   const handleChangePassword = () => {
     if (!currentPassword) {
-      toast.error("Bitte geben Sie Ihr aktuelles Passwort ein");
+      toast.error(t("common:profile.currentPasswordRequired", "Bitte geben Sie Ihr aktuelles Passwort ein"));
       return;
     }
 
     if (!newPassword) {
-      toast.error("Bitte geben Sie ein neues Passwort ein");
+      toast.error(t("common:profile.newPasswordRequired", "Bitte geben Sie ein neues Passwort ein"));
       return;
     }
 
     if (newPassword.length < 8) {
-      toast.error("Passwort muss mindestens 8 Zeichen lang sein");
+      toast.error(t("common:profile.passwordTooShort", "Passwort muss mindestens 8 Zeichen lang sein"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error("Passwörter stimmen nicht überein");
+      toast.error(t("common:profile.passwordMismatch", "Passwörter stimmen nicht überein"));
       return;
     }
 
@@ -221,9 +223,9 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Profil bearbeiten</DialogTitle>
+          <DialogTitle>{t("common:profile.title", "Profil bearbeiten")}</DialogTitle>
           <DialogDescription>
-            Ändern Sie Ihre persönlichen Informationen oder Ihr Passwort.
+            {t("common:profile.description", "Ändern Sie Ihre persönlichen Informationen oder Ihr Passwort.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,21 +236,21 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
         ) : (
           <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="general">Allgemein</TabsTrigger>
-              <TabsTrigger value="password">Passwort ändern</TabsTrigger>
+              <TabsTrigger value="general">{t("common:profile.tabGeneral", "Allgemein")}</TabsTrigger>
+              <TabsTrigger value="password">{t("common:profile.tabPassword", "Passwort ändern")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="general" className="space-y-4 mt-4">
               {/* Profile Image Section */}
               <div className="space-y-2">
-                <Label>Profilbild</Label>
+                <Label>{t("common:profile.profileImage", "Profilbild")}</Label>
                 <div className="flex items-center gap-4">
                   {/* Current or Preview Image */}
                   <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     {profileImagePreview ? (
-                      <img src={profileImagePreview} alt="Vorschau" className="h-full w-full object-cover" />
+                      <img src={profileImagePreview} alt={t("common:labels.preview", "Vorschau")} className="h-full w-full object-cover" />
                     ) : profile?.profileImageUrl ? (
-                      <img src={profile.profileImageUrl} alt="Profilbild" className="h-full w-full object-cover" />
+                      <img src={profile.profileImageUrl} alt={t("common:profile.profileImage", "Profilbild")} className="h-full w-full object-cover" />
                     ) : (
                       <User className="h-10 w-10 text-gray-400" />
                     )}
@@ -265,12 +267,12 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                           {isUploading ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Hochladen...
+                              {t("common:profile.uploading", "Hochladen...")}
                             </>
                           ) : (
                             <>
                               <Upload className="mr-2 h-4 w-4" />
-                              Hochladen
+                              {t("common:profile.upload", "Hochladen")}
                             </>
                           )}
                         </Button>
@@ -281,7 +283,7 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                           disabled={isUploading}
                         >
                           <X className="mr-2 h-4 w-4" />
-                          Abbrechen
+                          {t("common:actions.cancel")}
                         </Button>
                       </div>
                     ) : (
@@ -299,7 +301,7 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <Upload className="mr-2 h-4 w-4" />
-                          {profile?.profileImageUrl ? "Bild ändern" : "Bild hochladen"}
+                          {profile?.profileImageUrl ? t("common:profile.changeImage", "Bild ändern") : t("common:profile.uploadImage", "Bild hochladen")}
                         </Button>
                         {profile?.profileImageUrl && (
                           <Button
@@ -313,32 +315,32 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                             ) : (
                               <X className="mr-2 h-4 w-4" />
                             )}
-                            Entfernen
+                            {t("common:actions.remove", "Entfernen")}
                           </Button>
                         )}
                       </div>
                     )}
-                    <p className="text-xs text-gray-500">JPEG, PNG oder WebP, max. 5MB</p>
+                    <p className="text-xs text-gray-500">{t("common:profile.imageHint", "JPEG, PNG oder WebP, max. 5MB")}</p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("common:labels.name", "Name")}</Label>
                 <Input
                   id="name"
-                  placeholder="Ihr Name"
+                  placeholder={t("common:profile.namePlaceholder", "Ihr Name")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-Mail</Label>
+                <Label htmlFor="email">{t("common:labels.email", "E-Mail")}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="ihre.email@beispiel.de"
+                  placeholder={t("common:profile.emailPlaceholder", "ihre.email@beispiel.de")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -353,10 +355,10 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                   {updateProfileMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Speichere...
+                      {t("common:actions.saving", "Speichere...")}
                     </>
                   ) : (
-                    "Speichern"
+                    t("common:actions.save", "Speichern")
                   )}
                 </Button>
                 <Button
@@ -364,14 +366,14 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                   onClick={resetProfileForm}
                   disabled={updateProfileMutation.isPending}
                 >
-                  Zurücksetzen
+                  {t("common:actions.reset", "Zurücksetzen")}
                 </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="password" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Aktuelles Passwort</Label>
+                <Label htmlFor="currentPassword">{t("common:profile.currentPassword", "Aktuelles Passwort")}</Label>
                 <Input
                   id="currentPassword"
                   type="password"
@@ -382,7 +384,7 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Neues Passwort</Label>
+                <Label htmlFor="newPassword">{t("common:profile.newPassword", "Neues Passwort")}</Label>
                 <Input
                   id="newPassword"
                   type="password"
@@ -390,11 +392,11 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
-                <p className="text-xs text-gray-500">Mindestens 8 Zeichen</p>
+                <p className="text-xs text-gray-500">{t("common:profile.passwordMinLength", "Mindestens 8 Zeichen")}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                <Label htmlFor="confirmPassword">{t("common:profile.confirmPassword", "Passwort bestätigen")}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -413,10 +415,10 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                   {changePasswordMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Ändere...
+                      {t("common:profile.changingPassword", "Ändere...")}
                     </>
                   ) : (
-                    "Passwort ändern"
+                    t("common:profile.changePassword", "Passwort ändern")
                   )}
                 </Button>
                 <Button
@@ -424,7 +426,7 @@ export function UserProfileDialog({ open, onOpenChange }: UserProfileDialogProps
                   onClick={resetPasswordForm}
                   disabled={changePasswordMutation.isPending}
                 >
-                  Zurücksetzen
+                  {t("common:actions.reset", "Zurücksetzen")}
                 </Button>
               </div>
             </TabsContent>

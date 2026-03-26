@@ -48,5 +48,17 @@
     "undo": "Undo",
     "jumpToCurrent": "Go to current",
     "skip": "Skip"
+  },
+  "eventDetail": {
+    "borrowStart": "Borrow start",
+    "borrowReturn": "Return date",
+    "event": "Event",
+    "completed": "Completed",
+    "date": "Date",
+    "description": "Description",
+    "relatedItem": "Related item",
+    "goToItem": "Go to item",
+    "markReturned": "Mark as returned",
+    "viewItem": "View item"
   }
 }

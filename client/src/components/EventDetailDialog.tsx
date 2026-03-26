@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 
 interface EventDetailDialogProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface EventDetailDialogProps {
 
 export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }: EventDetailDialogProps) {
   const [, setLocation] = useLocation();
+  const { t } = useTranslation(["calendar", "borrows", "common"]);
 
   if (!event) return null;
 
@@ -42,6 +44,16 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
     event.eventType === "borrow_return" &&
     !event.isCompleted;
 
+  const getEventTypeLabel = (eventType: string) => {
+    if (eventType === "borrow_start") return t("calendar:eventDetail.borrowStart");
+    if (eventType === "borrow_return") return t("calendar:eventDetail.borrowReturn");
+    return t("calendar:eventDetail.event");
+  };
+
+  const getStatusLabel = (status: string) => {
+    return t(`borrows:status.${status}`, { defaultValue: status });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -65,26 +77,26 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
                   : "bg-gray-50 text-gray-700 border-gray-200"
               }
             >
-              {event.eventType === "borrow_start" ? "Ausleihe-Start" : event.eventType === "borrow_return" ? "Rückgabe-Termin" : "Event"}
+              {getEventTypeLabel(event.eventType)}
             </Badge>
             {event.isCompleted && (
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                Erledigt
+                {t("calendar:eventDetail.completed")}
               </Badge>
             )}
           </div>
 
           {/* Event Date */}
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Datum</p>
+            <p className="text-sm font-medium text-muted-foreground">{t("calendar:eventDetail.date")}</p>
             <p className="text-base">{format(new Date(event.startDate), "PPP", { locale: de })}</p>
           </div>
 
           {/* Description */}
           {event.description && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Beschreibung</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("calendar:eventDetail.description")}</p>
               <p className="text-base">{event.description}</p>
             </div>
           )}
@@ -92,7 +104,7 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
           {/* Related Item */}
           {item && (
             <div className="border rounded-lg p-3 bg-muted/30">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Verknüpftes Item</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">{t("calendar:eventDetail.relatedItem")}</p>
               <div className="flex items-center gap-3">
                 {item.photoUrl && (
                   <img 
@@ -114,7 +126,7 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
                   className="shrink-0"
                 >
                   <ArrowRight className="h-4 w-4 mr-1" />
-                  Zum Item
+                  {t("calendar:eventDetail.goToItem")}
                 </Button>
               </div>
             </div>
@@ -123,16 +135,9 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
           {/* Borrow Request Status */}
           {borrowRequest && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Status</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("common:labels.status")}</p>
               <Badge variant="outline" className="mt-1">
-                {borrowRequest.status === "approved" ? "Genehmigt" : 
-                 borrowRequest.status === "active" ? "Aktiv" :
-                 borrowRequest.status === "completed" ? "Abgeschlossen" :
-                 borrowRequest.status === "returned" ? "Zurückgegeben" :
-                 borrowRequest.status === "cancelled" ? "Storniert" :
-                 borrowRequest.status === "rejected" ? "Abgelehnt" :
-                 borrowRequest.status === "pending" ? "Ausstehend" :
-                 borrowRequest.status}
+                {getStatusLabel(borrowRequest.status)}
               </Badge>
             </div>
           )}
@@ -145,7 +150,7 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
                 className="flex-1"
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                Als zurückgegeben markieren
+                {t("calendar:eventDetail.markReturned")}
               </Button>
             )}
             {item && !canMarkReturned && (
@@ -155,7 +160,7 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
                 className="flex-1"
               >
                 <Package className="h-4 w-4 mr-2" />
-                Item ansehen
+                {t("calendar:eventDetail.viewItem")}
               </Button>
             )}
           </div>

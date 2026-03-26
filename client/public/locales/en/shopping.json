@@ -73,5 +73,28 @@
   "manageCategories": "Manage Categories",
   "labels": {
     "itemCount": "{{count}} item(s)"
+  },
+  "completeDialog": {
+    "title": "Complete shopping",
+    "description": "Mark {{count}} item(s) as purchased",
+    "addToInventory": "Add to inventory",
+    "allToInventory": "All to inventory",
+    "hint": "These items will be marked as purchased. Select which ones to add to the inventory:",
+    "categoryMissing": "Category missing!",
+    "inventoryName": "Name in inventory",
+    "inventoryNamePlaceholder": "Item name",
+    "categoryLabel": "Category",
+    "selectCategory": "Select category",
+    "detailsPlaceholder": "e.g. Color, size, condition...",
+    "ownership": "Ownership",
+    "householdOwnership": "Household (shared)",
+    "personalOwnership": "Personal",
+    "selectOwner": "Select owner",
+    "inventorySummary": "{{count}} item(s) will be added to inventory",
+    "noCategory": "No category",
+    "householdShort": "Household",
+    "personalShort": "Personal",
+    "completing": "Completing...",
+    "complete": "Complete"
   }
 }

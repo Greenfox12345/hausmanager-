@@ -7,8 +7,13 @@
   "completeTask": "Complete task",
   "noTasks": "No tasks",
   "noTasksHint": "Create your first task to get started.",
+  "itemDetails": "Item Details",
   "fields": {
     "name": "Task name",
+    "taskEnd": "Task end",
+    "personsPerRound": "Number of persons per round",
+    "personsPerRoundShort": "person(s) per round",
+    "rotation": "Rotation",
     "description": "Description",
     "assignedTo": "Assigned to",
     "dueDate": "Due date",
@@ -100,6 +105,7 @@
     "weekday": "Weekday"
   },
   "dialog": {
+    "permissionsForNonResponsible": "Permissions for non-responsible members",
     "editTitle": "Edit task",
     "viewTitle": "Task details",
     "description": "Description",
@@ -270,7 +276,12 @@
   "gantt": {
     "title": "Gantt chart",
     "timeline": "Timeline",
-    "noTasks": "No tasks for the Gantt chart"
+    "noTasks": "No tasks for the Gantt chart",
+    "task": "Task",
+    "noDueDate": "Tasks without due date",
+    "open": "Open",
+    "done": "Done",
+    "today": "Today"
   },
   "actions": {
     "create": "Create task",

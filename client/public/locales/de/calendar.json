@@ -48,5 +48,17 @@
     "undo": "Rükgängig machen",
     "jumpToCurrent": "Zu aktuellem Termin",
     "skip": "Auslassen"
+  },
+  "eventDetail": {
+    "borrowStart": "Ausleihe-Start",
+    "borrowReturn": "Rückgabe-Termin",
+    "event": "Termin",
+    "completed": "Erledigt",
+    "date": "Datum",
+    "description": "Beschreibung",
+    "relatedItem": "Verknüpftes Item",
+    "goToItem": "Zum Item",
+    "markReturned": "Als zurückgegeben markieren",
+    "viewItem": "Item ansehen"
   }
 }

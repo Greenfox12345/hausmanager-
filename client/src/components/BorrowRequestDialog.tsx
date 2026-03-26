@@ -13,6 +13,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, Image as ImageIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface BorrowRequestDialogProps {
   open: boolean;
@@ -49,6 +50,7 @@ export function BorrowRequestDialog({
   initialStartDate,
   initialEndDate,
 }: BorrowRequestDialogProps) {
+  const { t } = useTranslation(["borrow", "common"]);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");
@@ -73,18 +75,18 @@ export function BorrowRequestDialog({
 
       // Generate pre-filled message with task context
       if (taskName && occurrenceNumber) {
-        const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `Termin ${occurrenceNumber}`;
-        const membersStr = assignedMembers.length > 0 ? `\nVerantwortlich: ${assignedMembers.join(", ")}` : "";
+        const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `${t("borrow:occurrence")} ${occurrenceNumber}`;
+        const membersStr = assignedMembers.length > 0 ? `\n${t("borrow:responsible")}: ${assignedMembers.join(", ")}` : "";
         
         setMessage(
-          `Ich benötige "${itemName}" für folgende Aufgabe:\n\n` +
-          `Aufgabe: ${taskName}\n` +
-          `Termin: ${dateStr} (Termin ${occurrenceNumber})${membersStr}\n\n` +
-          `Bitte um Bestätigung der Ausleihe.`
+          `${t("borrow:requestMessagePrefix", { itemName })}\n\n` +
+          `${t("borrow:task")}: ${taskName}\n` +
+          `${t("borrow:occurrence")}: ${dateStr} (${t("borrow:occurrence")} ${occurrenceNumber})${membersStr}\n\n` +
+          t("borrow:requestMessageSuffix")
         );
       }
     }
-  }, [open, initialStartDate, initialEndDate, occurrenceDate, taskName, occurrenceNumber, assignedMembers, itemName]);
+  }, [open, initialStartDate, initialEndDate, occurrenceDate, taskName, occurrenceNumber, assignedMembers, itemName, t]);
 
   // Load guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery(
@@ -115,12 +117,12 @@ export function BorrowRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] flex flex-col max-h-[90vh]">
         <DialogHeader className="shrink-0">
-          <DialogTitle>Item ausleihen</DialogTitle>
+          <DialogTitle>{t("borrow:requestDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Item</Label>
+            <Label className="text-sm font-medium">{t("borrow:requestDialog.item")}</Label>
             <div className="text-sm text-muted-foreground">{itemName}</div>
           </div>
 
@@ -131,11 +133,11 @@ export function BorrowRequestDialog({
                 <div className="text-sm font-medium">{taskName}</div>
                 <div className="text-sm text-muted-foreground flex items-center gap-2">
                   <CalendarIcon className="h-3 w-3" />
-                  {occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `Termin ${occurrenceNumber}`}
+                  {occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `${t("borrow:occurrence")} ${occurrenceNumber}`}
                 </div>
                 {assignedMembers.length > 0 && (
                   <div className="text-sm text-muted-foreground">
-                    Verantwortlich: {assignedMembers.join(", ")}
+                    {t("borrow:responsible")}: {assignedMembers.join(", ")}
                   </div>
                 )}
               </CardContent>
@@ -148,13 +150,13 @@ export function BorrowRequestDialog({
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
-                  Ausleihvorgaben
+                  {t("borrow:requestDialog.guidelines")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {guidelines.instructionsText && (
                   <div>
-                    <div className="font-medium mb-1">Anweisungen:</div>
+                    <div className="font-medium mb-1">{t("borrow:requestDialog.instructions")}:</div>
                     <div className="text-muted-foreground whitespace-pre-wrap">
                       {guidelines.instructionsText}
                     </div>
@@ -163,7 +165,7 @@ export function BorrowRequestDialog({
 
                 {(guidelines.checklistItems as any[])?.length > 0 && (
                   <div>
-                    <div className="font-medium mb-2">Checkliste bei Rückgabe:</div>
+                    <div className="font-medium mb-2">{t("borrow:requestDialog.returnChecklist")}:</div>
                     <div className="space-y-1">
                       {(guidelines.checklistItems as any[]).map((item: any) => (
                         <div key={item.id} className="flex items-center gap-2">
@@ -180,7 +182,7 @@ export function BorrowRequestDialog({
 
                 {(guidelines.photoRequirements as any[])?.length > 0 && (
                   <div>
-                    <div className="font-medium mb-2">Erforderliche Fotos bei Rückgabe:</div>
+                    <div className="font-medium mb-2">{t("borrow:requestDialog.requiredPhotosReturn")}:</div>
                     <div className="space-y-2">
                       {(guidelines.photoRequirements as any[]).map((req: any) => (
                         <div key={req.id} className="flex items-start gap-2">
@@ -194,7 +196,7 @@ export function BorrowRequestDialog({
                               <div className="mt-1">
                                 <img
                                   src={req.examplePhotoUrl}
-                                  alt="Beispiel"
+                                  alt={t("common:labels.preview")}
                                   className="h-20 w-20 object-cover rounded border"
                                   onError={(e) => {
                                     (e.currentTarget as HTMLImageElement).style.display = 'none';
@@ -211,7 +213,7 @@ export function BorrowRequestDialog({
                 )}
 
                 <div className="text-xs text-muted-foreground pt-2 border-t">
-                  <span className="text-destructive">*</span> = Pflichtfeld bei Rückgabe
+                  <span className="text-destructive">*</span> = {t("borrow:requestDialog.requiredOnReturn")}
                 </div>
               </CardContent>
             </Card>
@@ -219,7 +221,7 @@ export function BorrowRequestDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start-date">Von</Label>
+              <Label htmlFor="start-date">{t("borrow:requestDialog.from")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -234,7 +236,7 @@ export function BorrowRequestDialog({
                     {startDate ? (
                       format(startDate, "PPP", { locale: de })
                     ) : (
-                      <span>Datum wählen</span>
+                      <span>{t("borrow:requestDialog.selectDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -251,7 +253,7 @@ export function BorrowRequestDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="end-date">Bis</Label>
+              <Label htmlFor="end-date">{t("borrow:requestDialog.to")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -266,7 +268,7 @@ export function BorrowRequestDialog({
                     {endDate ? (
                       format(endDate, "PPP", { locale: de })
                     ) : (
-                      <span>Datum wählen</span>
+                      <span>{t("borrow:requestDialog.selectDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -290,15 +292,15 @@ export function BorrowRequestDialog({
 
           {startDate && endDate && startDate > endDate && (
             <div className="text-sm text-destructive">
-              Das Enddatum muss nach dem Startdatum liegen
+              {t("borrow:requestDialog.endAfterStart")}
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="message">Nachricht (optional)</Label>
+            <Label htmlFor="message">{t("borrow:requestDialog.message")}</Label>
             <Textarea
               id="message"
-              placeholder="Warum möchtest du dieses Item ausleihen?"
+              placeholder={t("borrow:requestDialog.messagePlaceholder")}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
@@ -312,13 +314,13 @@ export function BorrowRequestDialog({
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
           >
-            Abbrechen
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!isValid || isSubmitting}
           >
-            {isSubmitting ? "Wird gesendet..." : "Anfrage senden"}
+            {isSubmitting ? t("borrow:requestDialog.sending") : t("borrow:requestDialog.send")}
           </Button>
         </DialogFooter>
       </DialogContent>
