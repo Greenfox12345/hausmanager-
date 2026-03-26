@@ -36,7 +36,8 @@
   "actions": {
     "archive": "Archive",
     "restore": "Restore",
-    "assignTasks": "Assign {{count}} task(s)"
+    "assignTasks_one": "Assign {{count}} task",
+    "assignTasks_other": "Assign {{count}} tasks"
   },
   "validation": {
     "nameRequired": "Please enter a project name",

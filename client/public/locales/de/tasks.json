@@ -80,9 +80,12 @@
     "rotationPlan": "Rotationsplan",
     "exempt": "Freistellen",
     "repeatMode": "Wiederholungsmodus",
-    "daysN": "Tage(n)",
-    "weeksN": "Woche(n)",
-    "monthsN": "Monat(e)",
+    "daysN_one": "{{count}} Tag",
+    "daysN_other": "{{count}} Tage",
+    "weeksN_one": "{{count}} Woche",
+    "weeksN_other": "{{count}} Wochen",
+    "monthsN_one": "{{count}} Monat",
+    "monthsN_other": "{{count}} Monate",
     "monthlyRepeat": "Monatliche Wiederholung",
     "sameDate": "Am gleichen Tag (z.B. jeden 15.)",
     "sameWeekday": "Fester Wochentag",
@@ -245,9 +248,12 @@
     "created": "Aufgabe erstellt",
     "updated": "Aufgabe aktualisiert",
     "deleted": "Aufgabe gelöscht",
-    "deletedCount": "{{count}} Aufgabe(n) gelöscht",
-    "assignedCount": "{{count}} Aufgabe(n) zugewiesen",
-    "completedCount": "{{count}} Aufgabe(n) abgeschlossen",
+    "deletedCount_one": "{{count}} Aufgabe gelöscht",
+    "deletedCount_other": "{{count}} Aufgaben gelöscht",
+    "assignedCount_one": "{{count}} Aufgabe zugewiesen",
+    "assignedCount_other": "{{count}} Aufgaben zugewiesen",
+    "completedCount_one": "{{count}} Aufgabe abgeschlossen",
+    "completedCount_other": "{{count}} Aufgaben abgeschlossen",
     "completed": "Aufgabe abgeschlossen",
     "completedRecurring": "Termin abgeschlossen – nächster Termin eingestellt",
     "milestoneAdded": "Zwischensieg gespeichert!",
@@ -313,7 +319,8 @@
   "filterSort": {
     "title": "Filter & Sortierung",
     "reset": "Zurücksetzen",
-    "taskCount": "{{filtered}} von {{total}} Aufgabe(n)"
+    "taskCount_one": "{{filtered}} von {{total}} Aufgabe",
+    "taskCount_other": "{{filtered}} von {{total}} Aufgaben"
   },
   "batch": {
     "select": "Auswählen",
@@ -350,10 +357,12 @@
     "household": "Haushalt",
     "personal": "Persönlich",
     "owner": "Besitzer",
-    "inventorySummary": "{{count}} Item(s) werden ins Inventar aufgenommen",
+    "inventorySummary_one": "{{count}} Artikel wird ins Inventar aufgenommen",
+    "inventorySummary_other": "{{count}} Artikel werden ins Inventar aufgenommen",
     "noCategory": "Keine Kategorie",
     "missingCategoriesTitle": "⚠️ Fehlende Kategorien",
-    "missingCategoriesHint": "{{count}} Item(s) haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Items eine Kategorie aus."
+    "missingCategoriesHint_one": "{{count}} Artikel hat keine Kategorie ausgewählt. Bitte wählen Sie eine Kategorie aus.",
+    "missingCategoriesHint_other": "{{count}} Artikel haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Artikel eine Kategorie aus."
   },
   "milestoneDialog": {
     "title": "Zwischensieg dokumentieren",

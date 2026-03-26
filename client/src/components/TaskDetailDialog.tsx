@@ -1233,9 +1233,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="days">{t("repeat.daysN")}</SelectItem>
-                              <SelectItem value="weeks">{t("repeat.weeksN")}</SelectItem>
-                              <SelectItem value="months">{t("repeat.monthsN")}</SelectItem>
+                              <SelectItem value="days">{t("repeat.daysN_other", "Tage")}</SelectItem>
+                              <SelectItem value="weeks">{t("repeat.weeksN_other", "Wochen")}</SelectItem>
+                              <SelectItem value="months">{t("repeat.monthsN_other", "Monate")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

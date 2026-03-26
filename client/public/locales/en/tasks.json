@@ -80,9 +80,12 @@
     "rotationPlan": "Rotation plan",
     "exempt": "Exempt",
     "repeatMode": "Repeat mode",
-    "daysN": "day(s)",
-    "weeksN": "week(s)",
-    "monthsN": "month(s)",
+    "daysN_one": "{{count}} day",
+    "daysN_other": "{{count}} days",
+    "weeksN_one": "{{count}} week",
+    "weeksN_other": "{{count}} weeks",
+    "monthsN_one": "{{count}} month",
+    "monthsN_other": "{{count}} months",
     "monthlyRepeat": "Monthly repetition",
     "sameDate": "Same date (e.g. every 15th)",
     "sameWeekday": "Fixed weekday",
@@ -245,9 +248,12 @@
     "created": "Task created",
     "updated": "Task updated",
     "deleted": "Task deleted",
-    "deletedCount": "{{count}} task(s) deleted",
-    "assignedCount": "{{count}} task(s) assigned",
-    "completedCount": "{{count}} task(s) completed",
+    "deletedCount_one": "{{count}} task deleted",
+    "deletedCount_other": "{{count}} tasks deleted",
+    "assignedCount_one": "{{count}} task assigned",
+    "assignedCount_other": "{{count}} tasks assigned",
+    "completedCount_one": "{{count}} task completed",
+    "completedCount_other": "{{count}} tasks completed",
     "completed": "Task completed",
     "completedRecurring": "Occurrence completed – next occurrence scheduled",
     "milestoneAdded": "Milestone saved!",
@@ -313,7 +319,8 @@
   "filterSort": {
     "title": "Filter & Sort",
     "reset": "Reset",
-    "taskCount": "{{filtered}} of {{total}} task(s)"
+    "taskCount_one": "{{filtered}} of {{total}} task",
+    "taskCount_other": "{{filtered}} of {{total}} tasks"
   },
   "batch": {
     "select": "Select",
@@ -350,10 +357,12 @@
     "household": "Household",
     "personal": "Personal",
     "owner": "Owner",
-    "inventorySummary": "{{count}} item(s) will be added to inventory",
+    "inventorySummary_one": "{{count}} item will be added to inventory",
+    "inventorySummary_other": "{{count}} items will be added to inventory",
     "noCategory": "No category",
     "missingCategoriesTitle": "⚠️ Missing categories",
-    "missingCategoriesHint": "{{count}} item(s) have no category selected. Please select a category for all items."
+    "missingCategoriesHint_one": "{{count}} item has no category selected. Please select a category.",
+    "missingCategoriesHint_other": "{{count}} items have no category selected. Please select a category for all items."
   },
   "milestoneDialog": {
     "title": "Document milestone",

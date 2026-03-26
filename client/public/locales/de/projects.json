@@ -36,7 +36,8 @@
   "actions": {
     "archive": "Archivieren",
     "restore": "Wiederherstellen",
-    "assignTasks": "{{count}} Aufgabe(n) zuordnen"
+    "assignTasks_one": "{{count}} Aufgabe zuordnen",
+    "assignTasks_other": "{{count}} Aufgaben zuordnen"
   },
   "tasks": {
     "title": "Projektaufgaben",

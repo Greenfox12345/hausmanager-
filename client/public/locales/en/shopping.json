@@ -52,7 +52,8 @@
     "itemLinkError": "Error linking items",
     "noItemsSelected": "No items selected to complete",
     "selectItems": "Please select at least one item",
-    "categoryInUse": "Cannot delete category: {{count}} item(s) still use it",
+    "categoryInUse_one": "Cannot delete category: {{count}} item still uses it",
+    "categoryInUse_other": "Cannot delete category: {{count}} items still use it",
     "listCreated": "Shopping list created successfully.",
     "listUpdated": "Shopping list updated successfully.",
     "listDeleted": "Shopping list deleted successfully.",
@@ -72,11 +73,13 @@
   "renameCategory": "Rename",
   "manageCategories": "Manage Categories",
   "labels": {
-    "itemCount": "{{count}} item(s)"
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items"
   },
   "completeDialog": {
     "title": "Complete shopping",
-    "description": "Mark {{count}} item(s) as purchased",
+    "description_one": "Mark {{count}} item as purchased",
+    "description_other": "Mark {{count}} items as purchased",
     "addToInventory": "Add to inventory",
     "allToInventory": "All to inventory",
     "hint": "These items will be marked as purchased. Select which ones to add to the inventory:",
@@ -90,7 +93,8 @@
     "householdOwnership": "Household (shared)",
     "personalOwnership": "Personal",
     "selectOwner": "Select owner",
-    "inventorySummary": "{{count}} item(s) will be added to inventory",
+    "inventorySummary_one": "{{count}} item will be added to inventory",
+    "inventorySummary_other": "{{count}} items will be added to inventory",
     "noCategory": "No category",
     "householdShort": "Household",
     "personalShort": "Personal",

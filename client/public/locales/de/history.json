@@ -40,7 +40,9 @@
     "trackActivities": "Aktivitäten und Fortschritte im Haushalt verfolgen"
   },
   "labels": {
-    "photoCount": "{{count}} Foto(s)",
-    "pdfCount": "{{count}} PDF(s)"
+    "photoCount_one": "{{count}} Foto",
+    "photoCount_other": "{{count}} Fotos",
+    "pdfCount_one": "{{count}} PDF",
+    "pdfCount_other": "{{count}} PDFs"
   }
 }
