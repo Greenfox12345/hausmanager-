@@ -3306,3 +3306,6 @@
 - [x] Fallback-Texte aus Quellcode extrahieren und DE/EN-JSON-Dateien befüllen
 - [x] Allowlist (scripts/i18n-allowlist.json) leeren
 - [x] CI-Lint und Tests bestätigen
+
+## GitHub Actions CI Workflow
+- [x] .github/workflows/ci.yml erstellen (TypeScript-Check + i18n-Lint + Vitest)
