@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Calendar() {
   const { t, i18n } = useTranslation(["tasks", "common", "calendar"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -555,7 +556,7 @@ export default function Calendar() {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
-                    {format(currentMonth, "MMMM yyyy", { locale: de })}
+                    {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
                   </CardTitle>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Select value={eventTypeFilter} onValueChange={(value: any) => setEventTypeFilter(value)}>
@@ -691,7 +692,7 @@ export default function Calendar() {
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4" />
-                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, i18n.language === "de" ? "d. MMMM yyyy" : "MMMM d, yyyy", { locale: de })}
+                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, i18n.language === "de" ? "d. MMMM yyyy" : "MMMM d, yyyy", { locale: dateFnsLocale })}
                     </h3>
                     {selectedDateTasks.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">

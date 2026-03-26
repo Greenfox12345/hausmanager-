@@ -3333,3 +3333,6 @@
 - [x] Alle vier Stellen übersetzt (jumpToCurrent, skip, Monatsnamen, Datum-Format)
 - [x] 15 weitere EN-Kopien ohne Umlaute in calendar/inventory/shopping/tasks korrigiert
 - [x] Lint-Prüfung 6 (untranslated_copy) implementiert und 3 neue Tests hinzugefügt (22 Tests grün)
+
+## Calendar.tsx – date-fns Locale dynamisch
+- [x] date-fns Locale auf i18n.language umstellen (de/en-GB) – Monatsnamen und Datumsformate jetzt sprachabhängig
