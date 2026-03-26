@@ -20,7 +20,10 @@
     "frequency": "Häufigkeit",
     "duration": "Dauer",
     "durationDays": "Tage",
-    "durationHours": "Stunden"
+    "durationHours": "Stunden",
+    "durationTime": "Dauer (Stunden:Minuten)",
+    "endDate": "Terminende",
+    "dueTime": "Uhrzeit"
   },
   "status": {
     "open": "Offen",
@@ -191,7 +194,10 @@
     "prerequisites": "Voraussetzungen",
     "followups": "Folgeaufgaben",
     "addPrerequisite": "Voraussetzung hinzufügen",
-    "addFollowup": "Folgeaufgabe hinzufügen"
+    "addFollowup": "Folgeaufgabe hinzufügen",
+    "prerequisitesHint": "Aufgaben, die vorher erledigt sein müssen",
+    "followupsHint": "Aufgaben, die danach folgen sollen",
+    "noTasksAvailable": "Keine Aufgaben verfügbar"
   },
   "reminders": {
     "title": "Erinnerungen",
@@ -268,10 +274,24 @@
   },
   "actions": {
     "create": "Aufgabe erstellen",
-    "complete": "Aufgabe abschließen",
-    "sendReminder": "Erinnerung senden",
-    "milestone": "Zwischensieg dokumentieren",
+    "complete": "Abschließen",
+    "sendReminder": "Erinnern",
+    "milestone": "Zwischenziel",
     "delete": "Aufgabe löschen"
+  },
+  "overdue": "Überfällig",
+  "completed": "Erledigt",
+  "createTask": "Aufgabe erstellen",
+  "linkTask": "Aufgabenverknüpfung",
+  "linkProject": "Mit Projekt verknüpfen",
+  "selectProjects": "Projekte auswählen",
+  "prerequisites": "Voraussetzungen (muss vorher erledigt sein)",
+  "followups": "Folgeaufgaben (muss danach erledigt werden)",
+  "linkedTask": "Verknüpfte Aufgabe",
+  "sharing": {
+    "shareWithNeighbors": "Mit Nachbarn teilen",
+    "selectHouseholds": "Haushalte auswählen",
+    "permissionsLabel": "Berechtigungen für nicht-verantwortliche Mitglieder"
   },
   "filterSort": {
     "title": "Filter & Sortierung",

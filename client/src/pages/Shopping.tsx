@@ -320,7 +320,7 @@ export default function Shopping() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Laden...</p>
+          <p className="text-muted-foreground">{t("common:loading")}</p>
         </div>
       </AppLayout>
     );
@@ -809,7 +809,7 @@ export default function Shopping() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle Kategorien</SelectItem>
+                <SelectItem value="all">{t("shopping:allCategories", "Alle Kategorien")}</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id.toString()}>
                     {cat.name}
@@ -825,7 +825,7 @@ export default function Shopping() {
               className="shrink-0"
             >
               <ShoppingCart className="mr-2 h-4 w-4" />
-              Einkauf als Aufgabe organisieren ({selectedItemIds.size})
+              {t("shopping:organizeAsTask", "Einkauf als Aufgabe organisieren")} ({selectedItemIds.size})
             </Button>
           )}
         </div>
@@ -838,14 +838,14 @@ export default function Shopping() {
               size="lg"
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Einkauf abschließen ({selectedItemIds.size} Artikel)
+              {t("shopping:completeShoppingCount", "Einkauf abschließen ({{count}} Artikel)", { count: selectedItemIds.size })}
             </Button>
           </div>
         )}
 
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
-            Lädt Einkaufsliste...
+            {t("shopping:loadingList", "Lädt Einkaufsliste...")}
           </div>
         ) : filteredItems.length === 0 ? (
           <Card className="shadow-sm">
@@ -1055,7 +1055,7 @@ export default function Shopping() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editItemQuantity">Details (optional)</Label>
+                <Label htmlFor="editItemQuantity">{t("shopping:fields.details", "Details")} ({t("common:labels.optional")})</Label>
                 <Input
                   id="editItemQuantity"
                   placeholder="z.B. 2x, 500g..."
@@ -1100,13 +1100,13 @@ export default function Shopping() {
                 variant="outline"
                 onClick={() => setShowEditDialog(false)}
               >
-                Abbrechen
+                {t("common:actions.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={updateMutation.isPending}
               >
-                Speichern
+                {t("common:actions.save")}
               </Button>
             </DialogFooter>
           </form>
@@ -1203,7 +1203,7 @@ export default function Shopping() {
               />
             </div>
             <div>
-              <Label htmlFor="taskDueTime">Uhrzeit (optional)</Label>
+              <Label htmlFor="taskDueTime">{t("tasks:fields.dueTime", "Uhrzeit")} ({t("common:labels.optional")})</Label>
               <Input
                 id="taskDueTime"
                 type="time"
@@ -1243,7 +1243,7 @@ export default function Shopping() {
                 onCheckedChange={(checked) => setTaskEnableRepeat(checked as boolean)}
               />
               <Label htmlFor="taskEnableRepeat" className="cursor-pointer">
-                Wiederholung aktivieren
+                {t("tasks:repeat.enable", "Wiederholung aktivieren")}
               </Label>
             </div>
             
@@ -1263,8 +1263,8 @@ export default function Shopping() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="days">Tage</SelectItem>
-                      <SelectItem value="weeks">Wochen</SelectItem>
-                      <SelectItem value="months">Monate</SelectItem>
+                      <SelectItem value="weeks">{t("tasks:repeat.weeks", "Wochen")}</SelectItem>
+                      <SelectItem value="months">{t("tasks:repeat.months", "Monate")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1276,14 +1276,14 @@ export default function Shopping() {
                     onCheckedChange={(checked) => setTaskEnableRotation(checked as boolean)}
                   />
                   <Label htmlFor="taskEnableRotation" className="cursor-pointer">
-                    Verantwortung rotieren
+                    {t("tasks:repeat.rotateResponsibility", "Verantwortung rotieren")}
                   </Label>
                 </div>
                 
                 {taskEnableRotation && (
                   <div className="space-y-3 pl-6">
                     <div>
-                      <Label>Benötigte Personen</Label>
+                      <Label>{t("tasks:repeat.requiredPersons", "Benötigte Personen")}</Label>
                       <Input
                         type="number"
                         min="1"
@@ -1293,7 +1293,7 @@ export default function Shopping() {
                       />
                     </div>
                     <div>
-                      <Label>Ausgeschlossene Mitglieder</Label>
+                      <Label>{t("tasks:repeat.excludedMembers", "Ausgeschlossene Mitglieder")}</Label>
                       <div className="space-y-1 mt-1">
                         {members.map((m) => (
                           <div key={m.id} className="flex items-center space-x-2">
@@ -1328,14 +1328,14 @@ export default function Shopping() {
                 onCheckedChange={(checked) => setTaskEnableProject(checked as boolean)}
               />
               <Label htmlFor="taskEnableProject" className="cursor-pointer">
-                Mit Projekt verknüpfen
+                {t("tasks:linkProject", "Mit Projekt verknüpfen")}
               </Label>
             </div>
             
             {taskEnableProject && (
               <div className="space-y-3 pl-6">
                 <div>
-                  <Label>Projekte auswählen</Label>
+                  <Label>{t("tasks:selectProjects", "Projekte auswählen")}</Label>
                   <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
                     {projects.map((project) => (
                       <div key={project.id} className="flex items-center space-x-2">
@@ -1365,28 +1365,28 @@ export default function Shopping() {
                     onCheckedChange={(checked) => setTaskCreateNewProject(checked as boolean)}
                   />
                   <Label htmlFor="taskCreateNewProject" className="cursor-pointer text-sm">
-                    Neues Projekt erstellen
+                    {t("projects:newProject", "Neues Projekt erstellen")}
                   </Label>
                 </div>
                 
                 {taskCreateNewProject && (
                   <div className="space-y-2 pl-6">
                     <div>
-                      <Label htmlFor="taskNewProjectName">Projektname</Label>
+                      <Label htmlFor="taskNewProjectName">{t("projects:projectName", "Projektname")}</Label>
                       <Input
                         id="taskNewProjectName"
                         value={taskNewProjectName}
                         onChange={(e) => setTaskNewProjectName(e.target.value)}
-                        placeholder="Name des neuen Projekts"
+                        placeholder={t("projects:projectNamePlaceholder", "Name des neuen Projekts")}
                       />
                     </div>
                     <div>
-                      <Label htmlFor="taskNewProjectDescription">Beschreibung (optional)</Label>
+                      <Label htmlFor="taskNewProjectDescription">{t("projects:fields.description", "Beschreibung")} ({t("common:labels.optional")})</Label>
                       <Textarea
                         id="taskNewProjectDescription"
                         value={taskNewProjectDescription}
                         onChange={(e) => setTaskNewProjectDescription(e.target.value)}
-                        placeholder="Projektbeschreibung"
+                        placeholder={t("projects:descriptionPlaceholder", "Projektbeschreibung")}
                         rows={2}
                       />
                     </div>
@@ -1403,14 +1403,14 @@ export default function Shopping() {
                 onCheckedChange={(checked) => setTaskEnableDependencies(checked as boolean)}
               />
               <Label htmlFor="taskEnableDependencies" className="cursor-pointer">
-                Aufgabe verknüpfen
+                {t("tasks:linkTask", "Aufgabe verknüpfen")}
               </Label>
             </div>
             
             {taskEnableDependencies && (
               <div className="space-y-3 pl-6">
                 <div>
-                  <Label>Voraussetzungen (muss vorher erledigt sein)</Label>
+                  <Label>{t("tasks:prerequisites", "Voraussetzungen (muss vorher erledigt sein)")}</Label>
                   <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
                     {allTasks.map((task) => (
                       <div key={task.id} className="flex items-center space-x-2">
@@ -1433,7 +1433,7 @@ export default function Shopping() {
                   </div>
                 </div>
                 <div>
-                  <Label>Folgeaufgaben (muss danach erledigt werden)</Label>
+                  <Label>{t("tasks:followups", "Folgeaufgaben (muss danach erledigt werden)")}</Label>
                   <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
                     {allTasks.map((task) => (
                       <div key={task.id} className="flex items-center space-x-2">
@@ -1460,7 +1460,7 @@ export default function Shopping() {
             
             <div className="pt-2">
               <p className="text-sm text-muted-foreground mb-2">
-                Ausgewählte Artikel ({selectedItemIds.size}):
+                {t("shopping:selectedItems", "Ausgewählte Artikel")} ({selectedItemIds.size}):
               </p>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {Array.from(selectedItemIds).map((itemId) => {
@@ -1480,10 +1480,10 @@ export default function Shopping() {
                 variant="outline"
                 onClick={() => setShowTaskDialog(false)}
               >
-                Abbrechen
+                {t("common:actions.cancel")}
               </Button>
               <Button type="submit" disabled={createTaskMutation.isPending}>
-                Aufgabe erstellen
+                {t("tasks:createTask", "Aufgabe erstellen")}
               </Button>
             </DialogFooter>
           </form>
@@ -1494,7 +1494,7 @@ export default function Shopping() {
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Artikel-Details</DialogTitle>
+            <DialogTitle>{t("shopping:itemDetails", "Artikel-Details")}</DialogTitle>
           </DialogHeader>
           {detailItem && (
             <div className="space-y-4">
@@ -1512,14 +1512,14 @@ export default function Shopping() {
               
               {detailItem.details && (
                 <div>
-                  <Label className="text-muted-foreground">Details</Label>
+                  <Label className="text-muted-foreground">{t("shopping:fields.details", "Details")}</Label>
                   <p className="text-sm">{detailItem.details}</p>
                 </div>
               )}
               
               {detailItem.photoUrls && detailItem.photoUrls.length > 0 && (
                 <div>
-                  <Label className="text-muted-foreground">Fotos</Label>
+                  <Label className="text-muted-foreground">{t("shopping:fields.photos", "Fotos")}</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {normalizePhotoUrls(detailItem.photoUrls).map((photo, index) => (
                       <img 
@@ -1535,14 +1535,14 @@ export default function Shopping() {
               )}
               
               <div>
-                <Label className="text-muted-foreground">Erstellt von</Label>
+                <Label className="text-muted-foreground">{t("inventory:fields.createdBy", "Erstellt von")}</Label>
                 <p className="text-sm">
                   {members.find(m => m.id === detailItem.addedBy)?.memberName || "Unbekannt"}
                 </p>
               </div>
               
               <div>
-                <Label className="text-muted-foreground">Erstellt am</Label>
+                <Label className="text-muted-foreground">{t("inventory:fields.createdAt", "Erstellt am")}</Label>
                 <p className="text-sm">
                   {new Date(detailItem.createdAt).toLocaleString("de-DE", {
                     day: "2-digit",
@@ -1556,7 +1556,7 @@ export default function Shopping() {
               
               {detailItem.taskId && (
                 <div>
-                  <Label className="text-muted-foreground">Verknüpfte Aufgabe</Label>
+                  <Label className="text-muted-foreground">{t("tasks:linkedTask", "Verknüpfte Aufgabe")}</Label>
                   <Button
                     variant="outline"
                     className="w-full justify-start mt-1"
@@ -1574,7 +1574,7 @@ export default function Shopping() {
           )}
           <DialogFooter>
             <Button onClick={() => setShowDetailDialog(false)}>
-              Schließen
+              {t("common:actions.close", "Schließen")}
             </Button>
           </DialogFooter>
         </DialogContent>

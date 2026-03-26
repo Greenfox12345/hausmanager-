@@ -791,7 +791,7 @@ export default function Calendar() {
                                       )}
                                       {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
                                         <Badge variant="destructive" className="text-xs">
-                                          Überfällig
+                                          {t("tasks:overdue", "Überfällig")}
                                         </Badge>
                                       )}
                                     </div>
@@ -1024,29 +1024,29 @@ export default function Calendar() {
                                   </span>
                                   {(task as any).isOverdue && (
                                     <Badge variant="outline" className="bg-red-100 text-red-700 border-red-300 text-xs font-semibold">
-                                      Überfällig
+                                      {t("tasks:overdue", "Überfällig")}
                                     </Badge>
                                   )}
                                   {task.isFutureOccurrence && (
                                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
-                                      Folgetermin
+                                      {t("calendar:futureOccurrence", "Folgetermin")}
                                     </Badge>
                                   )}
                                   {task.isCompletedOccurrence && (
                                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
                                       <CheckCircle2 className="h-3 w-3 mr-1" />
-                                      Erledigter Termin
+                                      {t("calendar:completedOccurrence", "Erledigter Termin")}
                                     </Badge>
                                   )}
                                   {task.isCompleted && !task.isCompletedOccurrence && (
                                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
                                       <CheckCircle2 className="h-3 w-3 mr-1" />
-                                      Erledigt
+                                      {t("tasks:completed", "Erledigt")}
                                     </Badge>
                                   )}
                                   {!task.isCompleted && !task.isFutureOccurrence && task.dueDate && isPast(new Date(task.dueDate)) && (
                                     <Badge variant="destructive" className="text-xs">
-                                      Überfällig
+                                      {t("tasks:overdue", "Überfällig")}
                                     </Badge>
                                   )}
                                   {(task as any).isSharedWithUs && (
@@ -1083,7 +1083,7 @@ export default function Calendar() {
                                   {task.enableRotation && (
                                     <Badge variant="outline" className="text-xs">
                                       <Target className="h-3 w-3 mr-1" />
-                                      Rotation
+                                      {t("tasks:repeat.rotation", "Rotation")}
                                     </Badge>
                                   )}
                                 </div>
@@ -1108,7 +1108,7 @@ export default function Calendar() {
                                         }}
                                       >
                                         <ArrowLeft className="h-4 w-4 mr-1" />
-                                        Rückgängig machen
+                                        {t("calendar:actions.undo", "Rükgängig machen")}
                                       </Button>
                                     )}
                                     {task.isFutureOccurrence && (
@@ -1125,7 +1125,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <ArrowRight className="h-4 w-4 mr-1" />
-                                          Zu aktuellem Termin
+                                          {t("calendar:actions.jumpToCurrent", "Zu aktuellem Termin")}
                                         </Button>
                                         <Button
                                           size="sm"
@@ -1145,7 +1145,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <X className="h-4 w-4 mr-1" />
-                                          Auslassen
+                                          {t("calendar:actions.skip", "Auslassen")}
                                         </Button>
                                       </>
                                     )}
@@ -1162,7 +1162,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <Check className="h-4 w-4 mr-1" />
-                                          Abschließen
+                                          {t("tasks:actions.complete", "Abschließen")}
                                         </Button>
                                         <Button
                                           size="sm"
@@ -1175,7 +1175,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <Target className="h-4 w-4 mr-1" />
-                                          Zwischenziel
+                                          {t("tasks:actions.milestone", "Zwischenziel")}
                                         </Button>
                                       </>
                                     )}
@@ -1192,7 +1192,7 @@ export default function Calendar() {
                                           }}
                                         >
                                           <Bell className="h-4 w-4 mr-1" />
-                                          Erinnern
+                                          {t("tasks:actions.sendReminder", "Erinnern")}
                                         </Button>
                                       </>
                                     )}
@@ -1204,8 +1204,8 @@ export default function Calendar() {
                                         onClick={(e) => handleDelete(task, e)}
                                       >
                                         <Trash2 className="h-4 w-4 mr-1" />
-                                        Löschen
-                                      </Button>
+                                          {t("common:actions.delete", "Löschen")}
+                                        </Button>
                                     )}
                                   </div>
                               </div>
@@ -1310,7 +1310,7 @@ export default function Calendar() {
                                   {task.isCompleted && (
                                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
                                       <CheckCircle2 className="h-3 w-3 mr-1" />
-                                      Erledigt
+                                      {t("tasks:completed", "Erledigt")}
                                     </Badge>
                                   )}
                                 </div>
@@ -1318,7 +1318,7 @@ export default function Calendar() {
                                 <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
                                   <span>{getMemberNames(task.assignedTo)}</span>
                                   {task.createdAt && (
-                                    <span>• Erstellt: {format(new Date(task.createdAt), "dd.MM.yyyy")}</span>
+                                    <span>• {t("inventory:fields.createdAt", "Erstellt am")}: {format(new Date(task.createdAt), "dd.MM.yyyy")}</span>
                                   )}
                                   {projectName && (
                                     <Badge variant="outline" className="text-xs">
@@ -1335,7 +1335,7 @@ export default function Calendar() {
                                   {task.enableRotation && (
                                     <Badge variant="outline" className="text-xs">
                                       <Target className="h-3 w-3 mr-1" />
-                                      Rotation
+                                      {t("tasks:repeat.rotation", "Rotation")}
                                     </Badge>
                                   )}
                                 </div>

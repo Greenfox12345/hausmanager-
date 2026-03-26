@@ -36,9 +36,17 @@
     "deleteConfirm": "Are you sure you want to delete this event?",
     "overview": "Calendar and all appointments at a glance",
     "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
-    "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar."
+    "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
+    "jumpedToCurrent": "Jumped to current appointment"
   },
   "labels": {
     "occurrence": "Occurrence"
+  },
+  "futureOccurrence": "Future occurrence",
+  "completedOccurrence": "Completed occurrence",
+  "actions": {
+    "undo": "Undo",
+    "jumpToCurrent": "Go to current",
+    "skip": "Skip"
   }
 }

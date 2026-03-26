@@ -1336,10 +1336,10 @@ export default function Projects() {
               )}
 
               <div className="space-y-2">
-                <Label>Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)</Label>
+                <Label>{t("tasks:prerequisites", "Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)")}</Label>
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
                   {tasks.filter(t => !t.isCompleted).length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
+                    <p className="text-sm text-muted-foreground">{t("projects:noOpenTasks", "Keine offenen Aufgaben verfügbar")}</p>
                   ) : (
                     <>
                       {/* Project tasks */}
@@ -1369,7 +1369,7 @@ export default function Projects() {
                       {/* Other household tasks */}
                       {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:otherHouseholdTasks", "Andere Haushaltsaufgaben")}</p>
                           {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
                             <div key={`prereq-other-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
@@ -1396,10 +1396,10 @@ export default function Projects() {
               </div>
 
               <div className="space-y-2">
-                <Label>Folgeaufgaben (optionale Aufgaben, die danach kommen)</Label>
+                <Label>{t("tasks:followups", "Folgeaufgaben (optionale Aufgaben, die danach kommen)")}</Label>
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
                   {tasks.filter(t => !t.isCompleted).length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Keine offenen Aufgaben verfügbar</p>
+                    <p className="text-sm text-muted-foreground">{t("projects:noOpenTasks", "Keine offenen Aufgaben verfügbar")}</p>
                   ) : (
                     <>
                       {/* Project tasks */}
@@ -1429,7 +1429,7 @@ export default function Projects() {
                       {/* Other household tasks */}
                       {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Andere Haushaltsaufgaben</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:otherHouseholdTasks", "Andere Haushaltsaufgaben")}</p>
                           {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
                             <div key={`followup-other-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox

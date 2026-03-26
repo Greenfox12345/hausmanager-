@@ -20,6 +20,7 @@ import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
 import { BorrowProtocol } from "@/components/BorrowProtocol";
 import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 import { compressImage } from "@/lib/imageCompression";
+import { useTranslation } from "react-i18next";
 
 type Visibility = "private" | "connected" | "selected";
 interface LightboxState { photos: { url: string; label?: string }[]; index: number; }
@@ -48,6 +49,7 @@ export default function InventoryDetail() {
   const [revokeRequest, setRevokeRequest] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string } | null>(null);
   const [detailTab, setDetailTab] = useState<"requests" | "guidelines">("requests");
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
+  const { t } = useTranslation(["inventory", "borrow", "common"]);
   const [expandedRequests, setExpandedRequests] = useState<Set<number>>(new Set());
 
   const toggleExpanded = (id: number) => {
@@ -232,7 +234,7 @@ export default function InventoryDetail() {
     return (
       <AppLayout>
         <div className="container py-6 max-w-4xl">
-          <div className="text-center py-12 text-muted-foreground">Lädt...</div>
+          <div className="text-center py-12 text-muted-foreground">{t("common:loading")}</div>
         </div>
       </AppLayout>
     );
@@ -242,7 +244,7 @@ export default function InventoryDetail() {
     return (
       <AppLayout>
         <div className="container py-6 max-w-4xl">
-          <div className="text-center py-12 text-muted-foreground">Artikel nicht gefunden</div>
+          <div className="text-center py-12 text-muted-foreground">{t("inventory:notFound", "Artikel nicht gefunden")}</div>
         </div>
       </AppLayout>
     );
@@ -357,22 +359,22 @@ export default function InventoryDetail() {
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => setLocation("/inventory")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
+            {t("common:actions.back", "Zurück")}
           </Button>
           <div className="flex-1" />
           {!isEditing && (
             <>
               <Button variant="default" onClick={() => setShowBorrowDialog(true)}>
                 <Calendar className="h-4 w-4 mr-2" />
-                Ausleihen
+                {t("borrow:borrow", "Ausleihen")}
               </Button>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit2 className="h-4 w-4 mr-2" />
-                Bearbeiten
+                {t("common:actions.edit")}
               </Button>
               <Button variant="destructive" onClick={handleDelete}>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Löschen
+                {t("common:actions.delete")}
               </Button>
             </>
           )}
@@ -381,7 +383,7 @@ export default function InventoryDetail() {
         {isEditing ? (
           <Card>
             <CardHeader>
-              <CardTitle>Artikel bearbeiten</CardTitle>
+              <CardTitle>{t("inventory:editItem", "Artikel bearbeiten")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -435,7 +437,7 @@ export default function InventoryDetail() {
                   {editPhotos.length < 5 && (
                     <div>
                       <Input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
-                      {uploadingPhoto && <p className="text-sm text-muted-foreground mt-1">Lädt hoch...</p>}
+                      {uploadingPhoto && <p className="text-sm text-muted-foreground mt-1">{t("common:uploading", "Lädt hoch...")}</p>}
                     </div>
                   )}
                 </div>
@@ -454,8 +456,8 @@ export default function InventoryDetail() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="household">Haushaltseigentum</SelectItem>
-                    <SelectItem value="personal">Persönliches Eigentum</SelectItem>
+                    <SelectItem value="household">{t("inventory:ownershipHousehold", "Haushaltseigentum")}</SelectItem>
+                    <SelectItem value="personal">{t("inventory:ownershipPersonal", "Persönliches Eigentum")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -486,7 +488,7 @@ export default function InventoryDetail() {
               <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
                 <Label className="text-base font-semibold flex items-center gap-2">
                   <Globe className="h-4 w-4" />
-                  Sichtbarkeit für andere Haushalte
+                  {t("inventory:visibilityLabel", "Sichtbarkeit für andere Haushalte")}
                 </Label>
                 <Select
                   value={editVisibility}
@@ -501,17 +503,17 @@ export default function InventoryDetail() {
                   <SelectContent>
                     <SelectItem value="private">
                       <span className="flex items-center gap-2">
-                        <Lock className="h-3 w-3" /> Nur dieser Haushalt
+                        <Lock className="h-3 w-3" /> {t("inventory:visibilityPrivate", "Nur dieser Haushalt")}
                       </span>
                     </SelectItem>
                     <SelectItem value="connected">
                       <span className="flex items-center gap-2">
-                        <Globe className="h-3 w-3" /> Alle verknüpften Haushalte
+                        <Globe className="h-3 w-3" /> {t("inventory:visibilityConnected", "Alle verknüpften Haushalte")}
                       </span>
                     </SelectItem>
                     <SelectItem value="selected">
                       <span className="flex items-center gap-2">
-                        <Users className="h-3 w-3" /> Ausgewählte Haushalte
+                        <Users className="h-3 w-3" /> {t("inventory:visibilitySelected", "Ausgewählte Haushalte")}
                       </span>
                     </SelectItem>
                   </SelectContent>
@@ -519,7 +521,7 @@ export default function InventoryDetail() {
 
                 {editVisibility === 'selected' && connectedHouseholds.length > 0 && (
                   <div className="space-y-2 mt-2">
-                    <Label className="text-sm text-muted-foreground">Haushalte auswählen:</Label>
+                    <Label className="text-sm text-muted-foreground">{t("inventory:selectHouseholds", "Haushalte auswählen:")}</Label>
                     {connectedHouseholds.map((h: any) => (
                       <div key={h.id} className="flex items-center gap-2">
                         <input
@@ -539,17 +541,17 @@ export default function InventoryDetail() {
 
                 {editVisibility === 'selected' && connectedHouseholds.length === 0 && (
                   <p className="text-sm text-muted-foreground">
-                    Keine verknüpften Haushalte vorhanden. Verbinde zuerst Haushalte unter "Haushalt".
+                    {t("inventory:noConnectedHouseholds", "Keine verknüpften Haushalte vorhanden. Verbinde zuerst Haushalte unter \"Haushalt\".")}
                   </p>
                 )}
               </div>
 
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                  Abbrechen
+                  {t("common:actions.cancel")}
                 </Button>
                 <Button onClick={handleSave} disabled={updateMutation.isPending || setVisibilityMutation.isPending}>
-                  Speichern
+                  {t("common:actions.save")}
                 </Button>
               </div>
             </CardContent>
@@ -576,29 +578,29 @@ export default function InventoryDetail() {
               <CardContent className="space-y-4">
                 {item.details && (
                   <div>
-                    <Label className="text-muted-foreground">Details</Label>
+                    <Label className="text-muted-foreground">{t("inventory:fields.details", "Details")}</Label>
                     <p>{item.details}</p>
                   </div>
                 )}
 
                 <div>
-                  <Label className="text-muted-foreground">Eigentum</Label>
+                  <Label className="text-muted-foreground">{t("inventory:fields.ownership", "Eigentum")}</Label>
                   <p>
                     {item.ownershipType === 'household'
-                      ? 'Haushaltseigentum'
-                      : `Persönliches Eigentum: ${item.owners.map((o: any) => o.memberName).join(', ')}`
+                      ? t("inventory:ownershipHousehold", "Haushaltseigentum")
+                      : `${t("inventory:ownershipPersonal", "Persönliches Eigentum")}: ${item.owners.map((o: any) => o.memberName).join(', ')}`
                     }
                   </p>
                 </div>
 
                 <div>
-                  <Label className="text-muted-foreground">Erstellt von</Label>
+                  <Label className="text-muted-foreground">{t("inventory:fields.createdBy", "Erstellt von")}</Label>
                   <p>{item.creatorName} am {new Date(item.createdAt).toLocaleDateString('de-DE')}</p>
                 </div>
 
                 {item.photoUrls && item.photoUrls.length > 0 && (
                   <div>
-                    <Label className="text-muted-foreground mb-2 block">Fotos</Label>
+                    <Label className="text-muted-foreground mb-2 block">{t("inventory:fields.photos", "Fotos")}</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {item.photoUrls.map((photo: string | {url: string, filename: string}, index: number) => (
                         <ClickablePhoto
@@ -634,7 +636,7 @@ export default function InventoryDetail() {
             <Tabs value={detailTab} onValueChange={(v) => setDetailTab(v as "requests" | "guidelines")} className="mb-6">
               <TabsList className="w-full">
                 <TabsTrigger value="requests" className="flex-1">
-                  Ausleih-Anfragen
+                  {t("borrow:requests", "Ausleih-Anfragen")}
                   {borrowRequests.filter((r: any) => r.status === 'pending').length > 0 && (
                     <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs w-4 h-4">
                       {borrowRequests.filter((r: any) => r.status === 'pending').length}
@@ -644,14 +646,14 @@ export default function InventoryDetail() {
                 {(item.ownershipType === 'household' ||
                   (item.ownershipType === 'personal' && item.owners?.some((owner: any) => owner.memberId === member?.memberId))
                 ) && (
-                  <TabsTrigger value="guidelines" className="flex-1">Ausleihvorgaben</TabsTrigger>
+                  <TabsTrigger value="guidelines" className="flex-1">{t("borrow:guidelines", "Ausleihvorgaben")}</TabsTrigger>
                 )}
               </TabsList>
 
               {/* Anfragen Tab */}
               <TabsContent value="requests">
                 {borrowRequests.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">Keine Ausleih-Anfragen vorhanden.</p>
+                  <p className="text-sm text-muted-foreground py-4 text-center">{t("borrow:noRequests", "Keine Ausleih-Anfragen vorhanden.")}</p>
                 ) : (
                   <div className="space-y-4 pt-4">
                     {[...borrowRequests].sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((request: any) => {
@@ -688,34 +690,34 @@ export default function InventoryDetail() {
                             <div>
                               {isPending && (
                                 <span className="px-2 py-1 rounded-full text-xs bg-amber-400 text-white">
-                                  Ausstehend
+                                  {t("borrow:status.pending", "Ausständig")}
                                 </span>
                               )}
                               {isApproved && (
                                 <span className="px-2 py-1 rounded-full text-xs bg-blue-500 text-white">
-                                  Genehmigt
+                                  {t("borrow:status.approved", "Genehmigt")}
                                 </span>
                               )}
                               {isActive && (
                                 <div className="flex flex-col items-end gap-1">
                                   {isOverdue && (
                                     <span className="px-2 py-1 rounded-full text-xs bg-red-600 text-white font-semibold">
-                                      Überfällig
+                                      {t("borrow:status.overdue", "Überfällig")}
                                     </span>
                                   )}
                                   <span className="px-2 py-1 rounded-full text-xs bg-green-500 text-white">
-                                    Ausgeliehen
+                                    {t("borrow:status.active", "Ausgeliehen")}
                                   </span>
                                 </div>
                               )}
                               {isCompleted && (
                                 <span className="px-2 py-1 rounded-full text-xs bg-gray-500 text-white">
-                                  Zurückgegeben
+                                  {t("borrow:status.completed", "Zurückgegeben")}
                                 </span>
                               )}
                               {isRejected && (
                                 <span className="px-2 py-1 rounded-full text-xs bg-red-400 text-white">
-                                  Abgelehnt
+                                  {t("borrow:status.rejected", "Abgelehnt")}
                                 </span>
                               )}
                             </div>
@@ -747,7 +749,7 @@ export default function InventoryDetail() {
                                 onClick={() => handleApprove(request.id)}
                                 disabled={approveMutation.isPending}
                               >
-                                Genehmigen
+                                {t("borrow:actions.approve", "Genehmigen")}
                               </Button>
                               <Button
                                 size="sm"
@@ -755,7 +757,7 @@ export default function InventoryDetail() {
                                 onClick={() => handleReject(request.id)}
                                 disabled={rejectMutation.isPending}
                               >
-                                Ablehnen
+                                {t("borrow:actions.reject", "Ablehnen")}
                               </Button>
                             </div>
                           )}
@@ -771,7 +773,7 @@ export default function InventoryDetail() {
                                     setShowReturnDialog(true);
                                   }}
                                 >
-                                  Zurückgeben
+                                  {t("borrow:actions.return", "Zurückgeben")}
                                 </Button>
                               )}
                               <Button
@@ -790,7 +792,7 @@ export default function InventoryDetail() {
                                   setShowRevokeDialog(true);
                                 }}
                               >
-                                Widerrufen
+                                {t("borrow:actions.revoke", "Widerrufen")}
                               </Button>
                             </div>
                           )}

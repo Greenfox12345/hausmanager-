@@ -20,7 +20,10 @@
     "frequency": "Frequency",
     "duration": "Duration",
     "durationDays": "Days",
-    "durationHours": "Hours"
+    "durationHours": "Hours",
+    "durationTime": "Duration (Hours:Minutes)",
+    "endDate": "End time",
+    "dueTime": "Time"
   },
   "status": {
     "open": "Open",
@@ -191,7 +194,10 @@
     "prerequisites": "Prerequisites",
     "followups": "Follow-up tasks",
     "addPrerequisite": "Add prerequisite",
-    "addFollowup": "Add follow-up"
+    "addFollowup": "Add follow-up",
+    "prerequisitesHint": "Tasks that must be completed first",
+    "followupsHint": "Tasks that should follow afterwards",
+    "noTasksAvailable": "No tasks available"
   },
   "reminders": {
     "title": "Reminders",
@@ -268,10 +274,24 @@
   },
   "actions": {
     "create": "Create task",
-    "complete": "Complete task",
-    "sendReminder": "Send reminder",
-    "milestone": "Document milestone",
+    "complete": "Complete",
+    "sendReminder": "Remind",
+    "milestone": "Milestone",
     "delete": "Delete task"
+  },
+  "overdue": "Overdue",
+  "completed": "Completed",
+  "createTask": "Create task",
+  "linkTask": "Link task",
+  "linkProject": "Link to project",
+  "selectProjects": "Select projects",
+  "prerequisites": "Prerequisites (must be done first)",
+  "followups": "Follow-ups (must be done afterwards)",
+  "linkedTask": "Linked task",
+  "sharing": {
+    "shareWithNeighbors": "Share with neighbors",
+    "selectHouseholds": "Select households",
+    "permissionsLabel": "Permissions for non-responsible members"
   },
   "filterSort": {
     "title": "Filter & Sort",

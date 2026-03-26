@@ -36,9 +36,17 @@
     "deleteConfirm": "Möchtest du diesen Termin wirklich löschen?",
     "overview": "Kalender und alle Termine im Überblick",
     "confirmUndo": "Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.",
-    "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."
+    "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
+    "jumpedToCurrent": "Zu aktuellem Termin gesprungen"
   },
   "labels": {
     "occurrence": "Termin"
+  },
+  "futureOccurrence": "Folgetermin",
+  "completedOccurrence": "Erledigter Termin",
+  "actions": {
+    "undo": "Rükgängig machen",
+    "jumpToCurrent": "Zu aktuellem Termin",
+    "skip": "Auslassen"
   }
 }

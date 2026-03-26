@@ -586,7 +586,7 @@ export default function Tasks() {
       <AppLayout>
         <div className="container py-6 max-w-4xl">
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Lade Haushaltsdaten...</p>
+            <p className="text-muted-foreground">{t("common:loading")}</p>
           </div>
         </div>
       </AppLayout>
@@ -669,7 +669,7 @@ export default function Tasks() {
               {/* Duration fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="durationTime">Dauer (Stunden:Minuten)</Label>
+                  <Label htmlFor="durationTime">{t("tasks:fields.durationTime", "Dauer (Stunden:Minuten)")}</Label>
                   <Input
                     id="durationTime"
                     type="time"
@@ -679,7 +679,7 @@ export default function Tasks() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="durationDays">Dauer (Tage)</Label>
+                  <Label htmlFor="durationDays">{t("tasks:fields.durationDays", "Dauer (Tage)")}</Label>
                   <Input
                     id="durationDays"
                     type="number"
@@ -695,7 +695,7 @@ export default function Tasks() {
               {(dueDate && (parseInt(durationDays) > 0 || durationTime !== "00:00")) && (
                 <div className="p-3 rounded-lg bg-muted/50 border border-border">
                   <p className="text-sm text-muted-foreground">
-                    <strong>Terminende:</strong>{" "}
+                    <strong>{t("tasks:fields.endDate", "Terminende")}:</strong>{" "}
                     {(() => {
                       const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
                       const end = new Date(start);
@@ -774,12 +774,12 @@ export default function Tasks() {
                     }}
                   />
                   <Label htmlFor="shareWithNeighbors" className="cursor-pointer font-medium">
-                    Mit Nachbarn teilen
+                    {t("tasks:sharing.shareWithNeighbors", "Mit Nachbarn teilen")}
                   </Label>
                 </div>
                 {shareWithNeighbors && (
                   <div className="pl-6 space-y-2">
-                    <Label className="text-sm text-muted-foreground">Haushalte auswählen:</Label>
+                    <Label className="text-sm text-muted-foreground">{t("tasks:sharing.selectHouseholds", "Haushalte auswählen")}:</Label>
                     <div className="grid grid-cols-1 gap-2">
                       {connectedHouseholds.map((household: any) => (
                         <div key={household.id} className="flex items-center space-x-2 p-2 rounded border bg-background">
@@ -804,7 +804,7 @@ export default function Tasks() {
                     {/* Permission selector for shared tasks */}
                     {sharedHouseholdIds.length > 0 && (
                       <div className="mt-3">
-                        <Label className="text-sm text-muted-foreground mb-2 block">Berechtigungen für nicht-verantwortliche Mitglieder:</Label>
+                        <Label className="text-sm text-muted-foreground mb-2 block">{t("tasks:sharing.permissionsLabel", "Berechtigungen für nicht-verantwortliche Mitglieder")}:</Label>
                         <Select value={nonResponsiblePermission} onValueChange={(value: any) => setNonResponsiblePermission(value)}>
                           <SelectTrigger className="w-full">
                             <SelectValue />
@@ -869,7 +869,7 @@ export default function Tasks() {
                       onCheckedChange={(checked) => setEnableRotation(checked as boolean)}
                     />
                     <Label htmlFor="enableRotation" className="cursor-pointer">
-                      Verantwortung rotieren
+                      {t("tasks:repeat.rotateResponsibility", "Verantwortung rotieren")}
                     </Label>
                   </div>
 
@@ -891,7 +891,7 @@ export default function Tasks() {
 
                       {/* Excluded members */}
                       <div className="space-y-2">
-                        <Label>Von Rotation freistellen</Label>
+                        <Label>{t("tasks:repeat.excludeFromRotation", "Von Rotation freistellen")}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           {members.map((m) => (
                             <div key={m.id} className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -929,7 +929,7 @@ export default function Tasks() {
                 />
                 <Label htmlFor="isProjectTask" className="cursor-pointer flex items-center gap-2">
                   <Target className="h-4 w-4" />
-                  Aufgabenverknüpfung
+                  {t("tasks:linkTask", "Aufgabenverknüpfung")}
                 </Label>
               </div>
 
@@ -998,17 +998,17 @@ export default function Tasks() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="newProjectDescription" className="text-sm">Projektbeschreibung</Label>
+                            <Label htmlFor="newProjectDescription" className="text-sm">{t("projects:fields.description", "Projektbeschreibung")}</Label>
                             <Textarea
                               id="newProjectDescription"
                               value={newProjectDescription}
                               onChange={(e) => setNewProjectDescription(e.target.value)}
-                              placeholder="Optionale Projektbeschreibung"
+                              placeholder={t("projects:fields.descriptionPlaceholder", "Optionale Projektbeschreibung")}
                               rows={2}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            Das neue Projekt wird automatisch ausgewählt. Zieltermin und Verantwortliche werden von der Aufgabe übernommen.
+                            {t("projects:autoSelectHint", "Das neue Projekt wird automatisch ausgewählt. Zieltermin und Verantwortliche werden von der Aufgabe übernommen.")}
                           </p>
                         </div>
                       )}
@@ -1023,11 +1023,11 @@ export default function Tasks() {
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">{t("tasks:dependencies.prerequisites")}</Label>
                         <p className="text-xs text-muted-foreground mb-2">
-                          Aufgaben, die vorher erledigt sein müssen
+                          {t("tasks:dependencies.prerequisitesHint", "Aufgaben, die vorher erledigt sein müssen")}
                         </p>
                         <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
                           {availableTasks.length === 0 ? (
-                            <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                            <p className="text-xs text-muted-foreground p-2">{t("tasks:dependencies.noTasksAvailable", "Keine Aufgaben verfügbar")}</p>
                           ) : (
                             availableTasks.map((task) => (
                               <div key={`prereq-${task.id}`} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
@@ -1055,11 +1055,11 @@ export default function Tasks() {
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">{t("tasks:dependencies.followups")}</Label>
                         <p className="text-xs text-muted-foreground mb-2">
-                          Aufgaben, die danach folgen sollen
+                          {t("tasks:dependencies.followupsHint", "Aufgaben, die danach folgen sollen")}
                         </p>
                         <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
                           {availableTasks.length === 0 ? (
-                            <p className="text-xs text-muted-foreground p-2">Keine Aufgaben verfügbar</p>
+                            <p className="text-xs text-muted-foreground p-2">{t("tasks:dependencies.noTasksAvailable", "Keine Aufgaben verfügbar")}</p>
                           ) : (
                             availableTasks.map((task) => (
                               <div key={`followup-${task.id}`} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
@@ -1600,7 +1600,7 @@ export default function Tasks() {
               }}
               disabled={batchDeleteMutation.isPending}
             >
-              Löschen
+              {t("common:actions.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
