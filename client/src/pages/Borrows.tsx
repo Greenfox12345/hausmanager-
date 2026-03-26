@@ -658,11 +658,22 @@ export default function Borrows() {
               borrows={myBorrows.map((b: any) => ({
                 id: b.id,
                 itemName: b.itemName,
+                itemPhotoUrl: b.itemPhotoUrl ?? null,
+                itemDescription: b.itemDescription ?? null,
+                ownerName: b.ownerName ?? undefined,
+                borrowerName: b.borrowerName ?? undefined,
                 startDate: b.startDate,
                 endDate: b.endDate,
                 status: b.status,
-                borrowerName: b.borrowerName ?? undefined,
+                responseMessage: b.responseMessage ?? null,
+                pickupPhotoUrl: b.pickupPhotoUrl ?? null,
+                pickupComment: b.pickupComment ?? null,
+                returnPhotoUrl: b.returnPhotoUrl ?? null,
+                returnComment: b.returnComment ?? null,
+                guideline: b.guideline ?? null,
               }))}
+              onPickup={handleOpenPickup}
+              onReturn={handleOpenReturn}
             />
           </TabsContent>
         </Tabs>

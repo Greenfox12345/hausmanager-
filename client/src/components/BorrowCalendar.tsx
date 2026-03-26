@@ -4,18 +4,14 @@ import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BorrowCard, type BorrowCardData } from "@/components/BorrowCard";
 
-interface BorrowEntry {
-  id: number;
-  itemName: string;
-  startDate: Date | string;
-  endDate: Date | string;
-  status: string;
-  borrowerName?: string;
-}
+type BorrowEntry = BorrowCardData;
 
 interface BorrowCalendarProps {
   borrows: BorrowEntry[];
+  onPickup?: (borrow: BorrowCardData) => void;
+  onReturn?: (borrow: BorrowCardData) => void;
 }
 
 // Color palette for borrow bars (cycles through if many items)
@@ -52,7 +48,7 @@ interface BorrowBar {
   rowIndex: number; // vertical stacking index within the day
 }
 
-export function BorrowCalendar({ borrows }: BorrowCalendarProps) {
+export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedBorrow, setSelectedBorrow] = useState<BorrowEntry | null>(null);
 
@@ -252,30 +248,12 @@ export function BorrowCalendar({ borrows }: BorrowCalendarProps) {
 
       {/* Detail card for selected borrow */}
       {selectedBorrow && (
-        <div className="border rounded-lg p-4 bg-card shadow-sm">
-          <div className="flex items-start justify-between gap-2">
-            <div className="space-y-1">
-              <p className="font-semibold">{selectedBorrow.itemName}</p>
-              {selectedBorrow.borrowerName && (
-                <p className="text-sm text-muted-foreground">Ausleiher: {selectedBorrow.borrowerName}</p>
-              )}
-              <p className="text-sm text-muted-foreground">
-                {format(new Date(selectedBorrow.startDate), "d. MMMM yyyy", { locale: de })} –{" "}
-                {format(new Date(selectedBorrow.endDate), "d. MMMM yyyy", { locale: de })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className={`text-xs ${getStatusColor(selectedBorrow.status).bar} ${getStatusColor(selectedBorrow.status).text} border-0`}>
-                {selectedBorrow.status === "active" ? "Aktiv" :
-                 selectedBorrow.status === "approved" ? "Genehmigt" :
-                 selectedBorrow.status === "pending" ? "Ausstehend" :
-                 selectedBorrow.status === "returned" ? "Zurückgegeben" :
-                 selectedBorrow.status === "rejected" ? "Abgelehnt" : "Storniert"}
-              </Badge>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedBorrow(null)}>✕</Button>
-            </div>
-          </div>
-        </div>
+        <BorrowCard
+          borrow={selectedBorrow}
+          onClose={() => setSelectedBorrow(null)}
+          onPickup={onPickup}
+          onReturn={onReturn}
+        />
       )}
 
       {normalizedBorrows.length === 0 && (

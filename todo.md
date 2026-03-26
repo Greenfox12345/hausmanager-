@@ -3277,3 +3277,4 @@
 - [x] Frontend: PickupDialog (zeigt Item-Fotos + Anforderungen, Foto-Upload + Kommentar)
 - [x] Frontend: ReturnDialog (zeigt Abholfotos/-kommentare, eigenes Foto + Kommentar)
 - [x] Frontend: Buttons in Borrows.tsx einbinden
+- [ ] Kalender-Balken: Klick öffnet vollständige Ausleih-Karte als Overlay mit X-Button
