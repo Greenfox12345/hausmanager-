@@ -10,6 +10,9 @@
   "noItems": "No items in this list.",
   "fields": {
     "name": "Name",
+    "categoryName": "Category Name",
+    "categoryPlaceholder": "e.g. Beverages, Pet Food...",
+    "color": "Color",
     "item": "Item",
     "itemName": "Item Name",
     "itemPlaceholder": "e.g. Milk, Bread, Apples...",
@@ -66,6 +69,7 @@
     "emptyCategory": "No items in this category.",
     "noCategories": "No categories yet. Create a new category."
   },
+  "renameCategory": "Rename",
   "manageCategories": "Manage Categories",
   "labels": {
     "itemCount": "{{count}} item(s)"

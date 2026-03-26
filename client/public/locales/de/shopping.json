@@ -10,6 +10,9 @@
   "noItems": "Keine Artikel in dieser Liste",
   "fields": {
     "name": "Name",
+    "categoryName": "Kategoriename",
+    "categoryPlaceholder": "z.B. Getränke, Tierfutter...",
+    "color": "Farbe",
     "item": "Artikel",
     "itemName": "Artikelname",
     "itemPlaceholder": "z.B. Milch, Brot, Äpfel...",
@@ -66,6 +69,7 @@
     "emptyCategory": "Keine Artikel in dieser Kategorie.",
     "noCategories": "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie."
   },
+  "renameCategory": "Umbenennen",
   "manageCategories": "Kategorien verwalten",
   "labels": {
     "itemCount": "{{count}} Artikel"

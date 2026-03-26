@@ -91,7 +91,8 @@
     "quantity": "Menge",
     "price": "Preis",
     "language": "Sprache",
-    "reason": "Begründung"
+    "reason": "Begründung",
+    "preview": "Vorschau"
   },
   "priority": {
     "low": "Niedrig",

@@ -91,7 +91,8 @@
     "quantity": "Quantity",
     "price": "Price",
     "language": "Language",
-    "reason": "Reason"
+    "reason": "Reason",
+    "preview": "Preview"
   },
   "priority": {
     "low": "Low",
