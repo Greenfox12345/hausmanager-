@@ -830,7 +830,7 @@ export default function Projects() {
                             }}
                           >
                             <Edit2 className="h-4 w-4 mr-1" />
-                            Bearbeiten
+                            {t("common:actions.edit", "Bearbeiten")}
                           </Button>
                           <Button
                             variant="destructive"
@@ -842,7 +842,7 @@ export default function Projects() {
                             }}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
-                            Löschen
+                            {t("common:actions.delete", "Löschen")}
                           </Button>
                         </div>
                         
@@ -900,7 +900,7 @@ export default function Projects() {
                       {selectedProject.isNeighborhoodProject && (
                         <Badge variant="outline">
                           <Users className="h-3 w-3 mr-1" />
-                          Nachbarschaftsprojekt
+                          {t("projects:neighborhoodProject", "Nachbarschaftsprojekt")}
                         </Badge>
                       )}
                     </div>
@@ -912,11 +912,11 @@ export default function Projects() {
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="list" className="flex items-center gap-2">
                       <List className="h-4 w-4" />
-                      Listenansicht
+                      {t("projects:views.list", "Listenansicht")}
                     </TabsTrigger>
                     <TabsTrigger value="gantt" className="flex items-center gap-2">
                       <GanttChart className="h-4 w-4" />
-                      Gantt-Diagramm
+                      {t("projects:views.gantt", "Gantt-Diagramm")}
                     </TabsTrigger>
                   </TabsList>
 
@@ -929,7 +929,7 @@ export default function Projects() {
                       <CardContent>
                         {projectTasks.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-8">
-                            Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.
+                            {t("projects:messages.noTasksInProject", "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.")}
                           </p>
                         ) : (
                           <div className="space-y-2">
@@ -955,24 +955,24 @@ export default function Projects() {
                                           {task.isCompleted && (
                                             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                               <CheckCircle2 className="h-3 w-3 mr-1" />
-                                              Erledigt
-                                            </Badge>
+                              {t("tasks:status.completed", "Erledigt")}
+                            </Badge>
                                           )}
                                           {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
                                             <Badge variant="destructive" className="text-xs">
-                                              Überfällig
-                                            </Badge>
+                              {t("tasks:status.overdue", "Überfällig")}
+                            </Badge>
                                           )}
                                           {(task as any).isSharedWithUs && (
                                             <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-blue-200 dark:border-blue-800 text-xs">
                                               <Users className="h-3 w-3 mr-1" />
-                                              Verknüpft mit {(task as any).householdName || "anderem Haushalt"}
+                                              {t("tasks:linkedWith", "Verknüpft mit")} {(task as any).householdName || t("tasks:otherHousehold", "anderem Haushalt")}
                                             </Badge>
                                           )}
                                           {(task as any).sharedHouseholdCount > 0 && !(task as any).isSharedWithUs && (task as any).sharedHouseholdNames && (
                                             <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 border-green-200 dark:border-green-800 text-xs">
                                               <Users className="h-3 w-3 mr-1" />
-                                              Geteilt mit {(task as any).sharedHouseholdNames}
+                                              {t("tasks:sharedWith", "Geteilt mit")} {(task as any).sharedHouseholdNames}
                                             </Badge>
                                           )}
                                         </div>
@@ -997,8 +997,8 @@ export default function Projects() {
                                           {task.enableRotation && (
                                             <Badge variant="outline" className="text-xs">
                                               <Target className="h-3 w-3 mr-1" />
-                                              Rotation
-                                            </Badge>
+                              {t("tasks:rotation", "Rotation")}
+                            </Badge>
                                           )}
                                         </div>
                                       </div>
@@ -1076,12 +1076,12 @@ export default function Projects() {
                   <TabsContent value="gantt">
                     <Card className="shadow-md">
                       <CardHeader>
-                        <CardTitle className="text-lg">Gantt-Diagramm</CardTitle>
+                        <CardTitle className="text-lg">{t("projects:views.gantt", "Gantt-Diagramm")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {projectTasks.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-8">
-                            Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.
+                            {t("projects:messages.noTasksInProject", "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.")}
                           </p>
                         ) : (
                           <GanttChartView tasks={projectTasks} members={members} />
@@ -1099,15 +1099,15 @@ export default function Projects() {
         <Dialog open={isAssignTaskDialogOpen} onOpenChange={setIsAssignTaskDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Bestehende Aufgaben zum Projekt zuordnen</DialogTitle>
+              <DialogTitle>{t("projects:dialogs.assignTasks", "Bestehende Aufgaben zum Projekt zuordnen")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Verfügbare Aufgaben (ohne Projektzuordnung)</Label>
+                <Label>{t("projects:dialogs.availableTasks", "Verfügbare Aufgaben (ohne Projektzuordnung)")}</Label>
                 <div className="border rounded-md p-3 max-h-96 overflow-y-auto">
                   {tasks.filter(t => (!t.projectIds || t.projectIds.length === 0) && !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                      Keine verfügbaren Aufgaben ohne Projektzuordnung
+                      {t("projects:messages.noAvailableTasks", "Keine verfügbaren Aufgaben ohne Projektzuordnung")}
                     </p>
                   ) : (
                     tasks.filter(t => (!t.projectIds || t.projectIds.length === 0) && !t.isCompleted).map((task) => (
@@ -1132,7 +1132,7 @@ export default function Projects() {
                           )}
                           {task.dueDate && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              Fällig: {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} Uhr
+                              {t("tasks:due", "Fällig:")}: {format(new Date(task.dueDate), "dd.MM.yyyy, HH:mm")} {t("common:labels.clock", "Uhr")}
                             </p>
                           )}
                         </div>
@@ -1184,11 +1184,11 @@ export default function Projects() {
         <Dialog open={isAddTaskDialogOpen} onOpenChange={setIsAddTaskDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Aufgabe zu Projekt hinzufügen</DialogTitle>
+              <DialogTitle>{t("projects:dialogs.addTask", "Aufgabe zu Projekt hinzufügen")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="task-name">Aufgabenname *</Label>
+                <Label htmlFor="task-name">{t("tasks:fields.name", "Aufgabenname")} *</Label>
                 <Input
                   id="task-name"
                   value={taskName}
@@ -1231,7 +1231,7 @@ export default function Projects() {
               </div>
 
               <div className="space-y-2">
-                <Label>Verantwortliche *</Label>
+                <Label>{t("tasks:fields.assignees", "Verantwortliche")} *</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {/* Own household members */}
                   {members.map((m) => (
@@ -1304,12 +1304,12 @@ export default function Projects() {
                       }}
                     />
                     <Label htmlFor="share-with-neighbors" className="cursor-pointer font-semibold">
-                      Mit Nachbarn teilen
+                      {t("tasks:sharing.shareWithNeighbors", "Mit Nachbarn teilen")}
                     </Label>
                   </div>
                   {shareWithNeighbors && (
                     <div className="mt-3 space-y-2">
-                      <Label className="text-sm">Haushalte auswählen:</Label>
+                      <Label className="text-sm">{t("tasks:sharing.selectHouseholds", "Haushalte auswählen:")}</Label>
                       <div className="grid grid-cols-1 gap-2">
                         {connectedHouseholds.map((household) => (
                           <div key={household.id} className="flex items-center space-x-2 p-2 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
@@ -1457,11 +1457,11 @@ export default function Projects() {
 
               {/* Additional Projects Section */}
               <div className="space-y-3 pt-4 border-t">
-                <Label className="text-base font-semibold">Auch anderen Projekten zuordnen</Label>
+                <Label className="text-base font-semibold">{t("projects:dialogs.assignToOtherProjects", "Auch anderen Projekten zuordnen")}</Label>
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
                   {projects.filter(p => p.id !== selectedProjectId && !p.isArchived).length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      Keine weiteren Projekte verfügbar
+                      {t("projects:messages.noOtherProjects", "Keine weiteren Projekte verfügbar")}
                     </p>
                   ) : (
                     projects.filter(p => p.id !== selectedProjectId && !p.isArchived).map((project) => (
@@ -1498,7 +1498,7 @@ export default function Projects() {
                     onCheckedChange={(checked) => setIsRepeating(checked === true)}
                   />
                   <Label htmlFor="task-repeat" className="cursor-pointer">
-                    Aufgabe wiederholt sich
+                    {t("tasks:repeat.repeats", "Aufgabe wiederholt sich")}
                   </Label>
                 </div>
                 {isRepeating && (
@@ -1539,13 +1539,13 @@ export default function Projects() {
                           onCheckedChange={(checked) => setHasRotation(checked === true)}
                         />
                         <Label htmlFor="task-rotation" className="cursor-pointer">
-                          Rotation zwischen Haushaltsmitgliedern
+                          {t("tasks:rotation.rotationBetweenMembers", "Rotation zwischen Haushaltsmitgliedern")}
                         </Label>
                       </div>
                       {hasRotation && (
                         <div className="space-y-4 mt-2">
                           <div className="space-y-2">
-                            <Label htmlFor="rotation-required">Erforderliche Anzahl Personen</Label>
+                            <Label htmlFor="rotation-required">{t("tasks:rotation.requiredPersons", "Erforderliche Anzahl Personen")}</Label>
                             <Input
                               id="rotation-required"
                               type="number"
@@ -1556,10 +1556,10 @@ export default function Projects() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Ausgeschlossene Mitglieder</Label>
+                            <Label>{t("tasks:rotation.excludedMembers", "Ausgeschlossene Mitglieder")}</Label>
                             <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
                               {members.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">Keine Mitglieder verfügbar</p>
+                                <p className="text-sm text-muted-foreground">{t("tasks:rotation.noMembers", "Keine Mitglieder verfügbar")}</p>
                               ) : (
                                 members.map((m) => (
                                   <div key={m.id} className="flex items-center gap-2 py-1">
@@ -1591,7 +1591,7 @@ export default function Projects() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)}>
-                Abbrechen
+                {t("common:actions.cancel", "Abbrechen")}
               </Button>
               <Button onClick={handleAddTask} disabled={addTaskMutation.isPending}>
                 {addTaskMutation.isPending ? t("common:loading", "Lädt...") : t("tasks:addTask", "Aufgabe hinzufügen")}
@@ -1608,7 +1608,7 @@ export default function Projects() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Projektname *</Label>
+                <Label htmlFor="edit-name">{t("projects:fields.name", "Projektname")} *</Label>
                 <Input
                   id="edit-name"
                   value={projectName}
@@ -1667,10 +1667,10 @@ export default function Projects() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Abbrechen
+                {t("common:actions.cancel", "Abbrechen")}
               </Button>
               <Button onClick={handleUpdateProject}>
-                Speichern
+                {t("common:actions.save", "Speichern")}
               </Button>
             </DialogFooter>
           </DialogContent>

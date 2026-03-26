@@ -79,6 +79,16 @@
   "projectName": "Project name",
   "projectNamePlaceholder": "Name of the new project",
   "descriptionPlaceholder": "Project description",
+  "views": {
+    "list": "List View",
+    "gantt": "Gantt Chart"
+  },
+  "dialogs": {
+    "assignTasks": "Assign Existing Tasks to Project",
+    "availableTasks": "Available Tasks (without project assignment)",
+    "addTask": "Add Task to Project",
+    "assignToOtherProjects": "Also assign to other projects"
+  },
   "messages": {
     "created": "Project created successfully",
     "updated": "Project updated successfully",
@@ -98,6 +108,9 @@
     "tasksAssignError": "Error assigning tasks: ",
     "selectTask": "Please select at least one task",
     "noProject": "No project selected",
-    "nameRequired": "Please enter a project name"
+    "nameRequired": "Please enter a project name",
+    "noTasksInProject": "No tasks in this project. Create tasks on the tasks page.",
+    "noAvailableTasks": "No available tasks without project assignment",
+    "noOtherProjects": "No other projects available"
   }
 }

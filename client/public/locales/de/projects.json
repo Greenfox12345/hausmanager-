@@ -79,6 +79,16 @@
   "projectName": "Projektname",
   "projectNamePlaceholder": "Name des neuen Projekts",
   "descriptionPlaceholder": "Projektbeschreibung",
+  "views": {
+    "list": "Listenansicht",
+    "gantt": "Gantt-Diagramm"
+  },
+  "dialogs": {
+    "assignTasks": "Bestehende Aufgaben zum Projekt zuordnen",
+    "availableTasks": "Verfügbare Aufgaben (ohne Projektzuordnung)",
+    "addTask": "Aufgabe zu Projekt hinzufügen",
+    "assignToOtherProjects": "Auch anderen Projekten zuordnen"
+  },
   "messages": {
     "created": "Projekt erfolgreich erstellt",
     "updated": "Projekt erfolgreich aktualisiert",
@@ -98,6 +108,9 @@
     "tasksAssignError": "Fehler beim Zuordnen der Aufgaben: ",
     "selectTask": "Bitte wählen Sie mindestens eine Aufgabe aus",
     "noProject": "Kein Projekt ausgewählt",
-    "nameRequired": "Bitte geben Sie einen Projektnamen ein"
+    "nameRequired": "Bitte geben Sie einen Projektnamen ein",
+    "noTasksInProject": "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.",
+    "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
+    "noOtherProjects": "Keine weiteren Projekte verfügbar"
   }
 }
