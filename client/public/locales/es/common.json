@@ -16,7 +16,11 @@
     "neighborhood": "Vecindario",
     "settings": "Configuración",
     "profile": "Perfil",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "shopping_label": "Compras",
+    "calendar_label": "Calendario",
+    "more": "Más",
+    "household": "Hogar"
   },
   "actions": {
     "save": "Guardar",

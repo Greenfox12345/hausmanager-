@@ -63,7 +63,12 @@
     "transferAdminTitle": "Transferir rol de admin",
     "transferAdminDescription": "¿Realmente quieres transferir el rol de admin a {{name}}? Perderás tus derechos de administración de este hogar.",
     "transferAdminConfirm": "Sí, transferir",
-    "adminTransferred": "{{name}} es ahora el nuevo administrador del hogar."
+    "adminTransferred": "{{name}} es ahora el nuevo administrador del hogar.",
+    "votesCount": "{{count}} de {{total}} votos",
+    "votesNeeded": "Necesarios: {{needed}}",
+    "dissolveVoteButton": "Votar por disolución",
+    "leaveButton": "Abandonar hogar",
+    "retractVoteButton": "Retirar voto"
   },
   "status": {
     "active": "Activo",

@@ -96,7 +96,8 @@
     "transferAdminTitle": "Admin-Rolle übertragen",
     "transferAdminDescription": "Möchten Sie die Admin-Rolle wirklich an {{name}} übertragen? Sie verlieren damit Ihre Verwaltungsrechte für diesen Haushalt.",
     "transferAdminConfirm": "Ja, übertragen",
-    "adminTransferred": "{{name}} ist jetzt der neue Admin des Haushalts."
+    "adminTransferred": "{{name}} ist jetzt der neue Admin des Haushalts.",
+    "retractVoteButton": "Stimme zurückziehen"
   },
   "admin": "Admin"
 }
