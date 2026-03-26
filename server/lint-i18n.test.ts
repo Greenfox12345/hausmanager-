@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { lintI18n } from "../scripts/lint-i18n";
+import { lintI18n, checkUnregisteredNamespaces, readRegisteredNamespaces } from "../scripts/lint-i18n";
 
 // ─── Unit tests for isolated helpers ─────────────────────────────────────────
 
@@ -143,6 +143,50 @@ describe("lintI18n – missing translation key detection", () => {
   });
 });
 
+describe("lintI18n – unregistered namespace detection", () => {
+  it("detects a namespace used in t() but not in NAMESPACES", () => {
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const x = t("unregistered:some.key");`,
+    });
+    // Config only registers 'common'
+    const configFile = makeTempI18nConfig(["common"]);
+    const errors = checkUnregisteredNamespaces(srcDir, configFile);
+    expect(errors.length).toBeGreaterThanOrEqual(1);
+    expect(errors.some((e) => e.message.includes('"unregistered"'))).toBe(true);
+    expect(errors[0].type).toBe("unregistered_namespace");
+  });
+
+  it("does not report a namespace that is registered", () => {
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const x = t("common:title");`,
+    });
+    const configFile = makeTempI18nConfig(["common"]);
+    const errors = checkUnregisteredNamespaces(srcDir, configFile);
+    expect(errors.filter((e) => e.message.includes('"common"'))).toHaveLength(0);
+  });
+
+  it("reads NAMESPACES correctly from i18n.ts", () => {
+    const configFile = makeTempI18nConfig(["common", "tasks", "borrow"]);
+    const ns = readRegisteredNamespaces(configFile);
+    expect(ns.has("common")).toBe(true);
+    expect(ns.has("tasks")).toBe(true);
+    expect(ns.has("borrow")).toBe(true);
+    expect(ns.has("missing")).toBe(false);
+  });
+
+  it("real project has no unregistered namespaces", () => {
+    // This test will catch the exact bug that caused the production issue:
+    // namespaces used in t() calls but not registered in i18n.ts
+    const errors = lintI18n();
+    const unregistered = errors.filter((e) => e.type === "unregistered_namespace");
+    if (unregistered.length > 0) {
+      const summary = unregistered.map((e) => `  ${e.message}`).join("\n");
+      throw new Error(`Unregistered namespaces found:\n${summary}`);
+    }
+    expect(unregistered).toHaveLength(0);
+  });
+});
+
 describe("lintI18n – real locale files", () => {
   it("passes all real locale files without duplicate keys or missing translations", () => {
     // This test validates the actual project locale files.
@@ -204,5 +248,13 @@ function makeTempSrc(files: Record<string, string>): string {
 function makeTempAllowlist(keys: string[]): string {
   const tmpFile = path.join(os.tmpdir(), `lint-i18n-allowlist-${Date.now()}.json`);
   fs.writeFileSync(tmpFile, JSON.stringify(keys, null, 2) + "\n");
+  return tmpFile;
+}
+
+function makeTempI18nConfig(namespaces: string[]): string {
+  const nsItems = namespaces.map((n) => `  "${n}"`).join(",\n");
+  const content = `export const NAMESPACES = [\n${nsItems},\n] as const;\n`;
+  const tmpFile = path.join(os.tmpdir(), `lint-i18n-config-${Date.now()}.ts`);
+  fs.writeFileSync(tmpFile, content);
   return tmpFile;
 }

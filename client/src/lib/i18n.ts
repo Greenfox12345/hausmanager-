@@ -25,7 +25,9 @@ export const NAMESPACES = [
   "history",
   "calendar",
   "borrows",
+  "borrow",
   "household",
+  "neighborhood",
   "auth",
 ] as const;
 

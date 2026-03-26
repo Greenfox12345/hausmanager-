@@ -3309,3 +3309,7 @@
 
 ## GitHub Actions CI Workflow
 - [x] .github/workflows/ci.yml erstellen (TypeScript-Check + i18n-Lint + Vitest)
+
+## Übersetzungslücken-Diagnose und Behebung
+- [x] Diagnose: Warum erkennt lint:i18n die Lücken in Calendar/Projects/Members/Inventory nicht?
+- [x] Alle fehlenden Schlüssel in Calendar, Projects, Members und Inventory beheben

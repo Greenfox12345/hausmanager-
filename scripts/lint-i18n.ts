@@ -8,6 +8,10 @@
  *   3. Missing translations: t("ns:key") calls in source files where the key
  *      does not exist in any locale JSON. Known gaps are tracked in
  *      scripts/i18n-allowlist.json and excluded from CI failures.
+ *   4. Unregistered namespaces: t("ns:...") calls where "ns" is not listed in
+ *      the NAMESPACES array in client/src/lib/i18n.ts – these namespaces are
+ *      never loaded by i18next, so all keys in them silently fall back to the
+ *      raw key string.
  *
  * Usage:
  *   pnpm lint:i18n          → exits 0 on success, 1 on any NEW violation
@@ -21,6 +25,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOCALES_DIR = path.resolve(__dirname, "../client/public/locales");
 const SRC_DIR = path.resolve(__dirname, "../client/src");
+const I18N_CONFIG = path.resolve(__dirname, "../client/src/lib/i18n.ts");
 const ALLOWLIST_FILE = path.resolve(__dirname, "i18n-allowlist.json");
 const LANGUAGES = ["de", "en"];
 
@@ -28,7 +33,7 @@ const LANGUAGES = ["de", "en"];
 
 export interface LintError {
   file: string;
-  type: "duplicate" | "missing" | "missing_translation";
+  type: "duplicate" | "missing" | "missing_translation" | "unregistered_namespace";
   message: string;
 }
 
@@ -113,6 +118,24 @@ function collectSourceFiles(dir: string): string[] {
     }
   }
   return results;
+}
+
+/**
+ * Read the registered NAMESPACES from client/src/lib/i18n.ts.
+ * Returns a Set of namespace strings.
+ */
+export function readRegisteredNamespaces(i18nConfigPath: string = I18N_CONFIG): Set<string> {
+  const ns = new Set<string>();
+  if (!fs.existsSync(i18nConfigPath)) return ns;
+  const text = fs.readFileSync(i18nConfigPath, "utf-8");
+  // Match the NAMESPACES array: ["common", "tasks", ...]
+  const arrayMatch = text.match(/export\s+const\s+NAMESPACES\s*=\s*\[([\s\S]*?)\]\s*as\s+const/);
+  if (!arrayMatch) return ns;
+  const items = arrayMatch[1].matchAll(/"([^"]+)"/g);
+  for (const item of items) {
+    ns.add(item[1]);
+  }
+  return ns;
 }
 
 // ─── Core checks ──────────────────────────────────────────────────────────────
@@ -225,12 +248,47 @@ function checkMissingTranslations(
   return errors;
 }
 
+/**
+ * Check 4: Detect namespaces used in t() calls that are not registered in
+ * the NAMESPACES array in client/src/lib/i18n.ts.
+ * Unregistered namespaces are never loaded by i18next → all keys silently
+ * return the raw key string instead of the translated text.
+ */
+export function checkUnregisteredNamespaces(
+  srcDir: string,
+  i18nConfigPath: string = I18N_CONFIG
+): LintError[] {
+  const registered = readRegisteredNamespaces(i18nConfigPath);
+  if (registered.size === 0) return []; // can't check without config
+
+  const usedNs = new Set<string>();
+  for (const file of collectSourceFiles(srcDir)) {
+    for (const key of extractTKeys(file)) {
+      const colonIdx = key.indexOf(":");
+      if (colonIdx !== -1) usedNs.add(key.slice(0, colonIdx));
+    }
+  }
+
+  const errors: LintError[] = [];
+  for (const ns of usedNs) {
+    if (!registered.has(ns)) {
+      errors.push({
+        file: i18nConfigPath,
+        type: "unregistered_namespace",
+        message: `Namespace "${ns}" is used in t() calls but is NOT registered in NAMESPACES – i18next will never load it`,
+      });
+    }
+  }
+  return errors;
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function lintI18n(
   localesDir: string = LOCALES_DIR,
   srcDir: string = SRC_DIR,
-  allowlistFile: string = ALLOWLIST_FILE
+  allowlistFile: string = ALLOWLIST_FILE,
+  i18nConfigPath: string = I18N_CONFIG
 ): LintError[] {
   const allErrors: LintError[] = [];
 
@@ -302,6 +360,11 @@ export function lintI18n(
     allErrors.push(...checkMissingTranslations(localesDir, srcDir, allowlist));
   }
 
+  // 4. Unregistered namespaces
+  if (fs.existsSync(srcDir) && fs.existsSync(i18nConfigPath)) {
+    allErrors.push(...checkUnregisteredNamespaces(srcDir, i18nConfigPath));
+  }
+
   return allErrors;
 }
 
@@ -327,7 +390,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     const relPath = path.relative(process.cwd(), file);
     console.error(`  📄  ${relPath}`);
     for (const e of fileErrors) {
-      const icon = e.type === "duplicate" ? "🔁" : e.type === "missing_translation" ? "🌐" : "❓";
+      const icon =
+        e.type === "duplicate" ? "🔁" :
+        e.type === "missing_translation" ? "🌐" :
+        e.type === "unregistered_namespace" ? "🚫" : "❓";
       console.error(`      ${icon}  ${e.message}`);
     }
     console.error();
