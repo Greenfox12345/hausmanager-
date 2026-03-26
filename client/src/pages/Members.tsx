@@ -364,30 +364,35 @@ export default function Members() {
         </Card>
 
         {/* Danger Zone Card */}
-        <Card className="shadow-sm border-destructive/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-destructive">
-              <Trash2 className="h-5 w-5" />
+        <Card className="shadow-sm border border-destructive/20 bg-destructive/[0.02]">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-destructive uppercase tracking-wide">
+              <Trash2 className="h-4 w-4" />
               {t("members:household.dangerZone")}
             </CardTitle>
-            <CardDescription>
-              {t("members:household.dangerZoneDescription")}
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-0 p-0">
 
             {/* Leave Household */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium">{t("members:household.leaveTitle")}</p>
-              <p className="text-xs text-muted-foreground">{t("members:household.leaveDescription")}</p>
+            <div className="flex items-start justify-between gap-4 px-6 py-4 border-t border-destructive/10">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+                  <DoorOpen className="h-4 w-4 text-destructive" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{t("members:household.leaveTitle")}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t("members:household.leaveDescription")}</p>
+                </div>
+              </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                    size="sm"
+                    className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
                     disabled={leaveHouseholdMutation.isPending}
                   >
-                    <DoorOpen className="h-4 w-4" />
+                    <DoorOpen className="h-3.5 w-3.5" />
                     {t("members:household.leaveButton")}
                   </Button>
                 </AlertDialogTrigger>
@@ -411,21 +416,29 @@ export default function Members() {
               </AlertDialog>
             </div>
 
-            <Separator />
-
             {/* Dissolve Household by Vote */}
-            <div className="space-y-3">
-              <p className="text-sm font-medium">{t("members:household.dissolveTitle")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("members:household.dissolveDescription", {
-                  needed: dissolveStatus?.majorityNeeded ?? "?",
-                  total: dissolveStatus?.totalMembers ?? "?",
-                })}
-              </p>
+            <div className="px-6 py-4 border-t border-destructive/10 space-y-3">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+                    <Vote className="h-4 w-4 text-destructive" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{t("members:household.dissolveTitle")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      {t("members:household.dissolveDescription", {
+                        needed: dissolveStatus?.majorityNeeded ?? "?",
+                        total: dissolveStatus?.totalMembers ?? "?",
+                      })}
+                    </p>
+                  </div>
+                </div>
 
-              {/* Vote progress */}
+              </div>
+
+              {/* Vote progress bar – full width below the title row */}
               {dissolveStatus && dissolveStatus.totalMembers > 0 && (
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 pl-11">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>
                       {t("members:household.votesCount", {
@@ -433,24 +446,29 @@ export default function Members() {
                         total: dissolveStatus.totalMembers,
                       })}
                     </span>
-                    <span>
+                    <span className="text-destructive/70 font-medium">
                       {t("members:household.votesNeeded", { needed: dissolveStatus.majorityNeeded })}
                     </span>
                   </div>
-                  <Progress value={voteProgress} className="h-2" />
+                  <Progress
+                    value={voteProgress}
+                    className="h-1.5 [&>div]:bg-destructive"
+                  />
                 </div>
               )}
 
-              <div className="flex gap-2 flex-wrap">
+              {/* Action button or already-voted state */}
+              <div className="pl-11 flex items-center gap-3 flex-wrap">
                 {!dissolveStatus?.hasVoted ? (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
-                        className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                        size="sm"
+                        className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
                         disabled={voteDisolveMutation.isPending}
                       >
-                        <Vote className="h-4 w-4" />
+                        <Vote className="h-3.5 w-3.5" />
                         {t("members:household.dissolveVoteButton")}
                       </Button>
                     </AlertDialogTrigger>
