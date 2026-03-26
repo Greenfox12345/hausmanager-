@@ -833,4 +833,63 @@ export const householdManagementRouter = router({
         majorityNeeded: Math.floor(totalMembers / 2) + 1,
       };
     }),
+
+  /**
+   * Transfer admin role to another active member of the household.
+   * Only the current admin (createdBy) can call this.
+   */
+  transferAdmin: protectedProcedure
+    .input(z.object({
+      householdId: z.number(),
+      targetMemberId: z.number(), // householdMembers.id of the new admin
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verify caller is current admin
+      const [household] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+
+      if (!household) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Household not found" });
+      }
+      if (household.createdBy !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only the current admin can transfer the admin role" });
+      }
+
+      // Verify target member exists, is active, and belongs to this household
+      const [targetMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.id, input.targetMemberId),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!targetMember) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Target member not found or inactive" });
+      }
+      if (!targetMember.userId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Target member has no user account" });
+      }
+      if (targetMember.userId === ctx.user.id) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "You are already the admin" });
+      }
+
+      // Transfer admin
+      await db
+        .update(households)
+        .set({ createdBy: targetMember.userId })
+        .where(eq(households.id, input.householdId));
+
+      return { success: true, newAdminName: targetMember.memberName };
+    }),
 });

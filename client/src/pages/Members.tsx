@@ -35,6 +35,7 @@ export default function Members() {
   const { currentHousehold, setCurrentHousehold } = useUserAuth();
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [transferTarget, setTransferTarget] = useState<{ id: number; name: string } | null>(null);
   const { t } = useTranslation(["members", "common"]);
 
   const householdId = currentHousehold?.householdId;
@@ -102,6 +103,18 @@ export default function Members() {
         );
         refetchDissolveStatus();
       }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Transfer admin mutation
+  const transferAdminMutation = trpc.householdManagement.transferAdmin.useMutation({
+    onSuccess: (data) => {
+      toast.success(t("members:household.adminTransferred", { name: data.newAdminName }));
+      refetchSettings();
+      setTransferTarget(null);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -217,7 +230,7 @@ export default function Members() {
                         {getInitials(m.memberName)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="font-semibold flex items-center gap-2 flex-wrap">
                         {m.memberName}
                         {m.userId === settings?.adminUserId && (
@@ -236,6 +249,18 @@ export default function Members() {
                         {m.isActive ? t("common:status.active") : t("common:status.inactive")}
                       </div>
                     </div>
+                    {/* Transfer admin button – only visible to admin, not for themselves */}
+                    {settings?.isAdmin && m.userId !== settings?.adminUserId && m.isActive && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="shrink-0 gap-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                        onClick={() => setTransferTarget({ id: m.id, name: m.memberName })}
+                      >
+                        <Crown className="h-3.5 w-3.5" />
+                        {t("members:household.makeAdmin")}
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -526,6 +551,38 @@ export default function Members() {
           </CardContent>
         </Card>
       </div>
+      {/* Transfer Admin Confirmation Dialog */}
+      <AlertDialog open={!!transferTarget} onOpenChange={(open) => !open && setTransferTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-amber-500" />
+              {t("members:household.transferAdminTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("members:household.transferAdminDescription", { name: transferTarget?.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={() => {
+                if (householdId && transferTarget) {
+                  transferAdminMutation.mutate({
+                    householdId,
+                    targetMemberId: transferTarget.id,
+                  });
+                }
+              }}
+            >
+              <Crown className="h-4 w-4 mr-1.5" />
+              {t("members:household.transferAdminConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <BottomNav />
     </AppLayout>
   );

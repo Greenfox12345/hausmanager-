@@ -91,7 +91,12 @@
     "voteRetracted": "Ihre Stimme wurde zurückgezogen.",
     "votesCount": "{{count}} von {{total}} Stimmen",
     "votesNeeded": "Benötigt: {{needed}}",
-    "leftWithNewAdmin": "{{name}} ist jetzt der neue Admin des Haushalts."
+    "leftWithNewAdmin": "{{name}} ist jetzt der neue Admin des Haushalts.",
+    "makeAdmin": "Zum Admin machen",
+    "transferAdminTitle": "Admin-Rolle übertragen",
+    "transferAdminDescription": "Möchten Sie die Admin-Rolle wirklich an {{name}} übertragen? Sie verlieren damit Ihre Verwaltungsrechte für diesen Haushalt.",
+    "transferAdminConfirm": "Ja, übertragen",
+    "adminTransferred": "{{name}} ist jetzt der neue Admin des Haushalts."
   },
   "admin": "Admin"
 }
