@@ -3,7 +3,6 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay
 import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { BorrowCard, type BorrowCardData } from "@/components/BorrowCard";
 
 type BorrowEntry = BorrowCardData;
@@ -14,79 +13,64 @@ interface BorrowCalendarProps {
   onReturn?: (borrow: BorrowCardData) => void;
 }
 
-// Color palette for borrow bars (cycles through if many items)
-const STATUS_COLORS: Record<string, { bar: string; text: string; dot: string }> = {
-  active:    { bar: "bg-green-500",  text: "text-white", dot: "bg-green-500" },
-  approved:  { bar: "bg-blue-500",   text: "text-white", dot: "bg-blue-500" },
-  pending:   { bar: "bg-amber-400",  text: "text-white", dot: "bg-amber-400" },
-  returned:  { bar: "bg-gray-400",   text: "text-white", dot: "bg-gray-400" },
-  rejected:  { bar: "bg-red-400",    text: "text-white", dot: "bg-red-400" },
-  cancelled: { bar: "bg-gray-300",   text: "text-gray-600", dot: "bg-gray-300" },
+const STATUS_COLORS: Record<string, { bar: string; text: string }> = {
+  active:    { bar: "bg-green-500",  text: "text-white" },
+  approved:  { bar: "bg-blue-500",   text: "text-white" },
+  pending:   { bar: "bg-amber-400",  text: "text-white" },
+  returned:  { bar: "bg-gray-400",   text: "text-white" },
+  rejected:  { bar: "bg-red-400",    text: "text-white" },
+  cancelled: { bar: "bg-gray-300",   text: "text-gray-600" },
 };
-
-const ITEM_COLORS = [
-  "bg-violet-500", "bg-cyan-500", "bg-pink-500", "bg-teal-500",
-  "bg-orange-500", "bg-indigo-500", "bg-rose-500", "bg-emerald-500",
-];
 
 function getStatusColor(status: string) {
   return STATUS_COLORS[status] ?? STATUS_COLORS.active;
 }
 
-// Assign a stable color per item name (for multi-item differentiation)
-function getItemColor(itemName: string, allNames: string[]) {
-  const idx = allNames.indexOf(itemName);
-  return ITEM_COLORS[idx % ITEM_COLORS.length];
-}
-
 interface BorrowBar {
   borrow: BorrowEntry;
-  startCol: number; // 0-indexed day in the week row
-  span: number;     // how many days this bar spans in this row
+  startCol: number;
+  span: number;
   isStart: boolean;
   isEnd: boolean;
-  rowIndex: number; // vertical stacking index within the day
+  rowIndex: number;
+}
+
+interface SelectedInfo {
+  borrow: BorrowEntry;
+  weekIndex: number;
 }
 
 export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedBorrow, setSelectedBorrow] = useState<BorrowEntry | null>(null);
+  const [selected, setSelected] = useState<SelectedInfo | null>(null);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
 
-  // Build calendar grid: weeks as rows, each week = 7 days
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
   const allDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
-  // Split into weeks
   const weeks: Date[][] = [];
   for (let i = 0; i < allDays.length; i += 7) {
     weeks.push(allDays.slice(i, i + 7));
   }
 
-  // Normalize borrows to Date objects
   const normalizedBorrows = useMemo(() => borrows.map(b => ({
     ...b,
     startDate: new Date(b.startDate),
     endDate: new Date(b.endDate),
   })), [borrows]);
 
-  const allItemNames = useMemo(() => Array.from(new Set(normalizedBorrows.map(b => b.itemName))), [normalizedBorrows]);
-
-  // For each week, compute which borrows span into it and their stacking rows
   const weekBars = useMemo(() => {
     return weeks.map(week => {
       const weekStart = week[0];
       const weekEnd = week[6];
 
-      // Find borrows that overlap this week
       const overlapping = normalizedBorrows.filter(b =>
         b.startDate <= weekEnd && b.endDate >= weekStart
       );
 
-      // Assign stacking rows (greedy interval scheduling)
       const rows: BorrowEntry[][] = [];
       const bars: BorrowBar[] = [];
 
@@ -94,12 +78,10 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
         const barStart = borrow.startDate < weekStart ? weekStart : borrow.startDate;
         const barEnd = borrow.endDate > weekEnd ? weekEnd : borrow.endDate;
 
-        // Find which column (0-6) these dates fall on
         const startCol = week.findIndex(d => isSameDay(d, barStart));
         const endCol = week.findIndex(d => isSameDay(d, barEnd));
         const span = endCol - startCol + 1;
 
-        // Find a free row
         let rowIndex = 0;
         while (rows[rowIndex]?.some(existing => {
           const eStart = existing.startDate < weekStart ? weekStart : existing.startDate;
@@ -127,11 +109,28 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
     });
   }, [weeks, normalizedBorrows]);
 
-  const goToPrevMonth = () => setCurrentMonth(m => subMonths(m, 1));
-  const goToNextMonth = () => setCurrentMonth(m => addMonths(m, 1));
-  const goToToday = () => setCurrentMonth(new Date());
+  const goToPrevMonth = () => {
+    setCurrentMonth(m => subMonths(m, 1));
+    setSelected(null);
+  };
+  const goToNextMonth = () => {
+    setCurrentMonth(m => addMonths(m, 1));
+    setSelected(null);
+  };
+  const goToToday = () => {
+    setCurrentMonth(new Date());
+    setSelected(null);
+  };
 
   const DAY_HEADERS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+
+  const handleBarClick = (borrow: BorrowEntry, weekIndex: number) => {
+    if (selected?.borrow.id === borrow.id && selected?.weekIndex === weekIndex) {
+      setSelected(null);
+    } else {
+      setSelected({ borrow, weekIndex });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -180,81 +179,92 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
           ))}
         </div>
 
-        {/* Weeks */}
+        {/* Weeks – rendered as a flat list so we can inject the detail card between rows */}
         {weekBars.map(({ week, bars, rowCount }, wi) => {
-          const barHeight = 22; // px per bar row
+          const barHeight = 22;
           const minCellHeight = 52;
           const cellHeight = Math.max(minCellHeight, 32 + rowCount * barHeight);
+          const isSelectedWeek = selected?.weekIndex === wi;
 
           return (
-            <div key={wi} className="grid grid-cols-7 border-b last:border-b-0 relative" style={{ minHeight: cellHeight }}>
-              {/* Day number cells */}
-              {week.map((day, di) => {
-                const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
-                const isCurrentDay = isToday(day);
-                return (
-                  <div
-                    key={di}
-                    className={`border-r last:border-r-0 pt-1 px-1 relative
-                      ${!isCurrentMonth ? "bg-muted/20" : ""}
-                    `}
-                    style={{ minHeight: cellHeight }}
-                  >
-                    <span className={`text-xs font-medium inline-flex items-center justify-center w-6 h-6 rounded-full
-                      ${isCurrentDay ? "bg-primary text-primary-foreground" : isCurrentMonth ? "text-foreground" : "text-muted-foreground"}
-                    `}>
-                      {format(day, "d")}
-                    </span>
-                  </div>
-                );
-              })}
-
-              {/* Borrow bars – absolutely positioned over the week row */}
-              {bars.map((bar, bi) => {
-                const colors = getStatusColor(bar.borrow.status);
-                const topOffset = 28 + bar.rowIndex * barHeight; // below day numbers
-                const leftPct = (bar.startCol / 7) * 100;
-                const widthPct = (bar.span / 7) * 100;
-
-                return (
-                  <div
-                    key={bi}
-                    className={`absolute z-10 flex items-center cursor-pointer transition-opacity hover:opacity-80
-                      ${colors.bar} ${colors.text}
-                      ${bar.isStart ? "rounded-l-md ml-0.5" : ""}
-                      ${bar.isEnd ? "rounded-r-md mr-0.5" : ""}
-                    `}
-                    style={{
-                      top: topOffset,
-                      left: `calc(${leftPct}% + ${bar.isStart ? 2 : 0}px)`,
-                      width: `calc(${widthPct}% - ${(bar.isStart ? 2 : 0) + (bar.isEnd ? 2 : 0)}px)`,
-                      height: barHeight - 3,
-                    }}
-                    onClick={() => setSelectedBorrow(bar.borrow)}
-                    title={`${bar.borrow.itemName} (${format(new Date(bar.borrow.startDate), "dd.MM.")} – ${format(new Date(bar.borrow.endDate), "dd.MM.")})`}
-                  >
-                    {bar.isStart && (
-                      <span className="truncate text-[11px] font-medium px-1.5 leading-none select-none">
-                        {bar.borrow.itemName}
+            <div key={wi}>
+              {/* Week row */}
+              <div
+                className={`grid grid-cols-7 border-b relative ${isSelectedWeek ? "border-b-0" : ""}`}
+                style={{ minHeight: cellHeight }}
+              >
+                {/* Day number cells */}
+                {week.map((day, di) => {
+                  const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
+                  const isCurrentDay = isToday(day);
+                  return (
+                    <div
+                      key={di}
+                      className={`border-r last:border-r-0 pt-1 px-1 relative
+                        ${!isCurrentMonth ? "bg-muted/20" : ""}
+                      `}
+                      style={{ minHeight: cellHeight }}
+                    >
+                      <span className={`text-xs font-medium inline-flex items-center justify-center w-6 h-6 rounded-full
+                        ${isCurrentDay ? "bg-primary text-primary-foreground" : isCurrentMonth ? "text-foreground" : "text-muted-foreground"}
+                      `}>
+                        {format(day, "d")}
                       </span>
-                    )}
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
+
+                {/* Borrow bars */}
+                {bars.map((bar, bi) => {
+                  const colors = getStatusColor(bar.borrow.status);
+                  const topOffset = 28 + bar.rowIndex * barHeight;
+                  const leftPct = (bar.startCol / 7) * 100;
+                  const widthPct = (bar.span / 7) * 100;
+                  const isActive = selected?.borrow.id === bar.borrow.id && isSelectedWeek;
+
+                  return (
+                    <div
+                      key={bi}
+                      className={`absolute z-10 flex items-center cursor-pointer transition-all
+                        ${colors.bar} ${colors.text}
+                        ${bar.isStart ? "rounded-l-md ml-0.5" : ""}
+                        ${bar.isEnd ? "rounded-r-md mr-0.5" : ""}
+                        ${isActive ? "ring-2 ring-offset-1 ring-white/70 opacity-100" : "hover:opacity-80"}
+                      `}
+                      style={{
+                        top: topOffset,
+                        left: `calc(${leftPct}% + ${bar.isStart ? 2 : 0}px)`,
+                        width: `calc(${widthPct}% - ${(bar.isStart ? 2 : 0) + (bar.isEnd ? 2 : 0)}px)`,
+                        height: barHeight - 3,
+                      }}
+                      onClick={() => handleBarClick(bar.borrow, wi)}
+                      title={`${bar.borrow.itemName} (${format(new Date(bar.borrow.startDate), "dd.MM.")} – ${format(new Date(bar.borrow.endDate), "dd.MM.")})`}
+                    >
+                      {bar.isStart && (
+                        <span className="truncate text-[11px] font-medium px-1.5 leading-none select-none">
+                          {bar.borrow.itemName}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Inline detail card – appears directly below this week row */}
+              {isSelectedWeek && selected && (
+                <div className="border-b border-x rounded-b-lg mx-0 p-3 bg-card shadow-md animate-in slide-in-from-top-2 duration-150">
+                  <BorrowCard
+                    borrow={selected.borrow}
+                    onClose={() => setSelected(null)}
+                    onPickup={onPickup}
+                    onReturn={onReturn}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-
-      {/* Detail card for selected borrow */}
-      {selectedBorrow && (
-        <BorrowCard
-          borrow={selectedBorrow}
-          onClose={() => setSelectedBorrow(null)}
-          onPickup={onPickup}
-          onReturn={onReturn}
-        />
-      )}
 
       {normalizedBorrows.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
