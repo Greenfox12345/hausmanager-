@@ -47,6 +47,6 @@
     "pdfCount": "{{count}} PDF",
     "photoCount": "{{count}} photo"
   },
-  "noActivities": "Noch keine Aktivitäten vorhanden.",
-  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
+  "noActivities": "No activities yet.",
+  "noActivitiesFiltered": "No activities found matching your filter criteria."
 }

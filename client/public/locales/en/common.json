@@ -49,12 +49,12 @@
     "deleting": "Deleting...",
     "clickToStart": "Click here to get started →",
     "complete": "Complete",
-    "deselectAll": "Alle abwählen",
+    "deselectAll": "Deselect all",
     "editDetails": "Details bearbeiten",
     "restore": "Restore",
-    "selectAll": "Alle auswählen",
+    "selectAll": "Select all",
     "showLess": "Weniger anzeigen",
-    "undo": "Rükgängig machen"
+    "undo": "Undo"
   },
   "status": {
     "active": "Active",
@@ -70,7 +70,7 @@
     "inProgress": "In Progress",
     "creating": "Creating...",
     "loading": "Lade Inventar...",
-    "uploading": "Lädt hoch..."
+    "uploading": "Uploading..."
   },
   "labels": {
     "name": "Name",
@@ -118,7 +118,7 @@
     "color": "Color",
     "details": "Details",
     "email": "E-Mail",
-    "noHousehold": "Kein Haushalt ausgewählt",
+    "noHousehold": "No household selected",
     "photos": "Fotos",
     "time": "Uhrzeit",
     "unassigned": "Nicht zugewiesen"
@@ -400,7 +400,7 @@
     "ascending": "Sort ascending",
     "descending": "Sort descending"
   },
-  "back": "Zurück",
+  "back": "Back",
   "common": {
     "messages": {
       "loading": "Loading..."
@@ -408,9 +408,9 @@
   },
   "loading": "Loading...",
   "navigation": {
-    "back": "Zurück",
+    "back": "Back",
     "next": "Weiter"
   },
   "pleaseLogin": "Bitte anmelden",
-  "uploading": "Lädt hoch..."
+  "uploading": "Uploading..."
 }

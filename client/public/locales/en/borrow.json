@@ -2,7 +2,7 @@
   "actions": {
     "approve": "Genehmigen",
     "reject": "Ablehnen",
-    "return": "Zurückgeben",
+    "return": "Return",
     "revoke": "Widerrufen"
   },
   "borrow": "Ausleihen",
@@ -63,9 +63,9 @@
   "status": {
     "active": "Ausgeliehen",
     "approved": "Genehmigt",
-    "completed": "Zurückgegeben",
-    "overdue": "Überfällig",
-    "pending": "Ausständig",
+    "completed": "Returned",
+    "overdue": "Overdue",
+    "pending": "Pending",
     "rejected": "Abgelehnt"
   },
   "task": "Task"

@@ -28,10 +28,10 @@
     "createdAt": "Erstellt am",
     "detailsPlaceholder": "z.B. MacBook Pro 2023",
     "namePlaceholder": "z.B. Laptop",
-    "owners": "Eigentümer:",
+    "owners": "Owners:",
     "ownershipHousehold": "Eigentum: Haushalt",
-    "ownershipPersonal": "Persönliches Eigentum",
-    "selectCategory": "Kategorie wählen"
+    "ownershipPersonal": "Personal property",
+    "selectCategory": "Select category"
   },
   "condition": {
     "new": "New",
@@ -82,7 +82,7 @@
     "borrowed": "Borrowed",
     "available": "Available",
     "allCategories": "Alle Kategorien",
-    "allOwners": "Alle Eigentümer",
+    "allOwners": "All owners",
     "onlyHousehold": "Nur Haushalt"
   },
   "messages": {
@@ -108,13 +108,13 @@
     "ownerRequired": "Please select at least one owner",
     "householdRequired": "Please select at least one household",
     "confirmDelete": "Really delete this item?",
-    "categoryAdded": "Kategorie hinzugefügt",
-    "categoryDeleted": "Kategorie gelöscht",
+    "categoryAdded": "Category added",
+    "categoryDeleted": "Category deleted",
     "categoryUpdated": "Kategorie aktualisiert",
-    "itemAdded": "Artikel hinzugefügt",
+    "itemAdded": "Item added",
     "nameCategoryRequired": "Name und Kategorie sind erforderlich",
     "noItems": "Keine Artikel gefunden.",
-    "selectOwner": "Bitte wähle mindestens einen Eigentümer"
+    "selectOwner": "Please select at least one owner"
   },
   "labels": {
     "item": "Item"

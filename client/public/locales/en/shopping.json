@@ -29,7 +29,7 @@
     "photos": "Photos",
     "fileSelect": "Choose files",
     "noFileSelected": "No files selected",
-    "selectCategory": "Kategorie wählen",
+    "selectCategory": "Select category",
     "taskPlaceholder": "z.B. Einkauf erledigen"
   },
   "status": {
@@ -72,13 +72,13 @@
     "emptyCategory": "No items in this category.",
     "noCategories": "No categories yet. Create a new category.",
     "categoryCreated": "Kategorie erstellt",
-    "categoryDeleted": "Kategorie gelöscht",
+    "categoryDeleted": "Category deleted",
     "categoryInUse": "Category is still in use",
     "categoryRenamed": "Kategorie umbenannt",
-    "selectAssignee": "Bitte wählen Sie mindestens einen Verantwortlichen",
+    "selectAssignee": "Please select at least one assignee",
     "shoppingCompleted": "Einkauf abgeschlossen!",
-    "taskLinkError": "Fehler beim Verknüpfen der Aufgaben",
-    "taskLinked": "Aufgabe erstellt und verknüpft",
+    "taskLinkError": "Error linking tasks",
+    "taskLinked": "Task created and linked",
     "updateError": "Fehler beim Aktualisieren"
   },
   "renameCategory": "Rename",
@@ -131,7 +131,7 @@
   "createTaskFromItems": "Aufgabe aus Artikeln erstellen",
   "editItem": "Artikel bearbeiten",
   "itemDetails": "Artikel-Details",
-  "loadingList": "Lädt Einkaufsliste...",
+  "loadingList": "Loading shopping list...",
   "organizeAsTask": "Einkauf als Aufgabe organisieren",
-  "selectedItems": "Ausgewählte Artikel"
+  "selectedItems": "Selected items"
 }

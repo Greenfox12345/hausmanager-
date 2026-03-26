@@ -3321,3 +3321,7 @@
 - [x] Lint-Prüfung 5 auf aria-label/title-Attribute ausweiten (kein Treffer – alle bereits mit t() versehen)
 - [x] EN-Text für projects:messages.noProjects verfeinern
 - [x] Alle hardcodierten placeholder-Strings in Projects.tsx beheben (taskNamePlaceholder, projectNamePlaceholder)
+
+## Calendar EN-Übersetzungen fehlen
+- [x] Ursache diagnostizieren: 44 EN-Werte waren DE-Kopien (aus Allowlist-Abbau übernommen)
+- [x] Alle 44 EN-Werte korrekt ins Englische übersetzt (calendar, tasks, common, borrow, history, inventory, members, shopping)

@@ -112,15 +112,15 @@
     "planRotationHint": "Plan in advance who is responsible for which appointment",
     "rotationAvailableAfterCreate": "Rotation planning and appointment notes are available after creating the task",
     "excludeFromRotation": "Exempt from rotation",
-    "daily": "Täglich",
+    "daily": "Daily",
     "day": "Tag",
     "excludedMembers": "Ausgeschlossene Mitglieder",
     "month": "Monat",
     "monthly": "Monatlich",
     "repeats": "Aufgabe wiederholt sich",
-    "requiredPersons": "Benötigte Personen",
+    "requiredPersons": "Required persons",
     "week": "Woche",
-    "weekly": "Wöchentlich"
+    "weekly": "Weekly"
   },
   "weekdays": {
     "monday": "Monday",
@@ -308,11 +308,11 @@
     "itemAddError": "Error adding item",
     "assignedCount": "{{count}} tasks assigned",
     "completedCount": "{{count}} tasks completed",
-    "confirmDelete": "Möchten Sie diese Aufgabe wirklich löschen?",
+    "confirmDelete": "Are you sure you want to delete this task?",
     "deletedCount": "{{count}} tasks deleted",
-    "markedReturned": "Als zurückgegeben markiert!",
+    "markedReturned": "Marked as returned!",
     "milestoneRecorded": "Zwischenziel vermerkt!",
-    "undone": "Abschluss rükgängig gemacht!"
+    "undone": "Completion undone!"
   },
   "gantt": {
     "title": "Gantt chart",
@@ -367,7 +367,7 @@
     "assignDesc": "Assign tasks to a member",
     "assignTitle": "Aufgaben zuweisen",
     "deleteDesc": "Delete selected tasks",
-    "deleteTitle": "Aufgaben löschen"
+    "deleteTitle": "Delete tasks"
   },
   "loading": "Loading tasks...",
   "noTasksCreate": "No tasks yet. Create a new task above!",
@@ -547,7 +547,7 @@
       "addAnyway": "Add anyway"
     }
   },
-  "addTask": "Aufgabe hinzufügen",
+  "addTask": "Add task",
   "allTasks": "Alle Aufgaben",
   "descriptionPlaceholder": "Aufgabenbeschreibung...",
   "detail": {
@@ -557,11 +557,11 @@
     "sharedWith": "Shared with",
     "specialAppointment": "Special appointment"
   },
-  "dueDate": "Fällig:",
+  "dueDate": "Due:",
   "labels": {
     "assignedTo": "Verantwortlich"
   },
-  "linkedWith": "Verknüpft mit",
+  "linkedWith": "Linked with",
   "otherHousehold": "anderem Haushalt",
   "permissions": {
     "full": "Vollzugriff (alles bearbeiten)",
@@ -570,7 +570,7 @@
   },
   "rotation": {
     "excludedMembers": "Ausgeschlossene Mitglieder",
-    "noMembers": "Keine Mitglieder verfügbar",
+    "noMembers": "No members available",
     "requiredPersons": "Erforderliche Anzahl Personen",
     "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern"
   },
