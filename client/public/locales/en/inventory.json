@@ -81,9 +81,9 @@
     "borrowable": "Borrowable",
     "borrowed": "Borrowed",
     "available": "Available",
-    "allCategories": "Alle Kategorien",
+    "allCategories": "All categories",
     "allOwners": "All owners",
-    "onlyHousehold": "Nur Haushalt"
+    "onlyHousehold": "Household only"
   },
   "messages": {
     "created": "Item created successfully.",
@@ -113,7 +113,7 @@
     "categoryUpdated": "Kategorie aktualisiert",
     "itemAdded": "Item added",
     "nameCategoryRequired": "Name und Kategorie sind erforderlich",
-    "noItems": "Keine Artikel gefunden.",
+    "noItems": "No items found.",
     "selectOwner": "Please select at least one owner"
   },
   "labels": {
@@ -130,7 +130,7 @@
   "noConnectedHouseholds": "No connected households. Connect households first under \"Household\".",
   "externalRequest": "Request from external household",
   "actions": {
-    "borrow": "Ausleihen",
+    "borrow": "Borrow",
     "requests": "Anfragen"
   },
   "description": "Verwalte dein Haushaltsinventar"

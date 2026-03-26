@@ -5,9 +5,9 @@
     "return": "Return",
     "revoke": "Widerrufen"
   },
-  "borrow": "Ausleihen",
+  "borrow": "Borrow",
   "guidelines": "Ausleihvorgaben",
-  "noRequests": "Keine Ausleih-Anfragen vorhanden.",
+  "noRequests": "No borrow requests available.",
   "occurrence": "Occurrence",
   "requestDialog": {
     "endAfterStart": "Return date must be after pickup date",

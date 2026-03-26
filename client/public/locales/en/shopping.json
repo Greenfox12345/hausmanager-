@@ -126,12 +126,12 @@
     "savingButton": "Saving...",
     "completeButton": "Complete Shopping"
   },
-  "allCategories": "Alle Kategorien",
+  "allCategories": "All categories",
   "completeShoppingCount": "{{count}} items completed",
-  "createTaskFromItems": "Aufgabe aus Artikeln erstellen",
+  "createTaskFromItems": "Create task from items",
   "editItem": "Artikel bearbeiten",
   "itemDetails": "Artikel-Details",
   "loadingList": "Loading shopping list...",
-  "organizeAsTask": "Einkauf als Aufgabe organisieren",
+  "organizeAsTask": "Organise shopping as task",
   "selectedItems": "Selected items"
 }

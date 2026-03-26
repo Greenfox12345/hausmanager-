@@ -691,7 +691,7 @@ export default function Calendar() {
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4" />
-                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, "d. MMMM yyyy", { locale: de })}
+                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, i18n.language === "de" ? "d. MMMM yyyy" : "MMMM d, yyyy", { locale: de })}
                     </h3>
                     {selectedDateTasks.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">
@@ -802,7 +802,7 @@ export default function Calendar() {
                                     <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
                                       <span>{getMemberNames(task.assignedTo)}</span>
                                       {task.dueDate && (
-                                        <span>• {format(new Date(task.dueDate), "HH:mm")} Uhr</span>
+                                        <span>• {format(new Date(task.dueDate), "HH:mm")}{i18n.language === "de" ? " Uhr" : ""}</span>
                                       )}
                                       {projectName && (
                                         <Badge variant="outline" className="text-xs">

@@ -62,23 +62,23 @@
     "markReturned": "Mark as returned",
     "viewItem": "View item"
   },
-  "allTasksChronological": "Alle Aufgaben (chronologisch)",
-  "calendarView": "Kalenderansicht",
+  "allTasksChronological": "All tasks (chronological)",
+  "calendarView": "Calendar view",
   "completedOn": "Termin am:",
   "confirmSkip": "Do you want to skip this appointment? It will no longer be shown in the calendar.",
   "filter": {
     "all": "All entries",
-    "borrowsOnly": "Nur Ausleihen",
-    "tasksOnly": "Nur Aufgaben"
+    "borrowsOnly": "Borrows only",
+    "tasksOnly": "Tasks only"
   },
   "jumpToCurrent": "Zu aktuellem Termin",
-  "noTasksOnDay": "Keine Aufgaben an diesem Tag",
-  "noTasksWithoutDates": "Keine Aufgaben ohne Termine",
+  "noTasksOnDay": "No tasks on this day",
+  "noTasksWithoutDates": "No tasks without dates",
   "noTasksWithoutDatesForMember": "No tasks without dates for this member",
   "occurrence": "Termin",
   "period": "Zeitraum",
   "skip": "Auslassen",
-  "tasksOn": "Aufgaben am",
-  "tasksWithoutDates": "Aufgaben ohne Termine",
-  "today": "Heute"
+  "tasksOn": "Tasks on",
+  "tasksWithoutDates": "Tasks without dates",
+  "today": "Today"
 }

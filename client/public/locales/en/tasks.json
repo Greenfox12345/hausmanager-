@@ -117,7 +117,7 @@
     "excludedMembers": "Ausgeschlossene Mitglieder",
     "month": "Monat",
     "monthly": "Monatlich",
-    "repeats": "Aufgabe wiederholt sich",
+    "repeats": "Task repeats",
     "requiredPersons": "Required persons",
     "week": "Woche",
     "weekly": "Weekly"
@@ -365,7 +365,7 @@
     "assign": "Assign",
     "delete": "Delete",
     "assignDesc": "Assign tasks to a member",
-    "assignTitle": "Aufgaben zuweisen",
+    "assignTitle": "Assign tasks",
     "deleteDesc": "Delete selected tasks",
     "deleteTitle": "Delete tasks"
   },
@@ -548,8 +548,8 @@
     }
   },
   "addTask": "Add task",
-  "allTasks": "Alle Aufgaben",
-  "descriptionPlaceholder": "Aufgabenbeschreibung...",
+  "allTasks": "All tasks",
+  "descriptionPlaceholder": "Task description...",
   "detail": {
     "linkedWith": "Linked with",
     "otherHousehold": "another household",
@@ -564,9 +564,9 @@
   "linkedWith": "Linked with",
   "otherHousehold": "anderem Haushalt",
   "permissions": {
-    "full": "Vollzugriff (alles bearbeiten)",
+    "full": "Full access (edit everything)",
     "milestonesReminders": "Zwischenziele & Erinnerungen",
-    "viewOnly": "Nur ansehen"
+    "viewOnly": "View only"
   },
   "rotation": {
     "excludedMembers": "Ausgeschlossene Mitglieder",

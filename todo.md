@@ -3325,3 +3325,6 @@
 ## Calendar EN-Übersetzungen fehlen
 - [x] Ursache diagnostizieren: 44 EN-Werte waren DE-Kopien (aus Allowlist-Abbau übernommen)
 - [x] Alle 44 EN-Werte korrekt ins Englische übersetzt (calendar, tasks, common, borrow, history, inventory, members, shopping)
+
+## Calendar.tsx – 5 nicht übersetzte Stellen
+- [x] Zeilen 540, 556, 578, 692, 805 übersetzt + 30 weitere EN-Kopien in 8 Namespaces korrigiert

@@ -112,7 +112,7 @@
     "fullscreen": "Full screen",
     "today": "Today",
     "on": "on",
-    "allTypes": "Alle Typen",
+    "allTypes": "All types",
     "by": "von",
     "clock": "Uhr",
     "color": "Color",
@@ -409,7 +409,7 @@
   "loading": "Loading...",
   "navigation": {
     "back": "Back",
-    "next": "Weiter"
+    "next": "Next"
   },
   "pleaseLogin": "Bitte anmelden",
   "uploading": "Uploading..."

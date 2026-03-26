@@ -90,7 +90,7 @@
     "autoApprovedDesc": "Automatically approved",
     "borrowEndUpdated": "Return date updated",
     "borrowStartUpdated": "Pickup date updated",
-    "cancelled": "Ausleihe storniert",
+    "cancelled": "Borrowing cancelled",
     "requestSentDesc": "Request has been sent",
     "revokeError": "Error revoking",
     "revokeSuccess": "Successfully revoked"
@@ -246,8 +246,8 @@
     "request": "Request",
     "revoke": "Revoke"
   },
-  "borrowing": "Ausleihe",
+  "borrowing": "Borrowing",
   "hidePast": "Vergangene ausblenden",
   "showPast": "Vergangene anzeigen",
-  "tabCalendar": "Kalender"
+  "tabCalendar": "Calendar"
 }
