@@ -572,7 +572,8 @@
     "excludedMembers": "Ausgeschlossene Mitglieder",
     "noMembers": "Keine Mitglieder verfügbar",
     "requiredPersons": "Erforderliche Anzahl Personen",
-    "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern"
+    "rotationBetweenMembers": "Rotation zwischen Haushaltsmitgliedern",
+    "requiredPersonsPlaceholder": "z.B. 2"
   },
   "sharedWith": "Geteilt mit"
 }

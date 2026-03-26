@@ -1544,14 +1544,14 @@ export default function Projects() {
                       {hasRotation && (
                         <div className="space-y-4 mt-2">
                           <div className="space-y-2">
-                            <Label htmlFor="rotation-required">{t("tasks:rotation.requiredPersons", "Erforderliche Anzahl Personen")}</Label>
+                            <Label htmlFor="rotation-required">{t("tasks:rotation.requiredPersons")}</Label>
                             <Input
                               id="rotation-required"
                               type="number"
                               min="1"
                               value={rotationRequired}
                               onChange={(e) => setRotationRequired(e.target.value)}
-                              placeholder="z.B. 2"
+                              placeholder={t("tasks:rotation.requiredPersonsPlaceholder")}
                             />
                           </div>
                           <div className="space-y-2">

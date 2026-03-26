@@ -3340,3 +3340,6 @@
 ## Tasks.tsx + Komponenten – date-fns Locale dynamisch
 - [x] Alle 22 hardcodierten { locale: de } in 9 Dateien auf dynamisch (de/enGB) umgestellt
 - [x] Alle 10 nativen input[type=date] durch DatePickerInput-Komponente mit dynamischer Locale ersetzt (Tasks, TaskDetailDialog, RequiredItemsSection, Shopping, Projects)
+
+## Projects.tsx Z.1547 – Label und Placeholder übersetzen
+- [x] Label und Placeholder in Z.1547 übersetzt (tasks:rotation.requiredPersons + requiredPersonsPlaceholder)

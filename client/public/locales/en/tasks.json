@@ -571,8 +571,9 @@
   "rotation": {
     "excludedMembers": "Excluded members",
     "noMembers": "No members available",
-    "requiredPersons": "Erforderliche Anzahl Personen",
-    "rotationBetweenMembers": "Rotation between household members"
+    "requiredPersons": "Required number of persons",
+    "rotationBetweenMembers": "Rotation between household members",
+    "requiredPersonsPlaceholder": "e.g. 2"
   },
   "sharedWith": "Geteilt mit"
 }
