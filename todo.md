@@ -3278,3 +3278,9 @@
 - [x] Frontend: ReturnDialog (zeigt Abholfotos/-kommentare, eigenes Foto + Kommentar)
 - [x] Frontend: Buttons in Borrows.tsx einbinden
 - [ ] Kalender-Balken: Klick öffnet vollständige Ausleih-Karte als Overlay mit X-Button
+
+## CI-Lint-Skript für JSON-Sprachdateien
+- [x] scripts/lint-i18n.ts schreiben (doppelte Schlüssel + fehlende EN-Schlüssel)
+- [x] Vitest-Test server/lint-i18n.test.ts schreiben
+- [x] npm-Skript "lint:i18n" in package.json eintragen
+- [x] In pnpm test-Workflow einbinden
