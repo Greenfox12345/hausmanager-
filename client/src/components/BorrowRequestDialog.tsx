@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +50,8 @@ export function BorrowRequestDialog({
   initialStartDate,
   initialEndDate,
 }: BorrowRequestDialogProps) {
-  const { t } = useTranslation(["borrow", "common"]);
+  const { t, i18n } = useTranslation(["borrow", "common"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");
@@ -75,7 +76,7 @@ export function BorrowRequestDialog({
 
       // Generate pre-filled message with task context
       if (taskName && occurrenceNumber) {
-        const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `${t("borrow:occurrence")} ${occurrenceNumber}`;
+        const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: dateFnsLocale }) : `${t("borrow:occurrence")} ${occurrenceNumber}`;
         const membersStr = assignedMembers.length > 0 ? `\n${t("borrow:responsible")}: ${assignedMembers.join(", ")}` : "";
         
         setMessage(
@@ -133,7 +134,7 @@ export function BorrowRequestDialog({
                 <div className="text-sm font-medium">{taskName}</div>
                 <div className="text-sm text-muted-foreground flex items-center gap-2">
                   <CalendarIcon className="h-3 w-3" />
-                  {occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: de }) : `${t("borrow:occurrence")} ${occurrenceNumber}`}
+                  {occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: dateFnsLocale }) : `${t("borrow:occurrence")} ${occurrenceNumber}`}
                 </div>
                 {assignedMembers.length > 0 && (
                   <div className="text-sm text-muted-foreground">
@@ -234,7 +235,7 @@ export function BorrowRequestDialog({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {startDate ? (
-                      format(startDate, "PPP", { locale: de })
+                      format(startDate, "PPP", { locale: dateFnsLocale })
                     ) : (
                       <span>{t("borrow:requestDialog.selectDate")}</span>
                     )}
@@ -266,7 +267,7 @@ export function BorrowRequestDialog({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {endDate ? (
-                      format(endDate, "PPP", { locale: de })
+                      format(endDate, "PPP", { locale: dateFnsLocale })
                     ) : (
                       <span>{t("borrow:requestDialog.selectDate")}</span>
                     )}

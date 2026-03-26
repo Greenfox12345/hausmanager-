@@ -12,7 +12,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Users, UserPlus, Check, X, Trash2, Bell, Package, Globe, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 
@@ -24,7 +24,8 @@ export default function Neighborhood() {
   const [searchQuery, setSearchQuery] = useState("");
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const utils = trpc.useUtils();
-  const { t } = useTranslation(["neighborhood", "common"]);
+  const { t, i18n } = useTranslation(["neighborhood", "common"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
 
   // Borrow state
   const [selectedItemForBorrow, setSelectedItemForBorrow] = useState<{ id: number; name: string; householdName: string } | null>(null);
@@ -300,7 +301,7 @@ export default function Neighborhood() {
                           <p className="font-medium">{invitation.requestingHouseholdName}</p>
                           <p className="text-sm text-muted-foreground">
                             {t("neighborhood:messages.invitedBy", "Eingeladen von")} {invitation.requesterName} · {" "}
-                            {invitation.createdAt && format(new Date(invitation.createdAt), "PPP", { locale: de })}
+                            {invitation.createdAt && format(new Date(invitation.createdAt), "PPP", { locale: dateFnsLocale })}
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -361,7 +362,7 @@ export default function Neighborhood() {
                           <div>
                             <p className="font-medium text-lg">{connectedHousehold.name}</p>
                             <p className="text-sm text-muted-foreground">
-                              {t("neighborhood:messages.connectedSince", "Verbunden seit")} {format(new Date(connectedHousehold.createdAt), "PPP", { locale: de })}
+                              {t("neighborhood:messages.connectedSince", "Verbunden seit")} {format(new Date(connectedHousehold.createdAt), "PPP", { locale: dateFnsLocale })}
                             </p>
                           </div>
                           <Button

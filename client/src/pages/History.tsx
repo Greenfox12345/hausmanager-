@@ -21,11 +21,12 @@ import {
   FileText
 } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
-  const { t } = useTranslation(["history", "common"]);
+  const { t, i18n } = useTranslation(["history", "common"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const [, setLocation] = useLocation();
   const { household, isAuthenticated } = useCompatAuth();
   const [filterType, setFilterType] = useState<string>("all");
@@ -212,7 +213,7 @@ export default function History() {
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="font-medium">{activity.description}</p>
                           <span className="text-xs text-muted-foreground whitespace-nowrap">
-                            {format(new Date(activity.createdAt), "dd.MM.yyyy HH:mm", { locale: de })}
+                            {format(new Date(activity.createdAt), "dd.MM.yyyy HH:mm", { locale: dateFnsLocale })}
                           </span>
                         </div>
 

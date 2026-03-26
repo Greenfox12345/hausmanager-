@@ -11,7 +11,7 @@ import { ItemPickerDialog } from "./ItemPickerDialog";
 import { BorrowRequestDialog } from "./BorrowRequestDialog";
 import { RevokeApprovalDialog } from "./RevokeApprovalDialog";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { toast } from "sonner";
 
 interface RequiredItemsSectionProps {
@@ -93,7 +93,8 @@ export function RequiredItemsSection({
     { enabled: !!currentUser }
   );
 
-  const { t } = useTranslation(["tasks", "borrows", "common"]);
+  const { t, i18n } = useTranslation(["tasks", "borrows", "common"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const utils = trpc.useUtils();
 
   // Handle adding item to occurrence
@@ -168,7 +169,7 @@ export function RequiredItemsSection({
   const formatDate = (date: Date | string | null) => {
     if (!date) return "-";
     const d = typeof date === "string" ? new Date(date) : date;
-    return format(d, "dd.MM.yyyy", { locale: de });
+    return format(d, "dd.MM.yyyy", { locale: dateFnsLocale });
   };
 
   return (

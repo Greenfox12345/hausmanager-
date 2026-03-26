@@ -16,7 +16,7 @@ import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState as useStateForTabs } from "react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
@@ -81,7 +81,8 @@ interface TaskDetailDialogProps {
 
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask, taskList, currentTaskIndex, onNavigatePrevious, onNavigateNext }: TaskDetailDialogProps) {
   const [, setLocation] = useLocation();
-  const { t } = useTranslation(["tasks", "common"]);
+  const { t, i18n } = useTranslation(["tasks", "common"]);
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
@@ -1411,7 +1412,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                               >
                                                 <Calendar className="h-3 w-3 mr-1" />
                                                 {occ.specialDate 
-                                                  ? format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: de })
+                                                  ? format(new Date(occ.specialDate), "dd.MM.yyyy", { locale: dateFnsLocale })
                                                   : t("dialog.enterDate")
                                                 }
                                               </Button>
@@ -1439,7 +1440,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           // Regular appointment date (auto-calculated, non-editable)
                                           calculateOccurrenceDate(occ.occurrenceNumber) && (
                                             <span className="text-xs text-muted-foreground">
-                                              {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: de })}
+                                              {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: dateFnsLocale })}
                                             </span>
                                           )
                                         )}
@@ -1693,14 +1694,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       {task.skippedDates.map((dateStr: string, idx: number) => (
                         <div key={`${dateStr}-${idx}`} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
                           <span className="text-sm">
-                            {format(new Date(dateStr), "PPP", { locale: de })}
+                            {format(new Date(dateStr), "PPP", { locale: dateFnsLocale })}
                           </span>
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-7 text-xs"
                             onClick={() => {
-                              if (confirm(`Möchten Sie den ausgelassenen Termin vom ${format(new Date(dateStr), "PPP", { locale: de })} wiederherstellen?`)) {
+                              if (confirm(`Möchten Sie den ausgelassenen Termin vom ${format(new Date(dateStr), "PPP", { locale: dateFnsLocale })} wiederherstellen?`)) {
                                 restoreSkippedDateMutation.mutate({
                                   taskId: task.id,
                                   householdId: household?.householdId ?? 0,
@@ -1878,7 +1879,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         {(task.enableRepeat || task.repeatUnit) ? t("dialog.nextOccurrence") : t("dialog.dueLabel")}
                       </span>{" "}
                       <strong>
-                        {format(new Date(task.dueDate), "PPP 'um' HH:mm 'Uhr'", { locale: de })}
+                        {format(new Date(task.dueDate), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
                       </strong>
                     </span>
                   </div>
@@ -1896,7 +1897,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           const daysInMs = (task.durationDays || 0) * 24 * 60 * 60 * 1000;
                           const minutesInMs = (task.durationMinutes || 0) * 60 * 1000;
                           const end = new Date(start.getTime() + daysInMs + minutesInMs);
-                          return format(end, "PPP 'um' HH:mm 'Uhr'", { locale: de });
+                          return format(end, i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale });
                         })()}
                       </strong>
                     </span>
@@ -2104,7 +2105,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       )}
                       {task.createdAt && (
                         <div>
-                          {t("dialog.createdAt")}: <strong>{format(new Date(task.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}</strong>
+                          {t("dialog.createdAt")}: <strong>{format(new Date(task.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}</strong>
                         </div>
                       )}
                     </div>
@@ -2290,7 +2291,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                   {activity.action}
                                 </Badge>
                                 <span className="text-xs text-muted-foreground">
-                                  {format(new Date(activity.createdAt), "PPP 'um' HH:mm 'Uhr'", { locale: de })}
+                                  {format(new Date(activity.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
                                 </span>
                               </div>
                               <p className="text-sm">{activity.description}</p>

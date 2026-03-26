@@ -12,7 +12,7 @@ import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Star, Plus, X
 import { ItemPickerDialog } from "./ItemPickerDialog";
 import { Badge } from "@/components/ui/badge";
 import { addDays, addWeeks, format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
 
 interface Member {
@@ -67,7 +67,8 @@ export function RotationScheduleTable({
   excludedMemberIds = [],
   onSkipOccurrence,
 }: RotationScheduleTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
   const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
@@ -355,7 +356,7 @@ export function RotationScheduleTable({
                               className={`h-6 text-xs font-normal text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 ${occ.isSkipped ? 'line-through' : ''}`}
                             >
                               <Calendar className="h-3 w-3 mr-1" />
-                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : t("tasks:specialOccurrence.selectDate")}
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: dateFnsLocale }) : t("tasks:specialOccurrence.selectDate")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -396,7 +397,7 @@ export function RotationScheduleTable({
                               } ${occ.isSkipped ? 'line-through' : ''}`}
                             >
                               <Calendar className="h-3 w-3 mr-1" />
-                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : t("tasks:occurrence.enterDate")}
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: dateFnsLocale }) : t("tasks:occurrence.enterDate")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -427,7 +428,7 @@ export function RotationScheduleTable({
                         </span>
                         {calculateOccurrenceDate(occ.occurrenceNumber) && (
                           <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
-                            {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: de })}
+                            {format(calculateOccurrenceDate(occ.occurrenceNumber)!, "dd.MM.yyyy", { locale: dateFnsLocale })}
                           </span>
                         )}
                       </>

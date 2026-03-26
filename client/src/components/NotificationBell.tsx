@@ -10,14 +10,15 @@ import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { formatDistanceToNow } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enGB } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { X, Check, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export function NotificationBell() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateFnsLocale = i18n.language === "de" ? de : enGB;
   const { household, member } = useCompatAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const utils = trpc.useUtils();
@@ -198,7 +199,7 @@ export function NotificationBell() {
                       <p className="text-xs text-muted-foreground mt-2">
                         {formatDistanceToNow(new Date(notification.createdAt), {
                           addSuffix: true,
-                          locale: de,
+                          locale: dateFnsLocale,
                         })}
                       </p>
                     </div>

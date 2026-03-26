@@ -3336,3 +3336,6 @@
 
 ## Calendar.tsx – date-fns Locale dynamisch
 - [x] date-fns Locale auf i18n.language umstellen (de/en-GB) – Monatsnamen und Datumsformate jetzt sprachabhängig
+
+## Tasks.tsx + Komponenten – date-fns Locale dynamisch
+- [x] Alle 22 hardcodierten { locale: de } in 9 Dateien auf dynamisch (de/enGB) umgestellt
