@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, User, PackageCheck, Undo2, ImageIcon, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 
 const statusColors: Record<string, string> = {
   pending:   "bg-amber-400 text-white",
@@ -48,8 +50,11 @@ function formatDate(date: Date | string | null | undefined) {
 
 export function BorrowCard({ borrow, onClose, onPickup, onReturn }: BorrowCardProps) {
   const { t } = useTranslation(["borrows", "common"]);
+  const [lightbox, setLightbox] = useState<{ photos: { url: string; label?: string }[]; currentIndex: number } | null>(null);
 
   return (
+    <>
+
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
@@ -127,10 +132,15 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn }: BorrowCardPr
               {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
             </p>
             {borrow.pickupPhotoUrl && (
-              <img src={borrow.pickupPhotoUrl} alt="Abholung" className="w-full max-h-32 object-cover rounded mb-1" />
+              <ClickablePhoto
+                src={borrow.pickupPhotoUrl}
+                alt="Abholung"
+                className="w-full max-h-32 object-cover rounded mb-1"
+                onClick={() => setLightbox({ photos: [{ url: borrow.pickupPhotoUrl!, label: "Abholung" }], currentIndex: 0 })}
+              />
             )}
             {borrow.pickupComment && (
-              <p className="text-muted-foreground italic">„{borrow.pickupComment}"</p>
+              <p className="text-muted-foreground italic">„{borrow.pickupComment}“</p>
             )}
           </div>
         )}
@@ -142,7 +152,12 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn }: BorrowCardPr
               {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
             </p>
             {borrow.returnPhotoUrl && (
-              <img src={borrow.returnPhotoUrl} alt="Rückgabe" className="w-full max-h-32 object-cover rounded mb-1" />
+              <ClickablePhoto
+                src={borrow.returnPhotoUrl}
+                alt="Rückgabe"
+                className="w-full max-h-32 object-cover rounded mb-1"
+                onClick={() => setLightbox({ photos: [{ url: borrow.returnPhotoUrl!, label: "Rückgabe" }], currentIndex: 0 })}
+              />
             )}
             {borrow.returnComment && (
               <p className="text-muted-foreground italic">„{borrow.returnComment}"</p>
@@ -193,5 +208,13 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn }: BorrowCardPr
         )}
       </CardContent>
     </Card>
+    {lightbox && (
+      <PhotoLightbox
+        photos={lightbox.photos}
+        currentIndex={lightbox.currentIndex}
+        onClose={() => setLightbox(null)}
+      />
+    )}
+    </>
   );
 }
