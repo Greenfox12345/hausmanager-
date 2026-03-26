@@ -3343,3 +3343,6 @@
 
 ## Projects.tsx Z.1547 – Label und Placeholder übersetzen
 - [x] Label und Placeholder in Z.1547 übersetzt (tasks:rotation.requiredPersons + requiredPersonsPlaceholder)
+
+## Calendar.tsx Z.979 – Zeitraum-Label und Optionen übersetzen
+- [ ] „Zeitraum" und alle Zeitraum-Optionen übersetzen

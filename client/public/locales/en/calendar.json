@@ -76,9 +76,10 @@
   "noTasksWithoutDates": "No tasks without dates",
   "noTasksWithoutDatesForMember": "No tasks without dates for this member",
   "occurrence": "Appointment",
-  "period": "Zeitraum",
+  "period": "Period",
   "skip": "Skip",
   "tasksOn": "Tasks on",
   "tasksWithoutDates": "Tasks without dates",
-  "today": "Today"
+  "today": "Today",
+  "months": "months"
 }

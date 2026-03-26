@@ -977,16 +977,16 @@ export default function Calendar() {
                     {t("calendar:allTasksChronological", "Alle Aufgaben (chronologisch)")}
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm text-muted-foreground">{t("calendar:period", "Zeitraum")}:</label>
+                    <label className="text-sm text-muted-foreground">{t("calendar:period")}:</label>
                     <select 
                       className="border rounded px-2 py-1 text-sm"
                       value={chronologicalRange}
                       onChange={(e) => setChronologicalRange(Number(e.target.value))}
                     >
-                      <option value={1}>1 Monat</option>
-                      <option value={3}>3 Monate</option>
-                      <option value={6}>6 Monate</option>
-                      <option value={12}>12 Monate</option>
+                      <option value={1}>1 {t("calendar:months")}</option>
+                      <option value={3}>3 {t("calendar:months")}</option>
+                      <option value={6}>6 {t("calendar:months")}</option>
+                      <option value={12}>12 {t("calendar:months")}</option>
                     </select>
                   </div>
                 </div>
