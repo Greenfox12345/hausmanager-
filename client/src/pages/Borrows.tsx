@@ -60,6 +60,7 @@ export default function Borrows() {
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelBorrow, setCancelBorrow] = useState<{ id: number; itemName: string; status: string } | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   const utils = trpc.useUtils();
 
@@ -723,9 +724,9 @@ export default function Borrows() {
               }))}
               onPickup={handleOpenPickup}
               onReturn={handleOpenReturn}
-              onCancel={(borrow) => {
+              onCancel={(borrow, reason) => {
                 if (!member) return;
-                cancelMutation.mutate({ requestId: borrow.id, borrowerMemberId: member.memberId });
+                cancelMutation.mutate({ requestId: borrow.id, borrowerMemberId: member.memberId, reason });
               }}
               isCancelling={cancelMutation.isPending}
             />
@@ -805,7 +806,7 @@ export default function Borrows() {
       )}
 
       {/* Cancel / Stornierungsdialog */}
-      <Dialog open={cancelDialogOpen} onOpenChange={(open) => { if (!open) { setCancelDialogOpen(false); setCancelBorrow(null); } }}>
+      <Dialog open={cancelDialogOpen} onOpenChange={(open) => { if (!open) { setCancelDialogOpen(false); setCancelBorrow(null); setCancelReason(""); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -826,16 +827,25 @@ export default function Borrows() {
                 <span>{t("borrows:cancelDialog.approvedWarning", "Die Genehmigung wird zurückgezogen und der Gegenstand wieder als verfügbar markiert.")}</span>
               </div>
             )}
+            <div className="space-y-1.5">
+              <Label>{t("borrows:cancelDialog.reasonLabel", "Begründung")} <span className="text-muted-foreground font-normal text-xs">{t("borrows:cancelDialog.optional", "(optional)")}</span></Label>
+              <Textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder={t("borrows:cancelDialog.reasonPlaceholder", "z. B. Pläne haben sich geändert...")}
+                rows={3}
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setCancelDialogOpen(false); setCancelBorrow(null); }}>
+            <Button variant="outline" onClick={() => { setCancelDialogOpen(false); setCancelBorrow(null); setCancelReason(""); }}>
               {t("common:back", "Zurück")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
                 if (!cancelBorrow || !member) return;
-                cancelMutation.mutate({ requestId: cancelBorrow.id, borrowerMemberId: member.memberId });
+                cancelMutation.mutate({ requestId: cancelBorrow.id, borrowerMemberId: member.memberId, reason: cancelReason.trim() || undefined });
               }}
               disabled={cancelMutation.isPending}
             >

@@ -11,7 +11,7 @@ interface BorrowCalendarProps {
   borrows: BorrowEntry[];
   onPickup?: (borrow: BorrowCardData) => void;
   onReturn?: (borrow: BorrowCardData) => void;
-  onCancel?: (borrow: BorrowCardData) => void;
+  onCancel?: (borrow: BorrowCardData, reason?: string) => void;
   isCancelling?: boolean;
 }
 
@@ -273,7 +273,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
                     onClose={() => setSelected(null)}
                     onPickup={onPickup}
                     onReturn={onReturn}
-                    onCancel={onCancel ? (b) => { onCancel(b); setSelected(null); } : undefined}
+                    onCancel={onCancel ? (b, reason) => { onCancel(b, reason); setSelected(null); } : undefined}
                     isCancelling={isCancelling}
                   />
                 </div>

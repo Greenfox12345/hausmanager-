@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Calendar, User, PackageCheck, Undo2, ImageIcon, X, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
@@ -42,7 +44,7 @@ interface BorrowCardProps {
   onPickup?: (borrow: BorrowCardData) => void;
   onReturn?: (borrow: BorrowCardData) => void;
   /** Called when the user confirms cancellation; parent handles the mutation */
-  onCancel?: (borrow: BorrowCardData) => void;
+  onCancel?: (borrow: BorrowCardData, reason?: string) => void;
   /** While a cancel mutation is running */
   isCancelling?: boolean;
 }
@@ -57,6 +59,7 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
   const { t } = useTranslation(["borrows", "common"]);
   const [lightbox, setLightbox] = useState<{ photos: { url: string; label?: string }[]; currentIndex: number } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const canCancel = (borrow.status === "pending" || borrow.status === "approved") && !!onCancel;
 
@@ -271,6 +274,17 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
               <span>{t("borrows:cancelDialog.approvedWarning", "Die Genehmigung wird zurückgezogen und der Gegenstand wieder als verfügbar markiert.")}</span>
             </div>
           )}
+          <div className="space-y-1.5">
+            <Label className="text-sm">
+              {t("borrows:cancelDialog.reasonLabel", "Begründung")} <span className="text-muted-foreground font-normal">{t("borrows:cancelDialog.optional", "(optional)")}</span>
+            </Label>
+            <Textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder={t("borrows:cancelDialog.reasonPlaceholder", "z. B. Pläne haben sich geändert...")}
+              rows={3}
+            />
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setConfirmOpen(false)}>
@@ -280,8 +294,9 @@ export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCa
             variant="destructive"
             disabled={isCancelling}
             onClick={() => {
-              onCancel?.(borrow);
+              onCancel?.(borrow, cancelReason.trim() || undefined);
               setConfirmOpen(false);
+              setCancelReason("");
             }}
           >
             <XCircle className="w-4 h-4 mr-1" />

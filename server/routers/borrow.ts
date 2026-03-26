@@ -594,6 +594,7 @@ export const borrowRouter = router({
     .input(z.object({
       requestId: z.number(),
       borrowerMemberId: z.number(),
+      reason: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const request = await getBorrowRequestById(input.requestId);
@@ -615,27 +616,32 @@ export const borrowRouter = router({
       const borrowerMember = await getHouseholdMemberById(input.borrowerMemberId);
       const borrowerName = borrowerMember?.memberName ?? "Unbekannt";
 
+      const reasonSuffix = input.reason?.trim() ? `: ${input.reason.trim()}` : "";
+
       await updateBorrowRequestStatus({
         requestId: input.requestId,
         status: "cancelled",
-        responseMessage: `Storniert von ${borrowerName}`,
+        responseMessage: `Storniert von ${borrowerName}${reasonSuffix}`,
       });
 
       // Delete calendar events for cancelled borrow
       await deleteCalendarEventsByBorrowRequest(input.requestId);
 
-      // Notify the item owner if the request was already approved
-      if (request.status === "approved" && item) {
+      // Notify the item owner (for approved requests or pending personal-item requests)
+      if (item) {
         const startFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
         const endFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
         const ownerMemberId = item.owners?.[0]?.memberId;
-        if (ownerMemberId) {
+        // Notify for approved (owner already knew) or pending personal items (owner had a pending request)
+        const shouldNotify = request.status === "approved" || item.ownershipType === "personal";
+        if (ownerMemberId && shouldNotify) {
+          const reasonText = input.reason?.trim() ? ` Begründung: ${input.reason.trim()}` : "";
           await createNotification({
             householdId: item.householdId,
             memberId: ownerMemberId,
             type: "general",
             title: "Ausleihe storniert",
-            message: `${borrowerName} hat die genehmigte Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.`,
+            message: `${borrowerName} hat die Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.${reasonText}`,
           });
         }
       }
@@ -655,6 +661,7 @@ export const borrowRouter = router({
             startDate: request.startDate.toISOString(),
             endDate: request.endDate.toISOString(),
             previousStatus: request.status,
+            reason: input.reason?.trim() || undefined,
           },
         });
       }
