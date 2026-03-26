@@ -92,5 +92,6 @@
     "votesCount": "{{count}} von {{total}} Stimmen",
     "votesNeeded": "Benötigt: {{needed}}",
     "leftWithNewAdmin": "{{name}} ist jetzt der neue Admin des Haushalts."
-  }
+  },
+  "admin": "Admin"
 }

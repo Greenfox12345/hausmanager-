@@ -480,6 +480,7 @@ export const householdManagementRouter = router({
         language: household.language || "de",
         inviteCode: household.inviteCode,
         isAdmin,
+        adminUserId: household.createdBy,
       };
     }),
 

@@ -92,5 +92,6 @@
     "votesCount": "{{count}} of {{total}} votes",
     "votesNeeded": "Needed: {{needed}}",
     "leftWithNewAdmin": "{{name}} is now the new admin of the household."
-  }
+  },
+  "admin": "Admin"
 }

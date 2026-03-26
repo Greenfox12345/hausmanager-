@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2 } from "lucide-react";
+import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2, Crown } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
@@ -218,8 +218,14 @@ export default function Members() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <div className="font-semibold flex items-center gap-2">
+                      <div className="font-semibold flex items-center gap-2 flex-wrap">
                         {m.memberName}
+                        {m.userId === settings?.adminUserId && (
+                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
+                            <Crown className="h-3 w-3" />
+                            {t("members:admin")}
+                          </span>
+                        )}
                         {m.id === member?.memberId && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                             {t("members:you")}
