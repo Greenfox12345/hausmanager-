@@ -11,6 +11,8 @@ interface BorrowCalendarProps {
   borrows: BorrowEntry[];
   onPickup?: (borrow: BorrowCardData) => void;
   onReturn?: (borrow: BorrowCardData) => void;
+  onCancel?: (borrow: BorrowCardData) => void;
+  isCancelling?: boolean;
 }
 
 const STATUS_COLORS: Record<string, { bar: string; text: string; striped?: boolean }> = {
@@ -41,7 +43,7 @@ interface SelectedInfo {
   weekIndex: number;
 }
 
-export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarProps) {
+export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancelling }: BorrowCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selected, setSelected] = useState<SelectedInfo | null>(null);
 
@@ -271,6 +273,8 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
                     onClose={() => setSelected(null)}
                     onPickup={onPickup}
                     onReturn={onReturn}
+                    onCancel={onCancel ? (b) => { onCancel(b); setSelected(null); } : undefined}
+                    isCancelling={isCancelling}
                   />
                 </div>
               )}

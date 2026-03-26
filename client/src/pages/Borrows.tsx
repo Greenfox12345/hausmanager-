@@ -723,6 +723,11 @@ export default function Borrows() {
               }))}
               onPickup={handleOpenPickup}
               onReturn={handleOpenReturn}
+              onCancel={(borrow) => {
+                if (!member) return;
+                cancelMutation.mutate({ requestId: borrow.id, borrowerMemberId: member.memberId });
+              }}
+              isCancelling={cancelMutation.isPending}
             />
           </TabsContent>
         </Tabs>
