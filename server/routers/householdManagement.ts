@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { households, householdMembers, users } from "../../drizzle/schema";
+import { households, householdMembers, users, shoppingCategories } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -34,6 +34,7 @@ export const householdManagementRouter = router({
     .input(
       z.object({
         householdName: z.string().min(1),
+        language: z.string().min(2).max(10).optional().default("de"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -93,6 +94,7 @@ export const householdManagementRouter = router({
         name: input.householdName,
         passwordHash: null, // No household password for new system
         inviteCode,
+        language: input.language ?? "de",
         createdBy: decoded.userId,
       });
 
@@ -104,6 +106,20 @@ export const householdManagementRouter = router({
         passwordHash: null, // No separate member password in new system
         isActive: true,
       });
+
+      // Create default inventory categories
+      const defaultCategories = [
+        { name: input.language === "en" ? "Food" : "Lebensmittel", color: "#EF4444" },
+        { name: input.language === "en" ? "Cleaning" : "Reinigung", color: "#EAB308" },
+        { name: input.language === "en" ? "Tools" : "Werkzeug", color: "#22C55E" },
+      ];
+      await db.insert(shoppingCategories).values(
+        defaultCategories.map((cat) => ({
+          householdId: newHousehold.insertId,
+          name: cat.name,
+          color: cat.color,
+        }))
+      );
 
       return {
         success: true,

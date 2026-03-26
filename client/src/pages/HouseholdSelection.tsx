@@ -24,6 +24,7 @@ export default function HouseholdSelection() {
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [inviteCodeDialogOpen, setInviteCodeDialogOpen] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState("");
+  const [newHouseholdLanguage, setNewHouseholdLanguage] = useState<SupportedLanguageCode>(getCurrentLanguage());
   const [createdHousehold, setCreatedHousehold] = useState<{ name: string; inviteCode: string } | null>(null);
   const [inviteCode, setInviteCode] = useState("");
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
@@ -95,6 +96,7 @@ export default function HouseholdSelection() {
     }
     createHouseholdMutation.mutate({
       householdName: newHouseholdName.trim(),
+      language: newHouseholdLanguage,
     } as any);
   };
 
@@ -242,6 +244,27 @@ export default function HouseholdSelection() {
                       value={newHouseholdName}
                       onChange={(e) => setNewHouseholdName(e.target.value)}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t("common:household.language", "Haushaltssprache")}</Label>
+                    <p className="text-xs text-muted-foreground">{t("common:household.languageHint")}</p>
+                    <div className="flex gap-2">
+                      {SUPPORTED_LANGUAGES.map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => setNewHouseholdLanguage(lang.code)}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all ${
+                            newHouseholdLanguage === lang.code
+                              ? "border-primary bg-primary/10 font-semibold"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <Button
                     onClick={handleCreateHousehold}
