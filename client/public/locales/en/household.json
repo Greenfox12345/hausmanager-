@@ -40,6 +40,15 @@
     "deleteConfirm": "Are you sure you want to delete this household? This action cannot be undone.",
     "deleteWarning": "All data associated with this household will be permanently deleted."
   },
+  "inviteDialog": {
+    "title": "Household Created Successfully!",
+    "description": "Share this invitation code with others so they can join your household \"{{householdName}}\".",
+    "copied": "Invitation code copied!",
+    "copyError": "Failed to copy",
+    "hint": "Tip",
+    "hintText": "New members can register with this code and join your household.",
+    "understood": "Got it"
+  },
   "neighborhood": {
     "title": "Neighborhood",
     "subtitle": "Connect with your neighbors",

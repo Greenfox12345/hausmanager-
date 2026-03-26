@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface InviteCodeDialogProps {
   open: boolean;
@@ -13,16 +14,17 @@ interface InviteCodeDialogProps {
 }
 
 export function InviteCodeDialog({ open, onOpenChange, inviteCode, householdName }: InviteCodeDialogProps) {
+  const { t } = useTranslation("household");
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(inviteCode);
       setCopied(true);
-      toast.success("Einladungscode kopiert!");
+      toast.success(t("inviteDialog.copied", "Einladungscode kopiert!"));
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error("Fehler beim Kopieren");
+      toast.error(t("inviteDialog.copyError", "Fehler beim Kopieren"));
     }
   };
 
@@ -30,9 +32,9 @@ export function InviteCodeDialog({ open, onOpenChange, inviteCode, householdName
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Haushalt erfolgreich erstellt!</DialogTitle>
+          <DialogTitle>{t("inviteDialog.title", "Haushalt erfolgreich erstellt!")}</DialogTitle>
           <DialogDescription>
-            Teilen Sie diesen Einladungscode mit anderen Personen, damit sie Ihrem Haushalt "{householdName}" beitreten können.
+            {t("inviteDialog.description", { householdName, defaultValue: `Teilen Sie diesen Einladungscode mit anderen Personen, damit sie Ihrem Haushalt "{{householdName}}" beitreten können.` })}
           </DialogDescription>
         </DialogHeader>
         
@@ -54,14 +56,14 @@ export function InviteCodeDialog({ open, onOpenChange, inviteCode, householdName
           </div>
 
           <div className="text-sm text-muted-foreground">
-            <p>💡 <strong>Hinweis:</strong> Neue Mitglieder können sich mit diesem Code registrieren und Ihrem Haushalt beitreten.</p>
+            <p>💡 <strong>{t("inviteDialog.hint", "Hinweis")}:</strong> {t("inviteDialog.hintText", "Neue Mitglieder können sich mit diesem Code registrieren und Ihrem Haushalt beitreten.")}</p>
           </div>
 
           <Button
             onClick={() => onOpenChange(false)}
             className="w-full"
           >
-            Verstanden
+            {t("inviteDialog.understood", "Verstanden")}
           </Button>
         </div>
       </DialogContent>
