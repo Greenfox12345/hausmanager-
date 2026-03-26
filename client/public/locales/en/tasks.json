@@ -497,5 +497,22 @@
   "messages": {
     "itemAddedToOccurrence": "\"{{itemName}}\" added to appointment {{occurrence}}",
     "itemAddError": "Error adding item"
+  },
+  "itemPicker": {
+    "title": "Select Item",
+    "searchPlaceholder": "Search for item...",
+    "loading": "Loading items...",
+    "noItems": "No items found",
+    "tryOtherSearch": "Try a different search term",
+    "thisHousehold": "This Household",
+    "available": "Available",
+    "borrowed": "Borrowed",
+    "limited": "Limited",
+    "conflict": {
+      "title": "Item already borrowed",
+      "description": "The item {{itemName}} is already borrowed for the selected date:",
+      "hint": "Do you still want to add the item? You can create a borrow for a different period later.",
+      "addAnyway": "Add anyway"
+    }
   }
 }

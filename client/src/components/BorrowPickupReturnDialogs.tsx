@@ -65,6 +65,8 @@ function PhotoCapture({
     onPhoto(base64, filename);
   };
 
+  const { t } = useTranslation("borrows");
+
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -81,7 +83,7 @@ function PhotoCapture({
         ) : (
           <div className="flex flex-col items-center gap-1 text-muted-foreground text-sm">
             <Camera className="h-6 w-6" />
-            <span>Foto aufnehmen / auswählen</span>
+            <span>{t("photo.capture", "Foto aufnehmen / auswählen")}</span>
           </div>
         )}
       </div>
@@ -140,10 +142,12 @@ function PhotoRequirementsSection({
     onUpload(reqId, base64, filename);
   };
 
+  const { t } = useTranslation("borrows");
+
   return (
     <div className="space-y-3">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        Erforderliche Fotos
+        {t("photo.required", "Erforderliche Fotos")}
       </p>
       {requirements.map((req) => {
         const uploaded = uploads[req.id];
@@ -155,7 +159,7 @@ function PhotoRequirementsSection({
               <span className="text-sm font-medium flex-1">{req.label}</span>
               {req.required && (
                 <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
-                  Pflicht
+                  {t("photo.required_badge", "Pflicht")}
                 </Badge>
               )}
             </div>
@@ -163,7 +167,7 @@ function PhotoRequirementsSection({
             {/* Example photo */}
             {req.examplePhotoUrl && (
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Beispiel:</p>
+                <p className="text-xs text-muted-foreground">{t("photo.example", "Beispiel:")}</p>
                 <img
                   src={req.examplePhotoUrl}
                   alt={`Beispiel: ${req.label}`}
@@ -192,7 +196,7 @@ function PhotoRequirementsSection({
               ) : (
                 <div className="flex flex-col items-center gap-1 text-muted-foreground text-xs">
                   <Camera className="h-5 w-5" />
-                  <span>Dein Foto hochladen</span>
+                  <span>{t("photo.upload", "Dein Foto hochladen")}</span>
                 </div>
               )}
             </div>
@@ -235,10 +239,12 @@ function GuidelineSection({
     (photoRequirements && photoRequirements.length > 0);
   if (!hasContent) return null;
 
+  const { t } = useTranslation("borrows");
+
   return (
     <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-3 space-y-3">
       <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
-        Ausleihvorgaben
+        {t("guideline.title", "Ausleihvorgaben")}
       </p>
 
       {/* Instructions text */}
@@ -249,7 +255,7 @@ function GuidelineSection({
       {/* Checklist */}
       {checklistItems && checklistItems.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Checkliste</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("guideline.checklist", "Checkliste")}</p>
           {checklistItems.map((item) => (
             <label key={item.id} className="flex items-center gap-2 cursor-pointer text-sm py-0.5">
               <input
@@ -261,7 +267,7 @@ function GuidelineSection({
               <span>{item.label}</span>
               {item.required && (
                 <Badge variant="outline" className="text-[10px] px-1 py-0 text-red-600 border-red-300">
-                  Pflicht
+                  {t("photo.required_badge", "Pflicht")}
                 </Badge>
               )}
             </label>

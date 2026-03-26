@@ -202,6 +202,15 @@
     "returnCondition": "Condition at Return"
   },
   "photo": {
-    "defaultLabel": "Photo"
+    "defaultLabel": "Photo",
+    "capture": "Take / select photo",
+    "upload": "Upload your photo",
+    "required": "Required Photos",
+    "required_badge": "Required",
+    "example": "Example:"
+  },
+  "guideline": {
+    "title": "Borrow Guidelines",
+    "checklist": "Checklist"
   }
 }

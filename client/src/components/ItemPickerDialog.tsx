@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ type ConflictWarning = {
 
 // Availability Badge Component
 function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurrenceDate?: Date }) {
+  const { t } = useTranslation("tasks");
   const { data: availability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
     {
       inventoryItemId: itemId,
@@ -33,7 +35,7 @@ function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurre
   if (!occurrenceDate || !availability) {
     return (
       <Badge variant="outline" className="shrink-0">
-        Verfügbar
+        {t("itemPicker.available", "Verfügbar")}
       </Badge>
     );
   }
@@ -43,21 +45,21 @@ function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurre
       return (
         <Badge variant="outline" className="shrink-0 border-green-500 text-green-700">
           <CheckCircle2 className="h-3 w-3 mr-1" />
-          Verfügbar
+          {t("itemPicker.available", "Verfügbar")}
         </Badge>
       );
     case "borrowed":
       return (
         <Badge variant="outline" className="shrink-0 border-red-500 text-red-700">
           <XCircle className="h-3 w-3 mr-1" />
-          Ausgeliehen
+          {t("itemPicker.borrowed", "Ausgeliehen")}
         </Badge>
       );
     case "partially_available":
       return (
         <Badge variant="outline" className="shrink-0 border-yellow-500 text-yellow-700">
           <AlertCircle className="h-3 w-3 mr-1" />
-          Eingeschränkt
+          {t("itemPicker.limited", "Eingeschränkt")}
         </Badge>
       );
     default:
@@ -82,6 +84,7 @@ export function ItemPickerDialog({
   excludeItemIds = [],
   occurrenceDate,
 }: ItemPickerDialogProps) {
+  const { t } = useTranslation("tasks");
   const [searchQuery, setSearchQuery] = useState("");
   const [conflictWarning, setConflictWarning] = useState<ConflictWarning | null>(null);
 
@@ -197,7 +200,7 @@ export function ItemPickerDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Gegenstand auswählen
+            {t("itemPicker.title", "Gegenstand auswählen")}
           </DialogTitle>
         </DialogHeader>
 
@@ -205,7 +208,7 @@ export function ItemPickerDialog({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Gegenstand suchen..."
+            placeholder={t("itemPicker.searchPlaceholder", "Gegenstand suchen...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -216,14 +219,14 @@ export function ItemPickerDialog({
         <div className="flex-1 overflow-y-auto space-y-4 min-h-[300px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
-              Lade Gegenstände...
+              {t("itemPicker.loading", "Lade Gegenstände...")}
             </div>
           ) : filteredOwn.length === 0 && !hasShared ? (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
               <Package className="h-12 w-12 mb-2 opacity-50" />
-              <p>Keine Gegenstände gefunden</p>
+              <p>{t("itemPicker.noItems", "Keine Gegenstände gefunden")}</p>
               {searchQuery && (
-                <p className="text-sm">Versuche einen anderen Suchbegriff</p>
+                <p className="text-sm">{t("itemPicker.tryOtherSearch", "Versuche einen anderen Suchbegriff")}</p>
               )}
             </div>
           ) : (
@@ -232,7 +235,7 @@ export function ItemPickerDialog({
               {filteredOwn.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
-                    Dieser Haushalt
+                    {t("itemPicker.thisHousehold", "Dieser Haushalt")}
                   </div>
                   <div className="space-y-2">
                     {filteredOwn.map((item) => renderItem(item, false))}
@@ -265,7 +268,7 @@ export function ItemPickerDialog({
               setSearchQuery("");
             }}
           >
-            Abbrechen
+            {t("common:actions.cancel", "Abbrechen")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -277,13 +280,13 @@ export function ItemPickerDialog({
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-yellow-700">
                 <AlertCircle className="h-5 w-5" />
-                Gegenstand bereits ausgeliehen
+                {t("itemPicker.conflict.title", "Gegenstand bereits ausgeliehen")}
               </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-3">
               <p>
-                Der Gegenstand <strong>{conflictWarning.itemName}</strong> ist zum gewählten Termin bereits ausgeliehen:
+                {t("itemPicker.conflict.description", { itemName: conflictWarning.itemName })}
               </p>
 
               <div className="space-y-2">
@@ -298,7 +301,7 @@ export function ItemPickerDialog({
               </div>
 
               <p className="text-sm text-muted-foreground">
-                Möchtest du den Gegenstand trotzdem hinzufügen? Du kannst später eine Ausleihe für einen anderen Zeitraum erstellen.
+                {t("itemPicker.conflict.hint", "Möchtest du den Gegenstand trotzdem hinzufügen? Du kannst später eine Ausleihe für einen anderen Zeitraum erstellen.")}
               </p>
             </div>
 
@@ -308,7 +311,7 @@ export function ItemPickerDialog({
                 variant="outline"
                 onClick={() => setConflictWarning(null)}
               >
-                Abbrechen
+                {t("common:actions.cancel", "Abbrechen")}
               </Button>
               <Button
                 type="button"
@@ -319,7 +322,7 @@ export function ItemPickerDialog({
                   setSearchQuery("");
                 }}
               >
-                Trotzdem hinzufügen
+                {t("itemPicker.conflict.addAnyway", "Trotzdem hinzufügen")}
               </Button>
             </DialogFooter>
           </DialogContent>

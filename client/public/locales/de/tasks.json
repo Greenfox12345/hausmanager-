@@ -497,5 +497,22 @@
   "messages": {
     "itemAddedToOccurrence": "\"{{itemName}}\" zu Termin {{occurrence}} hinzugefügt",
     "itemAddError": "Fehler beim Hinzufügen des Gegenstands"
+  },
+  "itemPicker": {
+    "title": "Gegenstand auswählen",
+    "searchPlaceholder": "Gegenstand suchen...",
+    "loading": "Lade Gegenstände...",
+    "noItems": "Keine Gegenstände gefunden",
+    "tryOtherSearch": "Versuche einen anderen Suchbegriff",
+    "thisHousehold": "Dieser Haushalt",
+    "available": "Verfügbar",
+    "borrowed": "Ausgeliehen",
+    "limited": "Eingeschränkt",
+    "conflict": {
+      "title": "Gegenstand bereits ausgeliehen",
+      "description": "Der Gegenstand {{itemName}} ist zum gewählten Termin bereits ausgeliehen:",
+      "hint": "Möchtest du den Gegenstand trotzdem hinzufügen? Du kannst später eine Ausleihe für einen anderen Zeitraum erstellen.",
+      "addAnyway": "Trotzdem hinzufügen"
+    }
   }
 }

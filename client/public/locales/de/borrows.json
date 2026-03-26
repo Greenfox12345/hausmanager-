@@ -202,6 +202,15 @@
     "returnCondition": "Zustand bei Rückgabe"
   },
   "photo": {
-    "defaultLabel": "Foto"
+    "defaultLabel": "Foto",
+    "capture": "Foto aufnehmen / auswählen",
+    "upload": "Dein Foto hochladen",
+    "required": "Erforderliche Fotos",
+    "required_badge": "Pflicht",
+    "example": "Beispiel:"
+  },
+  "guideline": {
+    "title": "Ausleihvorgaben",
+    "checklist": "Checkliste"
   }
 }
