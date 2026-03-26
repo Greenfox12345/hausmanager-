@@ -109,9 +109,9 @@ export const householdManagementRouter = router({
 
       // Create default inventory categories
       const defaultCategories = [
-        { name: input.language === "en" ? "Food" : "Lebensmittel", color: "#EF4444" },
-        { name: input.language === "en" ? "Cleaning" : "Reinigung", color: "#EAB308" },
-        { name: input.language === "en" ? "Tools" : "Werkzeug", color: "#22C55E" },
+        { name: input.language === "en" ? "Food" : input.language === "es" ? "Alimentos" : "Lebensmittel", color: "#EF4444" },
+        { name: input.language === "en" ? "Cleaning" : input.language === "es" ? "Limpieza" : "Reinigung", color: "#EAB308" },
+        { name: input.language === "en" ? "Tools" : input.language === "es" ? "Herramientas" : "Werkzeug", color: "#22C55E" },
       ];
       await db.insert(shoppingCategories).values(
         defaultCategories.map((cat) => ({
