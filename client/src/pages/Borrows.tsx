@@ -17,6 +17,7 @@ import {
   Building2, Search, Home, Globe, HandCoins, PackageCheck, Undo2, ImageIcon
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
@@ -55,6 +56,7 @@ export default function Borrows() {
   const [pickupDialogOpen, setPickupDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [selectedBorrowDetail, setSelectedBorrowDetail] = useState<BorrowRequestDetail | null>(null);
+  const [borrowsLightbox, setBorrowsLightbox] = useState<{ photos: { url: string; label?: string }[]; currentIndex: number } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -585,7 +587,12 @@ export default function Borrows() {
                             {t("borrows:pickupRecord", "Bei Abholung festgehalten")}
                           </p>
                           {(borrow as any).pickupPhotoUrl && (
-                            <img src={(borrow as any).pickupPhotoUrl} alt="Abholung" className="w-full max-h-32 object-cover rounded mb-1" />
+                            <ClickablePhoto
+                              src={(borrow as any).pickupPhotoUrl}
+                              alt="Abholung"
+                              className="w-full max-h-32 object-cover rounded mb-1"
+                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).pickupPhotoUrl!, label: "Abholung" }], currentIndex: 0 })}
+                            />
                           )}
                           {(borrow as any).pickupComment && (
                             <p className="text-muted-foreground italic">„{(borrow as any).pickupComment}"</p>
@@ -599,7 +606,12 @@ export default function Borrows() {
                             {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
                           </p>
                           {(borrow as any).returnPhotoUrl && (
-                            <img src={(borrow as any).returnPhotoUrl} alt="Rückgabe" className="w-full max-h-32 object-cover rounded mb-1" />
+                            <ClickablePhoto
+                              src={(borrow as any).returnPhotoUrl}
+                              alt="Rückgabe"
+                              className="w-full max-h-32 object-cover rounded mb-1"
+                              onClick={() => setBorrowsLightbox({ photos: [{ url: (borrow as any).returnPhotoUrl!, label: "Rückgabe" }], currentIndex: 0 })}
+                            />
                           )}
                           {(borrow as any).returnComment && (
                             <p className="text-muted-foreground italic">„{(borrow as any).returnComment}"</p>
@@ -744,6 +756,13 @@ export default function Borrows() {
         />
       )}
 
+      {borrowsLightbox && (
+        <PhotoLightbox
+          photos={borrowsLightbox.photos}
+          currentIndex={borrowsLightbox.currentIndex}
+          onClose={() => setBorrowsLightbox(null)}
+        />
+      )}
       <BottomNav />
     </AppLayout>
   );
