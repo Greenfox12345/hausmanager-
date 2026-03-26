@@ -3,7 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { households, householdMembers, users, shoppingCategories, householdDissolveVotes } from "../../drizzle/schema";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, asc, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -626,10 +626,43 @@ export const householdManagementRouter = router({
       // If no members left, dissolve the household
       if (remaining === 0) {
         await db.delete(households).where(eq(households.id, input.householdId));
-        return { success: true, dissolved: true };
+        return { success: true, dissolved: true, newAdminName: null };
       }
 
-      return { success: true, dissolved: false };
+      // If the leaving user was the admin (createdBy), transfer admin to the oldest remaining member
+      const [household] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+
+      let newAdminName: string | null = null;
+
+      if (household && household.createdBy === ctx.user.id) {
+        // Find the oldest active member who is NOT the leaving user
+        const [nextAdmin] = await db
+          .select()
+          .from(householdMembers)
+          .where(
+            and(
+              eq(householdMembers.householdId, input.householdId),
+              eq(householdMembers.isActive, true),
+              ne(householdMembers.userId, ctx.user.id)
+            )
+          )
+          .orderBy(asc(householdMembers.createdAt))
+          .limit(1);
+
+        if (nextAdmin?.userId) {
+          await db
+            .update(households)
+            .set({ createdBy: nextAdmin.userId })
+            .where(eq(households.id, input.householdId));
+          newAdminName = nextAdmin.memberName;
+        }
+      }
+
+      return { success: true, dissolved: false, newAdminName };
     }),
 
   /**

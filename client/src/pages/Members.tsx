@@ -71,6 +71,8 @@ export default function Members() {
     onSuccess: (data) => {
       if (data.dissolved) {
         toast.success(t("members:household.dissolvedAfterLeave"));
+      } else if (data.newAdminName) {
+        toast.success(t("members:household.leftWithNewAdmin", { name: data.newAdminName }));
       } else {
         toast.success(t("members:household.leftSuccess"));
       }

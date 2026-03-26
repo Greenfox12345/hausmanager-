@@ -90,6 +90,7 @@
     "retractVote": "Retract vote",
     "voteRetracted": "Your vote has been retracted.",
     "votesCount": "{{count}} of {{total}} votes",
-    "votesNeeded": "Needed: {{needed}}"
+    "votesNeeded": "Needed: {{needed}}",
+    "leftWithNewAdmin": "{{name}} is now the new admin of the household."
   }
 }

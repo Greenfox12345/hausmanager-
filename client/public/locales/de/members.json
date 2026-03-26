@@ -90,6 +90,7 @@
     "retractVote": "Stimme zurückziehen",
     "voteRetracted": "Ihre Stimme wurde zurückgezogen.",
     "votesCount": "{{count}} von {{total}} Stimmen",
-    "votesNeeded": "Benötigt: {{needed}}"
+    "votesNeeded": "Benötigt: {{needed}}",
+    "leftWithNewAdmin": "{{name}} ist jetzt der neue Admin des Haushalts."
   }
 }
