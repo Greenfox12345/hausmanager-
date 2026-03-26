@@ -12,21 +12,30 @@
     "until": "Hasta",
     "message": "Mensaje",
     "submit": "Enviar solicitud",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "startDate": "Von",
+    "endDate": "Bis",
+    "messagePlaceholder": "Warum möchtest du diesen Gegenstand ausleihen?"
   },
   "status": {
     "pending": "Pendiente",
     "approved": "Aprobado",
     "rejected": "Rechazado",
     "returned": "Devuelto",
-    "overdue": "Vencido"
+    "overdue": "Vencido",
+    "active": "Aktiv ausgeliehen",
+    "completed": "Abgeschlossen",
+    "cancelled": "Storniert",
+    "notRequested": "Nicht angefragt"
   },
   "actions": {
     "approve": "Aprobar",
     "reject": "Rechazar",
     "return": "Marcar como devuelto",
     "cancel": "Cancelar solicitud",
-    "extend": "Ampliar"
+    "extend": "Ampliar",
+    "request": "Solicitar",
+    "revoke": "Widerrufen"
   },
   "fields": {
     "item": "Objeto",
@@ -36,7 +45,16 @@
     "endDate": "Fecha de devolución",
     "returnDate": "Fecha de devolución real",
     "message": "Mensaje",
-    "status": "Estado"
+    "status": "Estado",
+    "notes": "Notas",
+    "owner": "Eigentümer",
+    "requestDate": "Anfragedatum",
+    "task": "Aufgabe",
+    "occurrence": "Termin",
+    "pickup": "Abholung",
+    "return": "Rückgabe",
+    "borrowEnd": "Rückgabe",
+    "borrowStart": "Abholung"
   },
   "messages": {
     "approveSuccess": "Solicitud aprobada.",
@@ -46,7 +64,28 @@
     "loadError": "Error al cargar los préstamos.",
     "noItemsAvailable": "No hay objetos disponibles para préstamo.",
     "requestSent": "Solicitud enviada con éxito.",
-    "overdueWarning": "Este préstamo está vencido."
+    "overdueWarning": "Este préstamo está vencido.",
+    "approved": "Préstamo aprobado",
+    "rejected": "Préstamo rechazado",
+    "returned": "Artículo devuelto",
+    "cancelled": "Solicitud cancelada",
+    "error": "Se produjo un error",
+    "confirmApprove": "¿Aprobar este préstamo?",
+    "confirmReject": "¿Rechazar este préstamo?",
+    "confirmReturn": "¿Marcar como devuelto?",
+    "autoApproved": "Ausleihe automatisch genehmigt",
+    "revoked": "Genehmigung widerrufen",
+    "requestError": "Fehler beim Senden der Anfrage",
+    "approveError": "Fehler beim Genehmigen",
+    "rejectError": "Fehler beim Ablehnen",
+    "returnError": "Fehler bei der Rückgabe",
+    "description": "Gegenstände ausleihen und verwalten",
+    "autoApprovedDesc": "Automatisch genehmigt",
+    "borrowEndUpdated": "Rückgabedatum aktualisiert",
+    "borrowStartUpdated": "Abholdatum aktualisiert",
+    "requestSentDesc": "Anfrage wurde gesendet",
+    "revokeError": "Fehler beim Widerrufen",
+    "revokeSuccess": "Erfolgreich widerrufen"
   },
   "tabs": {
     "active": "Activos",
@@ -59,5 +98,209 @@
     "save": "Guardar normas",
     "noGuidelines": "No hay normas de préstamo definidas.",
     "placeholder": "Describe las normas de préstamo..."
-  }
+  },
+  "requests": "Solicitudes",
+  "pending": "Pendientes",
+  "approved": "Aprobados",
+  "borrowed": "Prestados",
+  "returned": "Devueltos",
+  "rejected": "Rechazados",
+  "loading": "Cargando préstamos...",
+  "noRequests": "Sin solicitudes",
+  "filter": {
+    "all": "Todos",
+    "pending": "Pendientes",
+    "approved": "Aprobados",
+    "borrowed": "Prestados",
+    "returned": "Devueltos",
+    "active": "Activos",
+    "past": "Pasados"
+  },
+  "toggle": {
+    "showPast": "Mostrar pasados",
+    "hidePast": "Ocultar pasados"
+  },
+  "approval": {
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "rejectReason": "Ablehnungsgrund (optional)",
+    "revoke": "Genehmigung widerrufen",
+    "revokeReason": "Grund für den Widerruf",
+    "revokeConfirm": "Möchtest du die Genehmigung wirklich widerrufen?"
+  },
+  "return": {
+    "title": "Rückgabe bestätigen",
+    "confirm": "Rückgabe bestätigen",
+    "notes": "Rückgabenotizen",
+    "condition": "Zustand bei Rückgabe"
+  },
+  "pickupRecord": "Bei Abholung festgehalten",
+  "returnRecord": "Bei Rückgabe festgehalten",
+  "confirmPickup": "Abholung bestätigen",
+  "activeReturn": "Aktiv – bitte zurückgeben",
+  "confirmReturn": "Rückgabe bestätigen",
+  "cancelRequest": "Anfrage stornieren",
+  "cancelDialog": {
+    "titlePending": "Anfrage stornieren",
+    "titleApproved": "Genehmigte Ausleihe stornieren",
+    "confirmPending": "Möchtest du deine Anfrage für \"{{itemName}}\" wirklich stornieren?",
+    "confirmApproved": "Möchtest du die genehmigte Ausleihe von \"{{itemName}}\" wirklich stornieren? Der Eigentümer wird benachrichtigt.",
+    "approvedWarning": "Die Genehmigung wird zurückgezogen und der Gegenstand wieder als verfügbar markiert.",
+    "reasonLabel": "Begründung",
+    "optional": "(optional)",
+    "reasonPlaceholder": "z. B. Pläne haben sich geändert...",
+    "cancelling": "Wird storniert...",
+    "confirm": "Ja, stornieren"
+  },
+  "labels": {
+    "borrower": "Ausleiher",
+    "period": "Zeitraum",
+    "revokedBy": "Widerrufen von",
+    "rejectedBy": "Abgelehnt von"
+  },
+  "task": "Aufgabe",
+  "occurrence": "Termin",
+  "responsible": "Verantwortlich",
+  "requestMessagePrefix": "Ich benötige \"{{itemName}}\" für folgende Aufgabe:",
+  "requestMessageSuffix": "Bitte um Bestätigung der Ausleihe.",
+  "requestDialog": {
+    "title": "Item ausleihen",
+    "item": "Gegenstand",
+    "guidelines": "Ausleihvorgaben",
+    "instructions": "Anweisungen",
+    "returnChecklist": "Checkliste bei Rückgabe",
+    "requiredPhotosReturn": "Erforderliche Fotos bei Rückgabe",
+    "requiredOnReturn": "Pflichtfeld bei Rückgabe",
+    "from": "Von",
+    "to": "Bis",
+    "selectDate": "Datum wählen",
+    "endAfterStart": "Das Enddatum muss nach dem Startdatum liegen",
+    "message": "Nachricht (optional)",
+    "messagePlaceholder": "Warum möchtest du dieses Item ausleihen?",
+    "send": "Anfrage senden",
+    "sending": "Wird gesendet..."
+  },
+  "returnDialog": {
+    "title": "Item zurückgeben",
+    "item": "Gegenstand",
+    "noGuidelines": "Keine Rückgabevorgaben definiert.",
+    "checklist": "Checkliste",
+    "requiredPhotos": "Erforderliche Fotos",
+    "example": "Beispiel",
+    "uploadPhoto": "Foto hochladen",
+    "conditionReport": "Zustandsbericht (optional)",
+    "conditionReportPlaceholder": "Beschreibe den Zustand des Items bei der Rückgabe...",
+    "required": "Pflichtfeld",
+    "success": "Item erfolgreich zurückgegeben",
+    "error": "Fehler beim Zurückgeben",
+    "returning": "Wird zurückgegeben...",
+    "return": "Zurückgeben",
+    "checklistRequired": "Checkliste: \"{{label}}\" muss abgehakt sein",
+    "photoRequired": "Foto erforderlich: \"{{label}}\""
+  },
+  "revokeDialog": {
+    "title": "Genehmigung widerrufen",
+    "description": "Die Ausleihgenehmigung wird widerrufen und der Verantwortliche wird benachrichtigt.",
+    "item": "Gegenstand",
+    "borrower": "Ausleiher",
+    "period": "Zeitraum",
+    "reason": "Begründung",
+    "reasonPlaceholder": "Bitte gib eine Begründung für den Widerruf an...",
+    "reasonRequired": "Eine Begründung ist erforderlich, um die Genehmigung zu widerrufen.",
+    "revoke": "Widerrufen",
+    "revoking": "Wird widerrufen..."
+  },
+  "allStatuses": "Alle Status",
+  "approvedPickup": "Genehmigt – Abholung ausstehend",
+  "externalHousehold": "Externer Haushalt",
+  "filterAll": "Alle",
+  "filterExternal": "Externe",
+  "filterInternal": "Interne",
+  "filterStatus": "Status filtern",
+  "noItems": "Keine Gegenstände in anderen Haushalten",
+  "noItemsAtAll": "Keine ausleihbaren Gegenstände gefunden",
+  "noPending": "Keine ausstehenden Anfragen",
+  "otherHouseholds": "Andere Haushalte",
+  "ownHousehold": "Eigener Haushalt",
+  "pendingCount": "{{count}} ausstehend",
+  "rejectReasonPlaceholder": "Grund für die Ablehnung (optional)",
+  "rejectedReason": "Ablehnungsgrund",
+  "requestBorrow": "Ausleihen anfragen",
+  "searchItems": "Gegenstände suchen...",
+  "tabBrowse": "Gegenstände",
+  "tabItems": "Gegenstände",
+  "tabMyBorrows": "Meine Ausleihen",
+  "tabRequests": "Anfragen",
+  "viewHousehold": "Alle Haushaltsanfragen",
+  "viewMine": "Meine Anfragen",
+  "waitingApproval": "Wartet auf Genehmigung",
+  "examplePhotoUpload": {
+    "success": "Beispielfoto hochgeladen",
+    "error": "Fehler beim Hochladen des Beispielfotos",
+    "failedRetry": "Ein Beispielfoto konnte nicht hochgeladen werden. Bitte erneut versuchen."
+  },
+  "uploadInProgress": "Bitte warte, bis das Foto hochgeladen wurde",
+  "guidelinesSaved": {
+    "success": "Ausleihvorgaben gespeichert",
+    "error": "Fehler beim Speichern"
+  },
+  "cardTitle": "Ausleihvorgaben",
+  "instructions": {
+    "label": "Anweisungen (optional)",
+    "placeholder": "z.B. 'Vollgetankt zurückgeben', 'Sauber zurückgeben'"
+  },
+  "checklist": {
+    "label": "Checkliste",
+    "addItemButton": "Punkt hinzufügen",
+    "itemPlaceholder": "z.B. 'Schlüssel vorhanden'"
+  },
+  "requiredLabel": "Pflicht",
+  "photoRequirements": {
+    "label": "Foto-Anforderungen",
+    "addItemButton": "Anforderung hinzufügen",
+    "itemPlaceholder": "z.B. 'Kilometerzähler', 'Seitenansicht'"
+  },
+  "examplePhotoAlt": "Beispiel",
+  "uploadingStatus": "Wird hochgeladen…",
+  "removeButton": "Entfernen",
+  "uploadExamplePhotoButton": "Beispielfoto hochladen",
+  "savingStatus": "Speichert…",
+  "saveGuidelinesButton": "Vorgaben speichern",
+  "photoGrid": {
+    "photoLabel": "Foto {{index}}",
+    "requiredPhotosLabel": "Pflichtfotos"
+  },
+  "borrower": {
+    "unknown": "Unbekannt"
+  },
+  "protocol": {
+    "hide": "Protokoll ausblenden",
+    "show": "Abhol-/Rückgabeprotokoll anzeigen"
+  },
+  "metaInfo": {
+    "borrower": "Ausleiher",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "Anfrage",
+    "response": "Antwort"
+  },
+  "protocolSection": {
+    "pickupCondition": "Zustand bei Abholung",
+    "returnCondition": "Zustand bei Rückgabe"
+  },
+  "photo": {
+    "defaultLabel": "Foto",
+    "capture": "Foto aufnehmen / auswählen",
+    "upload": "Dein Foto hochladen",
+    "required": "Erforderliche Fotos",
+    "required_badge": "Pflicht",
+    "example": "Beispiel:"
+  },
+  "guideline": {
+    "title": "Ausleihvorgaben",
+    "checklist": "Checkliste"
+  },
+  "borrowing": "Ausleihe",
+  "hidePast": "Vergangene ausblenden",
+  "showPast": "Vergangene anzeigen",
+  "tabCalendar": "Kalender"
 }

@@ -14,13 +14,22 @@
     "code": "Código de invitación",
     "copyCode": "Copiar código",
     "shareCode": "Compartir código",
-    "expiresAt": "Expira el"
+    "expiresAt": "Expira el",
+    "generate": "Code generieren",
+    "copy": "Code kopieren",
+    "copied": "Code kopiert!",
+    "share": "Code teilen",
+    "expires": "Läuft ab am",
+    "join": "Haushalt beitreten",
+    "enterCode": "Einladungscode eingeben",
+    "invalidCode": "Ungültiger Einladungscode"
   },
   "actions": {
     "invite": "Invitar",
     "remove": "Eliminar",
     "makeAdmin": "Hacer admin",
-    "showInviteCode": "Mostrar código de invitación"
+    "showInviteCode": "Mostrar código de invitación",
+    "copyInviteCode": "Copiar código"
   },
   "messages": {
     "inviteSuccess": "Invitación enviada.",
@@ -33,7 +42,16 @@
     "step3": "3. Selecciona \"Unirse a un hogar\"",
     "step4": "4. Introduce el código de invitación",
     "clickToShowInviteCode": "Haz clic en \"Mostrar código de invitación\" para ver el código.",
-    "inviteCodeCopied": "¡Código de invitación copiado!"
+    "inviteCodeCopied": "¡Código de invitación copiado!",
+    "invited": "Einladung gesendet",
+    "joined": "Haushalt beigetreten",
+    "removed": "Mitglied entfernt",
+    "roleChanged": "Rolle geändert",
+    "removeConfirm": "Möchtest du dieses Mitglied wirklich entfernen?",
+    "removeError": "Fehler beim Entfernen des Mitglieds",
+    "cannotRemoveSelf": "Du kannst dich nicht selbst entfernen",
+    "cannotRemoveLastAdmin": "Der letzte Administrator kann nicht entfernt werden",
+    "manageMembers": "Haushaltsmitglieder und Einstellungen"
   },
   "household": {
     "language": "Idioma del hogar",
@@ -68,10 +86,52 @@
     "votesNeeded": "Necesarios: {{needed}}",
     "dissolveVoteButton": "Votar por disolución",
     "leaveButton": "Abandonar hogar",
-    "retractVoteButton": "Retirar voto"
+    "retractVoteButton": "Retirar voto",
+    "alreadyVoted": "Ya ha votado",
+    "dangerZoneDescription": "Estas acciones son irreversibles. Por favor, proceda con cuidado."
   },
   "status": {
     "active": "Activo",
     "inactive": "Inactivo"
-  }
+  },
+  "transferAdmin": {
+    "button": "Hacer administrador",
+    "title": "Transferir rol de administrador",
+    "description": "¿Está seguro de que desea transferir el rol de administrador a {{name}}? Perderá sus derechos de administración.",
+    "confirm": "Sí, transferir",
+    "success": "{{name}} es ahora el administrador del hogar.",
+    "error": "Error al transferir el rol de administrador."
+  },
+  "language": {
+    "label": "Idioma del hogar",
+    "de": "Alemán",
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "member": "Mitglied",
+    "guest": "Gast",
+    "changeRole": "Rolle ändern",
+    "promoteToAdmin": "Zum Administrator befördern",
+    "demoteToMember": "Zum Mitglied herabstufen"
+  },
+  "fields": {
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "joinedAt": "Beigetreten am",
+    "avatar": "Profilbild",
+    "color": "Farbe"
+  },
+  "profile": {
+    "title": "Profil",
+    "editProfile": "Profil bearbeiten",
+    "myProfile": "Mein Profil",
+    "displayName": "Anzeigename",
+    "avatar": "Profilbild",
+    "changeAvatar": "Profilbild ändern"
+  },
+  "allMembers": "Alle Mitglieder",
+  "selectMember": "Mitglied auswählen"
 }

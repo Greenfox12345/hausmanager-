@@ -16,7 +16,9 @@
     "active": "Activo",
     "completed": "Completado",
     "paused": "Pausado",
-    "cancelled": "Cancelado"
+    "cancelled": "Cancelado",
+    "planning": "Planung",
+    "onHold": "Pausiert"
   },
   "fields": {
     "name": "Nombre",
@@ -29,7 +31,15 @@
     "tasks": "Tareas",
     "members": "Miembros",
     "createdAt": "Creado el",
-    "updatedAt": "Actualizado el"
+    "updatedAt": "Actualizado el",
+    "assignedTo": "Asignado a",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "budget": "Budget",
+    "namePlaceholder": "Name wird von Aufgabe übernommen",
+    "descriptionPlaceholder": "Optionale Projektbeschreibung",
+    "taskNamePlaceholder": "z.B. Rasen mähen",
+    "projectNamePlaceholder": "z.B. Gartenrenovierung"
   },
   "actions": {
     "addTask": "Añadir tarea",
@@ -37,7 +47,18 @@
     "complete": "Completar proyecto",
     "pause": "Pausar proyecto",
     "resume": "Reanudar proyecto",
-    "archive": "Archivar proyecto"
+    "archive": "Archivar proyecto",
+    "create": "Crear",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "reopen": "Reabrir",
+    "addMilestone": "Agregar hito",
+    "restore": "Wiederherstellen",
+    "assignTasks_one": "{{count}} Aufgabe zuordnen",
+    "assignTasks_other": "{{count}} Aufgaben zuordnen",
+    "newTask": "Neue Aufgabe",
+    "assignExisting": "Bestehende zuordnen",
+    "assignTasks": "Aufgaben zuweisen"
   },
   "messages": {
     "deleteConfirm": "¿Realmente quieres eliminar este proyecto?",
@@ -46,12 +67,109 @@
     "loadError": "Error al cargar los proyectos.",
     "completeSuccess": "Proyecto completado.",
     "noTasks": "Sin tareas en este proyecto.",
-    "noMembers": "Sin miembros en este proyecto."
+    "noMembers": "Sin miembros en este proyecto.",
+    "created": "Proyecto creado",
+    "updated": "Proyecto actualizado",
+    "deleted": "Proyecto eliminado",
+    "completed": "Proyecto completado",
+    "error": "Se produjo un error",
+    "confirmDelete": "¿Eliminar este proyecto?",
+    "archived": "Projekt erfolgreich archiviert",
+    "restored": "Projekt erfolgreich wiederhergestellt",
+    "tasksAssigned": "Aufgaben erfolgreich zugeordnet",
+    "createError": "Fehler beim Erstellen des Projekts",
+    "updateError": "Fehler beim Aktualisieren des Projekts",
+    "deleteError": "Fehler beim Löschen des Projekts",
+    "archiveError": "Fehler beim Archivieren des Projekts",
+    "restoreError": "Fehler beim Wiederherstellen des Projekts",
+    "assignError": "Fehler beim Zuordnen der Aufgaben",
+    "planAndManage": "Gemeinsame Haushaltsprojekte planen",
+    "tasksAssignError": "Fehler beim Zuordnen der Aufgaben: ",
+    "selectTask": "Bitte wählen Sie mindestens eine Aufgabe aus",
+    "noProject": "Kein Projekt ausgewählt",
+    "nameRequired": "Bitte geben Sie einen Projektnamen ein",
+    "noTasksInProject": "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.",
+    "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
+    "noOtherProjects": "Keine weiteren Projekte verfügbar",
+    "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen",
+    "noProjects": "Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!"
   },
   "priority": {
     "low": "Baja",
     "medium": "Media",
     "high": "Alta",
     "urgent": "Urgente"
-  }
+  },
+  "loading": "Cargando proyectos...",
+  "description": "Descripción",
+  "dueDate": "Fecha de vencimiento",
+  "members": "Miembros",
+  "tasks": {
+    "title": "Tareas del proyecto",
+    "addTask": "Agregar tarea",
+    "noTasks": "Sin tareas en este proyecto"
+  },
+  "progress": "Progreso",
+  "open": "Abierto",
+  "inProgress": "En progreso",
+  "completed": "Completado",
+  "cancelled": "Cancelado",
+  "gantt": {
+    "title": "Vista Gantt",
+    "noTasks": "Sin tareas para mostrar",
+    "today": "Hoy"
+  },
+  "filter": {
+    "all": "Todos",
+    "open": "Abiertos",
+    "inProgress": "En progreso",
+    "completed": "Completados",
+    "cancelled": "Cancelados"
+  },
+  "descriptionPlaceholder": "Projektbeschreibung...",
+  "projectTasks": "Projektaufgaben",
+  "archived": "Archiv",
+  "confirmDelete": "Möchten Sie dieses Projekt wirklich löschen?",
+  "confirmArchive": "Möchten Sie dieses Projekt archivieren?",
+  "noProjectsHint2": "Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!",
+  "neighborhood": "Nachbarschaft",
+  "neighborhoodProject": "Nachbarschaftsprojekt",
+  "selectProjectHint": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen",
+  "newTask": "Neue Aufgabe",
+  "assignExisting": "Bestehende zuordnen",
+  "listView": "Listenansicht",
+  "ganttView": "Gantt-Diagramm",
+  "noTasksHint": "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.",
+  "assignTasksTitle": "Bestehende Aufgaben zum Projekt zuordnen",
+  "availableTasks": "Verfügbare Aufgaben (ohne Projektzuordnung)",
+  "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
+  "addTaskTitle": "Aufgabe zu Projekt hinzufügen",
+  "noOpenTasks": "Keine offenen Aufgaben verfügbar",
+  "otherHouseholdTasks": "Andere Haushaltsaufgaben",
+  "assignToOtherProjects": "Auch anderen Projekten zuordnen",
+  "noOtherProjects": "Keine weiteren Projekte verfügbar",
+  "milestones": {
+    "title": "Meilensteine",
+    "newMilestone": "Neuer Meilenstein",
+    "noMilestones": "Keine Meilensteine"
+  },
+  "validation": {
+    "nameRequired": "Bitte geben Sie einen Projektnamen ein",
+    "noProject": "Kein Projekt ausgewählt"
+  },
+  "assignment": "Projektzuordnung",
+  "selectExisting": "Bestehende Projekte wählen",
+  "createNew": "Neues Projekt erstellen",
+  "autoSelectHint": "Das neue Projekt wird automatisch ausgewählt. Zieltermin und Verantwortliche werden von der Aufgabe übernommen.",
+  "views": {
+    "list": "Listenansicht",
+    "gantt": "Gantt-Diagramm"
+  },
+  "dialogs": {
+    "assignTasks": "Bestehende Aufgaben zum Projekt zuordnen",
+    "availableTasks": "Verfügbare Aufgaben (ohne Projektzuordnung)",
+    "addTask": "Aufgabe zu Projekt hinzufügen",
+    "assignToOtherProjects": "Auch anderen Projekten zuordnen"
+  },
+  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt"
 }

@@ -3,7 +3,9 @@
     "approve": "Aprobar",
     "reject": "Rechazar",
     "return": "Devolver",
-    "revoke": "Revocar"
+    "revoke": "Revocar",
+    "cancel": "Cancelar",
+    "request": "Solicitar"
   },
   "borrow": "Préstamo",
   "guidelines": "Normas de préstamo",
@@ -15,13 +17,89 @@
     "messagePlaceholder": "Motivo del préstamo...",
     "startDate": "Fecha de inicio",
     "submit": "Enviar solicitud",
-    "title": "Solicitar préstamo"
+    "title": "Solicitar préstamo",
+    "endAfterStart": "Rückgabedatum muss nach dem Abholdatum liegen",
+    "from": "Von",
+    "guidelines": "Ausleihvorgaben",
+    "instructions": "Anweisungen",
+    "item": "Gegenstand",
+    "requiredOnReturn": "Bei Rückgabe erforderlich",
+    "requiredPhotosReturn": "Fotos bei Rückgabe erforderlich",
+    "returnChecklist": "Rückgabe-Checkliste",
+    "selectDate": "Datum auswählen",
+    "send": "Anfrage senden",
+    "sending": "Wird gesendet...",
+    "to": "Bis"
   },
   "status": {
     "approved": "Aprobado",
     "pending": "Pendiente",
     "rejected": "Rechazado",
     "returned": "Devuelto",
-    "revoked": "Revocado"
-  }
+    "revoked": "Revocado",
+    "borrowed": "Prestado",
+    "cancelled": "Cancelado",
+    "active": "Ausgeliehen",
+    "completed": "Zurückgegeben",
+    "overdue": "Überfällig"
+  },
+  "title": "Préstamo",
+  "request": "Solicitar préstamo",
+  "approve": "Aprobar",
+  "reject": "Rechazar",
+  "return": "Devolver",
+  "cancel": "Cancelar",
+  "fields": {
+    "item": "Artículo",
+    "borrower": "Prestatario",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "notes": "Notas",
+    "message": "Mensaje"
+  },
+  "messages": {
+    "requested": "Solicitud enviada",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "returned": "Devuelto",
+    "cancelled": "Cancelado",
+    "error": "Se produjo un error",
+    "getPendingRequestsCount": "Solicitudes pendientes"
+  },
+  "getPendingRequestsCount": "Solicitudes pendientes",
+  "requestMessagePrefix": "Ich möchte",
+  "requestMessageSuffix": "ausleihen.",
+  "requests": "Ausleih-Anfragen",
+  "responsible": "Verantwortlich",
+  "returnDialog": {
+    "checklist": "Rückgabe-Checkliste",
+    "checklistRequired": "Bitte alle Punkte abhaken",
+    "conditionReport": "Zustandsbericht",
+    "conditionReportPlaceholder": "Beschreibung des Zustands bei Rückgabe...",
+    "error": "Fehler bei der Rückgabe",
+    "example": "Beispiel",
+    "item": "Gegenstand",
+    "noGuidelines": "Keine Rückgabevorgaben vorhanden",
+    "photoRequired": "Foto erforderlich",
+    "required": "Pflichtfeld",
+    "requiredPhotos": "Erforderliche Fotos",
+    "return": "Zurückgeben",
+    "returning": "Wird zurückgegeben...",
+    "success": "Erfolgreich zurückgegeben",
+    "title": "Gegenstand zurückgeben",
+    "uploadPhoto": "Foto hochladen"
+  },
+  "revokeDialog": {
+    "borrower": "Ausleiher",
+    "description": "Möchten Sie diese Genehmigung wirklich widerrufen?",
+    "item": "Gegenstand",
+    "period": "Zeitraum",
+    "reason": "Grund",
+    "reasonPlaceholder": "Bitte geben Sie einen Grund an...",
+    "reasonRequired": "Bitte geben Sie einen Grund an",
+    "revoke": "Widerrufen",
+    "revoking": "Wird widerrufen...",
+    "title": "Genehmigung widerrufen"
+  },
+  "task": "Aufgabe"
 }

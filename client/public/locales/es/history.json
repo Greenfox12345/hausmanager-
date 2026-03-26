@@ -10,7 +10,8 @@
     "members": "Miembros",
     "borrows": "Préstamos",
     "projects": "Proyectos",
-    "calendar": "Calendario"
+    "calendar": "Calendario",
+    "household": "Hogar"
   },
   "actions": {
     "created": "creado",
@@ -20,9 +21,50 @@
     "assigned": "asignado",
     "approved": "aprobado",
     "rejected": "rechazado",
-    "returned": "devuelto"
+    "returned": "devuelto",
+    "add": "Añadido",
+    "update": "Actualizado",
+    "delete": "Eliminado",
+    "complete": "Completado",
+    "create": "Creado",
+    "task_created": "Aufgabe erstellt",
+    "task_updated": "Aufgabe aktualisiert",
+    "task_completed": "Aufgabe abgeschlossen",
+    "task_deleted": "Aufgabe gelöscht",
+    "task_assigned": "Aufgabe zugewiesen",
+    "item_added": "Gegenstand hinzugefügt",
+    "item_updated": "Gegenstand aktualisiert",
+    "item_deleted": "Gegenstand gelöscht",
+    "shopping_created": "Einkaufsliste erstellt",
+    "shopping_completed": "Einkaufsliste abgeschlossen",
+    "member_joined": "Mitglied beigetreten",
+    "member_removed": "Mitglied entfernt",
+    "borrow_requested": "Ausleihe angefragt",
+    "borrow_approved": "Ausleihe genehmigt",
+    "borrow_rejected": "Ausleihe abgelehnt",
+    "borrow_returned": "Gegenstand zurückgegeben",
+    "reminder": "Erinnerung gesendet"
   },
   "messages": {
-    "loadError": "Error al cargar el historial."
-  }
+    "loadError": "Error al cargar el historial.",
+    "trackActivities": "Aktivitäten und Fortschritte im Haushalt verfolgen"
+  },
+  "loading": "Cargando historial...",
+  "fields": {
+    "date": "Fecha",
+    "action": "Acción",
+    "user": "Usuario",
+    "details": "Detalles",
+    "member": "Mitglied"
+  },
+  "labels": {
+    "photoCount_one": "{{count}} Foto",
+    "photoCount_other": "{{count}} Fotos",
+    "pdfCount_one": "{{count}} PDF",
+    "pdfCount_other": "{{count}} PDFs",
+    "pdfCount": "{{count}} PDF",
+    "photoCount": "{{count}} Foto"
+  },
+  "noActivities": "Noch keine Aktivitäten vorhanden.",
+  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
 }
