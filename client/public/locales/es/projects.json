@@ -1,0 +1,57 @@
+{
+  "title": "Proyectos",
+  "newProject": "Nuevo proyecto",
+  "createProject": "Crear nuevo proyecto",
+  "editProject": "Editar proyecto",
+  "deleteProject": "Eliminar proyecto",
+  "projectDetails": "Detalles del proyecto",
+  "projectList": "Lista de proyectos",
+  "projectName": "Nombre del proyecto",
+  "projectNamePlaceholder": "p.ej. Renovación del baño",
+  "projectDescription": "Descripción del proyecto",
+  "projectDescriptionPlaceholder": "Describe el proyecto...",
+  "noProjects": "Sin proyectos",
+  "noProjectsHint": "Crea tu primer proyecto.",
+  "status": {
+    "active": "Activo",
+    "completed": "Completado",
+    "paused": "Pausado",
+    "cancelled": "Cancelado"
+  },
+  "fields": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "status": "Estado",
+    "dueDate": "Fecha de vencimiento",
+    "assignee": "Responsable",
+    "priority": "Prioridad",
+    "progress": "Progreso",
+    "tasks": "Tareas",
+    "members": "Miembros",
+    "createdAt": "Creado el",
+    "updatedAt": "Actualizado el"
+  },
+  "actions": {
+    "addTask": "Añadir tarea",
+    "addMember": "Añadir miembro",
+    "complete": "Completar proyecto",
+    "pause": "Pausar proyecto",
+    "resume": "Reanudar proyecto",
+    "archive": "Archivar proyecto"
+  },
+  "messages": {
+    "deleteConfirm": "¿Realmente quieres eliminar este proyecto?",
+    "deleteSuccess": "Proyecto eliminado.",
+    "saveSuccess": "Proyecto guardado.",
+    "loadError": "Error al cargar los proyectos.",
+    "completeSuccess": "Proyecto completado.",
+    "noTasks": "Sin tareas en este proyecto.",
+    "noMembers": "Sin miembros en este proyecto."
+  },
+  "priority": {
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "urgent": "Urgente"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "actions": {
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "return": "Devolver",
+    "revoke": "Revocar"
+  },
+  "borrow": "Préstamo",
+  "guidelines": "Normas de préstamo",
+  "noRequests": "No hay solicitudes de préstamo.",
+  "occurrence": "Cita",
+  "requestDialog": {
+    "endDate": "Fecha de devolución",
+    "message": "Mensaje",
+    "messagePlaceholder": "Motivo del préstamo...",
+    "startDate": "Fecha de inicio",
+    "submit": "Enviar solicitud",
+    "title": "Solicitar préstamo"
+  },
+  "status": {
+    "approved": "Aprobado",
+    "pending": "Pendiente",
+    "rejected": "Rechazado",
+    "returned": "Devuelto",
+    "revoked": "Revocado"
+  }
+}

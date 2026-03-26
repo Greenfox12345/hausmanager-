@@ -1,0 +1,96 @@
+{
+  "title": "Tareas",
+  "newTask": "Nueva tarea",
+  "editTask": "Editar tarea",
+  "deleteTask": "Eliminar tarea",
+  "taskDetails": "Detalles de la tarea",
+  "completeTask": "Completar tarea",
+  "noTasks": "Sin tareas",
+  "noTasksHint": "Crea tu primera tarea para empezar.",
+  "allTasks": "Todas las tareas",
+  "myTasks": "Mis tareas",
+  "overdueTasks": "Tareas vencidas",
+  "upcomingTasks": "Próximas tareas",
+  "completedTasks": "Tareas completadas",
+  "status": {
+    "open": "Abierta",
+    "inProgress": "En progreso",
+    "done": "Hecha",
+    "cancelled": "Cancelada",
+    "overdue": "Vencida"
+  },
+  "priority": {
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "urgent": "Urgente"
+  },
+  "fields": {
+    "title": "Título",
+    "description": "Descripción",
+    "assignee": "Responsable",
+    "dueDate": "Fecha de vencimiento",
+    "priority": "Prioridad",
+    "status": "Estado",
+    "category": "Categoría",
+    "tags": "Etiquetas",
+    "notes": "Notas",
+    "createdAt": "Creado el",
+    "updatedAt": "Actualizado el",
+    "completedAt": "Completado el",
+    "repeat": "Repetición"
+  },
+  "repeat": {
+    "none": "Sin repetición",
+    "daily": "Diariamente",
+    "weekly": "Semanalmente",
+    "monthly": "Mensualmente",
+    "yearly": "Anualmente",
+    "custom": "Personalizado",
+    "day": "Día",
+    "week": "Semana",
+    "month": "Mes",
+    "year": "Año",
+    "every": "Cada",
+    "on": "El",
+    "until": "Hasta",
+    "times": "veces"
+  },
+  "filter": {
+    "all": "Todo",
+    "open": "Abiertas",
+    "inProgress": "En progreso",
+    "done": "Hechas",
+    "overdue": "Vencidas",
+    "myTasks": "Mis tareas",
+    "assignedToMe": "Asignadas a mí"
+  },
+  "sort": {
+    "dueDate": "Fecha de vencimiento",
+    "priority": "Prioridad",
+    "status": "Estado",
+    "title": "Título",
+    "createdAt": "Fecha de creación",
+    "assignee": "Responsable"
+  },
+  "actions": {
+    "complete": "Completar",
+    "reopen": "Reabrir",
+    "assign": "Asignar",
+    "unassign": "Desasignar",
+    "addSubtask": "Añadir subtarea",
+    "addComment": "Añadir comentario",
+    "addAttachment": "Añadir adjunto"
+  },
+  "messages": {
+    "deleteConfirm": "¿Realmente quieres eliminar esta tarea?",
+    "deleteSuccess": "Tarea eliminada.",
+    "saveSuccess": "Tarea guardada.",
+    "completeSuccess": "Tarea completada.",
+    "loadError": "Error al cargar las tareas.",
+    "assignSuccess": "Tarea asignada.",
+    "noAssignee": "Sin responsable",
+    "dueSoon": "Vence pronto",
+    "overdueBy": "Vencida hace {{days}} días"
+  }
+}

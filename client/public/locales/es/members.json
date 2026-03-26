@@ -1,0 +1,72 @@
+{
+  "title": "Miembros",
+  "newMember": "Invitar nuevo miembro",
+  "editMember": "Editar miembro",
+  "removeMember": "Eliminar miembro",
+  "memberDetails": "Detalles del miembro",
+  "noMembers": "Sin miembros",
+  "admin": "Admin",
+  "you": "Tú",
+  "householdTitle": "Hogar",
+  "currentMembers": "Miembros actuales",
+  "invite": {
+    "title": "Invitar miembro",
+    "code": "Código de invitación",
+    "copyCode": "Copiar código",
+    "shareCode": "Compartir código",
+    "expiresAt": "Expira el"
+  },
+  "actions": {
+    "invite": "Invitar",
+    "remove": "Eliminar",
+    "makeAdmin": "Hacer admin",
+    "showInviteCode": "Mostrar código de invitación"
+  },
+  "messages": {
+    "inviteSuccess": "Invitación enviada.",
+    "removeSuccess": "Miembro eliminado.",
+    "loadingMembers": "Cargando miembros...",
+    "noMembersFound": "No se encontraron miembros.",
+    "shareInviteCode": "👥 Comparte este código de invitación con las personas que quieras invitar a tu hogar.",
+    "step1": "1. Comparte el código de invitación con el nuevo miembro",
+    "step2": "2. El nuevo miembro abre la aplicación",
+    "step3": "3. Selecciona \"Unirse a un hogar\"",
+    "step4": "4. Introduce el código de invitación",
+    "clickToShowInviteCode": "Haz clic en \"Mostrar código de invitación\" para ver el código.",
+    "inviteCodeCopied": "¡Código de invitación copiado!"
+  },
+  "household": {
+    "language": "Idioma del hogar",
+    "languageHint": "Este idioma se usa para las entradas del historial y notificaciones del hogar.",
+    "adminOnly": "Solo el administrador puede cambiar el idioma del hogar.",
+    "dissolveTitle": "Disolver hogar",
+    "dissolveDescription": "Vota para disolver el hogar. Se necesita la mayoría de los miembros.",
+    "dissolveVote": "Votar por disolución",
+    "retractVote": "Retirar voto",
+    "leaveTitle": "Abandonar hogar",
+    "leaveDescription": "Abandona este hogar. Si eres el último miembro, el hogar se disolverá.",
+    "leaveAction": "Abandonar hogar",
+    "leaveConfirmTitle": "¿Abandonar hogar?",
+    "leaveConfirmDescription": "¿Realmente quieres abandonar este hogar? Esta acción no se puede deshacer.",
+    "leaveConfirmAction": "Sí, abandonar",
+    "dissolveConfirmTitle": "¿Votar por disolución?",
+    "dissolveConfirmDescription": "¿Realmente quieres votar por la disolución del hogar? Si la mayoría vota a favor, el hogar se eliminará permanentemente.",
+    "dissolveConfirmAction": "Sí, votar",
+    "dissolvedAfterLeave": "El hogar ha sido disuelto porque eras el último miembro.",
+    "leftSuccess": "Has abandonado el hogar con éxito.",
+    "leftWithNewAdmin": "{{name}} es ahora el nuevo administrador del hogar.",
+    "voteRecorded": "Voto registrado ({{count}} de {{total}}, necesarios: {{needed}}).",
+    "dissolvedByVote": "El hogar ha sido disuelto por votación mayoritaria.",
+    "voteRetracted": "Voto retirado.",
+    "dangerZone": "Zona de peligro",
+    "makeAdmin": "Hacer admin",
+    "transferAdminTitle": "Transferir rol de admin",
+    "transferAdminDescription": "¿Realmente quieres transferir el rol de admin a {{name}}? Perderás tus derechos de administración de este hogar.",
+    "transferAdminConfirm": "Sí, transferir",
+    "adminTransferred": "{{name}} es ahora el nuevo administrador del hogar."
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  }
+}

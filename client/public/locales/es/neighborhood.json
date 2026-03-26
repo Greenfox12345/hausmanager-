@@ -1,0 +1,36 @@
+{
+  "title": "Vecindario",
+  "description": "Conéctate con otros hogares para tareas y proyectos compartidos",
+  "tabs": {
+    "connect": "Conectar hogares",
+    "borrow": "Prestar objetos"
+  },
+  "actions": {
+    "inviteHousehold": "Invitar hogar",
+    "invite": "Invitar",
+    "connect": "Conectar",
+    "disconnect": "Desconectar",
+    "accept": "Aceptar",
+    "decline": "Rechazar"
+  },
+  "fields": {
+    "householdName": "Nombre del hogar",
+    "inviteCode": "Código de invitación",
+    "status": "Estado"
+  },
+  "status": {
+    "connected": "Conectado",
+    "pending": "Pendiente",
+    "disconnected": "Desconectado"
+  },
+  "messages": {
+    "connectSuccess": "Hogar conectado con éxito.",
+    "connectError": "Error al conectar el hogar.",
+    "disconnectSuccess": "Hogar desconectado.",
+    "inviteSent": "Invitación enviada.",
+    "noConnections": "Sin conexiones de vecindario.",
+    "noConnectionsHint": "Conecta con otros hogares para compartir tareas y objetos.",
+    "enterInviteCode": "Introduce el código de invitación del hogar",
+    "inviteCodePlaceholder": "Código de invitación"
+  }
+}

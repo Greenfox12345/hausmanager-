@@ -1,0 +1,54 @@
+{
+  "title": "Compras",
+  "newList": "Nueva lista de compras",
+  "editList": "Editar lista",
+  "deleteList": "Eliminar lista",
+  "newItem": "Nuevo artículo",
+  "addItem": "Añadir artículo",
+  "noLists": "Sin listas de compras",
+  "noListsHint": "Crea tu primera lista de compras.",
+  "noItems": "Sin artículos",
+  "noItemsHint": "Añade artículos a tu lista de compras.",
+  "fields": {
+    "name": "Nombre",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "category": "Categoría",
+    "price": "Precio",
+    "notes": "Notas",
+    "checked": "Marcado",
+    "assignee": "Responsable",
+    "store": "Tienda",
+    "createdBy": "Creado por"
+  },
+  "actions": {
+    "check": "Marcar",
+    "uncheck": "Desmarcar",
+    "checkAll": "Marcar todo",
+    "uncheckAll": "Desmarcar todo",
+    "clearChecked": "Eliminar marcados",
+    "addToInventory": "Añadir al inventario",
+    "share": "Compartir lista"
+  },
+  "messages": {
+    "deleteConfirm": "¿Realmente quieres eliminar esta lista?",
+    "deleteSuccess": "Lista eliminada.",
+    "saveSuccess": "Lista guardada.",
+    "loadError": "Error al cargar las listas de compras.",
+    "itemAdded": "Artículo añadido.",
+    "itemDeleted": "Artículo eliminado.",
+    "allChecked": "¡Todos los artículos marcados!",
+    "listShared": "Lista compartida."
+  },
+  "filter": {
+    "all": "Todo",
+    "unchecked": "Sin marcar",
+    "checked": "Marcado"
+  },
+  "sort": {
+    "name": "Nombre",
+    "category": "Categoría",
+    "dateAdded": "Fecha de añadido",
+    "assignee": "Responsable"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "title": "Inventario",
+  "newItem": "Nuevo objeto",
+  "editItem": "Editar objeto",
+  "deleteItem": "Eliminar objeto",
+  "itemDetails": "Detalles del objeto",
+  "noItems": "Sin objetos",
+  "noItemsHint": "Añade tu primer objeto al inventario.",
+  "fields": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "category": "Categoría",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "location": "Ubicación",
+    "purchaseDate": "Fecha de compra",
+    "expiryDate": "Fecha de caducidad",
+    "price": "Precio",
+    "barcode": "Código de barras",
+    "notes": "Notas",
+    "image": "Imagen",
+    "status": "Estado",
+    "createdAt": "Creado el",
+    "updatedAt": "Actualizado el",
+    "createdBy": "Creado por"
+  },
+  "categories": {
+    "food": "Alimentación",
+    "cleaning": "Limpieza",
+    "tools": "Herramientas",
+    "electronics": "Electrónica",
+    "clothing": "Ropa",
+    "furniture": "Muebles",
+    "other": "Otros"
+  },
+  "actions": {
+    "addToShopping": "Añadir a la lista de compras",
+    "borrow": "Prestar",
+    "markAsEmpty": "Marcar como vacío",
+    "restock": "Reabastecer"
+  },
+  "messages": {
+    "deleteConfirm": "¿Realmente quieres eliminar este objeto?",
+    "deleteSuccess": "Objeto eliminado.",
+    "saveSuccess": "Objeto guardado.",
+    "loadError": "Error al cargar el inventario."
+  },
+  "filter": {
+    "all": "Todo",
+    "available": "Disponible",
+    "borrowed": "Prestado",
+    "empty": "Vacío"
+  }
+}

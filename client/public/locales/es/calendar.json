@@ -1,0 +1,44 @@
+{
+  "title": "Calendario",
+  "noEvents": "Sin eventos",
+  "newEvent": "Nuevo evento",
+  "editEvent": "Editar evento",
+  "deleteEvent": "Eliminar evento",
+  "eventDetails": "Detalles del evento",
+  "views": {
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "agenda": "Agenda"
+  },
+  "fields": {
+    "title": "Título",
+    "description": "Descripción",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "allDay": "Todo el día",
+    "location": "Lugar",
+    "color": "Color"
+  },
+  "filter": {
+    "all": "Todo",
+    "tasksOnly": "Solo tareas",
+    "eventsOnly": "Solo eventos"
+  },
+  "calendarView": "Vista de calendario",
+  "today": "Hoy",
+  "period": "Período",
+  "months": "meses",
+  "month1": "1 mes",
+  "month3": "3 meses",
+  "month6": "6 meses",
+  "month12": "12 meses",
+  "noTasksInPeriod": "No hay tareas en este período.",
+  "tasksDue": "Tareas con vencimiento",
+  "messages": {
+    "deleteConfirm": "¿Realmente quieres eliminar este evento?",
+    "deleteSuccess": "Evento eliminado.",
+    "saveSuccess": "Evento guardado.",
+    "loadError": "Error al cargar el calendario."
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "title": "Préstamos",
+  "myBorrows": "Mis préstamos",
+  "lentItems": "Objetos prestados",
+  "borrowRequests": "Solicitudes de préstamo",
+  "noBorrows": "Sin préstamos",
+  "noBorrowsHint": "Aquí se mostrarán tus solicitudes de préstamo y objetos prestados.",
+  "request": {
+    "title": "Solicitar préstamo",
+    "item": "Objeto",
+    "from": "De",
+    "until": "Hasta",
+    "message": "Mensaje",
+    "submit": "Enviar solicitud",
+    "cancel": "Cancelar"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "returned": "Devuelto",
+    "overdue": "Vencido"
+  },
+  "actions": {
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "return": "Marcar como devuelto",
+    "cancel": "Cancelar solicitud",
+    "extend": "Ampliar"
+  },
+  "fields": {
+    "item": "Objeto",
+    "borrower": "Prestatario",
+    "lender": "Prestamista",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de devolución",
+    "returnDate": "Fecha de devolución real",
+    "message": "Mensaje",
+    "status": "Estado"
+  },
+  "messages": {
+    "approveSuccess": "Solicitud aprobada.",
+    "rejectSuccess": "Solicitud rechazada.",
+    "returnSuccess": "Objeto marcado como devuelto.",
+    "cancelSuccess": "Solicitud cancelada.",
+    "loadError": "Error al cargar los préstamos.",
+    "noItemsAvailable": "No hay objetos disponibles para préstamo.",
+    "requestSent": "Solicitud enviada con éxito.",
+    "overdueWarning": "Este préstamo está vencido."
+  },
+  "tabs": {
+    "active": "Activos",
+    "history": "Historial",
+    "requests": "Solicitudes"
+  },
+  "guidelines": {
+    "title": "Normas de préstamo",
+    "edit": "Editar normas",
+    "save": "Guardar normas",
+    "noGuidelines": "No hay normas de préstamo definidas.",
+    "placeholder": "Describe las normas de préstamo..."
+  }
+}

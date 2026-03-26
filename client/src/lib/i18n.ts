@@ -6,9 +6,9 @@ import LanguageDetector from "i18next-browser-languagedetector";
 export const SUPPORTED_LANGUAGES = [
   { code: "de", name: "Deutsch", flag: "🇩🇪" },
   { code: "en", name: "English", flag: "🇬🇧" },
+  { code: "es", name: "Español", flag: "🇪🇸" },
   // Future languages can be added here:
   // { code: "fr", name: "Français", flag: "🇫🇷" },
-  // { code: "es", name: "Español", flag: "🇪🇸" },
   // { code: "tr", name: "Türkçe", flag: "🇹🇷" },
   // { code: "zh", name: "中文", flag: "🇨🇳" },
 ] as const;

@@ -1,0 +1,28 @@
+{
+  "title": "Historial",
+  "noHistory": "Sin historial",
+  "noHistoryHint": "Las actividades de tu hogar se mostrarán aquí.",
+  "filter": {
+    "all": "Todo",
+    "tasks": "Tareas",
+    "shopping": "Compras",
+    "inventory": "Inventario",
+    "members": "Miembros",
+    "borrows": "Préstamos",
+    "projects": "Proyectos",
+    "calendar": "Calendario"
+  },
+  "actions": {
+    "created": "creado",
+    "updated": "actualizado",
+    "deleted": "eliminado",
+    "completed": "completado",
+    "assigned": "asignado",
+    "approved": "aprobado",
+    "rejected": "rechazado",
+    "returned": "devuelto"
+  },
+  "messages": {
+    "loadError": "Error al cargar el historial."
+  }
+}

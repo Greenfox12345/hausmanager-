@@ -1,0 +1,37 @@
+{
+  "title": "Hogar",
+  "selection": {
+    "title": "Seleccionar hogar",
+    "subtitle": "Selecciona un hogar o crea uno nuevo",
+    "noHouseholds": "Sin hogares",
+    "noHouseholdsHint": "Crea un nuevo hogar o únete a uno existente.",
+    "createNew": "Crear nuevo hogar",
+    "join": "Unirse a un hogar"
+  },
+  "settings": {
+    "title": "Configuración del hogar",
+    "name": "Nombre del hogar",
+    "language": "Idioma del hogar",
+    "inviteCode": "Código de invitación",
+    "dangerZone": "Zona de peligro",
+    "deleteHousehold": "Eliminar hogar"
+  },
+  "members": {
+    "title": "Miembros",
+    "invite": "Invitar miembro",
+    "remove": "Eliminar miembro",
+    "noMembers": "Sin miembros"
+  },
+  "messages": {
+    "createSuccess": "Hogar creado con éxito.",
+    "createError": "Error al crear el hogar.",
+    "joinSuccess": "Te has unido al hogar con éxito.",
+    "joinError": "Error al unirse al hogar.",
+    "leaveSuccess": "Has abandonado el hogar.",
+    "leaveError": "Error al abandonar el hogar.",
+    "deleteSuccess": "Hogar eliminado.",
+    "deleteError": "Error al eliminar el hogar.",
+    "updateSuccess": "Hogar actualizado.",
+    "updateError": "Error al actualizar el hogar."
+  }
+}
