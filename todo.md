@@ -3296,3 +3296,8 @@
 - [x] Sortierrichtungs-Button zurück auf ↑↓ Pfeil-Icons
 - [x] time.thisWeek und time.thisMonth im Fälligkeitsdatum-Filter korrigieren
 - [x] Task-Name-Placeholder korrigieren
+
+## CI-Lint: Fehlende Schlüssel erkennen
+- [x] lint-i18n.ts um missing-keys-Prüfung erweitern (t()-Scan + JSON-Vergleich)
+- [x] Vitest-Tests für die neue Prüfung aktualisieren
+- [x] Bestehende 224 Lücken als bekannte Ausnahmen (allowlist) hinterlegen

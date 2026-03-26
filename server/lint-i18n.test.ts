@@ -20,7 +20,7 @@ describe("lintI18n – duplicate key detection", () => {
       de: { common: { greeting: "Hallo", farewell: "Tschüss" } },
       en: { common: { greeting: "Hello", farewell: "Goodbye" } },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     expect(errors).toHaveLength(0);
   });
 
@@ -33,7 +33,7 @@ describe("lintI18n – duplicate key detection", () => {
         "common.json": `{\n  "greeting": "Hello"\n}`,
       },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     const dupes = errors.filter((e) => e.type === "duplicate");
     expect(dupes.length).toBeGreaterThanOrEqual(1);
     expect(dupes[0].message).toMatch(/greeting/);
@@ -48,7 +48,7 @@ describe("lintI18n – duplicate key detection", () => {
         "common.json": `{\n  "a": "x",\n  "b": "y"\n}`,
       },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     const dupes = errors.filter((e) => e.type === "duplicate");
     expect(dupes.length).toBeGreaterThanOrEqual(2);
   });
@@ -60,7 +60,7 @@ describe("lintI18n – cross-language key parity", () => {
       de: { common: { title: "Titel", save: "Speichern" } },
       en: { common: { title: "Title", save: "Save" } },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     expect(errors.filter((e) => e.type === "missing")).toHaveLength(0);
   });
 
@@ -69,7 +69,7 @@ describe("lintI18n – cross-language key parity", () => {
       de: { common: { title: "Titel", onlyInDE: "Nur DE" } },
       en: { common: { title: "Title" } },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     const missing = errors.filter((e) => e.type === "missing");
     expect(missing.length).toBeGreaterThanOrEqual(1);
     expect(missing.some((e) => e.message.includes("onlyInDE"))).toBe(true);
@@ -80,7 +80,7 @@ describe("lintI18n – cross-language key parity", () => {
       de: { common: { title: "Titel" } },
       en: { common: { title: "Title", onlyInEN: "EN only" } },
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     const missing = errors.filter((e) => e.type === "missing");
     expect(missing.length).toBeGreaterThanOrEqual(1);
     expect(missing.some((e) => e.message.includes("onlyInEN"))).toBe(true);
@@ -91,18 +91,65 @@ describe("lintI18n – cross-language key parity", () => {
       de: { common: { actions: { save: "Speichern", delete: "Löschen" } } },
       en: { common: { actions: { save: "Save" } } }, // delete missing
     });
-    const errors = lintI18n(dir);
+    const errors = lintI18n(dir, "");
     const missing = errors.filter((e) => e.type === "missing");
     expect(missing.some((e) => e.message.includes("actions.delete"))).toBe(true);
+  });
+});
+
+describe("lintI18n – missing translation key detection", () => {
+  it("detects a t() key used in source that is missing from locale JSON", () => {
+    const localesDir = makeTempLocales({
+      de: { common: { existing: "Vorhanden" } },
+      en: { common: { existing: "Existing" } },
+    });
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const x = t("common:existing"); export const y = t("common:missing");`,
+    });
+    const errors = lintI18n(localesDir, srcDir, "");
+    const mt = errors.filter((e) => e.type === "missing_translation");
+    expect(mt.length).toBeGreaterThanOrEqual(1);
+    expect(mt.some((e) => e.message.includes("common:missing"))).toBe(true);
+    expect(mt.every((e) => !e.message.includes("common:existing"))).toBe(true);
+  });
+
+  it("does not report a key that is in the allowlist", () => {
+    const localesDir = makeTempLocales({
+      de: { common: { existing: "Vorhanden" } },
+      en: { common: { existing: "Existing" } },
+    });
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const x = t("common:knownGap");`,
+    });
+    const allowlistFile = makeTempAllowlist(["common:knownGap"]);
+    const errors = lintI18n(localesDir, srcDir, allowlistFile);
+    const mt = errors.filter((e) => e.type === "missing_translation");
+    expect(mt.every((e) => !e.message.includes("common:knownGap"))).toBe(true);
+  });
+
+  it("reports a key that was removed from the allowlist", () => {
+    const localesDir = makeTempLocales({
+      de: { common: {} },
+      en: { common: {} },
+    });
+    const srcDir = makeTempSrc({
+      "Page.tsx": `export const x = t("common:newKey");`,
+    });
+    // Empty allowlist – newKey is NOT allowed
+    const allowlistFile = makeTempAllowlist([]);
+    const errors = lintI18n(localesDir, srcDir, allowlistFile);
+    const mt = errors.filter((e) => e.type === "missing_translation");
+    expect(mt.some((e) => e.message.includes("common:newKey"))).toBe(true);
   });
 });
 
 describe("lintI18n – real locale files", () => {
   it("passes all real locale files without duplicate keys or missing translations", () => {
     // This test validates the actual project locale files.
-    // It will fail if a developer accidentally introduces duplicate keys or
-    // forgets to add a translation in one language.
-    const errors = lintI18n(); // uses default LOCALES_DIR
+    // It will fail if a developer accidentally introduces duplicate keys,
+    // forgets to add a translation in one language,
+    // or uses a new t() key without adding it to the JSON or allowlist.
+    const errors = lintI18n(); // uses default LOCALES_DIR + SRC_DIR + ALLOWLIST_FILE
     if (errors.length > 0) {
       const summary = errors
         .map((e) => `  [${e.type}] ${path.basename(e.file)}: ${e.message}`)
@@ -115,10 +162,6 @@ describe("lintI18n – real locale files", () => {
 
 // ─── Test helpers ─────────────────────────────────────────────────────────────
 
-/**
- * Create a temporary locales directory from a structured object.
- * { de: { common: { key: "value" } }, en: { common: { key: "value" } } }
- */
 function makeTempLocales(
   data: Record<string, Record<string, Record<string, unknown>>>
 ): string {
@@ -136,10 +179,6 @@ function makeTempLocales(
   return tmpDir;
 }
 
-/**
- * Create a temporary locales directory from raw JSON strings (to test duplicates).
- * { de: { "common.json": "{ ... }" }, en: { "common.json": "{ ... }" } }
- */
 function makeTempLocalesRaw(
   data: Record<string, Record<string, string>>
 ): string {
@@ -152,4 +191,18 @@ function makeTempLocalesRaw(
     }
   }
   return tmpDir;
+}
+
+function makeTempSrc(files: Record<string, string>): string {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lint-i18n-src-"));
+  for (const [filename, content] of Object.entries(files)) {
+    fs.writeFileSync(path.join(tmpDir, filename), content);
+  }
+  return tmpDir;
+}
+
+function makeTempAllowlist(keys: string[]): string {
+  const tmpFile = path.join(os.tmpdir(), `lint-i18n-allowlist-${Date.now()}.json`);
+  fs.writeFileSync(tmpFile, JSON.stringify(keys, null, 2) + "\n");
+  return tmpFile;
 }
