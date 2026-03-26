@@ -158,7 +158,11 @@
     "password": "Password",
     "username": "Username",
     "loginPrompt": "Please log in to continue",
-    "logoutConfirm": "Are you sure you want to log out?"
+    "logoutConfirm": "Are you sure you want to log out?",
+    "signInToContinue": "Sign in to continue",
+    "accessRequiresAuth": "Access to this dashboard requires authentication. Continue to launch the login flow.",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
   },
   "notifications": {
     "title": "Notifications",
@@ -223,5 +227,147 @@
     "newPasswordRequired": "Please enter a new password",
     "passwordTooShort": "Password must be at least 8 characters long",
     "passwordMismatch": "Passwords do not match"
+  },
+  "cancel": {
+    "label": "Cancel"
+  },
+  "add": {
+    "label": "Add"
+  },
+  "toast": {
+    "settingsSaved": "Settings saved",
+    "permissionDenied": "Notifications were not allowed",
+    "browserNotificationsEnabled": "Browser notifications enabled"
+  },
+  "dialog": {
+    "title": "Notification Settings",
+    "description": "Customize which notifications you want to receive"
+  },
+  "browserPush": {
+    "label": "Browser Notifications",
+    "description": "Receive notifications even when the browser is closed",
+    "blockedMessage": "Notifications have been blocked. Please enable them in your browser settings."
+  },
+  "notificationTypes": {
+    "title": "Notification Types",
+    "taskAssigned": "Task Assignments",
+    "taskDue": "Due Tasks",
+    "taskCompleted": "Completed Tasks",
+    "comments": "Comments"
+  },
+  "dnd": {
+    "title": "Do Not Disturb",
+    "description": "No notifications during this time",
+    "from": "From",
+    "to": "To",
+    "activeMessage": "Active from {{dndStartTime}} to {{dndEndTime}} o'clock"
+  },
+  "autoSaveMessage": "Settings are saved automatically",
+  "closeButton": "Close",
+  "notificationBell": {
+    "title": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications"
+  },
+  "pdfViewer": {
+    "documentType": "PDF Document",
+    "openExternal": "Open Externally",
+    "download": "Download"
+  },
+  "photoLightbox": {
+    "closeButtonAriaLabel": "Close",
+    "previousPhotoAriaLabel": "Previous photo",
+    "photoAltText": "Photo",
+    "nextPhotoAriaLabel": "Next photo"
+  },
+  "clickablePhoto": {
+    "photoAltText": "Photo"
+  },
+  "upcomingOccurrencesTable": {
+    "noOccurrencesPlanned": "No upcoming occurrences planned",
+    "noDate": "No date",
+    "stillOpen": "Still open"
+  },
+  "errorBoundary": {
+    "unexpectedError": "An unexpected error occurred.",
+    "reloadPage": "Reload Page"
+  },
+  "chatBox": {
+    "placeholder": "Type your message...",
+    "emptyStateMessage": "Start a conversation with AI",
+    "suggestedPrompt1": "Explain quantum computing",
+    "suggestedPrompt2": "Write a hello world in Python"
+  },
+  "photoUpload": {
+    "maxPhotosAllowed": "Maximum {{maxPhotos}} {{fileTypeLabel}}s allowed",
+    "notAPDF": "{{fileName}} is not a PDF",
+    "notAnImage": "{{fileName}} is not an image",
+    "compressionError": "Error compressing {{fileName}}",
+    "fileTooLarge": "{{fileName}} is too large (max. {{maxSize}})",
+    "uploadError": "Error uploading {{fileTypeLabel}}s",
+    "uploading": "Uploading...",
+    "addFiles": "Add {{fileTypeLabel}}s ({{current}}/{{max}})",
+    "removeFile": "Remove {{fileTypeLabel}}"
+  },
+  "imageCropEditor": {
+    "title": "Crop Image",
+    "zoomLabel": "Zoom",
+    "processing": "Processing...",
+    "helperText": {
+      "dragAndZoom": "Drag the image to position it. Use the slider to zoom."
+    },
+    "errors": {
+      "canvasContext": "Failed to get canvas context"
+    }
+  },
+  "apply": "Apply",
+  "category": {
+    "create": {
+      "success": "Category \"${name}\" created",
+      "error": "Error creating category",
+      "buttonTitle": "Create new category",
+      "dialogTitle": "Create new category",
+      "dialogDescription": "Create a new {type} category."
+    },
+    "type": {
+      "shopping": "Shopping",
+      "inventory": "Inventory"
+    },
+    "nameLabel": "Category name",
+    "namePlaceholder": "e.g. Groceries, Electronics...",
+    "colorLabel": "Color"
+  },
+  "button": {
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "create": "Create"
+  },
+  "sidebar": {
+    "toggleNavigation": "Toggle navigation",
+    "navigation": "Navigation"
+  },
+  "menu": {
+    "menu": "Menu"
+  },
+  "upload": {
+    "uploading": "Uploading...",
+    "addFiles": "Add {{label}}s ({{current}}/{{max}})",
+    "removeFile": "Remove {{label}}",
+    "maxFilesError": "Maximum {{max}} {{label}}s allowed",
+    "notAPdf": "{{name}} is not a PDF",
+    "notAnImage": "{{name}} is not an image",
+    "compressionError": "Error compressing {{name}}",
+    "fileTooLarge": "{{name}} is too large (max. {{max}})",
+    "uploadError": "Error uploading {{label}}s"
+  },
+  "labels": {
+    "photo": "Photo"
+  },
+  "errors": {
+    "saveFailed": "Error saving",
+    "notLoggedIn": "Please log in"
+  },
+  "status": {
+    "creating": "Creating..."
   }
 }

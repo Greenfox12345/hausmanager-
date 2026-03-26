@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Loader2, Send, User, Sparkles } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Streamdown } from "streamdown";
+import { useTranslation } from "react-i18next";
 
 /**
  * Message type matching server-side LLM Message interface
@@ -114,17 +115,25 @@ export function AIChatBox({
   messages,
   onSendMessage,
   isLoading = false,
-  placeholder = "Type your message...",
+  placeholder: propPlaceholder,
   className,
   height = "600px",
-  emptyStateMessage = "Start a conversation with AI",
-  suggestedPrompts,
+  emptyStateMessage: propEmptyStateMessage,
+  suggestedPrompts: propSuggestedPrompts,
 }: AIChatBoxProps) {
+  const { t } = useTranslation("common");
   const [input, setInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputAreaRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const placeholder = propPlaceholder || t("chatBox.placeholder");
+  const emptyStateMessage = propEmptyStateMessage || t("chatBox.emptyStateMessage");
+  const suggestedPrompts = propSuggestedPrompts || [
+    t("chatBox.suggestedPrompt1"),
+    t("chatBox.suggestedPrompt2"),
+  ];
 
   // Filter out system messages
   const displayMessages = messages.filter((msg) => msg.role !== "system");

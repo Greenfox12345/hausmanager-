@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import Cropper from "react-easy-crop";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,8 @@ interface Area {
  */
 const createCroppedImage = async (
   imageSrc: string,
-  pixelCrop: Area
+  pixelCrop: Area,
+  t: (key: string) => string
 ): Promise<string> => {
   const image = new Image();
   image.src = imageSrc;
@@ -39,7 +41,7 @@ const createCroppedImage = async (
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
-    throw new Error("Failed to get canvas context");
+    throw new Error(t("common:imageCropEditor.errors.canvasContext"));
   }
 
   // Set canvas size to the crop size
@@ -70,6 +72,7 @@ export function ImageCropEditor({
   onCropComplete,
   isProcessing = false,
 }: ImageCropEditorProps) {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -82,7 +85,7 @@ export function ImageCropEditor({
     if (!croppedAreaPixels) return;
 
     try {
-      const croppedImage = await createCroppedImage(imageSrc, croppedAreaPixels);
+      const croppedImage = await createCroppedImage(imageSrc, croppedAreaPixels, t);
       onCropComplete(croppedImage);
     } catch (error) {
       console.error("Error cropping image:", error);
@@ -113,7 +116,7 @@ export function ImageCropEditor({
         onKeyDown={handleKeyDown}
       >
         <DialogHeader>
-          <DialogTitle>Bild zuschneiden</DialogTitle>
+          <DialogTitle>{t("common:imageCropEditor.title")}</DialogTitle>
         </DialogHeader>
 
         {/* Crop Area */}
@@ -134,7 +137,7 @@ export function ImageCropEditor({
         {/* Zoom Control */}
         <div className="space-y-2 py-4">
           <Label htmlFor="zoom-slider" className="text-sm font-medium">
-            Zoom
+            {t("common:imageCropEditor.zoomLabel")}
           </Label>
           <Slider
             id="zoom-slider"
@@ -158,7 +161,7 @@ export function ImageCropEditor({
             onClick={handleCancel}
             disabled={isProcessing}
           >
-            Abbrechen
+            {t("common:cancel")}
           </Button>
           <Button
             onClick={handleApply}
@@ -167,20 +170,20 @@ export function ImageCropEditor({
             {isProcessing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verarbeite...
+                {t("common:imageCropEditor.processing")}
               </>
             ) : (
-              "Übernehmen"
+              t("common:apply")
             )}
           </Button>
         </DialogFooter>
 
         {/* Helper Text */}
         <div className="text-xs text-center text-gray-500 pb-2">
-          Ziehen Sie das Bild, um es zu positionieren. Verwenden Sie den Slider zum Zoomen.
+          {t("common:imageCropEditor.helperText.dragAndZoom")}
           <br />
-          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Enter</kbd> = Übernehmen,{" "}
-          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Esc</kbd> = Abbrechen
+          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Enter</kbd> = {t("common:apply")},{" "}
+          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Esc</kbd> = {t("common:cancel")}
         </div>
       </DialogContent>
     </Dialog>

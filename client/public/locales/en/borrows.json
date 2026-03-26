@@ -147,5 +147,61 @@
   "tabRequests": "Requests",
   "viewHousehold": "All household requests",
   "viewMine": "My requests",
-  "waitingApproval": "Waiting for approval"
+  "waitingApproval": "Waiting for approval",
+  "examplePhotoUpload": {
+    "success": "Example photo uploaded",
+    "error": "Error uploading example photo",
+    "failedRetry": "An example photo could not be uploaded. Please try again."
+  },
+  "uploadInProgress": "Please wait until the photo has been uploaded",
+  "guidelinesSaved": {
+    "success": "Borrow guidelines saved",
+    "error": "Error saving"
+  },
+  "cardTitle": "Borrow Guidelines",
+  "instructions": {
+    "label": "Instructions (optional)",
+    "placeholder": "e.g. 'Return with full tank', 'Return clean'"
+  },
+  "checklist": {
+    "label": "Checklist",
+    "addItemButton": "Add item",
+    "itemPlaceholder": "e.g. 'Key present'"
+  },
+  "requiredLabel": "Required",
+  "photoRequirements": {
+    "label": "Photo Requirements",
+    "addItemButton": "Add requirement",
+    "itemPlaceholder": "e.g. 'Odometer', 'Side view'"
+  },
+  "examplePhotoAlt": "Example",
+  "uploadingStatus": "Uploading…",
+  "removeButton": "Remove",
+  "uploadExamplePhotoButton": "Upload example photo",
+  "savingStatus": "Saving…",
+  "saveGuidelinesButton": "Save guidelines",
+  "photoGrid": {
+    "photoLabel": "Photo {{index}}",
+    "requiredPhotosLabel": "Required Photos"
+  },
+  "borrower": {
+    "unknown": "Unknown"
+  },
+  "protocol": {
+    "hide": "Hide Protocol",
+    "show": "Show Pickup/Return Protocol"
+  },
+  "metaInfo": {
+    "borrower": "Borrower",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "Request",
+    "response": "Response"
+  },
+  "protocolSection": {
+    "pickupCondition": "Condition at Pickup",
+    "returnCondition": "Condition at Return"
+  },
+  "photo": {
+    "defaultLabel": "Photo"
+  }
 }

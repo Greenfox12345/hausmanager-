@@ -147,5 +147,61 @@
   "tabRequests": "Anfragen",
   "viewHousehold": "Alle Haushaltsanfragen",
   "viewMine": "Meine Anfragen",
-  "waitingApproval": "Wartet auf Genehmigung"
+  "waitingApproval": "Wartet auf Genehmigung",
+  "examplePhotoUpload": {
+    "success": "Beispielfoto hochgeladen",
+    "error": "Fehler beim Hochladen des Beispielfotos",
+    "failedRetry": "Ein Beispielfoto konnte nicht hochgeladen werden. Bitte erneut versuchen."
+  },
+  "uploadInProgress": "Bitte warte, bis das Foto hochgeladen wurde",
+  "guidelinesSaved": {
+    "success": "Ausleihvorgaben gespeichert",
+    "error": "Fehler beim Speichern"
+  },
+  "cardTitle": "Ausleihvorgaben",
+  "instructions": {
+    "label": "Anweisungen (optional)",
+    "placeholder": "z.B. 'Vollgetankt zurückgeben', 'Sauber zurückgeben'"
+  },
+  "checklist": {
+    "label": "Checkliste",
+    "addItemButton": "Punkt hinzufügen",
+    "itemPlaceholder": "z.B. 'Schlüssel vorhanden'"
+  },
+  "requiredLabel": "Pflicht",
+  "photoRequirements": {
+    "label": "Foto-Anforderungen",
+    "addItemButton": "Anforderung hinzufügen",
+    "itemPlaceholder": "z.B. 'Kilometerzähler', 'Seitenansicht'"
+  },
+  "examplePhotoAlt": "Beispiel",
+  "uploadingStatus": "Wird hochgeladen…",
+  "removeButton": "Entfernen",
+  "uploadExamplePhotoButton": "Beispielfoto hochladen",
+  "savingStatus": "Speichert…",
+  "saveGuidelinesButton": "Vorgaben speichern",
+  "photoGrid": {
+    "photoLabel": "Foto {{index}}",
+    "requiredPhotosLabel": "Pflichtfotos"
+  },
+  "borrower": {
+    "unknown": "Unbekannt"
+  },
+  "protocol": {
+    "hide": "Protokoll ausblenden",
+    "show": "Abhol-/Rückgabeprotokoll anzeigen"
+  },
+  "metaInfo": {
+    "borrower": "Ausleiher",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "Anfrage",
+    "response": "Antwort"
+  },
+  "protocolSection": {
+    "pickupCondition": "Zustand bei Abholung",
+    "returnCondition": "Zustand bei Rückgabe"
+  },
+  "photo": {
+    "defaultLabel": "Foto"
+  }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, Download, ExternalLink, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 
 interface PDFViewerProps {
@@ -14,6 +15,7 @@ interface PDFViewerProps {
 export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps) {
   const [zoom, setZoom] = useState(100);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   
   // Pinch-to-zoom support
   useEffect(() => {
@@ -80,7 +82,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{filename}</p>
-              <p className="text-xs text-muted-foreground">PDF-Dokument</p>
+              <p className="text-xs text-muted-foreground">{t("common:pdfViewer.documentType")}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
             <Button
@@ -90,7 +92,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
               className="gap-2"
             >
               <ExternalLink className="h-4 w-4" />
-              Extern öffnen
+              {t("common:pdfViewer.openExternal")}
             </Button>
             <Button
               variant="outline"
@@ -99,7 +101,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
               className="gap-2"
             >
               <Download className="h-4 w-4" />
-              Herunterladen
+              {t("common:pdfViewer.download")}
             </Button>
             <Button
               variant="ghost"

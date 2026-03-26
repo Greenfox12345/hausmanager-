@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X, Plus, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { compressImage } from "@/lib/imageCompression";
 
 interface BorrowGuidelinesEditorProps {
@@ -42,6 +43,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuidelinesEditorProps) {
+  const { t } = useTranslation("borrows");
   const [instructionsText, setInstructionsText] = useState("");
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
   const [photoRequirements, setPhotoRequirements] = useState<PhotoRequirement[]>([]);
@@ -122,12 +124,12 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
       // Replace blob preview with permanent S3 URL
       URL.revokeObjectURL(previewUrl);
       updatePhotoRequirement(reqId, { examplePhotoUrl: url });
-      toast.success("Beispielfoto hochgeladen");
+      toast.success(t("borrows:examplePhotoUpload.success"));
     } catch (error) {
       console.error("Upload error:", error);
       // Revert to no photo on failure so the blob URL isn't saved
       updatePhotoRequirement(reqId, { examplePhotoUrl: undefined });
-      toast.error("Fehler beim Hochladen des Beispielfotos");
+      toast.error(t("borrows:examplePhotoUpload.error"));
     } finally {
       setUploadingExample(null);
     }
@@ -136,7 +138,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
   const handleSave = async () => {
     // Block save if any photo is still uploading
     if (uploadingExample) {
-      toast.error("Bitte warte, bis das Foto hochgeladen wurde");
+      toast.error(t("borrows:uploadInProgress"));
       return;
     }
 
@@ -145,7 +147,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
       (req) => req.examplePhotoUrl?.startsWith("blob:")
     );
     if (hasBlobUrl) {
-      toast.error("Ein Beispielfoto konnte nicht hochgeladen werden. Bitte erneut versuchen.");
+      toast.error(t("borrows:examplePhotoUpload.failedRetry"));
       return;
     }
 
@@ -158,26 +160,26 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
         createdBy: memberId,
       });
 
-      toast.success("Ausleihvorgaben gespeichert");
+      toast.success(t("borrows:guidelinesSaved.success"));
       onSave?.();
     } catch (error: any) {
       console.error("Save error:", error);
-      toast.error(error.message || "Fehler beim Speichern");
+      toast.error(error.message || t("borrows:guidelinesSaved.error"));
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ausleihvorgaben</CardTitle>
+        <CardTitle>{t("borrows:cardTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Instructions Text */}
         <div className="space-y-2">
-          <Label htmlFor="instructions">Anweisungen (optional)</Label>
+          <Label htmlFor="instructions">{t("borrows:instructions.label")}</Label>
           <Textarea
             id="instructions"
-            placeholder="z.B. 'Vollgetankt zurückgeben', 'Sauber zurückgeben'"
+            placeholder={t("borrows:instructions.placeholder")}
             value={instructionsText}
             onChange={(e) => setInstructionsText(e.target.value)}
             rows={3}
@@ -187,7 +189,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
         {/* Checklist Items */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Checkliste</Label>
+            <Label>{t("borrows:checklist.label")}</Label>
             <Button
               type="button"
               variant="outline"
@@ -195,14 +197,14 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
               onClick={addChecklistItem}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Punkt hinzufügen
+              {t("borrows:checklist.addItemButton")}
             </Button>
           </div>
 
           {checklistItems.map((item) => (
             <div key={item.id} className="flex items-center gap-2">
               <Input
-                placeholder="z.B. 'Schlüssel vorhanden'"
+                placeholder={t("borrows:checklist.itemPlaceholder")}
                 value={item.label}
                 onChange={(e) =>
                   updateChecklistItem(item.id, { label: e.target.value })
@@ -216,7 +218,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                     updateChecklistItem(item.id, { required: !!checked })
                   }
                 />
-                <Label className="text-sm">Pflicht</Label>
+                <Label className="text-sm">{t("borrows:requiredLabel")}</Label>
               </div>
               <Button
                 type="button"
@@ -233,7 +235,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
         {/* Photo Requirements */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Foto-Anforderungen</Label>
+            <Label>{t("borrows:photoRequirements.label")}</Label>
             <Button
               type="button"
               variant="outline"
@@ -241,7 +243,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
               onClick={addPhotoRequirement}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Anforderung hinzufügen
+              {t("borrows:photoRequirements.addItemButton")}
             </Button>
           </div>
 
@@ -249,7 +251,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
             <div key={req.id} className="space-y-2 p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="z.B. 'Kilometerzähler', 'Seitenansicht'"
+                  placeholder={t("borrows:photoRequirements.itemPlaceholder")}
                   value={req.label}
                   onChange={(e) =>
                     updatePhotoRequirement(req.id, { label: e.target.value })
@@ -263,7 +265,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                       updatePhotoRequirement(req.id, { required: !!checked })
                     }
                   />
-                  <Label className="text-sm">Pflicht</Label>
+                  <Label className="text-sm">{t("borrows:requiredLabel")}</Label>
                 </div>
                 <Button
                   type="button"
@@ -281,14 +283,14 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                   <div className="flex items-center gap-2">
                     <img
                       src={req.examplePhotoUrl}
-                      alt="Beispiel"
+                      alt={t("borrows:examplePhotoAlt")}
                       className="h-16 w-16 object-cover rounded border"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = "none";
                       }}
                     />
                     {req.examplePhotoUrl.startsWith("blob:") && (
-                      <span className="text-xs text-amber-600">Wird hochgeladen…</span>
+                      <span className="text-xs text-amber-600">{t("borrows:uploadingStatus")}</span>
                     )}
                     <Button
                       type="button"
@@ -299,7 +301,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                       }
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Entfernen
+                      {t("borrows:removeButton")}
                     </Button>
                   </div>
                 ) : (
@@ -323,11 +325,11 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
                       disabled={uploadingExample === req.id}
                     >
                       {uploadingExample === req.id ? (
-                        <>Wird hochgeladen…</>
+                        <>{t("borrows:uploadingStatus")}</>
                       ) : (
                         <>
                           <ImageIcon className="h-4 w-4 mr-1" />
-                          Beispielfoto hochladen
+                          {t("borrows:uploadExamplePhotoButton")}
                         </>
                       )}
                     </Button>
@@ -344,7 +346,7 @@ export function BorrowGuidelinesEditor({ itemId, memberId, onSave }: BorrowGuide
             onClick={handleSave}
             disabled={saveMutation.isPending || !!uploadingExample}
           >
-            {saveMutation.isPending ? "Speichert…" : "Vorgaben speichern"}
+            {saveMutation.isPending ? t("borrows:savingStatus") : t("borrows:saveGuidelinesButton")}
           </Button>
         </div>
       </CardContent>

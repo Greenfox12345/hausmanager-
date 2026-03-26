@@ -8,6 +8,7 @@ import { ItemPickerDialog } from "./ItemPickerDialog";
 import { BorrowRequestDialog } from "./BorrowRequestDialog";
 import { RevokeApprovalDialog } from "./RevokeApprovalDialog";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 // occurrenceNumber=0 is used as a sentinel for "no specific occurrence" (non-repeating tasks)
 const SINGLE_OCCURRENCE = 0;
@@ -39,6 +40,7 @@ export function SimpleRequiredItemsSection({
     itemName: string;
   } | null>(null);
 
+  const { t } = useTranslation("tasks");
   const utils = trpc.useUtils();
 
   // Load occurrence items (filtered to occurrenceNumber=0)
@@ -56,13 +58,13 @@ export function SimpleRequiredItemsSection({
   const createBorrowRequestMutation = trpc.borrow.request.useMutation();
   const revokeMutation = trpc.borrow.revoke.useMutation({
     onSuccess: () => {
-      toast.success("Genehmigung widerrufen");
+      toast.success(t("tasks:toast.approvalRevoked"));
       utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
       setShowRevokeDialog(false);
       setRevokeItemInfo(null);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Widerrufen");
+      toast.error(error.message || t("tasks:toast.errorRevoking"));
     },
   });
 
@@ -81,10 +83,10 @@ export function SimpleRequiredItemsSection({
       });
       await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
       setIsPickerOpen(false);
-      toast.success(`"${itemName}" hinzugefügt`);
+      toast.success(t("tasks:toast.itemAdded", { itemName }));
     } catch (error) {
       console.error("Failed to add item:", error);
-      toast.error("Fehler beim Hinzufügen des Gegenstands");
+      toast.error(t("tasks:toast.errorAddingItem"));
     }
   };
 
@@ -92,27 +94,27 @@ export function SimpleRequiredItemsSection({
     try {
       await removeItemMutation.mutateAsync({ itemId });
       await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
-      toast.success("Gegenstand entfernt");
+      toast.success(t("tasks:toast.itemRemoved"));
     } catch (error) {
       console.error("Failed to remove item:", error);
-      toast.error("Fehler beim Entfernen");
+      toast.error(t("tasks:toast.errorRemoving"));
     }
   };
 
   const getStatusBadge = (requestStatus: string | null) => {
-    if (!requestStatus) return <Badge variant="secondary">Nicht angefragt</Badge>;
-    if (requestStatus === "pending") return <Badge variant="outline" className="border-yellow-500 text-yellow-700">Angefragt</Badge>;
-    if (requestStatus === "approved") return <Badge variant="default" className="bg-green-600">Genehmigt</Badge>;
-    if (requestStatus === "active") return <Badge variant="default" className="bg-blue-600">Ausgeliehen</Badge>;
-    if (requestStatus === "completed") return <Badge variant="default" className="bg-gray-600">Zurückgegeben</Badge>;
-    if (requestStatus === "rejected") return <Badge variant="destructive">Abgelehnt</Badge>;
-    if (requestStatus === "cancelled") return <Badge variant="secondary">Storniert</Badge>;
+    if (!requestStatus) return <Badge variant="secondary">{t("tasks:status.notRequested")}</Badge>;
+    if (requestStatus === "pending") return <Badge variant="outline" className="border-yellow-500 text-yellow-700">{t("tasks:status.requested")}</Badge>;
+    if (requestStatus === "approved") return <Badge variant="default" className="bg-green-600">{t("tasks:status.approved")}</Badge>;
+    if (requestStatus === "active") return <Badge variant="default" className="bg-blue-600">{t("tasks:status.borrowed")}</Badge>;
+    if (requestStatus === "completed") return <Badge variant="default" className="bg-gray-600">{t("tasks:status.returned")}</Badge>;
+    if (requestStatus === "rejected") return <Badge variant="destructive">{t("tasks:status.rejected")}</Badge>;
+    if (requestStatus === "cancelled") return <Badge variant="secondary">{t("tasks:status.cancelled")}</Badge>;
     return null;
   };
 
   return (
     <Card className="p-6 mt-6">
-      <h3 className="text-lg font-semibold mb-4">Benötigte Gegenstände</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("tasks:section.requiredItems")}</h3>
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -121,14 +123,14 @@ export function SimpleRequiredItemsSection({
               <th className="border p-2 text-left bg-muted">
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
-                  <span className="font-semibold">Gegenstand</span>
+                  <span className="font-semibold">{t("tasks:table.item")}</span>
                 </div>
               </th>
               <th className="border p-2 text-left bg-muted w-40">
-                <span className="font-semibold">Status</span>
+                <span className="font-semibold">{t("tasks:table.status")}</span>
               </th>
               <th className="border p-2 text-left bg-muted w-24">
-                <span className="font-semibold">Aktionen</span>
+                <span className="font-semibold">{t("tasks:table.actions")}</span>
               </th>
             </tr>
           </thead>
@@ -151,20 +153,20 @@ export function SimpleRequiredItemsSection({
                         variant="outline"
                         onClick={() => {
                           if (!currentUser || !currentMember) {
-                            toast.error("Bitte anmelden");
+                            toast.error(t("tasks:toast.pleaseLogin"));
                             return;
                           }
                           setSelectedItem({
                             id: item.id,
                             inventoryItemId: item.inventoryItemId,
-                            itemName: item.itemName || "Unbekannt",
+                            itemName: item.itemName || t("tasks:item.unknown"),
                           });
                           setBorrowDialogOpen(true);
                         }}
                         disabled={createBorrowRequestMutation.isPending}
                         className="text-xs"
                       >
-                        Ausleihen
+                        {t("tasks:button.borrow")}
                       </Button>
                     )}
                     {(item.requestStatus === "approved" || item.requestStatus === "active") && item.borrowRequestId && (
@@ -174,8 +176,8 @@ export function SimpleRequiredItemsSection({
                         onClick={() => {
                           setRevokeItemInfo({
                             borrowRequestId: item.borrowRequestId!,
-                            itemName: item.itemName || "Unbekannt",
-                            borrowerName: currentMember?.memberName || "Unbekannt",
+                            itemName: item.itemName || t("tasks:item.unknown"),
+                            borrowerName: currentMember?.memberName || t("tasks:member.unknown"),
                             startDate: item.borrowStartDate ? new Date(item.borrowStartDate).toLocaleDateString("de-DE") : "-",
                             endDate: item.borrowEndDate ? new Date(item.borrowEndDate).toLocaleDateString("de-DE") : "-",
                           });
@@ -183,7 +185,7 @@ export function SimpleRequiredItemsSection({
                         }}
                         className="text-xs"
                       >
-                        Widerrufen
+                        {t("tasks:button.revoke")}
                       </Button>
                     )}
                     <Button
@@ -206,7 +208,7 @@ export function SimpleRequiredItemsSection({
                   onClick={() => setIsPickerOpen(true)}
                   className="w-full"
                 >
-                  + Gegenstand hinzufügen
+                  {t("tasks:button.addItem")}
                 </Button>
               </td>
             </tr>
@@ -243,7 +245,7 @@ export function SimpleRequiredItemsSection({
               borrowerMemberId: currentMember.id,
               startDate: data.startDate.toISOString(),
               endDate: data.endDate.toISOString(),
-              requestMessage: data.message || `Für Aufgabe "${taskName}"`,
+              requestMessage: data.message || t("tasks:borrowRequest.defaultMessage", { taskName }),
               taskId,
               taskName,
               occurrenceNumber: SINGLE_OCCURRENCE,
@@ -260,12 +262,12 @@ export function SimpleRequiredItemsSection({
             await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
 
             if (result.autoApproved) {
-              toast.success("✅ Ausleihe automatisch genehmigt", {
-                description: "Dieser Gegenstand gehört zu deinem Haushalt",
+              toast.success(t("tasks:toast.borrowAutoApproved.title"), {
+                description: t("tasks:toast.borrowAutoApproved.description"),
               });
             } else {
-              toast.success("📤 Ausleih-Anfrage gesendet", {
-                description: "Warte auf Bestätigung des Eigentümers",
+              toast.success(t("tasks:toast.borrowRequestSent.title"), {
+                description: t("tasks:toast.borrowRequestSent.description"),
               });
             }
 
@@ -273,7 +275,7 @@ export function SimpleRequiredItemsSection({
             setSelectedItem(null);
           } catch (error) {
             console.error("Failed to create borrow request:", error);
-            toast.error("Fehler beim Erstellen der Ausleih-Anfrage");
+            toast.error(t("tasks:toast.errorCreatingBorrowRequest"));
           }
         }}
         isSubmitting={createBorrowRequestMutation.isPending}

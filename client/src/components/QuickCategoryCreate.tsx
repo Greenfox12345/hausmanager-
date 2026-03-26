@@ -13,6 +13,7 @@ import {
 import { Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface QuickCategoryCreateProps {
   householdId: number;
@@ -32,20 +33,21 @@ export function QuickCategoryCreate({ householdId, memberId, onCategoryCreated, 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
+  const { t } = useTranslation();
   
   const utils = trpc.useUtils();
   
   const createMutation = trpc.shopping.createCategory.useMutation({
     onSuccess: (data) => {
       utils.shopping.listCategories.invalidate();
-      toast.success(`Kategorie "${name}" erstellt`);
+      toast.success(t("common:category.create.success", { name }));
       onCategoryCreated(data.categoryId);
       setOpen(false);
       setName("");
       setSelectedColor(PRESET_COLORS[0]);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Erstellen der Kategorie");
+      toast.error(error.message || t("common:category.create.error"));
     },
   });
   
@@ -69,7 +71,7 @@ export function QuickCategoryCreate({ householdId, memberId, onCategoryCreated, 
         size="icon"
         className="h-8 w-8 shrink-0"
         onClick={() => setOpen(true)}
-        title="Neue Kategorie erstellen"
+        title={t("common:category.create.buttonTitle")}
       >
         <Plus className="h-4 w-4" />
       </Button>
@@ -77,25 +79,27 @@ export function QuickCategoryCreate({ householdId, memberId, onCategoryCreated, 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Neue Kategorie erstellen</DialogTitle>
+            <DialogTitle>{t("common:category.create.dialogTitle")}</DialogTitle>
             <DialogDescription>
-              Erstellen Sie eine neue {type === "shopping" ? "Einkaufs" : "Inventar"}-Kategorie.
+              {t("common:category.create.dialogDescription", {
+                type: type === "shopping" ? t("common:category.type.shopping") : t("common:category.type.inventory"),
+              })}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="categoryName">Kategoriename</Label>
+                <Label htmlFor="categoryName">{t("common:category.nameLabel")}</Label>
                 <Input
                   id="categoryName"
-                  placeholder="z.B. Lebensmittel, Elektronik..."
+                  placeholder={t("common:category.namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label>Farbe</Label>
+                <Label>{t("common:category.colorLabel")}</Label>
                 <div className="grid grid-cols-9 gap-2">
                   {PRESET_COLORS.map((color) => (
                     <button
@@ -120,13 +124,13 @@ export function QuickCategoryCreate({ householdId, memberId, onCategoryCreated, 
                 variant="outline"
                 onClick={() => setOpen(false)}
               >
-                Abbrechen
+                {t("common:button.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={createMutation.isPending || !name.trim()}
               >
-                {createMutation.isPending ? "Erstelle..." : "Erstellen"}
+                {createMutation.isPending ? t("common:button.creating") : t("common:button.create")}
               </Button>
             </DialogFooter>
           </form>

@@ -35,7 +35,13 @@
     "inProgress": "In Progress",
     "completed": "Completed",
     "cancelled": "Cancelled",
-    "overdue": "Overdue"
+    "overdue": "Overdue",
+    "notRequested": "Not requested",
+    "requested": "Requested",
+    "approved": "Approved",
+    "borrowed": "Borrowed",
+    "returned": "Returned",
+    "rejected": "Rejected"
   },
   "frequency": {
     "once": "Once",
@@ -364,5 +370,123 @@
     "messagePlaceholder": "e.g. Please don't forget, it's urgent...",
     "send": "Send reminder",
     "sending": "Sending..."
+  },
+  "specialOccurrence": {
+    "namePlaceholder": "Special appointment name",
+    "selectDate": "Select date",
+    "addTitle": "Add special appointment",
+    "nameLabel": "Name of special appointment",
+    "nameExamplePlaceholder": "e.g. Holiday cover, Extra cleaning"
+  },
+  "occurrence": {
+    "label": "Appointment {{occurrenceNumber}}",
+    "enterDate": "Enter date",
+    "term": "Occurrence",
+    "specialTerm": "Special Occurrence",
+    "addItemButton": "+ Item"
+  },
+  "memberSelect": {
+    "placeholder": "Select...",
+    "open": "Open",
+    "alreadyAssigned": " (already assigned)"
+  },
+  "notes": {
+    "placeholder": "Notes..."
+  },
+  "item": {
+    "add": "Item",
+    "unknown": "Unknown"
+  },
+  "skip": {
+    "undo": "Undo skip",
+    "label": "Skip"
+  },
+  "delete": {
+    "label": "Delete"
+  },
+  "date": {
+    "label": "Date"
+  },
+  "toast": {
+    "approvalRevoked": "Approval revoked",
+    "errorRevoking": "Error revoking",
+    "itemAdded": "\"{{itemName}}\" added",
+    "errorAddingItem": "Error adding item",
+    "itemRemoved": "Item removed",
+    "errorRemoving": "Error removing",
+    "pleaseLogin": "Please log in",
+    "borrowAutoApproved": {
+      "title": "✅ Borrowing automatically approved",
+      "description": "This item belongs to your household"
+    },
+    "borrowRequestSent": {
+      "title": "📤 Borrow request sent",
+      "description": "Waiting for owner's confirmation"
+    },
+    "errorCreatingBorrowRequest": "Error creating borrow request",
+    "revokeApprovalSuccess": "Approval revoked",
+    "revokeApprovalError": "Error revoking approval",
+    "addItemSuccess": "\"{{itemName}}\" added to occurrence {{selectedOccurrence}}",
+    "addItemError": "Error adding item"
+  },
+  "section": {
+    "requiredItems": "Required Items"
+  },
+  "table": {
+    "item": "Item",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "button": {
+    "borrow": "Borrow",
+    "revoke": "Revoke",
+    "addItem": "+ Add item"
+  },
+  "member": {
+    "unknown": "Unknown"
+  },
+  "borrowRequest": {
+    "defaultMessage": "For task \"{{taskName}}\""
+  },
+  "statusBadge": {
+    "notRequested": "Not requested",
+    "requested": "Requested",
+    "approved": "Approved",
+    "borrowed": "Borrowed",
+    "returned": "Returned",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "requiredItemsSection": {
+    "title": "Required Items"
+  },
+  "borrow": {
+    "borrower": "Borrower",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "revokeApproval": "Revoke Approval",
+    "editBorrow": "Edit Borrow"
+  },
+  "unknownTask": "Unknown Task",
+  "prerequisite": "Prerequisite",
+  "prerequisitePluralSuffix": "s",
+  "followup": "Follow-up Task",
+  "followupPluralSuffix": "s",
+  "requiredItems": {
+    "title": "Required Items",
+    "addItem": "+ Item"
+  },
+  "upcomingOccurrences": {
+    "empty": "No upcoming appointments planned",
+    "noDate": "No date",
+    "open": "Still open"
+  },
+  "rotationPlan": {
+    "title": "Rotation Plan",
+    "autoFill": "Auto-fill"
+  },
+  "messages": {
+    "itemAddedToOccurrence": "\"{{itemName}}\" added to appointment {{occurrence}}",
+    "itemAddError": "Error adding item"
   }
 }

@@ -14,8 +14,10 @@ import { de } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { X, Check, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function NotificationBell() {
+  const { t } = useTranslation();
   const { household, member } = useCompatAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const utils = trpc.useUtils();
@@ -127,7 +129,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">Benachrichtigungen</h3>
+          <h3 className="font-semibold">{t("common:notificationBell.title")}</h3>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -144,7 +146,7 @@ export function NotificationBell() {
               onClick={handleMarkAllAsRead}
               className="text-xs"
             >
-              Alle als gelesen markieren
+              {t("common:notificationBell.markAllAsRead")}
             </Button>
           )}
           </div>
@@ -153,7 +155,7 @@ export function NotificationBell() {
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>Keine Benachrichtigungen</p>
+              <p>{t("common:notificationBell.noNotifications")}</p>
             </div>
           ) : (
             <div className="divide-y">

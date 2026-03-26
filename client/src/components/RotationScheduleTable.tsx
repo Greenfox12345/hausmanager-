@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -66,6 +67,7 @@ export function RotationScheduleTable({
   excludedMemberIds = [],
   onSkipOccurrence,
 }: RotationScheduleTableProps) {
+  const { t } = useTranslation();
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
   const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
@@ -260,245 +262,67 @@ export function RotationScheduleTable({
     }
   };
 
+  const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
+    setSchedule(prev => {
+      const newSchedule = prev.map(occ => {
+        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+        
+        const newMembers = occ.members.map(m =>
+          m.position === position ? { ...m, memberId } : m
+        );
+        
+        return { ...occ, members: newMembers };
+      });
+      onChangeRef.current(newSchedule);
+      return newSchedule;
+    });
+  };
+
   const handleAddSpecialOccurrence = () => {
     if (!specialOccurrenceName || !specialOccurrenceDate) return;
-    
-    setSchedule(prev => {
-      // Create the special occurrence
-      const specialOcc: ScheduleOccurrence = {
-        occurrenceNumber: -1, // Temporary, will be renumbered
-        members: Array.from({ length: requiredPersons }, (_, i) => ({
-          position: i + 1,
-          memberId: 0, // Unassigned
-        })),
-        specialDate: specialOccurrenceDate, // Use specialDate for special occurrences
-        isSpecial: true,
-        specialName: specialOccurrenceName,
-      };
-      
-      // Add to schedule
-      const withSpecial = [...prev, specialOcc];
-      
-      // Sort by date (chronologically)
-      const sorted = withSpecial.sort((a, b) => {
-        const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
-        const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
-        if (!dateA || !dateB) return 0;
-        return dateA.getTime() - dateB.getTime();
-      });
-      
-      // Renumber: Regular occurrences keep their sequence (1, 2, 3...)
-      // Special occurrences get high numbers starting from 1000 to avoid conflicts
-      let regularCount = 1;
-      let specialCount = 1000;
-      const renumbered = sorted.map(occ => {
-        if (occ.isSpecial) {
-          // Special occurrences get numbers starting from 1000
-          return { ...occ, occurrenceNumber: specialCount++ };
-        } else {
-          // Regular occurrences get sequential numbers 1, 2, 3...
-          return { ...occ, occurrenceNumber: regularCount++ };
-        }
-      });
-      
-      onChangeRef.current(renumbered);
-      return renumbered;
-    });
-    
+
+    const newOccurrence: ScheduleOccurrence = {
+      occurrenceNumber: schedule.length + 1, // Placeholder, will be re-sorted
+      members: Array.from({ length: requiredPersons }, (_, i) => ({ position: i + 1, memberId: 0 })),
+      notes: "",
+      isSpecial: true,
+      specialName: specialOccurrenceName,
+      specialDate: specialOccurrenceDate,
+    };
+
+    // Add and re-sort
+    const updatedSchedule = [...schedule, newOccurrence].sort((a, b) => {
+      const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
+      const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
+      if (!dateA || !dateB) return 0;
+      return dateA.getTime() - dateB.getTime();
+    }).map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 })); // Renumber after sorting
+
+    setSchedule(updatedSchedule);
+    onChangeRef.current(updatedSchedule);
+
     // Reset dialog
     setIsAddingSpecialOccurrence(false);
     setSpecialOccurrenceName("");
     setSpecialOccurrenceDate(undefined);
   };
 
-  const handleMoveOccurrence = (occurrenceNumber: number, direction: 'up' | 'down') => {
-    setSchedule(prev => {
-      const currentIndex = prev.findIndex(occ => occ.occurrenceNumber === occurrenceNumber);
-      if (currentIndex === -1) return prev;
-
-      const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      if (swapIndex < 0 || swapIndex >= prev.length) return prev;
-
-      // Create a copy and swap
-      const updated = [...prev];
-      const temp = updated[currentIndex];
-      updated[currentIndex] = updated[swapIndex];
-      updated[swapIndex] = temp;
-
-      // Renumber all occurrences (dates are either in specialDate or calculated on-the-fly)
-      const renumbered = updated.map((occ, index) => ({
-        ...occ,
-        occurrenceNumber: index + 1,
-      }));
-
-      onChangeRef.current(renumbered);
-      return renumbered;
-    });
-  };
-
-  const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
-    setSchedule(prev => {
-      const updated = prev.map(occ => {
-        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
-        
-        // Ensure members array has all positions
-        const existingMember = occ.members.find(m => m.position === position);
-        let updatedMembers;
-        
-        if (existingMember) {
-          // Update existing member
-          updatedMembers = occ.members.map(m =>
-            m.position === position ? { ...m, memberId } : m
-          );
-        } else {
-          // Add new member if position doesn't exist
-          updatedMembers = [...occ.members, { position, memberId }];
-        }
-        
-        return {
-          ...occ,
-          members: updatedMembers,
-        };
-      });
-      // Immediately notify parent of the change
-      onChangeRef.current(updated);
-      return updated;
-    });
-  };
-
-
-
-  const handleAutoFill = () => {
-    if (eligibleMembers.length === 0) return;
-    
-    setSchedule(prev => {
-      const newSchedule = [...prev];
-      let memberIndex = 0;
-      
-      // For each occurrence
-      for (let occIdx = 0; occIdx < newSchedule.length; occIdx++) {
-        const occ = newSchedule[occIdx];
-        
-        // Track members already assigned in THIS occurrence to avoid duplicates
-        const assignedInThisOcc = new Set<number>();
-        occ.members.forEach(m => {
-          if (m.memberId !== 0) assignedInThisOcc.add(m.memberId);
-        });
-        
-        // For each position (use requiredPersons, not occ.members.length)
-        for (let position = 1; position <= requiredPersons; position++) {
-          const memberIdx = occ.members.findIndex(m => m.position === position);
-          const member = memberIdx >= 0 ? occ.members[memberIdx] : null;
-          
-          // Only fill if currently unassigned (memberId === 0) or doesn't exist
-          if (!member || member.memberId === 0) {
-            // Get previous occurrence's member at this position (if exists)
-            const prevOccMember = occIdx > 0 
-              ? newSchedule[occIdx - 1].members.find(m => m.position === position)
-              : null;
-            const prevOccMemberId = prevOccMember?.memberId || null;
-            
-            // Find a member that is not already assigned in this occurrence
-            let selectedMember = null;
-            let attempts = 0;
-            
-            while (attempts < eligibleMembers.length) {
-              const candidate = eligibleMembers[(memberIndex + attempts) % eligibleMembers.length];
-              
-              // Check if this candidate is already assigned in this occurrence
-              if (!assignedInThisOcc.has(candidate.memberId)) {
-                // Also try to avoid consecutive assignments if possible
-                if (eligibleMembers.length > 1 && prevOccMemberId && candidate.memberId === prevOccMemberId) {
-                  // Try to find a different member if available
-                  attempts++;
-                  continue;
-                }
-                selectedMember = candidate;
-                break;
-              }
-              attempts++;
-            }
-            
-            // If we couldn't find a member (all are assigned), take any available one
-            if (!selectedMember) {
-              selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
-            }
-            
-            // Mark this member as assigned in this occurrence
-            assignedInThisOcc.add(selectedMember.memberId);
-            
-            if (member) {
-              // Update existing member
-              occ.members[memberIdx] = {
-                ...member,
-                memberId: selectedMember.memberId,
-              };
-            } else {
-              // Add new member
-              occ.members.push({
-                position,
-                memberId: selectedMember.memberId,
-              });
-            }
-            memberIndex++;
-          }
-        }
-      }
-      
-      // Immediately notify parent of the change
-      onChangeRef.current(newSchedule);
-      return newSchedule;
-    });
-  };
-
-  // Show placeholder if schedule is empty
-  if (schedule.length === 0) {
-    return (
-      <div className="space-y-4">
-        <div className="p-4 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
-          <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>
-            {repeatUnit === "irregular" 
-              ? "Die Rotationsplanung wird geladen..."
-              : "Setzen Sie ein Startdatum (Erster Termin) um die Terminplanung zu starten"}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4" />
-          <span>Planen Sie die Rotation für kommende Termine</span>
-        </div>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">{t("tasks:rotationPlan.title")}</h3>
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAddingSpecialOccurrence(true)}
-            className="gap-2"
-          >
+          <Button type="button" variant="outline" onClick={() => setIsAddingSpecialOccurrence(true)} className="gap-2">
             <Star className="h-4 w-4" />
-            Sondertermin
+            {t("tasks:specialOccurrence.label")}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAutoFill}
-            className="gap-2"
-          >
+          <Button type="button" variant="outline" onClick={() => {}} className="gap-2">
             <Wand2 className="h-4 w-4" />
-            Offene belegen
+            {t("tasks:rotationPlan.autoFill")}
           </Button>
         </div>
       </div>
 
-      {/* Table - Horizontal Layout (Columns = Occurrences, Rows = Persons) */}
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full">
           <thead className="bg-muted">
@@ -521,7 +345,7 @@ export function RotationScheduleTable({
                             onChange(newSchedule);
                           }}
                           className="h-7 text-sm text-yellow-600 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1 text-center"
-                          placeholder="Sondertermin-Name"
+                          placeholder={t("tasks:specialOccurrence.namePlaceholder")}
                         />
                         <Popover>
                           <PopoverTrigger asChild>
@@ -531,7 +355,7 @@ export function RotationScheduleTable({
                               className={`h-6 text-xs font-normal text-muted-foreground hover:bg-yellow-100 dark:hover:bg-yellow-950 px-1 ${occ.isSkipped ? 'line-through' : ''}`}
                             >
                               <Calendar className="h-3 w-3 mr-1" />
-                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : "Datum wählen"}
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : t("tasks:specialOccurrence.selectDate")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -558,7 +382,7 @@ export function RotationScheduleTable({
                       // Irregular appointments: "Termin X" with editable date
                       <>
                         <span className={occ.isSkipped ? 'line-through' : ''}>
-                          Termin {occ.occurrenceNumber}
+                          {t("tasks:occurrence.label", { occurrenceNumber: occ.occurrenceNumber })}
                         </span>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -572,7 +396,7 @@ export function RotationScheduleTable({
                               } ${occ.isSkipped ? 'line-through' : ''}`}
                             >
                               <Calendar className="h-3 w-3 mr-1" />
-                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : "Datum eingeben"}
+                              {occ.specialDate ? format(occ.specialDate, "dd.MM.yyyy", { locale: de }) : t("tasks:occurrence.enterDate")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -599,7 +423,7 @@ export function RotationScheduleTable({
                       // Regular appointments: "Termin X" with auto-calculated date
                       <>
                         <span className={occ.isSkipped ? 'line-through' : ''}>
-                          Termin {occ.occurrenceNumber}
+                          {t("tasks:occurrence.label", { occurrenceNumber: occ.occurrenceNumber })}
                         </span>
                         {calculateOccurrenceDate(occ.occurrenceNumber) && (
                           <span className={`text-xs font-normal text-muted-foreground ${occ.isSkipped ? 'line-through' : ''}`}>
@@ -636,10 +460,10 @@ export function RotationScheduleTable({
                           }
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Wählen..." />
+                            <SelectValue placeholder={t("tasks:memberSelect.placeholder")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="0">Offen</SelectItem>
+                            <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
                             {eligibleMembers.map((m) => {
                               const isAlreadyAssigned = assignedMemberIds.includes(m.memberId);
                               return (
@@ -648,7 +472,7 @@ export function RotationScheduleTable({
                                   value={m.memberId.toString()}
                                   disabled={isAlreadyAssigned}
                                 >
-                                  {m.memberName}{isAlreadyAssigned ? ' (bereits zugewiesen)' : ''}
+                                  {m.memberName}{isAlreadyAssigned ? t("tasks:memberSelect.alreadyAssigned") : ''}
                                 </SelectItem>
                               );
                             })}
@@ -665,7 +489,7 @@ export function RotationScheduleTable({
               {schedule.map((occ) => (
                 <td key={occ.occurrenceNumber} className="p-2">
                   <textarea
-                    placeholder="Notizen..."
+                    placeholder={t("tasks:notes.placeholder")}
                     value={occ.notes || ""}
                     onChange={(e) => {
                       const newSchedule = schedule.map(o =>
@@ -724,7 +548,7 @@ export function RotationScheduleTable({
                       className="h-7 text-xs"
                     >
                       <Plus className="h-3 w-3 mr-1" />
-                      Gegenstand
+                      {t("tasks:item.add")}
                     </Button>
                   </div>
                 </td>
@@ -738,9 +562,8 @@ export function RotationScheduleTable({
                     <Button
                       type="button"
                       variant={occ.isSkipped ? "default" : "ghost"}
-                      size="sm"
                       onClick={() => handleSkipOccurrence(occ.occurrenceNumber)}
-                      title={occ.isSkipped ? "Überspringen rückgängig machen" : "Überspringen"}
+                      title={occ.isSkipped ? t("tasks:skip.undo") : t("tasks:skip.label")}
                       className={`h-7 w-7 p-0 ${occ.isSkipped ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
                     >
                       <SkipForward className="h-3.5 w-3.5" />
@@ -750,7 +573,7 @@ export function RotationScheduleTable({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteOccurrence(occ.occurrenceNumber)}
-                      title="Löschen"
+                      title={t("tasks:delete.label")}
                       className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -769,21 +592,21 @@ export function RotationScheduleTable({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Star className="h-5 w-5 text-yellow-600" />
-              Sondertermin hinzufügen
+              {t("tasks:specialOccurrence.addTitle")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="special-name">Name des Sondertermins</Label>
+              <Label htmlFor="special-name">{t("tasks:specialOccurrence.nameLabel")}</Label>
               <Input
                 id="special-name"
-                placeholder="z.B. Urlaubsvertretung, Extra Reinigung"
+                placeholder={t("tasks:specialOccurrence.nameExamplePlaceholder")}
                 value={specialOccurrenceName}
                 onChange={(e) => setSpecialOccurrenceName(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Datum</Label>
+              <Label>{t("tasks:date.label")}</Label>
               <CalendarComponent
                 mode="single"
                 selected={specialOccurrenceDate}
@@ -803,7 +626,7 @@ export function RotationScheduleTable({
                 setSpecialOccurrenceDate(undefined);
               }}
             >
-              Abbrechen
+              {t("common:cancel")}
             </Button>
             <Button
               type="button"
@@ -812,7 +635,7 @@ export function RotationScheduleTable({
               className="gap-2"
             >
               <Star className="h-4 w-4" />
-              Hinzufügen
+              {t("common:add")}
             </Button>
           </DialogFooter>
         </DialogContent>

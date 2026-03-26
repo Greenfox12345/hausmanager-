@@ -1,4 +1,5 @@
 import { useState, useEffect, useId } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Upload, Loader2, Image as ImageIcon } from "lucide-react";
@@ -16,7 +17,9 @@ interface PhotoUploadProps {
   fileTypeLabel?: string;
 }
 
-export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange, acceptedFileTypes = "image/*", fileTypeLabel = "Foto" }: PhotoUploadProps) {
+export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploadingChange, acceptedFileTypes = "image/*", fileTypeLabel }: PhotoUploadProps) {
+  const { t } = useTranslation();
+  const resolvedLabel = fileTypeLabel ?? t("common:labels.photo");
   const uploadId = useId();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -30,7 +33,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
     }
 
     if (photos.length + files.length > maxPhotos) {
-      toast.error(`Maximal ${maxPhotos} ${fileTypeLabel}s erlaubt`);
+      toast.error(t("common:upload.maxFilesError", { max: maxPhotos, label: resolvedLabel }));
       return;
     }
 
@@ -49,10 +52,10 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         // Check file type
         const isPDF = acceptedFileTypes === ".pdf";
         if (isPDF && file.type !== "application/pdf") {
-          toast.error(`${file.name} ist kein PDF`);
+          toast.error(t("common:upload.notAPdf", { name: file.name }));
           continue;
         } else if (!isPDF && !file.type.startsWith("image/")) {
-          toast.error(`${file.name} ist kein Bild`);
+          toast.error(t("common:upload.notAnImage", { name: file.name }));
           continue;
         }
 
@@ -70,7 +73,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
             compressedFile = await imageCompression(file, options);
           } catch (compressionError) {
             console.error("Compression error:", compressionError);
-            toast.error(`Fehler beim Komprimieren von ${file.name}`);
+            toast.error(t("common:upload.compressionError", { name: file.name }));
             continue;
           }
         }
@@ -78,7 +81,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
         // Check file size (max 5MB for images, 10MB for PDFs)
         const maxSize = isPDF ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
         if (compressedFile.size > maxSize) {
-          toast.error(`${file.name} ist zu groß (max. ${isPDF ? '10MB' : '5MB'})`);
+          toast.error(t("common:upload.fileTooLarge", { name: file.name, max: isPDF ? '10MB' : '5MB' }));
           continue;
         }
 
@@ -106,7 +109,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
       // Toast removed to prevent dialog overlay
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error(`Fehler beim Hochladen der ${fileTypeLabel}s`);
+      toast.error(t("common:upload.uploadError", { label: resolvedLabel }));
     } finally {
       setUploading(false);
       onUploadingChange?.(false);
@@ -146,12 +149,12 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
           {uploading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Hochladen...
+              {t("common:upload.uploading")}
             </>
           ) : (
             <>
               <Upload className="h-4 w-4 mr-2" />
-              {fileTypeLabel}s hinzufügen ({photos.length}/{maxPhotos})
+              {t("common:upload.addFiles", { label: resolvedLabel, current: photos.length, max: maxPhotos })}
             </>
           )}
         </Button>
@@ -191,7 +194,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 5, onUploading
                 type="button"
                 onClick={() => removePhoto(index)}
                 className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                title={`${fileTypeLabel} entfernen`}
+                title={t("common:upload.removeFile", { label: resolvedLabel })}
               >
                 <X className="h-3 w-3" />
               </button>

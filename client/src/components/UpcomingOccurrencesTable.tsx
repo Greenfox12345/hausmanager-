@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { Calendar, Clock, User, FileText } from "lucide-react";
@@ -19,11 +20,12 @@ interface UpcomingOccurrencesTableProps {
 }
 
 export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTableProps) {
+  const { t } = useTranslation();
   if (occurrences.length === 0) {
     return (
       <div className="p-6 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">
         <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>Keine kommenden Termine geplant</p>
+        <p>{t("tasks:upcomingOccurrences.empty")}</p>
       </div>
     );
   }
@@ -44,7 +46,7 @@ export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTab
                   </span>
                 ) : (
                   <span className={`text-sm text-muted-foreground italic ${occ.isSkipped ? 'line-through' : ''}`}>
-                    Kein Datum
+                    {t("tasks:upcomingOccurrences.noDate")}
                   </span>
                 )}
               </TableCell>
@@ -68,7 +70,7 @@ export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTab
                     ))}
                   </div>
                 ) : (
-                  <span className="text-sm text-muted-foreground italic">Noch offen</span>
+                  <span className="text-sm text-muted-foreground italic">{t("tasks:upcomingOccurrences.open")}</span>
                 )}
               </TableCell>
               <TableCell>

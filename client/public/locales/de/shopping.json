@@ -96,5 +96,16 @@
     "personalShort": "Persönlich",
     "completing": "Wird abgeschlossen...",
     "complete": "Abschließen"
+  },
+  "completeShoppingDialog": {
+    "title": "Einkauf abschließen",
+    "description": "Sie sind dabei, {{count}} Artikel als gekauft zu markieren.",
+    "purchasedItemsLabel": "Gekaufte Artikel:",
+    "commentLabel": "Kommentar (optional)",
+    "commentPlaceholder": "z.B. Alles im Angebot gefunden...",
+    "photosLabel": "Fotos (optional)",
+    "cancelButton": "Abbrechen",
+    "savingButton": "Wird gespeichert...",
+    "completeButton": "Einkauf abschließen"
   }
 }

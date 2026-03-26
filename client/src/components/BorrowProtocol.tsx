@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp, Camera, MessageSquare, Clock, User, Calendar } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
@@ -26,6 +27,7 @@ function PhotoGrid({
   label: string;
   onOpen: (index: number) => void;
 }) {
+  const { t } = useTranslation();
   if (!photos.length) return null;
   return (
     <div className="mt-2">
@@ -35,7 +37,7 @@ function PhotoGrid({
           <div key={i} className="space-y-0.5">
             <ClickablePhoto
               src={p.photoUrl}
-              alt={p.label || `Foto ${i + 1}`}
+              alt={p.label || t("borrows:photoGrid.photoLabel", { index: i + 1 })}
               className="w-full h-24 object-cover rounded"
               onClick={() => onOpen(i)}
             />
@@ -65,6 +67,7 @@ function ProtocolSection({
   guideline: any;
   phase: "pickup" | "return";
 }) {
+  const { t } = useTranslation();
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   const bg = color === "green"
@@ -76,7 +79,7 @@ function ProtocolSection({
 
   const reqPhotosWithLabels = requirementPhotos.map((rp) => {
     const req = guideline?.photoRequirements?.find((pr: any) => pr.id === rp.photoRequirementId);
-    return { photoUrl: rp.photoUrl, label: req?.label ?? rp.filename ?? "Foto" };
+    return { photoUrl: rp.photoUrl, label: req?.label ?? rp.filename ?? t("borrows:photo.defaultLabel") };
   });
 
   // Build all photos for lightbox navigation
@@ -128,7 +131,7 @@ function ProtocolSection({
 
         <PhotoGrid
           photos={reqPhotosWithLabels}
-          label="Pflichtfotos"
+          label={t("borrows:photoGrid.requiredPhotosLabel")}
           onOpen={(i) => openLightbox(i + reqPhotoOffset)}
         />
       </div>
@@ -154,7 +157,12 @@ export function BorrowProtocol({
   expandedRequests,
   toggleExpanded,
 }: BorrowProtocolProps) {
+  const { t } = useTranslation();
   const isExpanded = expandedRequests.has(request.id);
+
+  const borrowerName = isExternal
+    ? (request.borrowerMemberName || getExternalHouseholdName(request))
+    : (members.find((m: any) => m.id === request.borrowerMemberId)?.memberName || t("borrows:borrower.unknown"));
 
   const { data: returnPhotos = [] } = trpc.borrow.getReturnPhotos.useQuery(
     { requestId: request.id },
@@ -174,9 +182,7 @@ export function BorrowProtocol({
     (p: any) => !pickupReqPhotos.includes(p)
   );
 
-  const borrowerName = isExternal
-    ? (request.borrowerMemberName || getExternalHouseholdName(request))
-    : (members.find((m: any) => m.id === request.borrowerMemberId)?.memberName || "Unbekannt");
+  
 
   const hasAnyData =
     request.pickupPhotoUrl || request.pickupComment || pickupReqPhotos.length > 0 ||
@@ -192,7 +198,7 @@ export function BorrowProtocol({
         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-        {isExpanded ? "Protokoll ausblenden" : "Abhol-/Rückgabeprotokoll anzeigen"}
+        {isExpanded ? t("borrows:protocol.hide") : t("borrows:protocol.show")}
       </button>
 
       {isExpanded && (
@@ -201,24 +207,24 @@ export function BorrowProtocol({
           <div className="p-2 bg-muted/40 rounded text-xs space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
               <User className="w-3.5 h-3.5" />
-              <span>Ausleiher: <strong>{borrowerName}</strong></span>
+              <span>{t("borrows:metaInfo.borrower")}: <strong>{borrowerName}</strong></span>
             </div>
             <div className="flex items-center gap-1 text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" />
               <span>
-                {new Date(request.startDate).toLocaleDateString("de-DE")} – {new Date(request.endDate).toLocaleDateString("de-DE")}
+                {t("borrows:metaInfo.dateRange", { startDate: new Date(request.startDate).toLocaleDateString("de-DE"), endDate: new Date(request.endDate).toLocaleDateString("de-DE") })}
               </span>
             </div>
             {request.requestMessage && (
               <div className="flex items-start gap-1 text-muted-foreground">
                 <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span className="italic">Anfrage: „{request.requestMessage}"</span>
+                <span className="italic">{t("borrows:metaInfo.request")}: „{request.requestMessage}"</span>
               </div>
             )}
             {request.responseMessage && (
               <div className="flex items-start gap-1 text-muted-foreground">
                 <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span className="italic">Antwort: „{request.responseMessage}"</span>
+                <span className="italic">{t("borrows:metaInfo.response")}: „{request.responseMessage}"</span>
               </div>
             )}
           </div>
@@ -226,7 +232,7 @@ export function BorrowProtocol({
           {/* Abholprotokoll */}
           <ProtocolSection
             color="green"
-            title="Zustand bei Abholung"
+            title={t("borrows:protocolSection.pickupCondition")}
             timestamp={request.borrowedAt}
             comment={request.pickupComment}
             mainPhotoUrl={request.pickupPhotoUrl}
@@ -238,7 +244,7 @@ export function BorrowProtocol({
           {/* Rückgabeprotokoll */}
           <ProtocolSection
             color="blue"
-            title="Zustand bei Rückgabe"
+            title={t("borrows:protocolSection.returnCondition")}
             timestamp={request.returnedAt}
             comment={request.returnComment}
             mainPhotoUrl={request.returnPhotoUrl}

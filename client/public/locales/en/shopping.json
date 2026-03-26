@@ -96,5 +96,16 @@
     "personalShort": "Personal",
     "completing": "Completing...",
     "complete": "Complete"
+  },
+  "completeShoppingDialog": {
+    "title": "Complete Shopping",
+    "description": "You are about to mark {{count}} items as purchased.",
+    "purchasedItemsLabel": "Purchased Items:",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "e.g. Found everything on sale...",
+    "photosLabel": "Photos (optional)",
+    "cancelButton": "Cancel",
+    "savingButton": "Saving...",
+    "completeButton": "Complete Shopping"
   }
 }

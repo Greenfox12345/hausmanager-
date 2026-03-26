@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ShoppingItem {
   id: number;
@@ -37,12 +38,13 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
+  const { t } = useTranslation("shopping");
 
   // Callback for PhotoUpload with logging
   const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
-    console.log('[CompleteShoppingDialog] onPhotosChange called with:', newPhotos);
+    console.log("[CompleteShoppingDialog] onPhotosChange called with:", newPhotos);
     setPhotos(newPhotos);
-    console.log('[CompleteShoppingDialog] setPhotos called');
+    console.log("[CompleteShoppingDialog] setPhotos called");
   };
 
   // Reset form only when dialog closes (open changes from true to false)
@@ -82,7 +84,7 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
   // Prevent closing dialog while uploading
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && isUploading) {
-      console.log('[CompleteShoppingDialog] Prevented closing during upload');
+      console.log("[CompleteShoppingDialog] Prevented closing during upload");
       return;
     }
     onOpenChange(newOpen);
@@ -92,16 +94,16 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent key="complete-shopping-content" className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Einkauf abschließen</DialogTitle>
+          <DialogTitle>{t("shopping:completeShoppingDialog.title")}</DialogTitle>
           <DialogDescription>
-            Sie sind dabei, {items.length} Artikel als gekauft zu markieren.
+            {t("shopping:completeShoppingDialog.description", { count: items.length })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Items list */}
           <div className="space-y-2">
-            <Label>Gekaufte Artikel:</Label>
+            <Label>{t("shopping:completeShoppingDialog.purchasedItemsLabel")}</Label>
             <div className="max-h-32 overflow-y-auto border rounded-lg p-3 space-y-1">
               {items.map((item) => (
                 <div key={item.id} className="text-sm flex items-center gap-2">
@@ -114,10 +116,10 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
 
           {/* Comment */}
           <div className="space-y-2">
-            <Label htmlFor="comment">Kommentar (optional)</Label>
+            <Label htmlFor="comment">{t("shopping:completeShoppingDialog.commentLabel")}</Label>
             <Textarea
               id="comment"
-              placeholder="z.B. Alles im Angebot gefunden..."
+              placeholder={t("shopping:completeShoppingDialog.commentPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
@@ -126,7 +128,7 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
 
           {/* Photo upload */}
           <div className="space-y-2">
-            <Label>Fotos (optional)</Label>
+            <Label>{t("shopping:completeShoppingDialog.photosLabel")}</Label>
             <PhotoUpload 
               photos={photos} 
               onPhotosChange={handlePhotosChange} 
@@ -138,16 +140,16 @@ const CompleteShoppingDialogComponent = function CompleteShoppingDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-            Abbrechen
+            {t("shopping:completeShoppingDialog.cancelButton")}
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Wird gespeichert...
+                {t("shopping:completeShoppingDialog.savingButton")}
               </>
             ) : (
-              "Einkauf abschließen"
+              t("shopping:completeShoppingDialog.completeButton")
             )}
           </Button>
         </DialogFooter>

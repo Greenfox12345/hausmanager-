@@ -3,6 +3,7 @@ import { ArrowRight, ArrowLeft, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
+import { useTranslation } from "react-i18next";
 
 interface Dependency {
   id: number;
@@ -29,6 +30,7 @@ export default function TaskDependencies({
   allTasks,
   compact = false,
 }: TaskDependenciesProps) {
+  const { t } = useTranslation("tasks");
   const { household } = useCompatAuth();
   
   // Load dependencies if not provided
@@ -55,7 +57,7 @@ export default function TaskDependencies({
 
   const getTaskName = (taskId: number) => {
     const task = allTasks.find((t) => t.id === taskId);
-    return task?.name || "Unbekannte Aufgabe";
+    return task?.name || t("tasks:unknownTask");
   };
 
   if (compact) {
@@ -65,13 +67,13 @@ export default function TaskDependencies({
         {prerequisites.length > 0 && (
           <Badge variant="outline" className="text-xs">
             <ArrowLeft className="h-3 w-3 mr-1" />
-            {prerequisites.length} Voraussetzung{prerequisites.length > 1 ? "en" : ""}
+            {prerequisites.length} {t("tasks:prerequisite")}{prerequisites.length > 1 ? t("tasks:prerequisitePluralSuffix") : ""}
           </Badge>
         )}
         {followups.length > 0 && (
           <Badge variant="outline" className="text-xs">
             <ArrowRight className="h-3 w-3 mr-1" />
-            {followups.length} Folgeaufgabe{followups.length > 1 ? "n" : ""}
+            {followups.length} {t("tasks:followup")}{followups.length > 1 ? t("tasks:followupPluralSuffix") : ""}
           </Badge>
         )}
       </div>
@@ -85,7 +87,7 @@ export default function TaskDependencies({
         <div>
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
             <ArrowLeft className="h-3 w-3" />
-            <span className="font-medium">Voraussetzungen:</span>
+            <span className="font-medium">{t("tasks:prerequisites")}</span>
           </div>
           <div className="pl-5 space-y-1">
             {prerequisites.map((dep) => (
@@ -102,7 +104,7 @@ export default function TaskDependencies({
         <div>
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
             <ArrowRight className="h-3 w-3" />
-            <span className="font-medium">Folgeaufgaben:</span>
+            <span className="font-medium">{t("tasks:followups")}</span>
           </div>
           <div className="pl-5 space-y-1">
             {followups.map((dep) => (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -75,13 +76,13 @@ export function RequiredItemsSection({
   const createBorrowRequestMutation = trpc.borrow.request.useMutation();
   const revokeMutation = trpc.borrow.revoke.useMutation({
     onSuccess: () => {
-      toast.success("Genehmigung widerrufen");
+      toast.success(t("borrows:messages.revokeSuccess"));
       utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
       setShowRevokeDialog(false);
       setRevokeItemInfo(null);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Fehler beim Widerrufen");
+      toast.error(error.message || t("borrows:messages.revokeError"));
     },
   });
 
@@ -92,6 +93,7 @@ export function RequiredItemsSection({
     { enabled: !!currentUser }
   );
 
+  const { t } = useTranslation(["tasks", "borrows", "common"]);
   const utils = trpc.useUtils();
 
   // Handle adding item to occurrence
@@ -107,10 +109,10 @@ export function RequiredItemsSection({
       await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
       onItemAdded();
       setIsPickerOpen(false);
-      toast.success(`"${itemName}" zu Termin ${selectedOccurrence} hinzugefügt`);
+      toast.success(t("tasks:messages.itemAddedToOccurrence", { itemName, occurrence: selectedOccurrence }));
     } catch (error) {
       console.error("Failed to add item:", error);
-      toast.error("Fehler beim Hinzufügen des Gegenstands");
+      toast.error(t("tasks:messages.itemAddError"));
     }
   };
 
@@ -139,25 +141,25 @@ export function RequiredItemsSection({
   // Get status badge based on borrow request status (not item borrow status)
   const getStatusBadge = (requestStatus: string | null) => {
     if (!requestStatus) {
-      return <Badge variant="secondary">Nicht angefragt</Badge>;
+      return <Badge variant="secondary">{t("borrows:status.notRequested")}</Badge>;
     }
     if (requestStatus === "pending") {
-      return <Badge variant="outline" className="border-yellow-500 text-yellow-700">Angefragt</Badge>;
+      return <Badge variant="outline" className="border-yellow-500 text-yellow-700">{t("borrows:status.pending")}</Badge>;
     }
     if (requestStatus === "approved") {
-      return <Badge variant="default" className="bg-green-600">Genehmigt</Badge>;
+      return <Badge variant="default" className="bg-green-600">{t("borrows:status.approved")}</Badge>;
     }
     if (requestStatus === "active") {
-      return <Badge variant="default" className="bg-blue-600">Ausgeliehen</Badge>;
+      return <Badge variant="default" className="bg-blue-600">{t("borrows:status.active")}</Badge>;
     }
     if (requestStatus === "completed") {
-      return <Badge variant="default" className="bg-gray-600">Zurückgegeben</Badge>;
+      return <Badge variant="default" className="bg-gray-600">{t("borrows:status.completed")}</Badge>;
     }
     if (requestStatus === "rejected") {
-      return <Badge variant="destructive">Abgelehnt</Badge>;
+      return <Badge variant="destructive">{t("borrows:status.rejected")}</Badge>;
     }
     if (requestStatus === "cancelled") {
-      return <Badge variant="secondary">Storniert</Badge>;
+      return <Badge variant="secondary">{t("borrows:status.cancelled")}</Badge>;
     }
     return null;
   };
@@ -171,7 +173,7 @@ export function RequiredItemsSection({
 
   return (
     <Card className="p-6 mt-6">
-      <h3 className="text-lg font-semibold mb-4">Benötigte Gegenstände</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("tasks:requiredItems.title")}</h3>
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -197,11 +199,11 @@ export function RequiredItemsSection({
                         {occ.isSpecial && occ.specialName ? (
                           <span className="text-amber-700 dark:text-amber-400">{occ.specialName}</span>
                         ) : (
-                          <>Termin {occ.occurrenceNumber}</>
+                          <>{t("tasks:occurrence.label", { occurrenceNumber: occ.occurrenceNumber })}</>
                         )}
                         {occ.isSpecial && (
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-300 text-amber-600 dark:border-amber-700 dark:text-amber-400">
-                            Sondertermin
+                            {t("tasks:specialOccurrence.badge")}
                           </Badge>
                         )}
                       </div>
@@ -235,7 +237,7 @@ export function RequiredItemsSection({
                           }}
                           className="w-full"
                         >
-                          + Gegenstand
+                          {t("tasks:requiredItems.addItem")}
                         </Button>
                       </td>
                     );
@@ -267,7 +269,7 @@ export function RequiredItemsSection({
                             <PopoverContent className="w-80">
                               <div className="space-y-4">
                                 <div>
-                                  <label className="text-sm font-medium">Ausleih-Start</label>
+                                  <label className="text-sm font-medium">{t("borrows:fields.borrowStart")}</label>
                                   <Input
                                     type="date"
                                     value={item.borrowStartDate ? format(new Date(item.borrowStartDate), "yyyy-MM-dd") : ""}
@@ -279,15 +281,15 @@ export function RequiredItemsSection({
                                           borrowStartDate: newDate ? newDate.toISOString() : undefined,
                                         });
                                         await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
-                                        toast.success("Ausleih-Start aktualisiert");
+                                        toast.success(t("borrows:messages.borrowStartUpdated"));
                                       } catch (error) {
-                                        toast.error("Fehler beim Speichern");
+                                        toast.error(t("common:errors.saveFailed"));
                                       }
                                     }}
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-sm font-medium">Ausleih-Ende</label>
+                                  <label className="text-sm font-medium">{t("borrows:fields.borrowEnd")}</label>
                                   <Input
                                     type="date"
                                     value={item.borrowEndDate ? format(new Date(item.borrowEndDate), "yyyy-MM-dd") : ""}
@@ -299,9 +301,9 @@ export function RequiredItemsSection({
                                           borrowEndDate: newDate ? newDate.toISOString() : undefined,
                                         });
                                         await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
-                                        toast.success("Ausleih-Ende aktualisiert");
+                                        toast.success(t("borrows:messages.borrowEndUpdated"));
                                       } catch (error) {
-                                        toast.error("Fehler beim Speichern");
+                                        toast.error(t("common:errors.saveFailed"));
                                       }
                                     }}
                                   />
@@ -316,7 +318,7 @@ export function RequiredItemsSection({
                               className="w-full"
                               onClick={() => {
                                 if (!currentUser || !currentMember) {
-                                  toast.error("Bitte anmelden");
+                                  toast.error(t("common:errors.notLoggedIn"));
                                   return;
                                 }
                                 setSelectedItem({
@@ -331,7 +333,7 @@ export function RequiredItemsSection({
                               }}
                               disabled={createBorrowRequestMutation.isPending}
                             >
-                              {createBorrowRequestMutation.isPending ? "Wird erstellt..." : "Ausleihe anfragen"}
+                              {createBorrowRequestMutation.isPending ? t("common:status.creating") : t("borrows:actions.request")}
                             </Button>
                           )}
                           {(item.requestStatus === "approved" || item.requestStatus === "active") && item.borrowRequestId && (
@@ -356,7 +358,7 @@ export function RequiredItemsSection({
                                 setShowRevokeDialog(true);
                               }}
                             >
-                              Widerrufen
+                              {t("borrows:actions.revoke")}
                             </Button>
                           )}
                         </div>
@@ -441,12 +443,12 @@ export function RequiredItemsSection({
             await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });
             
             if (result.autoApproved) {
-              toast.success("✅ Ausleihe automatisch genehmigt", {
-                description: "Dieser Gegenstand gehört zu deinem Haushalt"
+              toast.success(t("borrows:messages.autoApproved"), {
+                description: t("borrows:messages.autoApprovedDesc")
               });
             } else {
-              toast.success("📤 Ausleih-Anfrage gesendet", {
-                description: "Warte auf Bestätigung des Eigentümers"
+              toast.success(t("borrows:messages.requestSent"), {
+                description: t("borrows:messages.requestSentDesc")
               });
             }
             
@@ -454,7 +456,7 @@ export function RequiredItemsSection({
             setSelectedItem(null);
           } catch (error) {
             console.error("Failed to create borrow request:", error);
-            toast.error("Fehler beim Erstellen der Ausleih-Anfrage");
+            toast.error(t("borrows:messages.requestError"));
           }
         }}
         isSubmitting={createBorrowRequestMutation.isPending}

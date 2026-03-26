@@ -35,7 +35,13 @@
     "inProgress": "In Bearbeitung",
     "completed": "Abgeschlossen",
     "cancelled": "Storniert",
-    "overdue": "Überfällig"
+    "overdue": "Überfällig",
+    "notRequested": "Nicht angefragt",
+    "requested": "Angefragt",
+    "approved": "Genehmigt",
+    "borrowed": "Ausgeliehen",
+    "returned": "Zurückgegeben",
+    "rejected": "Abgelehnt"
   },
   "frequency": {
     "once": "Einmalig",
@@ -364,5 +370,123 @@
     "messagePlaceholder": "z.B. Bitte nicht vergessen, ist dringend...",
     "send": "Erinnerung senden",
     "sending": "Wird gesendet..."
+  },
+  "specialOccurrence": {
+    "namePlaceholder": "Sondertermin-Name",
+    "selectDate": "Datum wählen",
+    "addTitle": "Sondertermin hinzufügen",
+    "nameLabel": "Name des Sondertermins",
+    "nameExamplePlaceholder": "z.B. Urlaubsvertretung, Extra Reinigung"
+  },
+  "occurrence": {
+    "label": "Termin {{occurrenceNumber}}",
+    "enterDate": "Datum eingeben",
+    "term": "Termin",
+    "specialTerm": "Sondertermin",
+    "addItemButton": "+ Gegenstand"
+  },
+  "memberSelect": {
+    "placeholder": "Wählen...",
+    "open": "Offen",
+    "alreadyAssigned": " (bereits zugewiesen)"
+  },
+  "notes": {
+    "placeholder": "Notizen..."
+  },
+  "item": {
+    "add": "Gegenstand",
+    "unknown": "Unbekannt"
+  },
+  "skip": {
+    "undo": "Überspringen rückgängig machen",
+    "label": "Überspringen"
+  },
+  "delete": {
+    "label": "Löschen"
+  },
+  "date": {
+    "label": "Datum"
+  },
+  "toast": {
+    "approvalRevoked": "Genehmigung widerrufen",
+    "errorRevoking": "Fehler beim Widerrufen",
+    "itemAdded": "\"{{itemName}}\" hinzugefügt",
+    "errorAddingItem": "Fehler beim Hinzufügen des Gegenstands",
+    "itemRemoved": "Gegenstand entfernt",
+    "errorRemoving": "",
+    "pleaseLogin": "Bitte anmelden",
+    "borrowAutoApproved": {
+      "title": "✅ Ausleihe automatisch genehmigt",
+      "description": "Dieser Gegenstand gehört zu deinem Haushalt"
+    },
+    "borrowRequestSent": {
+      "title": "📤 Ausleih-Anfrage gesendet",
+      "description": "Warte auf Bestätigung des Eigentümers"
+    },
+    "errorCreatingBorrowRequest": "Fehler beim Erstellen der Ausleih-Anfrage",
+    "revokeApprovalSuccess": "Genehmigung widerrufen",
+    "revokeApprovalError": "Fehler beim Widerrufen",
+    "addItemSuccess": "\"{{itemName}}\" zu Termin {{selectedOccurrence}} hinzugefügt",
+    "addItemError": "Fehler beim Hinzufügen des Gegenstands"
+  },
+  "section": {
+    "requiredItems": "Benötigte Gegenstände"
+  },
+  "table": {
+    "item": "Gegenstand",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "button": {
+    "borrow": "Ausleihen",
+    "revoke": "Widerrufen",
+    "addItem": "+ Gegenstand hinzufügen"
+  },
+  "member": {
+    "unknown": "Unbekannt"
+  },
+  "borrowRequest": {
+    "defaultMessage": "Für Aufgabe \"{{taskName}}\""
+  },
+  "statusBadge": {
+    "notRequested": "Nicht angefragt",
+    "requested": "Angefragt",
+    "approved": "Genehmigt",
+    "borrowed": "Ausgeliehen",
+    "returned": "Zurückgegeben",
+    "rejected": "Abgelehnt",
+    "cancelled": "Storniert"
+  },
+  "requiredItemsSection": {
+    "title": "Benötigte Gegenstände"
+  },
+  "borrow": {
+    "borrower": "Ausleiher",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "revokeApproval": "Genehmigung widerrufen",
+    "editBorrow": "Ausleihe bearbeiten"
+  },
+  "unknownTask": "Unbekannte Aufgabe",
+  "prerequisite": "Voraussetzung",
+  "prerequisitePluralSuffix": "en",
+  "followup": "Folgeaufgabe",
+  "followupPluralSuffix": "n",
+  "requiredItems": {
+    "title": "Benötigte Gegenstände",
+    "addItem": "+ Gegenstand"
+  },
+  "upcomingOccurrences": {
+    "empty": "Keine kommenden Termine geplant",
+    "noDate": "Kein Datum",
+    "open": "Noch offen"
+  },
+  "rotationPlan": {
+    "title": "Rotationsplan",
+    "autoFill": "Automatisch ausfüllen"
+  },
+  "messages": {
+    "itemAddedToOccurrence": "\"{{itemName}}\" zu Termin {{occurrence}} hinzugefügt",
+    "itemAddError": "Fehler beim Hinzufügen des Gegenstands"
   }
 }

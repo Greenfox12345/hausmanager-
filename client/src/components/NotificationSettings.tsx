@@ -9,6 +9,7 @@ import { Bell, Clock, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface NotificationSettingsProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface NotificationSettingsProps {
 }
 
 export function NotificationSettings({ open, onOpenChange }: NotificationSettingsProps) {
+  const { t } = useTranslation("common");
   const { household, member } = useCompatAuth();
   const [browserPushEnabled, setBrowserPushEnabled] = useState(false);
   const [taskAssignedEnabled, setTaskAssignedEnabled] = useState(true);
@@ -41,7 +43,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   const updatePreferences = trpc.notifications.updatePreferences.useMutation({
     onSuccess: () => {
       refetch();
-      toast.success("Einstellungen gespeichert");
+      toast.success(t("toast.settingsSaved"));
     },
   });
 
@@ -70,10 +72,10 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
       const permission = await Notification.requestPermission();
       setPermissionStatus(permission);
       if (permission !== "granted") {
-        toast.error("Benachrichtigungen wurden nicht erlaubt");
+        toast.error(t("toast.permissionDenied"));
         return;
       }
-      toast.success("Browser-Benachrichtigungen aktiviert");
+      toast.success(t("toast.browserNotificationsEnabled"));
     }
 
     setBrowserPushEnabled(enabled);
@@ -115,10 +117,10 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Benachrichtigungseinstellungen
+            {t("dialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Passen Sie an, welche Benachrichtigungen Sie erhalten möchten
+            {t("dialog.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -127,7 +129,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="browser-push" className="text-base font-medium">
-                Browser-Benachrichtigungen
+                {t("browserPush.label")}
               </Label>
               <Switch
                 id="browser-push"
@@ -137,25 +139,25 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
               />
             </div>
             <p className="text-sm text-muted-foreground">
-              Erhalten Sie Benachrichtigungen auch wenn der Browser geschlossen ist
+              {t("browserPush.description")}
             </p>
             {permissionStatus === "denied" && (
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  Benachrichtigungen wurden blockiert. Bitte aktivieren Sie sie in den Browser-Einstellungen.
+                  {t("browserPush.blockedMessage")}
                 </AlertDescription>
               </Alert>
             )}
           </div>
 
           <div className="border-t pt-4 space-y-4">
-            <h3 className="text-sm font-medium">Benachrichtigungstypen</h3>
+            <h3 className="text-sm font-medium">{t("notificationTypes.title")}</h3>
 
             {/* Task Assigned */}
             <div className="flex items-center justify-between">
               <Label htmlFor="task-assigned" className="text-sm">
-                Aufgabenzuweisungen
+                {t("notificationTypes.taskAssigned")}
               </Label>
               <Switch
                 id="task-assigned"
@@ -170,7 +172,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             {/* Task Due */}
             <div className="flex items-center justify-between">
               <Label htmlFor="task-due" className="text-sm">
-                Fällige Aufgaben
+                {t("notificationTypes.taskDue")}
               </Label>
               <Switch
                 id="task-due"
@@ -185,7 +187,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             {/* Task Completed */}
             <div className="flex items-center justify-between">
               <Label htmlFor="task-completed" className="text-sm">
-                Erledigte Aufgaben
+                {t("notificationTypes.taskCompleted")}
               </Label>
               <Switch
                 id="task-completed"
@@ -200,7 +202,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             {/* Comments */}
             <div className="flex items-center justify-between">
               <Label htmlFor="comments" className="text-sm">
-                Kommentare
+                {t("notificationTypes.comments")}
               </Label>
               <Switch
                 id="comments"
@@ -217,15 +219,15 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           <div className="border-t pt-4 space-y-3">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <h3 className="text-sm font-medium">Nicht stören</h3>
+              <h3 className="text-sm font-medium">{t("dnd.title")}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Keine Benachrichtigungen während dieser Zeit
+              {t("dnd.description")}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="dnd-start" className="text-xs">
-                  Von
+                  {t("dnd.from")}
                 </Label>
                 <Input
                   id="dnd-start"
@@ -238,7 +240,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
               </div>
               <div>
                 <Label htmlFor="dnd-end" className="text-xs">
-                  Bis
+                  {t("dnd.to")}
                 </Label>
                 <Input
                   id="dnd-end"
@@ -252,7 +254,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             </div>
             {dndStartTime && dndEndTime && (
               <p className="text-xs text-muted-foreground">
-                Aktiv von {dndStartTime} bis {dndEndTime} Uhr
+                {t("dnd.activeMessage", { dndStartTime, dndEndTime })}
               </p>
             )}
           </div>
@@ -260,13 +262,13 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              Einstellungen werden automatisch gespeichert
+              {t("autoSaveMessage")}
             </AlertDescription>
           </Alert>
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={() => onOpenChange(false)}>Schließen</Button>
+          <Button onClick={() => onOpenChange(false)}>{t("closeButton")}</Button>
         </div>
       </DialogContent>
     </Dialog>

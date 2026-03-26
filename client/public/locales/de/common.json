@@ -158,7 +158,11 @@
     "password": "Passwort",
     "username": "Benutzername",
     "loginPrompt": "Bitte melde dich an, um fortzufahren",
-    "logoutConfirm": "Möchtest du dich wirklich abmelden?"
+    "logoutConfirm": "Möchtest du dich wirklich abmelden?",
+    "signInToContinue": "Sign in to continue",
+    "accessRequiresAuth": "Access to this dashboard requires authentication. Continue to launch the login flow.",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -223,5 +227,147 @@
     "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein",
     "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
     "passwordMismatch": "Passwörter stimmen nicht überein"
+  },
+  "cancel": {
+    "label": "Abbrechen"
+  },
+  "add": {
+    "label": "Hinzufügen"
+  },
+  "toast": {
+    "settingsSaved": "Einstellungen gespeichert",
+    "permissionDenied": "Benachrichtigungen wurden nicht erlaubt",
+    "browserNotificationsEnabled": "Browser-Benachrichtigungen aktiviert"
+  },
+  "dialog": {
+    "title": "Benachrichtigungseinstellungen",
+    "description": "Passen Sie an, welche Benachrichtigungen Sie erhalten möchten"
+  },
+  "browserPush": {
+    "label": "Browser-Benachrichtigungen",
+    "description": "Erhalten Sie Benachrichtigungen auch wenn der Browser geschlossen ist",
+    "blockedMessage": "Benachrichtigungen wurden blockiert. Bitte aktivieren Sie sie in den Browser-Einstellungen."
+  },
+  "notificationTypes": {
+    "title": "Benachrichtigungstypen",
+    "taskAssigned": "Aufgabenzuweisungen",
+    "taskDue": "Fällige Aufgaben",
+    "taskCompleted": "Erledigte Aufgaben",
+    "comments": "Kommentare"
+  },
+  "dnd": {
+    "title": "Nicht stören",
+    "description": "Keine Benachrichtigungen während dieser Zeit",
+    "from": "Von",
+    "to": "Bis",
+    "activeMessage": "Aktiv von {{dndStartTime}} bis {{dndEndTime}} Uhr"
+  },
+  "autoSaveMessage": "Einstellungen werden automatisch gespeichert",
+  "closeButton": "Schließen",
+  "notificationBell": {
+    "title": "Benachrichtigungen",
+    "markAllAsRead": "Alle als gelesen markieren",
+    "noNotifications": "Keine Benachrichtigungen"
+  },
+  "pdfViewer": {
+    "documentType": "PDF-Dokument",
+    "openExternal": "Extern öffnen",
+    "download": "Herunterladen"
+  },
+  "photoLightbox": {
+    "closeButtonAriaLabel": "Schließen",
+    "previousPhotoAriaLabel": "Vorheriges Foto",
+    "photoAltText": "Foto",
+    "nextPhotoAriaLabel": "Nächstes Foto"
+  },
+  "clickablePhoto": {
+    "photoAltText": "Foto"
+  },
+  "upcomingOccurrencesTable": {
+    "noOccurrencesPlanned": "Keine kommenden Termine geplant",
+    "noDate": "Kein Datum",
+    "stillOpen": "Noch offen"
+  },
+  "errorBoundary": {
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "reloadPage": "Seite neu laden"
+  },
+  "chatBox": {
+    "placeholder": "Nachricht eingeben...",
+    "emptyStateMessage": "Starten Sie eine Unterhaltung mit der KI",
+    "suggestedPrompt1": "Quantencomputing erklären",
+    "suggestedPrompt2": "Ein Hallo Welt in Python schreiben"
+  },
+  "photoUpload": {
+    "maxPhotosAllowed": "Maximal {{maxPhotos}} {{fileTypeLabel}}s erlaubt",
+    "notAPDF": "{{fileName}} ist kein PDF",
+    "notAnImage": "{{fileName}} ist kein Bild",
+    "compressionError": "Fehler beim Komprimieren von {{fileName}}",
+    "fileTooLarge": "{{fileName}} ist zu groß (max. {{maxSize}})",
+    "uploadError": "Fehler beim Hochladen der {{fileTypeLabel}}s",
+    "uploading": "Hochladen...",
+    "addFiles": "{{fileTypeLabel}}s hinzufügen ({{current}}/{{max}})",
+    "removeFile": "{{fileTypeLabel}} entfernen"
+  },
+  "imageCropEditor": {
+    "title": "Bild zuschneiden",
+    "zoomLabel": "Zoom",
+    "processing": "Verarbeite...",
+    "helperText": {
+      "dragAndZoom": "Ziehen Sie das Bild, um es zu positionieren. Verwenden Sie den Slider zum Zoomen."
+    },
+    "errors": {
+      "canvasContext": "Fehler beim Abrufen des Canvas-Kontexts"
+    }
+  },
+  "apply": "Übernehmen",
+  "category": {
+    "create": {
+      "success": "Kategorie \"${name}\" erstellt",
+      "error": "Fehler beim Erstellen der Kategorie",
+      "buttonTitle": "Neue Kategorie erstellen",
+      "dialogTitle": "Neue Kategorie erstellen",
+      "dialogDescription": "Erstellen Sie eine neue {type}-Kategorie."
+    },
+    "type": {
+      "shopping": "Einkaufs",
+      "inventory": "Inventar"
+    },
+    "nameLabel": "Kategoriename",
+    "namePlaceholder": "z.B. Lebensmittel, Elektronik...",
+    "colorLabel": "Farbe"
+  },
+  "button": {
+    "cancel": "Abbrechen",
+    "creating": "Erstelle...",
+    "create": "Erstellen"
+  },
+  "sidebar": {
+    "toggleNavigation": "Toggle navigation",
+    "navigation": "Navigation"
+  },
+  "menu": {
+    "menu": "Menu"
+  },
+  "upload": {
+    "uploading": "Hochladen...",
+    "addFiles": "{{label}}s hinzufügen ({{current}}/{{max}})",
+    "removeFile": "{{label}} entfernen",
+    "maxFilesError": "Maximal {{max}} {{label}}s erlaubt",
+    "notAPdf": "{{name}} ist kein PDF",
+    "notAnImage": "{{name}} ist kein Bild",
+    "compressionError": "Fehler beim Komprimieren von {{name}}",
+    "fileTooLarge": "{{name}} ist zu groß (max. {{max}})",
+    "uploadError": "Fehler beim Hochladen der {{label}}s"
+  },
+  "labels": {
+    "photo": "Foto"
+  },
+  "errors": {
+    "saveFailed": "Fehler beim Speichern",
+    "notLoggedIn": "Bitte anmelden"
+  },
+  "status": {
+    "creating": "Wird erstellt..."
   }
 }
