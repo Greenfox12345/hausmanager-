@@ -32,7 +32,8 @@
     "durationTime": "Dauer (Stunden:Minuten)",
     "endDate": "Terminende",
     "dueTime": "Uhrzeit",
-    "descriptionPlaceholder": "Optionale Details zur Aufgabe"
+    "descriptionPlaceholder": "Optionale Details zur Aufgabe",
+    "namePlaceholder": "z.B. Müll rausbringen"
   },
   "skippedDates": "Ausgelassene Termine",
   "linkedShoppingList": "Verknüpfte Einkaufsliste",

@@ -624,7 +624,7 @@ export default function Tasks() {
                   id="taskName"
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
-                  placeholder={t("tasks:fields.namePlaceholder", "z.B. Müll rausbringen")}
+                  placeholder={t("tasks:fields.namePlaceholder")}
                   required
                 />
               </div>
@@ -656,7 +656,7 @@ export default function Tasks() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dueTime">{t("common:time")}</Label>
+                  <Label htmlFor="dueTime">{t("common:time.label")}</Label>
                   <Input
                     id="dueTime"
                     type="time"
@@ -1188,12 +1188,12 @@ export default function Tasks() {
                       </Select>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="h-9 px-2 text-xs"
+                        size="icon"
+                        className="h-9 w-9"
                         onClick={() => setSortDirection(prev => prev === "asc" ? "desc" : "asc")}
                         title={sortDirection === "asc" ? t("common:sort.ascending") : t("common:sort.descending")}
                       >
-                        {sortDirection === "asc" ? t("common:sort.asc") : t("common:sort.desc")}
+                        {sortDirection === "asc" ? "↑" : "↓"}
                       </Button>
                     </div>
                   </div>

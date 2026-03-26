@@ -32,7 +32,8 @@
     "durationTime": "Duration (Hours:Minutes)",
     "endDate": "End time",
     "dueTime": "Time",
-    "descriptionPlaceholder": "Optional details about the task"
+    "descriptionPlaceholder": "Optional details about the task",
+    "namePlaceholder": "e.g. Take out the trash"
   },
   "skippedDates": "Skipped occurrences",
   "linkedShoppingList": "Linked shopping list",

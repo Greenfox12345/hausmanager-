@@ -3291,3 +3291,8 @@
 - [x] Aufgabenzähler-Text im Filter-Panel entfernt
 - [x] Sortierrichtungs-Button von ↑↓ auf sprechende Labels (A–Z / Z–A) umgestellt
 - [x] common:sort.* Schlüssel in DE und EN ergänzt
+
+## Tasks.tsx Korrekturen (Runde 2)
+- [x] Sortierrichtungs-Button zurück auf ↑↓ Pfeil-Icons
+- [x] time.thisWeek und time.thisMonth im Fälligkeitsdatum-Filter korrigieren
+- [x] Task-Name-Placeholder korrigieren

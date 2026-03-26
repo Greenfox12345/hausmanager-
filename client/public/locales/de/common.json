@@ -110,7 +110,11 @@
     "high": "Hoch",
     "urgent": "Dringend"
   },
-  "time": "Uhrzeit",
+  "time": {
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Diesen Monat",
+    "label": "Uhrzeit"
+  },
   "messages": {
     "success": "Erfolgreich",
     "error": "Fehler",
