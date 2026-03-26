@@ -13,17 +13,18 @@ interface BorrowCalendarProps {
   onReturn?: (borrow: BorrowCardData) => void;
 }
 
-const STATUS_COLORS: Record<string, { bar: string; text: string }> = {
+const STATUS_COLORS: Record<string, { bar: string; text: string; striped?: boolean }> = {
   active:    { bar: "bg-green-500",  text: "text-white" },
   approved:  { bar: "bg-blue-500",   text: "text-white" },
   pending:   { bar: "bg-amber-400",  text: "text-white" },
-  returned:  { bar: "bg-gray-400",   text: "text-white" },
+  returned:  { bar: "bg-gray-500",   text: "text-white" },
+  completed: { bar: "bg-gray-500",   text: "text-white" },
   rejected:  { bar: "bg-red-400",    text: "text-white" },
-  cancelled: { bar: "bg-gray-300",   text: "text-gray-600" },
+  cancelled: { bar: "bg-gray-300",   text: "text-gray-600", striped: true },
 };
 
 function getStatusColor(status: string) {
-  return STATUS_COLORS[status] ?? STATUS_COLORS.active;
+  return STATUS_COLORS[status] ?? STATUS_COLORS.completed;
 }
 
 interface BorrowBar {
@@ -156,12 +157,19 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
       <div className="flex flex-wrap gap-3 text-xs">
         {Object.entries(STATUS_COLORS).map(([status, colors]) => (
           <div key={status} className="flex items-center gap-1">
-            <div className={`w-3 h-3 rounded-sm ${colors.bar}`} />
-            <span className="text-muted-foreground capitalize">
+            <div
+              className={`w-3 h-3 rounded-sm ${colors.striped ? "" : colors.bar} border`}
+              style={colors.striped ? {
+                background: "repeating-linear-gradient(45deg, #d1d5db, #d1d5db 3px, #ffffff 3px, #ffffff 6px)",
+                borderColor: "#9ca3af",
+              } : { borderColor: "transparent" }}
+            />
+            <span className="text-muted-foreground">
               {status === "active" ? "Aktiv" :
                status === "approved" ? "Genehmigt" :
                status === "pending" ? "Ausstehend" :
                status === "returned" ? "Zurückgegeben" :
+               status === "completed" ? "Abgeschlossen" :
                status === "rejected" ? "Abgelehnt" : "Storniert"}
             </span>
           </div>
@@ -222,21 +230,25 @@ export function BorrowCalendar({ borrows, onPickup, onReturn }: BorrowCalendarPr
                   const widthPct = (bar.span / 7) * 100;
                   const isActive = selected?.borrow.id === bar.borrow.id && isSelectedWeek;
 
-                  return (
-                    <div
-                      key={bi}
-                      className={`absolute z-10 flex items-center cursor-pointer transition-all
-                        ${colors.bar} ${colors.text}
-                        ${bar.isStart ? "rounded-l-md ml-0.5" : ""}
-                        ${bar.isEnd ? "rounded-r-md mr-0.5" : ""}
-                        ${isActive ? "ring-2 ring-offset-1 ring-white/70 opacity-100" : "hover:opacity-80"}
-                      `}
-                      style={{
-                        top: topOffset,
-                        left: `calc(${leftPct}% + ${bar.isStart ? 2 : 0}px)`,
-                        width: `calc(${widthPct}% - ${(bar.isStart ? 2 : 0) + (bar.isEnd ? 2 : 0)}px)`,
-                        height: barHeight - 3,
-                      }}
+                return (
+                  <div
+                    key={bi}
+                    className={`absolute z-10 flex items-center cursor-pointer transition-all overflow-hidden
+                      ${colors.striped ? "" : colors.bar} ${colors.text}
+                      ${bar.isStart ? "rounded-l-md ml-0.5" : ""}
+                      ${bar.isEnd ? "rounded-r-md mr-0.5" : ""}
+                      ${isActive ? "ring-2 ring-offset-1 ring-white/70 opacity-100" : "hover:opacity-80"}
+                    `}
+                    style={{
+                      top: topOffset,
+                      left: `calc(${leftPct}% + ${bar.isStart ? 2 : 0}px)`,
+                      width: `calc(${widthPct}% - ${(bar.isStart ? 2 : 0) + (bar.isEnd ? 2 : 0)}px)`,
+                      height: barHeight - 3,
+                      ...(colors.striped ? {
+                        background: "repeating-linear-gradient(45deg, #d1d5db, #d1d5db 4px, #ffffff 4px, #ffffff 8px)",
+                        border: "1px solid #9ca3af",
+                      } : {}),
+                    }}
                       onClick={() => handleBarClick(bar.borrow, wi)}
                       title={`${bar.borrow.itemName} (${format(new Date(bar.borrow.startDate), "dd.MM.")} – ${format(new Date(bar.borrow.endDate), "dd.MM.")})`}
                     >
