@@ -27,7 +27,8 @@ import {
   Archive,
   Bell,
   Calendar as CalendarIcon,
-  Users
+  Users,
+  Globe
 } from "lucide-react";
 import { format, isPast } from "date-fns";
 import { de } from "date-fns/locale";
@@ -690,13 +691,13 @@ export default function Projects() {
                             </Badge>
                             {project.isNeighborhoodProject && (
                               <Badge variant="outline" className="text-xs">
-                                <Users className="h-3 w-3 mr-1" />
-                                Nachbarschaft
+                                <Globe className="h-3 w-3 mr-1" />
+                                {t("projects:neighborhood", "Nachbarschaft")}
                               </Badge>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
-                            {completedTaskCount} / {projectTaskCount} Aufgaben erledigt
+                            {t("projects:taskProgress", "{{completed}} / {{total}} Aufgaben erledigt", { completed: completedTaskCount, total: projectTaskCount })}
                           </p>
                         </div>
                         <div className="flex gap-1">
@@ -771,7 +772,7 @@ export default function Projects() {
                 <CardContent className="p-8 text-center">
                   <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">
-                    Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen
+                    {t("projects:messages.selectProject", "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen")}
                   </p>
                 </CardContent>
               </Card>
@@ -800,8 +801,8 @@ export default function Projects() {
                             size="sm"
                             onClick={() => setIsAddTaskDialogOpen(true)}
                           >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Neue Aufgabe
+                              <Plus className="h-4 w-4 mr-1" />
+                            {t("projects:actions.newTask", "Neue Aufgabe")}
                           </Button>
                           <Button
                             variant="outline"
@@ -809,7 +810,7 @@ export default function Projects() {
                             onClick={() => setIsAssignTaskDialogOpen(true)}
                           >
                             <Plus className="h-4 w-4 mr-1" />
-                            Bestehende zuordnen
+                            {t("projects:actions.assignExisting", "Bestehende zuordnen")}
                           </Button>
                         </div>
                         

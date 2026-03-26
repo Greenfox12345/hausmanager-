@@ -111,6 +111,13 @@
     "nameRequired": "Please enter a project name",
     "noTasksInProject": "No tasks in this project. Create tasks on the tasks page.",
     "noAvailableTasks": "No available tasks without project assignment",
-    "noOtherProjects": "No other projects available"
+    "noOtherProjects": "No other projects available",
+    "selectProject": "Select a project from the list to view details and tasks"
+  },
+  "taskProgress": "{{completed}} / {{total}} tasks completed",
+  "neighborhood": "Neighborhood",
+  "actions": {
+    "newTask": "New Task",
+    "assignExisting": "Assign Existing"
   }
 }

@@ -111,6 +111,13 @@
     "nameRequired": "Bitte geben Sie einen Projektnamen ein",
     "noTasksInProject": "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.",
     "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
-    "noOtherProjects": "Keine weiteren Projekte verfügbar"
+    "noOtherProjects": "Keine weiteren Projekte verfügbar",
+    "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen"
+  },
+  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt",
+  "neighborhood": "Nachbarschaft",
+  "actions": {
+    "newTask": "Neue Aufgabe",
+    "assignExisting": "Bestehende zuordnen"
   }
 }
