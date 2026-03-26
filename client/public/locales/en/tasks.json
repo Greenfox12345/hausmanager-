@@ -288,7 +288,9 @@
     "unassigned": "Unassigned",
     "linkedWith": "Linked with",
     "otherHousehold": "another household",
-    "sharedWith": "Shared with"
+    "sharedWith": "Shared with",
+    "itemAddedToOccurrence": "\"{{itemName}}\" added to appointment {{occurrence}}",
+    "itemAddError": "Error adding item"
   },
   "gantt": {
     "title": "Gantt chart",
@@ -498,10 +500,6 @@
   "rotationPlan": {
     "title": "Rotation Plan",
     "autoFill": "Auto-fill"
-  },
-  "messages": {
-    "itemAddedToOccurrence": "\"{{itemName}}\" added to appointment {{occurrence}}",
-    "itemAddError": "Error adding item"
   },
   "itemPicker": {
     "title": "Select Item",

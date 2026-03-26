@@ -288,7 +288,9 @@
     "unassigned": "Nicht zugewiesen",
     "linkedWith": "Verknüpft mit",
     "otherHousehold": "anderem Haushalt",
-    "sharedWith": "Geteilt mit"
+    "sharedWith": "Geteilt mit",
+    "itemAddedToOccurrence": "\"{{itemName}}\" zu Termin {{occurrence}} hinzugefügt",
+    "itemAddError": "Fehler beim Hinzufügen des Gegenstands"
   },
   "gantt": {
     "title": "Gantt-Diagramm",
@@ -498,10 +500,6 @@
   "rotationPlan": {
     "title": "Rotationsplan",
     "autoFill": "Automatisch ausfüllen"
-  },
-  "messages": {
-    "itemAddedToOccurrence": "\"{{itemName}}\" zu Termin {{occurrence}} hinzugefügt",
-    "itemAddError": "Fehler beim Hinzufügen des Gegenstands"
   },
   "itemPicker": {
     "title": "Gegenstand auswählen",
