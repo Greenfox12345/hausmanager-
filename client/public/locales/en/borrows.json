@@ -35,6 +35,7 @@
     "approved": "Approved",
     "active": "Active",
     "rejected": "Rejected",
+    "completed": "Completed",
     "returned": "Returned",
     "cancelled": "Cancelled",
     "overdue": "Overdue",

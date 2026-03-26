@@ -128,6 +128,10 @@ export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }:
                 {borrowRequest.status === "approved" ? "Genehmigt" : 
                  borrowRequest.status === "active" ? "Aktiv" :
                  borrowRequest.status === "completed" ? "Abgeschlossen" :
+                 borrowRequest.status === "returned" ? "Zurückgegeben" :
+                 borrowRequest.status === "cancelled" ? "Storniert" :
+                 borrowRequest.status === "rejected" ? "Abgelehnt" :
+                 borrowRequest.status === "pending" ? "Ausstehend" :
                  borrowRequest.status}
               </Badge>
             </div>

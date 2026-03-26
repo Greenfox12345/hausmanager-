@@ -35,6 +35,7 @@
     "approved": "Genehmigt",
     "active": "Aktiv ausgeliehen",
     "rejected": "Abgelehnt",
+    "completed": "Abgeschlossen",
     "returned": "Zurückgegeben",
     "cancelled": "Storniert",
     "overdue": "Überfällig",
