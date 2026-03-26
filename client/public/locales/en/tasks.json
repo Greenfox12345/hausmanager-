@@ -292,5 +292,46 @@
   "loading": "Loading tasks...",
   "noTasksCreate": "No tasks yet. Create a new task above!",
   "nextDue": "Next appointment:",
-  "due": "Due:"
+  "due": "Due:",
+  "completeDialog": {
+    "task": "Task",
+    "description": "You are about to mark the task \"{{name}}\" as completed.",
+    "descriptionRecurring": "You are about to mark the current appointment of task \"{{name}}\" as completed.",
+    "comment": "Comment (optional)",
+    "commentPlaceholder": "e.g. All done, took 2 hours...",
+    "photos": "Photos (optional)",
+    "pdfs": "PDFs (optional)",
+    "linkedShopping": "Linked shopping list ({{count}})",
+    "allToInventory": "All to inventory",
+    "shoppingHint": "These items will be removed from the shopping list. Select which ones to add to the inventory:",
+    "inventoryDetails": "Inventory details",
+    "categoryRequired": "Category *",
+    "selectCategory": "Select category",
+    "additionalDetails": "Additional details (optional)",
+    "detailsPlaceholder": "e.g. Color, size, condition...",
+    "ownership": "Ownership",
+    "household": "Household",
+    "personal": "Personal",
+    "owner": "Owner",
+    "inventorySummary": "{{count}} item(s) will be added to inventory",
+    "noCategory": "No category",
+    "missingCategoriesTitle": "⚠️ Missing categories",
+    "missingCategoriesHint": "{{count}} item(s) have no category selected. Please select a category for all items."
+  },
+  "milestoneDialog": {
+    "title": "Document milestone",
+    "description": "Document a progress update for \"{{name}}\". The task remains open.",
+    "progressLabel": "Progress description *",
+    "progressPlaceholder": "e.g. First half done, materials purchased...",
+    "save": "Save milestone"
+  },
+  "reminderDialog": {
+    "title": "Send reminder",
+    "description": "Send a reminder for the task \"{{name}}\".",
+    "descriptionWithAssignee": "Send a reminder for the task \"{{name}}\" to {{assignee}}.",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "e.g. Please don't forget, it's urgent...",
+    "send": "Send reminder",
+    "sending": "Sending..."
+  }
 }

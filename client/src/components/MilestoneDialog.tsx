@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
 import { Loader2, Target } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: number;
@@ -32,7 +33,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
   task,
   onAddMilestone,
 }: MilestoneDialogProps) {
-
+  const { t } = useTranslation(["tasks", "common"]);
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
   const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
@@ -47,7 +48,6 @@ const MilestoneDialogComponent = function MilestoneDialog({
   // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
-      // Dialog was just closed
       setComment("");
       setPhotos([]);
       setFiles([]);
@@ -93,17 +93,16 @@ const MilestoneDialogComponent = function MilestoneDialog({
     onOpenChange(newOpen);
   };
 
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange} modal={true}>
       <DialogContent key={`milestone-content-${task?.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Target className="h-5 w-5 text-blue-600" />
-            Zwischensieg dokumentieren
+            {t("tasks:milestoneDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Dokumentieren Sie einen Fortschritt bei "{task.name}". Die Aufgabe bleibt offen.
+            {t("tasks:milestoneDialog.description", { name: task.name })}
           </DialogDescription>
         </DialogHeader>
 
@@ -111,33 +110,23 @@ const MilestoneDialogComponent = function MilestoneDialog({
           {/* Task Summary */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div>
-              <Label className="text-xs text-muted-foreground">Aufgabe</Label>
+              <Label className="text-xs text-muted-foreground">{t("tasks:completeDialog.task")}</Label>
               <p className="font-medium">{task.name}</p>
             </div>
             {task.description && (
               <div>
-                <Label className="text-xs text-muted-foreground">Beschreibung</Label>
+                <Label className="text-xs text-muted-foreground">{t("tasks:fields.description")}</Label>
                 <p className="text-sm text-muted-foreground">{task?.description}</p>
               </div>
             )}
           </div>
 
-          {/* Task details */}
-          {false && task?.description && (
-            <div className="space-y-2">
-              <Label>Aufgabenbeschreibung:</Label>
-              <div className="text-sm text-muted-foreground border rounded-lg p-3">
-                {task?.description}
-              </div>
-            </div>
-          )}
-
           {/* Comment */}
           <div className="space-y-2">
-            <Label htmlFor="milestone-comment">Fortschrittsbeschreibung *</Label>
+            <Label htmlFor="milestone-comment">{t("tasks:milestoneDialog.progressLabel")}</Label>
             <Textarea
               id="milestone-comment"
-              placeholder="z.B. Erste Hälfte erledigt, Material besorgt..."
+              placeholder={t("tasks:milestoneDialog.progressPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
@@ -147,7 +136,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
 
           {/* Photo upload */}
           <div className="space-y-2">
-            <Label>Fotos (optional)</Label>
+            <Label>{t("tasks:completeDialog.photos")}</Label>
             <PhotoUpload 
               photos={photos} 
               onPhotosChange={handlePhotosChange} 
@@ -158,7 +147,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
 
           {/* PDF upload */}
           <div className="space-y-2">
-            <Label>PDFs (optional)</Label>
+            <Label>{t("tasks:completeDialog.pdfs")}</Label>
             <PhotoUpload 
               photos={files} 
               onPhotosChange={setFiles} 
@@ -172,7 +161,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-            Abbrechen
+            {t("common:actions.cancel")}
           </Button>
           <Button 
             onClick={handleSubmit} 
@@ -181,10 +170,10 @@ const MilestoneDialogComponent = function MilestoneDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Wird gespeichert...
+                {t("common:actions.saving")}
               </>
             ) : (
-              "Zwischensieg speichern"
+              t("tasks:milestoneDialog.save")
             )}
           </Button>
         </DialogFooter>

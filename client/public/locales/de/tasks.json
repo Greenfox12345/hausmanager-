@@ -292,5 +292,46 @@
   "loading": "Lädt Aufgaben...",
   "noTasksCreate": "Keine Aufgaben vorhanden. Erstellen Sie oben eine neue Aufgabe!",
   "nextDue": "Nächster Termin:",
-  "due": "Fällig:"
+  "due": "Fällig:",
+  "completeDialog": {
+    "task": "Aufgabe",
+    "description": "Sie sind dabei, die Aufgabe \"{{name}}\" als erledigt zu markieren.",
+    "descriptionRecurring": "Sie sind dabei, den aktuellen Termin der Aufgabe \"{{name}}\" als erledigt zu markieren.",
+    "comment": "Kommentar (optional)",
+    "commentPlaceholder": "z.B. Alles erledigt, hat 2 Stunden gedauert...",
+    "photos": "Fotos (optional)",
+    "pdfs": "PDFs (optional)",
+    "linkedShopping": "Verknüpfte Einkaufsliste ({{count}})",
+    "allToInventory": "Alle ins Inventar",
+    "shoppingHint": "Diese Items werden von der Einkaufsliste entfernt. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:",
+    "inventoryDetails": "Inventar-Details",
+    "categoryRequired": "Kategorie *",
+    "selectCategory": "Kategorie wählen",
+    "additionalDetails": "Zusätzliche Details (optional)",
+    "detailsPlaceholder": "z.B. Farbe, Größe, Zustand...",
+    "ownership": "Besitz",
+    "household": "Haushalt",
+    "personal": "Persönlich",
+    "owner": "Besitzer",
+    "inventorySummary": "{{count}} Item(s) werden ins Inventar aufgenommen",
+    "noCategory": "Keine Kategorie",
+    "missingCategoriesTitle": "⚠️ Fehlende Kategorien",
+    "missingCategoriesHint": "{{count}} Item(s) haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Items eine Kategorie aus."
+  },
+  "milestoneDialog": {
+    "title": "Zwischensieg dokumentieren",
+    "description": "Dokumentieren Sie einen Fortschritt bei \"{{name}}\". Die Aufgabe bleibt offen.",
+    "progressLabel": "Fortschrittsbeschreibung *",
+    "progressPlaceholder": "z.B. Erste Hälfte erledigt, Material besorgt...",
+    "save": "Zwischensieg speichern"
+  },
+  "reminderDialog": {
+    "title": "Erinnerung senden",
+    "description": "Senden Sie eine Erinnerung für die Aufgabe \"{{name}}\".",
+    "descriptionWithAssignee": "Senden Sie eine Erinnerung für die Aufgabe \"{{name}}\" an {{assignee}}.",
+    "messageLabel": "Nachricht (optional)",
+    "messagePlaceholder": "z.B. Bitte nicht vergessen, ist dringend...",
+    "send": "Erinnerung senden",
+    "sending": "Wird gesendet..."
+  }
 }

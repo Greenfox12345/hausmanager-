@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
+import { useTranslation } from "react-i18next";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -75,6 +76,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   linkedShoppingItems = [],
   onComplete,
 }: CompleteTaskDialogProps) {
+  const { t } = useTranslation(["tasks", "common"]);
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
   const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
@@ -202,12 +204,12 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-600" />
-            {task.isRecurring ? "Termin abschließen" : "Aufgabe abschließen"}
+            {task.isRecurring ? t("tasks:dialog.completeOccurrence") : t("tasks:completeTask")}
           </DialogTitle>
           <DialogDescription>
             {task.isRecurring
-              ? `Sie sind dabei, den aktuellen Termin der Aufgabe "${task.name}" als erledigt zu markieren.`
-              : `Sie sind dabei, die Aufgabe "${task.name}" als erledigt zu markieren.`}
+              ? t("tasks:completeDialog.descriptionRecurring", { name: task.name })
+              : t("tasks:completeDialog.description", { name: task.name })}
           </DialogDescription>
         </DialogHeader>
 
@@ -215,33 +217,23 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           {/* Task Summary */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div>
-              <Label className="text-xs text-muted-foreground">Aufgabe</Label>
+              <Label className="text-xs text-muted-foreground">{t("tasks:completeDialog.task")}</Label>
               <p className="font-medium">{task.name}</p>
             </div>
             {task.description && (
               <div>
-                <Label className="text-xs text-muted-foreground">Beschreibung</Label>
+                <Label className="text-xs text-muted-foreground">{t("tasks:fields.description")}</Label>
                 <p className="text-sm text-muted-foreground">{task?.description}</p>
               </div>
             )}
           </div>
 
-          {/* Task details */}
-          {false && task?.description && (
-            <div className="space-y-2">
-              <Label>Aufgabenbeschreibung:</Label>
-              <div className="text-sm text-muted-foreground border rounded-lg p-3">
-                {task?.description}
-              </div>
-            </div>
-          )}
-
           {/* Comment */}
           <div className="space-y-2">
-            <Label htmlFor="comment">Kommentar (optional)</Label>
+            <Label htmlFor="comment">{t("tasks:completeDialog.comment")}</Label>
             <Textarea
               id="comment"
-              placeholder="z.B. Alles erledigt, hat 2 Stunden gedauert..."
+              placeholder={t("tasks:completeDialog.commentPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
@@ -250,7 +242,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
           {/* Photo upload */}
           <div className="space-y-2">
-            <Label>Fotos (optional)</Label>
+            <Label>{t("tasks:completeDialog.photos")}</Label>
             <PhotoUpload 
               photos={photos} 
               onPhotosChange={handlePhotosChange} 
@@ -261,7 +253,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
           {/* PDF upload */}
           <div className="space-y-2">
-            <Label>PDFs (optional)</Label>
+            <Label>{t("tasks:completeDialog.pdfs")}</Label>
             <PhotoUpload 
               photos={files} 
               onPhotosChange={setFiles} 
@@ -278,7 +270,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5 text-muted-foreground" />
-                  <Label className="text-base font-semibold">Verknüpfte Einkaufsliste ({linkedShoppingItems.length})</Label>
+                  <Label className="text-base font-semibold">{t("tasks:completeDialog.linkedShopping", { count: linkedShoppingItems.length })}</Label>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -292,7 +284,6 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         setExpandedItems(new Set());
                         setInventoryData({});
                       } else {
-                        // Select all
                         const allIds = new Set(linkedShoppingItems.map((item: any) => item.id));
                         setSelectedItems(allIds);
                         // Initialize inventory data for all with photos from shopping items
@@ -301,7 +292,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                           newInventoryData[item.id] = {
                             categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                             details: item.details || "",
-                            photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
+                            photoUrls: normalizePhotoUrls(item.photoUrls),
                             ownershipType: "household",
                             ownerIds: [],
                           };
@@ -310,7 +301,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                       }
                     }}
                   >
-                    {selectedItems.size === linkedShoppingItems.length ? "Alle abwählen" : "Alle auswählen"}
+                    {selectedItems.size === linkedShoppingItems.length ? t("tasks:batch.deselectAll") : t("tasks:batch.selectAll")}
                   </Button>
                   <Button
                     type="button"
@@ -327,7 +318,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         newInventoryData[item.id] = {
                           categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                           details: item.details || "",
-                          photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
+                          photoUrls: normalizePhotoUrls(item.photoUrls),
                           ownershipType: "household",
                           ownerIds: [],
                         };
@@ -335,12 +326,12 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                       setInventoryData(newInventoryData);
                     }}
                   >
-                    Alle ins Inventar
+                    {t("tasks:completeDialog.allToInventory")}
                   </Button>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Diese Items werden von der Einkaufsliste entfernt. Wählen Sie aus, welche ins Inventar aufgenommen werden sollen:
+                {t("tasks:completeDialog.shoppingHint")}
               </p>
               <div className="space-y-3">
                 {linkedShoppingItems.map((item: any) => {
@@ -361,7 +352,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                               [item.id]: {
                                 categoryId: item.categoryId || (inventoryCategories[0]?.id ?? 0),
                                 details: item.details || "",
-                                photoUrls: normalizePhotoUrls(item.photoUrls), // Copy and normalize photos
+                                photoUrls: normalizePhotoUrls(item.photoUrls),
                                 ownershipType: "household",
                                 ownerIds: [],
                               }
@@ -415,11 +406,11 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                     {/* Expandable Inventory Form */}
                     {selectedItems.has(item.id) && expandedItems.has(item.id) && (
                       <div className="p-4 space-y-4 bg-background border-t">
-                        <p className="text-sm font-medium text-muted-foreground">Inventar-Details</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t("tasks:completeDialog.inventoryDetails")}</p>
                         
                         {/* Category */}
                         <div className="space-y-2">
-                          <Label>Kategorie *</Label>
+                          <Label>{t("tasks:completeDialog.categoryRequired")}</Label>
                           <div className="flex items-center gap-2">
                             <Select
                               value={inventoryData[item.id]?.categoryId?.toString() || ""}
@@ -434,7 +425,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                               }}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Kategorie wählen" />
+                                <SelectValue placeholder={t("tasks:completeDialog.selectCategory")} />
                               </SelectTrigger>
                               <SelectContent>
                                 {inventoryCategories.map((cat: any) => (
@@ -465,9 +456,9 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         
                         {/* Details */}
                         <div className="space-y-2">
-                          <Label>Zusätzliche Details (optional)</Label>
+                          <Label>{t("tasks:completeDialog.additionalDetails")}</Label>
                           <Textarea
-                            placeholder="z.B. Farbe, Größe, Zustand..."
+                            placeholder={t("tasks:completeDialog.detailsPlaceholder")}
                             value={inventoryData[item.id]?.details || ""}
                             onChange={(e) => {
                               setInventoryData(prev => ({
@@ -484,7 +475,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         
                         {/* Ownership Type */}
                         <div className="space-y-2">
-                          <Label>Besitz</Label>
+                          <Label>{t("tasks:completeDialog.ownership")}</Label>
                           <RadioGroup
                             value={inventoryData[item.id]?.ownershipType || "household"}
                             onValueChange={(value: "personal" | "household") => {
@@ -501,13 +492,13 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="household" id={`household-${item.id}`} />
                               <Label htmlFor={`household-${item.id}`} className="font-normal cursor-pointer">
-                                Haushalt
+                                {t("tasks:completeDialog.household")}
                               </Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="personal" id={`personal-${item.id}`} />
                               <Label htmlFor={`personal-${item.id}`} className="font-normal cursor-pointer">
-                                Persönlich
+                                {t("tasks:completeDialog.personal")}
                               </Label>
                             </div>
                           </RadioGroup>
@@ -516,7 +507,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         {/* Owner Selection (only for personal) */}
                         {inventoryData[item.id]?.ownershipType === "personal" && (
                           <div className="space-y-2">
-                            <Label>Besitzer</Label>
+                            <Label>{t("tasks:completeDialog.owner")}</Label>
                             <div className="space-y-2">
                               {householdMembers.map((member: any) => (
                                 <div key={member.memberId} className="flex items-center space-x-2">
@@ -550,7 +541,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         
                         {/* Photo Upload */}
                         <div className="space-y-2">
-                          <Label>Fotos (optional)</Label>
+                          <Label>{t("tasks:completeDialog.photos")}</Label>
                           <PhotoUpload
                             photos={inventoryData[item.id]?.photoUrls || []}
                             onPhotosChange={(newPhotos) => {
@@ -577,7 +568,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               {selectedItems.size > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
                   <p className="text-sm font-semibold text-green-800">
-                    {selectedItems.size} Item(s) werden ins Inventar aufgenommen
+                    {t("tasks:completeDialog.inventorySummary", { count: selectedItems.size })}
                   </p>
                   <div className="text-xs text-green-700 space-y-1">
                     {Array.from(selectedItems).map(itemId => {
@@ -588,7 +579,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
                         <div key={itemId} className="flex items-center justify-between">
                           <span>• {item?.name}</span>
                           <span className="text-muted-foreground">
-                            {category?.name || "Keine Kategorie"} • {data?.ownershipType === "household" ? "Haushalt" : "Persönlich"}
+                            {category?.name || t("tasks:completeDialog.noCategory")} • {data?.ownershipType === "household" ? t("tasks:completeDialog.household") : t("tasks:completeDialog.personal")}
                           </span>
                         </div>
                       );
@@ -611,10 +602,10 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
             return (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
                 <p className="text-sm font-semibold text-red-800">
-                  ⚠️ Fehlende Kategorien
+                  {t("tasks:completeDialog.missingCategoriesTitle")}
                 </p>
                 <p className="text-xs text-red-700">
-                  {invalidItems.length} Item(s) haben keine Kategorie ausgewählt. Bitte wählen Sie für alle Items eine Kategorie aus.
+                  {t("tasks:completeDialog.missingCategoriesHint", { count: invalidItems.length })}
                 </p>
               </div>
             );
@@ -624,7 +615,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
-            Abbrechen
+            {t("common:actions.cancel")}
           </Button>
           <Button 
             onClick={handleSubmit} 
@@ -639,10 +630,10 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Wird gespeichert...
+                {t("common:actions.saving")}
               </>
             ) : (
-              task.isRecurring ? "Termin abschließen" : "Aufgabe abschließen"
+              task.isRecurring ? t("tasks:dialog.completeOccurrence") : t("tasks:completeTask")
             )}
           </Button>
         </DialogFooter>
