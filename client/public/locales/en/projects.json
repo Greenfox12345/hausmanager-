@@ -24,7 +24,9 @@
     "priority": "Priority",
     "assignedTo": "Assigned To",
     "budget": "Budget",
-    "progress": "Progress"
+    "progress": "Progress",
+    "namePlaceholder": "Name is taken from the task",
+    "descriptionPlaceholder": "Optional project description"
   },
   "status": {
     "planning": "Planning",

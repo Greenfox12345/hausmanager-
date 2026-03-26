@@ -994,7 +994,7 @@ export default function Tasks() {
                               id="newProjectName"
                               value={newProjectName}
                               onChange={(e) => setNewProjectName(e.target.value)}
-                              placeholder={t("projects:fields.namePlaceholder", "Name wird von Aufgabe übernommen")}
+                              placeholder={t("projects:fields.namePlaceholder")}
                             />
                           </div>
                           <div className="space-y-2">
@@ -1003,7 +1003,7 @@ export default function Tasks() {
                               id="newProjectDescription"
                               value={newProjectDescription}
                               onChange={(e) => setNewProjectDescription(e.target.value)}
-                              placeholder={t("projects:fields.descriptionPlaceholder", "Optionale Projektbeschreibung")}
+                              placeholder={t("projects:fields.descriptionPlaceholder")}
                               rows={2}
                             />
                           </div>
