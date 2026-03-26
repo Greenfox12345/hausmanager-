@@ -39,7 +39,7 @@
     "completeList": "Liste abschließen",
     "shareList": "Liste teilen",
     "addItem": "Artikel hinzufügen",
-    "createCategory": "Neue Kategorie erstellen",
+    "createCategory": "Neue Kategorie",
     "renameCategory": "Kategorie umbenennen"
   },
   "messages": {
@@ -63,7 +63,8 @@
     "confirmDeleteItem": "Möchten Sie diesen Artikel wirklich löschen?",
     "confirmDeleteCategory": "Möchten Sie diese Kategorie wirklich löschen?",
     "emptyList": "Keine Artikel in der Einkaufsliste. Fügen Sie oben einen neuen Artikel hinzu!",
-    "emptyCategory": "Keine Artikel in dieser Kategorie."
+    "emptyCategory": "Keine Artikel in dieser Kategorie.",
+    "noCategories": "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie."
   },
   "labels": {
     "itemCount": "{{count}} Artikel"

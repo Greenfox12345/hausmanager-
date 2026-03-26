@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus, ImageIcon } from "lucide-react";
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { QuickCategoryCreate } from "@/components/QuickCategoryCreate";
 import { BottomNav } from "@/components/BottomNav";
@@ -738,15 +738,29 @@ export default function Shopping() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newItemPhotos">{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
-                <Input
-                  id="newItemPhotos"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleNewItemPhotoUpload}
-                  disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
-                />
+                <Label>{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
+                <div className="flex items-center gap-3">
+                  <label
+                    className={`inline-flex items-center gap-2 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors
+                      ${isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5
+                        ? "opacity-50 pointer-events-none bg-muted text-muted-foreground border-muted"
+                        : "bg-background hover:bg-accent hover:text-accent-foreground border-input"}`}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    {t("shopping:fields.fileSelect", "Dateien auswählen")}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="sr-only"
+                      onChange={handleNewItemPhotoUpload}
+                      disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
+                    />
+                  </label>
+                  {newItemPhotoUrls.length === 0 && !isUploadingNewItemPhoto && (
+                    <span className="text-sm text-muted-foreground">{t("shopping:fields.noFileSelected", "Keine Dateien ausgewählt")}</span>
+                  )}
+                </div>
                 {isUploadingNewItemPhoto && (
                   <p className="text-sm text-muted-foreground">{t("shopping:messages.uploadingPhotos", "Fotos werden hochgeladen...")}</p>
                 )}
@@ -922,14 +936,14 @@ export default function Shopping() {
                 onClick={handleOpenCreateCategory}
               >
                 <FolderPlus className="mr-2 h-4 w-4" />
-                Neue Kategorie
+                {t("shopping:actions.createCategory", "Neue Kategorie")}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {categories.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
-                Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie.
+                {t("shopping:messages.noCategories", "Keine Kategorien vorhanden. Erstellen Sie eine neue Kategorie.")}
               </p>
             ) : (
               <div className="space-y-2">

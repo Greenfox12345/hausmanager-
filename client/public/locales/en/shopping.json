@@ -39,7 +39,7 @@
     "completeList": "Complete List",
     "shareList": "Share List",
     "addItem": "Add item",
-    "createCategory": "Create new category",
+    "createCategory": "New Category",
     "renameCategory": "Rename category"
   },
   "messages": {
@@ -63,7 +63,8 @@
     "confirmDeleteItem": "Are you sure you want to delete this item?",
     "confirmDeleteCategory": "Are you sure you want to delete this category?",
     "emptyList": "No items in the shopping list. Add a new item above!",
-    "emptyCategory": "No items in this category."
+    "emptyCategory": "No items in this category.",
+    "noCategories": "No categories yet. Create a new category."
   },
   "labels": {
     "itemCount": "{{count}} item(s)"
