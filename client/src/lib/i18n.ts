@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import type { Locale } from "date-fns";
+import { de, enGB, es } from "date-fns/locale";
 import { initReactI18next } from "react-i18next";
 import HttpBackend from "i18next-http-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -99,18 +100,15 @@ export async function getDateFnsLocale(lang: string): Promise<Locale> {
 }
 
 /**
- * Synchronous version – returns the locale from the already-imported bundle.
- * Safe to call in render because all three locales are bundled.
+ * Synchronous version – returns the locale from the statically imported bundle.
+ * Safe to call in render. To add a new language: import its locale above and
+ * add a case here – no other files need to be changed.
  */
 export function getDateFnsLocaleSync(lang: string): Locale {
   const code = lang.split("-")[0];
-  // These imports are static so they are always available synchronously.
-  const locales: Record<string, Locale> = {};
-  // We use require-style dynamic access to keep the bundle small but still synchronous.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  if (code === "es") return require("date-fns/locale/es").es;
-  if (code === "en") return require("date-fns/locale/en-GB").enGB;
-  return require("date-fns/locale/de").de;
+  if (code === "es") return es;
+  if (code === "en") return enGB;
+  return de;
 }
 
 /**
