@@ -32,7 +32,7 @@ type Lang = "de" | "en" | "es" | "fr" | "zh";
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr") ? (l as Lang) : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? (l as Lang) : "de";
 }
 
 export const shoppingRouter = router({
