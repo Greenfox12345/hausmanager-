@@ -23,12 +23,12 @@ import {
   inventoryItemDeleted,
 } from "../activityTexts";
 
-type Lang = "de" | "en" | "es" | "fr" | "zh";
+type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr";
 
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? (l as Lang) : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr") ? (l as Lang) : "de";
 }
 
 export const inventoryRouter = router({
@@ -76,7 +76,7 @@ export const inventoryRouter = router({
         memberId: input.memberId,
         activityType: "inventory",
         action: "added",
-        description: inventoryItemAdded(lang, input.name, memberName, categoryName, input.ownershipType),
+        description: inventoryItemAdded(lang, input.name, categoryName),
         relatedItemId: result.id,
       });
 
@@ -137,7 +137,7 @@ export const inventoryRouter = router({
         memberId: input.memberId,
         activityType: "inventory",
         action: "updated",
-        description: inventoryItemUpdated(lang, itemName, memberName, changes),
+        description: inventoryItemUpdated(lang, itemName, changes),
         relatedItemId: input.itemId,
       });
 
@@ -170,7 +170,7 @@ export const inventoryRouter = router({
         memberId: input.memberId,
         activityType: "inventory",
         action: "deleted",
-        description: inventoryItemDeleted(lang, itemName, memberName),
+        description: inventoryItemDeleted(lang, itemName),
         relatedItemId: input.itemId,
       });
 

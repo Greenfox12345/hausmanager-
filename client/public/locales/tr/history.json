@@ -1,0 +1,52 @@
+{
+  "title": "Geçmiş",
+  "noHistory": "Geçmiş bulunamadı",
+  "noHistoryHint": "Evdeki aktiviteleriniz burada gösterilecektir.",
+  "filter": {
+    "all": "Tümü",
+    "tasks": "Görevler",
+    "shopping": "Alışveriş",
+    "inventory": "Envanter",
+    "members": "Üyeler",
+    "borrows": "Ödünç Alınanlar",
+    "projects": "Projeler"
+  },
+  "actions": {
+    "task_created": "Görev oluşturuldu",
+    "task_updated": "Görev güncellendi",
+    "task_completed": "Görev tamamlandı",
+    "task_deleted": "Görev silindi",
+    "task_assigned": "Görev atandı",
+    "item_added": "Öğe eklendi",
+    "item_updated": "Öğe güncellendi",
+    "item_deleted": "Öğe silindi",
+    "shopping_created": "Alışveriş listesi oluşturuldu",
+    "shopping_completed": "Alışveriş listesi tamamlandı",
+    "member_joined": "Üye katıldı",
+    "member_removed": "Üye çıkarıldı",
+    "borrow_requested": "Ödünç alma talep edildi",
+    "borrow_approved": "Ödünç alma onaylandı",
+    "borrow_rejected": "Ödünç alma reddedildi",
+    "borrow_returned": "Öğe iade edildi",
+    "reminder": "Hatırlatıcı gönderildi"
+  },
+  "fields": {
+    "date": "Tarih",
+    "member": "Üye",
+    "action": "Eylem",
+    "details": "Detaylar"
+  },
+  "messages": {
+    "trackActivities": "Evdeki aktiviteleri ve ilerlemeyi takip edin"
+  },
+  "labels": {
+    "photoCount_one": "{{count}} Fotoğraf",
+    "photoCount_other": "{{count}} Fotoğraf",
+    "pdfCount_one": "{{count}} PDF",
+    "pdfCount_other": "{{count}} PDF",
+    "pdfCount": "{{count}} PDF",
+    "photoCount": "{{count}} Fotoğraf"
+  },
+  "noActivities": "Henüz aktivite bulunamadı.",
+  "noActivitiesFiltered": "Filtre kriterlerinize uyan aktivite bulunamadı."
+}

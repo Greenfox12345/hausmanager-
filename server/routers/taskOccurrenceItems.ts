@@ -6,11 +6,11 @@ import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests, householdMe
 import { eq, and } from "drizzle-orm";
 import { occurrenceItemAdded, occurrenceItemRemoved } from "../activityTexts";
 
-type OccLang = "de" | "en" | "es" | "fr" | "zh";
+type OccLang = "de" | "en" | "es" | "fr" | "zh" | "tr";
 async function getOccLang(householdId: number): Promise<OccLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? l as OccLang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr") ? l as OccLang : "de";
 }
 
 /**
@@ -145,7 +145,7 @@ export const taskOccurrenceItemsRouter = router({
           memberId: member.id,
           activityType: "task",
           action: "item_added",
-          description: occurrenceItemAdded(occAddLang, item.name, task.name, input.occurrenceNumber),
+          description: occurrenceItemAdded(occAddLang, item.name, task.name),
           relatedItemId: input.taskId,
           metadata: {
             taskId: input.taskId,
@@ -233,7 +233,7 @@ export const taskOccurrenceItemsRouter = router({
               memberId: member.id,
               activityType: "task",
               action: "item_removed",
-              description: occurrenceItemRemoved(occRemLang, occurrenceItem.itemName ?? "?", occurrenceItem.taskName ?? "?", occurrenceItem.occurrenceNumber),
+              description: occurrenceItemRemoved(occRemLang, occurrenceItem.itemName ?? "?", occurrenceItem.taskName ?? "?"),
             relatedItemId: occurrenceItem.taskId,
             metadata: {
               taskId: occurrenceItem.taskId,

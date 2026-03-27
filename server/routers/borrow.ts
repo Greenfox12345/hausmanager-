@@ -38,11 +38,11 @@ import {
 } from "../activityTexts";
 import { getHouseholdById } from "../db";
 
-type BorrowLang = "de" | "en" | "es" | "fr" | "zh";
+type BorrowLang = "de" | "en" | "es" | "fr" | "zh" | "tr";
 async function getBorrowLang(householdId: number): Promise<BorrowLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? l as BorrowLang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr") ? l as BorrowLang : "de";
 }
 
 export const borrowRouter = router({
@@ -147,7 +147,7 @@ export const borrowRouter = router({
         const ownerMemberId = item.owners?.[0]?.memberId;
         if (ownerMemberId) {
           const reqLang = await getBorrowLang(item.householdId);
-          const reqTitle = reqLang === "en" ? "New borrow request" : reqLang === "es" ? "Nueva solicitud de préstamo" : reqLang === "fr" ? "Nouvelle demande d'emprunt" : reqLang === "zh" ? "新借用申请" : "Neue Ausleih-Anfrage";
+          const reqTitle = reqLang === "en" ? "New borrow request" : reqLang === "es" ? "Nueva solicitud de préstamo" : reqLang === "fr" ? "Nouvelle demande d'emprunt" : reqLang === "zh" ? "新借用申请" : reqLang === "tr" ? "Yeni ödünç alma isteği" : "Neue Ausleih-Anfrage";
           const reqMsg = reqLang === "en" ? `${borrowerName} wants to borrow "${item.name}" from ${startFormatted} to ${endFormatted}${taskInfo}.`
             : reqLang === "es" ? `${borrowerName} quiere tomar prestado "${item.name}" del ${startFormatted} al ${endFormatted}${taskInfo}.`
             : reqLang === "fr" ? `${borrowerName} souhaite emprunter « ${item.name} » du ${startFormatted} au ${endFormatted}${taskInfo}.`
@@ -290,7 +290,7 @@ export const borrowRouter = router({
         ? ` für Aufgabe "${linkedOccurrence.taskName}" (Termin ${linkedOccurrence.occurrenceNumber})`
         : "";
       const approveLangNotif = await getBorrowLang(request.borrowerHouseholdId);
-      const approveTitle = approveLangNotif === "en" ? "Borrow request approved" : approveLangNotif === "es" ? "Solicitud de préstamo aprobada" : approveLangNotif === "fr" ? "Demande d'emprunt approuvée" : approveLangNotif === "zh" ? "借用申请已批准" : "Ausleih-Anfrage genehmigt";
+      const approveTitle = approveLangNotif === "en" ? "Borrow request approved" : approveLangNotif === "es" ? "Solicitud de préstamo aprobada" : approveLangNotif === "fr" ? "Demande d'emprunt approuvée" : approveLangNotif === "zh" ? "借用申请已批准" : approveLangNotif === "tr" ? "Ödünç alma isteği onaylandı" : "Ausleih-Anfrage genehmigt";
       const approveMsg = approveLangNotif === "en" ? `${approverName} approved your request for "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
         : approveLangNotif === "es" ? `${approverName} aprobó tu solicitud para "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
         : approveLangNotif === "fr" ? `${approverName} a approuvé votre demande pour « ${item.name} » (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
@@ -387,7 +387,7 @@ export const borrowRouter = router({
         memberId: request.borrowerMemberId,
         activityType: "inventory",
         action: "borrow_rejected",
-        description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage),
+        description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage ?? ""),
         metadata: {
           itemId: request.inventoryItemId,
           itemName: item?.name,
@@ -403,7 +403,7 @@ export const borrowRouter = router({
       const rejectStartFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
       const rejectEndFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
       const rejectLangNotif = await getBorrowLang(request.borrowerHouseholdId);
-      const rejectTitle = rejectLangNotif === "en" ? "Borrow request rejected" : rejectLangNotif === "es" ? "Solicitud de préstamo rechazada" : rejectLangNotif === "fr" ? "Demande d'emprunt refusée" : rejectLangNotif === "zh" ? "借用申请已拒绝" : "Ausleih-Anfrage abgelehnt";
+      const rejectTitle = rejectLangNotif === "en" ? "Borrow request rejected" : rejectLangNotif === "es" ? "Solicitud de préstamo rechazada" : rejectLangNotif === "fr" ? "Demande d'emprunt refusée" : rejectLangNotif === "zh" ? "借用申请已拒绝" : rejectLangNotif === "tr" ? "Ödünç alma isteği reddedildi" : "Ausleih-Anfrage abgelehnt";
       const rejectMessage = input.responseMessage
         ? (rejectLangNotif === "en" ? `${rejecterName} rejected your request for "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}). Reason: ${input.responseMessage}`
           : rejectLangNotif === "es" ? `${rejecterName} rechazó tu solicitud para "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}). Motivo: ${input.responseMessage}`
@@ -559,7 +559,7 @@ export const borrowRouter = router({
 
           // Send notification to the borrower with task info and link
           const revokeLangNotif1 = await getBorrowLang(request.borrowerHouseholdId);
-          const revokeTitle1 = revokeLangNotif1 === "en" ? "Borrow approval revoked" : revokeLangNotif1 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif1 === "fr" ? "Approbation d'emprunt révoquée" : revokeLangNotif1 === "zh" ? "借用批准已撤销" : "Ausleihgenehmigung widerrufen";
+          const revokeTitle1 = revokeLangNotif1 === "en" ? "Borrow approval revoked" : revokeLangNotif1 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif1 === "fr" ? "Approbation d'emprunt révoquée" : revokeLangNotif1 === "zh" ? "借用批准已撤销" : revokeLangNotif1 === "tr" ? "Ödünç onayı iptal edildi" : "Ausleihgenehmigung widerrufen";
           const revokeMsg1 = revokeLangNotif1 === "en" ? `The approval for "${item.name}" (${new Date(request.startDate).toLocaleDateString("en-GB")} - ${new Date(request.endDate).toLocaleDateString("en-GB")}) for task "${taskName}" (occurrence ${occ.occurrenceNumber}) was revoked by ${revokerName}. Reason: ${input.reason}`
             : revokeLangNotif1 === "es" ? `La aprobación para "${item.name}" (${new Date(request.startDate).toLocaleDateString("es-ES")} - ${new Date(request.endDate).toLocaleDateString("es-ES")}) para la tarea "${taskName}" (cita ${occ.occurrenceNumber}) fue revocada por ${revokerName}. Motivo: ${input.reason}`
             : revokeLangNotif1 === "fr" ? `L'approbation pour « ${item.name} » (${new Date(request.startDate).toLocaleDateString("fr-FR")} - ${new Date(request.endDate).toLocaleDateString("fr-FR")}) pour la tâche « ${taskName} » (occurrence ${occ.occurrenceNumber}) a été révoquée par ${revokerName}. Raison : ${input.reason}`
@@ -609,7 +609,7 @@ export const borrowRouter = router({
         // If no task-linked occurrences, send notification without task info and create a general activity log
         if (linkedOccurrences.length === 0) {
           const revokeLangNotif2 = await getBorrowLang(request.borrowerHouseholdId);
-          const revokeTitle2 = revokeLangNotif2 === "en" ? "Borrow approval revoked" : revokeLangNotif2 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif2 === "fr" ? "Approbation d'emprunt révoquée" : revokeLangNotif2 === "zh" ? "借用批准已撤销" : "Ausleihgenehmigung widerrufen";
+          const revokeTitle2 = revokeLangNotif2 === "en" ? "Borrow approval revoked" : revokeLangNotif2 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif2 === "fr" ? "Approbation d'emprunt révoquée" : revokeLangNotif2 === "zh" ? "借用批准已撤销" : revokeLangNotif2 === "tr" ? "Ödünç onayı iptal edildi" : "Ausleihgenehmigung widerrufen";
           const revokeMsg2 = revokeLangNotif2 === "en" ? `The approval for "${item.name}" (${new Date(request.startDate).toLocaleDateString("en-GB")} - ${new Date(request.endDate).toLocaleDateString("en-GB")}) was revoked by ${revokerName}. Reason: ${input.reason}`
             : revokeLangNotif2 === "es" ? `La aprobación para "${item.name}" (${new Date(request.startDate).toLocaleDateString("es-ES")} - ${new Date(request.endDate).toLocaleDateString("es-ES")}) fue revocada por ${revokerName}. Motivo: ${input.reason}`
             : revokeLangNotif2 === "fr" ? `L'approbation pour « ${item.name} » (${new Date(request.startDate).toLocaleDateString("fr-FR")} - ${new Date(request.endDate).toLocaleDateString("fr-FR")}) a été révoquée par ${revokerName}. Raison : ${input.reason}`
@@ -694,9 +694,9 @@ export const borrowRouter = router({
         const shouldNotify = request.status === "approved" || item.ownershipType === "personal";
         if (ownerMemberId && shouldNotify) {
           const cancelLangNotif = await getBorrowLang(item.householdId);
-          const cancelTitle = cancelLangNotif === "en" ? "Borrow cancelled" : cancelLangNotif === "es" ? "Préstamo cancelado" : cancelLangNotif === "fr" ? "Emprunt annulé" : cancelLangNotif === "zh" ? "借用已取消" : "Ausleihe storniert";
+          const cancelTitle = cancelLangNotif === "en" ? "Borrow cancelled" : cancelLangNotif === "es" ? "Préstamo cancelado" : cancelLangNotif === "fr" ? "Emprunt annulé" : cancelLangNotif === "zh" ? "借用已取消" : cancelLangNotif === "tr" ? "Ödünç iptal edildi" : "Ausleihe storniert";
           const reasonText = input.reason?.trim()
-            ? (cancelLangNotif === "en" ? ` Reason: ${input.reason.trim()}` : cancelLangNotif === "es" ? ` Motivo: ${input.reason.trim()}` : cancelLangNotif === "fr" ? ` Raison : ${input.reason.trim()}` : ` Begründung: ${input.reason.trim()}`)
+            ? (cancelLangNotif === "en" ? ` Reason: ${input.reason.trim()}` : cancelLangNotif === "es" ? ` Motivo: ${input.reason.trim()}` : cancelLangNotif === "fr" ? ` Raison : ${input.reason.trim()}` : cancelLangNotif === "tr" ? ` Neden: ${input.reason.trim()}` : ` Begründung: ${input.reason.trim()}`)
             : "";
           const cancelMsg = cancelLangNotif === "en" ? `${borrowerName} cancelled the borrow of "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
             : cancelLangNotif === "es" ? `${borrowerName} canceló el préstamo de "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
@@ -1289,7 +1289,7 @@ export const borrowRouter = router({
           for (const owner of item.owners as any[]) {
             if (owner.memberId && owner.memberId !== input.memberId) {
               const returnLangNotif = await getBorrowLang(item.householdId);
-              const returnTitle = returnLangNotif === "en" ? "Item returned" : returnLangNotif === "es" ? "Objeto devuelto" : returnLangNotif === "fr" ? "Objet rendu" : returnLangNotif === "zh" ? "物品已归还" : "Gegenstand zurückgegeben";
+              const returnTitle = returnLangNotif === "en" ? "Item returned" : returnLangNotif === "es" ? "Objeto devuelto" : returnLangNotif === "fr" ? "Objet rendu" : returnLangNotif === "zh" ? "物品已归还" : returnLangNotif === "tr" ? "Eşya iade edildi" : "Gegenstand zurückgegeben";
               const returnMsg = returnLangNotif === "en" ? `${borrowerName} returned "${item.name}" on ${returnDateFormatted}.${commentPart}`
                 : returnLangNotif === "es" ? `${borrowerName} devolvió "${item.name}" el ${returnDateFormatted}.${commentPart}`
                 : returnLangNotif === "fr" ? `${borrowerName} a rendu « ${item.name} » le ${returnDateFormatted}.${commentPart}`

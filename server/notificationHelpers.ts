@@ -14,7 +14,7 @@ export type NotificationType =
   | "reminder"
   | "general";
 
-export type NotifLang = "de" | "en" | "es" | "fr" | "zh";
+export type NotifLang = "de" | "en" | "es" | "fr" | "zh" | "tr";
 
 interface CreateNotificationParams {
   householdId: number;
@@ -27,11 +27,12 @@ interface CreateNotificationParams {
 }
 
 /** Simple multilingual helper */
-function nt(lang: NotifLang, de: string, en: string, es: string, fr: string, zh: string): string {
+function nt(lang: NotifLang, de: string, en: string, es: string, fr: string, zh: string, tr: string): string {
   if (lang === "en") return en;
   if (lang === "es") return es;
   if (lang === "fr") return fr;
   if (lang === "zh") return zh;
+  if (lang === "tr") return tr;
   return de;
 }
 
@@ -87,14 +88,16 @@ export async function notifyTaskAssigned(
       "New task assigned",
       "Nueva tarea asignada",
       "Nouvelle tâche assignée",
-      "已分配新任务"
+      "已分配新任务",
+      "Yeni görev atandı"
     ),
     message: nt(lang,
       `Ihnen wurde die Aufgabe "${taskTitle}" zugewiesen`,
       `You have been assigned the task "${taskTitle}"`,
       `Se le ha asignado la tarea "${taskTitle}"`,
       `La tâche « ${taskTitle} » vous a été assignée`,
-      `任务"${taskTitle}"已分配给您`
+      `任务"${taskTitle}"已分配给您`,
+      `"${taskTitle}" görevi size atandı`
     ),
     relatedTaskId: taskId,
   });
@@ -113,8 +116,8 @@ export async function notifyTaskDue(
   lang: NotifLang = "de"
 ) {
   const title = isRecurring
-    ? nt(lang, "Termin anstehend", "Upcoming occurrence", "Cita próxima", "Rendez-vous à venir", "即将到来的计划")
-    : nt(lang, "Aufgabe fällig", "Task due", "Tarea pendiente", "Tâche à rendre", "任务即将到期");
+    ? nt(lang, "Termin anstehend", "Upcoming occurrence", "Cita próxima", "Rendez-vous à venir", "即将到来的计划", "Yaklaşan tekrar")
+    : nt(lang, "Aufgabe fällig", "Task due", "Tarea pendiente", "Tâche à rendre", "任务即将到期", "Görev vadesi yaklaşıyor");
 
   let message: string;
   if (daysUntilDue === 0) {
@@ -124,14 +127,16 @@ export async function notifyTaskDue(
           `The next occurrence of "${taskTitle}" is today!`,
           `¡La próxima cita para "${taskTitle}" es hoy!`,
           `Le prochain rendez-vous pour « ${taskTitle} » est aujourd'hui !`,
-          `任务"${taskTitle}"的下一次计划就是今天！`
+          `任务"${taskTitle}"的下一次计划就是今天！`,
+          `"${taskTitle}" görevinin bir sonraki tekrarı bugün!`
         )
       : nt(lang,
           `Die Aufgabe "${taskTitle}" ist heute fällig!`,
           `The task "${taskTitle}" is due today!`,
           `¡La tarea "${taskTitle}" vence hoy!`,
           `La tâche « ${taskTitle} » est à rendre aujourd'hui !`,
-          `任务"${taskTitle}"今天到期！`
+          `任务"${taskTitle}"今天到期！`,
+          `"${taskTitle}" görevi bugün son tarihi!`
         );
   } else {
     message = isRecurring
@@ -140,14 +145,16 @@ export async function notifyTaskDue(
           `The next occurrence of "${taskTitle}" is in ${daysUntilDue} day(s)`,
           `La próxima cita para "${taskTitle}" es en ${daysUntilDue} día(s)`,
           `Le prochain rendez-vous pour « ${taskTitle} » est dans ${daysUntilDue} jour(s)`,
-          `任务"${taskTitle}"的下一次计划在 ${daysUntilDue} 天后`
+          `任务"${taskTitle}"的下一次计划在 ${daysUntilDue} 天后`,
+          `"${taskTitle}" görevinin bir sonraki tekrarı ${daysUntilDue} gün sonra`
         )
       : nt(lang,
           `Die Aufgabe "${taskTitle}" ist in ${daysUntilDue} Tag(en) fällig`,
           `The task "${taskTitle}" is due in ${daysUntilDue} day(s)`,
           `La tarea "${taskTitle}" vence en ${daysUntilDue} día(s)`,
           `La tâche « ${taskTitle} » est à rendre dans ${daysUntilDue} jour(s)`,
-          `任务"${taskTitle}"将在 ${daysUntilDue} 天后到期`
+          `任务"${taskTitle}"将在 ${daysUntilDue} 天后到期`,
+          `"${taskTitle}" görevi ${daysUntilDue} gün içinde son tarihi`
         );
   }
 
@@ -181,14 +188,16 @@ export async function notifyTaskCompleted(
       "Task completed",
       "Tarea completada",
       "Tâche terminée",
-      "任务已完成"
+      "任务已完成",
+      "Görev tamamlandı"
     ),
     message: nt(lang,
       `${completedByName} hat die Aufgabe "${taskTitle}" erledigt`,
       `${completedByName} completed the task "${taskTitle}"`,
       `${completedByName} completó la tarea "${taskTitle}"`,
       `${completedByName} a terminé la tâche « ${taskTitle} »`,
-      `${completedByName}已完成任务"${taskTitle}"`
+      `${completedByName}已完成任务"${taskTitle}"`,
+      `${completedByName} "${taskTitle}" görevini tamamladı`
     ),
     relatedTaskId: taskId,
   });
@@ -214,14 +223,16 @@ export async function notifyCommentAdded(
       "New comment",
       "Nuevo comentario",
       "Nouveau commentaire",
-      "新评论"
+      "新评论",
+      "Yeni yorum"
     ),
     message: nt(lang,
       `${commenterName} hat einen Kommentar zu "${taskTitle}" hinzugefügt`,
       `${commenterName} added a comment to "${taskTitle}"`,
       `${commenterName} añadió un comentario a "${taskTitle}"`,
       `${commenterName} a ajouté un commentaire à « ${taskTitle} »`,
-      `${commenterName}在"${taskTitle}"中添加了评论`
+      `${commenterName}在"${taskTitle}"中添加了评论`,
+      `${commenterName} "${taskTitle}" görevine yorum ekledi`
     ),
     relatedTaskId: taskId,
   });

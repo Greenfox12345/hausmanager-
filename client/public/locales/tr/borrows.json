@@ -1,0 +1,253 @@
+{
+  "title": "Ödünç Alma",
+  "myBorrows": "Ödünç Aldıklarım",
+  "lentItems": "Ödünç Verilenler",
+  "borrowRequests": "Ödünç Alma Talepleri",
+  "noBorrows": "Ödünç Alınan Bir Şey Yok",
+  "noBorrowsHint": "Ödünç alma talepleriniz ve ödünç verdiğiniz eşyalar burada görünecektir.",
+  "request": {
+    "title": "Ödünç Alma Talebi",
+    "item": "Eşya",
+    "from": "Kimden",
+    "startDate": "Başlangıç",
+    "endDate": "Bitiş",
+    "message": "Mesaj (isteğe bağlı)",
+    "messagePlaceholder": "Bu eşyayı neden ödünç almak istiyorsunuz?",
+    "submit": "Talep Gönder",
+    "cancel": "İptal"
+  },
+  "approval": {
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "rejectReason": "Reddetme nedeni (isteğe bağlı)",
+    "revoke": "Onayı Geri Çek",
+    "revokeReason": "Geri çekme nedeni",
+    "revokeConfirm": "Onayı gerçekten geri çekmek istiyor musunuz?"
+  },
+  "return": {
+    "title": "İadeyi Onayla",
+    "confirm": "İadeyi Onayla",
+    "notes": "İade notları",
+    "condition": "İade sırasındaki durum"
+  },
+  "status": {
+    "pending": "Beklemede",
+    "approved": "Onaylandı",
+    "active": "Aktif Olarak Ödünç Alındı",
+    "rejected": "Reddedildi",
+    "completed": "Tamamlandı",
+    "returned": "İade Edildi",
+    "cancelled": "İptal Edildi",
+    "overdue": "Gecikmiş",
+    "notRequested": "Talep Edilmedi"
+  },
+  "fields": {
+    "item": "Eşya",
+    "borrower": "Ödünç Alan",
+    "owner": "Sahip",
+    "startDate": "Ödünç Alma Başlangıcı",
+    "endDate": "Ödünç Alma Sonu",
+    "requestDate": "Talep Tarihi",
+    "returnDate": "İade Tarihi",
+    "message": "Mesaj",
+    "task": "Görev",
+    "occurrence": "Randevu",
+    "pickup": "Teslim Alma",
+    "return": "İade",
+    "borrowEnd": "İade",
+    "borrowStart": "Teslim Alma"
+  },
+  "pickupRecord": "Teslim alırken kaydedildi",
+  "returnRecord": "İade edilirken kaydedildi",
+  "confirmPickup": "Teslim Almayı Onayla",
+  "activeReturn": "Aktif – lütfen iade edin",
+  "confirmReturn": "İadeyi Onayla",
+  "cancelRequest": "Talebi İptal Et",
+  "cancelDialog": {
+    "titlePending": "Talebi İptal Et",
+    "titleApproved": "Onaylanmış Ödünç Almayı İptal Et",
+    "confirmPending": "\"{{itemName}}\" için talebinizi gerçekten iptal etmek istiyor musunuz?",
+    "confirmApproved": "\"{{itemName}}\" için onaylanmış ödünç almayı gerçekten iptal etmek istiyor musunuz? Sahibi bilgilendirilecektir.",
+    "approvedWarning": "Onay geri çekilecek ve eşya tekrar mevcut olarak işaretlenecektir.",
+    "reasonLabel": "Gerekçe",
+    "optional": "(isteğe bağlı)",
+    "reasonPlaceholder": "ör. Planlar değişti...",
+    "cancelling": "İptal ediliyor...",
+    "confirm": "Evet, iptal et"
+  },
+  "messages": {
+    "requestSent": "Ödünç alma talebi gönderildi",
+    "autoApproved": "Ödünç alma otomatik olarak onaylandı",
+    "approved": "Ödünç alma onaylandı",
+    "rejected": "Ödünç alma reddedildi",
+    "returned": "İade onaylandı",
+    "revoked": "Onay geri çekildi",
+    "requestError": "Talep gönderilirken hata oluştu",
+    "approveError": "Onaylama sırasında hata oluştu",
+    "rejectError": "Reddetme sırasında hata oluştu",
+    "returnError": "İade sırasında hata oluştu",
+    "description": "Eşyaları ödünç alın ve yönetin",
+    "autoApprovedDesc": "Otomatik olarak onaylandı",
+    "borrowEndUpdated": "İade tarihi güncellendi",
+    "borrowStartUpdated": "Teslim alma tarihi güncellendi",
+    "cancelled": "Ödünç alma iptal edildi",
+    "requestSentDesc": "Talep gönderildi",
+    "revokeError": "Geri çekme sırasında hata oluştu",
+    "revokeSuccess": "Başarıyla geri çekildi"
+  },
+  "labels": {
+    "borrower": "Ödünç Alan",
+    "period": "Süre",
+    "revokedBy": "Tarafından geri çekildi",
+    "rejectedBy": "Tarafından reddedildi"
+  },
+  "task": "Görev",
+  "occurrence": "Randevu",
+  "responsible": "Sorumlu",
+  "requestMessagePrefix": "Aşağıdaki görev için \"{{itemName}}\"a ihtiyacım var:",
+  "requestMessageSuffix": "Lütfen ödünç almayı onaylayın.",
+  "requestDialog": {
+    "title": "Eşyayı Ödünç Al",
+    "item": "Eşya",
+    "guidelines": "Ödünç alma kuralları",
+    "instructions": "Talimatlar",
+    "returnChecklist": "İade sırasında kontrol listesi",
+    "requiredPhotosReturn": "İade sırasında gerekli fotoğraflar",
+    "requiredOnReturn": "İade sırasında zorunlu alan",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "selectDate": "Tarih seç",
+    "endAfterStart": "Bitiş tarihi başlangıç tarihinden sonra olmalıdır",
+    "message": "Mesaj (isteğe bağlı)",
+    "messagePlaceholder": "Bu eşyayı neden ödünç almak istiyorsunuz?",
+    "send": "Talep Gönder",
+    "sending": "Gönderiliyor..."
+  },
+  "returnDialog": {
+    "title": "Eşyayı İade Et",
+    "item": "Eşya",
+    "noGuidelines": "İade kuralları tanımlanmamış.",
+    "checklist": "Kontrol Listesi",
+    "requiredPhotos": "Gerekli Fotoğraflar",
+    "example": "Örnek",
+    "uploadPhoto": "Fotoğraf Yükle",
+    "conditionReport": "Durum Raporu (isteğe bağlı)",
+    "conditionReportPlaceholder": "İade sırasında eşyanın durumunu açıklayın...",
+    "required": "Zorunlu alan",
+    "success": "Eşya başarıyla iade edildi",
+    "error": "İade sırasında hata oluştu",
+    "returning": "İade ediliyor...",
+    "return": "İade Et",
+    "checklistRequired": "Kontrol Listesi: \"{{label}}\" işaretlenmelidir",
+    "photoRequired": "Fotoğraf gerekli: \"{{label}}\""
+  },
+  "revokeDialog": {
+    "title": "Onayı Geri Çek",
+    "description": "Ödünç alma onayı geri çekilecek ve sorumlu kişi bilgilendirilecektir.",
+    "item": "Eşya",
+    "borrower": "Ödünç Alan",
+    "period": "Süre",
+    "reason": "Gerekçe",
+    "reasonPlaceholder": "Lütfen geri çekme için bir gerekçe belirtin...",
+    "reasonRequired": "Onayı geri çekmek için bir gerekçe gereklidir.",
+    "revoke": "Geri Çek",
+    "revoking": "Geri çekiliyor..."
+  },
+  "allStatuses": "Tüm Durumlar",
+  "approvedPickup": "Onaylandı – Teslim alma bekleniyor",
+  "externalHousehold": "Harici Hane",
+  "filterAll": "Tümü",
+  "filterExternal": "Harici",
+  "filterInternal": "Dahili",
+  "filterStatus": "Durumu Filtrele",
+  "noItems": "Diğer hanelerde eşya yok",
+  "noItemsAtAll": "Ödünç alınabilecek eşya bulunamadı",
+  "noPending": "Bekleyen talep yok",
+  "otherHouseholds": "Diğer Haneler",
+  "ownHousehold": "Kendi Haneniz",
+  "pendingCount": "{{count}} beklemede",
+  "rejectReasonPlaceholder": "Reddetme nedeni (isteğe bağlı)",
+  "rejectedReason": "Reddetme nedeni",
+  "requestBorrow": "Ödünç Alma Talebi",
+  "searchItems": "Eşya ara...",
+  "tabBrowse": "Eşyalar",
+  "tabItems": "Eşyalar",
+  "tabMyBorrows": "Ödünç Aldıklarım",
+  "tabRequests": "Talepler",
+  "viewHousehold": "Tüm hane talepleri",
+  "viewMine": "Taleplerim",
+  "waitingApproval": "Onay bekleniyor",
+  "examplePhotoUpload": {
+    "success": "Örnek fotoğraf yüklendi",
+    "error": "Örnek fotoğraf yüklenirken hata oluştu",
+    "failedRetry": "Bir örnek fotoğraf yüklenemedi. Lütfen tekrar deneyin."
+  },
+  "uploadInProgress": "Lütfen fotoğrafın yüklenmesini bekleyin",
+  "guidelinesSaved": {
+    "success": "Ödünç alma kuralları kaydedildi",
+    "error": "Kaydederken hata oluştu"
+  },
+  "cardTitle": "Ödünç alma kuralları",
+  "instructions": {
+    "label": "Talimatlar (isteğe bağlı)",
+    "placeholder": "ör. 'Depo dolu iade edin', 'Temiz iade edin'"
+  },
+  "checklist": {
+    "label": "Kontrol Listesi",
+    "addItemButton": "Öğe ekle",
+    "itemPlaceholder": "ör. 'Anahtarlar mevcut'"
+  },
+  "requiredLabel": "Zorunlu",
+  "photoRequirements": {
+    "label": "Fotoğraf Gereksinimleri",
+    "addItemButton": "Gereksinim ekle",
+    "itemPlaceholder": "ör. 'Kilometre sayacı', 'Yan görünüm'"
+  },
+  "examplePhotoAlt": "Örnek",
+  "uploadingStatus": "Yükleniyor…",
+  "removeButton": "Kaldır",
+  "uploadExamplePhotoButton": "Örnek fotoğraf yükle",
+  "savingStatus": "Kaydediliyor…",
+  "saveGuidelinesButton": "Kuralları kaydet",
+  "photoGrid": {
+    "photoLabel": "Fotoğraf {{index}}",
+    "requiredPhotosLabel": "Zorunlu fotoğraflar"
+  },
+  "borrower": {
+    "unknown": "Bilinmiyor"
+  },
+  "protocol": {
+    "hide": "Protokolü gizle",
+    "show": "Teslim alma/iade protokolünü göster"
+  },
+  "metaInfo": {
+    "borrower": "Ödünç Alan",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "Talep",
+    "response": "Yanıt"
+  },
+  "protocolSection": {
+    "pickupCondition": "Teslim alırkenki durum",
+    "returnCondition": "İade sırasındaki durum"
+  },
+  "photo": {
+    "defaultLabel": "Fotoğraf",
+    "capture": "Fotoğraf çek / seç",
+    "upload": "Fotoğrafını yükle",
+    "required": "Gerekli Fotoğraflar",
+    "required_badge": "Zorunlu",
+    "example": "Örnek:"
+  },
+  "guideline": {
+    "title": "Ödünç alma kuralları",
+    "checklist": "Kontrol Listesi"
+  },
+  "actions": {
+    "request": "Talep Et",
+    "revoke": "Geri Çek"
+  },
+  "borrowing": "Ödünç alma",
+  "hidePast": "Geçmişi gizle",
+  "showPast": "Geçmişi göster",
+  "tabCalendar": "Takvim"
+}

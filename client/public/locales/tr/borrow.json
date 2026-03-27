@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "return": "İade Et",
+    "revoke": "İptal Et"
+  },
+  "borrow": "Ödünç Al",
+  "guidelines": "Ödünç Alma Kuralları",
+  "noRequests": "Hiçbir ödünç alma isteği yok.",
+  "occurrence": "Tarih",
+  "requestDialog": {
+    "endAfterStart": "İade tarihi alma tarihinden sonra olmalı",
+    "from": "Kimden",
+    "guidelines": "Ödünç Alma Kuralları",
+    "instructions": "Talimatlar",
+    "item": "Öğe",
+    "message": "Mesaj",
+    "messagePlaceholder": "Sahibine isteğe bağlı mesaj...",
+    "requiredOnReturn": "İade sırasında gerekli",
+    "requiredPhotosReturn": "İade sırasında fotoğraf gerekli",
+    "returnChecklist": "İade Kontrol Listesi",
+    "selectDate": "Tarih seç",
+    "send": "İstek gönder",
+    "sending": "Gönderiliyor...",
+    "title": "Ödünç Alma İsteği",
+    "to": "Kime"
+  },
+  "requestMessagePrefix": "Ben istiyorum",
+  "requestMessageSuffix": "ödünç almak.",
+  "requests": "Ödünç Alma İstekleri",
+  "responsible": "Sorumlu",
+  "returnDialog": {
+    "checklist": "İade Kontrol Listesi",
+    "checklistRequired": "Lütfen tüm öğeleri işaretleyin",
+    "conditionReport": "Durum Raporu",
+    "conditionReportPlaceholder": "İade sırasındaki durumun açıklaması...",
+    "error": "İade hatası",
+    "example": "Örnek",
+    "item": "Öğe",
+    "noGuidelines": "İade kuralları yok",
+    "photoRequired": "Fotoğraf gerekli",
+    "required": "Zorunlu alan",
+    "requiredPhotos": "Gerekli fotoğraflar",
+    "return": "İade Et",
+    "returning": "İade ediliyor...",
+    "success": "Başarıyla iade edildi",
+    "title": "Öğeyi İade Et",
+    "uploadPhoto": "Fotoğraf yükle"
+  },
+  "revokeDialog": {
+    "borrower": "Ödünç Alan",
+    "description": "Bu onayı gerçekten iptal etmek istiyor musunuz?",
+    "item": "Öğe",
+    "period": "Dönem",
+    "reason": "Neden",
+    "reasonPlaceholder": "Lütfen bir neden belirtin...",
+    "reasonRequired": "Lütfen bir neden belirtin",
+    "revoke": "İptal Et",
+    "revoking": "İptal ediliyor...",
+    "title": "Onayı İptal Et"
+  },
+  "status": {
+    "active": "Ödünç Alınmış",
+    "approved": "Onaylandı",
+    "completed": "İade Edildi",
+    "overdue": "Gecikmiş",
+    "pending": "Beklemede",
+    "rejected": "Reddedildi"
+  },
+  "task": "Görev"
+}

@@ -1,6 +1,6 @@
 import i18n from "i18next";
 import type { Locale } from "date-fns";
-import { de, enGB, es, fr, zhCN } from "date-fns/locale";
+import { de, enGB, es, fr, zhCN, tr as trLocale } from "date-fns/locale";
 import { initReactI18next } from "react-i18next";
 import HttpBackend from "i18next-http-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -11,8 +11,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: "es", name: "Español", flag: "🇪🇸" },
   { code: "fr", name: "Français", flag: "🇫🇷" },
   { code: "zh", name: "中文", flag: "🇨🇳" },
-  // Future languages can be added here:
-  // { code: "tr", name: "Türkçe", flag: "🇹🇷" },
+  { code: "tr", name: "Türkçe", flag: "🇹🇷" },
 ] as const;
 
 export type SupportedLanguageCode = (typeof SUPPORTED_LANGUAGES)[number]["code"];
@@ -110,6 +109,7 @@ export function getDateFnsLocaleSync(lang: string): Locale {
   if (code === "en") return enGB;
   if (code === "fr") return fr;
   if (code === "zh") return zhCN;
+  if (code === "tr") return trLocale;
   return de;
 }
 

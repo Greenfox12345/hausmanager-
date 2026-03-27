@@ -1,0 +1,59 @@
+{
+  "title": "Komşuluk",
+  "description": "Ortak görevler ve projeler için diğer hanelerle bağlantı kurun",
+  "tabs": {
+    "connect": "Haneleri Bağla",
+    "borrow": "Öğeleri Ödünç Al"
+  },
+  "actions": {
+    "inviteHousehold": "Hane Davet Et",
+    "invite": "Davet Et",
+    "accept": "Kabul Et",
+    "reject": "Reddet",
+    "remove": "Kaldır",
+    "requestBorrow": "Ödünç Alma İsteği"
+  },
+  "fields": {
+    "inviteCode": "Davet kodunu girin",
+    "inviteCodePlaceholder": "örn. ABC123",
+    "code": "Kod:",
+    "household": "Hane",
+    "allHouseholds": "Tüm Haneler",
+    "item": "Öğe",
+    "items": "Öğeler"
+  },
+  "messages": {
+    "collaborate": "Diğer hanelerle işbirliği yapın",
+    "invitationSent": "Davet gönderildi!",
+    "invitationAccepted": "Davet kabul edildi!",
+    "invitationRejected": "Davet reddedildi",
+    "connectionRemoved": "Bağlantı kaldırıldı",
+    "confirmRemoveConnection": "Bu bağlantıyı gerçekten kaldırmak istiyor musunuz?",
+    "borrowAutoApproved": "Ödünç alma isteği otomatik olarak onaylandı",
+    "borrowRequestSent": "Ödünç alma isteği gönderildi. Onay bekleniyor.",
+    "pendingInvitations": "Bekleyen Davetler",
+    "invitationsFromOtherHouseholds": "Diğer hanelerden davetler",
+    "invitedBy": "Davet Eden",
+    "connectedHouseholds": "Bağlı Haneler",
+    "householdsToShareTasks": "Görevleri ve projeleri paylaşabileceğiniz haneler",
+    "noConnectedHouseholds": "Henüz bağlı hane yok",
+    "inviteOthersToPlanTasks": "Görevleri birlikte planlamak için diğer haneleri davet edin",
+    "connectedSince": "Bağlantı Tarihi",
+    "howItWorks": "Nasıl Çalışır",
+    "connectHouseholdsTitle": "Haneleri Bağla:",
+    "connectHouseholdsDescription": "Bağlantı kurmak için başka bir hanenin davet kodunu girin",
+    "shareTasksTitle": "Görevleri Paylaş:",
+    "shareTasksDescription": "Görev oluştururken bağlı haneleri seçebilirsiniz",
+    "assignMembersTitle": "Üyeleri Ata:",
+    "assignMembersDescription": "Tüm bağlı hanelerden üyelere görev atayın",
+    "manageTogetherTitle": "Birlikte Yönet:",
+    "manageTogetherDescription": "Bağlı hanelerin tüm üyeleri paylaşılan görevleri düzenleyebilir",
+    "enterInviteCodeDescription": "Bağlanmak istediğiniz hanenin davet kodunu girin",
+    "householdFound": "Hane bulundu",
+    "noHouseholdFound": "Bu davet koduyla hane bulunamadı",
+    "loadingItems": "Öğeler yükleniyor...",
+    "noItemsAvailable": "Hiç öğe yok",
+    "noItemsHint": "Bağlı haneler önce öğelerini başkalarıyla paylaşmalıdır.",
+    "noItemsForHousehold": "Bu hane için öğe bulunamadı."
+  }
+}

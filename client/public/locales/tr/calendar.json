@@ -1,0 +1,85 @@
+{
+  "title": "Takvim",
+  "noEvents": "Etkinlik Yok",
+  "newEvent": "Yeni Etkinlik",
+  "editEvent": "Etkinliği Düzenle",
+  "deleteEvent": "Etkinliği Sil",
+  "eventDetails": "Etkinlik Detayları",
+  "views": {
+    "month": "Ay",
+    "week": "Hafta",
+    "day": "Gün",
+    "agenda": "Ajanda"
+  },
+  "fields": {
+    "title": "Başlık",
+    "description": "Açıklama",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "startTime": "Başlangıç Saati",
+    "endTime": "Bitiş Saati",
+    "allDay": "Tüm Gün",
+    "location": "Konum",
+    "assignedTo": "Atanan Kişi",
+    "recurring": "Tekrarlayan",
+    "color": "Renk"
+  },
+  "navigation": {
+    "today": "Bugün",
+    "previous": "Önceki",
+    "next": "Sonraki"
+  },
+  "messages": {
+    "created": "Etkinlik oluşturuldu",
+    "updated": "Etkinlik güncellendi",
+    "deleted": "Etkinlik silindi",
+    "deleteConfirm": "Bu etkinliği gerçekten silmek istiyor musunuz?",
+    "overview": "Takvim ve tüm etkinliklere genel bakış",
+    "confirmUndo": "Bu etkinliğin tamamlanmasını geri almak istiyor musunuz? Görev bu tarihe geri dönecektir.",
+    "confirmSkip": "Bu etkinliği atlamak istiyor musunuz? Artık takvimde görünmeyecek.",
+    "jumpedToCurrent": "Mevcut etkinliğe atlandı",
+    "occurrenceSkipped": "Etkinlik atlandı!"
+  },
+  "labels": {
+    "occurrence": "Etkinlik"
+  },
+  "futureOccurrence": "Sonraki Etkinlik",
+  "completedOccurrence": "Tamamlanmış Etkinlik",
+  "actions": {
+    "undo": "Geri Al",
+    "jumpToCurrent": "Mevcut Etkinliğe Git",
+    "skip": "Atla"
+  },
+  "eventDetail": {
+    "borrowStart": "Ödünç Alma Başlangıcı",
+    "borrowReturn": "İade Tarihi",
+    "event": "Etkinlik",
+    "completed": "Tamamlandı",
+    "date": "Tarih",
+    "description": "Açıklama",
+    "relatedItem": "İlgili Öğe",
+    "goToItem": "Öğeye Git",
+    "markReturned": "İade Edildi Olarak İşaretle",
+    "viewItem": "Öğeyi Görüntüle"
+  },
+  "allTasksChronological": "Tüm Görevler (kronolojik)",
+  "calendarView": "Takvim Görünümü",
+  "completedOn": "Tamamlanma Tarihi:",
+  "confirmSkip": "Bu etkinliği atlamak istiyor musunuz? Artık takvimde görünmeyecek.",
+  "filter": {
+    "all": "Tüm Girişler",
+    "borrowsOnly": "Sadece Ödünç Almalar",
+    "tasksOnly": "Sadece Görevler"
+  },
+  "jumpToCurrent": "Mevcut Etkinliğe Git",
+  "noTasksOnDay": "Bu güne ait görev yok",
+  "noTasksWithoutDates": "Tarihsiz görev yok",
+  "noTasksWithoutDatesForMember": "Bu üye için tarihsiz görev yok",
+  "occurrence": "Etkinlik",
+  "period": "Dönem",
+  "skip": "Atla",
+  "tasksOn": "Görevler",
+  "tasksWithoutDates": "Tarihsiz Görevler",
+  "today": "Bugün",
+  "months": "Aylar"
+}

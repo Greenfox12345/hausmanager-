@@ -113,7 +113,7 @@ export const calendarRouter = router({
 
       // Activity log
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh");
+      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
@@ -169,7 +169,7 @@ export const calendarRouter = router({
 
       // Activity log
       const household = await getHouseholdById(householdId);
-      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh");
+      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
       const memberName = await getMemberName(memberId);
       const eventTitle = input.title ?? existing?.title ?? `#${id}`;
       await createActivityLog({
@@ -202,7 +202,7 @@ export const calendarRouter = router({
 
       // Activity log
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh");
+      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
@@ -236,7 +236,7 @@ export const calendarRouter = router({
       const existing = await getCalendarEventById(input.id);
       const eventTitle = existing?.title ?? `#${input.id}`;
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh");
+      const lang = ((household?.language ?? "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,

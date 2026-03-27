@@ -1,0 +1,59 @@
+{
+  "title": "Ev",
+  "selection": {
+    "title": "Ev seç",
+    "subtitle": "Bir ev seçin veya yeni bir tane oluşturun",
+    "noHouseholds": "Henüz ev yok",
+    "noHouseholdsHint": "Yeni bir ev oluşturun veya mevcut birine katılın.",
+    "createNew": "Yeni ev oluştur",
+    "joinExisting": "Mevcut eve katıl"
+  },
+  "create": {
+    "title": "Ev oluştur",
+    "namePlaceholder": "örneğin Aile Müller",
+    "addressPlaceholder": "Adres (isteğe bağlı)",
+    "submit": "Ev oluştur",
+    "success": "Ev oluşturuldu",
+    "error": "Ev oluşturulurken hata oluştu"
+  },
+  "join": {
+    "title": "Eve katıl",
+    "codePlaceholder": "Davet kodunu girin",
+    "submit": "Katıl",
+    "success": "Başarıyla katıldı",
+    "invalidCode": "Geçersiz veya süresi dolmuş davet kodu",
+    "error": "Katılırken hata oluştu"
+  },
+  "settings": {
+    "title": "Ev ayarları",
+    "general": "Genel",
+    "name": "Ev adı",
+    "address": "Adres",
+    "language": "Ev dili",
+    "languageHint": "Bu dil, tüm üyelerin göreceği geçmiş kayıtları ve bildirimler için kullanılır.",
+    "save": "Ayarları kaydet",
+    "saved": "Ayarlar kaydedildi",
+    "danger": "Tehlike bölgesi",
+    "leave": "Evden ayrıl",
+    "leaveConfirm": "Bu evden gerçekten ayrılmak istiyor musunuz?",
+    "delete": "Evi sil",
+    "deleteConfirm": "Bu evi gerçekten silmek istiyor musunuz? Bu işlem geri alınamaz.",
+    "deleteWarning": "Tüm veriler kalıcı olarak silinecektir."
+  },
+  "inviteDialog": {
+    "title": "Ev başarıyla oluşturuldu!",
+    "description": "Bu davet kodunu diğer kişilerle paylaşarak \"{{householdName}}\" evinize katılmalarını sağlayın.",
+    "copied": "Davet kodu kopyalandı!",
+    "copyError": "Kopyalama hatası",
+    "hint": "İpucu",
+    "hintText": "Yeni üyeler bu kodla kayıt olabilir ve evinize katılabilir.",
+    "understood": "Anlaşıldı"
+  },
+  "neighborhood": {
+    "title": "Mahalle",
+    "subtitle": "Komşularınızla bağlantı kurun ve eşyalarınızı değiş tokuş edin",
+    "noNeighbors": "Henüz komşu bağlı değil",
+    "addNeighbor": "Komşu ekle",
+    "borrowFromNeighbor": "Komşudan ödünç al"
+  }
+}

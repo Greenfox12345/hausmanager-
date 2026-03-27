@@ -1,0 +1,421 @@
+{
+  "app": {
+    "name": "Ev Yöneticisi",
+    "tagline": "Evinizi birlikte yönetin"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "tasks": "Görevler",
+    "shopping": "Alışveriş",
+    "inventory": "Envanter",
+    "members": "Üyeler",
+    "history": "Geçmiş",
+    "calendar": "Takvim",
+    "projects": "Projeler",
+    "borrows": "Ödünç Alınanlar",
+    "neighborhood": "Mahalle",
+    "settings": "Ayarlar",
+    "logout": "Çıkış Yap",
+    "household": "Ev",
+    "more": "Daha Fazla",
+    "shopping_label": "Alışveriş",
+    "calendar_label": "Randevular"
+  },
+  "actions": {
+    "save": "Kaydet",
+    "cancel": "İptal Et",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "add": "Ekle",
+    "create": "Oluştur",
+    "confirm": "Onayla",
+    "close": "Kapat",
+    "back": "Geri",
+    "next": "İleri",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "reset": "Sıfırla",
+    "submit": "Gönder",
+    "upload": "Yükle",
+    "download": "İndir",
+    "refresh": "Yenile",
+    "copy": "Kopyala",
+    "share": "Paylaş",
+    "view": "Görüntüle",
+    "remove": "Kaldır",
+    "apply": "Uygula",
+    "loading": "Yükleniyor...",
+    "saving": "Kaydediliyor...",
+    "deleting": "Siliniyor...",
+    "clickToStart": "Başlamak için tıklayın →",
+    "complete": "Tamamla",
+    "deselectAll": "Tüm Seçimleri Kaldır",
+    "editDetails": "Detayları Düzenle",
+    "restore": "Geri Yükle",
+    "selectAll": "Tümünü Seç",
+    "showLess": "Daha Az Göster",
+    "undo": "Geri Al",
+    "logout": "Çıkış Yap"
+  },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "pending": "Beklemede",
+    "completed": "Tamamlandı",
+    "cancelled": "İptal Edildi",
+    "approved": "Onaylandı",
+    "rejected": "Reddedildi",
+    "overdue": "Vadesi Geçmiş",
+    "open": "Açık",
+    "done": "Tamamlandı",
+    "inProgress": "Devam Ediyor",
+    "creating": "Oluşturuluyor...",
+    "loading": "Envanter yükleniyor...",
+    "uploading": "Yükleniyor..."
+  },
+  "labels": {
+    "name": "Ad",
+    "description": "Açıklama",
+    "date": "Tarih",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "dueDate": "Son Teslim Tarihi",
+    "createdAt": "Oluşturulma Tarihi",
+    "updatedAt": "Güncelleme Tarihi",
+    "category": "Kategori",
+    "priority": "Öncelik",
+    "status": "Durum",
+    "assignedTo": "Atanan Kişi",
+    "createdBy": "Oluşturan",
+    "notes": "Notlar",
+    "tags": "Etiketler",
+    "type": "Tür",
+    "all": "Tümü",
+    "none": "Hiçbiri",
+    "optional": "İsteğe Bağlı",
+    "required": "Gerekli",
+    "yes": "Evet",
+    "no": "Hayır",
+    "unknown": "Bilinmiyor",
+    "other": "Diğer",
+    "total": "Toplam",
+    "count": "Sayı",
+    "amount": "Miktar",
+    "unit": "Birim",
+    "quantity": "Miktar",
+    "price": "Fiyat",
+    "language": "Dil",
+    "reason": "Sebep",
+    "preview": "Önizleme",
+    "photo": "Fotoğraf",
+    "prevPhoto": "Önceki Fotoğraf",
+    "nextPhoto": "Sonraki Fotoğraf",
+    "fullscreen": "Tam Ekran",
+    "today": "Bugün",
+    "on": "açık",
+    "allTypes": "Tüm Türler",
+    "by": "tarafından",
+    "clock": "Saat",
+    "color": "Renk",
+    "details": "Detaylar",
+    "email": "E-posta",
+    "noHousehold": "Ev seçilmedi",
+    "photos": "Fotoğraflar",
+    "time": "Saat",
+    "unassigned": "Atanmamış",
+    "selectDate": "Tarih seç",
+    "pageOf": "{{current}} / {{total}} sayfa"
+  },
+  "priority": {
+    "low": "Düşük",
+    "medium": "Orta",
+    "high": "Yüksek",
+    "urgent": "Acil"
+  },
+  "time": {
+    "thisWeek": "Bu Hafta",
+    "thisMonth": "Bu Ay",
+    "label": "Saat"
+  },
+  "messages": {
+    "success": "Başarılı",
+    "error": "Hata",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "confirmDelete": "Bu öğeyi gerçekten silmek istiyor musunuz?",
+    "noData": "Veri yok",
+    "noResults": "Sonuç bulunamadı",
+    "loadingError": "Veriler yüklenirken hata oluştu",
+    "saveSuccess": "Başarıyla kaydedildi",
+    "saveError": "Kaydedilirken hata oluştu",
+    "deleteSuccess": "Başarıyla silindi",
+    "deleteError": "Silinirken hata oluştu",
+    "featureComingSoon": "Bu özellik yakında geliyor",
+    "welcome": "Hoş geldiniz",
+    "loading": "Yükleniyor...",
+    "unknown": "Bilinmiyor",
+    "howItWorks": "💡 Nasıl Çalışır:",
+    "copyError": "Kopyalama hatası"
+  },
+  "household": {
+    "select": "Ev seç",
+    "create": "Ev oluştur",
+    "join": "Eve katıl",
+    "settings": {
+      "saved": "Ayarlar kaydedildi"
+    },
+    "language": "Ev dili",
+    "languageHint": "Bu dil, tüm ev üyelerinin gördüğü geçmiş girişleri ve bildirimler için kullanılacaktır.",
+    "name": "Ev Adı",
+    "members": "Üyeler",
+    "admin": "Yönetici",
+    "member": "Üye",
+    "inviteCode": "Davet Kodu",
+    "leaveHousehold": "Evden ayrıl",
+    "deleteHousehold": "Evi sil",
+    "adminOnly": "Sadece ev sahibi ev dilini değiştirebilir."
+  },
+  "language": {
+    "select": "Dil seç",
+    "uiLanguage": "Kullanıcı Arayüzü Dili",
+    "uiLanguageHint": "Bu ayar sadece sizin için geçerlidir ve bu cihaza kaydedilecektir.",
+    "de": "Almanca",
+    "en": "İngilizce",
+    "fr": "Fransızca",
+    "es": "İspanyolca",
+    "tr": "Türkçe",
+    "zh": "Çince",
+    "title": "Dil Ayarları"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "register": "Kaydol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "username": "Kullanıcı Adı",
+    "loginPrompt": "Devam etmek için lütfen giriş yapın",
+    "logoutConfirm": "Gerçekten çıkış yapmak istiyor musunuz?",
+    "signInToContinue": "Devam etmek için oturum açın",
+    "accessRequiresAuth": "Bu kontrol paneline erişim kimlik doğrulama gerektirir. Giriş akışını başlatmak için devam edin.",
+    "signIn": "Oturum aç",
+    "signOut": "Oturum kapat"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "Tümünü okundu olarak işaretle",
+    "noNotifications": "Yeni bildirim yok",
+    "settings": "Bildirim Ayarları"
+  },
+  "pagination": {
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "page": "Sayfa",
+    "of": "nın",
+    "itemsPerPage": "Sayfa başına öğe",
+    "showingOf": "{{from}}-{{to}} / {{total}} gösteriliyor"
+  },
+  "all": "Tümü",
+  "open": "Açık",
+  "done": "Tamamlandı",
+  "overdue": "Vadesi Geçmiş",
+  "today": "Bugün",
+  "assignedTo": "Atanan Kişi",
+  "sortBy": "Şuna Göre Sırala",
+  "dueDate": "Son Teslim Tarihi",
+  "creationDate": "Oluşturulma Tarihi",
+  "notEnoughMembers": "Yeterli üye yok! Gerekli: {{required}}, Mevcut: {{available}}",
+  "minOneAssignee": "Lütfen en az bir sorumlu seçin",
+  "errors": {
+    "generic": "Hata: ",
+    "saveFailed": "Kaydedilemedi",
+    "notLoggedIn": "Lütfen giriş yapın"
+  },
+  "profile": {
+    "title": "Profili Düzenle",
+    "description": "Kişisel bilgilerinizi veya şifrenizi değiştirin.",
+    "tabGeneral": "Genel",
+    "tabPassword": "Şifreyi Değiştir",
+    "profileImage": "Profil Resmi",
+    "uploading": "Yükleniyor...",
+    "upload": "Yükle",
+    "changeImage": "Resmi Değiştir",
+    "uploadImage": "Resim Yükle",
+    "imageHint": "JPEG, PNG veya WebP, maks. 5MB",
+    "namePlaceholder": "Adınız",
+    "emailPlaceholder": "e-posta@örnek.com",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Şifreyi Onayla",
+    "passwordMinLength": "Minimum 8 karakter",
+    "changePassword": "Şifreyi Değiştir",
+    "changingPassword": "Değiştiriliyor...",
+    "updated": "Profil başarıyla güncellendi",
+    "updateError": "Profil güncellenirken hata oluştu",
+    "imageUploaded": "Profil resmi başarıyla yüklendi",
+    "imageUploadError": "Profil resmi yüklenirken hata oluştu",
+    "imageDeleted": "Profil resmi başarıyla kaldırıldı",
+    "imageDeleteError": "Profil resmi kaldırılırken hata oluştu",
+    "confirmDeleteImage": "Profil resminizi gerçekten kaldırmak istiyor musunuz?",
+    "passwordChanged": "Şifre başarıyla değiştirildi",
+    "passwordChangeError": "Şifre değiştirilirken hata oluştu",
+    "nameRequired": "Ad boş bırakılamaz",
+    "emailRequired": "E-posta boş bırakılamaz",
+    "emailInvalid": "Lütfen geçerli bir e-posta adresi girin",
+    "currentPasswordRequired": "Lütfen mevcut şifrenizi girin",
+    "newPasswordRequired": "Lütfen yeni bir şifre girin",
+    "passwordTooShort": "Şifre en az 8 karakter uzunluğunda olmalıdır",
+    "passwordMismatch": "Şifreler eşleşmiyor"
+  },
+  "cancel": {
+    "label": "İptal Et"
+  },
+  "add": {
+    "label": "Ekle"
+  },
+  "toast": {
+    "settingsSaved": "Ayarlar kaydedildi",
+    "permissionDenied": "Bildirimlere izin verilmedi",
+    "browserNotificationsEnabled": "Tarayıcı bildirimleri etkinleştirildi"
+  },
+  "dialog": {
+    "title": "Bildirim Ayarları",
+    "description": "Hangi bildirimleri almak istediğinizi özelleştirin"
+  },
+  "browserPush": {
+    "label": "Tarayıcı Bildirimleri",
+    "description": "Tarayıcı kapalıyken bile bildirim alın",
+    "blockedMessage": "Bildirimler engellendi. Lütfen tarayıcı ayarlarından etkinleştirin."
+  },
+  "notificationTypes": {
+    "title": "Bildirim Türleri",
+    "taskAssigned": "Görev Atamaları",
+    "taskDue": "Süresi Dolan Görevler",
+    "taskCompleted": "Tamamlanan Görevler",
+    "comments": "Yorumlar"
+  },
+  "dnd": {
+    "title": "Rahatsız Etmeyin",
+    "description": "Bu süre boyunca bildirim almayın",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "activeMessage": "{{dndStartTime}} ile {{dndEndTime}} saatleri arasında aktif"
+  },
+  "autoSaveMessage": "Ayarlar otomatik olarak kaydedilir",
+  "closeButton": "Kapat",
+  "notificationBell": {
+    "title": "Bildirimler",
+    "markAllAsRead": "Tümünü okundu olarak işaretle",
+    "noNotifications": "Bildirim yok"
+  },
+  "pdfViewer": {
+    "documentType": "PDF Belgesi",
+    "openExternal": "Harici Olarak Aç",
+    "download": "İndir"
+  },
+  "photoLightbox": {
+    "closeButtonAriaLabel": "Kapat",
+    "previousPhotoAriaLabel": "Önceki Fotoğraf",
+    "photoAltText": "Fotoğraf",
+    "nextPhotoAriaLabel": "Sonraki Fotoğraf"
+  },
+  "clickablePhoto": {
+    "photoAltText": "Fotoğraf"
+  },
+  "upcomingOccurrencesTable": {
+    "noOccurrencesPlanned": "Planlanmış yaklaşan olay yok",
+    "noDate": "Tarih Yok",
+    "stillOpen": "Hala Açık"
+  },
+  "errorBoundary": {
+    "unexpectedError": "Beklenmeyen bir hata oluştu.",
+    "reloadPage": "Sayfayı yeniden yükle"
+  },
+  "chatBox": {
+    "placeholder": "Mesaj yaz...",
+    "emptyStateMessage": "AI ile bir konuşma başlatın",
+    "suggestedPrompt1": "Kuantum bilgisayarı açıkla",
+    "suggestedPrompt2": "Python'da bir Hello World yaz"
+  },
+  "photoUpload": {
+    "maxPhotosAllowed": "Maksimum {{maxPhotos}} {{fileTypeLabel}} izin verildi",
+    "notAPDF": "{{fileName}} bir PDF değil",
+    "notAnImage": "{{fileName}} bir resim değil",
+    "compressionError": "{{fileName}} sıkıştırılırken hata oluştu",
+    "fileTooLarge": "{{fileName}} çok büyük (maks. {{maxSize}})",
+    "uploadError": "{{fileTypeLabel}} yüklenirken hata oluştu",
+    "uploading": "Yükleniyor...",
+    "addFiles": "{{fileTypeLabel}} ekle ({{current}}/{{max}})",
+    "removeFile": "{{fileTypeLabel}} kaldır"
+  },
+  "imageCropEditor": {
+    "title": "Resmi Kırp",
+    "zoomLabel": "Yakınlaştır",
+    "processing": "İşleniyor...",
+    "helperText": {
+      "dragAndZoom": "Konumlandırmak için resmi sürükleyin. Yakınlaştırmak için kaydırıcıyı kullanın."
+    },
+    "errors": {
+      "canvasContext": "Tuval bağlamı alınırken hata oluştu"
+    }
+  },
+  "apply": "Uygula",
+  "category": {
+    "create": {
+      "success": "\"${name}\" kategorisi oluşturuldu",
+      "error": "Kategori oluşturulurken hata oluştu",
+      "buttonTitle": "Yeni kategori oluştur",
+      "dialogTitle": "Yeni kategori oluştur",
+      "dialogDescription": "Yeni bir {type} kategorisi oluşturun."
+    },
+    "type": {
+      "shopping": "Alışveriş",
+      "inventory": "Envanter"
+    },
+    "nameLabel": "Kategori Adı",
+    "namePlaceholder": "örn. market, elektronik...",
+    "colorLabel": "Renk"
+  },
+  "button": {
+    "cancel": "İptal Et",
+    "creating": "Oluşturuluyor...",
+    "create": "Oluştur"
+  },
+  "sidebar": {
+    "toggleNavigation": "Navigasyonu değiştir",
+    "navigation": "Navigasyon"
+  },
+  "menu": {
+    "menu": "Menü"
+  },
+  "upload": {
+    "uploading": "Yükleniyor...",
+    "addFiles": "{{label}} ekle ({{current}}/{{max}})",
+    "removeFile": "{{label}} kaldır",
+    "maxFilesError": "Maksimum {{max}} {{label}} izin verildi",
+    "notAPdf": "{{name}} bir PDF değil",
+    "notAnImage": "{{name}} bir resim değil",
+    "compressionError": "{{name}} sıkıştırılırken hata oluştu",
+    "fileTooLarge": "{{name}} çok büyük (maks. {{max}})",
+    "uploadError": "{{label}} yüklenirken hata oluştu"
+  },
+  "sort": {
+    "asc": "A–Z",
+    "desc": "Z–A",
+    "ascending": "Artan sırada sırala",
+    "descending": "Azalan sırada sırala"
+  },
+  "back": "Geri",
+  "common": {
+    "messages": {
+      "loading": "Yükleniyor..."
+    }
+  },
+  "loading": "Yükleniyor...",
+  "navigation": {
+    "back": "Geri",
+    "next": "İleri"
+  },
+  "pleaseLogin": "Lütfen giriş yapın",
+  "uploading": "Yükleniyor..."
+}
