@@ -6,7 +6,7 @@ import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests, householdMe
 import { eq, and } from "drizzle-orm";
 import { occurrenceItemAdded, occurrenceItemRemoved } from "../activityTexts";
 
-type OccLang = "de" | "en" | "es";
+type OccLang = "de" | "en" | "es" | "fr";
 async function getOccLang(householdId: number): Promise<OccLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";

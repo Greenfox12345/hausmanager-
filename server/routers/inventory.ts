@@ -23,7 +23,7 @@ import {
   inventoryItemDeleted,
 } from "../activityTexts";
 
-type Lang = "de" | "en" | "es";
+type Lang = "de" | "en" | "es" | "fr";
 
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);

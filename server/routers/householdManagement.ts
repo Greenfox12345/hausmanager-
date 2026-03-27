@@ -117,9 +117,9 @@ export const householdManagementRouter = router({
 
       // Create default inventory categories
       const defaultCategories = [
-        { name: input.language === "en" ? "Food" : input.language === "es" ? "Alimentos" : "Lebensmittel", color: "#EF4444" },
-        { name: input.language === "en" ? "Cleaning" : input.language === "es" ? "Limpieza" : "Reinigung", color: "#EAB308" },
-        { name: input.language === "en" ? "Tools" : input.language === "es" ? "Herramientas" : "Werkzeug", color: "#22C55E" },
+        { name: input.language === "en" ? "Food" : input.language === "es" ? "Alimentos" : input.language === "fr" ? "Alimentation" : "Lebensmittel", color: "#EF4444" },
+        { name: input.language === "en" ? "Cleaning" : input.language === "es" ? "Limpieza" : input.language === "fr" ? "Nettoyage" : "Reinigung", color: "#EAB308" },
+        { name: input.language === "en" ? "Tools" : input.language === "es" ? "Herramientas" : input.language === "fr" ? "Outils" : "Werkzeug", color: "#22C55E" },
       ];
       await db.insert(shoppingCategories).values(
         defaultCategories.map((cat) => ({
@@ -551,7 +551,7 @@ export const householdManagementRouter = router({
         .where(eq(households.id, input.householdId));
 
       // Log the language change (use new language for the log text)
-      const newLang = (input.language as "de" | "en" | "es");
+      const newLang = (input.language as "de" | "en" | "es" | "fr");
       await createActivityLog({
         householdId: input.householdId,
         memberId: member.id,
@@ -656,7 +656,7 @@ export const householdManagementRouter = router({
         .limit(1);
 
       let newAdminName: string | null = null;
-      const lang = (household?.language || "de") as "de" | "en" | "es";
+      const lang = (household?.language || "de") as "de" | "en" | "es" | "fr";
 
       if (household && household.createdBy === ctx.user.id) {
         // Find the oldest active member who is NOT the leaving user
@@ -770,7 +770,7 @@ export const householdManagementRouter = router({
 
       // Log the vote
       const [hh] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
-      const voteLang = ((hh?.language || "de") as "de" | "en" | "es");
+      const voteLang = ((hh?.language || "de") as "de" | "en" | "es" | "fr");
       const votesNeeded = Math.floor(totalMembers / 2) + 1;
       await createActivityLog({
         householdId: input.householdId,
@@ -819,7 +819,7 @@ export const householdManagementRouter = router({
 
       // Log the retraction
       const [hhRetract] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
-      const retractLang = ((hhRetract?.language || "de") as "de" | "en" | "es");
+      const retractLang = ((hhRetract?.language || "de") as "de" | "en" | "es" | "fr");
       await createActivityLog({
         householdId: input.householdId,
         memberId: member.id,
@@ -957,7 +957,7 @@ export const householdManagementRouter = router({
         )
         .limit(1);
 
-      const transferLang = ((household.language || "de") as "de" | "en" | "es");
+      const transferLang = ((household.language || "de") as "de" | "en" | "es" | "fr");
       await createActivityLog({
         householdId: input.householdId,
         memberId: callerMember?.id ?? 0,

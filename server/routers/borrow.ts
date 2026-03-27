@@ -38,7 +38,7 @@ import {
 } from "../activityTexts";
 import { getHouseholdById } from "../db";
 
-type BorrowLang = "de" | "en" | "es";
+type BorrowLang = "de" | "en" | "es" | "fr";
 async function getBorrowLang(householdId: number): Promise<BorrowLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";

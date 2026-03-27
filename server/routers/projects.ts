@@ -90,7 +90,7 @@ export const projectsRouter = router({
 
       // Activity log
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
@@ -464,7 +464,7 @@ export const projectsRouter = router({
 
       // Activity log
       const household = await getHouseholdById(householdId);
-      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr");
       const memberName = await getMemberName(memberId);
       const projectName = updateData.name ?? existing?.name ?? `#${id}`;
 
@@ -511,7 +511,7 @@ export const projectsRouter = router({
 
       // Activity log
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
@@ -536,7 +536,7 @@ export const projectsRouter = router({
       // Activity log
       const [project] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
@@ -562,7 +562,7 @@ export const projectsRouter = router({
       // Activity log
       const [project] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
       const household = await getHouseholdById(input.householdId);
-      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr");
       const memberName = await getMemberName(input.memberId);
       await createActivityLog({
         householdId: input.householdId,
