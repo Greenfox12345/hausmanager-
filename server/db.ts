@@ -602,18 +602,20 @@ export async function createActivityLog(data: {
   return Number(result[0].insertId);
 }
 
-export async function getActivityHistory(householdId: number, limit: number = 30, offset: number = 0) {
+export async function getActivityHistory(householdId: number, limit: number = 30, offset: number = 0, activityTypeFilter?: string) {
   const db = await getDb();
   if (!db) return { activities: [], total: 0 };
-
+  // Build where condition
+  const whereCondition = activityTypeFilter
+    ? and(eq(activityHistory.householdId, householdId), eq(activityHistory.activityType, activityTypeFilter as any))
+    : eq(activityHistory.householdId, householdId);
   // Get total count
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(activityHistory)
-    .where(eq(activityHistory.householdId, householdId));
+    .where(whereCondition);
   const total = Number(countResult[0]?.count || 0);
-
   // Get activities with task details if relatedItemId exists and activityType is 'task'
   const activities = await db.select().from(activityHistory)
-    .where(eq(activityHistory.householdId, householdId))
+    .where(whereCondition)
     .orderBy(desc(activityHistory.createdAt))
     .limit(limit)
     .offset(offset);

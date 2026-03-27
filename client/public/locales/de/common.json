@@ -123,7 +123,8 @@
     "photos": "Fotos",
     "time": "Uhrzeit",
     "unassigned": "Nicht zugewiesen",
-    "selectDate": "Datum auswählen"
+    "selectDate": "Datum auswählen",
+    "pageOf": "Seite {{current}} von {{total}}"
   },
   "priority": {
     "low": "Niedrig",

@@ -206,13 +206,15 @@ export const authRouter = router({
     .input(z.object({ 
       householdId: z.number(),
       limit: z.number().optional(),
-      offset: z.number().optional()
+      offset: z.number().optional(),
+      activityType: z.enum(["shopping", "task", "project", "member", "inventory", "other"]).optional(),
     }))
     .query(async ({ input }) => {
       const { activities, total } = await getActivityHistory(
         input.householdId, 
         input.limit || 30, 
-        input.offset || 0
+        input.offset || 0,
+        input.activityType
       );
       
       // Get member names

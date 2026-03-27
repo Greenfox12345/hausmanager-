@@ -198,7 +198,8 @@
     "noHousehold": "Ningún hogar seleccionado",
     "photos": "Fotos",
     "unassigned": "Sin asignar",
-    "selectDate": "Seleccionar fecha"
+    "selectDate": "Seleccionar fecha",
+    "pageOf": "Página {{current}} de {{total}}"
   },
   "household": {
     "select": "Seleccionar hogar",

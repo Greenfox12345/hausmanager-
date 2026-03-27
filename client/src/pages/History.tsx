@@ -39,7 +39,8 @@ export default function History() {
     { 
       householdId: household?.householdId ?? 0,
       limit: itemsPerPage,
-      offset: (currentPage - 1) * itemsPerPage
+      offset: (currentPage - 1) * itemsPerPage,
+      activityType: filterType === "all" ? undefined : (filterType as any),
     },
     { enabled: !!household }
   );
@@ -50,23 +51,23 @@ export default function History() {
 
   // Auth check removed - AppLayout handles this
 
-  const borrowActions = ["borrow_requested", "borrow_approved", "borrow_auto_approved", "borrow_revoked", "borrow_rejected", "borrow_returned"];
-
   const filteredActivities = activities.filter((activity) => {
-    let matchesType: boolean;
-    if (filterType === "all") {
-      matchesType = true;
-    } else if (filterType === "borrow") {
-      matchesType = borrowActions.includes(activity.action);
-    } else {
-      matchesType = activity.activityType === filterType;
-    }
     const matchesSearch = 
       searchQuery === "" ||
       activity.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.comment?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
+    return matchesSearch;
   });
+
+  const filterOptions = [
+    { value: "all", label: t("common:labels.allTypes", "Alle") },
+    { value: "task", label: t("tasks:title", "Aufgaben") },
+    { value: "shopping", label: t("shopping:title", "Einkauf") },
+    { value: "inventory", label: t("inventory:title", "Inventar") },
+    { value: "borrow", label: t("borrows:title", "Ausleihen") },
+    { value: "project", label: t("projects:title", "Projekte") },
+    { value: "member", label: t("members:title", "Mitglieder") },
+  ];
 
   const getActivityIcon = (type: string, action: string) => {
     if (type === "shopping") return <ShoppingCart className="h-5 w-5" />;
@@ -153,9 +154,10 @@ export default function History() {
         </div>
 
         {/* Filters */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-3">
-          <div className="flex items-center gap-2 flex-1">
-            <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="mb-6 space-y-3">
+          {/* Search */}
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <Input
               placeholder={t("common:actions.search", "Suchen...")}
               value={searchQuery}
@@ -163,21 +165,22 @@ export default function History() {
               className="flex-1"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("common:labels.allTypes", "Alle Typen")}</SelectItem>
-                <SelectItem value="shopping">{t("shopping:title", "Einkäufe")}</SelectItem>
-                <SelectItem value="task">{t("tasks:title", "Aufgaben")}</SelectItem>
-                <SelectItem value="project">{t("projects:title", "Projekte")}</SelectItem>
-                <SelectItem value="member">{t("members:title", "Mitglieder")}</SelectItem>
-                <SelectItem value="borrow">{t("borrows:title", "Ausleihen")}</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Filter chips */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => { setFilterType(opt.value); setCurrentPage(1); }}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors border ${
+                  filterType === opt.value
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -601,7 +604,7 @@ export default function History() {
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}
           >
-            Zurück
+            {t("common:actions.back", "Zurück")}
           </Button>
           
           <div className="flex items-center gap-1">
@@ -638,11 +641,11 @@ export default function History() {
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages || isLoading}
           >
-            Weiter
+            {t("common:actions.next", "Weiter")}
           </Button>
           
           <span className="text-sm text-muted-foreground ml-2">
-            Seite {currentPage} von {totalPages}
+            {t("common:labels.pageOf", "Seite {{current}} von {{total}}", { current: currentPage, total: totalPages })}
           </span>
         </div>
       )}

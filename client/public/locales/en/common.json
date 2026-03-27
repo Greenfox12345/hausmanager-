@@ -123,7 +123,8 @@
     "photos": "Photos",
     "time": "Time",
     "unassigned": "Unassigned",
-    "selectDate": "Select date"
+    "selectDate": "Select date",
+    "pageOf": "Page {{current}} of {{total}}"
   },
   "priority": {
     "low": "Low",
