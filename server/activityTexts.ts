@@ -400,3 +400,70 @@ export function householdLanguageChanged(lang: Lang, adminName: string, newLang:
     `${adminName} cambió el idioma del hogar a ${langName(newLang)}`
   );
 }
+
+// ─── Projects ─────────────────────────────────────────────────────────────────
+
+export function projectCreated(lang: Lang, projectName: string, memberName: string, description?: string): string {
+  const desc = description
+    ? t(lang, ` – Beschreibung: ${description}`, ` – description: ${description}`, ` – descripción: ${description}`)
+    : "";
+  return t(lang,
+    `${memberName} hat Projekt „${projectName}"${desc} erstellt`,
+    `${memberName} created project "${projectName}"${desc}`,
+    `${memberName} creó el proyecto "${projectName}"${desc}`
+  );
+}
+
+export function projectUpdated(lang: Lang, projectName: string, memberName: string, changes?: string): string {
+  const ch = changes
+    ? t(lang, ` – Änderungen: ${changes}`, ` – changes: ${changes}`, ` – cambios: ${changes}`)
+    : "";
+  return t(lang,
+    `${memberName} hat Projekt „${projectName}" aktualisiert${ch}`,
+    `${memberName} updated project "${projectName}"${ch}`,
+    `${memberName} actualizó el proyecto "${projectName}"${ch}`
+  );
+}
+
+export function projectDeleted(lang: Lang, projectName: string, memberName: string): string {
+  return t(lang,
+    `${memberName} hat Projekt „${projectName}" gelöscht`,
+    `${memberName} deleted project "${projectName}"`,
+    `${memberName} eliminó el proyecto "${projectName}"`
+  );
+}
+
+export function projectArchived(lang: Lang, projectName: string, memberName: string): string {
+  return t(lang,
+    `${memberName} hat Projekt „${projectName}" archiviert`,
+    `${memberName} archived project "${projectName}"`,
+    `${memberName} archivó el proyecto "${projectName}"`
+  );
+}
+
+export function projectUnarchived(lang: Lang, projectName: string, memberName: string): string {
+  return t(lang,
+    `${memberName} hat Projekt „${projectName}" aus dem Archiv geholt`,
+    `${memberName} unarchived project "${projectName}"`,
+    `${memberName} desarchivó el proyecto "${projectName}"`
+  );
+}
+
+export function projectStatusChanged(lang: Lang, projectName: string, memberName: string, newStatus: string): string {
+  const statusLabel = (s: string) => {
+    const map: Record<string, [string, string, string]> = {
+      planning: ["Planung", "Planning", "Planificación"],
+      active: ["Aktiv", "Active", "Activo"],
+      completed: ["Abgeschlossen", "Completed", "Completado"],
+      cancelled: ["Abgebrochen", "Cancelled", "Cancelado"],
+    };
+    const entry = map[s];
+    if (!entry) return s;
+    return t(lang, entry[0], entry[1], entry[2]);
+  };
+  return t(lang,
+    `${memberName} hat den Status von Projekt „${projectName}" auf „${statusLabel(newStatus)}" geändert`,
+    `${memberName} changed the status of project "${projectName}" to "${statusLabel(newStatus)}"`,
+    `${memberName} cambió el estado del proyecto "${projectName}" a "${statusLabel(newStatus)}"`
+  );
+}

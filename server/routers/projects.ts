@@ -1,8 +1,28 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { getDb } from "../db";
+import { getDb, createActivityLog, getHouseholdById } from "../db";
+import {
+  projectCreated,
+  projectUpdated,
+  projectDeleted,
+  projectArchived,
+  projectUnarchived,
+  projectStatusChanged,
+} from "../activityTexts";
 import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
 import { eq, and, inArray, desc } from "drizzle-orm";
+
+/** Resolve the member name for a given memberId (householdMembers.id). */
+async function getMemberName(memberId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) return "Unknown";
+  const [m] = await db
+    .select({ memberName: householdMembers.memberName })
+    .from(householdMembers)
+    .where(eq(householdMembers.id, memberId))
+    .limit(1);
+  return m?.memberName ?? "Unknown";
+}
 
 export const projectsRouter = router({
   // List all projects accessible to the household
@@ -66,6 +86,19 @@ export const projectsRouter = router({
       await db.insert(projectHouseholds).values({
         projectId,
         householdId: input.householdId,
+      });
+
+      // Activity log
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectCreated",
+        description: projectCreated(lang, input.name, memberName, input.description),
+        relatedItemId: projectId,
       });
 
       return { projectId };
@@ -387,6 +420,8 @@ export const projectsRouter = router({
     .input(
       z.object({
         id: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
         name: z.string().min(1).optional(),
         description: z.string().optional(),
         status: z.enum(["planning", "active", "completed", "cancelled"]).optional(),
@@ -399,10 +434,13 @@ export const projectsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { id, ...updateData } = input;
+      // Fetch existing project to detect changes
+      const [existing] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
+
+      const { id, householdId, memberId, ...updateData } = input;
       
       // Convert date strings to Date objects if provided
-      const processedData: any = { ...updateData };
+      const processedData: Record<string, unknown> = { ...updateData };
       if (updateData.startDate) {
         processedData.startDate = new Date(updateData.startDate);
       }
@@ -412,15 +450,58 @@ export const projectsRouter = router({
 
       await db.update(projects).set(processedData).where(eq(projects.id, id));
 
+      // Build change summary
+      const changeParts: string[] = [];
+      if (updateData.name && existing && updateData.name !== existing.name) {
+        changeParts.push(`Name: „${existing.name}" → „${updateData.name}"`);
+      }
+      if (updateData.status && existing && updateData.status !== existing.status) {
+        changeParts.push(`Status: ${existing.status} → ${updateData.status}`);
+      }
+      if (updateData.description !== undefined && existing && updateData.description !== existing.description) {
+        changeParts.push(`Beschreibung geändert`);
+      }
+
+      // Activity log
+      const household = await getHouseholdById(householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const memberName = await getMemberName(memberId);
+      const projectName = updateData.name ?? existing?.name ?? `#${id}`;
+
+      // If only status changed, use dedicated status-change log
+      if (updateData.status && changeParts.length === 1 && changeParts[0].startsWith("Status:")) {
+        await createActivityLog({
+          householdId,
+          memberId,
+          activityType: "project",
+          action: "projectStatusChanged",
+          description: projectStatusChanged(lang, projectName, memberName, updateData.status),
+          relatedItemId: id,
+        });
+      } else {
+        await createActivityLog({
+          householdId,
+          memberId,
+          activityType: "project",
+          action: "projectUpdated",
+          description: projectUpdated(lang, projectName, memberName, changeParts.length > 0 ? changeParts.join(", ") : undefined),
+          relatedItemId: id,
+        });
+      }
+
       return { success: true };
     }),
 
   // Delete project
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.number(), householdId: z.number(), memberId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // Fetch project name before deletion
+      const [project] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
+      const projectName = project?.name ?? `#${input.id}`;
 
       // Delete project households first (foreign key constraint)
       await db.delete(projectHouseholds).where(eq(projectHouseholds.projectId, input.id));
@@ -428,29 +509,69 @@ export const projectsRouter = router({
       // Delete project
       await db.delete(projects).where(eq(projects.id, input.id));
 
+      // Activity log
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectDeleted",
+        description: projectDeleted(lang, projectName, memberName),
+      });
+
       return { success: true };
     }),
 
   // Archive project
   archive: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.number(), householdId: z.number(), memberId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
       await db.update(projects).set({ isArchived: true }).where(eq(projects.id, input.id));
 
+      // Activity log
+      const [project] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectArchived",
+        description: projectArchived(lang, project?.name ?? `#${input.id}`, memberName),
+        relatedItemId: input.id,
+      });
+
       return { success: true };
     }),
 
   // Unarchive project
   unarchive: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.number(), householdId: z.number(), memberId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
       await db.update(projects).set({ isArchived: false }).where(eq(projects.id, input.id));
+
+      // Activity log
+      const [project] = await db.select().from(projects).where(eq(projects.id, input.id)).limit(1);
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectUnarchived",
+        description: projectUnarchived(lang, project?.name ?? `#${input.id}`, memberName),
+        relatedItemId: input.id,
+      });
 
       return { success: true };
     }),
@@ -484,16 +605,12 @@ export const projectsRouter = router({
       // Add bidirectional dependencies
       for (const dep of input.dependencies) {
         if (dep.type === "prerequisite") {
-          // Current task has dep.taskId as prerequisite
-          // So dep.taskId should have current task as followup
           await db.insert(taskDependencies).values({
             taskId: dep.taskId,
             dependsOnTaskId: input.currentTaskId,
             dependencyType: "followup",
           });
         } else {
-          // Current task has dep.taskId as followup
-          // So dep.taskId should have current task as prerequisite
           await db.insert(taskDependencies).values({
             taskId: dep.taskId,
             dependsOnTaskId: input.currentTaskId,

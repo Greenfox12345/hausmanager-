@@ -292,6 +292,8 @@ export default function Projects() {
 
     updateProjectMutation.mutate({
       id: editingProject.id,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
       name: projectName,
       description: projectDescription || undefined,
       status: projectStatus,
@@ -303,7 +305,7 @@ export default function Projects() {
 
   const handleDeleteProject = (projectId: number) => {
     if (confirm(t("projects:confirmDelete", "Möchten Sie dieses Projekt wirklich löschen?"))) {
-      deleteProjectMutation.mutate({ id: projectId });
+      deleteProjectMutation.mutate({ id: projectId, householdId: household!.householdId, memberId: member!.memberId });
     }
   };
 
@@ -721,7 +723,7 @@ export default function Projects() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     if (confirm(t("projects:confirmArchive", "Möchten Sie dieses Projekt archivieren?"))) {
-                                      archiveProjectMutation.mutate({ id: project.id });
+                                      archiveProjectMutation.mutate({ id: project.id, householdId: household!.householdId, memberId: member!.memberId });
                                     }
                                   }}
                                   title={t("projects:actions.archive", "Archivieren")}
@@ -748,7 +750,7 @@ export default function Projects() {
                               className="h-7 w-7"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                unarchiveProjectMutation.mutate({ id: project.id });
+                                unarchiveProjectMutation.mutate({ id: project.id, householdId: household!.householdId, memberId: member!.memberId });
                               }}
                               title={t("projects:actions.restore", "Wiederherstellen")}
                             >
@@ -837,7 +839,7 @@ export default function Projects() {
                             size="sm"
                             onClick={() => {
                               if (confirm(t("projects:confirmDelete", "Möchten Sie dieses Projekt wirklich löschen?"))) {
-                                deleteProjectMutation.mutate({ id: selectedProject.id });
+                                deleteProjectMutation.mutate({ id: selectedProject.id, householdId: household!.householdId, memberId: member!.memberId });
                               }
                             }}
                           >
@@ -854,7 +856,7 @@ export default function Projects() {
                               size="sm"
                               onClick={() => {
                                 if (confirm(t("projects:confirmArchive", "Möchten Sie dieses Projekt archivieren?"))) {
-                                  archiveProjectMutation.mutate({ id: selectedProject.id });
+                                  archiveProjectMutation.mutate({ id: selectedProject.id, householdId: household!.householdId, memberId: member!.memberId });
                                 }
                               }}
                               title={t("projects:actions.archive", "Archivieren")}
@@ -870,7 +872,7 @@ export default function Projects() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                unarchiveProjectMutation.mutate({ id: selectedProject.id });
+                                unarchiveProjectMutation.mutate({ id: selectedProject.id, householdId: household!.householdId, memberId: member!.memberId });
                               }}
                               title={t("projects:actions.restore", "Wiederherstellen")}
                             >
