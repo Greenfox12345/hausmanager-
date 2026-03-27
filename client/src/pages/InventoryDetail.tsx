@@ -314,6 +314,8 @@ export default function InventoryDetail() {
     // Send visibility together with the update to avoid race conditions
     updateMutation.mutate({
       itemId,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
       name: editName.trim(),
       details: editDetails.trim() || undefined,
       categoryId: editCategoryId,
@@ -327,7 +329,7 @@ export default function InventoryDetail() {
 
   const handleDelete = () => {
     if (confirm(t("inventory:messages.confirmDelete", "Artikel wirklich löschen?"))) {
-      deleteMutation.mutate({ itemId });
+      deleteMutation.mutate({ itemId, householdId: household!.householdId, memberId: member!.memberId });
     }
   };
 

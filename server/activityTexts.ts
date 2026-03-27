@@ -253,3 +253,86 @@ export function occurrenceItemRemoved(lang: Lang, itemName: string, taskName: st
     `Artículo "${itemName}" eliminado de la cita ${occurrence} de la tarea "${taskName}"`
   );
 }
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+export function inventoryItemAdded(
+  lang: Lang,
+  itemName: string,
+  memberName: string,
+  category?: string,
+  ownershipType?: "personal" | "household"
+): string {
+  const cat = category
+    ? t(lang, ` in Kategorie „${category}"`, ` in category "${category}"`, ` en categoría "${category}"`)
+    : "";
+  const own =
+    ownershipType === "personal"
+      ? t(lang, " (persönliches Eigentum)", " (personal property)", " (propiedad personal)")
+      : ownershipType === "household"
+      ? t(lang, " (Haushaltseigentum)", " (household property)", " (propiedad del hogar)")
+      : "";
+  return t(
+    lang,
+    `${memberName} hat Gegenstand „${itemName}"${cat}${own} zum Inventar hinzugefügt`,
+    `${memberName} added item "${itemName}"${cat}${own} to inventory`,
+    `${memberName} añadió el artículo "${itemName}"${cat}${own} al inventario`
+  );
+}
+
+export function inventoryItemUpdated(
+  lang: Lang,
+  itemName: string,
+  memberName: string,
+  changes?: string
+): string {
+  const ch = changes
+    ? t(lang, ` – Änderungen: ${changes}`, ` – changes: ${changes}`, ` – cambios: ${changes}`)
+    : "";
+  return t(
+    lang,
+    `${memberName} hat Gegenstand „${itemName}" im Inventar aktualisiert${ch}`,
+    `${memberName} updated item "${itemName}" in inventory${ch}`,
+    `${memberName} actualizó el artículo "${itemName}" en el inventario${ch}`
+  );
+}
+
+export function inventoryItemDeleted(
+  lang: Lang,
+  itemName: string,
+  memberName: string
+): string {
+  return t(
+    lang,
+    `${memberName} hat Gegenstand „${itemName}" aus dem Inventar gelöscht`,
+    `${memberName} deleted item "${itemName}" from inventory`,
+    `${memberName} eliminó el artículo "${itemName}" del inventario`
+  );
+}
+
+export function inventoryCategoryAdded(lang: Lang, categoryName: string, memberName: string): string {
+  return t(
+    lang,
+    `${memberName} hat Inventarkategorie „${categoryName}" erstellt`,
+    `${memberName} created inventory category "${categoryName}"`,
+    `${memberName} creó la categoría de inventario "${categoryName}"`
+  );
+}
+
+export function inventoryCategoryUpdated(lang: Lang, oldName: string, newName: string, memberName: string): string {
+  return t(
+    lang,
+    `${memberName} hat Inventarkategorie „${oldName}" in „${newName}" umbenannt`,
+    `${memberName} renamed inventory category "${oldName}" to "${newName}"`,
+    `${memberName} renombró la categoría de inventario "${oldName}" a "${newName}"`
+  );
+}
+
+export function inventoryCategoryDeleted(lang: Lang, categoryName: string, memberName: string): string {
+  return t(
+    lang,
+    `${memberName} hat Inventarkategorie „${categoryName}" gelöscht`,
+    `${memberName} deleted inventory category "${categoryName}"`,
+    `${memberName} eliminó la categoría de inventario "${categoryName}"`
+  );
+}

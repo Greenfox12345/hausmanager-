@@ -205,7 +205,7 @@ export default function Inventory() {
 
   const handleDeleteItem = (itemId: number) => {
     if (confirm(t("common:messages.confirmDelete", "Artikel wirklich löschen?"))) {
-      deleteItemMutation.mutate({ itemId });
+      deleteItemMutation.mutate({ itemId, householdId: household.householdId, memberId: member.memberId });
     }
   };
 
