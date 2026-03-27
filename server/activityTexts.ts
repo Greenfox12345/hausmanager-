@@ -467,3 +467,40 @@ export function projectStatusChanged(lang: Lang, projectName: string, memberName
     `${memberName} cambió el estado del proyecto "${projectName}" a "${statusLabel(newStatus)}"`
   );
 }
+
+// ─── Calendar Events ───────────────────────────────────────────────────────────
+
+export function calendarEventCreated(lang: Lang, title: string, memberName: string, dateStr: string): string {
+  return t(lang,
+    `${memberName} hat Kalender-Ereignis „${title}" am ${dateStr} erstellt`,
+    `${memberName} created calendar event "${title}" on ${dateStr}`,
+    `${memberName} creó el evento de calendario "${title}" el ${dateStr}`
+  );
+}
+
+export function calendarEventUpdated(lang: Lang, title: string, memberName: string, changes?: string): string {
+  const ch = changes
+    ? t(lang, ` – Änderungen: ${changes}`, ` – changes: ${changes}`, ` – cambios: ${changes}`)
+    : "";
+  return t(lang,
+    `${memberName} hat Kalender-Ereignis „${title}" aktualisiert${ch}`,
+    `${memberName} updated calendar event "${title}"${ch}`,
+    `${memberName} actualizó el evento de calendario "${title}"${ch}`
+  );
+}
+
+export function calendarEventDeleted(lang: Lang, title: string, memberName: string): string {
+  return t(lang,
+    `${memberName} hat Kalender-Ereignis „${title}" gelöscht`,
+    `${memberName} deleted calendar event "${title}"`,
+    `${memberName} eliminó el evento de calendario "${title}"`
+  );
+}
+
+export function calendarEventCompleted(lang: Lang, title: string, memberName: string): string {
+  return t(lang,
+    `${memberName} hat Kalender-Ereignis „${title}" als erledigt markiert`,
+    `${memberName} marked calendar event "${title}" as completed`,
+    `${memberName} marcó el evento de calendario "${title}" como completado`
+  );
+}
