@@ -35,11 +35,11 @@ import {
   taskRestored,
 } from "../activityTexts";
 
-type Lang = "de" | "en" | "es" | "fr";
+type Lang = "de" | "en" | "es" | "fr" | "zh";
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr") ? l as Lang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { inArray } from "drizzle-orm";

@@ -1,0 +1,52 @@
+{
+  "title": "历史",
+  "noHistory": "无历史记录",
+  "noHistoryHint": "您家庭的活动将在此处显示。",
+  "filter": {
+    "all": "全部",
+    "tasks": "任务",
+    "shopping": "购物",
+    "inventory": "库存",
+    "members": "成员",
+    "borrows": "借用",
+    "projects": "项目"
+  },
+  "actions": {
+    "task_created": "任务已创建",
+    "task_updated": "任务已更新",
+    "task_completed": "任务已完成",
+    "task_deleted": "任务已删除",
+    "task_assigned": "任务已分配",
+    "item_added": "物品已添加",
+    "item_updated": "物品已更新",
+    "item_deleted": "物品已删除",
+    "shopping_created": "购物清单已创建",
+    "shopping_completed": "购物清单已完成",
+    "member_joined": "成员已加入",
+    "member_removed": "成员已移除",
+    "borrow_requested": "借用已请求",
+    "borrow_approved": "借用已批准",
+    "borrow_rejected": "借用已拒绝",
+    "borrow_returned": "物品已归还",
+    "reminder": "提醒已发送"
+  },
+  "fields": {
+    "date": "日期",
+    "member": "成员",
+    "action": "操作",
+    "details": "详情"
+  },
+  "messages": {
+    "trackActivities": "跟踪家庭活动和进度"
+  },
+  "labels": {
+    "photoCount_one": "{{count}} 张照片",
+    "photoCount_other": "{{count}} 张照片",
+    "pdfCount_one": "{{count}} 份 PDF",
+    "pdfCount_other": "{{count}} 份 PDF",
+    "pdfCount": "{{count}} 份 PDF",
+    "photoCount": "{{count}} 张照片"
+  },
+  "noActivities": "暂无活动。",
+  "noActivitiesFiltered": "未找到符合您筛选条件的活动。"
+}

@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "批准",
+    "reject": "拒绝",
+    "return": "归还",
+    "revoke": "撤销"
+  },
+  "borrow": "借用",
+  "guidelines": "借用指南",
+  "noRequests": "没有借用请求。",
+  "occurrence": "日期",
+  "requestDialog": {
+    "endAfterStart": "归还日期必须在取件日期之后",
+    "from": "从",
+    "guidelines": "借用指南",
+    "instructions": "说明",
+    "item": "物品",
+    "message": "消息",
+    "messagePlaceholder": "给物主的选填消息...",
+    "requiredOnReturn": "归还时需要",
+    "requiredPhotosReturn": "归还时需要照片",
+    "returnChecklist": "归还清单",
+    "selectDate": "选择日期",
+    "send": "发送请求",
+    "sending": "正在发送...",
+    "title": "借用请求",
+    "to": "到"
+  },
+  "requestMessagePrefix": "我想",
+  "requestMessageSuffix": "借用。",
+  "requests": "借用请求",
+  "responsible": "负责人",
+  "returnDialog": {
+    "checklist": "归还清单",
+    "checklistRequired": "请勾选所有项目",
+    "conditionReport": "状况报告",
+    "conditionReportPlaceholder": "归还时的状况描述...",
+    "error": "归还失败",
+    "example": "示例",
+    "item": "物品",
+    "noGuidelines": "没有归还指南",
+    "photoRequired": "需要照片",
+    "required": "必填字段",
+    "requiredPhotos": "所需照片",
+    "return": "归还",
+    "returning": "正在归还...",
+    "success": "成功归还",
+    "title": "归还物品",
+    "uploadPhoto": "上传照片"
+  },
+  "revokeDialog": {
+    "borrower": "借用人",
+    "description": "您确定要撤销此批准吗？",
+    "item": "物品",
+    "period": "期间",
+    "reason": "原因",
+    "reasonPlaceholder": "请输入原因...",
+    "reasonRequired": "请输入原因",
+    "revoke": "撤销",
+    "revoking": "正在撤销...",
+    "title": "撤销批准"
+  },
+  "status": {
+    "active": "已借出",
+    "approved": "已批准",
+    "completed": "已归还",
+    "overdue": "已逾期",
+    "pending": "待处理",
+    "rejected": "已拒绝"
+  },
+  "task": "任务"
+}

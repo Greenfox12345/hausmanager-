@@ -1,0 +1,253 @@
+{
+  "title": "借用",
+  "myBorrows": "我的借用",
+  "lentItems": "已借出物品",
+  "borrowRequests": "借用请求",
+  "noBorrows": "无借用",
+  "noBorrowsHint": "这里将显示您的借用请求和已借出物品。",
+  "request": {
+    "title": "请求借用",
+    "item": "物品",
+    "from": "从",
+    "startDate": "从",
+    "endDate": "到",
+    "message": "消息 (可选)",
+    "messagePlaceholder": "您为什么要借用此物品？",
+    "submit": "发送请求",
+    "cancel": "取消"
+  },
+  "approval": {
+    "approve": "批准",
+    "reject": "拒绝",
+    "rejectReason": "拒绝理由 (可选)",
+    "revoke": "撤销批准",
+    "revokeReason": "撤销理由",
+    "revokeConfirm": "您确定要撤销批准吗？"
+  },
+  "return": {
+    "title": "确认归还",
+    "confirm": "确认归还",
+    "notes": "归还备注",
+    "condition": "归还时状况"
+  },
+  "status": {
+    "pending": "待处理",
+    "approved": "已批准",
+    "active": "正在借用",
+    "rejected": "已拒绝",
+    "completed": "已完成",
+    "returned": "已归还",
+    "cancelled": "已取消",
+    "overdue": "已逾期",
+    "notRequested": "未请求"
+  },
+  "fields": {
+    "item": "物品",
+    "borrower": "借用人",
+    "owner": "所有者",
+    "startDate": "借用开始",
+    "endDate": "借用结束",
+    "requestDate": "请求日期",
+    "returnDate": "归还日期",
+    "message": "消息",
+    "task": "任务",
+    "occurrence": "日期",
+    "pickup": "取货",
+    "return": "归还",
+    "borrowEnd": "归还",
+    "borrowStart": "取货"
+  },
+  "pickupRecord": "取货时记录",
+  "returnRecord": "归还时记录",
+  "confirmPickup": "确认取货",
+  "activeReturn": "活跃 - 请归还",
+  "confirmReturn": "确认归还",
+  "cancelRequest": "取消请求",
+  "cancelDialog": {
+    "titlePending": "取消请求",
+    "titleApproved": "取消已批准的借用",
+    "confirmPending": "您确定要取消对 \"{{itemName}}\" 的请求吗？",
+    "confirmApproved": "您确定要取消对 \"{{itemName}}\" 的已批准借用吗？所有者将收到通知。",
+    "approvedWarning": "批准将被撤销，物品将再次标记为可用。",
+    "reasonLabel": "理由",
+    "optional": "(可选)",
+    "reasonPlaceholder": "例如，计划有变...",
+    "cancelling": "正在取消...",
+    "confirm": "是，取消"
+  },
+  "messages": {
+    "requestSent": "借用请求已发送",
+    "autoApproved": "借用自动批准",
+    "approved": "借用已批准",
+    "rejected": "借用已拒绝",
+    "returned": "归还已确认",
+    "revoked": "批准已撤销",
+    "requestError": "发送请求时出错",
+    "approveError": "批准时出错",
+    "rejectError": "拒绝时出错",
+    "returnError": "归还时出错",
+    "description": "借用和管理物品",
+    "autoApprovedDesc": "自动批准",
+    "borrowEndUpdated": "归还日期已更新",
+    "borrowStartUpdated": "取货日期已更新",
+    "cancelled": "借用已取消",
+    "requestSentDesc": "请求已发送",
+    "revokeError": "撤销时出错",
+    "revokeSuccess": "已成功撤销"
+  },
+  "labels": {
+    "borrower": "借用人",
+    "period": "期间",
+    "revokedBy": "撤销人",
+    "rejectedBy": "拒绝人"
+  },
+  "task": "任务",
+  "occurrence": "日期",
+  "responsible": "负责人",
+  "requestMessagePrefix": "我需要 \"{{itemName}}\" 用于以下任务：",
+  "requestMessageSuffix": "请确认借用。",
+  "requestDialog": {
+    "title": "借用物品",
+    "item": "物品",
+    "guidelines": "借用指南",
+    "instructions": "说明",
+    "returnChecklist": "归还清单",
+    "requiredPhotosReturn": "归还时所需照片",
+    "requiredOnReturn": "归还时必填",
+    "from": "从",
+    "to": "到",
+    "selectDate": "选择日期",
+    "endAfterStart": "结束日期必须在开始日期之后",
+    "message": "消息 (可选)",
+    "messagePlaceholder": "您为什么要借用此物品？",
+    "send": "发送请求",
+    "sending": "正在发送..."
+  },
+  "returnDialog": {
+    "title": "归还物品",
+    "item": "物品",
+    "noGuidelines": "未定义归还指南。",
+    "checklist": "清单",
+    "requiredPhotos": "所需照片",
+    "example": "示例",
+    "uploadPhoto": "上传照片",
+    "conditionReport": "状况报告 (可选)",
+    "conditionReportPlaceholder": "描述归还时物品的状况...",
+    "required": "必填",
+    "success": "物品已成功归还",
+    "error": "归还时出错",
+    "returning": "正在归还...",
+    "return": "归还",
+    "checklistRequired": "清单：\"{{label}}\" 必须勾选",
+    "photoRequired": "所需照片：\"{{label}}\""
+  },
+  "revokeDialog": {
+    "title": "撤销批准",
+    "description": "借用批准将被撤销，负责人将收到通知。",
+    "item": "物品",
+    "borrower": "借用人",
+    "period": "期间",
+    "reason": "理由",
+    "reasonPlaceholder": "请提供撤销批准的理由...",
+    "reasonRequired": "撤销批准需要理由。",
+    "revoke": "撤销",
+    "revoking": "正在撤销..."
+  },
+  "allStatuses": "所有状态",
+  "approvedPickup": "已批准 - 待取货",
+  "externalHousehold": "外部家庭",
+  "filterAll": "全部",
+  "filterExternal": "外部",
+  "filterInternal": "内部",
+  "filterStatus": "筛选状态",
+  "noItems": "其他家庭中没有物品",
+  "noItemsAtAll": "未找到可借用物品",
+  "noPending": "无待处理请求",
+  "otherHouseholds": "其他家庭",
+  "ownHousehold": "自有家庭",
+  "pendingCount": "{{count}} 待处理",
+  "rejectReasonPlaceholder": "拒绝理由 (可选)",
+  "rejectedReason": "拒绝理由",
+  "requestBorrow": "请求借用",
+  "searchItems": "搜索物品...",
+  "tabBrowse": "物品",
+  "tabItems": "物品",
+  "tabMyBorrows": "我的借用",
+  "tabRequests": "请求",
+  "viewHousehold": "所有家庭请求",
+  "viewMine": "我的请求",
+  "waitingApproval": "等待批准",
+  "examplePhotoUpload": {
+    "success": "示例照片已上传",
+    "error": "上传示例照片时出错",
+    "failedRetry": "无法上传示例照片。请重试。"
+  },
+  "uploadInProgress": "请等待照片上传完成",
+  "guidelinesSaved": {
+    "success": "借用指南已保存",
+    "error": "保存时出错"
+  },
+  "cardTitle": "借用指南",
+  "instructions": {
+    "label": "说明 (可选)",
+    "placeholder": "例如，‘加满油归还’，‘清洁后归还’"
+  },
+  "checklist": {
+    "label": "清单",
+    "addItemButton": "添加项目",
+    "itemPlaceholder": "例如，‘钥匙已存在’"
+  },
+  "requiredLabel": "必填",
+  "photoRequirements": {
+    "label": "照片要求",
+    "addItemButton": "添加要求",
+    "itemPlaceholder": "例如，‘里程表’，‘侧视图’"
+  },
+  "examplePhotoAlt": "示例",
+  "uploadingStatus": "正在上传...",
+  "removeButton": "移除",
+  "uploadExamplePhotoButton": "上传示例照片",
+  "savingStatus": "正在保存...",
+  "saveGuidelinesButton": "保存指南",
+  "photoGrid": {
+    "photoLabel": "照片 {{index}}",
+    "requiredPhotosLabel": "所需照片"
+  },
+  "borrower": {
+    "unknown": "未知"
+  },
+  "protocol": {
+    "hide": "隐藏协议",
+    "show": "显示取货/归还协议"
+  },
+  "metaInfo": {
+    "borrower": "借用人",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "请求",
+    "response": "回复"
+  },
+  "protocolSection": {
+    "pickupCondition": "取货时状况",
+    "returnCondition": "归还时状况"
+  },
+  "photo": {
+    "defaultLabel": "照片",
+    "capture": "拍照/选择照片",
+    "upload": "上传您的照片",
+    "required": "所需照片",
+    "required_badge": "必填",
+    "example": "示例:"
+  },
+  "guideline": {
+    "title": "借用指南",
+    "checklist": "清单"
+  },
+  "actions": {
+    "request": "请求",
+    "revoke": "撤销"
+  },
+  "borrowing": "借用",
+  "hidePast": "隐藏过去",
+  "showPast": "显示过去",
+  "tabCalendar": "日历"
+}

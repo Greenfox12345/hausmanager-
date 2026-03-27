@@ -1,0 +1,59 @@
+{
+  "title": "邻里",
+  "description": "与其他家庭建立联系，共同完成任务和项目",
+  "tabs": {
+    "connect": "连接家庭",
+    "borrow": "借用物品"
+  },
+  "actions": {
+    "inviteHousehold": "邀请家庭",
+    "invite": "邀请",
+    "accept": "接受",
+    "reject": "拒绝",
+    "remove": "移除",
+    "requestBorrow": "请求借用"
+  },
+  "fields": {
+    "inviteCode": "输入邀请码",
+    "inviteCodePlaceholder": "例如：ABC123",
+    "code": "代码：",
+    "household": "家庭",
+    "allHouseholds": "所有家庭",
+    "item": "物品",
+    "items": "物品"
+  },
+  "messages": {
+    "collaborate": "与其他家庭合作",
+    "invitationSent": "邀请已发送！",
+    "invitationAccepted": "邀请已接受！",
+    "invitationRejected": "邀请已拒绝",
+    "connectionRemoved": "连接已移除",
+    "confirmRemoveConnection": "您确定要移除此连接吗？",
+    "borrowAutoApproved": "借用请求已自动批准",
+    "borrowRequestSent": "借用请求已发送。等待批准。",
+    "pendingInvitations": "待处理的邀请",
+    "invitationsFromOtherHouseholds": "来自其他家庭的邀请",
+    "invitedBy": "邀请人",
+    "connectedHouseholds": "已连接的家庭",
+    "householdsToShareTasks": "您可以与这些家庭共享任务和项目",
+    "noConnectedHouseholds": "尚未连接任何家庭",
+    "inviteOthersToPlanTasks": "邀请其他家庭一起规划任务",
+    "connectedSince": "连接时间",
+    "howItWorks": "工作原理",
+    "connectHouseholdsTitle": "连接家庭：",
+    "connectHouseholdsDescription": "输入其他家庭的邀请码以建立连接",
+    "shareTasksTitle": "共享任务：",
+    "shareTasksDescription": "创建任务时，您可以选择已连接的家庭",
+    "assignMembersTitle": "分配成员：",
+    "assignMembersDescription": "将任务分配给所有已连接家庭的成员",
+    "manageTogetherTitle": "共同管理：",
+    "manageTogetherDescription": "所有已连接家庭的成员都可以编辑共享任务",
+    "enterInviteCodeDescription": "输入您要连接的家庭的邀请码",
+    "householdFound": "找到家庭",
+    "noHouseholdFound": "未找到具有此邀请码的家庭",
+    "loadingItems": "正在加载物品...",
+    "noItemsAvailable": "没有可用物品",
+    "noItemsHint": "已连接的家庭必须先将其物品分享给其他人。",
+    "noItemsForHousehold": "未找到此家庭的物品。 "
+  }
+}

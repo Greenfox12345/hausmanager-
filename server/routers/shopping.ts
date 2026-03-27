@@ -27,7 +27,7 @@ import {
   shoppingTaskUnlinked,
 } from "../activityTexts";
 
-type Lang = "de" | "en" | "es" | "fr";
+type Lang = "de" | "en" | "es" | "fr" | "zh";
 
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);

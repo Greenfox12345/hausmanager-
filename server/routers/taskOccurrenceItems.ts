@@ -6,11 +6,11 @@ import { taskOccurrenceItems, inventoryItems, tasks, borrowRequests, householdMe
 import { eq, and } from "drizzle-orm";
 import { occurrenceItemAdded, occurrenceItemRemoved } from "../activityTexts";
 
-type OccLang = "de" | "en" | "es" | "fr";
+type OccLang = "de" | "en" | "es" | "fr" | "zh";
 async function getOccLang(householdId: number): Promise<OccLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr") ? l as OccLang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh") ? l as OccLang : "de";
 }
 
 /**

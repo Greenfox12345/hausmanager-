@@ -1,0 +1,59 @@
+{
+  "title": "家庭",
+  "selection": {
+    "title": "选择家庭",
+    "subtitle": "选择一个家庭或创建一个新家庭",
+    "noHouseholds": "暂无家庭",
+    "noHouseholdsHint": "创建一个新家庭或加入现有家庭。",
+    "createNew": "创建新家庭",
+    "joinExisting": "加入现有家庭"
+  },
+  "create": {
+    "title": "创建家庭",
+    "namePlaceholder": "例如：李家",
+    "addressPlaceholder": "地址（可选）",
+    "submit": "创建家庭",
+    "success": "家庭已创建",
+    "error": "创建家庭时出错"
+  },
+  "join": {
+    "title": "加入家庭",
+    "codePlaceholder": "输入邀请码",
+    "submit": "加入",
+    "success": "成功加入",
+    "invalidCode": "邀请码无效或已过期",
+    "error": "加入时出错"
+  },
+  "settings": {
+    "title": "家庭设置",
+    "general": "通用",
+    "name": "家庭名称",
+    "address": "地址",
+    "language": "家庭语言",
+    "languageHint": "此语言将用于所有成员可见的活动记录和通知。",
+    "save": "保存设置",
+    "saved": "设置已保存",
+    "danger": "危险区域",
+    "leave": "离开家庭",
+    "leaveConfirm": "您确定要离开此家庭吗？",
+    "delete": "删除家庭",
+    "deleteConfirm": "您确定要删除此家庭吗？此操作无法撤销。",
+    "deleteWarning": "所有数据将被不可逆地删除。"
+  },
+  "inviteDialog": {
+    "title": "家庭创建成功！",
+    "description": "与其他人分享此邀请码，以便他们可以加入您的家庭 \"{{householdName}}\"。",
+    "copied": "邀请码已复制！",
+    "copyError": "复制时出错",
+    "hint": "提示",
+    "hintText": "新成员可以使用此代码注册并加入您的家庭。",
+    "understood": "知道了"
+  },
+  "neighborhood": {
+    "title": "邻里",
+    "subtitle": "与邻居联系并交换物品",
+    "noNeighbors": "暂无邻居连接",
+    "addNeighbor": "添加邻居",
+    "borrowFromNeighbor": "向邻居借用"
+  }
+}

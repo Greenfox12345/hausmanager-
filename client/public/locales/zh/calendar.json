@@ -1,0 +1,85 @@
+{
+  "title": "日历",
+  "noEvents": "没有日程",
+  "newEvent": "新日程",
+  "editEvent": "编辑日程",
+  "deleteEvent": "删除日程",
+  "eventDetails": "日程详情",
+  "views": {
+    "month": "月",
+    "week": "周",
+    "day": "日",
+    "agenda": "议程"
+  },
+  "fields": {
+    "title": "标题",
+    "description": "描述",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "allDay": "全天",
+    "location": "地点",
+    "assignedTo": "分配给",
+    "recurring": "重复",
+    "color": "颜色"
+  },
+  "navigation": {
+    "today": "今天",
+    "previous": "上一个",
+    "next": "下一个"
+  },
+  "messages": {
+    "created": "日程已创建",
+    "updated": "日程已更新",
+    "deleted": "日程已删除",
+    "deleteConfirm": "您确定要删除此日程吗？",
+    "overview": "日历和所有日程概览",
+    "confirmUndo": "您想撤消此日程的完成吗？任务将重置为该日期。",
+    "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
+    "jumpedToCurrent": "已跳转到当前日程",
+    "occurrenceSkipped": "日程已跳过！"
+  },
+  "labels": {
+    "occurrence": "日程"
+  },
+  "futureOccurrence": "后续日程",
+  "completedOccurrence": "已完成日程",
+  "actions": {
+    "undo": "撤消",
+    "jumpToCurrent": "跳转到当前日程",
+    "skip": "跳过"
+  },
+  "eventDetail": {
+    "borrowStart": "借用开始",
+    "borrowReturn": "归还日期",
+    "event": "日程",
+    "completed": "已完成",
+    "date": "日期",
+    "description": "描述",
+    "relatedItem": "相关项目",
+    "goToItem": "转到项目",
+    "markReturned": "标记为已归还",
+    "viewItem": "查看项目"
+  },
+  "allTasksChronological": "所有任务（按时间顺序）",
+  "calendarView": "日历视图",
+  "completedOn": "日程于：",
+  "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
+  "filter": {
+    "all": "所有条目",
+    "borrowsOnly": "仅借用",
+    "tasksOnly": "仅任务"
+  },
+  "jumpToCurrent": "跳转到当前日程",
+  "noTasksOnDay": "当天没有任务",
+  "noTasksWithoutDates": "没有没有日期的任务",
+  "noTasksWithoutDatesForMember": "此成员没有没有日期的任务",
+  "occurrence": "日程",
+  "period": "期间",
+  "skip": "跳过",
+  "tasksOn": "任务于",
+  "tasksWithoutDates": "没有日期的任务",
+  "today": "今天",
+  "months": "月"
+}
