@@ -696,11 +696,13 @@ export const borrowRouter = router({
           const cancelLangNotif = await getBorrowLang(item.householdId);
           const cancelTitle = cancelLangNotif === "en" ? "Borrow cancelled" : cancelLangNotif === "es" ? "Préstamo cancelado" : cancelLangNotif === "fr" ? "Emprunt annulé" : cancelLangNotif === "zh" ? "借用已取消" : cancelLangNotif === "tr" ? "Ödünç iptal edildi" : "Ausleihe storniert";
           const reasonText = input.reason?.trim()
-            ? (cancelLangNotif === "en" ? ` Reason: ${input.reason.trim()}` : cancelLangNotif === "es" ? ` Motivo: ${input.reason.trim()}` : cancelLangNotif === "fr" ? ` Raison : ${input.reason.trim()}` : cancelLangNotif === "tr" ? ` Neden: ${input.reason.trim()}` : ` Begründung: ${input.reason.trim()}`)
+            ? (cancelLangNotif === "en" ? ` Reason: ${input.reason.trim()}` : cancelLangNotif === "es" ? ` Motivo: ${input.reason.trim()}` : cancelLangNotif === "fr" ? ` Raison : ${input.reason.trim()}` : cancelLangNotif === "zh" ? ` 原因：${input.reason.trim()}` : cancelLangNotif === "tr" ? ` Neden: ${input.reason.trim()}` : ` Begründung: ${input.reason.trim()}`)
             : "";
           const cancelMsg = cancelLangNotif === "en" ? `${borrowerName} cancelled the borrow of "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
             : cancelLangNotif === "es" ? `${borrowerName} canceló el préstamo de "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
             : cancelLangNotif === "fr" ? `${borrowerName} a annulé l'emprunt de « ${item.name} » (${startFormatted} – ${endFormatted}).${reasonText}`
+            : cancelLangNotif === "zh" ? `${borrowerName} 取消了对"${item.name}"的借用（${startFormatted} – ${endFormatted}）。${reasonText}`
+            : cancelLangNotif === "tr" ? `${borrowerName}, "${item.name}" ödüncünü iptal etti (${startFormatted} – ${endFormatted}).${reasonText}`
             : `${borrowerName} hat die Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.${reasonText}`;
           await createNotification({
             householdId: item.householdId,

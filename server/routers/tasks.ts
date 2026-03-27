@@ -1332,6 +1332,9 @@ export const tasksRouter = router({
       if (input.comment) {
         const msgLabel = reminderLang === "en" ? `Message: ${input.comment}`
           : reminderLang === "es" ? `Mensaje: ${input.comment}`
+          : reminderLang === "fr" ? `Message : ${input.comment}`
+          : reminderLang === "zh" ? `消息：${input.comment}`
+          : reminderLang === "tr" ? `Mesaj: ${input.comment}`
           : `Nachricht: ${input.comment}`;
         reminderDescParts.push(msgLabel);
       }
