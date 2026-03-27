@@ -67,6 +67,7 @@ export default function History() {
     { value: "borrow", label: t("borrows:title", "Ausleihen") },
     { value: "project", label: t("projects:title", "Projekte") },
     { value: "member", label: t("members:title", "Mitglieder") },
+    { value: "calendar", label: t("calendar:title", "Kalender") },
   ];
 
   const getActivityIcon = (type: string, action: string) => {

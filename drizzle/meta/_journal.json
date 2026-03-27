@@ -260,6 +260,13 @@
       "when": 1774572609380,
       "tag": "0036_mushy_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1774610558669,
+      "tag": "0037_thick_purple_man",
+      "breakpoints": true
     }
   ]
 }

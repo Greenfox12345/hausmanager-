@@ -207,7 +207,7 @@ export const authRouter = router({
       householdId: z.number(),
       limit: z.number().optional(),
       offset: z.number().optional(),
-      activityType: z.enum(["shopping", "task", "project", "member", "inventory", "other"]).optional(),
+      activityType: z.enum(["shopping", "task", "project", "member", "inventory", "calendar", "borrow", "other"]).optional(),
     }))
     .query(async ({ input }) => {
       const { activities, total } = await getActivityHistory(
