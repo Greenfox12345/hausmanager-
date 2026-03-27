@@ -227,11 +227,18 @@ export const authRouter = router({
           memberName: memberMap.get(activity.memberId) || "Unbekannt",
         };
         
-        // Add assigned member name to task details if available
+        // Add assigned member names to task details if available
         if (activity.taskDetails && activity.taskDetails.assignedTo) {
+          const assignedTo = activity.taskDetails.assignedTo;
+          // assignedTo is a number[] array – resolve each ID to a name
+          const ids: number[] = Array.isArray(assignedTo) ? assignedTo : [assignedTo];
+          const names = ids
+            .map((id: number) => memberMap.get(id))
+            .filter(Boolean) as string[];
           result.taskDetails = {
             ...activity.taskDetails,
-            assignedToName: memberMap.get(activity.taskDetails.assignedTo) || "Unbekannt",
+            assignedToNames: names, // array of names
+            assignedToName: names.length > 0 ? names.join(", ") : null, // null = no assignment
           };
         }
         

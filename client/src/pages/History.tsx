@@ -246,21 +246,23 @@ export default function History() {
                                   <span className="text-sm">{activity.taskDetails.assignedToName}</span>
                                 </div>
                               )}
+                              {activity.taskDetails.assignedTo && !activity.taskDetails.assignedToName && Array.isArray(activity.taskDetails.assignedTo) && activity.taskDetails.assignedTo.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">{t("tasks:labels.assignedTo", "Verantwortlich")}:</span>
+                                  <span className="text-sm text-muted-foreground">{t("common:labels.unknown", "Unbekannt")}</span>
+                                </div>
+                              )}
                               {(activity.taskDetails.dueDate || (activity.metadata && (activity.metadata as any).originalDueDate)) && (
                                 <div className="flex items-start gap-2">
                                   <span className="text-xs font-semibold text-accent">
                                     {activity.action === "completed" ? t("calendar:completedOn", "Termin am:") : t("tasks:dueDate", "Fällig:")}
                                   </span>
                                   <span className="text-sm">
-                                    {new Date(
-                                      (activity.metadata && (activity.metadata as any).originalDueDate) || activity.taskDetails.dueDate
-                                    ).toLocaleDateString("de-DE", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
+                                    {format(
+                                      new Date((activity.metadata && (activity.metadata as any).originalDueDate) || activity.taskDetails.dueDate),
+                                      "Pp",
+                                      { locale: dateFnsLocale }
+                                    )}
                                   </span>
                                 </div>
                               )}
