@@ -1,6 +1,6 @@
 import * as React from "react";
 import { format, parse, isValid } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { CalendarIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -38,7 +38,7 @@ export function DatePickerInput({
   id,
 }: DatePickerInputProps) {
   const { t, i18n } = useTranslation("common");
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
 
   // Parse yyyy-MM-dd string → Date | undefined
   const selected: Date | undefined = React.useMemo(() => {

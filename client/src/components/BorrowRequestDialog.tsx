@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +51,7 @@ export function BorrowRequestDialog({
   initialEndDate,
 }: BorrowRequestDialogProps) {
   const { t, i18n } = useTranslation(["borrow", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");

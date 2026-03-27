@@ -12,7 +12,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Users, UserPlus, Check, X, Trash2, Bell, Package, Globe, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 
@@ -25,7 +25,7 @@ export default function Neighborhood() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const utils = trpc.useUtils();
   const { t, i18n } = useTranslation(["neighborhood", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
 
   // Borrow state
   const [selectedItemForBorrow, setSelectedItemForBorrow] = useState<{ id: number; name: string; householdName: string } | null>(null);

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { Calendar, Clock, User, FileText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -21,7 +21,7 @@ interface UpcomingOccurrencesTableProps {
 
 export function UpcomingOccurrencesTable({ occurrences }: UpcomingOccurrencesTableProps) {
   const { t, i18n } = useTranslation();
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   if (occurrences.length === 0) {
     return (
       <div className="p-6 border rounded-lg bg-muted/30 text-center text-sm text-muted-foreground">

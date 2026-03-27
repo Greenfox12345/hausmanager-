@@ -21,12 +21,12 @@ import {
   FileText
 } from "lucide-react";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
   const { t, i18n } = useTranslation(["history", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const [, setLocation] = useLocation();
   const { household, isAuthenticated } = useCompatAuth();
   const [filterType, setFilterType] = useState<string>("all");

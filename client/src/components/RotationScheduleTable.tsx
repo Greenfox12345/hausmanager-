@@ -12,7 +12,7 @@ import { Calendar, Wand2, Trash2, SkipForward, ArrowUp, ArrowDown, Star, Plus, X
 import { ItemPickerDialog } from "./ItemPickerDialog";
 import { Badge } from "@/components/ui/badge";
 import { addDays, addWeeks, format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { getNextMonthlyOccurrence, getNextMonthlyOccurrenceExplicit } from "../../../shared/dateUtils";
 
 interface Member {
@@ -68,7 +68,7 @@ export function RotationScheduleTable({
   onSkipOccurrence,
 }: RotationScheduleTableProps) {
   const { t, i18n } = useTranslation();
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const [schedule, setSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
   const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
@@ -374,7 +374,7 @@ export function RotationScheduleTable({
                                   onChange(newSchedule);
                                 }
                               }}
-                              locale={de}
+                              locale={dateFnsLocale}
                             />
                           </PopoverContent>
                         </Popover>
@@ -415,7 +415,7 @@ export function RotationScheduleTable({
                                   onChange(newSchedule);
                                 }
                               }}
-                              locale={de}
+                              locale={dateFnsLocale}
                             />
                           </PopoverContent>
                         </Popover>
@@ -612,7 +612,7 @@ export function RotationScheduleTable({
                 mode="single"
                 selected={specialOccurrenceDate}
                 onSelect={setSpecialOccurrenceDate}
-                locale={de}
+                locale={dateFnsLocale}
                 className="rounded-md border"
               />
             </div>

@@ -16,7 +16,7 @@ import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState as useStateForTabs } from "react";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
@@ -83,7 +83,7 @@ interface TaskDetailDialogProps {
 export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpdated, onNavigateToTask, taskList, currentTaskIndex, onNavigatePrevious, onNavigateNext }: TaskDetailDialogProps) {
   const [, setLocation] = useLocation();
   const { t, i18n } = useTranslation(["tasks", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const { household, member } = useCompatAuth();
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
@@ -1432,7 +1432,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                     );
                                                   }
                                                 }}
-                                                locale={de}
+                                                locale={dateFnsLocale}
                                               />
                                             </PopoverContent>
                                           </Popover>

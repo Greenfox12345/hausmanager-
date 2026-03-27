@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
@@ -23,7 +23,14 @@ import { useTranslation } from "react-i18next";
 
 export default function Calendar() {
   const { t, i18n } = useTranslation(["tasks", "common", "calendar"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
+
+  // Generate weekday abbreviations automatically from date-fns locale
+  // Sunday = day index 0, Saturday = day index 6
+  const weekdayLabels = Array.from({ length: 7 }, (_, i) => {
+    const refDate = new Date(2023, 0, i + 1); // 2023-01-01 is a Sunday
+    return format(refDate, "EEEEEE", { locale: dateFnsLocale });
+  });
   const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -596,12 +603,7 @@ export default function Calendar() {
               <CardContent>
                 {/* Calendar Grid */}
                 <div className="grid grid-cols-7 gap-2 mb-4">
-                  {(i18n.language.startsWith("de")
-                    ? ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]
-                    : i18n.language.startsWith("es")
-                    ? ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"]
-                    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-                  ).map(day => (
+                  {weekdayLabels.map(day => (
                     <div key={day} className="text-center text-sm font-semibold text-muted-foreground p-2">
                       {day}
                     </div>
@@ -694,7 +696,7 @@ export default function Calendar() {
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4" />
-                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, i18n.language === "de" ? "d. MMMM yyyy" : "MMMM d, yyyy", { locale: dateFnsLocale })}
+                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, "PPP", { locale: dateFnsLocale })}
                     </h3>
                     {selectedDateTasks.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">

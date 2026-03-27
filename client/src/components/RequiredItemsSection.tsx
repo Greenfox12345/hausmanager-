@@ -11,7 +11,7 @@ import { ItemPickerDialog } from "./ItemPickerDialog";
 import { BorrowRequestDialog } from "./BorrowRequestDialog";
 import { RevokeApprovalDialog } from "./RevokeApprovalDialog";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { toast } from "sonner";
 import { DatePickerInput } from "@/components/DatePickerInput";
 
@@ -95,7 +95,7 @@ export function RequiredItemsSection({
   );
 
   const { t, i18n } = useTranslation(["tasks", "borrows", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const utils = trpc.useUtils();
 
   // Handle adding item to occurrence

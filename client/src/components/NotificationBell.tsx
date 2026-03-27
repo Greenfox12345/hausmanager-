@@ -10,7 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { formatDistanceToNow } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { X, Check, Settings } from "lucide-react";
@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 
 export function NotificationBell() {
   const { t, i18n } = useTranslation();
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const { household, member } = useCompatAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const utils = trpc.useUtils();

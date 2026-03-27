@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { de, enGB } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,7 @@ interface EventDetailDialogProps {
 export function EventDetailDialog({ open, onOpenChange, event, onMarkReturned }: EventDetailDialogProps) {
   const [, setLocation] = useLocation();
   const { t, i18n } = useTranslation(["calendar", "borrows", "common"]);
-  const dateFnsLocale = i18n.language === "de" ? de : enGB;
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
 
   if (!event) return null;
 
