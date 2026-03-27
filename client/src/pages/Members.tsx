@@ -26,8 +26,7 @@ import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpe
 import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { SUPPORTED_LANGUAGES, type SupportedLanguageCode } from "@/lib/i18n";
+import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 
 export default function Members() {
   const [, setLocation] = useLocation();
@@ -36,7 +35,8 @@ export default function Members() {
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [transferTarget, setTransferTarget] = useState<{ id: number; name: string } | null>(null);
-  const { t } = useTranslation(["members", "common"]);
+  const { t, i18n } = useTranslation(["members", "common"]);
+  const currentUiLang = getCurrentLanguage();
 
   const householdId = currentHousehold?.householdId;
 
@@ -344,7 +344,23 @@ export default function Members() {
             <div>
               <p className="text-sm font-medium mb-1">{t("common:language.uiLanguage")}</p>
               <p className="text-xs text-muted-foreground mb-3">{t("common:language.uiLanguageHint")}</p>
-              <LanguageSwitcher />
+              <div className="flex flex-wrap gap-2">
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <Button
+                    key={lang.code}
+                    variant={i18n.language?.startsWith(lang.code) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => changeLanguage(lang.code as SupportedLanguageCode)}
+                    className="gap-2"
+                  >
+                    <span className="text-base">{lang.flag}</span>
+                    <span>{lang.name}</span>
+                    {i18n.language?.startsWith(lang.code) && (
+                      <Check className="h-3 w-3 ml-1" />
+                    )}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <Separator />
