@@ -1,0 +1,253 @@
+{
+  "title": "Emprunts",
+  "myBorrows": "Mes emprunts",
+  "lentItems": "Articles prêtés",
+  "borrowRequests": "Demandes d'emprunt",
+  "noBorrows": "Aucun emprunt",
+  "noBorrowsHint": "Vous n'avez pas encore emprunté ou prêté d'articles.",
+  "request": {
+    "title": "Demande d'emprunt",
+    "item": "Article",
+    "from": "De",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "message": "Message",
+    "messagePlaceholder": "Pourquoi souhaitez-vous emprunter cet article ?",
+    "submit": "Envoyer la demande",
+    "cancel": "Annuler"
+  },
+  "approval": {
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "rejectReason": "Raison du refus (facultatif)",
+    "revoke": "Révoquer",
+    "revokeReason": "Raison de la révocation",
+    "revokeConfirm": "Voulez-vous vraiment révoquer cet emprunt ?"
+  },
+  "return": {
+    "title": "Confirmer le retour",
+    "confirm": "Confirmer le retour",
+    "notes": "Notes de retour",
+    "condition": "État au retour"
+  },
+  "status": {
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "active": "Actif (emprunté)",
+    "rejected": "Refusé",
+    "completed": "Terminé",
+    "returned": "Retourné",
+    "cancelled": "Annulé",
+    "overdue": "En retard",
+    "notRequested": "Non demandé"
+  },
+  "fields": {
+    "item": "Article",
+    "borrower": "Emprunteur",
+    "owner": "Propriétaire",
+    "startDate": "Début de l'emprunt",
+    "endDate": "Fin de l'emprunt",
+    "requestDate": "Date de la demande",
+    "returnDate": "Date de retour",
+    "message": "Message",
+    "task": "Tâche",
+    "occurrence": "Occurrence",
+    "pickup": "Ramassage",
+    "return": "Retour",
+    "borrowEnd": "Retour",
+    "borrowStart": "Ramassage"
+  },
+  "pickupRecord": "Enregistré au ramassage",
+  "returnRecord": "Enregistré au retour",
+  "confirmPickup": "Confirmer le ramassage",
+  "activeReturn": "Actif – à retourner",
+  "confirmReturn": "Confirmer le retour",
+  "cancelRequest": "Annuler la demande",
+  "cancelDialog": {
+    "titlePending": "Annuler la demande",
+    "titleApproved": "Annuler l'emprunt approuvé",
+    "confirmPending": "Voulez-vous vraiment annuler votre demande pour \"{{itemName}}\" ?",
+    "confirmApproved": "Voulez-vous vraiment annuler l'emprunt approuvé de \"{{itemName}}\" ? Le propriétaire sera informé.",
+    "approvedWarning": "L'approbation sera révoquée et l'article sera à nouveau marqué comme disponible.",
+    "reasonLabel": "Raison",
+    "optional": "(facultatif)",
+    "reasonPlaceholder": "ex. Les plans ont changé...",
+    "cancelling": "Annulation en cours...",
+    "confirm": "Oui, annuler"
+  },
+  "messages": {
+    "requestSent": "Demande d'emprunt envoyée",
+    "autoApproved": "Emprunt automatiquement approuvé",
+    "approved": "Emprunt approuvé",
+    "rejected": "Emprunt refusé",
+    "returned": "Retour confirmé",
+    "revoked": "Approbation révoquée",
+    "requestError": "Erreur lors de l'envoi de la demande",
+    "approveError": "Erreur lors de l'approbation",
+    "rejectError": "Erreur lors du refus",
+    "returnError": "Erreur lors du retour",
+    "description": "Emprunter et gérer des articles",
+    "autoApprovedDesc": "Approuvé automatiquement",
+    "borrowEndUpdated": "Date de retour mise à jour",
+    "borrowStartUpdated": "Date de ramassage mise à jour",
+    "cancelled": "Emprunt annulé",
+    "requestSentDesc": "La demande a été envoyée",
+    "revokeError": "Erreur lors de la révocation",
+    "revokeSuccess": "Révoqué avec succès"
+  },
+  "labels": {
+    "borrower": "Emprunteur",
+    "period": "Période",
+    "revokedBy": "Révoqué par",
+    "rejectedBy": "Refusé par"
+  },
+  "task": "Tâche",
+  "occurrence": "Occurrence",
+  "responsible": "Responsable",
+  "requestMessagePrefix": "J'ai besoin de \"{{itemName}}\" pour la tâche suivante :",
+  "requestMessageSuffix": "Veuillez confirmer la demande d'emprunt.",
+  "requestDialog": {
+    "title": "Emprunter un article",
+    "item": "Article",
+    "guidelines": "Directives d'emprunt",
+    "instructions": "Instructions",
+    "returnChecklist": "Liste de contrôle au retour",
+    "requiredPhotosReturn": "Photos requises au retour",
+    "requiredOnReturn": "Requis au retour",
+    "from": "De",
+    "to": "À",
+    "selectDate": "Sélectionner la date",
+    "endAfterStart": "La date de fin doit être postérieure à la date de début",
+    "message": "Message (facultatif)",
+    "messagePlaceholder": "Pourquoi souhaitez-vous emprunter cet article ?",
+    "send": "Envoyer la demande",
+    "sending": "Envoi en cours..."
+  },
+  "returnDialog": {
+    "title": "Retourner l'article",
+    "item": "Article",
+    "noGuidelines": "Aucune directive de retour définie.",
+    "checklist": "Liste de contrôle",
+    "requiredPhotos": "Photos requises",
+    "example": "Exemple",
+    "uploadPhoto": "Télécharger une photo",
+    "conditionReport": "Rapport d'état (facultatif)",
+    "conditionReportPlaceholder": "Décrivez l'état de l'article au retour...",
+    "required": "Requis",
+    "success": "Article retourné avec succès",
+    "error": "Erreur lors du retour de l'article",
+    "returning": "Retour en cours...",
+    "return": "Retourner",
+    "checklistRequired": "Liste de contrôle : \"{{label}}\" doit être coché",
+    "photoRequired": "Photo requise : \"{{label}}\""
+  },
+  "revokeDialog": {
+    "title": "Révoquer l'approbation",
+    "description": "L'approbation de l'emprunt sera révoquée et la personne responsable sera informée.",
+    "item": "Article",
+    "borrower": "Emprunteur",
+    "period": "Période",
+    "reason": "Raison",
+    "reasonPlaceholder": "Veuillez fournir une raison pour la révocation...",
+    "reasonRequired": "Une raison est requise pour révoquer l'approbation.",
+    "revoke": "Révoquer",
+    "revoking": "Révocation en cours..."
+  },
+  "allStatuses": "Tous les statuts",
+  "approvedPickup": "Approuvé – ramassage en attente",
+  "externalHousehold": "Foyer externe",
+  "filterAll": "Tous",
+  "filterExternal": "Externes",
+  "filterInternal": "Internes",
+  "filterStatus": "Filtrer par statut",
+  "noItems": "Aucun article dans d'autres foyers",
+  "noItemsAtAll": "Aucun article empruntable trouvé",
+  "noPending": "Aucune demande en attente",
+  "otherHouseholds": "Autres foyers",
+  "ownHousehold": "Mon foyer",
+  "pendingCount": "{{count}} en attente",
+  "rejectReasonPlaceholder": "Raison du refus (facultatif)",
+  "rejectedReason": "Raison du refus",
+  "requestBorrow": "Demander à emprunter",
+  "searchItems": "Rechercher des articles...",
+  "tabBrowse": "Articles",
+  "tabItems": "Articles",
+  "tabMyBorrows": "Mes emprunts",
+  "tabRequests": "Demandes",
+  "viewHousehold": "Toutes les demandes du foyer",
+  "viewMine": "Mes demandes",
+  "waitingApproval": "En attente d'approbation",
+  "examplePhotoUpload": {
+    "success": "Photo d'exemple téléchargée",
+    "error": "Erreur lors du téléchargement de la photo d'exemple",
+    "failedRetry": "Une photo d'exemple n'a pas pu être téléchargée. Veuillez réessayer."
+  },
+  "uploadInProgress": "Veuillez patienter pendant le téléchargement de la photo",
+  "guidelinesSaved": {
+    "success": "Directives d'emprunt enregistrées",
+    "error": "Erreur lors de l'enregistrement"
+  },
+  "cardTitle": "Directives d'emprunt",
+  "instructions": {
+    "label": "Instructions (facultatif)",
+    "placeholder": "ex. 'Retourner avec le plein', 'Retourner propre'"
+  },
+  "checklist": {
+    "label": "Liste de contrôle",
+    "addItemButton": "Ajouter un élément",
+    "itemPlaceholder": "ex. 'Clé présente'"
+  },
+  "requiredLabel": "Requis",
+  "photoRequirements": {
+    "label": "Exigences photo",
+    "addItemButton": "Ajouter une exigence",
+    "itemPlaceholder": "ex. 'Compteur kilométrique', 'Vue latérale'"
+  },
+  "examplePhotoAlt": "Exemple",
+  "uploadingStatus": "Téléchargement en cours…",
+  "removeButton": "Supprimer",
+  "uploadExamplePhotoButton": "Télécharger une photo d'exemple",
+  "savingStatus": "Enregistrement…",
+  "saveGuidelinesButton": "Enregistrer les directives",
+  "photoGrid": {
+    "photoLabel": "Photo {{index}}",
+    "requiredPhotosLabel": "Photos requises"
+  },
+  "borrower": {
+    "unknown": "Inconnu"
+  },
+  "protocol": {
+    "hide": "Masquer le protocole",
+    "show": "Afficher le protocole de ramassage/retour"
+  },
+  "metaInfo": {
+    "borrower": "Emprunteur",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "Demande",
+    "response": "Réponse"
+  },
+  "protocolSection": {
+    "pickupCondition": "État au ramassage",
+    "returnCondition": "État au retour"
+  },
+  "photo": {
+    "defaultLabel": "Photo",
+    "capture": "Prendre / sélectionner une photo",
+    "upload": "Télécharger votre photo",
+    "required": "Photos requises",
+    "required_badge": "Requis",
+    "example": "Exemple :"
+  },
+  "guideline": {
+    "title": "Directives d'emprunt",
+    "checklist": "Liste de contrôle"
+  },
+  "actions": {
+    "request": "Demander",
+    "revoke": "Révoquer"
+  },
+  "borrowing": "Emprunt",
+  "hidePast": "Masquer les passés",
+  "showPast": "Afficher les passés",
+  "tabCalendar": "Calendrier"
+}

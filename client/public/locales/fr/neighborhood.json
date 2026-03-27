@@ -1,0 +1,59 @@
+{
+  "title": "Voisinage",
+  "description": "Connectez-vous avec d'autres foyers pour des tâches et projets communs",
+  "tabs": {
+    "connect": "Connecter des foyers",
+    "borrow": "Emprunter des objets"
+  },
+  "actions": {
+    "inviteHousehold": "Inviter un foyer",
+    "invite": "Inviter",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "remove": "Supprimer",
+    "requestBorrow": "Demander un emprunt"
+  },
+  "fields": {
+    "inviteCode": "Entrer le code d'invitation",
+    "inviteCodePlaceholder": "ex. ABC123",
+    "code": "Code :",
+    "household": "Foyer",
+    "allHouseholds": "Tous les foyers",
+    "item": "Objet",
+    "items": "Objets"
+  },
+  "messages": {
+    "collaborate": "Collaborer avec d'autres foyers",
+    "invitationSent": "Invitation envoyée !",
+    "invitationAccepted": "Invitation acceptée !",
+    "invitationRejected": "Invitation refusée",
+    "connectionRemoved": "Connexion supprimée",
+    "confirmRemoveConnection": "Voulez-vous vraiment supprimer cette connexion ?",
+    "borrowAutoApproved": "Demande d'emprunt approuvée automatiquement",
+    "borrowRequestSent": "Demande d'emprunt envoyée. En attente d'approbation.",
+    "pendingInvitations": "Invitations en attente",
+    "invitationsFromOtherHouseholds": "Invitations d'autres foyers",
+    "invitedBy": "Invité par",
+    "connectedHouseholds": "Foyers connectés",
+    "householdsToShareTasks": "Foyers avec lesquels vous pouvez partager des tâches et projets",
+    "noConnectedHouseholds": "Aucun foyer connecté pour l'instant",
+    "inviteOthersToPlanTasks": "Invitez d'autres foyers pour planifier des tâches ensemble",
+    "connectedSince": "Connecté depuis",
+    "howItWorks": "Comment ça marche",
+    "connectHouseholdsTitle": "Connecter des foyers :",
+    "connectHouseholdsDescription": "Entrez le code d'invitation d'un autre foyer pour établir une connexion",
+    "shareTasksTitle": "Partager des tâches :",
+    "shareTasksDescription": "Lors de la création de tâches, vous pouvez sélectionner des foyers connectés",
+    "assignMembersTitle": "Assigner des membres :",
+    "assignMembersDescription": "Assignez des tâches aux membres de tous les foyers connectés",
+    "manageTogetherTitle": "Gérer ensemble :",
+    "manageTogetherDescription": "Tous les membres des foyers connectés peuvent modifier les tâches partagées",
+    "enterInviteCodeDescription": "Entrez le code d'invitation du foyer que vous souhaitez connecter",
+    "householdFound": "Foyer trouvé",
+    "noHouseholdFound": "Aucun foyer trouvé avec ce code d'invitation",
+    "loadingItems": "Chargement des objets...",
+    "noItemsAvailable": "Aucun objet disponible",
+    "noItemsHint": "Les foyers connectés doivent d'abord partager leurs objets avec les autres.",
+    "noItemsForHousehold": "Aucun objet trouvé pour ce foyer."
+  }
+}

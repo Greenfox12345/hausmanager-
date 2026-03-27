@@ -1,0 +1,421 @@
+{
+  "app": {
+    "name": "Gestionnaire de foyer",
+    "tagline": "Gérez votre foyer ensemble"
+  },
+  "nav": {
+    "home": "Accueil",
+    "tasks": "Tâches",
+    "shopping": "Liste de courses",
+    "inventory": "Inventaire",
+    "members": "Membres",
+    "history": "Historique",
+    "calendar": "Calendrier",
+    "projects": "Projets",
+    "borrows": "Emprunts",
+    "neighborhood": "Voisinage",
+    "settings": "Paramètres",
+    "logout": "Se déconnecter",
+    "household": "Foyer",
+    "more": "Plus",
+    "shopping_label": "Achats",
+    "calendar_label": "Agenda"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "create": "Créer",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
+    "submit": "Soumettre",
+    "upload": "Télécharger",
+    "download": "Télécharger",
+    "refresh": "Actualiser",
+    "copy": "Copier",
+    "share": "Partager",
+    "view": "Voir",
+    "remove": "Supprimer",
+    "apply": "Appliquer",
+    "loading": "Chargement...",
+    "saving": "Enregistrement...",
+    "deleting": "Suppression...",
+    "clickToStart": "Cliquez ici pour commencer →",
+    "complete": "Terminer",
+    "deselectAll": "Tout désélectionner",
+    "editDetails": "Modifier les détails",
+    "restore": "Restaurer",
+    "selectAll": "Tout sélectionner",
+    "showLess": "Afficher moins",
+    "undo": "Annuler",
+    "logout": "Se déconnecter"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "overdue": "En retard",
+    "open": "Ouvert",
+    "done": "Fait",
+    "inProgress": "En cours",
+    "creating": "Création...",
+    "loading": "Chargement de l'inventaire...",
+    "uploading": "Téléchargement..."
+  },
+  "labels": {
+    "name": "Nom",
+    "description": "Description",
+    "date": "Date",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "dueDate": "Date d'échéance",
+    "createdAt": "Créé le",
+    "updatedAt": "Mis à jour le",
+    "category": "Catégorie",
+    "priority": "Priorité",
+    "status": "Statut",
+    "assignedTo": "Assigné à",
+    "createdBy": "Créé par",
+    "notes": "Notes",
+    "tags": "Tags",
+    "type": "Type",
+    "all": "Tous",
+    "none": "Aucun",
+    "optional": "Facultatif",
+    "required": "Obligatoire",
+    "yes": "Oui",
+    "no": "Non",
+    "unknown": "Inconnu",
+    "other": "Autre",
+    "total": "Total",
+    "count": "Nombre",
+    "amount": "Montant",
+    "unit": "Unité",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "language": "Langue",
+    "reason": "Raison",
+    "preview": "Aperçu",
+    "photo": "Photo",
+    "prevPhoto": "Photo précédente",
+    "nextPhoto": "Photo suivante",
+    "fullscreen": "Plein écran",
+    "today": "Aujourd'hui",
+    "on": "le",
+    "allTypes": "Tous les types",
+    "by": "par",
+    "clock": "Heure",
+    "color": "Couleur",
+    "details": "Détails",
+    "email": "E-mail",
+    "noHousehold": "Aucun foyer sélectionné",
+    "photos": "Photos",
+    "time": "Heure",
+    "unassigned": "Non assigné",
+    "selectDate": "Sélectionner une date",
+    "pageOf": "Page {{current}} sur {{total}}"
+  },
+  "priority": {
+    "low": "Faible",
+    "medium": "Moyenne",
+    "high": "Élevée",
+    "urgent": "Urgente"
+  },
+  "time": {
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois-ci",
+    "label": "Heure"
+  },
+  "messages": {
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Information",
+    "confirmDelete": "Voulez-vous vraiment supprimer cette entrée ?",
+    "noData": "Aucune donnée disponible",
+    "noResults": "Aucun résultat trouvé",
+    "loadingError": "Erreur lors du chargement des données",
+    "saveSuccess": "Enregistré avec succès",
+    "saveError": "Erreur lors de l'enregistrement",
+    "deleteSuccess": "Supprimé avec succès",
+    "deleteError": "Erreur lors de la suppression",
+    "featureComingSoon": "Cette fonctionnalité sera bientôt disponible",
+    "welcome": "Bienvenue",
+    "loading": "Chargement...",
+    "unknown": "Inconnu",
+    "howItWorks": "💡 Comment ça marche :",
+    "copyError": "Erreur lors de la copie"
+  },
+  "household": {
+    "select": "Sélectionner un foyer",
+    "create": "Créer un foyer",
+    "join": "Rejoindre un foyer",
+    "settings": {
+      "saved": "Paramètres enregistrés"
+    },
+    "language": "Langue du foyer",
+    "languageHint": "Cette langue est utilisée pour les entrées d'historique et les notifications visibles par tous les membres du foyer.",
+    "name": "Nom du foyer",
+    "members": "Membres",
+    "admin": "Administrateur",
+    "member": "Membre",
+    "inviteCode": "Code d'invitation",
+    "leaveHousehold": "Quitter le foyer",
+    "deleteHousehold": "Supprimer le foyer",
+    "adminOnly": "Seul le créateur du foyer peut modifier la langue du foyer."
+  },
+  "language": {
+    "select": "Sélectionner la langue",
+    "uiLanguage": "Langue d'affichage",
+    "uiLanguageHint": "Ce paramètre ne s'applique qu'à vous et est enregistré sur cet appareil.",
+    "de": "Allemand",
+    "en": "Anglais",
+    "fr": "Français",
+    "es": "Espagnol",
+    "tr": "Turc",
+    "zh": "Chinois",
+    "title": "Paramètres de langue"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "register": "S'inscrire",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "username": "Nom d'utilisateur",
+    "loginPrompt": "Veuillez vous connecter pour continuer",
+    "logoutConfirm": "Voulez-vous vraiment vous déconnecter ?",
+    "signInToContinue": "Connectez-vous pour continuer",
+    "accessRequiresAuth": "L'accès à ce tableau de bord nécessite une authentification. Continuez pour lancer le processus de connexion.",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Marquer tout comme lu",
+    "noNotifications": "Aucune nouvelle notification",
+    "settings": "Paramètres de notification"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "de",
+    "itemsPerPage": "Éléments par page",
+    "showingOf": "{{from}}-{{to}} sur {{total}}"
+  },
+  "all": "Tous",
+  "open": "Ouvert",
+  "done": "Fait",
+  "overdue": "En retard",
+  "today": "Aujourd'hui",
+  "assignedTo": "Assigné à",
+  "sortBy": "Trier par",
+  "dueDate": "Date d'échéance",
+    "creationDate": "Date de création",
+  "notEnoughMembers": "Pas assez de membres disponibles ! Requis : {{required}}, Disponible : {{available}}",
+  "minOneAssignee": "Veuillez sélectionner au moins un responsable",
+  "errors": {
+    "generic": "Erreur : ",
+    "saveFailed": "Échec de l'enregistrement",
+    "notLoggedIn": "Veuillez vous connecter"
+  },
+  "profile": {
+    "title": "Modifier le profil",
+    "description": "Modifiez vos informations personnelles ou votre mot de passe.",
+    "tabGeneral": "Général",
+    "tabPassword": "Modifier le mot de passe",
+    "profileImage": "Image de profil",
+    "uploading": "Téléchargement...",
+    "upload": "Télécharger",
+    "changeImage": "Modifier l'image",
+    "uploadImage": "Télécharger l'image",
+    "imageHint": "JPEG, PNG ou WebP, max. 5 Mo",
+    "namePlaceholder": "Votre nom",
+    "emailPlaceholder": "votre.email@exemple.fr",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "passwordMinLength": "Au moins 8 caractères",
+    "changePassword": "Modifier le mot de passe",
+    "changingPassword": "Modification...",
+    "updated": "Profil mis à jour avec succès",
+    "updateError": "Erreur lors de la mise à jour du profil",
+    "imageUploaded": "Image de profil téléchargée avec succès",
+    "imageUploadError": "Erreur lors du téléchargement de l'image de profil",
+    "imageDeleted": "Image de profil supprimée avec succès",
+    "imageDeleteError": "Erreur lors de la suppression de l'image de profil",
+    "confirmDeleteImage": "Voulez-vous vraiment supprimer votre image de profil ?",
+    "passwordChanged": "Mot de passe modifié avec succès",
+    "passwordChangeError": "Erreur lors de la modification du mot de passe",
+    "nameRequired": "Le nom ne peut pas être vide",
+    "emailRequired": "L'e-mail ne peut pas être vide",
+    "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+    "currentPasswordRequired": "Veuillez entrer votre mot de passe actuel",
+    "newPasswordRequired": "Veuillez entrer un nouveau mot de passe",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordMismatch": "Les mots de passe ne correspondent pas"
+  },
+  "cancel": {
+    "label": "Annuler"
+  },
+  "add": {
+    "label": "Ajouter"
+  },
+  "toast": {
+    "settingsSaved": "Paramètres enregistrés",
+    "permissionDenied": "Les notifications n'ont pas été autorisées",
+    "browserNotificationsEnabled": "Notifications du navigateur activées"
+  },
+  "dialog": {
+    "title": "Paramètres de notification",
+    "description": "Personnalisez les notifications que vous souhaitez recevoir"
+  },
+  "browserPush": {
+    "label": "Notifications du navigateur",
+    "description": "Recevez des notifications même lorsque le navigateur est fermé",
+    "blockedMessage": "Les notifications ont été bloquées. Veuillez les activer dans les paramètres de votre navigateur."
+  },
+  "notificationTypes": {
+    "title": "Types de notification",
+    "taskAssigned": "Attributions de tâches",
+    "taskDue": "Tâches dues",
+    "taskCompleted": "Tâches terminées",
+    "comments": "Commentaires"
+  },
+  "dnd": {
+    "title": "Ne pas déranger",
+    "description": "Pas de notifications pendant cette période",
+    "from": "De",
+    "to": "À",
+    "activeMessage": "Actif de {{dndStartTime}} à {{dndEndTime}}"
+  },
+  "autoSaveMessage": "Les paramètres sont enregistrés automatiquement",
+  "closeButton": "Fermer",
+  "notificationBell": {
+    "title": "Notifications",
+    "markAllAsRead": "Marquer tout comme lu",
+    "noNotifications": "Aucune notification"
+  },
+  "pdfViewer": {
+    "documentType": "Document PDF",
+    "openExternal": "Ouvrir en externe",
+    "download": "Télécharger"
+  },
+  "photoLightbox": {
+    "closeButtonAriaLabel": "Fermer",
+    "previousPhotoAriaLabel": "Photo précédente",
+    "photoAltText": "Photo",
+    "nextPhotoAriaLabel": "Photo suivante"
+  },
+  "clickablePhoto": {
+    "photoAltText": "Photo"
+  },
+  "upcomingOccurrencesTable": {
+    "noOccurrencesPlanned": "Aucun événement à venir prévu",
+    "noDate": "Pas de date",
+    "stillOpen": "Toujours ouvert"
+  },
+  "errorBoundary": {
+    "unexpectedError": "Une erreur inattendue s'est produite.",
+    "reloadPage": "Recharger la page"
+  },
+  "chatBox": {
+    "placeholder": "Tapez votre message...",
+    "emptyStateMessage": "Commencer une conversation avec l'IA",
+    "suggestedPrompt1": "Expliquer l'informatique quantique",
+    "suggestedPrompt2": "Écrire un 'hello world' en Python"
+  },
+  "photoUpload": {
+    "maxPhotosAllowed": "Maximum {{maxPhotos}} {{fileTypeLabel}}s autorisées",
+    "notAPDF": "{{fileName}} n'est pas un PDF",
+    "notAnImage": "{{fileName}} n'est pas une image",
+    "compressionError": "Erreur de compression de {{fileName}}",
+    "fileTooLarge": "{{fileName}} est trop grand (max. {{maxSize}})",
+    "uploadError": "Erreur lors du téléchargement des {{fileTypeLabel}}s",
+    "uploading": "Téléchargement...",
+    "addFiles": "Ajouter des {{fileTypeLabel}}s ({{current}}/{{max}})",
+    "removeFile": "Supprimer le {{fileTypeLabel}}"
+  },
+  "imageCropEditor": {
+    "title": "Recadrer l'image",
+    "zoomLabel": "Zoom",
+    "processing": "Traitement...",
+    "helperText": {
+      "dragAndZoom": "Faites glisser l'image pour la positionner. Utilisez le curseur pour zoomer."
+    },
+    "errors": {
+      "canvasContext": "Échec de l'obtention du contexte du canevas"
+    }
+  },
+  "apply": "Appliquer",
+  "category": {
+    "create": {
+      "success": "Catégorie \"${name}\" créée",
+      "error": "Erreur lors de la création de la catégorie",
+      "buttonTitle": "Créer une nouvelle catégorie",
+      "dialogTitle": "Créer une nouvelle catégorie",
+      "dialogDescription": "Créer une nouvelle catégorie {type}."
+    },
+    "type": {
+      "shopping": "Achats",
+      "inventory": "Inventaire"
+    },
+    "nameLabel": "Nom de la catégorie",
+    "namePlaceholder": "ex. Épicerie, Électronique...",
+    "colorLabel": "Couleur"
+  },
+  "button": {
+    "cancel": "Annuler",
+    "creating": "Création...",
+    "create": "Créer"
+  },
+  "sidebar": {
+    "toggleNavigation": "Basculer la navigation",
+    "navigation": "Navigation"
+  },
+  "menu": {
+    "menu": "Menu"
+  },
+  "upload": {
+    "uploading": "Téléchargement...",
+    "addFiles": "Ajouter des {{label}}s ({{current}}/{{max}})",
+    "removeFile": "Supprimer le {{label}}",
+    "maxFilesError": "Maximum {{max}} {{label}}s autorisées",
+    "notAPdf": "{{name}} n'est pas un PDF",
+    "notAnImage": "{{name}} n'est pas une image",
+    "compressionError": "Erreur de compression de {{name}}",
+    "fileTooLarge": "{{name}} est trop grand (max. {{max}})",
+    "uploadError": "Erreur lors du téléchargement des {{label}}s"
+  },
+  "sort": {
+    "asc": "A-Z",
+    "desc": "Z-A",
+    "ascending": "Trier par ordre croissant",
+    "descending": "Trier par ordre décroissant"
+  },
+  "back": "Retour",
+  "common": {
+    "messages": {
+      "loading": "Chargement..."
+    }
+  },
+  "loading": "Chargement...",
+  "navigation": {
+    "back": "Retour",
+    "next": "Suivant"
+  },
+  "pleaseLogin": "Veuillez vous connecter",
+  "uploading": "Téléchargement..."
+}

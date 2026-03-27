@@ -1,0 +1,52 @@
+{
+  "title": "Historique",
+  "noHistory": "Aucun historique pour l'instant",
+  "noHistoryHint": "Les activités de votre foyer s'affichent ici.",
+  "filter": {
+    "all": "Toutes",
+    "tasks": "Tâches",
+    "shopping": "Courses",
+    "inventory": "Inventaire",
+    "members": "Membres",
+    "borrows": "Emprunts",
+    "projects": "Projets"
+  },
+  "actions": {
+    "task_created": "Tâche créée",
+    "task_updated": "Tâche mise à jour",
+    "task_completed": "Tâche terminée",
+    "task_deleted": "Tâche supprimée",
+    "task_assigned": "Tâche assignée",
+    "item_added": "Objet ajouté",
+    "item_updated": "Objet mis à jour",
+    "item_deleted": "Objet supprimé",
+    "shopping_created": "Liste de courses créée",
+    "shopping_completed": "Liste de courses terminée",
+    "member_joined": "Membre a rejoint",
+    "member_removed": "Membre retiré",
+    "borrow_requested": "Emprunt demandé",
+    "borrow_approved": "Emprunt approuvé",
+    "borrow_rejected": "Emprunt refusé",
+    "borrow_returned": "Objet retourné",
+    "reminder": "Rappel envoyé"
+  },
+  "fields": {
+    "date": "Date",
+    "member": "Membre",
+    "action": "Action",
+    "details": "Détails"
+  },
+  "messages": {
+    "trackActivities": "Suivre les activités et l'avancement du foyer"
+  },
+  "labels": {
+    "photoCount_one": "{{count}} photo",
+    "photoCount_other": "{{count}} photos",
+    "pdfCount_one": "{{count}} PDF",
+    "pdfCount_other": "{{count}} PDFs",
+    "pdfCount": "{{count}} PDF",
+    "photoCount": "{{count}} photo"
+  },
+  "noActivities": "Aucune activité pour l'instant.",
+  "noActivitiesFiltered": "Aucune activité correspondant à vos critères de filtre n'a été trouvée."
+}

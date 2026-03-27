@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "return": "Retourner",
+    "revoke": "Révoquer"
+  },
+  "borrow": "Emprunter",
+  "guidelines": "Directives d'emprunt",
+  "noRequests": "Aucune demande d'emprunt disponible.",
+  "occurrence": "Occurrence",
+  "requestDialog": {
+    "endAfterStart": "La date de retour doit être postérieure à la date de prise en charge",
+    "from": "Du",
+    "guidelines": "Directives d'emprunt",
+    "instructions": "Instructions",
+    "item": "Article",
+    "message": "Message",
+    "messagePlaceholder": "Message facultatif au propriétaire...",
+    "requiredOnReturn": "Requis au retour",
+    "requiredPhotosReturn": "Photos requises au retour",
+    "returnChecklist": "Liste de contrôle de retour",
+    "selectDate": "Sélectionner la date",
+    "send": "Envoyer la demande",
+    "sending": "Envoi en cours...",
+    "title": "Demande d'emprunt",
+    "to": "Au"
+  },
+  "requestMessagePrefix": "Je voudrais emprunter",
+  "requestMessageSuffix": ".",
+  "requests": "Demandes d'emprunt",
+  "responsible": "Responsable",
+  "returnDialog": {
+    "checklist": "Liste de contrôle de retour",
+    "checklistRequired": "Veuillez cocher tous les éléments",
+    "conditionReport": "Rapport d'état",
+    "conditionReportPlaceholder": "Décrire l'état au retour...",
+    "error": "Erreur lors du retour",
+    "example": "Exemple",
+    "item": "Article",
+    "noGuidelines": "Aucune directive de retour disponible",
+    "photoRequired": "Photo requise",
+    "required": "Requis",
+    "requiredPhotos": "Photos requises",
+    "return": "Retourner",
+    "returning": "Retour en cours...",
+    "success": "Retourné avec succès",
+    "title": "Retourner l'article",
+    "uploadPhoto": "Télécharger une photo"
+  },
+  "revokeDialog": {
+    "borrower": "Emprunteur",
+    "description": "Voulez-vous vraiment révoquer cette approbation ?",
+    "item": "Article",
+    "period": "Période",
+    "reason": "Raison",
+    "reasonPlaceholder": "Veuillez indiquer une raison...",
+    "reasonRequired": "Veuillez indiquer une raison",
+    "revoke": "Révoquer",
+    "revoking": "Révocation en cours...",
+    "title": "Révoquer l'approbation"
+  },
+  "status": {
+    "active": "En prêt",
+    "approved": "Approuvé",
+    "completed": "Retourné",
+    "overdue": "En retard",
+    "pending": "En attente",
+    "rejected": "Rejeté"
+  },
+  "task": "Tâche"
+}

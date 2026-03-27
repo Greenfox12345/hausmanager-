@@ -1,0 +1,85 @@
+{
+  "title": "Calendrier",
+  "noEvents": "Aucun rendez-vous",
+  "newEvent": "Nouveau rendez-vous",
+  "editEvent": "Modifier le rendez-vous",
+  "deleteEvent": "Supprimer le rendez-vous",
+  "eventDetails": "Détails du rendez-vous",
+  "views": {
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "agenda": "Agenda"
+  },
+  "fields": {
+    "title": "Titre",
+    "description": "Description",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "allDay": "Toute la journée",
+    "location": "Lieu",
+    "assignedTo": "Assigné à",
+    "recurring": "Récurrent",
+    "color": "Couleur"
+  },
+  "navigation": {
+    "today": "Aujourd'hui",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "messages": {
+    "created": "Rendez-vous créé",
+    "updated": "Rendez-vous mis à jour",
+    "deleted": "Rendez-vous supprimé",
+    "deleteConfirm": "Voulez-vous vraiment supprimer ce rendez-vous ?",
+    "overview": "Calendrier et aperçu de tous les rendez-vous",
+    "confirmUndo": "Voulez-vous annuler la complétion de ce rendez-vous ? La tâche sera réinitialisée à cette date.",
+    "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
+    "jumpedToCurrent": "Saut au rendez-vous actuel",
+    "occurrenceSkipped": "Rendez-vous ignoré !"
+  },
+  "labels": {
+    "occurrence": "Rendez-vous"
+  },
+  "futureOccurrence": "Prochain rendez-vous",
+  "completedOccurrence": "Rendez-vous terminé",
+  "actions": {
+    "undo": "Annuler",
+    "jumpToCurrent": "Aller au rendez-vous actuel",
+    "skip": "Ignorer"
+  },
+  "eventDetail": {
+    "borrowStart": "Début de l'emprunt",
+    "borrowReturn": "Date de retour",
+    "event": "Rendez-vous",
+    "completed": "Terminé",
+    "date": "Date",
+    "description": "Description",
+    "relatedItem": "Objet associé",
+    "goToItem": "Aller à l'objet",
+    "markReturned": "Marquer comme retourné",
+    "viewItem": "Voir l'objet"
+  },
+  "allTasksChronological": "Toutes les tâches (chronologique)",
+  "calendarView": "Vue calendrier",
+  "completedOn": "Terminé le :",
+  "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
+  "filter": {
+    "all": "Toutes les entrées",
+    "borrowsOnly": "Emprunts uniquement",
+    "tasksOnly": "Tâches uniquement"
+  },
+  "jumpToCurrent": "Aller au rendez-vous actuel",
+  "noTasksOnDay": "Aucune tâche ce jour",
+  "noTasksWithoutDates": "Aucune tâche sans date",
+  "noTasksWithoutDatesForMember": "Aucune tâche sans date pour ce membre",
+  "occurrence": "Rendez-vous",
+  "period": "Période",
+  "skip": "Ignorer",
+  "tasksOn": "Tâches le",
+  "tasksWithoutDates": "Tâches sans date",
+  "today": "Aujourd'hui",
+  "months": "Mois"
+}

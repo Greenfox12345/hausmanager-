@@ -1,0 +1,59 @@
+{
+  "title": "Foyer",
+  "selection": {
+    "title": "Sélection du foyer",
+    "subtitle": "Sélectionnez un foyer ou créez-en un nouveau",
+    "noHouseholds": "Aucun foyer pour l'instant",
+    "noHouseholdsHint": "Créez un nouveau foyer ou rejoignez-en un existant.",
+    "createNew": "Créer un nouveau foyer",
+    "joinExisting": "Rejoindre un foyer existant"
+  },
+  "create": {
+    "title": "Créer un foyer",
+    "namePlaceholder": "par exemple, Famille Dupont",
+    "addressPlaceholder": "Adresse (facultatif)",
+    "submit": "Créer le foyer",
+    "success": "Foyer créé",
+    "error": "Erreur lors de la création du foyer"
+  },
+  "join": {
+    "title": "Rejoindre un foyer",
+    "codePlaceholder": "Entrez le code d'invitation",
+    "submit": "Rejoindre",
+    "success": "Rejoint avec succès",
+    "invalidCode": "Code d'invitation invalide ou expiré",
+    "error": "Erreur lors de la jonction"
+  },
+  "settings": {
+    "title": "Paramètres du foyer",
+    "general": "Général",
+    "name": "Nom du foyer",
+    "address": "Adresse",
+    "language": "Langue du foyer",
+    "languageHint": "Cette langue sera utilisée pour les entrées d'historique et les notifications que tous les membres verront.",
+    "save": "Enregistrer les paramètres",
+    "saved": "Paramètres enregistrés",
+    "danger": "Zone de danger",
+    "leave": "Quitter le foyer",
+    "leaveConfirm": "Voulez-vous vraiment quitter ce foyer ?",
+    "delete": "Supprimer le foyer",
+    "deleteConfirm": "Voulez-vous vraiment supprimer ce foyer ? Cette action est irréversible.",
+    "deleteWarning": "Toutes les données seront définitivement supprimées."
+  },
+  "inviteDialog": {
+    "title": "Foyer créé avec succès !",
+    "description": "Partagez ce code d'invitation avec d'autres personnes afin qu'elles puissent rejoindre votre foyer \"{{householdName}}\"." ,
+    "copied": "Code d'invitation copié !",
+    "copyError": "Erreur lors de la copie",
+    "hint": "Indice",
+    "hintText": "Les nouveaux membres peuvent s'inscrire avec ce code et rejoindre votre foyer.",
+    "understood": "Compris"
+  },
+  "neighborhood": {
+    "title": "Voisinage",
+    "subtitle": "Connectez-vous avec vos voisins et échangez des objets",
+    "noNeighbors": "Aucun voisin connecté pour l'instant",
+    "addNeighbor": "Ajouter un voisin",
+    "borrowFromNeighbor": "Emprunter à un voisin"
+  }
+}
