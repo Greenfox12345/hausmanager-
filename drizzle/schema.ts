@@ -328,7 +328,7 @@ export const activityHistory = mysqlTable("activity_history", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   memberId: int("memberId").notNull().references(() => householdMembers.id),
-  activityType: mysqlEnum("activityType", ["shopping", "task", "project", "member", "inventory", "other"]).notNull(),
+  activityType: mysqlEnum("activityType", ["shopping", "task", "project", "member", "inventory", "calendar", "other"]).notNull(),
   action: varchar("action", { length: 100 }).notNull(),
   description: text("description").notNull(),
   relatedItemId: int("relatedItemId"),

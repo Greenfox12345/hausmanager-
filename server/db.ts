@@ -584,7 +584,7 @@ export async function deleteProject(id: number) {
 export async function createActivityLog(data: {
   householdId: number;
   memberId: number;
-  activityType: "shopping" | "task" | "project" | "member" | "inventory" | "other";
+  activityType: "shopping" | "task" | "project" | "member" | "inventory" | "calendar" | "other";
   action: string;
   description: string;
   relatedItemId?: number;
