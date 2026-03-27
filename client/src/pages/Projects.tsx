@@ -31,7 +31,7 @@ import {
   Globe
 } from "lucide-react";
 import { format, isPast } from "date-fns";
-import { de } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { toast } from "sonner";
 import GanttChartView from "@/components/GanttChartView";
 import TaskDependencies from "@/components/TaskDependencies";

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { format, differenceInDays, startOfDay, addDays, min, max } from "date-fns";
-import { de } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,8 @@ interface GanttChartViewProps {
 }
 
 export default function GanttChartView({ tasks, members }: GanttChartViewProps) {
-  const { t } = useTranslation(["tasks", "common"]);
+  const { t, i18n } = useTranslation(["tasks", "common"]);
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
 
   const getMemberName = (memberId: number | null) => {
     if (!memberId) return t("tasks:fields.unassigned");

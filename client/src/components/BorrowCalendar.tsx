@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
-import { de } from "date-fns/locale";
+import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BorrowCard, type BorrowCardData } from "@/components/BorrowCard";
@@ -127,9 +127,14 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
     setSelected(null);
   };
 
-  const DAY_HEADERS = i18n.language.startsWith("de")
-    ? ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
+
+  // Generate weekday abbreviations automatically via date-fns locale.
+  // Week starts on Monday (index 1). 2023-01-02 is a Monday.
+  const DAY_HEADERS = Array.from({ length: 7 }, (_, i) => {
+    const refDate = new Date(2023, 0, 2 + i); // Mon … Sun
+    return format(refDate, "EEEEEE", { locale: dateFnsLocale });
+  });
 
   const handleBarClick = (borrow: BorrowEntry, weekIndex: number) => {
     if (selected?.borrow.id === borrow.id && selected?.weekIndex === weekIndex) {
@@ -148,7 +153,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <h2 className="text-lg font-semibold min-w-[160px] text-center">
-            {format(currentMonth, "MMMM yyyy", { locale: i18n.language.startsWith("de") ? de : undefined })}
+            {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
           </h2>
           <Button variant="outline" size="icon" onClick={goToNextMonth}>
             <ChevronRight className="w-4 h-4" />
