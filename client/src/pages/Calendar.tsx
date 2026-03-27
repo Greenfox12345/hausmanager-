@@ -598,6 +598,8 @@ export default function Calendar() {
                 <div className="grid grid-cols-7 gap-2 mb-4">
                   {(i18n.language.startsWith("de")
                     ? ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]
+                    : i18n.language.startsWith("es")
+                    ? ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"]
                     : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
                   ).map(day => (
                     <div key={day} className="text-center text-sm font-semibold text-muted-foreground p-2">
