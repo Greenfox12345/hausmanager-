@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { getDb } from "../db";
+import { getDb, createActivityLog } from "../db";
+import {
+  memberLeft,
+  memberLeftNewAdmin,
+  adminTransferred,
+  dissolveVoteCast,
+  dissolveVoteRetracted,
+  householdLanguageChanged,
+} from "../activityTexts";
 import { households, householdMembers, users, shoppingCategories, householdDissolveVotes } from "../../drizzle/schema";
 import { eq, and, count, asc, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -638,6 +646,7 @@ export const householdManagementRouter = router({
         .limit(1);
 
       let newAdminName: string | null = null;
+      const lang = (household?.language || "de") as "de" | "en" | "es";
 
       if (household && household.createdBy === ctx.user.id) {
         // Find the oldest active member who is NOT the leaving user
@@ -662,6 +671,18 @@ export const householdManagementRouter = router({
           newAdminName = nextAdmin.memberName;
         }
       }
+
+      // Log the leave action
+      const description = newAdminName
+        ? memberLeftNewAdmin(lang, member.memberName, newAdminName)
+        : memberLeft(lang, member.memberName);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: member.id,
+        activityType: "member",
+        action: "memberLeft",
+        description,
+      });
 
       return { success: true, dissolved: false, newAdminName };
     }),
@@ -737,6 +758,18 @@ export const householdManagementRouter = router({
         return { success: true, dissolved: true, voteCount, totalMembers };
       }
 
+      // Log the vote
+      const [hh] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
+      const voteLang = ((hh?.language || "de") as "de" | "en" | "es");
+      const votesNeeded = Math.floor(totalMembers / 2) + 1;
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: member.id,
+        activityType: "member",
+        action: "dissolveVoteCast",
+        description: dissolveVoteCast(voteLang, member.memberName, voteCount, votesNeeded),
+      });
+
       return { success: true, dissolved: false, voteCount, totalMembers };
     }),
 
@@ -773,6 +806,17 @@ export const householdManagementRouter = router({
             eq(householdDissolveVotes.memberId, member.id)
           )
         );
+
+      // Log the retraction
+      const [hhRetract] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
+      const retractLang = ((hhRetract?.language || "de") as "de" | "en" | "es");
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: member.id,
+        activityType: "member",
+        action: "dissolveVoteRetracted",
+        description: dissolveVoteRetracted(retractLang, member.memberName),
+      });
 
       return { success: true };
     }),
@@ -889,6 +933,28 @@ export const householdManagementRouter = router({
         .update(households)
         .set({ createdBy: targetMember.userId })
         .where(eq(households.id, input.householdId));
+
+      // Get caller's member record for the log
+      const [callerMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      const transferLang = ((household.language || "de") as "de" | "en" | "es");
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: callerMember?.id ?? 0,
+        activityType: "member",
+        action: "adminTransferred",
+        description: adminTransferred(transferLang, callerMember?.memberName ?? "Admin", targetMember.memberName),
+      });
 
       return { success: true, newAdminName: targetMember.memberName };
     }),

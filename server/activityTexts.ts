@@ -336,3 +336,67 @@ export function inventoryCategoryDeleted(lang: Lang, categoryName: string, membe
     `${memberName} eliminó la categoría de inventario "${categoryName}"`
   );
 }
+
+// ─── Household / Member ───────────────────────────────────────────────────────
+
+export function memberJoined(lang: Lang, memberName: string): string {
+  return t(lang,
+    `${memberName} ist dem Haushalt beigetreten`,
+    `${memberName} joined the household`,
+    `${memberName} se unió al hogar`
+  );
+}
+
+export function memberLeft(lang: Lang, memberName: string): string {
+  return t(lang,
+    `${memberName} hat den Haushalt verlassen`,
+    `${memberName} left the household`,
+    `${memberName} abandonó el hogar`
+  );
+}
+
+export function memberLeftNewAdmin(lang: Lang, memberName: string, newAdminName: string): string {
+  return t(lang,
+    `${memberName} hat den Haushalt verlassen – neuer Admin: ${newAdminName}`,
+    `${memberName} left the household – new admin: ${newAdminName}`,
+    `${memberName} abandonó el hogar – nuevo administrador: ${newAdminName}`
+  );
+}
+
+export function adminTransferred(lang: Lang, fromMember: string, toMember: string): string {
+  return t(lang,
+    `Admin-Rechte von ${fromMember} an ${toMember} übertragen`,
+    `Admin rights transferred from ${fromMember} to ${toMember}`,
+    `Derechos de administrador transferidos de ${fromMember} a ${toMember}`
+  );
+}
+
+export function dissolveVoteCast(lang: Lang, memberName: string, votesCount: number, votesNeeded: number): string {
+  return t(lang,
+    `${memberName} hat für die Auflösung des Haushalts gestimmt (${votesCount}/${votesNeeded} Stimmen)`,
+    `${memberName} voted to dissolve the household (${votesCount}/${votesNeeded} votes)`,
+    `${memberName} votó por disolver el hogar (${votesCount}/${votesNeeded} votos)`
+  );
+}
+
+export function dissolveVoteRetracted(lang: Lang, memberName: string): string {
+  return t(lang,
+    `${memberName} hat die Stimme zur Haushaltsauflösung zurückgezogen`,
+    `${memberName} retracted the vote to dissolve the household`,
+    `${memberName} retiró el voto para disolver el hogar`
+  );
+}
+
+export function householdLanguageChanged(lang: Lang, adminName: string, newLang: string): string {
+  const langName = (l: string) => {
+    if (l === "de") return t(lang, "Deutsch", "German", "Alemán");
+    if (l === "en") return t(lang, "Englisch", "English", "Inglés");
+    if (l === "es") return t(lang, "Spanisch", "Spanish", "Español");
+    return l;
+  };
+  return t(lang,
+    `${adminName} hat die Haushaltssprache auf ${langName(newLang)} geändert`,
+    `${adminName} changed the household language to ${langName(newLang)}`,
+    `${adminName} cambió el idioma del hogar a ${langName(newLang)}`
+  );
+}
