@@ -550,6 +550,16 @@ export const householdManagementRouter = router({
         .set({ language: input.language })
         .where(eq(households.id, input.householdId));
 
+      // Log the language change (use new language for the log text)
+      const newLang = (input.language as "de" | "en" | "es");
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: member.id,
+        activityType: "member",
+        action: "householdLanguageChanged",
+        description: householdLanguageChanged(newLang, member.memberName, input.language),
+      });
+
       return { success: true, language: input.language };
     }),
 
