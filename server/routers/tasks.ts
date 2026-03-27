@@ -39,7 +39,7 @@ type Lang = "de" | "en" | "es" | "fr";
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es") ? l as Lang : "de";
+  return (l === "en" || l === "es" || l === "fr") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { inArray } from "drizzle-orm";
@@ -429,7 +429,8 @@ export const tasksRouter = router({
               input.householdId,
               assigneeId,
               taskId,
-              input.name
+              input.name,
+              lang
             );
           }
         }
@@ -1193,12 +1194,14 @@ export const tasksRouter = router({
           const members = await getHouseholdMembers(input.householdId);
           const completer = members.find(m => m.id === input.memberId);
           if (completer) {
+            const completeLang = await getHouseholdLang(input.householdId);
             await notifyTaskCompleted(
               input.householdId,
               task.createdBy,
               input.taskId,
               task.name,
-              completer.memberName
+              completer.memberName,
+              completeLang
             );
           }
         }
@@ -1347,16 +1350,30 @@ export const tasksRouter = router({
       if (task.assignedTo && task.assignedTo.length > 0) {
         const senderMember = await getHouseholdMemberById(input.memberId);
         const senderName = senderMember?.memberName || "Jemand";
-        
+        const reminderLang = await getHouseholdLang(input.householdId);
+        const reminderTitle = reminderLang === "en" ? "Reminder: " + task.name
+          : reminderLang === "es" ? "Recordatorio: " + task.name
+          : reminderLang === "fr" ? "Rappel : " + task.name
+          : "Erinnerung: " + task.name;
+        const reminderMsg = (l: typeof reminderLang) => {
+          if (input.comment) {
+            if (l === "en") return `${senderName} reminded you about this task: ${input.comment}`;
+            if (l === "es") return `${senderName} te recordó sobre esta tarea: ${input.comment}`;
+            if (l === "fr") return `${senderName} vous a rappelé cette tâche : ${input.comment}`;
+            return `${senderName} hat dich an diese Aufgabe erinnert: ${input.comment}`;
+          }
+          if (l === "en") return `${senderName} reminded you about this task.`;
+          if (l === "es") return `${senderName} te recordó sobre esta tarea.`;
+          if (l === "fr") return `${senderName} vous a rappelé cette tâche.`;
+          return `${senderName} hat dich an diese Aufgabe erinnert.`;
+        };
         for (const assignedMemberId of task.assignedTo) {
           await createNotification({
             householdId: input.householdId,
             memberId: assignedMemberId,
             type: "reminder",
-            title: "Erinnerung: " + task.name,
-            message: input.comment 
-              ? `${senderName} hat dich an diese Aufgabe erinnert: ${input.comment}`
-              : `${senderName} hat dich an diese Aufgabe erinnert.`,
+            title: reminderTitle,
+            message: reminderMsg(reminderLang),
             relatedTaskId: input.taskId,
           });
         }

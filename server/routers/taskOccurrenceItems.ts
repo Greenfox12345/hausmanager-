@@ -10,7 +10,7 @@ type OccLang = "de" | "en" | "es" | "fr";
 async function getOccLang(householdId: number): Promise<OccLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es") ? l as OccLang : "de";
+  return (l === "en" || l === "es" || l === "fr") ? l as OccLang : "de";
 }
 
 /**

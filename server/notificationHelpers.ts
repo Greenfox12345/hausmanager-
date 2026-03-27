@@ -14,6 +14,8 @@ export type NotificationType =
   | "reminder"
   | "general";
 
+export type NotifLang = "de" | "en" | "es" | "fr";
+
 interface CreateNotificationParams {
   householdId: number;
   memberId: number;
@@ -22,6 +24,14 @@ interface CreateNotificationParams {
   message: string;
   relatedTaskId?: number;
   relatedProjectId?: number;
+}
+
+/** Simple multilingual helper */
+function nt(lang: NotifLang, de: string, en: string, es: string, fr: string): string {
+  if (lang === "en") return en;
+  if (lang === "es") return es;
+  if (lang === "fr") return fr;
+  return de;
 }
 
 /**
@@ -64,14 +74,25 @@ export async function notifyTaskAssigned(
   householdId: number,
   memberId: number,
   taskId: number,
-  taskTitle: string
+  taskTitle: string,
+  lang: NotifLang = "de"
 ) {
   await createNotification({
     householdId,
     memberId,
     type: "task_assigned",
-    title: "Neue Aufgabe zugewiesen",
-    message: `Ihnen wurde die Aufgabe "${taskTitle}" zugewiesen`,
+    title: nt(lang,
+      "Neue Aufgabe zugewiesen",
+      "New task assigned",
+      "Nueva tarea asignada",
+      "Nouvelle tâche assignée"
+    ),
+    message: nt(lang,
+      `Ihnen wurde die Aufgabe "${taskTitle}" zugewiesen`,
+      `You have been assigned the task "${taskTitle}"`,
+      `Se le ha asignado la tarea "${taskTitle}"`,
+      `La tâche « ${taskTitle} » vous a été assignée`
+    ),
     relatedTaskId: taskId,
   });
 }
@@ -85,23 +106,49 @@ export async function notifyTaskDue(
   taskId: number,
   taskTitle: string,
   daysUntilDue: number,
-  isRecurring?: boolean
+  isRecurring?: boolean,
+  lang: NotifLang = "de"
 ) {
-  const label = isRecurring ? "Termin" : "Aufgabe";
-  const message =
-    daysUntilDue === 0
-      ? isRecurring
-        ? `Der nächste Termin für "${taskTitle}" ist heute!`
-        : `Die Aufgabe "${taskTitle}" ist heute fällig!`
-      : isRecurring
-        ? `Der nächste Termin für "${taskTitle}" ist in ${daysUntilDue} Tag(en)`
-        : `Die Aufgabe "${taskTitle}" ist in ${daysUntilDue} Tag(en) fällig`;
+  const title = isRecurring
+    ? nt(lang, "Termin anstehend", "Upcoming occurrence", "Cita próxima", "Rendez-vous à venir")
+    : nt(lang, "Aufgabe fällig", "Task due", "Tarea pendiente", "Tâche à rendre");
+
+  let message: string;
+  if (daysUntilDue === 0) {
+    message = isRecurring
+      ? nt(lang,
+          `Der nächste Termin für "${taskTitle}" ist heute!`,
+          `The next occurrence of "${taskTitle}" is today!`,
+          `¡La próxima cita para "${taskTitle}" es hoy!`,
+          `Le prochain rendez-vous pour « ${taskTitle} » est aujourd'hui !`
+        )
+      : nt(lang,
+          `Die Aufgabe "${taskTitle}" ist heute fällig!`,
+          `The task "${taskTitle}" is due today!`,
+          `¡La tarea "${taskTitle}" vence hoy!`,
+          `La tâche « ${taskTitle} » est à rendre aujourd'hui !`
+        );
+  } else {
+    message = isRecurring
+      ? nt(lang,
+          `Der nächste Termin für "${taskTitle}" ist in ${daysUntilDue} Tag(en)`,
+          `The next occurrence of "${taskTitle}" is in ${daysUntilDue} day(s)`,
+          `La próxima cita para "${taskTitle}" es en ${daysUntilDue} día(s)`,
+          `Le prochain rendez-vous pour « ${taskTitle} » est dans ${daysUntilDue} jour(s)`
+        )
+      : nt(lang,
+          `Die Aufgabe "${taskTitle}" ist in ${daysUntilDue} Tag(en) fällig`,
+          `The task "${taskTitle}" is due in ${daysUntilDue} day(s)`,
+          `La tarea "${taskTitle}" vence en ${daysUntilDue} día(s)`,
+          `La tâche « ${taskTitle} » est à rendre dans ${daysUntilDue} jour(s)`
+        );
+  }
 
   await createNotification({
     householdId,
     memberId,
     type: "task_due",
-    title: isRecurring ? "Termin anstehend" : "Aufgabe fällig",
+    title,
     message,
     relatedTaskId: taskId,
   });
@@ -115,14 +162,25 @@ export async function notifyTaskCompleted(
   memberId: number,
   taskId: number,
   taskTitle: string,
-  completedByName: string
+  completedByName: string,
+  lang: NotifLang = "de"
 ) {
   await createNotification({
     householdId,
     memberId,
     type: "task_completed",
-    title: "Aufgabe erledigt",
-    message: `${completedByName} hat die Aufgabe "${taskTitle}" erledigt`,
+    title: nt(lang,
+      "Aufgabe erledigt",
+      "Task completed",
+      "Tarea completada",
+      "Tâche terminée"
+    ),
+    message: nt(lang,
+      `${completedByName} hat die Aufgabe "${taskTitle}" erledigt`,
+      `${completedByName} completed the task "${taskTitle}"`,
+      `${completedByName} completó la tarea "${taskTitle}"`,
+      `${completedByName} a terminé la tâche « ${taskTitle} »`
+    ),
     relatedTaskId: taskId,
   });
 }
@@ -135,14 +193,25 @@ export async function notifyCommentAdded(
   memberId: number,
   taskId: number,
   taskTitle: string,
-  commenterName: string
+  commenterName: string,
+  lang: NotifLang = "de"
 ) {
   await createNotification({
     householdId,
     memberId,
     type: "comment_added",
-    title: "Neuer Kommentar",
-    message: `${commenterName} hat einen Kommentar zu "${taskTitle}" hinzugefügt`,
+    title: nt(lang,
+      "Neuer Kommentar",
+      "New comment",
+      "Nuevo comentario",
+      "Nouveau commentaire"
+    ),
+    message: nt(lang,
+      `${commenterName} hat einen Kommentar zu "${taskTitle}" hinzugefügt`,
+      `${commenterName} added a comment to "${taskTitle}"`,
+      `${commenterName} añadió un comentario a "${taskTitle}"`,
+      `${commenterName} a ajouté un commentaire à « ${taskTitle} »`
+    ),
     relatedTaskId: taskId,
   });
 }

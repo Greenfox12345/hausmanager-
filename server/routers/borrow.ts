@@ -42,7 +42,7 @@ type BorrowLang = "de" | "en" | "es" | "fr";
 async function getBorrowLang(householdId: number): Promise<BorrowLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es") ? l as BorrowLang : "de";
+  return (l === "en" || l === "es" || l === "fr") ? l as BorrowLang : "de";
 }
 
 export const borrowRouter = router({
@@ -146,11 +146,17 @@ export const borrowRouter = router({
         // For household items this won't be reached (autoApproved=true), so this is for personal items
         const ownerMemberId = item.owners?.[0]?.memberId;
         if (ownerMemberId) {
+          const reqLang = await getBorrowLang(item.householdId);
+          const reqTitle = reqLang === "en" ? "New borrow request" : reqLang === "es" ? "Nueva solicitud de préstamo" : reqLang === "fr" ? "Nouvelle demande d'emprunt" : "Neue Ausleih-Anfrage";
+          const reqMsg = reqLang === "en" ? `${borrowerName} wants to borrow "${item.name}" from ${startFormatted} to ${endFormatted}${taskInfo}.`
+            : reqLang === "es" ? `${borrowerName} quiere tomar prestado "${item.name}" del ${startFormatted} al ${endFormatted}${taskInfo}.`
+            : reqLang === "fr" ? `${borrowerName} souhaite emprunter « ${item.name} » du ${startFormatted} au ${endFormatted}${taskInfo}.`
+            : `${borrowerName} möchte "${item.name}" ausleihen vom ${startFormatted} bis ${endFormatted}${taskInfo}.`;
           await createNotification({
             householdId: item.householdId,
             memberId: ownerMemberId,
-            title: "Neue Ausleih-Anfrage",
-            message: `${borrowerName} möchte "${item.name}" ausleihen vom ${startFormatted} bis ${endFormatted}${taskInfo}.`,
+            title: reqTitle,
+            message: reqMsg,
             type: "general",
             relatedTaskId: input.taskId,
           });
@@ -283,12 +289,18 @@ export const borrowRouter = router({
       const approvalTaskInfo = linkedOccurrence
         ? ` für Aufgabe "${linkedOccurrence.taskName}" (Termin ${linkedOccurrence.occurrenceNumber})`
         : "";
+      const approveLangNotif = await getBorrowLang(request.borrowerHouseholdId);
+      const approveTitle = approveLangNotif === "en" ? "Borrow request approved" : approveLangNotif === "es" ? "Solicitud de préstamo aprobada" : approveLangNotif === "fr" ? "Demande d'emprunt approuvée" : "Ausleih-Anfrage genehmigt";
+      const approveMsg = approveLangNotif === "en" ? `${approverName} approved your request for "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
+        : approveLangNotif === "es" ? `${approverName} aprobó tu solicitud para "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
+        : approveLangNotif === "fr" ? `${approverName} a approuvé votre demande pour « ${item.name} » (${startFormatted} – ${endFormatted})${approvalTaskInfo}.`
+        : `${approverName} hat deine Anfrage für "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo} genehmigt.`;
       await createNotification({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         type: "general",
-        title: "Ausleih-Anfrage genehmigt",
-        message: `${approverName} hat deine Anfrage für "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo} genehmigt.`,
+        title: approveTitle,
+        message: approveMsg,
         relatedTaskId: linkedOccurrence?.taskId,
       });
 
@@ -390,14 +402,22 @@ export const borrowRouter = router({
       // Notify borrower about rejection
       const rejectStartFormatted = new Date(request.startDate).toLocaleDateString("de-DE");
       const rejectEndFormatted = new Date(request.endDate).toLocaleDateString("de-DE");
+      const rejectLangNotif = await getBorrowLang(request.borrowerHouseholdId);
+      const rejectTitle = rejectLangNotif === "en" ? "Borrow request rejected" : rejectLangNotif === "es" ? "Solicitud de préstamo rechazada" : rejectLangNotif === "fr" ? "Demande d'emprunt refusée" : "Ausleih-Anfrage abgelehnt";
       const rejectMessage = input.responseMessage
-        ? `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt. Begründung: ${input.responseMessage}`
-        : `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt.`;
+        ? (rejectLangNotif === "en" ? `${rejecterName} rejected your request for "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}). Reason: ${input.responseMessage}`
+          : rejectLangNotif === "es" ? `${rejecterName} rechazó tu solicitud para "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}). Motivo: ${input.responseMessage}`
+          : rejectLangNotif === "fr" ? `${rejecterName} a refusé votre demande pour « ${item.name} » (${rejectStartFormatted} – ${rejectEndFormatted}). Raison : ${input.responseMessage}`
+          : `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt. Begründung: ${input.responseMessage}`)
+        : (rejectLangNotif === "en" ? `${rejecterName} rejected your request for "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}).`
+          : rejectLangNotif === "es" ? `${rejecterName} rechazó tu solicitud para "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}).`
+          : rejectLangNotif === "fr" ? `${rejecterName} a refusé votre demande pour « ${item.name} » (${rejectStartFormatted} – ${rejectEndFormatted}).`
+          : `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt.`);
       await createNotification({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
         type: "general",
-        title: "Ausleih-Anfrage abgelehnt",
+        title: rejectTitle,
         message: rejectMessage,
       });
 
@@ -538,12 +558,18 @@ export const borrowRouter = router({
           const taskName = task?.name || `Aufgabe #${occ.taskId}`;
 
           // Send notification to the borrower with task info and link
+          const revokeLangNotif1 = await getBorrowLang(request.borrowerHouseholdId);
+          const revokeTitle1 = revokeLangNotif1 === "en" ? "Borrow approval revoked" : revokeLangNotif1 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif1 === "fr" ? "Approbation d'emprunt révoquée" : "Ausleihgenehmigung widerrufen";
+          const revokeMsg1 = revokeLangNotif1 === "en" ? `The approval for "${item.name}" (${new Date(request.startDate).toLocaleDateString("en-GB")} - ${new Date(request.endDate).toLocaleDateString("en-GB")}) for task "${taskName}" (occurrence ${occ.occurrenceNumber}) was revoked by ${revokerName}. Reason: ${input.reason}`
+            : revokeLangNotif1 === "es" ? `La aprobación para "${item.name}" (${new Date(request.startDate).toLocaleDateString("es-ES")} - ${new Date(request.endDate).toLocaleDateString("es-ES")}) para la tarea "${taskName}" (cita ${occ.occurrenceNumber}) fue revocada por ${revokerName}. Motivo: ${input.reason}`
+            : revokeLangNotif1 === "fr" ? `L'approbation pour « ${item.name} » (${new Date(request.startDate).toLocaleDateString("fr-FR")} - ${new Date(request.endDate).toLocaleDateString("fr-FR")}) pour la tâche « ${taskName} » (occurrence ${occ.occurrenceNumber}) a été révoquée par ${revokerName}. Raison : ${input.reason}`
+            : `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) für Aufgabe "${taskName}" (Termin ${occ.occurrenceNumber}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`;
           await createNotification({
             householdId: request.borrowerHouseholdId,
             memberId: request.borrowerMemberId,
             type: "general",
-            title: "Ausleihgenehmigung widerrufen",
-            message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) für Aufgabe "${taskName}" (Termin ${occ.occurrenceNumber}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+            title: revokeTitle1,
+            message: revokeMsg1,
             relatedTaskId: occ.taskId,
           });
 
@@ -582,12 +608,18 @@ export const borrowRouter = router({
 
         // If no task-linked occurrences, send notification without task info and create a general activity log
         if (linkedOccurrences.length === 0) {
+          const revokeLangNotif2 = await getBorrowLang(request.borrowerHouseholdId);
+          const revokeTitle2 = revokeLangNotif2 === "en" ? "Borrow approval revoked" : revokeLangNotif2 === "es" ? "Aprobación de préstamo revocada" : revokeLangNotif2 === "fr" ? "Approbation d'emprunt révoquée" : "Ausleihgenehmigung widerrufen";
+          const revokeMsg2 = revokeLangNotif2 === "en" ? `The approval for "${item.name}" (${new Date(request.startDate).toLocaleDateString("en-GB")} - ${new Date(request.endDate).toLocaleDateString("en-GB")}) was revoked by ${revokerName}. Reason: ${input.reason}`
+            : revokeLangNotif2 === "es" ? `La aprobación para "${item.name}" (${new Date(request.startDate).toLocaleDateString("es-ES")} - ${new Date(request.endDate).toLocaleDateString("es-ES")}) fue revocada por ${revokerName}. Motivo: ${input.reason}`
+            : revokeLangNotif2 === "fr" ? `L'approbation pour « ${item.name} » (${new Date(request.startDate).toLocaleDateString("fr-FR")} - ${new Date(request.endDate).toLocaleDateString("fr-FR")}) a été révoquée par ${revokerName}. Raison : ${input.reason}`
+            : `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`;
           await createNotification({
             householdId: request.borrowerHouseholdId,
             memberId: request.borrowerMemberId,
             type: "general",
-            title: "Ausleihgenehmigung widerrufen",
-            message: `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`,
+            title: revokeTitle2,
+            message: revokeMsg2,
           });
 
           const revokeLang2 = await getBorrowLang(input.revokerHouseholdId);
@@ -661,13 +693,21 @@ export const borrowRouter = router({
         // Notify for approved (owner already knew) or pending personal items (owner had a pending request)
         const shouldNotify = request.status === "approved" || item.ownershipType === "personal";
         if (ownerMemberId && shouldNotify) {
-          const reasonText = input.reason?.trim() ? ` Begründung: ${input.reason.trim()}` : "";
+          const cancelLangNotif = await getBorrowLang(item.householdId);
+          const cancelTitle = cancelLangNotif === "en" ? "Borrow cancelled" : cancelLangNotif === "es" ? "Préstamo cancelado" : cancelLangNotif === "fr" ? "Emprunt annulé" : "Ausleihe storniert";
+          const reasonText = input.reason?.trim()
+            ? (cancelLangNotif === "en" ? ` Reason: ${input.reason.trim()}` : cancelLangNotif === "es" ? ` Motivo: ${input.reason.trim()}` : cancelLangNotif === "fr" ? ` Raison : ${input.reason.trim()}` : ` Begründung: ${input.reason.trim()}`)
+            : "";
+          const cancelMsg = cancelLangNotif === "en" ? `${borrowerName} cancelled the borrow of "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
+            : cancelLangNotif === "es" ? `${borrowerName} canceló el préstamo de "${item.name}" (${startFormatted} – ${endFormatted}).${reasonText}`
+            : cancelLangNotif === "fr" ? `${borrowerName} a annulé l'emprunt de « ${item.name} » (${startFormatted} – ${endFormatted}).${reasonText}`
+            : `${borrowerName} hat die Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.${reasonText}`;
           await createNotification({
             householdId: item.householdId,
             memberId: ownerMemberId,
             type: "general",
-            title: "Ausleihe storniert",
-            message: `${borrowerName} hat die Ausleihe von "${item.name}" (${startFormatted} – ${endFormatted}) storniert.${reasonText}`,
+            title: cancelTitle,
+            message: cancelMsg,
           });
         }
       }
@@ -1248,12 +1288,18 @@ export const borrowRouter = router({
         if (item?.owners && item.owners.length > 0) {
           for (const owner of item.owners as any[]) {
             if (owner.memberId && owner.memberId !== input.memberId) {
+              const returnLangNotif = await getBorrowLang(item.householdId);
+              const returnTitle = returnLangNotif === "en" ? "Item returned" : returnLangNotif === "es" ? "Objeto devuelto" : returnLangNotif === "fr" ? "Objet rendu" : "Gegenstand zurückgegeben";
+              const returnMsg = returnLangNotif === "en" ? `${borrowerName} returned "${item.name}" on ${returnDateFormatted}.${commentPart}`
+                : returnLangNotif === "es" ? `${borrowerName} devolvió "${item.name}" el ${returnDateFormatted}.${commentPart}`
+                : returnLangNotif === "fr" ? `${borrowerName} a rendu « ${item.name} » le ${returnDateFormatted}.${commentPart}`
+                : `${borrowerName} hat "${item.name}" am ${returnDateFormatted} zurückgegeben.${commentPart}`;
               await createNotification({
                 householdId: item.householdId,
                 memberId: owner.memberId,
                 type: "general",
-                title: "Gegenstand zurückgegeben",
-                message: `${borrowerName} hat "${item.name}" am ${returnDateFormatted} zurückgegeben.${commentPart}`,
+                title: returnTitle,
+                message: returnMsg,
               });
             }
           }
