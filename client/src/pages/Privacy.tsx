@@ -255,11 +255,26 @@ function PrivacyDE() {
               lit. c DSGVO) oder einen Angemessenheitsbeschluss.
             </p>
 
-            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Datenspeicherung</h3>
+            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Datenspeicherung und Drittlandtransfer</h3>
             <p>
               Sämtliche Anwendungsdaten (Haushaltsdaten, Nutzerkonten, Fotos) werden auf Servern der
-              Manus-Infrastruktur gespeichert. Nach Auskunft von Manus befinden sich die
-              Produktivserver innerhalb der Europäischen Union bzw. des Europäischen Wirtschaftsraums.
+              Manus-Infrastruktur gespeichert. Die relationale Datenbank wird über{" "}
+              <strong>TiDB Cloud (PingCAP)</strong> betrieben und befindet sich in der AWS-Region{" "}
+              <strong>us-east-1 (Northern Virginia, USA)</strong> – also außerhalb der EU/des EWR.
+            </p>
+            <p className="mt-2">
+              Dieser Drittlandtransfer ist durch den Abschluss von{" "}
+              <strong>Standardvertragsklauseln (SCC) der EU-Kommission</strong> (Art. 46 Abs. 2 lit. c
+              DSGVO) zwischen Manus und PingCAP abgesichert. TiDB Cloud ist zudem GDPR-zertifiziert
+              (ISO 27001, SOC 2 Type II). Weitere Informationen finden sich in der{" "}
+              <a
+                href="https://www.pingcap.com/trust-hub/privacy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Datenschutzerklärung von PingCAP
+              </a>.
             </p>
           </div>
 
@@ -564,11 +579,26 @@ function PrivacyEN() {
               decision.
             </p>
 
-            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Data Storage</h3>
+            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Data Storage and Third-Country Transfer</h3>
             <p>
               All application data (household data, user accounts, photos) is stored on Manus
-              infrastructure servers. According to Manus, production servers are located within the
-              European Union or the European Economic Area.
+              infrastructure servers. The relational database is operated via{" "}
+              <strong>TiDB Cloud (PingCAP)</strong> and is located in the AWS region{" "}
+              <strong>us-east-1 (Northern Virginia, USA)</strong> – outside the EU/EEA.
+            </p>
+            <p className="mt-2">
+              This third-country transfer is safeguarded by{" "}
+              <strong>Standard Contractual Clauses (SCCs)</strong> of the EU Commission
+              (Art. 46(2)(c) GDPR) concluded between Manus and PingCAP. TiDB Cloud is also
+              GDPR-certified (ISO 27001, SOC 2 Type II). Further information is available in the{" "}
+              <a
+                href="https://www.pingcap.com/trust-hub/privacy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                PingCAP Privacy Policy
+              </a>.
             </p>
           </div>
 
