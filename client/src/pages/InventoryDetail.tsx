@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Edit2, Trash2, Calendar, Globe, Lock, Users } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, Calendar, Globe, Lock, Users, Eye, EyeOff } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { BorrowGuidelinesEditor } from "@/components/BorrowGuidelinesEditor";
@@ -673,8 +673,9 @@ export default function InventoryDetail() {
                       <div className="flex justify-end">
                         <button
                           onClick={() => setShowPastRequests(v => !v)}
-                          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
                         >
+                          {showPastRequests ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                           <span>{showPastRequests ? t("borrow:hidePast", "Vergangene ausblenden") : t("borrow:showPast", "Vergangene anzeigen")}</span>
                           <span className="text-[10px] bg-muted rounded px-1.5 py-0.5">
                             {borrowRequests.filter((r: any) => ['completed', 'rejected', 'cancelled'].includes(r.status)).length}
