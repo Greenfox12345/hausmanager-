@@ -3,8 +3,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield } from "lucide-react";
 
-const LAST_UPDATED_DE = "24. März 2026";
-const LAST_UPDATED_EN = "March 24, 2026";
+const LAST_UPDATED_DE = "28. März 2026";
+const LAST_UPDATED_EN = "March 28, 2026";
 
 export function Privacy() {
   const { i18n } = useTranslation();
@@ -119,15 +119,17 @@ function PrivacyDE() {
               (Vertragserfüllung).
             </p>
 
-            <h3 className="text-base font-semibold mt-4 mb-2">3.4 Nutzungsstatistiken (Umami Analytics)</h3>
+            <h3 className="text-base font-semibold mt-4 mb-2">3.4 Nutzungsstatistiken (Manus Analytics / Umami)</h3>
             <p>
-              Die Anwendung verwendet Umami Analytics, ein datenschutzfreundliches
-              Webanalyse-Werkzeug. Umami erhebt keine personenbezogenen Daten, setzt keine Cookies
-              und speichert keine IP-Adressen. Es werden ausschließlich anonymisierte Nutzungsdaten
-              (z. B. aufgerufene Seiten, Gerätekategorie, Browsertyp) erhoben, die keine
-              Rückschlüsse auf einzelne Personen erlauben. Das Analyse-Skript wird über die
-              Manus-Infrastruktur ausgeliefert; es findet keine Datenübertragung an externe
-              Drittanbieter statt.
+              Die Anwendung wird auf der Manus-Plattform betrieben, die ein datenschutzfreundliches
+              Webanalyse-System (Umami) einsetzt. Umami erhebt keine personenbezogenen Daten, setzt
+              keine Cookies und speichert keine IP-Adressen. Es werden ausschließlich anonymisierte
+              Nutzungsdaten (z. B. aufgerufene Seiten, Gerätekategorie, Browsertyp) erfasst, die
+              keine Rückschlüsse auf einzelne Personen erlauben. Das Analyse-Skript wird über die
+              Manus-eigene Infrastruktur ausgeliefert (Endpunkt:{" "}
+              <code className="text-xs bg-muted px-1 rounded">manus-analytics.com</code> bzw.{" "}
+              <code className="text-xs bg-muted px-1 rounded">manus.im</code>); es findet keine
+              Datenübertragung an externe Drittanbieter statt.
             </p>
             <p className="mt-2 text-sm">
               <span className="font-medium">Rechtsgrundlage:</span> Art. 6 Abs. 1 lit. f DSGVO
@@ -151,11 +153,105 @@ function PrivacyDE() {
           {/* 4 */}
           <div>
             <h2 className="text-xl font-semibold mb-3">4. Hosting und technische Infrastruktur</h2>
+
+            <h3 className="text-base font-semibold mt-4 mb-2">4.1 Manus-Plattform (Auftragsverarbeiter)</h3>
             <p>
-              Die Anwendung wird auf der Infrastruktur von Manus (Butterfly Effect Pte. Ltd.)
-              betrieben. Sämtliche Daten werden auf Servern innerhalb der Europäischen Union bzw.
-              des Europäischen Wirtschaftsraums gespeichert und verarbeitet. Manus agiert als
-              Auftragsverarbeiter im Sinne des Art. 28 DSGVO.
+              Die Anwendung wird auf der Infrastruktur von <strong>Manus</strong> (Butterfly Effect
+              Pte. Ltd.) betrieben. Manus agiert als Auftragsverarbeiter im Sinne des Art. 28 DSGVO.
+              Informationen zur Datenverarbeitung durch Manus finden Sie in der{" "}
+              <a
+                href="https://manus.im/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary"
+              >
+                Datenschutzerklärung von Manus
+              </a>{" "}
+              sowie im{" "}
+              <a
+                href="https://manus.im/dpa"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary"
+              >
+                Auftragsverarbeitungsvertrag (DPA)
+              </a>
+              .
+            </p>
+            <p className="mt-3">
+              Im Rahmen des Plattformbetriebs werden von Manus folgende Dienste eingesetzt, die beim
+              Aufruf der Anwendung im Browser des Nutzers aktiv werden können:
+            </p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="text-left p-2 border-b border-border font-semibold">Dienst / Anbieter</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Domain(s)</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Zweck</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Datenschutz</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-2 border-b border-border">Manus CDN</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">manuscdn.com</td>
+                    <td className="p-2 border-b border-l border-border">Auslieferung statischer Assets (JS, CSS, Bilder) der Anwendung</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://manus.im/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">manus.im/privacy</a>
+                    </td>
+                  </tr>
+                  <tr className="bg-muted/30">
+                    <td className="p-2 border-b border-border">Manus Analytics (Umami)</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">manus-analytics.com</td>
+                    <td className="p-2 border-b border-l border-border">Anonymisierte Nutzungsstatistiken (keine personenbezogenen Daten, keine Cookies)</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://manus.im/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">manus.im/privacy</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border-b border-border">Amplitude Analytics</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">amplitude.com</td>
+                    <td className="p-2 border-b border-l border-border">Produktanalyse der Manus-Plattform (nicht der Anwendungsdaten); wird von Manus eingebunden</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://amplitude.com/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">amplitude.com/privacy</a>
+                    </td>
+                  </tr>
+                  <tr className="bg-muted/30">
+                    <td className="p-2 border-b border-border">Google Fonts / gstatic</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">fonts.googleapis.com,{" "}fonts.gstatic.com</td>
+                    <td className="p-2 border-b border-l border-border">Laden von Schriftarten für die Manus-Plattform-Oberfläche; beim Aufruf wird die IP-Adresse des Nutzers an Google übermittelt</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">policies.google.com/privacy</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2">Plausible Analytics</td>
+                    <td className="p-2 border-l border-border font-mono text-xs">plausible.io</td>
+                    <td className="p-2 border-l border-border">Datenschutzfreundliche Webanalyse der Manus-Plattform (keine Cookies, keine personenbezogenen Daten)</td>
+                    <td className="p-2 border-l border-border">
+                      <a href="https://plausible.io/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">plausible.io/privacy</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-4 text-sm text-muted-foreground">
+              Die oben genannten Dienste (mit Ausnahme des Manus CDN) werden von Manus als
+              Plattformbetreiber eingebunden und liegen außerhalb des direkten Einflussbereichs des
+              Verantwortlichen dieser Anwendung. Soweit dabei personenbezogene Daten (insbesondere
+              IP-Adressen) an Drittanbieter außerhalb der EU/des EWR übermittelt werden, stützt sich
+              die Übermittlung auf die Standardvertragsklauseln der EU-Kommission (Art. 46 Abs. 2
+              lit. c DSGVO) oder einen Angemessenheitsbeschluss.
+            </p>
+
+            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Datenspeicherung</h3>
+            <p>
+              Sämtliche Anwendungsdaten (Haushaltsdaten, Nutzerkonten, Fotos) werden auf Servern der
+              Manus-Infrastruktur gespeichert. Nach Auskunft von Manus befinden sich die
+              Produktivserver innerhalb der Europäischen Union bzw. des Europäischen Wirtschaftsraums.
             </p>
           </div>
 
@@ -164,10 +260,19 @@ function PrivacyDE() {
             <h2 className="text-xl font-semibold mb-3">5. Weitergabe von Daten an Dritte</h2>
             <p>
               Personenbezogene Daten werden nicht an Dritte verkauft oder zu Werbezwecken
-              weitergegeben. Eine Weitergabe erfolgt ausschließlich, soweit dies zur Erbringung des
-              Dienstes technisch erforderlich ist (Auftragsverarbeitung durch Manus) oder eine
-              gesetzliche Verpflichtung besteht.
+              weitergegeben. Eine Weitergabe erfolgt ausschließlich:
             </p>
+            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+              <li>
+                soweit dies zur Erbringung des Dienstes technisch erforderlich ist
+                (Auftragsverarbeitung durch Manus gemäß Art. 28 DSGVO),
+              </li>
+              <li>
+                im Rahmen der von Manus als Plattformbetreiber eingebundenen Dienste (siehe
+                Abschnitt 4.1), oder
+              </li>
+              <li>wenn eine gesetzliche Verpflichtung zur Weitergabe besteht.</li>
+            </ul>
           </div>
 
           {/* 6 */}
@@ -227,9 +332,9 @@ function PrivacyDE() {
             <h2 className="text-xl font-semibold mb-3">9. Änderungen dieser Datenschutzerklärung</h2>
             <p>
               Diese Datenschutzerklärung kann bei Bedarf aktualisiert werden, etwa wenn neue
-              Funktionen eingeführt werden oder sich die Rechtslage ändert. Das Datum der letzten
-              Aktualisierung ist oben angegeben. Wesentliche Änderungen werden den Nutzerinnen und
-              Nutzern über die Anwendung mitgeteilt.
+              Funktionen eingeführt werden, sich die Rechtslage ändert oder die Manus-Plattform neue
+              Dienste einbindet. Das Datum der letzten Aktualisierung ist oben angegeben. Wesentliche
+              Änderungen werden den Nutzerinnen und Nutzern über die Anwendung mitgeteilt.
             </p>
           </div>
 
@@ -325,14 +430,17 @@ function PrivacyEN() {
               <span className="font-medium">Legal basis:</span> Art. 6(1)(b) GDPR (performance of a contract).
             </p>
 
-            <h3 className="text-base font-semibold mt-4 mb-2">3.4 Usage Statistics (Umami Analytics)</h3>
+            <h3 className="text-base font-semibold mt-4 mb-2">3.4 Usage Statistics (Manus Analytics / Umami)</h3>
             <p>
-              The application uses Umami Analytics, a privacy-friendly web analytics tool. Umami
-              does not collect personal data, does not set cookies, and does not store IP addresses.
-              Only anonymised usage data (e.g. pages visited, device category, browser type) is
-              collected, which does not allow conclusions to be drawn about individual persons. The
-              analytics script is delivered via the Manus infrastructure; no data is transferred to
-              external third parties.
+              The application is operated on the Manus platform, which uses a privacy-friendly web
+              analytics system (Umami). Umami does not collect personal data, does not set cookies,
+              and does not store IP addresses. Only anonymised usage data (e.g. pages visited, device
+              category, browser type) is collected, which does not allow conclusions to be drawn about
+              individual persons. The analytics script is delivered via Manus's own infrastructure
+              (endpoint:{" "}
+              <code className="text-xs bg-muted px-1 rounded">manus-analytics.com</code> or{" "}
+              <code className="text-xs bg-muted px-1 rounded">manus.im</code>); no data is
+              transferred to external third parties.
             </p>
             <p className="mt-2 text-sm">
               <span className="font-medium">Legal basis:</span> Art. 6(1)(f) GDPR (legitimate interest
@@ -354,10 +462,105 @@ function PrivacyEN() {
           {/* 4 */}
           <div>
             <h2 className="text-xl font-semibold mb-3">4. Hosting and Technical Infrastructure</h2>
+
+            <h3 className="text-base font-semibold mt-4 mb-2">4.1 Manus Platform (Data Processor)</h3>
             <p>
-              The application is operated on the infrastructure of Manus (Butterfly Effect Pte. Ltd.).
-              All data is stored and processed on servers within the European Union or the European
-              Economic Area. Manus acts as a data processor within the meaning of Art. 28 GDPR.
+              The application is operated on the infrastructure of <strong>Manus</strong> (Butterfly
+              Effect Pte. Ltd.). Manus acts as a data processor within the meaning of Art. 28 GDPR.
+              Information on data processing by Manus can be found in the{" "}
+              <a
+                href="https://manus.im/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary"
+              >
+                Manus Privacy Policy
+              </a>{" "}
+              and the{" "}
+              <a
+                href="https://manus.im/dpa"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary"
+              >
+                Data Processing Agreement (DPA)
+              </a>
+              .
+            </p>
+            <p className="mt-3">
+              As part of the platform operation, Manus integrates the following third-party services
+              that may become active in the user's browser when accessing the application:
+            </p>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="text-left p-2 border-b border-border font-semibold">Service / Provider</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Domain(s)</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Purpose</th>
+                    <th className="text-left p-2 border-b border-l border-border font-semibold">Privacy Policy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-2 border-b border-border">Manus CDN</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">manuscdn.com</td>
+                    <td className="p-2 border-b border-l border-border">Delivery of static assets (JS, CSS, images) for the application</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://manus.im/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">manus.im/privacy</a>
+                    </td>
+                  </tr>
+                  <tr className="bg-muted/30">
+                    <td className="p-2 border-b border-border">Manus Analytics (Umami)</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">manus-analytics.com</td>
+                    <td className="p-2 border-b border-l border-border">Anonymised usage statistics (no personal data, no cookies)</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://manus.im/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">manus.im/privacy</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border-b border-border">Amplitude Analytics</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">amplitude.com</td>
+                    <td className="p-2 border-b border-l border-border">Product analytics for the Manus platform (not application data); integrated by Manus</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://amplitude.com/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">amplitude.com/privacy</a>
+                    </td>
+                  </tr>
+                  <tr className="bg-muted/30">
+                    <td className="p-2 border-b border-border">Google Fonts / gstatic</td>
+                    <td className="p-2 border-b border-l border-border font-mono text-xs">fonts.googleapis.com,{" "}fonts.gstatic.com</td>
+                    <td className="p-2 border-b border-l border-border">Loading web fonts for the Manus platform interface; the user's IP address is transmitted to Google when fonts are loaded</td>
+                    <td className="p-2 border-b border-l border-border">
+                      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">policies.google.com/privacy</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-2">Plausible Analytics</td>
+                    <td className="p-2 border-l border-border font-mono text-xs">plausible.io</td>
+                    <td className="p-2 border-l border-border">Privacy-friendly web analytics for the Manus platform (no cookies, no personal data)</td>
+                    <td className="p-2 border-l border-border">
+                      <a href="https://plausible.io/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">plausible.io/privacy</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-4 text-sm text-muted-foreground">
+              The services listed above (with the exception of the Manus CDN) are integrated by Manus
+              as the platform operator and are outside the direct sphere of influence of the
+              controller of this application. Where personal data (in particular IP addresses) is
+              transferred to third-party providers outside the EU/EEA, the transfer is based on the
+              EU Commission's Standard Contractual Clauses (Art. 46(2)(c) GDPR) or an adequacy
+              decision.
+            </p>
+
+            <h3 className="text-base font-semibold mt-6 mb-2">4.2 Data Storage</h3>
+            <p>
+              All application data (household data, user accounts, photos) is stored on Manus
+              infrastructure servers. According to Manus, production servers are located within the
+              European Union or the European Economic Area.
             </p>
           </div>
 
@@ -366,9 +569,19 @@ function PrivacyEN() {
             <h2 className="text-xl font-semibold mb-3">5. Disclosure of Data to Third Parties</h2>
             <p>
               Personal data is not sold to third parties or shared for advertising purposes. Data is
-              only disclosed to the extent technically necessary for the provision of the service
-              (data processing by Manus) or where required by law.
+              only disclosed:
             </p>
+            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+              <li>
+                to the extent technically necessary for the provision of the service (data processing
+                by Manus pursuant to Art. 28 GDPR),
+              </li>
+              <li>
+                in the context of services integrated by Manus as the platform operator (see
+                Section 4.1), or
+              </li>
+              <li>where required by law.</li>
+            </ul>
           </div>
 
           {/* 6 */}
@@ -425,8 +638,9 @@ function PrivacyEN() {
             <h2 className="text-xl font-semibold mb-3">9. Changes to this Privacy Policy</h2>
             <p>
               This privacy policy may be updated as needed, for example when new features are
-              introduced or the legal situation changes. The date of the last update is shown above.
-              Material changes will be communicated to users via the application.
+              introduced, the legal situation changes, or the Manus platform integrates new services.
+              The date of the last update is shown above. Material changes will be communicated to
+              users via the application.
             </p>
           </div>
 
