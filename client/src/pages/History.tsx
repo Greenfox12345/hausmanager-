@@ -33,7 +33,7 @@ export default function History() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 30;
+  const itemsPerPage = 20;
 
   const { data, isLoading } = trpc.household.getActivityHistory.useQuery(
     { 
@@ -162,7 +162,7 @@ export default function History() {
             <Input
               placeholder={t("common:actions.search", "Suchen...")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="flex-1"
             />
           </div>
@@ -184,6 +184,17 @@ export default function History() {
             ))}
           </div>
         </div>
+
+        {/* Summary line */}
+        {!isLoading && totalItems > 0 && (
+          <p className="text-sm text-muted-foreground mb-3">
+            {t("common:pagination.showingOf", "{{from}}–{{to}} von {{total}}", {
+              from: (currentPage - 1) * itemsPerPage + 1,
+              to: Math.min(currentPage * itemsPerPage, totalItems),
+              total: totalItems,
+            })}
+          </p>
+        )}
 
         {/* Activities list */}
         {isLoading ? (
@@ -580,6 +591,59 @@ export default function History() {
             })}
           </div>
         )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1 || isLoading}
+            >
+              {t("common:actions.back", "Zurück")}
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    disabled={isLoading}
+                    className="w-9"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages || isLoading}
+            >
+              {t("common:actions.next", "Weiter")}
+            </Button>
+
+            <span className="text-sm text-muted-foreground">
+              {t("common:labels.pageOf", "Seite {{current}} von {{total}}", { current: currentPage, total: totalPages })}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Image modal */}
@@ -595,61 +659,6 @@ export default function History() {
               className="w-full h-full object-contain rounded-lg"
             />
           </div>
-        </div>
-      )}
-      
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1 || isLoading}
-          >
-            {t("common:actions.back", "Zurück")}
-          </Button>
-          
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-              
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(pageNum)}
-                  disabled={isLoading}
-                  className="w-9"
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-          </div>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages || isLoading}
-          >
-            {t("common:actions.next", "Weiter")}
-          </Button>
-          
-          <span className="text-sm text-muted-foreground ml-2">
-            {t("common:labels.pageOf", "Seite {{current}} von {{total}}", { current: currentPage, total: totalPages })}
-          </span>
         </div>
       )}
       <BottomNav />
