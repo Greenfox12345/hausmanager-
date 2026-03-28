@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield } from "lucide-react";
 
@@ -17,13 +17,21 @@ export function Privacy() {
 }
 
 function BackButton({ label }: { label: string }) {
+  const [, setLocation] = useLocation();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      setLocation("/");
+    }
+  };
+
   return (
-    <Link href="/">
-      <Button variant="ghost" size="sm" className="mb-6 -ml-2">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        {label}
-      </Button>
-    </Link>
+    <Button variant="ghost" size="sm" className="mb-6 -ml-2" onClick={handleBack}>
+      <ArrowLeft className="w-4 h-4 mr-2" />
+      {label}
+    </Button>
   );
 }
 

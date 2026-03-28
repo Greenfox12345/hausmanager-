@@ -8,6 +8,14 @@ export default function Imprint() {
   const [, setLocation] = useLocation();
   const isDE = i18n.language.startsWith("de");
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      setLocation("/");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -15,7 +23,7 @@ export default function Imprint() {
           variant="ghost"
           size="sm"
           className="mb-6 -ml-2"
-          onClick={() => setLocation("/")}
+          onClick={handleBack}
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           {isDE ? "Zurück" : "Back"}
