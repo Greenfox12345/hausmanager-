@@ -684,7 +684,14 @@ export default function InventoryDetail() {
                       </div>
                     )}
                     {[...borrowRequests]
-                      .filter((r: any) => showPastRequests || !['completed', 'rejected', 'cancelled'].includes(r.status))
+                      .filter((r: any) => {
+                        // Immer anzeigen: pending, active, und approved mit zukünftigem/heutigem Enddatum
+                        if (!['completed', 'rejected', 'cancelled'].includes(r.status)) return true;
+                        // Approved mit Enddatum in der Zukunft immer anzeigen
+                        if (r.status === 'approved' && r.endDate && new Date(r.endDate) >= new Date()) return true;
+                        // Vergangene nur anzeigen wenn Toggle aktiv
+                        return showPastRequests;
+                      })
                       .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
                       .map((request: any) => {
                       const isPending = request.status === 'pending';
