@@ -23,7 +23,7 @@ import {
 import { useIsMobile } from "@/hooks/useMobile";
 import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
@@ -205,6 +205,24 @@ function DashboardLayoutContent({
           </SidebarContent>
 
           <SidebarFooter className="p-3">
+            {/* Legal links – only visible when sidebar is expanded */}
+            {!isCollapsed && (
+              <div className="flex items-center justify-center gap-3 px-1 pb-2 text-[11px] text-muted-foreground/60">
+                <Link
+                  href="/privacy"
+                  className="hover:text-muted-foreground transition-colors hover:underline underline-offset-2"
+                >
+                  {t("common:legal.privacy", "Datenschutz")}
+                </Link>
+                <span aria-hidden="true">·</span>
+                <Link
+                  href="/imprint"
+                  className="hover:text-muted-foreground transition-colors hover:underline underline-offset-2"
+                >
+                  {t("common:legal.imprint", "Impressum")}
+                </Link>
+              </div>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
