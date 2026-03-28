@@ -184,3 +184,51 @@
     }
   }
 }
+/* ============================================================
+   RTL (Right-to-Left) Support
+   Applied automatically when dir="rtl" is set on <html>
+   ============================================================ */
+
+/* Flip margin/padding helpers that are direction-aware */
+[dir="rtl"] .ml-auto { margin-left: unset; margin-right: auto; }
+[dir="rtl"] .mr-auto { margin-right: unset; margin-left: auto; }
+
+/* Reverse flex row direction so icon → label becomes label ← icon */
+[dir="rtl"] .flex-row { flex-direction: row-reverse; }
+
+/* Sidebar: move to right side */
+[dir="rtl"] [data-sidebar="sidebar"] {
+  left: unset;
+  right: 0;
+  border-left: var(--sidebar-border) 1px solid;
+  border-right: none;
+}
+
+/* Sidebar inset: swap left margin to right */
+[dir="rtl"] [data-sidebar="inset"] {
+  margin-left: unset;
+  margin-right: var(--sidebar-width, 280px);
+}
+
+/* Text alignment */
+[dir="rtl"] .text-left { text-align: right; }
+[dir="rtl"] .text-right { text-align: left; }
+
+/* Input icons: flip chevron/arrow icons inside inputs */
+[dir="rtl"] .input-icon-left {
+  left: unset;
+  right: 0.75rem;
+}
+[dir="rtl"] .input-icon-right {
+  right: unset;
+  left: 0.75rem;
+}
+
+/* Rounded corners: swap left/right for card-like elements */
+[dir="rtl"] .rounded-l-lg { border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+[dir="rtl"] .rounded-r-lg { border-radius: var(--radius-lg) 0 0 var(--radius-lg); }
+
+/* Arabic font: use a system font stack that includes Arabic */
+[dir="rtl"] body {
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', 'Noto Sans Arabic', sans-serif;
+}

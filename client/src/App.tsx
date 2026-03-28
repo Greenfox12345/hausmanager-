@@ -5,6 +5,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserAuthProvider } from "./contexts/UserAuthContext";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Home from "./pages/Home";
 
 import Register from "./pages/Register";
@@ -51,12 +53,27 @@ function Router() {
   );
 }
 
+/** RTL_LANGUAGES: add new RTL language codes here when adding new languages */
+const RTL_LANGUAGES = new Set(["ar", "he", "fa", "ur"]);
+
+function DirectionManager() {
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    const lang = i18n.language?.split("-")[0] ?? "de";
+    const isRtl = RTL_LANGUAGES.has(lang);
+    document.documentElement.dir = isRtl ? "rtl" : "ltr";
+    document.documentElement.lang = lang;
+  }, [i18n.language]);
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <UserAuthProvider>
           <TooltipProvider>
+            <DirectionManager />
             <Toaster />
             <Router />
           </TooltipProvider>
