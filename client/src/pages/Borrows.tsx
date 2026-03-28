@@ -735,7 +735,7 @@ export default function Borrows() {
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("borrows:approval.reject", "Anfrage ablehnen")}</DialogTitle>
+            <DialogTitle>{t("borrows:approval.rejectTitle", "Anfrage ablehnen")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Label>{t("borrows:approval.rejectReason", "Ablehnungsgrund (optional)")}</Label>

@@ -22,7 +22,8 @@
     "rejectReason": "Reason for Rejection",
     "revoke": "Revoke",
     "revokeReason": "Reason for Revocation",
-    "revokeConfirm": "Are you sure you want to revoke this borrow?"
+    "revokeConfirm": "Are you sure you want to revoke this borrow?",
+    "rejectTitle": "Reject Request"
   },
   "return": {
     "title": "Return Item",

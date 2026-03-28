@@ -126,7 +126,8 @@
     "rejectReason": "Motivo de rechazo (opcional)",
     "revoke": "Revocar aprobación",
     "revokeReason": "Motivo de la revocación",
-    "revokeConfirm": "¿Realmente deseas revocar la aprobación?"
+    "revokeConfirm": "¿Realmente deseas revocar la aprobación?",
+    "rejectTitle": "Rechazar solicitud"
   },
   "return": {
     "title": "Confirmar devolución",

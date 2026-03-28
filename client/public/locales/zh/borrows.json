@@ -22,7 +22,8 @@
     "rejectReason": "拒绝理由 (可选)",
     "revoke": "撤销批准",
     "revokeReason": "撤销理由",
-    "revokeConfirm": "您确定要撤销批准吗？"
+    "revokeConfirm": "您确定要撤销批准吗？",
+    "rejectTitle": "拒绝请求"
   },
   "return": {
     "title": "确认归还",

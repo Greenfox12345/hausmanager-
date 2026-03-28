@@ -22,7 +22,8 @@
     "rejectReason": "Raison du refus (facultatif)",
     "revoke": "Révoquer",
     "revokeReason": "Raison de la révocation",
-    "revokeConfirm": "Voulez-vous vraiment révoquer cet emprunt ?"
+    "revokeConfirm": "Voulez-vous vraiment révoquer cet emprunt ?",
+    "rejectTitle": "Refuser la demande"
   },
   "return": {
     "title": "Confirmer le retour",

@@ -22,7 +22,8 @@
     "rejectReason": "Ablehnungsgrund (optional)",
     "revoke": "Genehmigung widerrufen",
     "revokeReason": "Grund für den Widerruf",
-    "revokeConfirm": "Möchtest du die Genehmigung wirklich widerrufen?"
+    "revokeConfirm": "Möchtest du die Genehmigung wirklich widerrufen?",
+    "rejectTitle": "Anfrage ablehnen"
   },
   "return": {
     "title": "Rückgabe bestätigen",

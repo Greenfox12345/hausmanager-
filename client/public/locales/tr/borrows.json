@@ -22,7 +22,8 @@
     "rejectReason": "Reddetme nedeni (isteğe bağlı)",
     "revoke": "Onayı Geri Çek",
     "revokeReason": "Geri çekme nedeni",
-    "revokeConfirm": "Onayı gerçekten geri çekmek istiyor musunuz?"
+    "revokeConfirm": "Onayı gerçekten geri çekmek istiyor musunuz?",
+    "rejectTitle": "İsteği reddet"
   },
   "return": {
     "title": "İadeyi Onayla",
