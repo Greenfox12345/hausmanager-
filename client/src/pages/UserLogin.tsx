@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { Button } from "@/components/ui/button";
@@ -131,21 +131,13 @@ export default function UserLogin() {
               </button>
             </div>
             <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setLocation("/privacy")}
-                className="hover:underline"
-              >
+              <Link href="/privacy" className="hover:underline">
                 {t("login.privacy", "Datenschutzerklärung")}
-              </button>
+              </Link>
               <span>·</span>
-              <button
-                type="button"
-                onClick={() => setLocation("/imprint")}
-                className="hover:underline"
-              >
+              <Link href="/imprint" className="hover:underline">
                 {t("login.imprint", "Impressum")}
-              </button>
+              </Link>
             </div>
           </form>
         </CardContent>
