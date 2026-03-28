@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatBorrowDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,11 +50,8 @@ interface BorrowCardProps {
   isCancelling?: boolean;
 }
 
-function formatDate(date: Date | string | null | undefined) {
-  if (!date) return "—";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" });
-}
+// formatDate alias for backward compat within this file
+const formatDate = formatBorrowDate;
 
 export function BorrowCard({ borrow, onClose, onPickup, onReturn, onCancel, isCancelling }: BorrowCardProps) {
   const { t } = useTranslation(["borrows", "common"]);

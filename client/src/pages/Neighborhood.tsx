@@ -1,3 +1,4 @@
+import { toLocalDateString } from "@/lib/utils";
 import { useState } from "react";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import AppLayout from "@/components/AppLayout";
@@ -157,8 +158,8 @@ export default function Neighborhood() {
       inventoryItemId: selectedItemForBorrow.id,
       borrowerHouseholdId: household.householdId,
       borrowerMemberId: member.memberId,
-      startDate: data.startDate.toISOString(),
-      endDate: data.endDate.toISOString(),
+      startDate: toLocalDateString(data.startDate),
+      endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
     });
   };

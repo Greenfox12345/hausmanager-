@@ -1,3 +1,4 @@
+import { toLocalDateString } from "@/lib/utils";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -243,8 +244,8 @@ export function SimpleRequiredItemsSection({
               inventoryItemId: selectedItem.inventoryItemId,
               borrowerHouseholdId: householdId,
               borrowerMemberId: currentMember.id,
-              startDate: data.startDate.toISOString(),
-              endDate: data.endDate.toISOString(),
+              startDate: toLocalDateString(data.startDate),
+              endDate: toLocalDateString(data.endDate),
               requestMessage: data.message || t("tasks:borrowRequest.defaultMessage", { taskName }),
               taskId,
               taskName,
@@ -255,8 +256,8 @@ export function SimpleRequiredItemsSection({
               itemId: selectedItem.id,
               borrowRequestId: result.requestId,
               borrowStatus: "pending",
-              borrowStartDate: data.startDate.toISOString(),
-              borrowEndDate: data.endDate.toISOString(),
+              borrowStartDate: toLocalDateString(data.startDate),
+              borrowEndDate: toLocalDateString(data.endDate),
             });
 
             await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });

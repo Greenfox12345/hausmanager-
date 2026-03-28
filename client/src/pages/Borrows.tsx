@@ -1,3 +1,4 @@
+import { toLocalDateString, formatBorrowDate } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -160,11 +161,7 @@ export default function Borrows() {
     return Object.values(groups);
   }, [sharedItems]);
 
-  const formatDate = (date: Date | string | null) => {
-    if (!date) return "—";
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" });
-  };
+  const formatDate = formatBorrowDate;
 
   if (isLoading) {
     return (
@@ -215,8 +212,8 @@ export default function Borrows() {
       inventoryItemId: selectedItem.id,
       borrowerMemberId: member.memberId,
       borrowerHouseholdId: household.householdId,
-      startDate: data.startDate.toISOString(),
-      endDate: data.endDate.toISOString(),
+      startDate: toLocalDateString(data.startDate),
+      endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
     });
   };

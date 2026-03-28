@@ -1,3 +1,4 @@
+import { toLocalDateString, parseLocalDate } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
@@ -166,10 +167,11 @@ export function RequiredItemsSection({
     return null;
   };
 
-  // Format date for display
+  // Format date for display (timezone-safe)
   const formatDate = (date: Date | string | null) => {
     if (!date) return "-";
-    const d = typeof date === "string" ? new Date(date) : date;
+    const d = parseLocalDate(date);
+    if (!d) return "-";
     return format(d, "dd.MM.yyyy", { locale: dateFnsLocale });
   };
 
@@ -421,8 +423,8 @@ export function RequiredItemsSection({
               inventoryItemId: selectedItem.inventoryItemId,
               borrowerHouseholdId: householdId,
               borrowerMemberId: currentMember.id,
-              startDate: data.startDate.toISOString(),
-              endDate: data.endDate.toISOString(),
+              startDate: toLocalDateString(data.startDate),
+              endDate: toLocalDateString(data.endDate),
               requestMessage: data.message || `Für Aufgabe "${taskName}", Termin ${selectedItem.occurrenceNumber}`,
               taskId,
               taskName,
@@ -436,8 +438,8 @@ export function RequiredItemsSection({
               itemId: selectedItem.id,
               borrowRequestId: result.requestId,
               borrowStatus: "pending",
-              borrowStartDate: data.startDate.toISOString(),
-              borrowEndDate: data.endDate.toISOString(),
+              borrowStartDate: toLocalDateString(data.startDate),
+              borrowEndDate: toLocalDateString(data.endDate),
             });
             
             await utils.taskOccurrenceItems.getTaskOccurrenceItems.invalidate({ taskId });

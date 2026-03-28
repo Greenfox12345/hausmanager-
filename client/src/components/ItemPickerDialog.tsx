@@ -1,3 +1,4 @@
+import { formatBorrowDate } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -294,7 +295,7 @@ export function ItemPickerDialog({
                   <div key={idx} className="p-3 bg-muted rounded-lg">
                     <div className="font-medium">{conflict.borrowerName}</div>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(conflict.startDate).toLocaleDateString("de-DE")} - {new Date(conflict.endDate).toLocaleDateString("de-DE")}
+                      {formatBorrowDate(conflict.startDate)} - {formatBorrowDate(conflict.endDate)}
                     </div>
                   </div>
                 ))}

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
+import { parseLocalDate } from "@/lib/utils";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -63,8 +64,8 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
 
   const normalizedBorrows = useMemo(() => borrows.map(b => ({
     ...b,
-    startDate: new Date(b.startDate),
-    endDate: new Date(b.endDate),
+    startDate: parseLocalDate(b.startDate as string) ?? new Date(b.startDate),
+    endDate: parseLocalDate(b.endDate as string) ?? new Date(b.endDate),
   })), [borrows]);
 
   const weekBars = useMemo(() => {

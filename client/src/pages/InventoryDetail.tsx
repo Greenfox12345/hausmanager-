@@ -1,3 +1,4 @@
+import { toLocalDateString, formatBorrowDate } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
@@ -191,8 +192,8 @@ export default function InventoryDetail() {
       inventoryItemId: itemId,
       borrowerHouseholdId: household.householdId,
       borrowerMemberId: member.memberId,
-      startDate: data.startDate.toISOString(),
-      endDate: data.endDate.toISOString(),
+      startDate: toLocalDateString(data.startDate),
+      endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
     });
   };
@@ -694,7 +695,7 @@ export default function InventoryDetail() {
                                 }
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {new Date(request.startDate).toLocaleDateString('de-DE')} – {new Date(request.endDate).toLocaleDateString('de-DE')}
+                                {formatBorrowDate(request.startDate)} – {formatBorrowDate(request.endDate)}
                               </div>
                             </div>
                             <div>
@@ -796,8 +797,8 @@ export default function InventoryDetail() {
                                   setRevokeRequest({
                                     id: request.id,
                                     borrowerName,
-                                    startDate: new Date(request.startDate).toLocaleDateString('de-DE'),
-                                    endDate: new Date(request.endDate).toLocaleDateString('de-DE'),
+                                    startDate: formatBorrowDate(request.startDate),
+                                    endDate: formatBorrowDate(request.endDate),
                                   });
                                   setShowRevokeDialog(true);
                                 }}

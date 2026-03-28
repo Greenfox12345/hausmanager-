@@ -1,3 +1,4 @@
+import { formatBorrowDate } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp, Camera, MessageSquare, Clock, User, Calendar } from "lucide-react";
@@ -212,7 +213,7 @@ export function BorrowProtocol({
             <div className="flex items-center gap-1 text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" />
               <span>
-                {t("borrows:metaInfo.dateRange", { startDate: new Date(request.startDate).toLocaleDateString("de-DE"), endDate: new Date(request.endDate).toLocaleDateString("de-DE") })}
+                {t("borrows:metaInfo.dateRange", { startDate: formatBorrowDate(request.startDate), endDate: formatBorrowDate(request.endDate) })}
               </span>
             </div>
             {request.requestMessage && (

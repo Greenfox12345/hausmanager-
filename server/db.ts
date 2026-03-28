@@ -968,14 +968,13 @@ export async function createBorrowRequest(data: {
   if (!db) throw new Error("Database not available");
 
   // Convert Date objects to MySQL-compatible format (YYYY-MM-DD HH:MM:SS)
+  // Use UTC methods so that a date string like "2026-03-29" sent from the
+  // frontend (as ISO UTC midnight) is stored as 2026-03-29, not 2026-03-28.
   const formatDateForMySQL = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day} 00:00:00`;
   };
 
   const startDateFormatted = formatDateForMySQL(data.startDate);

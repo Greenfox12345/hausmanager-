@@ -1,3 +1,4 @@
+import { formatBorrowDate } from "@/lib/utils";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -398,7 +399,7 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
-                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} - {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                      {formatBorrowDate(meta.startDate)} - {formatBorrowDate(meta.endDate)}
                                     </span>
                                   </div>
                                 )}
@@ -499,7 +500,7 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
-                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                      {formatBorrowDate(meta.startDate)} – {formatBorrowDate(meta.endDate)}
                                     </span>
                                   </div>
                                 )}
@@ -530,7 +531,7 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
-                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                      {formatBorrowDate(meta.startDate)} – {formatBorrowDate(meta.endDate)}
                                     </span>
                                   </div>
                                 )}
@@ -555,7 +556,7 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
-                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} – {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                      {formatBorrowDate(meta.startDate)} – {formatBorrowDate(meta.endDate)}
                                     </span>
                                   </div>
                                 )}
@@ -604,7 +605,7 @@ export default function History() {
                                   <div className="flex items-start gap-2">
                                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t("borrows:labels.period", "Zeitraum")}:</span>
                                     <span className="text-sm">
-                                      {new Date(meta.startDate).toLocaleDateString('de-DE')} - {new Date(meta.endDate).toLocaleDateString('de-DE')}
+                                      {formatBorrowDate(meta.startDate)} - {formatBorrowDate(meta.endDate)}
                                     </span>
                                   </div>
                                 )}

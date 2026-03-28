@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Camera, CheckCircle2, ImageIcon, Loader2, PackageCheck, Undo2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatBorrowDate } from "@/lib/utils";
 
 // ─── shared photo capture helper ────────────────────────────────────────────
 
@@ -386,8 +386,8 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
                 <p className="text-sm text-muted-foreground line-clamp-2">{request.itemDescription}</p>
               )}
               <p className="text-xs text-muted-foreground mt-1">
-                {new Date(request.startDate).toLocaleDateString("de-DE")} –{" "}
-                {new Date(request.endDate).toLocaleDateString("de-DE")}
+                {formatBorrowDate(request.startDate)} –{" "}
+                {formatBorrowDate(request.endDate)}
               </p>
             </div>
           </div>
@@ -541,8 +541,8 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
             <div className="min-w-0">
               <p className="font-semibold">{request.itemName}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {new Date(request.startDate).toLocaleDateString("de-DE")} –{" "}
-                {new Date(request.endDate).toLocaleDateString("de-DE")}
+                {formatBorrowDate(request.startDate)} –{" "}
+                {formatBorrowDate(request.endDate)}
               </p>
             </div>
           </div>
