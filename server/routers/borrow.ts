@@ -1101,7 +1101,13 @@ export const borrowRouter = router({
     .input(z.object({ householdId: z.number(), memberId: z.number() }))
     .query(async ({ input }) => {
       const allRequests = await getBorrowRequestsByOwner(input.householdId);
-      const pending = allRequests.filter(r => r.status === "pending");
+      const now = new Date();
+      const pending = allRequests.filter(r => {
+        if (r.status === "pending") return true;
+        // Genehmigte Anfragen mit zukünftigem oder heutigem Enddatum anzeigen
+        if (r.status === "approved" && r.endDate && new Date(r.endDate) >= now) return true;
+        return false;
+      });
       const db = await getDb();
       const { households } = await import("../../drizzle/schema");
       const { eq: eqOp } = await import("drizzle-orm");

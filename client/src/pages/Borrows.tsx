@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 import { BorrowCalendar } from "@/components/BorrowCalendar";
+import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
 
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
 
@@ -63,6 +64,9 @@ export default function Borrows() {
   const [cancelBorrow, setCancelBorrow] = useState<{ id: number; itemName: string; status: string } | null>(null);
   const [cancelReason, setCancelReason] = useState("");
 
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [revokeTarget, setRevokeTarget] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string; itemName?: string } | null>(null);
+
   const utils = trpc.useUtils();
 
   const { data: pendingForMe = [], isLoading: loadingPending } = trpc.borrow.getPendingForMember.useQuery(
@@ -93,6 +97,16 @@ export default function Borrows() {
       toast.success(t("borrows:messages.rejected", "Ausleihe abgelehnt"));
       setRejectDialogOpen(false);
       setRejectReason("");
+      utils.borrow.getPendingForMember.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const revokeMutation = trpc.borrow.revoke.useMutation({
+    onSuccess: () => {
+      toast.success(t("borrows:messages.revoked", "Genehmigung widerrufen"));
+      setRevokeDialogOpen(false);
+      setRevokeTarget(null);
       utils.borrow.getPendingForMember.invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -322,8 +336,10 @@ export default function Borrows() {
                           )}
                         </p>
                       </div>
-                      <Badge className={statusColors["pending"]}>
-                        {t("borrows:status.pending", "Ausstehend")}
+                      <Badge className={statusColors[req.status] ?? statusColors["pending"]}>
+                        {req.status === "approved"
+                          ? t("borrows:status.approved", "Genehmigt")
+                          : t("borrows:status.pending", "Ausstehend")}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -341,27 +357,41 @@ export default function Borrows() {
                     {req.message && (
                       <p className="text-sm text-muted-foreground italic mb-3">"{req.message}"</p>
                     )}
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(req.id)}
-                        disabled={approveMutation.isPending}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {t("borrows:approval.approve", "Genehmigen")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRejectOpen(req.id)}
-                        disabled={rejectMutation.isPending}
-                        className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        {t("borrows:approval.reject", "Ablehnen")}
-                      </Button>
-                    </div>
+                    {req.status === "pending" ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(req.id)}
+                          disabled={approveMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {t("borrows:approval.approve", "Genehmigen")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectOpen(req.id)}
+                          disabled={rejectMutation.isPending}
+                          className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          {t("borrows:approval.reject", "Ablehnen")}
+                        </Button>
+                      </div>
+                    ) : req.status === "approved" ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => { setRevokeTarget({ id: req.id, borrowerName: req.borrowerName, startDate: req.startDate, endDate: req.endDate, itemName: req.itemName }); setRevokeDialogOpen(true); }}
+                          className="border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          {t("borrows:approval.revoke", "Genehmigung widerrufen")}
+                        </Button>
+                      </div>
+                    ) : null}
                   </CardContent>
                 </Card>
               ))}
@@ -854,6 +884,22 @@ export default function Borrows() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {revokeTarget && (
+        <RevokeApprovalDialog
+          open={revokeDialogOpen}
+          onOpenChange={(open) => { setRevokeDialogOpen(open); if (!open) setRevokeTarget(null); }}
+          itemName={revokeTarget.itemName ?? ""}
+          borrowerName={revokeTarget.borrowerName}
+          startDate={revokeTarget.startDate}
+          endDate={revokeTarget.endDate}
+          onConfirm={(reason) => {
+            if (!member) return;
+            revokeMutation.mutate({ requestId: revokeTarget.id, revokerId: member.memberId, revokerHouseholdId: household?.householdId ?? 0, reason });
+          }}
+          isSubmitting={revokeMutation.isPending}
+        />
+      )}
 
       <BottomNav />
     </AppLayout>
