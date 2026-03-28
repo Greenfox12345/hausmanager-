@@ -38,11 +38,11 @@ import {
 } from "../activityTexts";
 import { getHouseholdById } from "../db";
 
-type BorrowLang = "de" | "en" | "es" | "fr" | "zh" | "tr";
+type BorrowLang = "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar";
 async function getBorrowLang(householdId: number): Promise<BorrowLang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr") ? l as BorrowLang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as BorrowLang : "de";
 }
 
 export const borrowRouter = router({
@@ -105,7 +105,7 @@ export const borrowRouter = router({
           : reqLang === "es" ? ` (tarea: ${input.taskName}${input.occurrenceNumber ? `, cita ${input.occurrenceNumber}` : ""})`
           : ` (Aufgabe: ${input.taskName}${input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""})`)
         : undefined;
-      const requestDescription = borrowRequested(reqLang, item.name, borrowerMemberName, taskSuffix ?? undefined);
+      const requestDescription = borrowRequested(reqLang, item.name, borrowerMemberName, taskSuffix ?? "");
 
       await createActivityLog({
         householdId: input.borrowerHouseholdId,

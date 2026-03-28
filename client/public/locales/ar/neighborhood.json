@@ -1,0 +1,59 @@
+{
+  "title": "الجوار",
+  "description": "تواصل مع الأسر الأخرى للمهام والمشاريع المشتركة",
+  "tabs": {
+    "connect": "ربط الأسر",
+    "borrow": "استعارة الأشياء"
+  },
+  "actions": {
+    "inviteHousehold": "دعوة أسرة",
+    "invite": "دعوة",
+    "accept": "قبول",
+    "reject": "رفض",
+    "remove": "إزالة",
+    "requestBorrow": "طلب استعارة"
+  },
+  "fields": {
+    "inviteCode": "أدخل رمز الدعوة",
+    "inviteCodePlaceholder": "مثلاً ABC123",
+    "code": "الرمز:",
+    "household": "الأسرة",
+    "allHouseholds": "جميع الأسر",
+    "item": "الشيء",
+    "items": "الأشياء"
+  },
+  "messages": {
+    "collaborate": "التعاون مع الأسر الأخرى",
+    "invitationSent": "تم إرسال الدعوة!",
+    "invitationAccepted": "تم قبول الدعوة!",
+    "invitationRejected": "تم رفض الدعوة",
+    "connectionRemoved": "تمت إزالة الاتصال",
+    "confirmRemoveConnection": "هل تريد حقًا إزالة هذا الاتصال؟",
+    "borrowAutoApproved": "تمت الموافقة تلقائيًا على طلب الاستعارة",
+    "borrowRequestSent": "تم إرسال طلب الاستعارة. في انتظار الموافقة.",
+    "pendingInvitations": "الدعوات المعلقة",
+    "invitationsFromOtherHouseholds": "دعوات من أسر أخرى",
+    "invitedBy": "تمت دعوتك من قبل",
+    "connectedHouseholds": "الأسر المتصلة",
+    "householdsToShareTasks": "الأسر التي يمكنك مشاركة المهام والمشاريع معها",
+    "noConnectedHouseholds": "لا توجد أسر متصلة بعد",
+    "inviteOthersToPlanTasks": "ادعُ أسرًا أخرى لتخطيط المهام معًا",
+    "connectedSince": "متصل منذ",
+    "howItWorks": "كيف يعمل",
+    "connectHouseholdsTitle": "ربط الأسر:",
+    "connectHouseholdsDescription": "أدخل رمز الدعوة الخاص بأسرة أخرى لإنشاء اتصال",
+    "shareTasksTitle": "مشاركة المهام:",
+    "shareTasksDescription": "عند إنشاء المهام يمكنك اختيار الأسر المتصلة",
+    "assignMembersTitle": "تعيين الأعضاء:",
+    "assignMembersDescription": "عيّن المهام لأعضاء من جميع الأسر المتصلة",
+    "manageTogetherTitle": "الإدارة معًا:",
+    "manageTogetherDescription": "يمكن لجميع أعضاء الأسر المتصلة تعديل المهام المشتركة",
+    "enterInviteCodeDescription": "أدخل رمز دعوة الأسرة التي ترغب في الاتصال بها",
+    "householdFound": "تم العثور على الأسرة",
+    "noHouseholdFound": "لم يتم العثور على أسرة بهذا الرمز",
+    "loadingItems": "جاري تحميل الأشياء...",
+    "noItemsAvailable": "لا توجد أشياء متاحة",
+    "noItemsHint": "يجب على الأسر المتصلة أولاً مشاركة أشيائها مع الآخرين.",
+    "noItemsForHousehold": "لم يتم العثور على أشياء لهذه الأسرة."
+  }
+}

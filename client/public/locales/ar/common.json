@@ -1,0 +1,421 @@
+{
+  "app": {
+    "name": "مدير المنزل",
+    "tagline": "إدارة منزلك معًا"
+  },
+  "nav": {
+    "home": "الصفحة الرئيسية",
+    "tasks": "المهام",
+    "shopping": "التسوق",
+    "inventory": "المخزون",
+    "members": "الأعضاء",
+    "history": "السجل",
+    "calendar": "التقويم",
+    "projects": "المشاريع",
+    "borrows": "الاستعارات",
+    "neighborhood": "الجوار",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "household": "المنزل",
+    "more": "المزيد",
+    "shopping_label": "التسوق",
+    "calendar_label": "المواعيد"
+  },
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "create": "إنشاء",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "back": "عودة",
+    "next": "التالي",
+    "search": "بحث",
+    "filter": "تصفية",
+    "reset": "إعادة تعيين",
+    "submit": "إرسال",
+    "upload": "رفع",
+    "download": "تنزيل",
+    "refresh": "تحديث",
+    "copy": "نسخ",
+    "share": "مشاركة",
+    "view": "عرض",
+    "remove": "إزالة",
+    "apply": "تطبيق",
+    "loading": "جارٍ التحميل...",
+    "saving": "جارٍ الحفظ...",
+    "deleting": "جارٍ الحذف...",
+    "clickToStart": "انقر هنا للبدء →",
+    "complete": "إكمال",
+    "deselectAll": "إلغاء تحديد الكل",
+    "editDetails": "تعديل التفاصيل",
+    "restore": "استعادة",
+    "selectAll": "تحديد الكل",
+    "showLess": "عرض أقل",
+    "undo": "تراجع",
+    "logout": "تسجيل الخروج"
+  },
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "pending": "قيد الانتظار",
+    "completed": "مكتمل",
+    "cancelled": "ملغى",
+    "approved": "موافق عليه",
+    "rejected": "مرفوض",
+    "overdue": "متأخر",
+    "open": "مفتوح",
+    "done": "منجز",
+    "inProgress": "قيد التنفيذ",
+    "creating": "جارٍ الإنشاء...",
+    "loading": "جارٍ تحميل المخزون...",
+    "uploading": "جارٍ الرفع..."
+  },
+  "labels": {
+    "name": "الاسم",
+    "description": "الوصف",
+    "date": "التاريخ",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "dueDate": "تاريخ الاستحقاق",
+    "createdAt": "تم الإنشاء في",
+    "updatedAt": "تم التحديث في",
+    "category": "الفئة",
+    "priority": "الأولوية",
+    "status": "الحالة",
+    "assignedTo": "مُعين إلى",
+    "createdBy": "تم الإنشاء بواسطة",
+    "notes": "ملاحظات",
+    "tags": "العلامات",
+    "type": "النوع",
+    "all": "الكل",
+    "none": "لا شيء",
+    "optional": "اختياري",
+    "required": "مطلوب",
+    "yes": "نعم",
+    "no": "لا",
+    "unknown": "غير معروف",
+    "other": "أخرى",
+    "total": "الإجمالي",
+    "count": "العدد",
+    "amount": "المبلغ",
+    "unit": "الوحدة",
+    "quantity": "الكمية",
+    "price": "السعر",
+    "language": "اللغة",
+    "reason": "السبب",
+    "preview": "معاينة",
+    "photo": "صورة",
+    "prevPhoto": "الصورة السابقة",
+    "nextPhoto": "الصورة التالية",
+    "fullscreen": "ملء الشاشة",
+    "today": "اليوم",
+    "on": "في",
+    "allTypes": "جميع الأنواع",
+    "by": "بواسطة",
+    "clock": "الساعة",
+    "color": "اللون",
+    "details": "التفاصيل",
+    "email": "البريد الإلكتروني",
+    "noHousehold": "لم يتم اختيار منزل",
+    "photos": "الصور",
+    "time": "الوقت",
+    "unassigned": "غير معين",
+    "selectDate": "اختر التاريخ",
+    "pageOf": "صفحة {{current}} من {{total}}"
+  },
+  "priority": {
+    "low": "منخفض",
+    "medium": "متوسط",
+    "high": "مرتفع",
+    "urgent": "عاجل"
+  },
+  "time": {
+    "thisWeek": "هذا الأسبوع",
+    "thisMonth": "هذا الشهر",
+    "label": "الوقت"
+  },
+  "messages": {
+    "success": "ناجح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "confirmDelete": "هل تريد حقًا حذف هذا الإدخال؟",
+    "noData": "لا توجد بيانات",
+    "noResults": "لم يتم العثور على نتائج",
+    "loadingError": "خطأ في تحميل البيانات",
+    "saveSuccess": "تم الحفظ بنجاح",
+    "saveError": "خطأ في الحفظ",
+    "deleteSuccess": "تم الحذف بنجاح",
+    "deleteError": "خطأ في الحذف",
+    "featureComingSoon": "هذه الميزة متاحة قريبًا",
+    "welcome": "مرحبًا",
+    "loading": "جارٍ التحميل...",
+    "unknown": "غير معروف",
+    "howItWorks": "💡 كيف يعمل:",
+    "copyError": "خطأ في النسخ"
+  },
+  "household": {
+    "select": "اختر المنزل",
+    "create": "إنشاء منزل",
+    "join": "انضم إلى المنزل",
+    "settings": {
+      "saved": "تم حفظ الإعدادات"
+    },
+    "language": "لغة المنزل",
+    "languageHint": "تُستخدم هذه اللغة في سجلات السجل والإشعارات التي يراها جميع أعضاء المنزل.",
+    "name": "اسم المنزل",
+    "members": "الأعضاء",
+    "admin": "المسؤول",
+    "member": "عضو",
+    "inviteCode": "رمز الدعوة",
+    "leaveHousehold": "مغادرة المنزل",
+    "deleteHousehold": "حذف المنزل",
+    "adminOnly": "يمكن فقط لمنشئ المنزل تغيير لغة المنزل."
+  },
+  "language": {
+    "select": "اختر اللغة",
+    "uiLanguage": "لغة العرض",
+    "uiLanguageHint": "هذا الإعداد خاص بك فقط ويتم حفظه على هذا الجهاز.",
+    "de": "الألمانية",
+    "en": "الإنجليزية",
+    "fr": "الفرنسية",
+    "es": "الإسبانية",
+    "tr": "التركية",
+    "zh": "الصينية",
+    "title": "إعدادات اللغة"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "register": "تسجيل",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "username": "اسم المستخدم",
+    "loginPrompt": "يرجى تسجيل الدخول للمتابعة",
+    "logoutConfirm": "هل تريد حقًا تسجيل الخروج؟",
+    "signInToContinue": "تسجيل الدخول للمتابعة",
+    "accessRequiresAuth": "الوصول إلى هذه اللوحة يتطلب المصادقة. المتابعة لبدء عملية تسجيل الدخول.",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllRead": "وضع الكل كمقروء",
+    "noNotifications": "لا توجد إشعارات جديدة",
+    "settings": "إعدادات الإشعارات"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "صفحة",
+    "of": "من",
+    "itemsPerPage": "عناصر في الصفحة",
+    "showingOf": "عرض {{from}}-{{to}} من {{total}}"
+  },
+  "all": "الكل",
+  "open": "مفتوح",
+  "done": "منجز",
+  "overdue": "متأخر",
+  "today": "اليوم",
+  "assignedTo": "المسؤول",
+  "sortBy": "ترتيب حسب",
+  "dueDate": "تاريخ الاستحقاق",
+  "creationDate": "تاريخ الإنشاء",
+  "notEnoughMembers": "لا يوجد أعضاء كافون متاحون! المطلوب: {{required}}، المتاح: {{available}}",
+  "minOneAssignee": "يرجى اختيار مسؤول واحد على الأقل",
+  "errors": {
+    "generic": "خطأ: ",
+    "saveFailed": "فشل الحفظ",
+    "notLoggedIn": "يرجى تسجيل الدخول"
+  },
+  "profile": {
+    "title": "تعديل الملف الشخصي",
+    "description": "قم بتغيير معلوماتك الشخصية أو كلمة المرور.",
+    "tabGeneral": "عام",
+    "tabPassword": "تغيير كلمة المرور",
+    "profileImage": "صورة الملف الشخصي",
+    "uploading": "جارٍ الرفع...",
+    "upload": "رفع",
+    "changeImage": "تغيير الصورة",
+    "uploadImage": "رفع صورة",
+    "imageHint": "JPEG، PNG أو WebP، الحد الأقصى 5 ميغابايت",
+    "namePlaceholder": "اسمك",
+    "emailPlaceholder": "بريدك الإلكتروني@مثال.كوم",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "passwordMinLength": "8 أحرف على الأقل",
+    "changePassword": "تغيير كلمة المرور",
+    "changingPassword": "جارٍ التغيير...",
+    "updated": "تم تحديث الملف الشخصي بنجاح",
+    "updateError": "خطأ في تحديث الملف الشخصي",
+    "imageUploaded": "تم رفع صورة الملف الشخصي بنجاح",
+    "imageUploadError": "خطأ في رفع صورة الملف الشخصي",
+    "imageDeleted": "تم إزالة صورة الملف الشخصي بنجاح",
+    "imageDeleteError": "خطأ في إزالة صورة الملف الشخصي",
+    "confirmDeleteImage": "هل تريد حقًا إزالة صورة ملفك الشخصي؟",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+    "passwordChangeError": "خطأ في تغيير كلمة المرور",
+    "nameRequired": "الاسم لا يمكن أن يكون فارغًا",
+    "emailRequired": "البريد الإلكتروني لا يمكن أن يكون فارغًا",
+    "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+    "currentPasswordRequired": "يرجى إدخال كلمة المرور الحالية",
+    "newPasswordRequired": "يرجى إدخال كلمة مرور جديدة",
+    "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "passwordMismatch": "كلمات المرور غير متطابقة"
+  },
+  "cancel": {
+    "label": "إلغاء"
+  },
+  "add": {
+    "label": "إضافة"
+  },
+  "toast": {
+    "settingsSaved": "تم حفظ الإعدادات",
+    "permissionDenied": "لم يتم السماح بالإشعارات",
+    "browserNotificationsEnabled": "تم تفعيل إشعارات المتصفح"
+  },
+  "dialog": {
+    "title": "إعدادات الإشعارات",
+    "description": "قم بتخصيص الإشعارات التي ترغب في تلقيها"
+  },
+  "browserPush": {
+    "label": "إشعارات المتصفح",
+    "description": "تلقي الإشعارات حتى عندما يكون المتصفح مغلقًا",
+    "blockedMessage": "تم حظر الإشعارات. يرجى تفعيلها في إعدادات المتصفح."
+  },
+  "notificationTypes": {
+    "title": "أنواع الإشعارات",
+    "taskAssigned": "تعيينات المهام",
+    "taskDue": "المهام المستحقة",
+    "taskCompleted": "المهام المنجزة",
+    "comments": "التعليقات"
+  },
+  "dnd": {
+    "title": "عدم الإزعاج",
+    "description": "لا إشعارات خلال هذا الوقت",
+    "from": "من",
+    "to": "إلى",
+    "activeMessage": "نشط من {{dndStartTime}} إلى {{dndEndTime}}"
+  },
+  "autoSaveMessage": "يتم حفظ الإعدادات تلقائيًا",
+  "closeButton": "إغلاق",
+  "notificationBell": {
+    "title": "الإشعارات",
+    "markAllAsRead": "وضع الكل كمقروء",
+    "noNotifications": "لا توجد إشعارات"
+  },
+  "pdfViewer": {
+    "documentType": "مستند PDF",
+    "openExternal": "فتح خارجي",
+    "download": "تنزيل"
+  },
+  "photoLightbox": {
+    "closeButtonAriaLabel": "إغلاق",
+    "previousPhotoAriaLabel": "الصورة السابقة",
+    "photoAltText": "صورة",
+    "nextPhotoAriaLabel": "الصورة التالية"
+  },
+  "clickablePhoto": {
+    "photoAltText": "صورة"
+  },
+  "upcomingOccurrencesTable": {
+    "noOccurrencesPlanned": "لا توجد مواعيد قادمة مخططة",
+    "noDate": "لا يوجد تاريخ",
+    "stillOpen": "لا يزال مفتوحًا"
+  },
+  "errorBoundary": {
+    "unexpectedError": "حدث خطأ غير متوقع.",
+    "reloadPage": "إعادة تحميل الصفحة"
+  },
+  "chatBox": {
+    "placeholder": "أدخل رسالة...",
+    "emptyStateMessage": "ابدأ محادثة مع الذكاء الاصطناعي",
+    "suggestedPrompt1": "شرح الحوسبة الكمومية",
+    "suggestedPrompt2": "كتابة برنامج مرحبًا بالعالم بلغة بايثون"
+  },
+  "photoUpload": {
+    "maxPhotosAllowed": "الحد الأقصى {{maxPhotos}} من {{fileTypeLabel}} مسموح",
+    "notAPDF": "{{fileName}} ليس ملف PDF",
+    "notAnImage": "{{fileName}} ليست صورة",
+    "compressionError": "خطأ في ضغط {{fileName}}",
+    "fileTooLarge": "{{fileName}} كبير جدًا (الحد الأقصى {{maxSize}})",
+    "uploadError": "خطأ في رفع {{fileTypeLabel}}",
+    "uploading": "جارٍ الرفع...",
+    "addFiles": "إضافة {{fileTypeLabel}} ({{current}}/{{max}})",
+    "removeFile": "إزالة {{fileTypeLabel}}"
+  },
+  "imageCropEditor": {
+    "title": "قص الصورة",
+    "zoomLabel": "تكبير",
+    "processing": "جارٍ المعالجة...",
+    "helperText": {
+      "dragAndZoom": "اسحب الصورة لتغيير موضعها. استخدم شريط التمرير للتكبير."
+    },
+    "errors": {
+      "canvasContext": "خطأ في الحصول على سياق اللوحة"
+    }
+  },
+  "apply": "تطبيق",
+  "category": {
+    "create": {
+      "success": "تم إنشاء الفئة \"${name}\"",
+      "error": "خطأ في إنشاء الفئة",
+      "buttonTitle": "إنشاء فئة جديدة",
+      "dialogTitle": "إنشاء فئة جديدة",
+      "dialogDescription": "قم بإنشاء فئة {type} جديدة."
+    },
+    "type": {
+      "shopping": "التسوق",
+      "inventory": "المخزون"
+    },
+    "nameLabel": "اسم الفئة",
+    "namePlaceholder": "مثال: مواد غذائية، إلكترونيات...",
+    "colorLabel": "اللون"
+  },
+  "button": {
+    "cancel": "إلغاء",
+    "creating": "جارٍ الإنشاء...",
+    "create": "إنشاء"
+  },
+  "sidebar": {
+    "toggleNavigation": "تبديل التنقل",
+    "navigation": "التنقل"
+  },
+  "menu": {
+    "menu": "القائمة"
+  },
+  "upload": {
+    "uploading": "جارٍ الرفع...",
+    "addFiles": "إضافة {{label}} ({{current}}/{{max}})",
+    "removeFile": "إزالة {{label}}",
+    "maxFilesError": "الحد الأقصى {{max}} من {{label}} مسموح",
+    "notAPdf": "{{name}} ليس ملف PDF",
+    "notAnImage": "{{name}} ليست صورة",
+    "compressionError": "خطأ في ضغط {{name}}",
+    "fileTooLarge": "{{name}} كبير جدًا (الحد الأقصى {{max}})",
+    "uploadError": "خطأ في رفع {{label}}"
+  },
+  "sort": {
+    "asc": "أ–ي",
+    "desc": "ي–أ",
+    "ascending": "ترتيب تصاعدي",
+    "descending": "ترتيب تنازلي"
+  },
+  "back": "عودة",
+  "common": {
+    "messages": {
+      "loading": "جارٍ التحميل..."
+    }
+  },
+  "loading": "جارٍ التحميل...",
+  "navigation": {
+    "back": "عودة",
+    "next": "التالي"
+  },
+  "pleaseLogin": "يرجى تسجيل الدخول",
+  "uploading": "جارٍ الرفع..."
+}

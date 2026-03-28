@@ -116,9 +116,9 @@ export const householdManagementRouter = router({
 
       // Create default inventory categories
       const defaultCategories = [
-        { name: input.language === "en" ? "Food" : input.language === "es" ? "Alimentos" : input.language === "fr" ? "Alimentation" : input.language === "zh" ? "食品" : input.language === "tr" ? "Gıda" : "Lebensmittel", color: "#EF4444" },
-        { name: input.language === "en" ? "Cleaning" : input.language === "es" ? "Limpieza" : input.language === "fr" ? "Nettoyage" : input.language === "zh" ? "清洁" : input.language === "tr" ? "Temizlik" : "Reinigung", color: "#EAB308" },
-        { name: input.language === "en" ? "Tools" : input.language === "es" ? "Herramientas" : input.language === "fr" ? "Outils" : input.language === "zh" ? "工具" : input.language === "tr" ? "Araçlar" : "Werkzeug", color: "#22C55E" },
+        { name: input.language === "en" ? "Food" : input.language === "es" ? "Alimentos" : input.language === "fr" ? "Alimentation" : input.language === "zh" ? "食品" : input.language === "tr" ? "Gıda" : input.language === "ar" ? "طعام" : "Lebensmittel", color: "#EF4444" },
+        { name: input.language === "en" ? "Cleaning" : input.language === "es" ? "Limpieza" : input.language === "fr" ? "Nettoyage" : input.language === "zh" ? "清洁" : input.language === "tr" ? "Temizlik" : input.language === "ar" ? "تنظيف" : "Reinigung", color: "#EAB308" },
+        { name: input.language === "en" ? "Tools" : input.language === "es" ? "Herramientas" : input.language === "fr" ? "Outils" : input.language === "zh" ? "工具" : input.language === "tr" ? "Araçlar" : input.language === "ar" ? "أدوات" : "Werkzeug", color: "#22C55E" },
       ];
       await db.insert(shoppingCategories).values(
         defaultCategories.map((cat) => ({
@@ -550,7 +550,7 @@ export const householdManagementRouter = router({
         .where(eq(households.id, input.householdId));
 
       // Log the language change (use new language for the log text)
-      const newLang = (input.language as "de" | "en" | "es" | "fr" | "zh" | "tr");
+      const newLang = (input.language as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       await createActivityLog({
         householdId: input.householdId,
         memberId: member.id,
@@ -769,7 +769,7 @@ export const householdManagementRouter = router({
 
       // Log the vote
       const [hh] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
-      const voteLang = ((hh?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
+      const voteLang = ((hh?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       const votesNeeded = Math.floor(totalMembers / 2) + 1;
       await createActivityLog({
         householdId: input.householdId,
@@ -818,7 +818,7 @@ export const householdManagementRouter = router({
 
       // Log the retraction
       const [hhRetract] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
-      const retractLang = ((hhRetract?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
+      const retractLang = ((hhRetract?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       await createActivityLog({
         householdId: input.householdId,
         memberId: member.id,
@@ -956,7 +956,7 @@ export const householdManagementRouter = router({
         )
         .limit(1);
 
-      const transferLang = ((household.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr");
+      const transferLang = ((household.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       await createActivityLog({
         householdId: input.householdId,
         memberId: callerMember?.id ?? 0,

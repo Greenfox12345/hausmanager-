@@ -1,0 +1,52 @@
+{
+  "title": "السجل",
+  "noHistory": "لا يوجد سجل",
+  "noHistoryHint": "سيتم عرض الأنشطة في منزلك هنا.",
+  "filter": {
+    "all": "الكل",
+    "tasks": "المهام",
+    "shopping": "التسوق",
+    "inventory": "المخزون",
+    "members": "الأعضاء",
+    "borrows": "الاستعارات",
+    "projects": "المشاريع"
+  },
+  "actions": {
+    "task_created": "تم إنشاء المهمة",
+    "task_updated": "تم تحديث المهمة",
+    "task_completed": "تم إكمال المهمة",
+    "task_deleted": "تم حذف المهمة",
+    "task_assigned": "تم تعيين المهمة",
+    "item_added": "تمت إضافة العنصر",
+    "item_updated": "تم تحديث العنصر",
+    "item_deleted": "تم حذف العنصر",
+    "shopping_created": "تم إنشاء قائمة التسوق",
+    "shopping_completed": "تم إكمال قائمة التسوق",
+    "member_joined": "انضم العضو",
+    "member_removed": "تمت إزالة العضو",
+    "borrow_requested": "تم طلب الاستعارة",
+    "borrow_approved": "تمت الموافقة على الاستعارة",
+    "borrow_rejected": "تم رفض الاستعارة",
+    "borrow_returned": "تم إرجاع العنصر",
+    "reminder": "تم إرسال التذكير"
+  },
+  "fields": {
+    "date": "التاريخ",
+    "member": "العضو",
+    "action": "الإجراء",
+    "details": "التفاصيل"
+  },
+  "messages": {
+    "trackActivities": "تتبع الأنشطة والتقدم في المنزل"
+  },
+  "labels": {
+    "photoCount_one": "{{count}} صورة",
+    "photoCount_other": "{{count}} صور",
+    "pdfCount_one": "{{count}} ملف PDF",
+    "pdfCount_other": "{{count}} ملفات PDF",
+    "pdfCount": "{{count}} ملف PDF",
+    "photoCount": "{{count}} صورة"
+  },
+  "noActivities": "لا توجد أنشطة بعد.",
+  "noActivitiesFiltered": "لم يتم العثور على أنشطة تتوافق مع معايير التصفية الخاصة بك."
+}

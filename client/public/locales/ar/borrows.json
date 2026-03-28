@@ -1,0 +1,253 @@
+{
+  "title": "استعارات",
+  "myBorrows": "استعاراتي",
+  "lentItems": "العناصر المعارة",
+  "borrowRequests": "طلبات الاستعارة",
+  "noBorrows": "لا توجد استعارات",
+  "noBorrowsHint": "ستظهر هنا طلبات الاستعارة والعناصر المعارة.",
+  "request": {
+    "title": "طلب استعارة",
+    "item": "العنصر",
+    "from": "من",
+    "startDate": "من",
+    "endDate": "إلى",
+    "message": "رسالة (اختياري)",
+    "messagePlaceholder": "لماذا ترغب في استعارة هذا العنصر؟",
+    "submit": "إرسال الطلب",
+    "cancel": "إلغاء"
+  },
+  "approval": {
+    "approve": "موافقة",
+    "reject": "رفض",
+    "rejectReason": "سبب الرفض (اختياري)",
+    "revoke": "إلغاء الموافقة",
+    "revokeReason": "سبب الإلغاء",
+    "revokeConfirm": "هل أنت متأكد من رغبتك في إلغاء الموافقة؟"
+  },
+  "return": {
+    "title": "تأكيد الإرجاع",
+    "confirm": "تأكيد الإرجاع",
+    "notes": "ملاحظات الإرجاع",
+    "condition": "الحالة عند الإرجاع"
+  },
+  "status": {
+    "pending": "معلق",
+    "approved": "موافق عليه",
+    "active": "مستعار حاليًا",
+    "rejected": "مرفوض",
+    "completed": "مكتمل",
+    "returned": "تم الإرجاع",
+    "cancelled": "ملغى",
+    "overdue": "متأخر",
+    "notRequested": "لم يتم طلبه"
+  },
+  "fields": {
+    "item": "العنصر",
+    "borrower": "المستعير",
+    "owner": "المالك",
+    "startDate": "تاريخ بدء الاستعارة",
+    "endDate": "تاريخ انتهاء الاستعارة",
+    "requestDate": "تاريخ الطلب",
+    "returnDate": "تاريخ الإرجاع",
+    "message": "رسالة",
+    "task": "مهمة",
+    "occurrence": "موعد",
+    "pickup": "الاستلام",
+    "return": "الإرجاع",
+    "borrowEnd": "الإرجاع",
+    "borrowStart": "الاستلام"
+  },
+  "pickupRecord": "تم التسجيل عند الاستلام",
+  "returnRecord": "تم التسجيل عند الإرجاع",
+  "confirmPickup": "تأكيد الاستلام",
+  "activeReturn": "نشط - يرجى الإرجاع",
+  "confirmReturn": "تأكيد الإرجاع",
+  "cancelRequest": "إلغاء الطلب",
+  "cancelDialog": {
+    "titlePending": "إلغاء الطلب",
+    "titleApproved": "إلغاء استعارة موافق عليها",
+    "confirmPending": "هل أنت متأكد من رغبتك في إلغاء طلبك لـ \"{{itemName}}\"؟",
+    "confirmApproved": "هل أنت متأكد من رغبتك في إلغاء الاستعارة الموافق عليها لـ \"{{itemName}}\"؟ سيتم إخطار المالك.",
+    "approvedWarning": "سيتم سحب الموافقة وسيتم وضع العنصر كمتوفر مرة أخرى.",
+    "reasonLabel": "السبب",
+    "optional": "(اختياري)",
+    "reasonPlaceholder": "على سبيل المثال، تغيرت الخطط...",
+    "cancelling": "جاري الإلغاء...",
+    "confirm": "نعم، إلغاء"
+  },
+  "messages": {
+    "requestSent": "تم إرسال طلب الاستعارة",
+    "autoApproved": "تمت الموافقة على الاستعارة تلقائيًا",
+    "approved": "تمت الموافقة على الاستعارة",
+    "rejected": "تم رفض الاستعارة",
+    "returned": "تم تأكيد الإرجاع",
+    "revoked": "تم إلغاء الموافقة",
+    "requestError": "خطأ في إرسال الطلب",
+    "approveError": "خطأ في الموافقة",
+    "rejectError": "خطأ في الرفض",
+    "returnError": "خطأ في الإرجاع",
+    "description": "استعارة وإدارة العناصر",
+    "autoApprovedDesc": "تمت الموافقة تلقائيًا",
+    "borrowEndUpdated": "تم تحديث تاريخ الإرجاع",
+    "borrowStartUpdated": "تم تحديث تاريخ الاستلام",
+    "cancelled": "تم إلغاء الاستعارة",
+    "requestSentDesc": "تم إرسال الطلب",
+    "revokeError": "خطأ في الإلغاء",
+    "revokeSuccess": "تم الإلغاء بنجاح"
+  },
+  "labels": {
+    "borrower": "المستعير",
+    "period": "الفترة",
+    "revokedBy": "تم الإلغاء بواسطة",
+    "rejectedBy": "تم الرفض بواسطة"
+  },
+  "task": "مهمة",
+  "occurrence": "موعد",
+  "responsible": "المسؤول",
+  "requestMessagePrefix": "أحتاج \"{{itemName}}\" للمهمة التالية:",
+  "requestMessageSuffix": "الرجاء تأكيد الاستعارة.",
+  "requestDialog": {
+    "title": "استعارة عنصر",
+    "item": "العنصر",
+    "guidelines": "إرشادات الاستعارة",
+    "instructions": "تعليمات",
+    "returnChecklist": "قائمة التحقق عند الإرجاع",
+    "requiredPhotosReturn": "الصور المطلوبة عند الإرجاع",
+    "requiredOnReturn": "حقل إلزامي عند الإرجاع",
+    "from": "من",
+    "to": "إلى",
+    "selectDate": "اختر تاريخًا",
+    "endAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء",
+    "message": "رسالة (اختياري)",
+    "messagePlaceholder": "لماذا ترغب في استعارة هذا العنصر؟",
+    "send": "إرسال الطلب",
+    "sending": "جاري الإرسال..."
+  },
+  "returnDialog": {
+    "title": "إرجاع عنصر",
+    "item": "العنصر",
+    "noGuidelines": "لم يتم تحديد إرشادات للإرجاع.",
+    "checklist": "قائمة التحقق",
+    "requiredPhotos": "الصور المطلوبة",
+    "example": "مثال",
+    "uploadPhoto": "تحميل صورة",
+    "conditionReport": "تقرير الحالة (اختياري)",
+    "conditionReportPlaceholder": "صف حالة العنصر عند الإرجاع...",
+    "required": "مطلوب",
+    "success": "تم إرجاع العنصر بنجاح",
+    "error": "خطأ في الإرجاع",
+    "returning": "جاري الإرجاع...",
+    "return": "إرجاع",
+    "checklistRequired": "قائمة التحقق: يجب تحديد \"{{label}}\"",
+    "photoRequired": "الصورة مطلوبة: \"{{label}}\""
+  },
+  "revokeDialog": {
+    "title": "إلغاء الموافقة",
+    "description": "سيتم إلغاء الموافقة على الاستعارة وسيتم إخطار المسؤول.",
+    "item": "العنصر",
+    "borrower": "المستعير",
+    "period": "الفترة",
+    "reason": "السبب",
+    "reasonPlaceholder": "الرجاء تقديم سبب لإلغاء الموافقة...",
+    "reasonRequired": "السبب مطلوب لإلغاء الموافقة.",
+    "revoke": "إلغاء",
+    "revoking": "جاري الإلغاء..."
+  },
+  "allStatuses": "جميع الحالات",
+  "approvedPickup": "موافق عليه - بانتظار الاستلام",
+  "externalHousehold": "أسرة خارجية",
+  "filterAll": "الكل",
+  "filterExternal": "خارجي",
+  "filterInternal": "داخلي",
+  "filterStatus": "تصفية حسب الحالة",
+  "noItems": "لا توجد عناصر في الأسر الأخرى",
+  "noItemsAtAll": "لم يتم العثور على عناصر قابلة للاستعارة",
+  "noPending": "لا توجد طلبات معلقة",
+  "otherHouseholds": "أسر أخرى",
+  "ownHousehold": "أسرتي",
+  "pendingCount": "{{count}} معلق",
+  "rejectReasonPlaceholder": "سبب الرفض (اختياري)",
+  "rejectedReason": "سبب الرفض",
+  "requestBorrow": "طلب استعارة",
+  "searchItems": "البحث عن عناصر...",
+  "tabBrowse": "العناصر",
+  "tabItems": "العناصر",
+  "tabMyBorrows": "استعاراتي",
+  "tabRequests": "الطلبات",
+  "viewHousehold": "جميع طلبات الأسرة",
+  "viewMine": "طلباتي",
+  "waitingApproval": "بانتظار الموافقة",
+  "examplePhotoUpload": {
+    "success": "تم تحميل الصورة النموذجية",
+    "error": "خطأ في تحميل الصورة النموذجية",
+    "failedRetry": "تعذر تحميل صورة نموذجية. يرجى المحاولة مرة أخرى."
+  },
+  "uploadInProgress": "الرجاء الانتظار حتى يتم تحميل الصورة",
+  "guidelinesSaved": {
+    "success": "تم حفظ إرشادات الاستعارة",
+    "error": "خطأ في الحفظ"
+  },
+  "cardTitle": "إرشادات الاستعارة",
+  "instructions": {
+    "label": "تعليمات (اختياري)",
+    "placeholder": "على سبيل المثال: 'إرجاع مع خزان وقود ممتلئ'، 'إرجاع نظيف'"
+  },
+  "checklist": {
+    "label": "قائمة التحقق",
+    "addItemButton": "إضافة نقطة",
+    "itemPlaceholder": "على سبيل المثال: 'المفتاح موجود'"
+  },
+  "requiredLabel": "مطلوب",
+  "photoRequirements": {
+    "label": "متطلبات الصورة",
+    "addItemButton": "إضافة متطلب",
+    "itemPlaceholder": "على سبيل المثال: 'عداد المسافات'، 'منظر جانبي'"
+  },
+  "examplePhotoAlt": "مثال",
+  "uploadingStatus": "جاري التحميل…",
+  "removeButton": "إزالة",
+  "uploadExamplePhotoButton": "تحميل صورة نموذجية",
+  "savingStatus": "جاري الحفظ…",
+  "saveGuidelinesButton": "حفظ الإرشادات",
+  "photoGrid": {
+    "photoLabel": "صورة {{index}}",
+    "requiredPhotosLabel": "الصور المطلوبة"
+  },
+  "borrower": {
+    "unknown": "غير معروف"
+  },
+  "protocol": {
+    "hide": "إخفاء البروتوكول",
+    "show": "عرض بروتوكول الاستلام/الإرجاع"
+  },
+  "metaInfo": {
+    "borrower": "المستعير",
+    "dateRange": "{{startDate}} – {{endDate}}",
+    "request": "طلب",
+    "response": "رد"
+  },
+  "protocolSection": {
+    "pickupCondition": "الحالة عند الاستلام",
+    "returnCondition": "الحالة عند الإرجاع"
+  },
+  "photo": {
+    "defaultLabel": "صورة",
+    "capture": "التقاط / اختيار صورة",
+    "upload": "تحميل صورتك",
+    "required": "الصور المطلوبة",
+    "required_badge": "مطلوب",
+    "example": "مثال:"
+  },
+  "guideline": {
+    "title": "إرشادات الاستعارة",
+    "checklist": "قائمة التحقق"
+  },
+  "actions": {
+    "request": "طلب",
+    "revoke": "إلغاء"
+  },
+  "borrowing": "استعارة",
+  "hidePast": "إخفاء الماضي",
+  "showPast": "عرض الماضي",
+  "tabCalendar": "التقويم"
+}

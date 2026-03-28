@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "approve": "الموافقة",
+    "reject": "الرفض",
+    "return": "الإرجاع",
+    "revoke": "الإلغاء"
+  },
+  "borrow": "استعارة",
+  "guidelines": "إرشادات الاستعارة",
+  "noRequests": "لا توجد طلبات استعارة.",
+  "occurrence": "الموعد",
+  "requestDialog": {
+    "endAfterStart": "يجب أن يكون تاريخ الإرجاع بعد تاريخ الاستلام",
+    "from": "من",
+    "guidelines": "إرشادات الاستعارة",
+    "instructions": "التعليمات",
+    "item": "العنصر",
+    "message": "الرسالة",
+    "messagePlaceholder": "رسالة اختيارية للمالك...",
+    "requiredOnReturn": "مطلوب عند الإرجاع",
+    "requiredPhotosReturn": "صور مطلوبة عند الإرجاع",
+    "returnChecklist": "قائمة مراجعة الإرجاع",
+    "selectDate": "اختر التاريخ",
+    "send": "إرسال الطلب",
+    "sending": "جارٍ الإرسال...",
+    "title": "طلب استعارة",
+    "to": "إلى"
+  },
+  "requestMessagePrefix": "أود",
+  "requestMessageSuffix": "استعارة.",
+  "requests": "طلبات الاستعارة",
+  "responsible": "المسؤول",
+  "returnDialog": {
+    "checklist": "قائمة مراجعة الإرجاع",
+    "checklistRequired": "يرجى تحديد جميع العناصر",
+    "conditionReport": "تقرير الحالة",
+    "conditionReportPlaceholder": "وصف الحالة عند الإرجاع...",
+    "error": "خطأ في الإرجاع",
+    "example": "مثال",
+    "item": "العنصر",
+    "noGuidelines": "لا توجد إرشادات إرجاع",
+    "photoRequired": "الصورة مطلوبة",
+    "required": "حقل إلزامي",
+    "requiredPhotos": "الصور المطلوبة",
+    "return": "إرجاع",
+    "returning": "جارٍ الإرجاع...",
+    "success": "تم الإرجاع بنجاح",
+    "title": "إرجاع العنصر",
+    "uploadPhoto": "تحميل صورة"
+  },
+  "revokeDialog": {
+    "borrower": "المستعير",
+    "description": "هل أنت متأكد أنك تريد إلغاء هذا الإذن؟",
+    "item": "العنصر",
+    "period": "الفترة",
+    "reason": "السبب",
+    "reasonPlaceholder": "الرجاء إدخال سبب...",
+    "reasonRequired": "الرجاء إدخال سبب",
+    "revoke": "إلغاء",
+    "revoking": "جارٍ الإلغاء...",
+    "title": "إلغاء الإذن"
+  },
+  "status": {
+    "active": "مستعار",
+    "approved": "موافق عليه",
+    "completed": "تم الإرجاع",
+    "overdue": "متأخر",
+    "pending": "معلق",
+    "rejected": "مرفوض"
+  },
+  "task": "المهمة"
+}

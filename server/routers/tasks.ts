@@ -35,11 +35,11 @@ import {
   taskRestored,
 } from "../activityTexts";
 
-type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr";
+type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar";
 async function getHouseholdLang(householdId: number): Promise<Lang> {
   const hh = await getHouseholdById(householdId);
   const l = hh?.language ?? "de";
-  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr") ? l as Lang : "de";
+  return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { inArray } from "drizzle-orm";
@@ -1365,14 +1365,14 @@ export const tasksRouter = router({
             if (l === "en") return `${senderName} reminded you about this task: ${input.comment}`;
             if (l === "es") return `${senderName} te recordó sobre esta tarea: ${input.comment}`;
             if (l === "fr") return `${senderName} vous a rappelé cette tâche : ${input.comment}`;
-            if (l === "tr") return `${senderName} bu görevi size hatırlattı: ${input.comment}`;
+            if (l === "tr" || l === "ar") return `${senderName} bu görevi size hatırlattı: ${input.comment}`;
             if (l === "zh") return `${senderName} 提醒了你这个任务：${input.comment}`;
             return `${senderName} hat dich an diese Aufgabe erinnert: ${input.comment}`;
           }
           if (l === "en") return `${senderName} reminded you about this task.`;
           if (l === "es") return `${senderName} te recordó sobre esta tarea.`;
           if (l === "fr") return `${senderName} vous a rappelé cette tâche.`;
-          if (l === "tr") return `${senderName} bu görevi size hatırlattı.`;
+          if (l === "tr" || l === "ar") return `${senderName} bu görevi size hatırlattı.`;
           if (l === "zh") return `${senderName} 提醒了你这个任务。`;
           return `${senderName} hat dich an diese Aufgabe erinnert.`;
         };

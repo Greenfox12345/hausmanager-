@@ -1,16 +1,17 @@
 /**
  * Centralized multilingual activity log text generator.
- * All history entries are generated in the household's configured language (de/en/es/fr/zh/tr).
+ * All history entries are generated in the household's configured language (de/en/es/fr/zh/tr/ar).
  */
 
-type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr";
+type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar";
 
-function t(lang: Lang, de: string, en: string, es: string, fr: string, zh: string, tr: string): string {
+function t(lang: Lang, de: string, en: string, es: string, fr: string, zh: string, tr: string, ar: string): string {
   if (lang === "en") return en;
   if (lang === "es") return es;
   if (lang === "fr") return fr;
   if (lang === "zh") return zh;
   if (lang === "tr") return tr;
+  if (lang === "ar") return ar;
   return de;
 }
 
@@ -23,7 +24,8 @@ export function shoppingItemAdded(lang: Lang, itemName: string, category?: strin
     ` (categoría: ${category})`,
     ` (catégorie : ${category})`,
     `（分类：${category}）`,
-    ` (kategori: ${category})`
+    ` (kategori: ${category})`,
+    ` (الفئة: ${category})`
   ) : "";
   return t(lang,
     `Artikel „${itemName}"${cat} zur Einkaufsliste hinzugefügt`,
@@ -31,19 +33,21 @@ export function shoppingItemAdded(lang: Lang, itemName: string, category?: strin
     `Artículo "${itemName}"${cat} añadido a la lista de compras`,
     `Article « ${itemName} »${cat} ajouté à la liste de courses`,
     `已将"${itemName}"${cat}添加到购物清单`,
-    `"${itemName}"${cat} alışveriş listesine eklendi`
+    `"${itemName}"${cat} alışveriş listesine eklendi`,
+    `تمت إضافة "${itemName}"${cat} إلى قائمة التسوق`
   );
 }
 
 export function shoppingItemUpdated(lang: Lang, itemName: string, changes?: string): string {
-  const ch = changes ? t(lang, `: ${changes}`, `: ${changes}`, `: ${changes}`, ` : ${changes}`, `：${changes}`, `: ${changes}`) : "";
+  const ch = changes ? t(lang, `: ${changes}`, `: ${changes}`, `: ${changes}`, ` : ${changes}`, `：${changes}`, `: ${changes}`, `: ${changes}`) : "";
   return t(lang,
     `Artikel „${itemName}" in der Einkaufsliste aktualisiert${ch}`,
     `Shopping item "${itemName}" updated${ch}`,
     `Artículo "${itemName}" actualizado en la lista de compras${ch}`,
     `Article « ${itemName} » mis à jour dans la liste de courses${ch}`,
     `购物清单中的"${itemName}"已更新${ch}`,
-    `Alışveriş listesindeki "${itemName}" güncellendi${ch}`
+    `Alışveriş listesindeki "${itemName}" güncellendi${ch}`,
+    `تم تحديث "${itemName}" في قائمة التسوق${ch}`
   );
 }
 
@@ -54,7 +58,8 @@ export function shoppingItemDeleted(lang: Lang, itemName: string): string {
     `Artículo "${itemName}" eliminado de la lista de compras`,
     `Article « ${itemName} » supprimé de la liste de courses`,
     `已从购物清单中删除"${itemName}"`,
-    `"${itemName}" alışveriş listesinden kaldırıldı`
+    `"${itemName}" alışveriş listesinden kaldırıldı`,
+    `تمت إزالة "${itemName}" من قائمة التسوق`
   );
 }
 
@@ -65,7 +70,8 @@ export function shoppingBatchCompleted(lang: Lang, count: number, listName?: str
     ` de la lista "${listName}"`,
     ` de la liste « ${listName} »`,
     `（来自清单"${listName}"）`,
-    ` "${listName}" listesinden`
+    ` "${listName}" listesinden`,
+    ` من قائمة "${listName}"`
   ) : "";
   return t(lang,
     `${count} Artikel${list} als eingekauft markiert`,
@@ -73,7 +79,8 @@ export function shoppingBatchCompleted(lang: Lang, count: number, listName?: str
     `${count} artículo${count !== 1 ? "s" : ""}${list} marcado${count !== 1 ? "s" : ""} como comprado${count !== 1 ? "s" : ""}`,
     `${count} article${count !== 1 ? "s" : ""}${list} marqué${count !== 1 ? "s" : ""} comme acheté${count !== 1 ? "s" : ""}`,
     `${count} 件商品${list}已标记为已购买`,
-    `${count} ürün${list} satın alındı olarak işaretlendi`
+    `${count} ürün${list} satın alındı olarak işaretlendi`,
+    `تم تحديد ${count} عنصر${list} كمشترى`
   );
 }
 
@@ -84,7 +91,8 @@ export function shoppingCategoryAdded(lang: Lang, categoryName: string): string 
     `Categoría de compras "${categoryName}" creada`,
     `Catégorie de courses « ${categoryName} » créée`,
     `已创建购物分类"${categoryName}"`,
-    `"${categoryName}" alışveriş kategorisi oluşturuldu`
+    `"${categoryName}" alışveriş kategorisi oluşturuldu`,
+    `تم إنشاء فئة التسوق "${categoryName}"`
   );
 }
 
@@ -95,7 +103,8 @@ export function shoppingCategoryUpdated(lang: Lang, oldName: string, newName: st
     `Categoría de compras "${oldName}" renombrada a "${newName}"`,
     `Catégorie de courses « ${oldName} » renommée en « ${newName} »`,
     `购物分类"${oldName}"已重命名为"${newName}"`,
-    `"${oldName}" alışveriş kategorisi "${newName}" olarak yeniden adlandırıldı`
+    `"${oldName}" alışveriş kategorisi "${newName}" olarak yeniden adlandırıldı`,
+    `تمت إعادة تسمية فئة التسوق "${oldName}" إلى "${newName}"`
   );
 }
 
@@ -106,7 +115,8 @@ export function shoppingCategoryDeleted(lang: Lang, categoryName: string): strin
     `Categoría de compras "${categoryName}" eliminada`,
     `Catégorie de courses « ${categoryName} » supprimée`,
     `已删除购物分类"${categoryName}"`,
-    `"${categoryName}" alışveriş kategorisi silindi`
+    `"${categoryName}" alışveriş kategorisi silindi`,
+    `تم حذف فئة التسوق "${categoryName}"`
   );
 }
 
@@ -117,7 +127,8 @@ export function shoppingTaskLinked(lang: Lang, itemName: string, taskName: strin
     `Artículo "${itemName}" vinculado a la tarea "${taskName}"`,
     `Article « ${itemName} » lié à la tâche « ${taskName} »`,
     `"${itemName}"已关联到任务"${taskName}"`,
-    `"${itemName}" "${taskName}" göreviyle ilişkilendirildi`
+    `"${itemName}" "${taskName}" göreviyle ilişkilendirildi`,
+    `تم ربط "${itemName}" بمهمة "${taskName}"`
   );
 }
 
@@ -128,7 +139,8 @@ export function shoppingTaskUnlinked(lang: Lang, itemName: string, taskName: str
     `Artículo "${itemName}" desvinculado de la tarea "${taskName}"`,
     `Article « ${itemName} » dissocié de la tâche « ${taskName} »`,
     `"${itemName}"已取消与任务"${taskName}"的关联`,
-    `"${itemName}" "${taskName}" göreviyle ilişkisi kaldırıldı`
+    `"${itemName}" "${taskName}" göreviyle ilişkisi kaldırıldı`,
+    `تم إلغاء ربط "${itemName}" من مهمة "${taskName}"`
   );
 }
 
@@ -142,7 +154,8 @@ export function taskCreated(lang: Lang, taskName: string, assignees?: string[]):
         ` – asignado a: ${assignees.join(", ")}`,
         ` – assigné à : ${assignees.join(", ")}`,
         `，负责人：${assignees.join("、")}`,
-        ` – atanan: ${assignees.join(", ")}`
+        ` – atanan: ${assignees.join(", ")}`,
+        ` – مُسند إلى: ${assignees.join("، ")}`
       )
     : "";
   return t(lang,
@@ -151,7 +164,8 @@ export function taskCreated(lang: Lang, taskName: string, assignees?: string[]):
     `Tarea "${taskName}" creada${who}`,
     `Tâche « ${taskName} » créée${who}`,
     `已创建任务"${taskName}"${who}`,
-    `"${taskName}" görevi oluşturuldu${who}`
+    `"${taskName}" görevi oluşturuldu${who}`,
+    `تم إنشاء مهمة "${taskName}"${who}`
   );
 }
 
@@ -162,7 +176,8 @@ export function taskUpdated(lang: Lang, taskName: string, changes?: string): str
     ` – cambios: ${changes}`,
     ` – modifications : ${changes}`,
     `，更改：${changes}`,
-    ` – değişiklikler: ${changes}`
+    ` – değişiklikler: ${changes}`,
+    ` – التغييرات: ${changes}`
   ) : "";
   return t(lang,
     `Aufgabe „${taskName}" aktualisiert${ch}`,
@@ -170,7 +185,8 @@ export function taskUpdated(lang: Lang, taskName: string, changes?: string): str
     `Tarea "${taskName}" actualizada${ch}`,
     `Tâche « ${taskName} » mise à jour${ch}`,
     `任务"${taskName}"已更新${ch}`,
-    `"${taskName}" görevi güncellendi${ch}`
+    `"${taskName}" görevi güncellendi${ch}`,
+    `تم تحديث مهمة "${taskName}"${ch}`
   );
 }
 
@@ -181,7 +197,8 @@ export function taskCompleted(lang: Lang, taskName: string, memberName: string, 
     ` el ${dateStr}`,
     ` le ${dateStr}`,
     `（${dateStr}）`,
-    ` ${dateStr} tarihinde`
+    ` ${dateStr} tarihinde`,
+    ` في ${dateStr}`
   ) : "";
   return t(lang,
     `Aufgabe „${taskName}"${date} von ${memberName} abgeschlossen`,
@@ -189,7 +206,8 @@ export function taskCompleted(lang: Lang, taskName: string, memberName: string, 
     `Tarea "${taskName}"${date} completada por ${memberName}`,
     `Tâche « ${taskName} »${date} terminée par ${memberName}`,
     `${memberName}${date}完成了任务"${taskName}"`,
-    `"${taskName}" görevi${date} ${memberName} tarafından tamamlandı`
+    `"${taskName}" görevi${date} ${memberName} tarafından tamamlandı`,
+    `أتم ${memberName} مهمة "${taskName}"${date}`
   );
 }
 
@@ -200,7 +218,8 @@ export function taskUncompleted(lang: Lang, taskName: string, memberName: string
     `Finalización de la tarea "${taskName}" deshecha por ${memberName}`,
     `Complétion de la tâche « ${taskName} » annulée par ${memberName}`,
     `${memberName}撤销了任务"${taskName}"的完成状态`,
-    `"${taskName}" görevinin tamamlanması ${memberName} tarafından geri alındı`
+    `"${taskName}" görevinin tamamlanması ${memberName} tarafından geri alındı`,
+    `ألغى ${memberName} إتمام مهمة "${taskName}"`
   );
 }
 
@@ -211,7 +230,8 @@ export function taskDeleted(lang: Lang, taskName: string): string {
     `Tarea "${taskName}" eliminada`,
     `Tâche « ${taskName} » supprimée`,
     `已删除任务"${taskName}"`,
-    `"${taskName}" görevi silindi`
+    `"${taskName}" görevi silindi`,
+    `تم حذف مهمة "${taskName}"`
   );
 }
 
@@ -222,7 +242,8 @@ export function taskRotated(lang: Lang, taskName: string, fromMember: string, to
     `Tarea "${taskName}" rotada: responsabilidad transferida de ${fromMember} a ${toMember}`,
     `Tâche « ${taskName} » tournée : responsabilité transférée de ${fromMember} à ${toMember}`,
     `任务"${taskName}"已轮换：责任从${fromMember}转移给${toMember}`,
-    `"${taskName}" görevi döndürüldü: sorumluluk ${fromMember}'dan ${toMember}'a aktarıldı`
+    `"${taskName}" görevi döndürüldü: sorumluluk ${fromMember}'dan ${toMember}'a aktarıldı`,
+    `تم تدوير مهمة "${taskName}": نُقلت المسؤولية من ${fromMember} إلى ${toMember}`
   );
 }
 
@@ -233,7 +254,8 @@ export function taskMilestone(lang: Lang, taskName: string, milestoneName: strin
     `Hito "${milestoneName}" alcanzado para la tarea "${taskName}"`,
     `Étape « ${milestoneName} » atteinte pour la tâche « ${taskName} »`,
     `任务"${taskName}"已达成里程碑"${milestoneName}"`,
-    `"${taskName}" görevi için "${milestoneName}" kilometre taşına ulaşıldı`
+    `"${taskName}" görevi için "${milestoneName}" kilometre taşına ulaşıldı`,
+    `تم الوصول إلى المعلم "${milestoneName}" للمهمة "${taskName}"`
   );
 }
 
@@ -244,7 +266,8 @@ export function taskReminder(lang: Lang, taskName: string, memberName: string): 
     `Recordatorio para la tarea "${taskName}" enviado a ${memberName}`,
     `Rappel pour la tâche « ${taskName} » envoyé à ${memberName}`,
     `已向${memberName}发送任务"${taskName}"的提醒`,
-    `"${taskName}" görevi için ${memberName}'a hatırlatma gönderildi`
+    `"${taskName}" görevi için ${memberName}'a hatırlatma gönderildi`,
+    `تم إرسال تذكير بمهمة "${taskName}" إلى ${memberName}`
   );
 }
 
@@ -255,135 +278,8 @@ export function taskSkipped(lang: Lang, taskName: string, dateStr: string): stri
     `Cita del ${dateStr} para la tarea "${taskName}" omitida`,
     `Occurrence du ${dateStr} pour la tâche « ${taskName} » ignorée`,
     `任务"${taskName}"在${dateStr}的计划已跳过`,
-    `"${taskName}" görevi için ${dateStr} tarihindeki tekrar atlandı`
-  );
-}
-
-export function taskRestored(lang: Lang, taskName: string, dateStr: string): string {
-  return t(lang,
-    `Übersprungener Termin am ${dateStr} für Aufgabe „${taskName}" wiederhergestellt`,
-    `Skipped occurrence on ${dateStr} for task "${taskName}" restored`,
-    `Cita omitida del ${dateStr} para la tarea "${taskName}" restaurada`,
-    `Occurrence ignorée du ${dateStr} pour la tâche « ${taskName} » restaurée`,
-    `任务"${taskName}"在${dateStr}被跳过的计划已恢复`,
-    `"${taskName}" görevi için ${dateStr} tarihinde atlanan tekrar geri yüklendi`
-  );
-}
-
-// ─── Borrow ──────────────────────────────────────────────────────────────────
-
-export function borrowRequested(lang: Lang, itemName: string, requesterName: string, reason?: string): string {
-  const why = reason ? t(lang,
-    ` – Grund: ${reason}`,
-    ` – reason: ${reason}`,
-    ` – motivo: ${reason}`,
-    ` – raison : ${reason}`,
-    `，原因：${reason}`,
-    ` – neden: ${reason}`
-  ) : "";
-  return t(lang,
-    `${requesterName} hat eine Ausleih-Anfrage für „${itemName}" gestellt${why}`,
-    `${requesterName} requested to borrow "${itemName}"${why}`,
-    `${requesterName} solicitó tomar prestado "${itemName}"${why}`,
-    `${requesterName} a demandé à emprunter « ${itemName} »${why}`,
-    `${requesterName}申请借用"${itemName}"${why}`,
-    `${requesterName} "${itemName}" için ödünç alma isteği gönderdi${why}`
-  );
-}
-
-export function borrowAutoApproved(lang: Lang, itemName: string, requesterName: string): string {
-  return t(lang,
-    `Ausleih-Anfrage von ${requesterName} für „${itemName}" automatisch genehmigt`,
-    `Borrow request by ${requesterName} for "${itemName}" automatically approved`,
-    `Solicitud de préstamo de ${requesterName} para "${itemName}" aprobada automáticamente`,
-    `Demande d'emprunt de ${requesterName} pour « ${itemName} » approuvée automatiquement`,
-    `${requesterName}对"${itemName}"的借用申请已自动批准`,
-    `${requesterName}'ın "${itemName}" için ödünç alma isteği otomatik olarak onaylandı`
-  );
-}
-
-export function borrowApproved(lang: Lang, itemName: string, requesterName: string, approverName: string): string {
-  return t(lang,
-    `Ausleih-Anfrage von ${requesterName} für „${itemName}" von ${approverName} genehmigt`,
-    `Borrow request by ${requesterName} for "${itemName}" approved by ${approverName}`,
-    `Solicitud de préstamo de ${requesterName} para "${itemName}" aprobada por ${approverName}`,
-    `Demande d'emprunt de ${requesterName} pour « ${itemName} » approuvée par ${approverName}`,
-    `${approverName}批准了${requesterName}对"${itemName}"的借用申请`,
-    `${approverName}, ${requesterName}'ın "${itemName}" için ödünç alma isteğini onayladı`
-  );
-}
-
-export function borrowRejected(lang: Lang, itemName: string, requesterName: string, rejectorName: string, reason?: string): string {
-  const why = reason ? t(lang,
-    ` – Grund: ${reason}`,
-    ` – reason: ${reason}`,
-    ` – motivo: ${reason}`,
-    ` – raison : ${reason}`,
-    `，原因：${reason}`,
-    ` – neden: ${reason}`
-  ) : "";
-  return t(lang,
-    `Ausleih-Anfrage von ${requesterName} für „${itemName}" von ${rejectorName} abgelehnt${why}`,
-    `Borrow request by ${requesterName} for "${itemName}" rejected by ${rejectorName}${why}`,
-    `Solicitud de préstamo de ${requesterName} para "${itemName}" rechazada por ${rejectorName}${why}`,
-    `Demande d'emprunt de ${requesterName} pour « ${itemName} » refusée par ${rejectorName}${why}`,
-    `${rejectorName}拒绝了${requesterName}对"${itemName}"的借用申请${why}`,
-    `${rejectorName}, ${requesterName}'ın "${itemName}" için ödünç alma isteğini reddetti${why}`
-  );
-}
-
-export function borrowReturned(lang: Lang, itemName: string, borrowerName: string): string {
-  return t(lang,
-    `„${itemName}" von ${borrowerName} zurückgegeben`,
-    `"${itemName}" returned by ${borrowerName}`,
-    `"${itemName}" devuelto por ${borrowerName}`,
-    `« ${itemName} » rendu par ${borrowerName}`,
-    `${borrowerName}已归还"${itemName}"`,
-    `"${itemName}" ${borrowerName} tarafından iade edildi`
-  );
-}
-
-export function borrowRevoked(lang: Lang, itemName: string, borrowerName: string, revokerName: string): string {
-  return t(lang,
-    `Ausleihe von „${itemName}" durch ${borrowerName} von ${revokerName} widerrufen`,
-    `Borrow of "${itemName}" by ${borrowerName} revoked by ${revokerName}`,
-    `Préstamo de "${itemName}" de ${borrowerName} revocado por ${revokerName}`,
-    `Emprunt de « ${itemName} » par ${borrowerName} révoqué par ${revokerName}`,
-    `${revokerName}撤销了${borrowerName}对"${itemName}"的借用`,
-    `${revokerName}, ${borrowerName}'ın "${itemName}" ödüncünü iptal etti`
-  );
-}
-
-export function borrowCancelled(lang: Lang, itemName: string, requesterName: string): string {
-  return t(lang,
-    `Ausleih-Anfrage von ${requesterName} für „${itemName}" storniert`,
-    `Borrow request by ${requesterName} for "${itemName}" cancelled`,
-    `Solicitud de préstamo de ${requesterName} para "${itemName}" cancelada`,
-    `Demande d'emprunt de ${requesterName} pour « ${itemName} » annulée`,
-    `${requesterName}已取消对"${itemName}"的借用申请`,
-    `${requesterName}'ın "${itemName}" için ödünç alma isteği iptal edildi`
-  );
-}
-
-export function borrowExtended(lang: Lang, itemName: string, borrowerName: string, newReturnDate: string): string {
-  return t(lang,
-    `Ausleihe von „${itemName}" durch ${borrowerName} verlängert bis ${newReturnDate}`,
-    `Borrow of "${itemName}" by ${borrowerName} extended until ${newReturnDate}`,
-    `Préstamo de "${itemName}" de ${borrowerName} extendido hasta ${newReturnDate}`,
-    `Emprunt de « ${itemName} » par ${borrowerName} prolongé jusqu'au ${newReturnDate}`,
-    `${borrowerName}对"${itemName}"的借用已延期至${newReturnDate}`,
-    `${borrowerName}'ın "${itemName}" ödüncü ${newReturnDate} tarihine kadar uzatıldı`
-  );
-}
-
-export function borrowOverdue(lang: Lang, itemName: string, borrowerName: string): string {
-  return t(lang,
-    `Ausleihe von „${itemName}" durch ${borrowerName} ist überfällig`,
-    `Borrow of "${itemName}" by ${borrowerName} is overdue`,
-    `El préstamo de "${itemName}" de ${borrowerName} está vencido`,
-    `L'emprunt de « ${itemName} » par ${borrowerName} est en retard`,
-    `${borrowerName}对"${itemName}"的借用已逾期`,
-    `${borrowerName}'ın "${itemName}" ödüncü vadesi geçmiş`
+    `"${taskName}" görevi için ${dateStr} tarihindeki tekrar atlandı`,
+    `تم تخطي موعد ${dateStr} لمهمة "${taskName}"`
   );
 }
 
@@ -396,15 +292,17 @@ export function inventoryItemAdded(lang: Lang, itemName: string, category?: stri
     ` (categoría: ${category})`,
     ` (catégorie : ${category})`,
     `（分类：${category}）`,
-    ` (kategori: ${category})`
+    ` (kategori: ${category})`,
+    ` (الفئة: ${category})`
   ) : "";
   return t(lang,
-    `Inventar-Artikel „${itemName}"${cat} hinzugefügt`,
+    `Inventarartikel „${itemName}"${cat} hinzugefügt`,
     `Inventory item "${itemName}"${cat} added`,
     `Artículo de inventario "${itemName}"${cat} añadido`,
     `Article d'inventaire « ${itemName} »${cat} ajouté`,
     `已添加库存物品"${itemName}"${cat}`,
-    `"${itemName}"${cat} envantere eklendi`
+    `"${itemName}"${cat} envantere eklendi`,
+    `تمت إضافة عنصر المخزون "${itemName}"${cat}`
   );
 }
 
@@ -415,59 +313,192 @@ export function inventoryItemUpdated(lang: Lang, itemName: string, changes?: str
     ` – cambios: ${changes}`,
     ` – modifications : ${changes}`,
     `，更改：${changes}`,
-    ` – değişiklikler: ${changes}`
+    ` – değişiklikler: ${changes}`,
+    ` – التغييرات: ${changes}`
   ) : "";
   return t(lang,
-    `Inventar-Artikel „${itemName}" aktualisiert${ch}`,
+    `Inventarartikel „${itemName}" aktualisiert${ch}`,
     `Inventory item "${itemName}" updated${ch}`,
     `Artículo de inventario "${itemName}" actualizado${ch}`,
     `Article d'inventaire « ${itemName} » mis à jour${ch}`,
     `库存物品"${itemName}"已更新${ch}`,
-    `"${itemName}" envanter öğesi güncellendi${ch}`
+    `"${itemName}" envanter öğesi güncellendi${ch}`,
+    `تم تحديث عنصر المخزون "${itemName}"${ch}`
   );
 }
 
 export function inventoryItemDeleted(lang: Lang, itemName: string): string {
   return t(lang,
-    `Inventar-Artikel „${itemName}" gelöscht`,
+    `Inventarartikel „${itemName}" gelöscht`,
     `Inventory item "${itemName}" deleted`,
     `Artículo de inventario "${itemName}" eliminado`,
     `Article d'inventaire « ${itemName} » supprimé`,
     `已删除库存物品"${itemName}"`,
-    `"${itemName}" envanter öğesi silindi`
+    `"${itemName}" envanter öğesi silindi`,
+    `تم حذف عنصر المخزون "${itemName}"`
+  );
+}
+
+export function inventoryItemConsumed(lang: Lang, itemName: string, quantity: number, unit?: string): string {
+  const qty = unit ? `${quantity} ${unit}` : `${quantity}`;
+  return t(lang,
+    `${qty} von „${itemName}" als verbraucht markiert`,
+    `${qty} of "${itemName}" marked as consumed`,
+    `${qty} de "${itemName}" marcado como consumido`,
+    `${qty} de « ${itemName} » marqué comme consommé`,
+    `已将${qty}的"${itemName}"标记为已消耗`,
+    `"${itemName}"dan ${qty} tüketildi olarak işaretlendi`,
+    `تم تحديد ${qty} من "${itemName}" كمستهلك`
+  );
+}
+
+export function inventoryItemRestocked(lang: Lang, itemName: string, quantity: number, unit?: string): string {
+  const qty = unit ? `${quantity} ${unit}` : `${quantity}`;
+  return t(lang,
+    `Bestand von „${itemName}" um ${qty} aufgefüllt`,
+    `Stock of "${itemName}" restocked by ${qty}`,
+    `Stock de "${itemName}" reabastecido en ${qty}`,
+    `Stock de « ${itemName} » réapprovisionné de ${qty}`,
+    `"${itemName}"的库存已补充${qty}`,
+    `"${itemName}" stoğu ${qty} artırıldı`,
+    `تم تجديد مخزون "${itemName}" بمقدار ${qty}`
   );
 }
 
 export function inventoryCategoryAdded(lang: Lang, categoryName: string): string {
   return t(lang,
-    `Inventar-Kategorie „${categoryName}" erstellt`,
+    `Inventarkategorie „${categoryName}" erstellt`,
     `Inventory category "${categoryName}" created`,
     `Categoría de inventario "${categoryName}" creada`,
     `Catégorie d'inventaire « ${categoryName} » créée`,
     `已创建库存分类"${categoryName}"`,
-    `"${categoryName}" envanter kategorisi oluşturuldu`
+    `"${categoryName}" envanter kategorisi oluşturuldu`,
+    `تم إنشاء فئة المخزون "${categoryName}"`
   );
 }
 
 export function inventoryCategoryUpdated(lang: Lang, oldName: string, newName: string): string {
   return t(lang,
-    `Inventar-Kategorie „${oldName}" in „${newName}" umbenannt`,
+    `Inventarkategorie „${oldName}" in „${newName}" umbenannt`,
     `Inventory category "${oldName}" renamed to "${newName}"`,
     `Categoría de inventario "${oldName}" renombrada a "${newName}"`,
     `Catégorie d'inventaire « ${oldName} » renommée en « ${newName} »`,
     `库存分类"${oldName}"已重命名为"${newName}"`,
-    `"${oldName}" envanter kategorisi "${newName}" olarak yeniden adlandırıldı`
+    `"${oldName}" envanter kategorisi "${newName}" olarak yeniden adlandırıldı`,
+    `تمت إعادة تسمية فئة المخزون "${oldName}" إلى "${newName}"`
   );
 }
 
 export function inventoryCategoryDeleted(lang: Lang, categoryName: string): string {
   return t(lang,
-    `Inventar-Kategorie „${categoryName}" gelöscht`,
+    `Inventarkategorie „${categoryName}" gelöscht`,
     `Inventory category "${categoryName}" deleted`,
     `Categoría de inventario "${categoryName}" eliminada`,
     `Catégorie d'inventaire « ${categoryName} » supprimée`,
     `已删除库存分类"${categoryName}"`,
-    `"${categoryName}" envanter kategorisi silindi`
+    `"${categoryName}" envanter kategorisi silindi`,
+    `تم حذف فئة المخزون "${categoryName}"`
+  );
+}
+
+// ─── Borrow ──────────────────────────────────────────────────────────────────
+
+export function borrowRequested(lang: Lang, requesterName: string, itemName: string, ownerName: string): string {
+  return t(lang,
+    `${requesterName} hat eine Ausleih-Anfrage für „${itemName}" von ${ownerName} gestellt`,
+    `${requesterName} requested to borrow "${itemName}" from ${ownerName}`,
+    `${requesterName} solicitó tomar prestado "${itemName}" de ${ownerName}`,
+    `${requesterName} a demandé à emprunter « ${itemName} » à ${ownerName}`,
+    `${requesterName}向${ownerName}申请借用"${itemName}"`,
+    `${requesterName}, ${ownerName}'dan "${itemName}" ödünç almak istedi`,
+    `طلب ${requesterName} استعارة "${itemName}" من ${ownerName}`
+  );
+}
+
+export function borrowApproved(lang: Lang, ownerName: string, itemName: string, requesterName: string): string {
+  return t(lang,
+    `${ownerName} hat die Ausleih-Anfrage für „${itemName}" von ${requesterName} genehmigt`,
+    `${ownerName} approved the borrow request for "${itemName}" by ${requesterName}`,
+    `${ownerName} aprobó la solicitud de préstamo de "${itemName}" por ${requesterName}`,
+    `${ownerName} a approuvé la demande d'emprunt de « ${itemName} » par ${requesterName}`,
+    `${ownerName}批准了${requesterName}借用"${itemName}"的申请`,
+    `${ownerName}, ${requesterName}'ın "${itemName}" ödünç alma talebini onayladı`,
+    `وافق ${ownerName} على طلب استعارة "${itemName}" من ${requesterName}`
+  );
+}
+
+export function borrowRejected(lang: Lang, ownerName: string, itemName: string, requesterName: string, reason?: string): string {
+  const r = reason ? t(lang,
+    ` – Grund: ${reason}`,
+    ` – reason: ${reason}`,
+    ` – motivo: ${reason}`,
+    ` – motif : ${reason}`,
+    `，原因：${reason}`,
+    ` – neden: ${reason}`,
+    ` – السبب: ${reason}`
+  ) : "";
+  return t(lang,
+    `${ownerName} hat die Ausleih-Anfrage für „${itemName}" von ${requesterName} abgelehnt${r}`,
+    `${ownerName} rejected the borrow request for "${itemName}" by ${requesterName}${r}`,
+    `${ownerName} rechazó la solicitud de préstamo de "${itemName}" por ${requesterName}${r}`,
+    `${ownerName} a refusé la demande d'emprunt de « ${itemName} » par ${requesterName}${r}`,
+    `${ownerName}拒绝了${requesterName}借用"${itemName}"的申请${r}`,
+    `${ownerName}, ${requesterName}'ın "${itemName}" ödünç alma talebini reddetti${r}`,
+    `رفض ${ownerName} طلب استعارة "${itemName}" من ${requesterName}${r}`
+  );
+}
+
+export function borrowReturned(lang: Lang, itemName: string, memberName: string, ownerName?: string): string {
+  const ownerPart = ownerName ? t(lang,
+    ` an ${ownerName}`,
+    ` to ${ownerName}`,
+    ` a ${ownerName}`,
+    ` à ${ownerName}`,
+    `给${ownerName}`,
+    ` ${ownerName}'a`,
+    ` إلى ${ownerName}`
+  ) : "";
+  return t(lang,
+    `${memberName} hat „${itemName}"${ownerPart} zurückgegeben`,
+    `${memberName} returned "${itemName}"${ownerPart}`,
+    `${memberName} devolvió "${itemName}"${ownerPart}`,
+    `${memberName} a rendu « ${itemName} »${ownerPart}`,
+    `${memberName}已将"${itemName}"归还${ownerPart}`,
+    `${memberName} "${itemName}"ı${ownerPart} iade etti`,
+    `أعاد ${memberName} "${itemName}"${ownerPart}`
+  );
+}
+
+export function borrowRevoked(lang: Lang, itemName: string, revokerName: string, reason?: string): string {
+  const reasonPart = reason ? t(lang,
+    ` – Grund: ${reason}`,
+    ` – reason: ${reason}`,
+    ` – motivo: ${reason}`,
+    ` – motif : ${reason}`,
+    `，原因：${reason}`,
+    ` – neden: ${reason}`,
+    ` – السبب: ${reason}`
+  ) : "";
+  return t(lang,
+    `${revokerName} hat die Ausleihe von „${itemName}" widerrufen${reasonPart}`,
+    `${revokerName} revoked the loan of "${itemName}"${reasonPart}`,
+    `${revokerName} revocó el préstamo de "${itemName}"${reasonPart}`,
+    `${revokerName} a révoqué le prêt de « ${itemName} »${reasonPart}`,
+    `${revokerName}撤销了"${itemName}"的借用${reasonPart}`,
+    `${revokerName} "${itemName}" ödünç almasını iptal etti${reasonPart}`,
+    `ألغى ${revokerName} إعارة "${itemName}"${reasonPart}`
+  );
+}
+
+export function borrowCancelled(lang: Lang, requesterName: string, itemName: string): string {
+  return t(lang,
+    `${requesterName} hat die Ausleih-Anfrage für „${itemName}" storniert`,
+    `${requesterName} cancelled the borrow request for "${itemName}"`,
+    `${requesterName} canceló la solicitud de préstamo de "${itemName}"`,
+    `${requesterName} a annulé la demande d'emprunt de « ${itemName} »`,
+    `${requesterName}已取消借用"${itemName}"的申请`,
+    `${requesterName}, "${itemName}" için ödünç alma talebini iptal etti`,
+    `ألغى ${requesterName} طلب استعارة "${itemName}"`
   );
 }
 
@@ -475,12 +506,13 @@ export function inventoryCategoryDeleted(lang: Lang, categoryName: string): stri
 
 export function memberLeft(lang: Lang, memberName: string, newAdminName?: string): string {
   const admin = newAdminName ? t(lang,
-    ` – ${newAdminName} ist neuer Admin`,
-    ` – ${newAdminName} is the new admin`,
-    ` – ${newAdminName} es el nuevo administrador`,
-    ` – ${newAdminName} est le nouvel administrateur`,
+    ` – ${newAdminName} wurde neuer Admin`,
+    ` – ${newAdminName} became the new admin`,
+    ` – ${newAdminName} se convirtió en el nuevo administrador`,
+    ` – ${newAdminName} est devenu le nouvel administrateur`,
     `，${newAdminName}成为新管理员`,
-    ` – ${newAdminName} yeni yönetici oldu`
+    ` – ${newAdminName} yeni yönetici oldu`,
+    ` – أصبح ${newAdminName} المسؤول الجديد`
   ) : "";
   return t(lang,
     `${memberName} hat den Haushalt verlassen${admin}`,
@@ -488,7 +520,8 @@ export function memberLeft(lang: Lang, memberName: string, newAdminName?: string
     `${memberName} abandonó el hogar${admin}`,
     `${memberName} a quitté le foyer${admin}`,
     `${memberName}已离开家庭${admin}`,
-    `${memberName} haneyi terk etti${admin}`
+    `${memberName} haneden ayrıldı${admin}`,
+    `غادر ${memberName} المنزل${admin}`
   );
 }
 
@@ -499,7 +532,8 @@ export function adminTransferred(lang: Lang, fromMember: string, toMember: strin
     `Derechos de administrador transferidos de ${fromMember} a ${toMember}`,
     `Droits d'administrateur transférés de ${fromMember} à ${toMember}`,
     `管理员权限已从${fromMember}转移给${toMember}`,
-    `Yönetici hakları ${fromMember}'dan ${toMember}'a devredildi`
+    `Yönetici hakları ${fromMember}'dan ${toMember}'a devredildi`,
+    `نُقلت صلاحيات المسؤول من ${fromMember} إلى ${toMember}`
   );
 }
 
@@ -510,7 +544,8 @@ export function dissolveVoteCast(lang: Lang, memberName: string, votesCount: num
     `${memberName} votó por disolver el hogar (${votesCount}/${votesNeeded} votos)`,
     `${memberName} a voté pour la dissolution du foyer (${votesCount}/${votesNeeded} voix)`,
     `${memberName}投票解散家庭（${votesCount}/${votesNeeded} 票）`,
-    `${memberName} hanenin dağıtılması için oy kullandı (${votesCount}/${votesNeeded} oy)`
+    `${memberName} hanenin dağıtılması için oy kullandı (${votesCount}/${votesNeeded} oy)`,
+    `صوّت ${memberName} لحل المنزل (${votesCount}/${votesNeeded} أصوات)`
   );
 }
 
@@ -521,18 +556,20 @@ export function dissolveVoteRetracted(lang: Lang, memberName: string): string {
     `${memberName} retiró el voto para disolver el hogar`,
     `${memberName} a retiré son vote pour la dissolution du foyer`,
     `${memberName}已撤回解散家庭的投票`,
-    `${memberName} hanenin dağıtılması için kullandığı oyu geri çekti`
+    `${memberName} hanenin dağıtılması için kullandığı oyu geri çekti`,
+    `سحب ${memberName} تصويته على حل المنزل`
   );
 }
 
 export function householdLanguageChanged(lang: Lang, adminName: string, newLang: string): string {
   const langName = (l: string) => {
-    if (l === "de") return t(lang, "Deutsch", "German", "Alemán", "Allemand", "德语", "Almanca");
-    if (l === "en") return t(lang, "Englisch", "English", "Inglés", "Anglais", "英语", "İngilizce");
-    if (l === "es") return t(lang, "Spanisch", "Spanish", "Español", "Espagnol", "西班牙语", "İspanyolca");
-    if (l === "fr") return t(lang, "Französisch", "French", "Francés", "Français", "法语", "Fransızca");
-    if (l === "zh") return t(lang, "Chinesisch", "Chinese", "Chino", "Chinois", "中文", "Çince");
-    if (l === "tr") return t(lang, "Türkisch", "Turkish", "Turco", "Turc", "土耳其语", "Türkçe");
+    if (l === "de") return t(lang, "Deutsch", "German", "Alemán", "Allemand", "德语", "Almanca", "الألمانية");
+    if (l === "en") return t(lang, "Englisch", "English", "Inglés", "Anglais", "英语", "İngilizce", "الإنجليزية");
+    if (l === "es") return t(lang, "Spanisch", "Spanish", "Español", "Espagnol", "西班牙语", "İspanyolca", "الإسبانية");
+    if (l === "fr") return t(lang, "Französisch", "French", "Francés", "Français", "法语", "Fransızca", "الفرنسية");
+    if (l === "zh") return t(lang, "Chinesisch", "Chinese", "Chino", "Chinois", "中文", "Çince", "الصينية");
+    if (l === "tr") return t(lang, "Türkisch", "Turkish", "Turco", "Turc", "土耳其语", "Türkçe", "التركية");
+    if (l === "ar") return t(lang, "Arabisch", "Arabic", "Árabe", "Arabe", "阿拉伯语", "Arapça", "العربية");
     return l;
   };
   return t(lang,
@@ -541,7 +578,8 @@ export function householdLanguageChanged(lang: Lang, adminName: string, newLang:
     `${adminName} cambió el idioma del hogar a ${langName(newLang)}`,
     `${adminName} a changé la langue du foyer en ${langName(newLang)}`,
     `${adminName}已将家庭语言更改为${langName(newLang)}`,
-    `${adminName} hane dilini ${langName(newLang)} olarak değiştirdi`
+    `${adminName} hane dilini ${langName(newLang)} olarak değiştirdi`,
+    `غيّر ${adminName} لغة المنزل إلى ${langName(newLang)}`
   );
 }
 
@@ -555,7 +593,8 @@ export function projectCreated(lang: Lang, projectName: string, memberName: stri
         ` – descripción: ${description}`,
         ` – description : ${description}`,
         `，描述：${description}`,
-        ` – açıklama: ${description}`
+        ` – açıklama: ${description}`,
+        ` – الوصف: ${description}`
       )
     : "";
   return t(lang,
@@ -564,7 +603,8 @@ export function projectCreated(lang: Lang, projectName: string, memberName: stri
     `${memberName} creó el proyecto "${projectName}"${desc}`,
     `${memberName} a créé le projet « ${projectName} »${desc}`,
     `${memberName}已创建项目"${projectName}"${desc}`,
-    `${memberName} "${projectName}"${desc} projesini oluşturdu`
+    `${memberName} "${projectName}"${desc} projesini oluşturdu`,
+    `أنشأ ${memberName} مشروع "${projectName}"${desc}`
   );
 }
 
@@ -576,7 +616,8 @@ export function projectUpdated(lang: Lang, projectName: string, memberName: stri
         ` – cambios: ${changes}`,
         ` – modifications : ${changes}`,
         `，更改：${changes}`,
-        ` – değişiklikler: ${changes}`
+        ` – değişiklikler: ${changes}`,
+        ` – التغييرات: ${changes}`
       )
     : "";
   return t(lang,
@@ -585,7 +626,8 @@ export function projectUpdated(lang: Lang, projectName: string, memberName: stri
     `${memberName} actualizó el proyecto "${projectName}"${ch}`,
     `${memberName} a mis à jour le projet « ${projectName} »${ch}`,
     `${memberName}已更新项目"${projectName}"${ch}`,
-    `${memberName} "${projectName}" projesini güncelledi${ch}`
+    `${memberName} "${projectName}" projesini güncelledi${ch}`,
+    `حدّث ${memberName} مشروع "${projectName}"${ch}`
   );
 }
 
@@ -596,7 +638,8 @@ export function projectDeleted(lang: Lang, projectName: string, memberName: stri
     `${memberName} eliminó el proyecto "${projectName}"`,
     `${memberName} a supprimé le projet « ${projectName} »`,
     `${memberName}已删除项目"${projectName}"`,
-    `${memberName} "${projectName}" projesini sildi`
+    `${memberName} "${projectName}" projesini sildi`,
+    `حذف ${memberName} مشروع "${projectName}"`
   );
 }
 
@@ -607,7 +650,8 @@ export function projectArchived(lang: Lang, projectName: string, memberName: str
     `${memberName} archivó el proyecto "${projectName}"`,
     `${memberName} a archivé le projet « ${projectName} »`,
     `${memberName}已归档项目"${projectName}"`,
-    `${memberName} "${projectName}" projesini arşivledi`
+    `${memberName} "${projectName}" projesini arşivledi`,
+    `أرشف ${memberName} مشروع "${projectName}"`
   );
 }
 
@@ -618,21 +662,22 @@ export function projectUnarchived(lang: Lang, projectName: string, memberName: s
     `${memberName} desarchivó el proyecto "${projectName}"`,
     `${memberName} a désarchivé le projet « ${projectName} »`,
     `${memberName}已从归档中恢复项目"${projectName}"`,
-    `${memberName} "${projectName}" projesini arşivden çıkardı`
+    `${memberName} "${projectName}" projesini arşivden çıkardı`,
+    `استعاد ${memberName} مشروع "${projectName}" من الأرشيف`
   );
 }
 
 export function projectStatusChanged(lang: Lang, projectName: string, memberName: string, newStatus: string): string {
   const statusLabel = (s: string) => {
-    const map: Record<string, [string, string, string, string, string, string]> = {
-      planning:  ["Planung",       "Planning",   "Planificación", "Planification", "规划中",  "Planlama"],
-      active:    ["Aktiv",         "Active",     "Activo",        "Actif",         "进行中",  "Aktif"],
-      completed: ["Abgeschlossen", "Completed",  "Completado",    "Terminé",       "已完成",  "Tamamlandı"],
-      cancelled: ["Abgebrochen",   "Cancelled",  "Cancelado",     "Annulé",        "已取消",  "İptal edildi"],
+    const map: Record<string, [string, string, string, string, string, string, string]> = {
+      planning:  ["Planung",       "Planning",   "Planificación", "Planification", "规划中",  "Planlama",     "التخطيط"],
+      active:    ["Aktiv",         "Active",     "Activo",        "Actif",         "进行中",  "Aktif",        "نشط"],
+      completed: ["Abgeschlossen", "Completed",  "Completado",    "Terminé",       "已完成",  "Tamamlandı",   "مكتمل"],
+      cancelled: ["Abgebrochen",   "Cancelled",  "Cancelado",     "Annulé",        "已取消",  "İptal edildi", "ملغى"],
     };
     const entry = map[s];
     if (!entry) return s;
-    return t(lang, entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]);
+    return t(lang, entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6]);
   };
   return t(lang,
     `${memberName} hat den Status von Projekt „${projectName}" auf „${statusLabel(newStatus)}" geändert`,
@@ -640,7 +685,8 @@ export function projectStatusChanged(lang: Lang, projectName: string, memberName
     `${memberName} cambió el estado del proyecto "${projectName}" a "${statusLabel(newStatus)}"`,
     `${memberName} a changé le statut du projet « ${projectName} » en « ${statusLabel(newStatus)} »`,
     `${memberName}已将项目"${projectName}"的状态更改为"${statusLabel(newStatus)}"`,
-    `${memberName} "${projectName}" projesinin durumunu "${statusLabel(newStatus)}" olarak değiştirdi`
+    `${memberName} "${projectName}" projesinin durumunu "${statusLabel(newStatus)}" olarak değiştirdi`,
+    `غيّر ${memberName} حالة مشروع "${projectName}" إلى "${statusLabel(newStatus)}"`
   );
 }
 
@@ -653,7 +699,8 @@ export function calendarEventCreated(lang: Lang, title: string, memberName: stri
     `${memberName} creó el evento de calendario "${title}" el ${dateStr}`,
     `${memberName} a créé l'événement calendrier « ${title} » le ${dateStr}`,
     `${memberName}已创建日历事件"${title}"（${dateStr}）`,
-    `${memberName} ${dateStr} tarihinde "${title}" takvim etkinliği oluşturdu`
+    `${memberName} ${dateStr} tarihinde "${title}" takvim etkinliği oluşturdu`,
+    `أنشأ ${memberName} حدث التقويم "${title}" في ${dateStr}`
   );
 }
 
@@ -665,7 +712,8 @@ export function calendarEventUpdated(lang: Lang, title: string, memberName: stri
         ` – cambios: ${changes}`,
         ` – modifications : ${changes}`,
         `，更改：${changes}`,
-        ` – değişiklikler: ${changes}`
+        ` – değişiklikler: ${changes}`,
+        ` – التغييرات: ${changes}`
       )
     : "";
   return t(lang,
@@ -674,7 +722,8 @@ export function calendarEventUpdated(lang: Lang, title: string, memberName: stri
     `${memberName} actualizó el evento de calendario "${title}"${ch}`,
     `${memberName} a mis à jour l'événement calendrier « ${title} »${ch}`,
     `${memberName}已更新日历事件"${title}"${ch}`,
-    `${memberName} "${title}" takvim etkinliğini güncelledi${ch}`
+    `${memberName} "${title}" takvim etkinliğini güncelledi${ch}`,
+    `حدّث ${memberName} حدث التقويم "${title}"${ch}`
   );
 }
 
@@ -685,7 +734,8 @@ export function calendarEventDeleted(lang: Lang, title: string, memberName: stri
     `${memberName} eliminó el evento de calendario "${title}"`,
     `${memberName} a supprimé l'événement calendrier « ${title} »`,
     `${memberName}已删除日历事件"${title}"`,
-    `${memberName} "${title}" takvim etkinliğini sildi`
+    `${memberName} "${title}" takvim etkinliğini sildi`,
+    `حذف ${memberName} حدث التقويم "${title}"`
   );
 }
 
@@ -696,7 +746,8 @@ export function calendarEventCompleted(lang: Lang, title: string, memberName: st
     `${memberName} marcó el evento de calendario "${title}" como completado`,
     `${memberName} a marqué l'événement calendrier « ${title} » comme terminé`,
     `${memberName}已将日历事件"${title}"标记为已完成`,
-    `${memberName} "${title}" takvim etkinliğini tamamlandı olarak işaretledi`
+    `${memberName} "${title}" takvim etkinliğini tamamlandı olarak işaretledi`,
+    `وضع ${memberName} علامة "مكتمل" على حدث التقويم "${title}"`
   );
 }
 
@@ -709,7 +760,8 @@ export function occurrenceItemAdded(lang: Lang, itemName: string, taskName: stri
     `Artículo "${itemName}" añadido a la tarea "${taskName}"`,
     `Article « ${itemName} » ajouté à la tâche « ${taskName} »`,
     `已将"${itemName}"添加到任务"${taskName}"`,
-    `"${itemName}" "${taskName}" görevine eklendi`
+    `"${itemName}" "${taskName}" görevine eklendi`,
+    `تمت إضافة "${itemName}" إلى مهمة "${taskName}"`
   );
 }
 
@@ -720,6 +772,42 @@ export function occurrenceItemRemoved(lang: Lang, itemName: string, taskName: st
     `Artículo "${itemName}" eliminado de la tarea "${taskName}"`,
     `Article « ${itemName} » retiré de la tâche « ${taskName} »`,
     `已从任务"${taskName}"中删除"${itemName}"`,
-    `"${itemName}" "${taskName}" görevinden kaldırıldı`
+    `"${itemName}" "${taskName}" görevinden kaldırıldı`,
+    `تمت إزالة "${itemName}" من مهمة "${taskName}"`
+  );
+}
+
+// ─── Additional Functions ─────────────────────────────────────────────────────
+
+export function borrowAutoApproved(lang: Lang, itemName: string, memberName: string): string {
+  return t(lang,
+    `Ausleih-Anfrage für „${itemName}" von ${memberName} automatisch genehmigt`,
+    `Borrow request for "${itemName}" by ${memberName} automatically approved`,
+    `Solicitud de préstamo de "${itemName}" por ${memberName} aprobada automáticamente`,
+    `Demande d'emprunt de « ${itemName} » par ${memberName} approuvée automatiquement`,
+    `${memberName}借用"${itemName}"的申请已自动批准`,
+    `${memberName}'ın "${itemName}" ödünç alma talebi otomatik olarak onaylandı`,
+    `تمت الموافقة تلقائياً على طلب استعارة "${itemName}" من ${memberName}`
+  );
+}
+
+export function taskRestored(lang: Lang, taskName: string, dateStr?: string): string {
+  const date = dateStr ? t(lang,
+    ` (${dateStr})`,
+    ` (${dateStr})`,
+    ` (${dateStr})`,
+    ` (${dateStr})`,
+    `（${dateStr}）`,
+    ` (${dateStr})`,
+    ` (${dateStr})`
+  ) : "";
+  return t(lang,
+    `Aufgabe „${taskName}"${date} wiederhergestellt`,
+    `Task "${taskName}"${date} restored`,
+    `Tarea "${taskName}"${date} restaurada`,
+    `Tâche « ${taskName} »${date} restaurée`,
+    `任务"${taskName}"${date}已恢复`,
+    `"${taskName}"${date} görevi geri yüklendi`,
+    `تمت استعادة مهمة "${taskName}"${date}`
   );
 }

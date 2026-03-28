@@ -1,0 +1,85 @@
+{
+  "title": "التقويم",
+  "noEvents": "لا توجد مواعيد",
+  "newEvent": "موعد جديد",
+  "editEvent": "تعديل الموعد",
+  "deleteEvent": "حذف الموعد",
+  "eventDetails": "تفاصيل الموعد",
+  "views": {
+    "month": "الشهر",
+    "week": "الأسبوع",
+    "day": "اليوم",
+    "agenda": "جدول الأعمال"
+  },
+  "fields": {
+    "title": "العنوان",
+    "description": "الوصف",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "allDay": "طوال اليوم",
+    "location": "الموقع",
+    "assignedTo": "مخصص لـ",
+    "recurring": "متكرر",
+    "color": "اللون"
+  },
+  "navigation": {
+    "today": "اليوم",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "messages": {
+    "created": "تم إنشاء الموعد",
+    "updated": "تم تحديث الموعد",
+    "deleted": "تم حذف الموعد",
+    "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الموعد؟",
+    "overview": "نظرة عامة على التقويم وجميع المواعيد",
+    "confirmUndo": "هل ترغب في التراجع عن إكمال هذا الموعد؟ ستتم إعادة المهمة إلى هذا التاريخ.",
+    "confirmSkip": "هل ترغب في تخطي هذا الموعد؟ لن يظهر في التقويم بعد الآن.",
+    "jumpedToCurrent": "تم الانتقال إلى الموعد الحالي",
+    "occurrenceSkipped": "تم تخطي الموعد!"
+  },
+  "labels": {
+    "occurrence": "موعد"
+  },
+  "futureOccurrence": "موعد لاحق",
+  "completedOccurrence": "موعد مكتمل",
+  "actions": {
+    "undo": "تراجع",
+    "jumpToCurrent": "الانتقال إلى الموعد الحالي",
+    "skip": "تخطي"
+  },
+  "eventDetail": {
+    "borrowStart": "تاريخ البدء",
+    "borrowReturn": "تاريخ الإرجاع",
+    "event": "موعد",
+    "completed": "مكتمل",
+    "date": "التاريخ",
+    "description": "الوصف",
+    "relatedItem": "عنصر مرتبط",
+    "goToItem": "الانتقال إلى العنصر",
+    "markReturned": "وضع علامة تم الإرجاع",
+    "viewItem": "عرض العنصر"
+  },
+  "allTasksChronological": "جميع المهام (ترتيب زمني)",
+  "calendarView": "عرض التقويم",
+  "completedOn": "الموعد في:",
+  "confirmSkip": "هل ترغب في تخطي هذا الموعد؟ لن يظهر في التقويم بعد الآن.",
+  "filter": {
+    "all": "جميع الإدخالات",
+    "borrowsOnly": "الاستعارات فقط",
+    "tasksOnly": "المهام فقط"
+  },
+  "jumpToCurrent": "الانتقال إلى الموعد الحالي",
+  "noTasksOnDay": "لا توجد مهام في هذا اليوم",
+  "noTasksWithoutDates": "لا توجد مهام بدون تواريخ",
+  "noTasksWithoutDatesForMember": "لا توجد مهام بدون تواريخ لهذا العضو",
+  "occurrence": "موعد",
+  "period": "الفترة",
+  "skip": "تخطي",
+  "tasksOn": "المهام في",
+  "tasksWithoutDates": "المهام بدون تواريخ",
+  "today": "اليوم",
+  "months": "أشهر"
+}
