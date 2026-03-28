@@ -52,6 +52,7 @@ export default function InventoryDetail() {
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
   const { t } = useTranslation(["inventory", "borrow", "common"]);
   const [expandedRequests, setExpandedRequests] = useState<Set<number>>(new Set());
+  const [showPastRequests, setShowPastRequests] = useState(false);
 
   const toggleExpanded = (id: number) => {
     setExpandedRequests(prev => {
@@ -667,7 +668,24 @@ export default function InventoryDetail() {
                   <p className="text-sm text-muted-foreground py-4 text-center">{t("borrow:noRequests", "Keine Ausleih-Anfragen vorhanden.")}</p>
                 ) : (
                   <div className="space-y-4 pt-4">
-                    {[...borrowRequests].sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()).map((request: any) => {
+                    {/* Toggle für vergangene Anfragen */}
+                    {borrowRequests.some((r: any) => ['completed', 'rejected', 'cancelled'].includes(r.status)) && (
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setShowPastRequests(v => !v)}
+                          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                        >
+                          <span>{showPastRequests ? t("borrow:hidePast", "Vergangene ausblenden") : t("borrow:showPast", "Vergangene anzeigen")}</span>
+                          <span className="text-[10px] bg-muted rounded px-1.5 py-0.5">
+                            {borrowRequests.filter((r: any) => ['completed', 'rejected', 'cancelled'].includes(r.status)).length}
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                    {[...borrowRequests]
+                      .filter((r: any) => showPastRequests || !['completed', 'rejected', 'cancelled'].includes(r.status))
+                      .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                      .map((request: any) => {
                       const isPending = request.status === 'pending';
                       const isApproved = request.status === 'approved';
                       const isActive = request.status === 'active';

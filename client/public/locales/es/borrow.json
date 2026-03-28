@@ -101,5 +101,7 @@
     "revoking": "Revocando...",
     "title": "Revocar aprobación"
   },
-  "task": "Tarea"
+  "task": "Tarea",
+  "showPast": "Mostrar pasadas",
+  "hidePast": "Ocultar pasadas"
 }

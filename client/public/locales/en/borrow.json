@@ -68,5 +68,7 @@
     "pending": "Pending",
     "rejected": "Rejected"
   },
-  "task": "Task"
+  "task": "Task",
+  "showPast": "Show past",
+  "hidePast": "Hide past"
 }

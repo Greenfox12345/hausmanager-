@@ -68,5 +68,7 @@
     "pending": "En attente",
     "rejected": "Rejeté"
   },
-  "task": "Tâche"
+  "task": "Tâche",
+  "showPast": "Afficher les passées",
+  "hidePast": "Masquer les passées"
 }

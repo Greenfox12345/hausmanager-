@@ -68,5 +68,7 @@
     "pending": "Beklemede",
     "rejected": "Reddedildi"
   },
-  "task": "Görev"
+  "task": "Görev",
+  "showPast": "Geçmişleri göster",
+  "hidePast": "Geçmişleri gizle"
 }

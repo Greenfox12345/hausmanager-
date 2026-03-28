@@ -68,5 +68,7 @@
     "pending": "待处理",
     "rejected": "已拒绝"
   },
-  "task": "任务"
+  "task": "任务",
+  "showPast": "显示过去",
+  "hidePast": "隐藏过去"
 }

@@ -68,5 +68,7 @@
     "pending": "Ausständig",
     "rejected": "Abgelehnt"
   },
-  "task": "Aufgabe"
+  "task": "Aufgabe",
+  "showPast": "Vergangene anzeigen",
+  "hidePast": "Vergangene ausblenden"
 }
