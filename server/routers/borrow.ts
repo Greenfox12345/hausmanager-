@@ -110,7 +110,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: input.borrowerHouseholdId,
         memberId: input.borrowerMemberId,
-        activityType: "task",
+        activityType: "borrow",
         action: "borrow_requested",
         description: requestDescription,
         relatedItemId: input.taskId,
@@ -122,7 +122,7 @@ export const borrowRouter = router({
         await createActivityLog({
           householdId: input.borrowerHouseholdId,
           memberId: input.borrowerMemberId,
-          activityType: "task",
+          activityType: "borrow",
           action: "borrow_auto_approved",
           description: borrowAutoApproved(reqLang, item.name, borrowerMemberName),
           relatedItemId: input.taskId,
@@ -274,7 +274,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: linkedOccurrence ? "task" : "inventory",
+        activityType: "borrow",
         action: "borrow_approved",
         description: borrowApproved(approveLang, item.name, borrowerMemberName2, approverMemberName),
         relatedItemId: linkedOccurrence?.taskId,
@@ -385,7 +385,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "inventory",
+        activityType: "borrow",
         action: "borrow_rejected",
         description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage ?? ""),
         metadata: {
@@ -483,7 +483,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "inventory",
+        activityType: "borrow",
         action: "borrow_returned",
         description: borrowReturned(returnLang, item?.name ?? "?", returnMemberName),
         metadata: {
@@ -578,7 +578,7 @@ export const borrowRouter = router({
           await createActivityLog({
             householdId: input.revokerHouseholdId,
             memberId: input.revokerId,
-            activityType: "inventory",
+            activityType: "borrow",
             action: "borrow_revoked",
             description: borrowRevoked(revokeLang, item.name, revokerName, input.reason),
             metadata: {
@@ -626,7 +626,7 @@ export const borrowRouter = router({
           await createActivityLog({
             householdId: input.revokerHouseholdId,
             memberId: input.revokerId,
-            activityType: "inventory",
+            activityType: "borrow",
             action: "borrow_revoked",
             description: borrowRevoked(revokeLang2, item.name, revokerName, input.reason),
             metadata: {
@@ -720,7 +720,7 @@ export const borrowRouter = router({
         await createActivityLog({
           householdId: request.borrowerHouseholdId,
           memberId: input.borrowerMemberId,
-          activityType: "inventory",
+          activityType: "borrow",
           action: "borrow_cancelled",
           description: borrowCancelled(cancelLang, item.name, borrowerName),
           metadata: {
@@ -884,7 +884,7 @@ export const borrowRouter = router({
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
         memberId: request.borrowerMemberId,
-        activityType: "inventory",
+        activityType: "borrow",
         action: "borrow_returned",
         description: borrowReturned(ownerReturnLang, item?.name ?? "?", ownerReturnMemberName),
         metadata: {

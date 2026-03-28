@@ -76,6 +76,11 @@ export default function History() {
   ];
 
   const getActivityIcon = (type: string, action: string) => {
+    if (type === "borrow" || action.startsWith("borrow_")) {
+      if (action === "borrow_revoked" || action === "borrow_rejected") return <Bell className="h-5 w-5" />;
+      if (action === "borrow_approved" || action === "borrow_auto_approved") return <CheckCircle2 className="h-5 w-5" />;
+      return <Bell className="h-5 w-5" />;
+    }
     if (type === "shopping") return <ShoppingCart className="h-5 w-5" />;
     if (action === "completed") return <CheckCircle2 className="h-5 w-5" />;
     if (action === "milestone") return <Target className="h-5 w-5" />;
@@ -91,6 +96,13 @@ export default function History() {
   };
 
   const getActivityColor = (type: string, action: string) => {
+    if (type === "borrow") {
+      if (action === "borrow_revoked" || action === "borrow_rejected") return "text-red-600 bg-red-50";
+      if (action === "borrow_approved" || action === "borrow_auto_approved") return "text-emerald-600 bg-emerald-50";
+      if (action === "borrow_returned") return "text-teal-600 bg-teal-50";
+      if (action === "borrow_cancelled") return "text-orange-600 bg-orange-50";
+      return "text-blue-600 bg-blue-50";
+    }
     if (type === "shopping") return "text-blue-600 bg-blue-50";
     if (action === "completed") return "text-green-600 bg-green-50";
     if (action === "milestone") return "text-purple-600 bg-purple-50";
@@ -348,6 +360,21 @@ export default function History() {
                             </div>
                           </div>
                         )}
+
+                        {/* Linked Task Badge (for borrow entries linked to a task) */}
+                        {activity.activityType === "borrow" && (activity as any).linkedTaskDetails && (() => {
+                          const ltd = (activity as any).linkedTaskDetails;
+                          return (
+                            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent/10 border border-accent/20 text-xs">
+                              <Target className="h-3.5 w-3.5 text-accent shrink-0" />
+                              <span className="font-medium text-accent">{t("tasks:title", "Aufgabe")}:</span>
+                              <span className="text-foreground">{ltd.taskName || ltd.name}</span>
+                              {ltd.occurrenceNumber && (
+                                <span className="text-muted-foreground">({t("tasks:labels.occurrence", "Termin")} {ltd.occurrenceNumber})</span>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Borrow Revoked Details */}
                         {activity.action === "borrow_revoked" && activity.metadata && (() => {

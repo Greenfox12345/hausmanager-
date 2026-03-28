@@ -605,15 +605,37 @@ export async function createActivityLog(data: {
 export async function getActivityHistory(householdId: number, limit: number = 30, offset: number = 0, activityTypeFilter?: string) {
   const db = await getDb();
   if (!db) return { activities: [], total: 0 };
-  // Build where condition
-  const whereCondition = activityTypeFilter
-    ? and(eq(activityHistory.householdId, householdId), eq(activityHistory.activityType, activityTypeFilter as any))
-    : eq(activityHistory.householdId, householdId);
+
+  // When filtering by 'task', also include borrow entries that are linked to a task
+  // When filtering by 'borrow', show all borrow entries
+  // For 'task' filter: activityType='task' OR (activityType='borrow' AND metadata.taskId IS NOT NULL)
+  let whereCondition;
+  if (activityTypeFilter === 'task') {
+    whereCondition = and(
+      eq(activityHistory.householdId, householdId),
+      or(
+        eq(activityHistory.activityType, 'task'),
+        and(
+          eq(activityHistory.activityType, 'borrow'),
+          sql`JSON_EXTRACT(${activityHistory.metadata}, '$.taskId') IS NOT NULL`
+        )
+      )
+    );
+  } else if (activityTypeFilter) {
+    whereCondition = and(
+      eq(activityHistory.householdId, householdId),
+      eq(activityHistory.activityType, activityTypeFilter as any)
+    );
+  } else {
+    whereCondition = eq(activityHistory.householdId, householdId);
+  }
+
   // Get total count
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(activityHistory)
     .where(whereCondition);
   const total = Number(countResult[0]?.count || 0);
-  // Get activities with task details if relatedItemId exists and activityType is 'task'
+
+  // Get activities
   const activities = await db.select().from(activityHistory)
     .where(whereCondition)
     .orderBy(desc(activityHistory.createdAt))
@@ -623,11 +645,11 @@ export async function getActivityHistory(householdId: number, limit: number = 30
   // Enrich activities with task details
   const enrichedActivities = await Promise.all(
     activities.map(async (activity) => {
+      // For task activities with relatedItemId, fetch task details
       if (activity.activityType === 'task' && activity.relatedItemId) {
         const taskResult = await db.select().from(tasks)
           .where(eq(tasks.id, activity.relatedItemId))
           .limit(1);
-        
         if (taskResult.length > 0) {
           const task = taskResult[0];
           return {
@@ -639,6 +661,28 @@ export async function getActivityHistory(householdId: number, limit: number = 30
               dueDate: task.dueDate,
             },
           };
+        }
+      }
+      // For borrow activities with taskId in metadata, fetch task details
+      if (activity.activityType === 'borrow') {
+        const meta = activity.metadata as Record<string, any> | null;
+        const taskId = meta?.taskId;
+        if (taskId) {
+          const taskResult = await db.select().from(tasks)
+            .where(eq(tasks.id, taskId))
+            .limit(1);
+          if (taskResult.length > 0) {
+            const task = taskResult[0];
+            return {
+              ...activity,
+              linkedTaskDetails: {
+                id: task.id,
+                name: task.name,
+                taskName: meta?.taskName ?? task.name,
+                occurrenceNumber: meta?.occurrenceNumber,
+              },
+            };
+          }
         }
       }
       return activity;
