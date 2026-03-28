@@ -33,10 +33,15 @@ export default function History() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
 
   const { data, isLoading } = trpc.household.getActivityHistory.useQuery(
-    { 
+    {
       householdId: household?.householdId ?? 0,
       limit: itemsPerPage,
       offset: (currentPage - 1) * itemsPerPage,
@@ -185,15 +190,78 @@ export default function History() {
           </div>
         </div>
 
-        {/* Summary line */}
+        {/* Top controls: summary + items-per-page + pagination */}
         {!isLoading && totalItems > 0 && (
-          <p className="text-sm text-muted-foreground mb-3">
-            {t("common:pagination.showingOf", "{{from}}–{{to}} von {{total}}", {
-              from: (currentPage - 1) * itemsPerPage + 1,
-              to: Math.min(currentPage * itemsPerPage, totalItems),
-              total: totalItems,
-            })}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            {/* Left: summary + items-per-page */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="text-sm text-muted-foreground">
+                {t("common:pagination.showingOf", "{{from}}–{{to}} von {{total}}", {
+                  from: (currentPage - 1) * itemsPerPage + 1,
+                  to: Math.min(currentPage * itemsPerPage, totalItems),
+                  total: totalItems,
+                })}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-muted-foreground">{t("common:pagination.perPage", "pro Seite:")}</span>
+                <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+                  <SelectTrigger className="h-8 w-20 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="40">40</SelectItem>
+                    <SelectItem value="60">60</SelectItem>
+                    <SelectItem value="80">80</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Right: top pagination (only when >1 page) */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1 flex-wrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1 || isLoading}
+                >
+                  {t("common:actions.back", "Zurück")}
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) pageNum = i + 1;
+                  else if (currentPage <= 3) pageNum = i + 1;
+                  else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                  else pageNum = currentPage - 2 + i;
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      disabled={isLoading}
+                      className="w-9"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages || isLoading}
+                >
+                  {t("common:actions.next", "Weiter")}
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {t("common:labels.pageOf", "Seite {{current}} von {{total}}", { current: currentPage, total: totalPages })}
+                </span>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Activities list */}
