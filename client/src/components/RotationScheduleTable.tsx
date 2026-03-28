@@ -627,7 +627,7 @@ export function RotationScheduleTable({
                 setSpecialOccurrenceDate(undefined);
               }}
             >
-              {t("common:cancel")}
+              {t("common:actions.cancel")}
             </Button>
             <Button
               type="button"

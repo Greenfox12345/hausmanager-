@@ -748,7 +748,7 @@ export default function Borrows() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
-              {t("common:cancel", "Abbrechen")}
+              {t("common:actions.cancel", "Abbrechen")}
             </Button>
             <Button variant="destructive" onClick={handleRejectConfirm} disabled={rejectMutation.isPending}>
               {t("borrows:approval.reject", "Ablehnen")}

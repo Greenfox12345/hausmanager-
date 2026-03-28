@@ -161,7 +161,7 @@ export function ImageCropEditor({
             onClick={handleCancel}
             disabled={isProcessing}
           >
-            {t("common:cancel")}
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleApply}
@@ -183,7 +183,7 @@ export function ImageCropEditor({
           {t("common:imageCropEditor.helperText.dragAndZoom")}
           <br />
           <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Enter</kbd> = {t("common:apply")},{" "}
-          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Esc</kbd> = {t("common:cancel")}
+          <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Esc</kbd> = {t("common:actions.cancel")}
         </div>
       </DialogContent>
     </Dialog>
