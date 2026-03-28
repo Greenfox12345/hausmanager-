@@ -71,7 +71,11 @@
     "inProgress": "Devam Ediyor",
     "creating": "Oluşturuluyor...",
     "loading": "Envanter yükleniyor...",
-    "uploading": "Yükleniyor..."
+    "uploading": "Yükleniyor...",
+  "legal": {
+    "privacy": "Gizlilik",
+    "imprint": "Künye"
+  }
   },
   "labels": {
     "name": "Ad",
@@ -417,5 +421,9 @@
     "next": "İleri"
   },
   "pleaseLogin": "Lütfen giriş yapın",
-  "uploading": "Yükleniyor..."
+  "uploading": "Yükleniyor...",
+  "legal": {
+    "privacy": "Gizlilik",
+    "imprint": "Künye"
+  }
 }

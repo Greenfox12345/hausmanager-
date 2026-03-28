@@ -498,5 +498,9 @@
     "back": "Atrás",
     "next": "Continuar"
   },
-  "uploading": "Subiendo..."
+  "uploading": "Subiendo...",
+  "legal": {
+    "privacy": "Privacidad",
+    "imprint": "Aviso legal"
+  }
 }

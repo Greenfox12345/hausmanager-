@@ -417,5 +417,9 @@
     "next": "Weiter"
   },
   "pleaseLogin": "Bitte anmelden",
-  "uploading": "Lädt hoch..."
+  "uploading": "Lädt hoch...",
+  "legal": {
+    "privacy": "Datenschutz",
+    "imprint": "Impressum"
+  }
 }

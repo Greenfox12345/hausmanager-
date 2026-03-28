@@ -71,7 +71,11 @@
     "inProgress": "En cours",
     "creating": "Création...",
     "loading": "Chargement de l'inventaire...",
-    "uploading": "Téléchargement..."
+    "uploading": "Téléchargement...",
+  "legal": {
+    "privacy": "Confidentialité",
+    "imprint": "Mentions légales"
+  }
   },
   "labels": {
     "name": "Nom",
@@ -417,5 +421,9 @@
     "next": "Suivant"
   },
   "pleaseLogin": "Veuillez vous connecter",
-  "uploading": "Téléchargement..."
+  "uploading": "Téléchargement...",
+  "legal": {
+    "privacy": "Confidentialité",
+    "imprint": "Mentions légales"
+  }
 }

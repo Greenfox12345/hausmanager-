@@ -326,5 +326,9 @@
     "noOccurrencesPlanned": "没有计划的即将发生的事件",
     "noDate": "无日期",
     "stillOpen": "仍开放"
+  },
+  "legal": {
+    "privacy": "隐私政策",
+    "imprint": "法律声明"
   }
 }

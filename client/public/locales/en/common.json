@@ -417,5 +417,9 @@
     "next": "Next"
   },
   "pleaseLogin": "Please log in",
-  "uploading": "Uploading..."
+  "uploading": "Uploading...",
+  "legal": {
+    "privacy": "Privacy Policy",
+    "imprint": "Legal Notice"
+  }
 }

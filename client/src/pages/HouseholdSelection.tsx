@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Home, Plus, LogIn, Users, User, Settings } from "lucide-react";
+import { Link } from "wouter";
 import { InviteCodeDialog } from "@/components/InviteCodeDialog";
 import { UserProfileDialog } from "@/components/UserProfileDialog";
 import { useTranslation } from "react-i18next";
@@ -378,6 +379,19 @@ export default function HouseholdSelection() {
         open={profileDialogOpen}
         onOpenChange={setProfileDialogOpen}
       />
+
+      {/* Legal Footer */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center">
+        <div className="flex items-center gap-3 text-xs text-gray-400">
+          <Link href="/privacy" className="hover:text-gray-600 transition-colors underline-offset-2 hover:underline">
+            {t("common:legal.privacy", "Datenschutz")}
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link href="/imprint" className="hover:text-gray-600 transition-colors underline-offset-2 hover:underline">
+            {t("common:legal.imprint", "Impressum")}
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
