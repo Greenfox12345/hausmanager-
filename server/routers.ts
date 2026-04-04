@@ -19,6 +19,7 @@ import { calendarRouter } from "./routers/calendar";
 import { neighborhoodRouter } from "./routers/neighborhood";
 import { taskOccurrenceItemsRouter } from "./routers/taskOccurrenceItems";
 import { inventoryAvailabilityRouter } from "./routers/inventoryAvailability";
+import { demoRouter } from "./routers/demo";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -52,8 +53,8 @@ export const appRouter = router({
   borrow: borrowRouter,
   calendar: calendarRouter,
   taskOccurrenceItems: taskOccurrenceItemsRouter,
-  neighborhood: neighborhoodRouter,
-
+   neighborhood: neighborhoodRouter,
+  demo: demoRouter,
   // Admin router
   admin: router({
     deleteHousehold: protectedProcedure

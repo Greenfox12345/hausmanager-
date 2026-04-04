@@ -1,19 +1,29 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Home } from "lucide-react";
+import { Home, FlaskConical, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 
 export default function Register() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { login, setCurrentHousehold } = useUserAuth();
   const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
+
+  // Extract demo token from URL query param or localStorage
+  const searchParams = new URLSearchParams(location.split("?")[1] ?? "");
+  const demoTokenFromUrl = searchParams.get("demo");
+  const demoTokenFromStorage = localStorage.getItem("demo_token");
+  const demoToken = demoTokenFromUrl ?? demoTokenFromStorage ?? null;
+  const demoExpiresAt = localStorage.getItem("demo_expires_at");
+  const isDemoActive = demoToken !== null && demoExpiresAt !== null && new Date(demoExpiresAt) > new Date();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -22,10 +32,51 @@ export default function Register() {
     name: "",
   });
 
+  const claimDemoMutation = trpc.demo.claimSession.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        // Clear demo storage
+        localStorage.removeItem("demo_token");
+        localStorage.removeItem("demo_expires_at");
+        toast.success(t("demo.demoHouseholdClaimed", "Ihr Demo-Haushalt wurde erfolgreich übernommen!"));
+      }
+    },
+  });
+
   const registerMutation = trpc.userAuth.register.useMutation({
-    onSuccess: () => {
-      toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));
-      setLocation("/login");
+    onSuccess: async (data) => {
+      // If there's a demo token, claim the demo household
+      if (isDemoActive && demoToken && data.token) {
+        try {
+          await claimDemoMutation.mutateAsync({
+            demoToken,
+            userId: data.userId,
+          });
+        } catch {
+          // Non-fatal: registration succeeded, demo claim failed
+          toast.error("Demo-Haushalt konnte nicht übernommen werden, aber Ihr Konto wurde erstellt.");
+        }
+      } else {
+        toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));
+      }
+      // Log in the user
+      if (data.token) {
+        login(data.token);
+        if (data.claimedHouseholdId && data.claimedMemberId) {
+          // Demo household was claimed – go directly to app
+          setCurrentHousehold({
+            householdId: data.claimedHouseholdId,
+            householdName: "Demo-Haushalt",
+            memberId: data.claimedMemberId,
+            memberName: formData.name,
+          });
+          setLocation("/shopping");
+        } else {
+          setLocation("/household-selection");
+        }
+      } else {
+        setLocation("/login");
+      }
     },
     onError: (error) => {
       toast.error(error.message || t("register.error", "Registrierung fehlgeschlagen"));
@@ -54,6 +105,7 @@ export default function Register() {
       email: formData.email,
       password: formData.password,
       name: formData.name,
+      demoToken: isDemoActive ? (demoToken ?? undefined) : undefined,
     });
   };
 
@@ -81,17 +133,38 @@ export default function Register() {
           </button>
         ))}
       </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            <Home className="h-12 w-12 text-blue-600" />
+            {isDemoActive ? (
+              <div className="relative">
+                <Home className="h-12 w-12 text-blue-600" />
+                <FlaskConical className="h-5 w-5 text-amber-500 absolute -top-1 -right-2" />
+              </div>
+            ) : (
+              <Home className="h-12 w-12 text-blue-600" />
+            )}
           </div>
           <CardTitle className="text-2xl font-bold">Haushaltsmanager</CardTitle>
           <CardDescription>
-            {t("register.subtitle", "Erstellen Sie ein neues Benutzerkonto")}
+            {isDemoActive
+              ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
+              : t("register.subtitle", "Erstellen Sie ein neues Benutzerkonto")}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Demo hint banner */}
+          {isDemoActive && (
+            <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
+              <FlaskConical className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-800">
+                {t("demo.demoBannerText", "Sie befinden sich im Demo-Modus. Ihre Daten werden nach 24 Stunden gelöscht.")}{" "}
+                <strong>{t("demo.demoBannerClaim", "Jetzt Konto erstellen & Haushalt behalten")}</strong>
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t("register.username", "Name")}</Label>
@@ -143,12 +216,15 @@ export default function Register() {
 
             <Button
               type="submit"
-              className="w-full"
+              className={`w-full gap-2 ${isDemoActive ? "bg-amber-600 hover:bg-amber-700" : ""}`}
               disabled={registerMutation.isPending}
             >
+              {isDemoActive && <UserPlus className="h-4 w-4" />}
               {registerMutation.isPending
                 ? t("register.loading", "Wird registriert...")
-                : t("register.submit", "Registrieren")}
+                : isDemoActive
+                  ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
+                  : t("register.submit", "Registrieren")}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
@@ -162,21 +238,13 @@ export default function Register() {
               </button>
             </div>
             <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setLocation("/privacy")}
-                className="hover:underline"
-              >
+              <Link href="/privacy" className="hover:underline">
                 {t("register.privacy", "Datenschutzerklärung")}
-              </button>
+              </Link>
               <span>·</span>
-              <button
-                type="button"
-                onClick={() => setLocation("/imprint")}
-                className="hover:underline"
-              >
+              <Link href="/imprint" className="hover:underline">
                 {t("register.imprint", "Impressum")}
-              </button>
+              </Link>
             </div>
           </form>
         </CardContent>

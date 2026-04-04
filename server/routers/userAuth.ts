@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { users } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { users, demoSessions, householdMembers } from "../../drizzle/schema";
+import { eq, and, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -22,6 +22,7 @@ export const userAuthRouter = router({
         email: z.string().email(),
         password: z.string().min(6),
         name: z.string().min(1),
+        demoToken: z.string().optional(), // If present, claim the demo household
       })
     )
     .mutation(async ({ input }) => {
@@ -49,20 +50,58 @@ export const userAuthRouter = router({
         name: input.name,
         loginMethod: "email",
       });
+      const userId = Number(newUser.insertId);
+
+      // Claim demo session if demoToken provided
+      let claimedHouseholdId: number | null = null;
+      let claimedMemberId: number | null = null;
+      if (input.demoToken) {
+        const [session] = await db
+          .select()
+          .from(demoSessions)
+          .where(
+            and(
+              eq(demoSessions.token, input.demoToken),
+              isNull(demoSessions.claimedByUserId)
+            )
+          )
+          .limit(1);
+
+        if (session && session.expiresAt > new Date()) {
+          // Link demo member to new user
+          await db
+            .update(householdMembers)
+            .set({ userId })
+            .where(eq(householdMembers.id, session.memberId));
+
+          // Mark session as claimed and extend expiry
+          const newExpiry = new Date();
+          newExpiry.setDate(newExpiry.getDate() + 30);
+          await db
+            .update(demoSessions)
+            .set({ claimedByUserId: userId, expiresAt: newExpiry })
+            .where(eq(demoSessions.token, input.demoToken));
+
+          claimedHouseholdId = session.householdId;
+          claimedMemberId = session.memberId;
+        }
+      }
 
       // Generate JWT token
       const token = jwt.sign(
-        { userId: newUser.insertId, email: input.email },
+        { userId, email: input.email },
         JWT_SECRET,
         { expiresIn: "30d" }
       );
 
       return {
         success: true,
-        userId: newUser.insertId,
+        userId,
         token,
+        claimedHouseholdId,
+        claimedMemberId,
         user: {
-          id: newUser.insertId,
+          id: userId,
           email: input.email,
           name: input.name,
           profileImageUrl: null,

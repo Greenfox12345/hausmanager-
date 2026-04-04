@@ -3346,3 +3346,15 @@
 
 ## Calendar.tsx Z.979 – Zeitraum-Label und Optionen übersetzen
 - [ ] „Zeitraum" und alle Zeitraum-Optionen übersetzen
+
+## Feature: Demo-Haushalt (Option B – isolierte Sessions)
+- [x] DB-Schema: demoSessions-Tabelle ergänzen (token, userId nullable, householdId, expiresAt)
+- [x] DB-Migration: pnpm db:push
+- [x] Server: createDemoSession-Prozedur (Haushalt + Beispieldaten anlegen, JWT-Token zurückgeben)
+- [x] Server: getDemoSession-Query (Session-Status + Ablaufzeit abfragen)
+- [x] Server: claimDemoSession-Mutation (Demo-Haushalt bei Registrierung übernehmen)
+- [x] Server: Cleanup-Cron (stündlich abgelaufene Demo-Sessions + Haushalte löschen)
+- [x] Frontend: Demo-Button auf Login-Seite
+- [x] Frontend: Demo-Banner in der App (Hinweis auf temporäre Session + CTA)
+- [x] Frontend: Registrierungs-Flow mit Haushalt-Übernahme (claimToken mitschicken)
+- [x] i18n-Schlüssel für Demo-Feature in allen 7 Sprachen

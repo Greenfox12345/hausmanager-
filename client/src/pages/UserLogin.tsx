@@ -7,19 +7,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Home } from "lucide-react";
+import { Home, FlaskConical } from "lucide-react";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 
 export default function UserLogin() {
   const [, setLocation] = useLocation();
-  const { login } = useUserAuth();
+  const { login, setCurrentHousehold } = useUserAuth();
   const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+  });
+
+  const createDemoMutation = trpc.demo.createSession.useMutation({
+    onSuccess: (data) => {
+      // Store demo token in localStorage
+      localStorage.setItem("demo_token", data.demoToken);
+      localStorage.setItem("demo_expires_at", data.expiresAt);
+      // Set current household from demo
+      setCurrentHousehold({
+        householdId: data.householdId,
+        householdName: data.householdName,
+        memberId: data.memberId,
+        memberName: data.memberName,
+      });
+      setLocation("/shopping");
+    },
+    onError: () => {
+      toast.error(t("demo.demoError", "Demo konnte nicht gestartet werden."));
+    },
   });
 
   const loginMutation = trpc.userAuth.login.useMutation({
@@ -118,6 +137,30 @@ export default function UserLogin() {
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? t("login.loading", "Anmelden...") : t("login.submit", "Anmelden")}
+            </Button>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">{t("demo.demoOr", "oder")}</span>
+              </div>
+            </div>
+
+            {/* Demo Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2 border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800 bg-amber-50/50"
+              disabled={createDemoMutation.isPending}
+              onClick={() => createDemoMutation.mutate()}
+            >
+              <FlaskConical className="h-4 w-4" />
+              {createDemoMutation.isPending
+                ? t("demo.demoLoading", "Demo wird gestartet...")
+                : t("demo.tryDemo", "Demo ausprobieren")}
             </Button>
 
             <div className="text-center text-sm text-gray-600">

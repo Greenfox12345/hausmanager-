@@ -573,3 +573,21 @@ export const householdDissolveVotes = mysqlTable("household_dissolve_votes", {
 });
 export type HouseholdDissolveVote = typeof householdDissolveVotes.$inferSelect;
 export type InsertHouseholdDissolveVote = typeof householdDissolveVotes.$inferInsert;
+
+/**
+ * Demo sessions - temporary sessions for unauthenticated users trying the app
+ * Each session gets its own isolated household with seed data.
+ * Sessions expire after 24 hours and are cleaned up by a cron job.
+ * When a user registers, they can claim the demo household (claimDemoSession).
+ */
+export const demoSessions = mysqlTable("demo_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  token: varchar("token", { length: 128 }).notNull().unique(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  claimedByUserId: int("claimedByUserId").references(() => users.id, { onDelete: "set null" }),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DemoSession = typeof demoSessions.$inferSelect;
+export type InsertDemoSession = typeof demoSessions.$inferInsert;

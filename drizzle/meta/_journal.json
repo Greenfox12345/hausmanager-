@@ -3,69 +3,6 @@
   "dialect": "mysql",
   "entries": [
     {
-      "idx": 0,
-      "version": "5",
-      "when": 1767647248019,
-      "tag": "0000_wealthy_silver_sable",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1769165674258,
-      "tag": "0001_careless_power_pack",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1769222210222,
-      "tag": "0002_colossal_sphinx",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1769821091104,
-      "tag": "0003_even_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1769822798597,
-      "tag": "0004_faulty_kronos",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1769825819952,
-      "tag": "0005_living_black_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1769830572708,
-      "tag": "0006_smooth_red_ghost",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1769951610306,
-      "tag": "0007_simple_thunderbolt",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1769951911826,
-      "tag": "0008_equal_killmonger",
-      "breakpoints": true
-    },
-    {
       "idx": 9,
       "version": "5",
       "when": 1769952247956,
@@ -119,20 +56,6 @@
       "version": "5",
       "when": 1770675321924,
       "tag": "0016_uneven_the_hunter",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "5",
-      "when": 1771287594336,
-      "tag": "0017_small_queen_noir",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "5",
-      "when": 1771288238110,
-      "tag": "0018_dry_butterfly",
       "breakpoints": true
     },
     {
@@ -199,13 +122,6 @@
       "breakpoints": true
     },
     {
-      "idx": 28,
-      "version": "5",
-      "when": 1771453885479,
-      "tag": "0028_regular_leo",
-      "breakpoints": true
-    },
-    {
       "idx": 29,
       "version": "5",
       "when": 1771461072343,
@@ -266,6 +182,13 @@
       "version": "5",
       "when": 1774610558669,
       "tag": "0037_thick_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1775312744853,
+      "tag": "0038_exotic_roxanne_simpson",
       "breakpoints": true
     }
   ]

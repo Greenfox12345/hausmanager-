@@ -27,6 +27,7 @@ import { useLocation, Link } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
+import { DemoBanner } from "./DemoBanner";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Page 1", path: "/" },
@@ -278,6 +279,15 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
+        {/* Demo Banner */}
+        {(() => {
+          const demoToken = localStorage.getItem("demo_token");
+          const demoExpiresAt = localStorage.getItem("demo_expires_at");
+          if (demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date()) {
+            return <DemoBanner demoToken={demoToken} expiresAt={demoExpiresAt} />;
+          }
+          return null;
+        })()}
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>
