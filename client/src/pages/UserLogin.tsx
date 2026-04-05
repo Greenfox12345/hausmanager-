@@ -27,6 +27,8 @@ export default function UserLogin() {
       // Store demo token in localStorage
       localStorage.setItem("demo_token", data.demoToken);
       localStorage.setItem("demo_expires_at", data.expiresAt);
+      // Notify UserAuthContext to re-check demo session state
+      window.dispatchEvent(new Event("demo-session-changed"));
       // Set current household from demo
       setCurrentHousehold({
         householdId: data.householdId,

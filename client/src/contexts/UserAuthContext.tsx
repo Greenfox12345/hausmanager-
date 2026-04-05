@@ -65,7 +65,33 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("current_household", JSON.stringify(household));
   };
 
-  const isAuthenticated = !!token && !!user;
+  // Demo session: track in state so React re-renders when demo_token is set
+  const [isDemoSession, setIsDemoSession] = useState<boolean>(() => {
+    try {
+      const demoToken = localStorage.getItem("demo_token");
+      const demoExpiresAt = localStorage.getItem("demo_expires_at");
+      return !!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date());
+    } catch {
+      return false;
+    }
+  });
+
+  // Listen for storage changes (demo_token set/removed in same tab via custom event)
+  useEffect(() => {
+    const checkDemo = () => {
+      try {
+        const demoToken = localStorage.getItem("demo_token");
+        const demoExpiresAt = localStorage.getItem("demo_expires_at");
+        setIsDemoSession(!!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date()));
+      } catch {
+        setIsDemoSession(false);
+      }
+    };
+    window.addEventListener("demo-session-changed", checkDemo);
+    return () => window.removeEventListener("demo-session-changed", checkDemo);
+  }, []);
+
+  const isAuthenticated = (!!token && !!user) || isDemoSession;
 
   return (
     <UserAuthContext.Provider
