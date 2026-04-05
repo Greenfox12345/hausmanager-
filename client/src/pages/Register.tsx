@@ -44,10 +44,9 @@ export default function Register() {
       }
 
       if (data.claimedHouseholdId && data.claimedMemberId) {
-        // Clear demo storage
+        // Clear demo storage (auth_token was already replaced by login() above)
         localStorage.removeItem("demo_token");
         localStorage.removeItem("demo_expires_at");
-        localStorage.removeItem("auth_token"); // remove old demo JWT
 
         // Set household context
         setCurrentHousehold({
@@ -58,6 +57,8 @@ export default function Register() {
         });
 
         toast.success(t("demo.demoHouseholdClaimed", "Demo-Haushalt erfolgreich übernommen!"));
+        // Guard: prevent redirectToLoginIfUnauthorized from firing during onboarding
+        localStorage.setItem("onboarding_in_progress", "1");
         // Show onboarding dialog
         setOnboardingHouseholdId(data.claimedHouseholdId);
       } else {
@@ -106,6 +107,7 @@ export default function Register() {
   };
 
   function handleOnboardingClose() {
+    localStorage.removeItem("onboarding_in_progress");
     setOnboardingHouseholdId(null);
     setLocation("/shopping");
   }

@@ -61,6 +61,10 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   const currentToken = localStorage.getItem("auth_token");
   if (isDemoToken(currentToken)) return;
 
+  // Do NOT redirect if we are in the post-claim onboarding flow
+  // (a fresh JWT was just stored but the React tree hasn't re-rendered yet)
+  if (localStorage.getItem("onboarding_in_progress") === "1") return;
+
   window.location.href = "/login";
 };
 

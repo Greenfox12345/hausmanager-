@@ -3380,3 +3380,8 @@
 - [x] Frontend: Aufgaben auswählen und löschen im Onboarding-Dialog
 - [x] Frontend: Mitglieder-Liste mit Umbenennen/Entfernen-Funktion im Onboarding-Dialog
 - [x] Frontend: Onboarding-Dialog nach Abschluss schließen und zu Hauptseite weiterleiten
+
+## Bug: Onboarding-Dialog lädt nicht (Auth-Timing)
+- [x] Fix: JWT muss im tRPC-Client aktiv sein bevor getOnboardingData-Query feuert
+- [x] Fix: redirectToLogin darf Onboarding-Dialog nicht unterbrechen
+- [x] Fix: Onboarding-Dialog auch ohne vollständige Haushalt-Session öffnen können
