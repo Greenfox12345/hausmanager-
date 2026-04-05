@@ -19,7 +19,11 @@
     "household": "家庭",
     "more": "更多",
     "shopping_label": "购物",
-    "calendar_label": "日程"
+    "calendar_label": "日程",
+    "demo": {
+      "createAccount": "创建账户",
+      "exitDemo": "退出演示"
+    }
   },
   "actions": {
     "save": "保存",

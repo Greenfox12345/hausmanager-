@@ -28,13 +28,38 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Decode a JWT payload without verifying the signature (client-side only). */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+function isDemoToken(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = decodeJwtPayload(token);
+    return !!(payload && payload.isDemo === true);
+  } catch {
+    return false;
+  }
+}
+
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
 
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
-
   if (!isUnauthorized) return;
+
+  // Do NOT redirect demo users – they use a demo JWT that doesn't have a real user
+  const currentToken = localStorage.getItem("auth_token");
+  if (isDemoToken(currentToken)) return;
 
   window.location.href = "/login";
 };

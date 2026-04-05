@@ -3358,3 +3358,12 @@
 - [x] Frontend: Demo-Banner in der App (Hinweis auf temporäre Session + CTA)
 - [x] Frontend: Registrierungs-Flow mit Haushalt-Übernahme (claimToken mitschicken)
 - [x] i18n-Schlüssel für Demo-Feature in allen 7 Sprachen
+
+## Demo-Modus Überarbeitung (Kritisch)
+- [x] Demo-JWT als auth_token speichern damit tRPC-Client ihn als Bearer-Header sendet
+- [x] Backend-Context: Demo-JWT dekodieren und Demo-User-Objekt erzeugen
+- [x] Demo-User-Objekt im Context verfügbar machen (isDemoUser flag)
+- [x] redirectToLoginIfUnauthorized in main.tsx für Demo-Sessions deaktivieren
+- [x] Demo-Logout: demo_token + auth_token aus localStorage entfernen
+- [x] Demo-Sidebar: "Konto erstellen"-Button statt leerem Avatar
+- [x] Demo-Funktionsumfang begrenzen: Neighborhood und Settings deaktivieren (Demo-Banner + CTA stattdessen)

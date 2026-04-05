@@ -28,6 +28,7 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
 import { DemoBanner } from "./DemoBanner";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Page 1", path: "/" },
@@ -49,17 +50,7 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
-
-  // Check for active demo session – demo users bypass the OAuth guard
-  const isDemoSession = (() => {
-    try {
-      const demoToken = localStorage.getItem("demo_token");
-      const demoExpiresAt = localStorage.getItem("demo_expires_at");
-      return !!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date());
-    } catch {
-      return false;
-    }
-  })();
+  const { isDemoSession } = useUserAuth();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -70,29 +61,8 @@ export default function DashboardLayout({
   }
 
   if (!user && !isDemoSession) {
-    const { t } = useTranslation();
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              {t("common:auth.signInToContinue")}
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common:auth.accessRequiresAuth")}
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              window.location.href = "/login";
-            }}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            {t("common:auth.signIn")}
-          </Button>
-        </div>
-      </div>
+      <DashboardLayoutGuard />
     );
   }
 
@@ -108,6 +78,34 @@ export default function DashboardLayout({
         {children}
       </DashboardLayoutContent>
     </SidebarProvider>
+  );
+}
+
+/** Separate component so we can call hooks (useTranslation) outside the conditional render. */
+function DashboardLayoutGuard() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
+        <div className="flex flex-col items-center gap-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-center">
+            {t("common:auth.signInToContinue")}
+          </h1>
+          <p className="text-sm text-muted-foreground text-center max-w-sm">
+            {t("common:auth.accessRequiresAuth")}
+          </p>
+        </div>
+        <Button
+          onClick={() => {
+            window.location.href = "/login";
+          }}
+          size="lg"
+          className="w-full shadow-lg hover:shadow-xl transition-all"
+        >
+          {t("common:auth.signIn")}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -129,6 +127,11 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  const { isDemoSession } = useUserAuth();
+
+  // Demo banner data
+  const demoToken = localStorage.getItem("demo_token");
+  const demoExpiresAt = localStorage.getItem("demo_expires_at");
 
   useEffect(() => {
     if (isCollapsed) {
@@ -291,14 +294,9 @@ function DashboardLayoutContent({
           </div>
         )}
         {/* Demo Banner */}
-        {(() => {
-          const demoToken = localStorage.getItem("demo_token");
-          const demoExpiresAt = localStorage.getItem("demo_expires_at");
-          if (demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date()) {
-            return <DemoBanner demoToken={demoToken} expiresAt={demoExpiresAt} />;
-          }
-          return null;
-        })()}
+        {isDemoSession && demoToken && demoExpiresAt && (
+          <DemoBanner demoToken={demoToken} expiresAt={demoExpiresAt} />
+        )}
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>

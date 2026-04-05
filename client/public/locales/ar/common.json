@@ -19,7 +19,11 @@
     "household": "المنزل",
     "more": "المزيد",
     "shopping_label": "التسوق",
-    "calendar_label": "المواعيد"
+    "calendar_label": "المواعيد",
+    "demo": {
+      "createAccount": "إنشاء حساب",
+      "exitDemo": "الخروج من العرض التوضيحي"
+    }
   },
   "actions": {
     "save": "حفظ",
@@ -72,10 +76,10 @@
     "creating": "جارٍ الإنشاء...",
     "loading": "جارٍ تحميل المخزون...",
     "uploading": "جارٍ الرفع...",
-  "legal": {
-    "privacy": "الخصوصية",
-    "imprint": "بيانات قانونية"
-  }
+    "legal": {
+      "privacy": "الخصوصية",
+      "imprint": "بيانات قانونية"
+    }
   },
   "labels": {
     "name": "الاسم",

@@ -10,20 +10,42 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  isDemoUser?: boolean;
 };
 
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
   let user: User | null = null;
+  let isDemoUser = false;
 
   // Try Bearer token authentication first (new user auth system)
   const authHeader = opts.req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string };
-      user = await db.getUserById(decoded.userId) || null;
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId?: number; email?: string; isDemo?: boolean; householdId?: number; memberId?: number };
+
+      if (decoded.isDemo && decoded.householdId && decoded.memberId) {
+        // Demo JWT: create a synthetic demo user object so publicProcedures work
+        // and the redirect-to-login guard in main.tsx doesn't fire.
+        isDemoUser = true;
+        user = {
+          id: 0,
+          openId: null,
+          name: "Demo",
+          email: null,
+          passwordHash: null,
+          profileImageUrl: null,
+          loginMethod: "demo",
+          role: "user",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastSignedIn: new Date(),
+        } as User;
+      } else if (decoded.userId) {
+        user = await db.getUserById(decoded.userId) || null;
+      }
     } catch (error) {
       // Invalid bearer token, will try cookie auth or remain null
       console.error('[Auth] Bearer token validation failed:', error);
@@ -44,5 +66,6 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     user,
+    isDemoUser,
   };
 }

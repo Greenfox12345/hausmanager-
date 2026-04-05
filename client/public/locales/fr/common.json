@@ -19,7 +19,11 @@
     "household": "Foyer",
     "more": "Plus",
     "shopping_label": "Achats",
-    "calendar_label": "Agenda"
+    "calendar_label": "Agenda",
+    "demo": {
+      "createAccount": "Créer un compte",
+      "exitDemo": "Quitter la démo"
+    }
   },
   "actions": {
     "save": "Enregistrer",
@@ -72,10 +76,10 @@
     "creating": "Création...",
     "loading": "Chargement de l'inventaire...",
     "uploading": "Téléchargement...",
-  "legal": {
-    "privacy": "Confidentialité",
-    "imprint": "Mentions légales"
-  }
+    "legal": {
+      "privacy": "Confidentialité",
+      "imprint": "Mentions légales"
+    }
   },
   "labels": {
     "name": "Nom",
@@ -227,7 +231,7 @@
   "assignedTo": "Assigné à",
   "sortBy": "Trier par",
   "dueDate": "Date d'échéance",
-    "creationDate": "Date de création",
+  "creationDate": "Date de création",
   "notEnoughMembers": "Pas assez de membres disponibles ! Requis : {{required}}, Disponible : {{available}}",
   "minOneAssignee": "Veuillez sélectionner au moins un responsable",
   "errors": {

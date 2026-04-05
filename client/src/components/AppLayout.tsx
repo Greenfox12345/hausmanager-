@@ -29,12 +29,14 @@ import {
   Calendar,
   UserCircle,
   Package,
-  HandCoins
+  HandCoins,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { DemoBanner } from "@/components/DemoBanner";
 
 
 interface AppLayoutProps {
@@ -43,7 +45,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
-  const { user, currentHousehold, logout: userLogout, setCurrentHousehold } = useUserAuth();
+  const { user, currentHousehold, logout: userLogout, setCurrentHousehold, isDemoSession } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { t } = useTranslation("common");
   
@@ -64,10 +66,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     setLocation("/login");
   };
 
-  // Query user's households for switcher
+  // Query user's households for switcher – skip for demo users (they have no real userId)
   const { data: userHouseholds = [] } = trpc.householdManagement.listUserHouseholds.useQuery(
     { userId: user?.id },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && !isDemoSession }
   );
 
   // Mutation to switch household
@@ -178,51 +180,62 @@ export default function AppLayout({ children }: AppLayoutProps) {
     }
   };
 
+  // Demo banner data
+  const demoToken = localStorage.getItem("demo_token");
+  const demoExpiresAt = localStorage.getItem("demo_expires_at");
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-        <div className="p-6 border-b">
+      <div className="p-6 border-b">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold">{t("app.name")}</h2>
           <div className="flex items-center gap-1">
             <LanguageSwitcher compact />
-            <NotificationBell />
+            {!isDemoSession && <NotificationBell />}
           </div>
         </div>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              disabled={switchHouseholdMutation.isPending}
-            >
-              <span className="text-sm font-medium truncate">
-                {household?.householdName || t("household.select")}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[280px]" align="start">
-            <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {userHouseholds.map((h) => (
-              <DropdownMenuItem
-                key={h.householdId}
-                onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
-                className="cursor-pointer"
+        {/* Household switcher – hidden for demo users */}
+        {!isDemoSession ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between"
+                disabled={switchHouseholdMutation.isPending}
               >
-                <div className="flex items-center gap-2 w-full">
-                  {household?.householdId === h.householdId && (
-                    <Check className="h-4 w-4" />
-                  )}
-                  <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
-                    {h.householdName}
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <span className="text-sm font-medium truncate">
+                  {household?.householdName || t("household.select")}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[280px]" align="start">
+              <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {userHouseholds.map((h) => (
+                <DropdownMenuItem
+                  key={h.householdId}
+                  onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    {household?.householdId === h.householdId && (
+                      <Check className="h-4 w-4" />
+                    )}
+                    <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
+                      {h.householdName}
+                    </span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="text-sm text-muted-foreground font-medium truncate px-1">
+            {household?.householdName || "Demo-Haushalt"}
+          </div>
+        )}
       </div>
       
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -258,24 +271,38 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </nav>
 
       <div className="p-4 border-t space-y-2">
-        <Button
-          variant="outline"
-          className="w-full justify-start gap-3"
-          onClick={() => {
-            setLocation("/household-selection");
-            setSidebarOpen(false);
-          }}
-        >
-          <UserCircle className="h-4 w-4" />
-          {t("auth.profile", "Profil")}
-        </Button>
+        {isDemoSession ? (
+          /* Demo users: show "Create Account" CTA instead of profile link */
+          <Button
+            className="w-full justify-start gap-3 bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={() => {
+              setLocation("/register");
+              setSidebarOpen(false);
+            }}
+          >
+            <UserPlus className="h-4 w-4" />
+            {t("demo.createAccount", "Konto erstellen")}
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3"
+            onClick={() => {
+              setLocation("/household-selection");
+              setSidebarOpen(false);
+            }}
+          >
+            <UserCircle className="h-4 w-4" />
+            {t("auth.profile", "Profil")}
+          </Button>
+        )}
         <Button
           variant="outline"
           className="w-full justify-start gap-3"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />
-          {t("nav.logout")}
+          {isDemoSession ? t("demo.exitDemo", "Demo beenden") : t("nav.logout")}
         </Button>
       </div>
     </div>
@@ -283,6 +310,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      {/* Demo Banner – shown at top for demo users */}
+      {isDemoSession && demoToken && demoExpiresAt && (
+        <DemoBanner demoToken={demoToken} expiresAt={demoExpiresAt} />
+      )}
+
       {/* Mobile Header with Menu */}
       <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container flex items-center justify-between h-16">
@@ -302,35 +334,37 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <Button
                 variant="ghost"
                 className="text-lg font-bold hover:bg-transparent"
-                disabled={switchHouseholdMutation.isPending}
+                disabled={switchHouseholdMutation.isPending || isDemoSession}
               >
                 {household?.householdName || "Haushaltsmanager"}
-                <ChevronsUpDown className="ml-2 h-4 w-4" />
+                {!isDemoSession && <ChevronsUpDown className="ml-2 h-4 w-4" />}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-64">
-              <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {userHouseholds.map((h) => (
-                <DropdownMenuItem
-                  key={h.householdId}
-                  onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    {household?.householdId === h.householdId && (
-                      <Check className="h-4 w-4" />
-                    )}
-                    <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
-                      {h.householdName}
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
+            {!isDemoSession && (
+              <DropdownMenuContent align="center" className="w-64">
+                <DropdownMenuLabel>{t("household.select")}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {userHouseholds.map((h) => (
+                  <DropdownMenuItem
+                    key={h.householdId}
+                    onClick={() => handleSwitchHousehold(h.householdId, h.householdName)}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      {household?.householdId === h.householdId && (
+                        <Check className="h-4 w-4" />
+                      )}
+                      <span className={household?.householdId !== h.householdId ? "ml-6" : ""}>
+                        {h.householdName}
+                      </span>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            )}
           </DropdownMenu>
           
-          <NotificationBell />
+          {!isDemoSession && <NotificationBell />}
         </div>
       </div>
 

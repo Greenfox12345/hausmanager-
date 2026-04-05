@@ -24,11 +24,17 @@ export default function UserLogin() {
 
   const createDemoMutation = trpc.demo.createSession.useMutation({
     onSuccess: (data) => {
-      // Store demo token in localStorage
+      // Store the demo JWT as auth_token so the tRPC client sends it as Bearer header.
+      // This allows the server to recognise demo users via the isDemo flag in the JWT.
+      login(data.demoJwt);
+
+      // Also keep demo_token + expires_at so the banner and useCompatAuth can detect demo mode.
       localStorage.setItem("demo_token", data.demoToken);
       localStorage.setItem("demo_expires_at", data.expiresAt);
+
       // Notify UserAuthContext to re-check demo session state
       window.dispatchEvent(new Event("demo-session-changed"));
+
       // Set current household from demo
       setCurrentHousehold({
         householdId: data.householdId,
@@ -36,6 +42,7 @@ export default function UserLogin() {
         memberId: data.memberId,
         memberName: data.memberName,
       });
+
       setLocation("/shopping");
     },
     onError: () => {

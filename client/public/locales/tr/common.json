@@ -19,7 +19,11 @@
     "household": "Ev",
     "more": "Daha Fazla",
     "shopping_label": "Alışveriş",
-    "calendar_label": "Randevular"
+    "calendar_label": "Randevular",
+    "demo": {
+      "createAccount": "Hesap oluştur",
+      "exitDemo": "Demodan çık"
+    }
   },
   "actions": {
     "save": "Kaydet",
@@ -72,10 +76,10 @@
     "creating": "Oluşturuluyor...",
     "loading": "Envanter yükleniyor...",
     "uploading": "Yükleniyor...",
-  "legal": {
-    "privacy": "Gizlilik",
-    "imprint": "Künye"
-  }
+    "legal": {
+      "privacy": "Gizlilik",
+      "imprint": "Künye"
+    }
   },
   "labels": {
     "name": "Ad",

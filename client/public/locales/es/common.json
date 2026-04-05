@@ -20,7 +20,11 @@
     "shopping_label": "Compras",
     "calendar_label": "Calendario",
     "more": "Más",
-    "household": "Hogar"
+    "household": "Hogar",
+    "demo": {
+      "createAccount": "Crear cuenta",
+      "exitDemo": "Salir del demo"
+    }
   },
   "actions": {
     "save": "Guardar",

@@ -17,6 +17,10 @@
     "settings": "Einstellungen",
     "logout": "Abmelden",
     "household": "Haushalt",
+    "demo": {
+      "createAccount": "Konto erstellen",
+      "exitDemo": "Demo beenden"
+    },
     "more": "Weiteres",
     "shopping_label": "Einkaufen",
     "calendar_label": "Termine"

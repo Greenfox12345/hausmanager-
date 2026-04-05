@@ -21,6 +21,7 @@ interface UserAuthContextType {
   currentHousehold: CurrentHousehold | null;
   token: string | null;
   isAuthenticated: boolean;
+  isDemoSession: boolean;
   isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
@@ -28,6 +29,29 @@ interface UserAuthContextType {
 }
 
 const UserAuthContext = createContext<UserAuthContextType | undefined>(undefined);
+
+/** Decode a JWT payload without verifying the signature (client-side only). */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+/** Check whether a stored auth_token is a demo JWT. */
+function checkIsDemoToken(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = decodeJwtPayload(token);
+    return !!(payload && payload.isDemo === true);
+  } catch {
+    return false;
+  }
+}
 
 export function UserAuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
@@ -39,11 +63,28 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
     return stored ? JSON.parse(stored) : null;
   });
 
-  // Get current user from backend
+  // isDemoSession: true when the stored auth_token is a demo JWT
+  const [isDemoSession, setIsDemoSession] = useState<boolean>(() => checkIsDemoToken(localStorage.getItem("auth_token")));
+
+  // Re-evaluate isDemoSession whenever token changes or demo-session-changed event fires
+  useEffect(() => {
+    setIsDemoSession(checkIsDemoToken(token));
+  }, [token]);
+
+  useEffect(() => {
+    const checkDemo = () => {
+      const currentToken = localStorage.getItem("auth_token");
+      setIsDemoSession(checkIsDemoToken(currentToken));
+    };
+    window.addEventListener("demo-session-changed", checkDemo);
+    return () => window.removeEventListener("demo-session-changed", checkDemo);
+  }, []);
+
+  // Get current user from backend – skip for demo sessions (backend returns synthetic user)
   const { data: user, isLoading } = trpc.userAuth.getCurrentUser.useQuery(
     { token: token || undefined },
     {
-      enabled: !!token,
+      enabled: !!token && !isDemoSession,
       retry: false,
     }
   );
@@ -56,8 +97,11 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setToken(null);
     setCurrentHouseholdState(null);
+    setIsDemoSession(false);
     localStorage.removeItem("auth_token");
     localStorage.removeItem("current_household");
+    localStorage.removeItem("demo_token");
+    localStorage.removeItem("demo_expires_at");
   };
 
   const setCurrentHousehold = (household: CurrentHousehold) => {
@@ -65,42 +109,24 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("current_household", JSON.stringify(household));
   };
 
-  // Demo session: track in state so React re-renders when demo_token is set
-  const [isDemoSession, setIsDemoSession] = useState<boolean>(() => {
-    try {
-      const demoToken = localStorage.getItem("demo_token");
-      const demoExpiresAt = localStorage.getItem("demo_expires_at");
-      return !!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date());
-    } catch {
-      return false;
-    }
-  });
+  // Demo sessions are authenticated via the JWT bearer token.
+  // Regular sessions need a valid token + user from backend.
+  const isAuthenticated = isDemoSession ? !!token : (!!token && !!user);
 
-  // Listen for storage changes (demo_token set/removed in same tab via custom event)
-  useEffect(() => {
-    const checkDemo = () => {
-      try {
-        const demoToken = localStorage.getItem("demo_token");
-        const demoExpiresAt = localStorage.getItem("demo_expires_at");
-        setIsDemoSession(!!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date()));
-      } catch {
-        setIsDemoSession(false);
-      }
-    };
-    window.addEventListener("demo-session-changed", checkDemo);
-    return () => window.removeEventListener("demo-session-changed", checkDemo);
-  }, []);
-
-  const isAuthenticated = (!!token && !!user) || isDemoSession;
+  // For demo sessions, create a synthetic user object so components that read user.name don't crash.
+  const effectiveUser: User | null = isDemoSession
+    ? { id: 0, email: null, name: "Demo", role: "user" }
+    : (user || null);
 
   return (
     <UserAuthContext.Provider
       value={{
-        user: user || null,
+        user: effectiveUser,
         currentHousehold,
         token,
         isAuthenticated,
-        isLoading,
+        isDemoSession,
+        isLoading: isDemoSession ? false : isLoading,
         login,
         logout,
         setCurrentHousehold,
