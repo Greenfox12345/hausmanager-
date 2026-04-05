@@ -3394,3 +3394,12 @@
 
 ## Onboarding-Dialog Scroll-Fix
 - [x] DemoOnboardingDialog: Dialog-Höhe fixieren, Tab-Inhalte scrollen, Footer immer sichtbar
+
+## Mitglieder-Verwaltung: Löschen & Einladungslinks
+- [x] Backend: Demo-Mitglieder beim Onboarding wirklich löschen (DELETE statt isActive=false)
+- [x] Backend: Neue tRPC-Prozedur generateInviteLink – Einladungstoken für nicht-registrierte Mitglieder
+- [x] Backend: Neue tRPC-Prozedur kickMember – nicht-registrierte Mitglieder aus Haushalt löschen
+- [x] Backend: Register-Flow: Einladungstoken aus URL auslesen und Mitglied verknüpfen
+- [x] Frontend: /members – Einladungslink-Button für Mitglieder ohne userId (nicht registriert)
+- [x] Frontend: /members – Kick/Löschen-Button für nicht-registrierte Mitglieder
+- [x] Frontend: /members – kopierbarer Einladungslink-Dialog

@@ -23,6 +23,7 @@ export const userAuthRouter = router({
         password: z.string().min(6),
         name: z.string().min(1),
         demoToken: z.string().optional(), // If present, claim the demo household
+        inviteToken: z.string().optional(), // If present, link to existing member slot
       })
     )
     .mutation(async ({ input }) => {
@@ -95,6 +96,43 @@ export const userAuthRouter = router({
 
           claimedHouseholdId = householdId;
           claimedMemberId = newMemberId;
+        }
+      }
+
+      // Claim invite token if provided (link user to an existing unregistered member slot)
+      if (input.inviteToken && !claimedHouseholdId) {
+        try {
+          const decoded = jwt.verify(input.inviteToken, JWT_SECRET) as {
+            householdId: number;
+            memberId: number;
+            type: string;
+          };
+          if (decoded.type === "member_invite") {
+            // Find the member slot and verify it is still unregistered
+            const [slot] = await db
+              .select()
+              .from(householdMembers)
+              .where(
+                and(
+                  eq(householdMembers.id, decoded.memberId),
+                  eq(householdMembers.householdId, decoded.householdId)
+                )
+              )
+              .limit(1);
+
+            if (slot && slot.userId === null) {
+              // Link the new user to the existing member slot
+              await db
+                .update(householdMembers)
+                .set({ userId, memberName: input.name, isActive: true })
+                .where(eq(householdMembers.id, decoded.memberId));
+
+              claimedHouseholdId = decoded.householdId;
+              claimedMemberId = decoded.memberId;
+            }
+          }
+        } catch {
+          // Invalid / expired invite token – ignore silently, registration still succeeds
         }
       }
 

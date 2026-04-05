@@ -659,9 +659,9 @@ export const demoRouter = router({
       // 3. Process members
       for (const m of input.members) {
         if (m.action === "remove") {
+          // Hard delete – demo members have no real user account, safe to remove
           await db
-            .update(householdMembers)
-            .set({ isActive: false })
+            .delete(householdMembers)
             .where(eq(householdMembers.id, m.id));
         } else if (m.action === "rename" && m.newName) {
           await db

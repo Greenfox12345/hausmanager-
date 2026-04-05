@@ -26,6 +26,9 @@ export default function Register() {
   const demoExpiresAt = localStorage.getItem("demo_expires_at");
   const isDemoActive = demoToken !== null && demoExpiresAt !== null && new Date(demoExpiresAt) > new Date();
 
+  // Extract member invite token from URL query param (?invite=...)
+  const inviteToken = searchParams.get("invite") ?? null;
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -98,6 +101,7 @@ export default function Register() {
       password: formData.password,
       name: formData.name,
       demoToken: isDemoActive ? (demoToken ?? undefined) : undefined,
+      inviteToken: inviteToken ?? undefined,
     });
   };
 

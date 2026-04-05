@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2, Crown } from "lucide-react";
+import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2, Crown, Link2, UserX, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
@@ -35,6 +35,9 @@ export default function Members() {
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [transferTarget, setTransferTarget] = useState<{ id: number; name: string } | null>(null);
+  const [inviteLinkData, setInviteLinkData] = useState<{ link: string; memberName: string } | null>(null);
+  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [kickTarget, setKickTarget] = useState<{ id: number; name: string } | null>(null);
   const { t, i18n } = useTranslation(["members", "common"]);
   const currentUiLang = getCurrentLanguage();
 
@@ -109,6 +112,29 @@ export default function Members() {
     },
   });
 
+  // Generate member invite link mutation
+  const generateInviteLinkMutation = trpc.householdManagement.generateMemberInviteLink.useMutation({
+    onSuccess: (data) => {
+      setInviteLinkData({ link: data.inviteLink, memberName: data.memberName });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Kick (delete) unregistered member mutation
+  const kickMemberMutation = trpc.householdManagement.kickMember.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${data.memberName} wurde aus dem Haushalt entfernt.`);
+      setKickTarget(null);
+      refetchSettings();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setKickTarget(null);
+    },
+  });
+
   // Transfer admin mutation
   const transferAdminMutation = trpc.householdManagement.transferAdmin.useMutation({
     onSuccess: (data) => {
@@ -138,6 +164,17 @@ export default function Members() {
   const handleHouseholdLanguageChange = (code: SupportedLanguageCode) => {
     if (!householdId) return;
     updateLanguageMutation.mutate({ householdId, language: code });
+  };
+
+  const handleCopyInviteLink = async (link: string) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setInviteLinkCopied(true);
+      toast.success("Einladungslink kopiert!");
+      setTimeout(() => setInviteLinkCopied(false), 2000);
+    } catch {
+      toast.error(t("common:messages.copyError"));
+    }
   };
 
   const handleCopyInviteCode = async () => {
@@ -249,8 +286,35 @@ export default function Members() {
                         {m.isActive ? t("common:status.active") : t("common:status.inactive")}
                       </div>
                     </div>
-                    {/* Transfer admin button – only visible to admin, not for themselves */}
-                    {settings?.isAdmin && m.userId !== settings?.adminUserId && m.isActive && (
+                    {/* Buttons for unregistered members (no userId) – only visible to admin */}
+                    {settings?.isAdmin && m.userId === null && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          disabled={generateInviteLinkMutation.isPending}
+                          onClick={() =>
+                            householdId &&
+                            generateInviteLinkMutation.mutate({ householdId, memberId: m.id })
+                          }
+                        >
+                          <Link2 className="h-3.5 w-3.5" />
+                          Einladen
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setKickTarget({ id: m.id, name: m.memberName })}
+                        >
+                          <UserX className="h-3.5 w-3.5" />
+                          Entfernen
+                        </Button>
+                      </div>
+                    )}
+                    {/* Transfer admin button – only visible to admin, not for themselves, only for registered members */}
+                    {settings?.isAdmin && m.userId !== null && m.userId !== settings?.adminUserId && m.isActive && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -594,6 +658,83 @@ export default function Members() {
             >
               <Crown className="h-4 w-4 mr-1.5" />
               {t("members:household.transferAdminConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Invite Link Dialog */}
+      {inviteLinkData && (
+        <AlertDialog open={true} onOpenChange={(open) => !open && setInviteLinkData(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-blue-500" />
+                Einladungslink für {inviteLinkData.memberName}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Dieser Link ist 7 Tage gültig. Die Person kann sich damit registrieren und landet direkt in deinem Haushalt.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="flex items-center gap-2">
+                <input
+                  readOnly
+                  value={inviteLinkData.link}
+                  className="flex-1 rounded-md border bg-muted px-3 py-2 text-sm font-mono truncate"
+                />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => handleCopyInviteLink(inviteLinkData.link)}
+                >
+                  {inviteLinkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Tipp: Schicke den Link per WhatsApp, E-Mail oder SMS.
+              </p>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setInviteLinkData(null)}>Schließen</AlertDialogCancel>
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => window.open(inviteLinkData.link, "_blank")}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Link öffnen
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {/* Kick Member Confirmation Dialog */}
+      <AlertDialog open={!!kickTarget} onOpenChange={(open) => !open && setKickTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <UserX className="h-5 w-5 text-destructive" />
+              Mitglied entfernen
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchtest du <strong>{kickTarget?.name}</strong> wirklich aus dem Haushalt entfernen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={kickMemberMutation.isPending}
+              onClick={() => {
+                if (householdId && kickTarget) {
+                  kickMemberMutation.mutate({ householdId, memberId: kickTarget.id });
+                }
+              }}
+            >
+              <UserX className="h-4 w-4 mr-1.5" />
+              Entfernen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

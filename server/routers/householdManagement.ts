@@ -967,4 +967,103 @@ export const householdManagementRouter = router({
 
       return { success: true, newAdminName: targetMember.memberName };
     }),
+
+  /**
+   * Generate a personal invite link for an unregistered household member.
+   * The link contains a signed JWT with memberId + householdId so the
+   * registering user lands directly in the right household.
+   * Only the household admin (createdBy) may call this.
+   */
+  generateMemberInviteLink: protectedProcedure
+    .input(z.object({ householdId: z.number(), memberId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Only the household owner may generate invite links
+      const [hh] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+      if (!hh || hh.createdBy !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can generate invite links" });
+      }
+
+      // Verify the target member exists, belongs to this household, and is NOT yet registered
+      const [targetMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.id, input.memberId),
+            eq(householdMembers.householdId, input.householdId)
+          )
+        )
+        .limit(1);
+      if (!targetMember) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" });
+      }
+      if (targetMember.userId !== null) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Member is already registered" });
+      }
+
+      // Sign a short-lived invite token (7 days)
+      const inviteToken = jwt.sign(
+        { householdId: input.householdId, memberId: input.memberId, type: "member_invite" },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      // Build the full URL – use VITE_FRONTEND_FORGE_API_URL as base or fall back to relative
+      const appUrl = process.env.VITE_APP_URL || "";
+      const inviteLink = `${appUrl}/register?invite=${inviteToken}`;
+
+      return { inviteLink, memberName: targetMember.memberName };
+    }),
+
+  /**
+   * Kick (hard-delete) an unregistered member from the household.
+   * Only the household admin (createdBy) may call this.
+   */
+  kickMember: protectedProcedure
+    .input(z.object({ householdId: z.number(), memberId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Only the household owner may kick members
+      const [hh] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+      if (!hh || hh.createdBy !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can kick members" });
+      }
+
+      // Verify the target member exists and is NOT registered (safety guard)
+      const [targetMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.id, input.memberId),
+            eq(householdMembers.householdId, input.householdId)
+          )
+        )
+        .limit(1);
+      if (!targetMember) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" });
+      }
+      if (targetMember.userId !== null) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot kick a registered user – use leaveHousehold instead" });
+      }
+
+      await db
+        .delete(householdMembers)
+        .where(eq(householdMembers.id, input.memberId));
+
+      return { success: true, memberName: targetMember.memberName };
+    }),
 });
