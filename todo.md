@@ -3403,3 +3403,6 @@
 - [x] Frontend: /members – Einladungslink-Button für Mitglieder ohne userId (nicht registriert)
 - [x] Frontend: /members – Kick/Löschen-Button für nicht-registrierte Mitglieder
 - [x] Frontend: /members – kopierbarer Einladungslink-Dialog
+
+## Bug: kickMember / applyOnboarding DELETE schlägt fehl (FK-Constraint)
+- [x] Backend: kickMember und applyOnboarding-remove: abhängige Datensätze vor DELETE bereinigen (deleteMemberCascade-Funktion in householdManagement.ts und demo.ts)

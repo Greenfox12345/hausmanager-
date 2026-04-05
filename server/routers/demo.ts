@@ -21,11 +21,34 @@ import {
   activityHistory,
   projects,
   projectHouseholds,
+  borrowRequests,
+  householdConnections,
 } from "../../drizzle/schema";
 import { eq, lt, and, isNull, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+/**
+ * Safely delete a household member with cascade cleanup for non-cascade FKs.
+ * Shared with householdManagement router logic.
+ */
+async function deleteMemberCascade(db: Awaited<ReturnType<typeof getDb>>, memberId: number) {
+  if (!db) return;
+  await db.update(shoppingItems).set({ completedBy: null }).where(eq(shoppingItems.completedBy, memberId));
+  await db.update(tasks).set({ completedBy: null }).where(eq(tasks.completedBy, memberId));
+  await db.update(borrowRequests).set({ approvedBy: null }).where(eq(borrowRequests.approvedBy, memberId));
+  await db.delete(shoppingItems).where(eq(shoppingItems.addedBy, memberId));
+  await db.update(tasks).set({ createdBy: 0 }).where(eq(tasks.createdBy, memberId));
+  await db.update(activityHistory).set({ memberId: 0 }).where(eq(activityHistory.memberId, memberId));
+  await db.update(projects).set({ createdBy: 0 }).where(eq(projects.createdBy, memberId));
+  await db.update(inventoryItems).set({ createdBy: 0 }).where(eq(inventoryItems.createdBy, memberId));
+  await db.delete(borrowRequests).where(eq(borrowRequests.borrowerMemberId, memberId));
+  await db.update(calendarEvents).set({ createdBy: 0 }).where(eq(calendarEvents.createdBy, memberId));
+  await db.delete(householdConnections).where(eq(householdConnections.requestedBy, memberId));
+  await db.delete(householdMembers).where(eq(householdMembers.id, memberId));
+}
+
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 const DEMO_EXPIRY_HOURS = 24;
@@ -659,10 +682,8 @@ export const demoRouter = router({
       // 3. Process members
       for (const m of input.members) {
         if (m.action === "remove") {
-          // Hard delete – demo members have no real user account, safe to remove
-          await db
-            .delete(householdMembers)
-            .where(eq(householdMembers.id, m.id));
+          // Hard delete with cascade cleanup – demo members have no real user account
+          await deleteMemberCascade(db, m.id);
         } else if (m.action === "rename" && m.newName) {
           await db
             .update(householdMembers)
