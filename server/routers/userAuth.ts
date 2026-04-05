@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../_core/trpc";
+import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { users, demoSessions, householdMembers } from "../../drizzle/schema";
+import { users, demoSessions, householdMembers, households, shoppingItems } from "../../drizzle/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -68,13 +68,29 @@ export const userAuthRouter = router({
           .limit(1);
 
         if (session && session.expiresAt > new Date()) {
-          // Link demo member to new user
-          await db
-            .update(householdMembers)
-            .set({ userId })
-            .where(eq(householdMembers.id, session.memberId));
+          const householdId = session.householdId;
 
-          // Mark session as claimed and extend expiry
+          // 1. Create a NEW member for the registering user (with their real name)
+          const [newMemberResult] = await db.insert(householdMembers).values({
+            householdId,
+            userId,
+            memberName: input.name,
+            isActive: true,
+          });
+          const newMemberId = Number(newMemberResult.insertId);
+
+          // 2. Set the household's createdBy to the new user (makes them the owner/admin)
+          await db
+            .update(households)
+            .set({ createdBy: userId })
+            .where(eq(households.id, householdId));
+
+          // 3. Delete all demo shopping items (they are just example data)
+          await db
+            .delete(shoppingItems)
+            .where(eq(shoppingItems.householdId, householdId));
+
+          // 4. Mark session as claimed and extend expiry to 30 days
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
           await db
@@ -82,8 +98,8 @@ export const userAuthRouter = router({
             .set({ claimedByUserId: userId, expiresAt: newExpiry })
             .where(eq(demoSessions.token, input.demoToken));
 
-          claimedHouseholdId = session.householdId;
-          claimedMemberId = session.memberId;
+          claimedHouseholdId = householdId;
+          claimedMemberId = newMemberId;
         }
       }
 
@@ -198,7 +214,7 @@ export const userAuthRouter = router({
 
         const db = await getDb();
         if (!db) throw new Error("Database connection failed");
-      if (!db) throw new Error("Database connection failed");
+
         const [user] = await db
           .select()
           .from(users)

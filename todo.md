@@ -3367,3 +3367,16 @@
 - [x] Demo-Logout: demo_token + auth_token aus localStorage entfernen
 - [x] Demo-Sidebar: "Konto erstellen"-Button statt leerem Avatar
 - [x] Demo-Funktionsumfang begrenzen: Neighborhood und Settings deaktivieren (Demo-Banner + CTA stattdessen)
+
+## Post-Claim-Onboarding nach Demo-Übernahme
+- [x] Backend: Claim-Logik – registrierten User als Admin-Mitglied setzen (nicht nur userId verknüpfen)
+- [x] Backend: Demo-Mitglieder (Alex, Maria, Jonas, Sophie) beim Claim entfernen oder als inaktiv markieren (via Onboarding-Dialog)
+- [x] Backend: Demo-Shopping-Items beim Claim löschen (Datenbank-Bereinigung)
+- [x] Backend: Neue tRPC-Prozedur für Post-Claim-Onboarding (Haushaltsname ändern, Aufgaben löschen, Mitglieder verwalten)
+- [x] Backend: Aufgaben-Liste mit Projekt-Zuordnung für Onboarding-Dialog
+- [x] Frontend: Post-Claim-Onboarding-Dialog nach Registrierung anzeigen
+- [x] Frontend: Haushaltsname-Änderung im Onboarding-Dialog
+- [x] Frontend: Aufgaben-Liste nach Projekten gruppiert, doppelt zugeordnete andersfarbig markiert
+- [x] Frontend: Aufgaben auswählen und löschen im Onboarding-Dialog
+- [x] Frontend: Mitglieder-Liste mit Umbenennen/Entfernen-Funktion im Onboarding-Dialog
+- [x] Frontend: Onboarding-Dialog nach Abschluss schließen und zu Hauptseite weiterleiten

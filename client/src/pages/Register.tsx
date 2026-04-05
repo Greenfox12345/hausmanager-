@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Home, FlaskConical, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
+import DemoOnboardingDialog from "@/components/DemoOnboardingDialog";
 
 export default function Register() {
   const [location, setLocation] = useLocation();
@@ -32,50 +33,40 @@ export default function Register() {
     name: "",
   });
 
-  const claimDemoMutation = trpc.demo.claimSession.useMutation({
-    onSuccess: (data) => {
-      if (data.success) {
-        // Clear demo storage
-        localStorage.removeItem("demo_token");
-        localStorage.removeItem("demo_expires_at");
-        toast.success(t("demo.demoHouseholdClaimed", "Ihr Demo-Haushalt wurde erfolgreich übernommen!"));
-      }
-    },
-  });
+  // Post-claim onboarding state
+  const [onboardingHouseholdId, setOnboardingHouseholdId] = useState<number | null>(null);
 
   const registerMutation = trpc.userAuth.register.useMutation({
     onSuccess: async (data) => {
-      // If there's a demo token, claim the demo household
-      if (isDemoActive && demoToken && data.token) {
-        try {
-          await claimDemoMutation.mutateAsync({
-            demoToken,
-            userId: data.userId,
-          });
-        } catch {
-          // Non-fatal: registration succeeded, demo claim failed
-          toast.error("Demo-Haushalt konnte nicht übernommen werden, aber Ihr Konto wurde erstellt.");
-        }
-      } else {
-        toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));
-      }
-      // Log in the user
+      // Log in the user first so subsequent tRPC calls are authenticated
       if (data.token) {
         login(data.token);
-        if (data.claimedHouseholdId && data.claimedMemberId) {
-          // Demo household was claimed – go directly to app
-          setCurrentHousehold({
-            householdId: data.claimedHouseholdId,
-            householdName: "Demo-Haushalt",
-            memberId: data.claimedMemberId,
-            memberName: formData.name,
-          });
-          setLocation("/shopping");
-        } else {
-          setLocation("/household-selection");
-        }
+      }
+
+      if (data.claimedHouseholdId && data.claimedMemberId) {
+        // Clear demo storage
+        localStorage.removeItem("demo_token");
+        localStorage.removeItem("demo_expires_at");
+        localStorage.removeItem("auth_token"); // remove old demo JWT
+
+        // Set household context
+        setCurrentHousehold({
+          householdId: data.claimedHouseholdId,
+          householdName: "Mein Haushalt",
+          memberId: data.claimedMemberId,
+          memberName: formData.name,
+        });
+
+        toast.success(t("demo.demoHouseholdClaimed", "Demo-Haushalt erfolgreich übernommen!"));
+        // Show onboarding dialog
+        setOnboardingHouseholdId(data.claimedHouseholdId);
       } else {
-        setLocation("/login");
+        toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));
+        if (data.token) {
+          setLocation("/household-selection");
+        } else {
+          setLocation("/login");
+        }
       }
     },
     onError: (error) => {
@@ -114,141 +105,157 @@ export default function Register() {
     setCurrentLang(code);
   };
 
+  function handleOnboardingClose() {
+    setOnboardingHouseholdId(null);
+    setLocation("/shopping");
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      {/* Language flag buttons – top right corner */}
-      <div className="fixed top-4 right-4 flex items-center gap-1">
-        {SUPPORTED_LANGUAGES.map((lang) => (
-          <button
-            key={lang.code}
-            onClick={() => handleLanguageChange(lang.code)}
-            title={lang.name}
-            className={`text-xl leading-none rounded-md px-1.5 py-1 transition-all ${
-              currentLang === lang.code
-                ? "ring-2 ring-blue-500 bg-white/80 shadow-sm scale-110"
-                : "opacity-60 hover:opacity-100 hover:bg-white/60"
-            }`}
-          >
-            {lang.flag}
-          </button>
-        ))}
-      </div>
+    <>
+      {/* Post-claim onboarding dialog */}
+      {onboardingHouseholdId !== null && (
+        <DemoOnboardingDialog
+          open={true}
+          householdId={onboardingHouseholdId}
+          onClose={handleOnboardingClose}
+        />
+      )}
 
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            {isDemoActive ? (
-              <div className="relative">
-                <Home className="h-12 w-12 text-blue-600" />
-                <FlaskConical className="h-5 w-5 text-amber-500 absolute -top-1 -right-2" />
-              </div>
-            ) : (
-              <Home className="h-12 w-12 text-blue-600" />
-            )}
-          </div>
-          <CardTitle className="text-2xl font-bold">Haushaltsmanager</CardTitle>
-          <CardDescription>
-            {isDemoActive
-              ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
-              : t("register.subtitle", "Erstellen Sie ein neues Benutzerkonto")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Demo hint banner */}
-          {isDemoActive && (
-            <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
-              <FlaskConical className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-amber-800">
-                {t("demo.demoBannerText", "Sie befinden sich im Demo-Modus. Ihre Daten werden nach 24 Stunden gelöscht.")}{" "}
-                <strong>{t("demo.demoBannerClaim", "Jetzt Konto erstellen & Haushalt behalten")}</strong>
-              </p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t("register.username", "Name")}</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder={t("register.usernamePlaceholder", "z.B. Max Mustermann")}
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("login.email", "E-Mail")}</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder={t("login.emailPlaceholder", "ihre.email@beispiel.de")}
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("login.password", "Passwort")}</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder={t("register.passwordPlaceholder", "Mindestens 6 Zeichen")}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t("register.confirmPassword", "Passwort bestätigen")}</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder={t("register.confirmPasswordPlaceholder", "Passwort wiederholen")}
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className={`w-full gap-2 ${isDemoActive ? "bg-amber-600 hover:bg-amber-700" : ""}`}
-              disabled={registerMutation.isPending}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        {/* Language flag buttons – top right corner */}
+        <div className="fixed top-4 right-4 flex items-center gap-1">
+          {SUPPORTED_LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              title={lang.name}
+              className={`text-xl leading-none rounded-md px-1.5 py-1 transition-all ${
+                currentLang === lang.code
+                  ? "ring-2 ring-blue-500 bg-white/80 shadow-sm scale-110"
+                  : "opacity-60 hover:opacity-100 hover:bg-white/60"
+              }`}
             >
-              {isDemoActive && <UserPlus className="h-4 w-4" />}
-              {registerMutation.isPending
-                ? t("register.loading", "Wird registriert...")
-                : isDemoActive
-                  ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
-                  : t("register.submit", "Registrieren")}
-            </Button>
+              {lang.flag}
+            </button>
+          ))}
+        </div>
 
-            <div className="text-center text-sm text-gray-600">
-              {t("register.hasAccount", "Bereits registriert?")}{" "}
-              <button
-                type="button"
-                onClick={() => setLocation("/login")}
-                className="text-blue-600 hover:underline"
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1 text-center">
+            <div className="flex justify-center mb-4">
+              {isDemoActive ? (
+                <div className="relative">
+                  <Home className="h-12 w-12 text-blue-600" />
+                  <FlaskConical className="h-5 w-5 text-amber-500 absolute -top-1 -right-2" />
+                </div>
+              ) : (
+                <Home className="h-12 w-12 text-blue-600" />
+              )}
+            </div>
+            <CardTitle className="text-2xl font-bold">Haushaltsmanager</CardTitle>
+            <CardDescription>
+              {isDemoActive
+                ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
+                : t("register.subtitle", "Erstellen Sie ein neues Benutzerkonto")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Demo hint banner */}
+            {isDemoActive && (
+              <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
+                <FlaskConical className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-xs text-amber-800">
+                  {t("demo.demoBannerText", "Sie befinden sich im Demo-Modus. Ihre Daten werden nach 24 Stunden gelöscht.")}{" "}
+                  <strong>{t("demo.demoBannerClaim", "Jetzt Konto erstellen & Haushalt behalten")}</strong>
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">{t("register.username", "Name")}</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder={t("register.usernamePlaceholder", "z.B. Max Mustermann")}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  disabled={registerMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">{t("login.email", "E-Mail")}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t("login.emailPlaceholder", "ihre.email@beispiel.de")}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  disabled={registerMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">{t("login.password", "Passwort")}</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={t("register.passwordPlaceholder", "Mindestens 6 Zeichen")}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  disabled={registerMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t("register.confirmPassword", "Passwort bestätigen")}</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder={t("register.confirmPasswordPlaceholder", "Passwort wiederholen")}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  disabled={registerMutation.isPending}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className={`w-full gap-2 ${isDemoActive ? "bg-amber-600 hover:bg-amber-700" : ""}`}
+                disabled={registerMutation.isPending}
               >
-                {t("register.login", "Jetzt anmelden")}
-              </button>
-            </div>
-            <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
-              <Link href="/privacy" className="hover:underline">
-                {t("register.privacy", "Datenschutzerklärung")}
-              </Link>
-              <span>·</span>
-              <Link href="/imprint" className="hover:underline">
-                {t("register.imprint", "Impressum")}
-              </Link>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {isDemoActive && <UserPlus className="h-4 w-4" />}
+                {registerMutation.isPending
+                  ? t("register.loading", "Wird registriert...")
+                  : isDemoActive
+                    ? t("demo.registerWithDemo", "Konto erstellen & Demo-Haushalt übernehmen")
+                    : t("register.submit", "Registrieren")}
+              </Button>
+
+              <div className="text-center text-sm text-gray-600">
+                {t("register.hasAccount", "Bereits registriert?")}{" "}
+                <button
+                  type="button"
+                  onClick={() => setLocation("/login")}
+                  className="text-blue-600 hover:underline"
+                >
+                  {t("register.login", "Jetzt anmelden")}
+                </button>
+              </div>
+              <div className="text-center text-xs text-gray-400 mt-1 flex justify-center gap-3">
+                <Link href="/privacy" className="hover:underline">
+                  {t("register.privacy", "Datenschutzerklärung")}
+                </Link>
+                <span>·</span>
+                <Link href="/imprint" className="hover:underline">
+                  {t("register.imprint", "Impressum")}
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

@@ -19,8 +19,10 @@ import {
   inventoryItems,
   calendarEvents,
   activityHistory,
+  projects,
+  projectHouseholds,
 } from "../../drizzle/schema";
-import { eq, lt, and, isNull } from "drizzle-orm";
+import { eq, lt, and, isNull, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -505,6 +507,141 @@ export const demoRouter = router({
         householdId: session.householdId,
         memberId: session.memberId,
       };
+    }),
+
+  /**
+   * Get onboarding data for a newly claimed demo household.
+   * Returns tasks (with project info) and members for the post-claim setup dialog.
+   */
+  getOnboardingData: protectedProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verify the user owns this household
+      const [hh] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+      if (!hh || hh.createdBy !== ctx.user?.id) {
+        throw new Error("Unauthorized");
+      }
+
+      // Fetch all tasks
+      const allTasks = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.householdId, input.householdId));
+
+      // Fetch all projects for this household via project_households join
+      const projectLinks = await db
+        .select({ projectId: projectHouseholds.projectId })
+        .from(projectHouseholds)
+        .where(eq(projectHouseholds.householdId, input.householdId));
+      const projectIds = projectLinks.map((l) => l.projectId);
+      const allProjects = projectIds.length > 0
+        ? await db.select().from(projects).where(inArray(projects.id, projectIds))
+        : [];
+
+      const projectMap = new Map(allProjects.map((p) => [p.id, p.name]));
+
+      // Build task list with project names and duplicate-project flag
+      const taskList = allTasks.map((t) => {
+        const pIds: number[] = Array.isArray(t.projectIds) ? (t.projectIds as number[]) : [];
+        const projectNames = pIds.map((id) => projectMap.get(id) ?? null).filter(Boolean) as string[];
+        return {
+          id: t.id,
+          name: t.name,
+          description: t.description,
+          projectIds: pIds,
+          projectNames,
+          isDuplicated: pIds.length > 1, // assigned to multiple projects
+          dueDate: t.dueDate?.toISOString() ?? null,
+        };
+      });
+
+      // Fetch members (exclude the newly created user-linked member)
+      const members = await db
+        .select()
+        .from(householdMembers)
+        .where(and(eq(householdMembers.householdId, input.householdId), eq(householdMembers.isActive, true)));
+
+      return {
+        householdName: hh.name,
+        tasks: taskList,
+        projects: allProjects.map((p) => ({ id: p.id, name: p.name })),
+        members: members.map((m) => ({
+          id: m.id,
+          memberName: m.memberName,
+          isOwner: m.userId === ctx.user?.id,
+        })),
+      };
+    }),
+
+  /**
+   * Apply post-claim onboarding changes:
+   * - Rename the household
+   * - Delete selected tasks
+   * - Rename or remove demo members
+   */
+  applyOnboarding: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        householdName: z.string().min(1).max(100),
+        deleteTaskIds: z.array(z.number()),
+        members: z.array(
+          z.object({
+            id: z.number(),
+            action: z.enum(["keep", "rename", "remove"]),
+            newName: z.string().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verify ownership
+      const [hh] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+      if (!hh || hh.createdBy !== ctx.user?.id) {
+        throw new Error("Unauthorized");
+      }
+
+      // 1. Rename household
+      await db
+        .update(households)
+        .set({ name: input.householdName })
+        .where(eq(households.id, input.householdId));
+
+      // 2. Delete selected tasks
+      if (input.deleteTaskIds.length > 0) {
+        await db.delete(tasks).where(inArray(tasks.id, input.deleteTaskIds));
+      }
+
+      // 3. Process members
+      for (const m of input.members) {
+        if (m.action === "remove") {
+          await db
+            .update(householdMembers)
+            .set({ isActive: false })
+            .where(eq(householdMembers.id, m.id));
+        } else if (m.action === "rename" && m.newName) {
+          await db
+            .update(householdMembers)
+            .set({ memberName: m.newName })
+            .where(eq(householdMembers.id, m.id));
+        }
+      }
+
+      return { success: true };
     }),
 
   /**
