@@ -1,0 +1,1 @@
+ALTER TABLE `households` MODIFY COLUMN `createdBy` int;

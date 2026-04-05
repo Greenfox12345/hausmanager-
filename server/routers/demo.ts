@@ -55,7 +55,7 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
   const [hhResult] = await db.insert(households).values({
     name: demoHouseholdName,
     passwordHash,
-    createdBy: 0, // placeholder, updated after member creation
+    createdBy: null, // no user yet for demo households
     language: "de",
     inviteCode: crypto.randomBytes(4).toString("hex").toUpperCase(),
   });
@@ -75,8 +75,6 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
   }
   const [alexId, mariaId, jonasId, sophieId] = memberIds;
 
-  // Update createdBy to first member
-  await db.update(households).set({ createdBy: alexId }).where(eq(households.id, householdId));
 
   // ── 3. Einkaufskategorien ────────────────────────────────────────────────
   const catData = [

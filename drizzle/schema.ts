@@ -32,7 +32,7 @@ export const households = mysqlTable("households", {
   // Language used for household-wide texts (history entries, notifications)
   // Individual UI language is stored in localStorage per user
   language: varchar("language", { length: 10 }).default("de").notNull(),
-  createdBy: int("createdBy").notNull().references(() => users.id),
+  createdBy: int("createdBy").references(() => users.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
