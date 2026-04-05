@@ -120,7 +120,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
-  addedBy: int("addedBy").notNull().references(() => householdMembers.id),
+  addedBy: int("addedBy").references(() => householdMembers.id, { onDelete: "set null" }),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -162,7 +162,7 @@ export const tasks = mysqlTable("tasks", {
   skippedDates: json("skippedDates").$type<string[]>(), // ISO date strings of skipped occurrences for recurring tasks
   sharedHouseholdIds: json("sharedHouseholdIds").$type<number[]>(), // IDs of households this task is shared with
   nonResponsiblePermission: mysqlEnum("nonResponsiblePermission", ["full", "milestones_reminders", "view_only"]).default("full").notNull(), // Permission level for non-responsible members
-  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -247,7 +247,7 @@ export const projects = mysqlTable("projects", {
   status: mysqlEnum("status", ["planning", "active", "completed", "cancelled"]).default("planning").notNull(),
   isNeighborhoodProject: boolean("isNeighborhoodProject").default(false).notNull(),
   isArchived: boolean("isArchived").default(false).notNull(),
-  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -286,7 +286,7 @@ export const inventoryItems = mysqlTable("inventory_items", {
    * - selected: only specific households listed in inventory_item_allowed_households
    */
   visibility: mysqlEnum("visibility", ["private", "connected", "selected"]).default("private").notNull(),
-  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -327,7 +327,7 @@ export type InsertInventoryOwnership = typeof inventoryOwnership.$inferInsert;
 export const activityHistory = mysqlTable("activity_history", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
-  memberId: int("memberId").notNull().references(() => householdMembers.id),
+  memberId: int("memberId").references(() => householdMembers.id, { onDelete: "set null" }),
   activityType: mysqlEnum("activityType", ["shopping", "task", "project", "member", "inventory", "calendar", "borrow", "other"]).notNull(),
   action: varchar("action", { length: 100 }).notNull(),
   description: text("description").notNull(),
@@ -351,7 +351,7 @@ export const borrowRequests = mysqlTable("borrow_requests", {
   id: int("id").autoincrement().primaryKey(),
   inventoryItemId: int("inventoryItemId").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
   borrowerHouseholdId: int("borrowerHouseholdId").notNull().references(() => households.id),
-  borrowerMemberId: int("borrowerMemberId").notNull().references(() => householdMembers.id),
+  borrowerMemberId: int("borrowerMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
   ownerHouseholdId: int("ownerHouseholdId").notNull().references(() => households.id),
   status: mysqlEnum("status", ["pending", "approved", "active", "completed", "rejected", "cancelled"]).default("pending").notNull(),
   startDate: timestamp("startDate").notNull(),
@@ -390,7 +390,7 @@ export const calendarEvents = mysqlTable("calendar_events", {
   relatedBorrowId: int("relatedBorrowId").references(() => borrowRequests.id, { onDelete: "cascade" }),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedAt: timestamp("completedAt"),
-  createdBy: int("createdBy").notNull().references(() => householdMembers.id),
+  createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -485,7 +485,7 @@ export const householdConnections = mysqlTable("household_connections", {
   requestingHouseholdId: int("requestingHouseholdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   targetHouseholdId: int("targetHouseholdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
-  requestedBy: int("requestedBy").notNull().references(() => householdMembers.id),
+  requestedBy: int("requestedBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

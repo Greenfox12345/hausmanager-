@@ -255,7 +255,7 @@ export const borrowRouter = router({
         itemId: request.inventoryItemId,
         itemName: item.name,
         requestId: input.requestId,
-        borrowerName: (await getHouseholdMemberById(request.borrowerMemberId))?.memberName,
+        borrowerName: (await getHouseholdMemberById(request.borrowerMemberId!))?.memberName,
         startDate: request.startDate.toISOString(),
         endDate: request.endDate.toISOString(),
       };
@@ -269,11 +269,11 @@ export const borrowRouter = router({
       const approveLang = await getBorrowLang(request.borrowerHouseholdId);
       const approverMemberObj = await getHouseholdMemberById(input.approverId);
       const approverMemberName = approverMemberObj?.memberName ?? `#${input.approverId}`;
-      const borrowerMemberObj2 = await getHouseholdMemberById(request.borrowerMemberId);
-      const borrowerMemberName2 = borrowerMemberObj2?.memberName ?? `#${request.borrowerMemberId}`;
+      const borrowerMemberObj2 = await getHouseholdMemberById(request.borrowerMemberId!);
+      const borrowerMemberName2 = borrowerMemberObj2?.memberName ?? `#${request.borrowerMemberId!}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_approved",
         description: borrowApproved(approveLang, item.name, borrowerMemberName2, approverMemberName),
@@ -297,7 +297,7 @@ export const borrowRouter = router({
         : `${approverName} hat deine Anfrage für "${item.name}" (${startFormatted} – ${endFormatted})${approvalTaskInfo} genehmigt.`;
       await createNotification({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         type: "general",
         title: approveTitle,
         message: approveMsg,
@@ -305,7 +305,7 @@ export const borrowRouter = router({
       });
 
       // Create calendar events for borrow start and return
-      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId!);
       const borrowerName = borrowerMember?.memberName || "Ausleiher";
 
       // Borrow start event
@@ -380,11 +380,11 @@ export const borrowRouter = router({
       const rejecterMember = await getHouseholdMemberById(input.approverId);
       const rejecterName = rejecterMember?.memberName || "Eigentümer";
       const rejectLang = await getBorrowLang(request.borrowerHouseholdId);
-      const rejectBorrowerObj = await getHouseholdMemberById(request.borrowerMemberId);
-      const rejectBorrowerName = rejectBorrowerObj?.memberName ?? `#${request.borrowerMemberId}`;
+      const rejectBorrowerObj = await getHouseholdMemberById(request.borrowerMemberId!);
+      const rejectBorrowerName = rejectBorrowerObj?.memberName ?? `#${request.borrowerMemberId!}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_rejected",
         description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage ?? ""),
@@ -415,7 +415,7 @@ export const borrowRouter = router({
           : `${rejecterName} hat deine Anfrage für "${item.name}" (${rejectStartFormatted} – ${rejectEndFormatted}) abgelehnt.`);
       await createNotification({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         type: "general",
         title: rejectTitle,
         message: rejectMessage,
@@ -469,7 +469,7 @@ export const borrowRouter = router({
             borrowRequestId: input.requestId,
             photoRequirementId: photo.requirementId,
             photoUrl: photo.photoUrl,
-            uploadedBy: request.borrowerMemberId,
+            uploadedBy: request.borrowerMemberId!,
           });
         }
       }
@@ -478,11 +478,11 @@ export const borrowRouter = router({
       
       // Create activity log (multilingual)
       const returnLang = await getBorrowLang(request.borrowerHouseholdId);
-      const returnMemberObj = await getHouseholdMemberById(request.borrowerMemberId);
-      const returnMemberName = returnMemberObj?.memberName ?? `#${request.borrowerMemberId}`;
+      const returnMemberObj = await getHouseholdMemberById(request.borrowerMemberId!);
+      const returnMemberName = returnMemberObj?.memberName ?? `#${request.borrowerMemberId!}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_returned",
         description: borrowReturned(returnLang, item?.name ?? "?", returnMemberName),
@@ -530,7 +530,7 @@ export const borrowRouter = router({
 
       const revokerMember = await getHouseholdMemberById(input.revokerId);
       const revokerName = revokerMember?.memberName || "Unbekannt";
-      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrowerMember = await getHouseholdMemberById(request.borrowerMemberId!);
       const borrowerName = borrowerMember?.memberName || "Unbekannt";
 
       // Update borrow request status to cancelled with reason
@@ -566,7 +566,7 @@ export const borrowRouter = router({
             : `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) für Aufgabe "${taskName}" (Termin ${occ.occurrenceNumber}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`;
           await createNotification({
             householdId: request.borrowerHouseholdId,
-            memberId: request.borrowerMemberId,
+            memberId: request.borrowerMemberId!,
             type: "general",
             title: revokeTitle1,
             message: revokeMsg1,
@@ -589,7 +589,7 @@ export const borrowRouter = router({
               taskName,
               occurrenceNumber: occ.occurrenceNumber,
               borrowerName,
-              borrowerMemberId: request.borrowerMemberId,
+              borrowerMemberId: request.borrowerMemberId!,
               startDate: request.startDate.toISOString(),
               endDate: request.endDate.toISOString(),
               reason: input.reason,
@@ -616,7 +616,7 @@ export const borrowRouter = router({
             : `Die Genehmigung für "${item.name}" (${new Date(request.startDate).toLocaleDateString("de-DE")} - ${new Date(request.endDate).toLocaleDateString("de-DE")}) wurde von ${revokerName} widerrufen. Begründung: ${input.reason}`;
           await createNotification({
             householdId: request.borrowerHouseholdId,
-            memberId: request.borrowerMemberId,
+            memberId: request.borrowerMemberId!,
             type: "general",
             title: revokeTitle2,
             message: revokeMsg2,
@@ -634,7 +634,7 @@ export const borrowRouter = router({
               itemName: item.name,
               requestId: input.requestId,
               borrowerName,
-              borrowerMemberId: request.borrowerMemberId,
+              borrowerMemberId: request.borrowerMemberId!,
               startDate: request.startDate.toISOString(),
               endDate: request.endDate.toISOString(),
               reason: input.reason,
@@ -661,7 +661,7 @@ export const borrowRouter = router({
       }
 
       // Only the borrower can cancel their own request
-      if (request.borrowerMemberId !== input.borrowerMemberId) {
+      if (request.borrowerMemberId! !== input.borrowerMemberId) {
         throw new Error("Nur der Ausleiher kann seine eigene Anfrage stornieren");
       }
 
@@ -879,11 +879,11 @@ export const borrowRouter = router({
 
       // Create activity log (multilingual)
       const ownerReturnLang = await getBorrowLang(request.borrowerHouseholdId);
-      const ownerReturnMemberObj = await getHouseholdMemberById(request.borrowerMemberId);
-      const ownerReturnMemberName = ownerReturnMemberObj?.memberName ?? `#${request.borrowerMemberId}`;
+      const ownerReturnMemberObj = await getHouseholdMemberById(request.borrowerMemberId!);
+      const ownerReturnMemberName = ownerReturnMemberObj?.memberName ?? `#${request.borrowerMemberId!}`;
       await createActivityLog({
         householdId: request.borrowerHouseholdId,
-        memberId: request.borrowerMemberId,
+        memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_returned",
         description: borrowReturned(ownerReturnLang, item?.name ?? "?", ownerReturnMemberName),
@@ -964,7 +964,7 @@ export const borrowRouter = router({
           const item = await getInventoryItemById(req.inventoryItemId);
           
           // Get borrower name
-          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId!);
           const borrowerName = borrower?.memberName || "Unbekannt";
           
           return {
@@ -1069,7 +1069,7 @@ export const borrowRouter = router({
       const enriched = await Promise.all(
         requests.map(async (req) => {
           const item = await getInventoryItemById(req.inventoryItemId);
-          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId!);
           let borrowerHouseholdName = "Unbekannt";
           if (db && req.borrowerHouseholdId) {
             const [hh] = await db.select({ name: households.name })
@@ -1114,7 +1114,7 @@ export const borrowRouter = router({
       const enriched = await Promise.all(
         pending.map(async (req) => {
           const item = await getInventoryItemById(req.inventoryItemId);
-          const borrower = await getHouseholdMemberById(req.borrowerMemberId);
+          const borrower = await getHouseholdMemberById(req.borrowerMemberId!);
           let borrowerHouseholdName = "Unbekannt";
           if (db && req.borrowerHouseholdId) {
             const [hh] = await db.select({ name: households.name })
@@ -1162,7 +1162,7 @@ export const borrowRouter = router({
 
       const request = await getBorrowRequestById(input.requestId);
       if (!request) throw new Error("Borrow request not found");
-      if (request.borrowerMemberId !== input.memberId) throw new Error("Not authorized");
+      if (request.borrowerMemberId! !== input.memberId) throw new Error("Not authorized");
       if (request.status !== "approved") throw new Error("Request must be approved before pickup");
 
       let photoUrl: string | undefined;
@@ -1236,7 +1236,7 @@ export const borrowRouter = router({
 
       const request = await getBorrowRequestById(input.requestId);
       if (!request) throw new Error("Borrow request not found");
-      if (request.borrowerMemberId !== input.memberId) throw new Error("Not authorized");
+      if (request.borrowerMemberId! !== input.memberId) throw new Error("Not authorized");
       if (request.status !== "active") throw new Error("Request must be active to return");
 
       let photoUrl: string | undefined;
@@ -1288,7 +1288,7 @@ export const borrowRouter = router({
       // Notify item owner about the return
       try {
         const item = await getInventoryItemById(request.inventoryItemId);
-        const borrower = await getHouseholdMemberById(request.borrowerMemberId);
+        const borrower = await getHouseholdMemberById(request.borrowerMemberId!);
         const borrowerName = borrower?.memberName ?? "Unbekannt";
         const returnDateFormatted = new Date().toLocaleDateString("de-DE");
         const commentPart = input.comment ? ` Kommentar: "${input.comment}"` : "";
@@ -1336,7 +1336,7 @@ export const borrowRouter = router({
       if (!request) return null;
 
       const item = await getInventoryItemById(request.inventoryItemId);
-      const borrower = await getHouseholdMemberById(request.borrowerMemberId);
+      const borrower = await getHouseholdMemberById(request.borrowerMemberId!);
       const { borrowGuidelines } = await import("../../drizzle/schema");
       const { eq: eqOp } = await import("drizzle-orm");
       const [guideline] = await db.select().from(borrowGuidelines)

@@ -3410,3 +3410,7 @@
 ## Fix: deleteMemberCascade – Sentinel-ID statt NULL/DELETE
 - [x] householdManagement.ts: alle FK-Felder auf Sentinel 0 statt NULL/DELETE
 - [x] demo.ts: gleiche Änderungen in der duplizierten deleteMemberCascade-Funktion
+
+## Bug: deleteMemberCascade – FK-Constraint auf shoppingItems.addedBy
+- [x] Schema: FK-Felder auf householdMembers.id nullable + onDelete:set null gesetzt; DB-Constraints direkt via SQL geändert
+- [x] deleteMemberCascade: DB übernimmt via onDelete:set null; nur completedBy/approvedBy explizit auf null gesetzt

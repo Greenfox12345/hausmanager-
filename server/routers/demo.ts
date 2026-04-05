@@ -35,18 +35,12 @@ import jwt from "jsonwebtoken";
  */
 async function deleteMemberCascade(db: Awaited<ReturnType<typeof getDb>>, memberId: number) {
   if (!db) return;
-  // All FK references are replaced with sentinel value 0 ("deleted member") to preserve data.
-  await db.update(shoppingItems).set({ completedBy: 0 }).where(eq(shoppingItems.completedBy, memberId));
-  await db.update(shoppingItems).set({ addedBy: 0 }).where(eq(shoppingItems.addedBy, memberId));
-  await db.update(tasks).set({ completedBy: 0 }).where(eq(tasks.completedBy, memberId));
-  await db.update(tasks).set({ createdBy: 0 }).where(eq(tasks.createdBy, memberId));
-  await db.update(activityHistory).set({ memberId: 0 }).where(eq(activityHistory.memberId, memberId));
-  await db.update(projects).set({ createdBy: 0 }).where(eq(projects.createdBy, memberId));
-  await db.update(inventoryItems).set({ createdBy: 0 }).where(eq(inventoryItems.createdBy, memberId));
-  await db.update(borrowRequests).set({ approvedBy: 0 }).where(eq(borrowRequests.approvedBy, memberId));
-  await db.update(borrowRequests).set({ borrowerMemberId: 0 }).where(eq(borrowRequests.borrowerMemberId, memberId));
-  await db.update(calendarEvents).set({ createdBy: 0 }).where(eq(calendarEvents.createdBy, memberId));
-  await db.update(householdConnections).set({ requestedBy: 0 }).where(eq(householdConnections.requestedBy, memberId));
+  // FK fields with onDelete:"set null" are handled automatically by the DB engine.
+  // Only completedBy/approvedBy (nullable, no onDelete) need explicit null.
+  await db.update(shoppingItems).set({ completedBy: null }).where(eq(shoppingItems.completedBy, memberId));
+  await db.update(tasks).set({ completedBy: null }).where(eq(tasks.completedBy, memberId));
+  await db.update(borrowRequests).set({ approvedBy: null }).where(eq(borrowRequests.approvedBy, memberId));
+  // Delete the member – DB cascades the rest via onDelete:"set null"
   await db.delete(householdMembers).where(eq(householdMembers.id, memberId));
 }
 

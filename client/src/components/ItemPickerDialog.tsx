@@ -14,7 +14,7 @@ type ConflictWarning = {
   conflicts: Array<{
     id: number;
     borrowerName: string;
-    borrowerMemberId: number;
+    borrowerMemberId: number | null;
     startDate: Date;
     endDate: Date;
     status: string;
