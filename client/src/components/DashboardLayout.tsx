@@ -50,15 +50,26 @@ export default function DashboardLayout({
   });
   const { loading, user } = useAuth();
 
+  // Check for active demo session – demo users bypass the OAuth guard
+  const isDemoSession = (() => {
+    try {
+      const demoToken = localStorage.getItem("demo_token");
+      const demoExpiresAt = localStorage.getItem("demo_expires_at");
+      return !!(demoToken && demoExpiresAt && new Date(demoExpiresAt) > new Date());
+    } catch {
+      return false;
+    }
+  })();
+
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  if (loading) {
+  if (loading && !isDemoSession) {
     return <DashboardLayoutSkeleton />
   }
 
-  if (!user) {
+  if (!user && !isDemoSession) {
     const { t } = useTranslation();
     return (
       <div className="flex items-center justify-center min-h-screen">
