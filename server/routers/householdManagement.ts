@@ -29,36 +29,22 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 async function deleteMemberCascade(db: Awaited<ReturnType<typeof getDb>>, memberId: number) {
   if (!db) return;
 
-  // SET NULL on columns that allow NULL
-  await db.update(shoppingItems).set({ completedBy: null }).where(eq(shoppingItems.completedBy, memberId));
-  await db.update(tasks).set({ completedBy: null }).where(eq(tasks.completedBy, memberId));
-  await db.update(borrowRequests).set({ approvedBy: null }).where(eq(borrowRequests.approvedBy, memberId));
+  // All FK references are replaced with sentinel value 0 ("deleted member") to preserve data integrity.
+  // Cascade-FK tables (notifications, taskRotationExclusions, taskRotationSchedule,
+  // householdDissolveVotes, demoSessions, taskRotationOccurrenceNotes, inventoryOwnership,
+  // inventoryItemAllowedHouseholds) are handled automatically by the DB.
 
-  // For non-nullable FKs: replace with 0 (sentinel) or delete the row
-  // shoppingItems.addedBy – delete items added by this member
-  await db.delete(shoppingItems).where(eq(shoppingItems.addedBy, memberId));
-
-  // tasks.createdBy – keep tasks but point to 0 ("deleted member")
-  // We can't set null (NOT NULL), so we use a sentinel value of 0
+  await db.update(shoppingItems).set({ completedBy: 0 }).where(eq(shoppingItems.completedBy, memberId));
+  await db.update(shoppingItems).set({ addedBy: 0 }).where(eq(shoppingItems.addedBy, memberId));
+  await db.update(tasks).set({ completedBy: 0 }).where(eq(tasks.completedBy, memberId));
   await db.update(tasks).set({ createdBy: 0 }).where(eq(tasks.createdBy, memberId));
-
-  // activityHistory.memberId – keep logs, set to 0
   await db.update(activityHistory).set({ memberId: 0 }).where(eq(activityHistory.memberId, memberId));
-
-  // projects.createdBy – keep projects, set to 0
   await db.update(projects).set({ createdBy: 0 }).where(eq(projects.createdBy, memberId));
-
-  // inventoryItems.createdBy – keep items, set to 0
   await db.update(inventoryItems).set({ createdBy: 0 }).where(eq(inventoryItems.createdBy, memberId));
-
-  // borrowRequests.borrowerMemberId – delete pending requests by this member
-  await db.delete(borrowRequests).where(eq(borrowRequests.borrowerMemberId, memberId));
-
-  // calendarEvents.createdBy – keep events, set to 0
+  await db.update(borrowRequests).set({ approvedBy: 0 }).where(eq(borrowRequests.approvedBy, memberId));
+  await db.update(borrowRequests).set({ borrowerMemberId: 0 }).where(eq(borrowRequests.borrowerMemberId, memberId));
   await db.update(calendarEvents).set({ createdBy: 0 }).where(eq(calendarEvents.createdBy, memberId));
-
-  // householdConnections.requestedBy – delete connection requests by this member
-  await db.delete(householdConnections).where(eq(householdConnections.requestedBy, memberId));
+  await db.update(householdConnections).set({ requestedBy: 0 }).where(eq(householdConnections.requestedBy, memberId));
 
   // Finally delete the member row itself
   await db.delete(householdMembers).where(eq(householdMembers.id, memberId));

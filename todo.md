@@ -3406,3 +3406,7 @@
 
 ## Bug: kickMember / applyOnboarding DELETE schlägt fehl (FK-Constraint)
 - [x] Backend: kickMember und applyOnboarding-remove: abhängige Datensätze vor DELETE bereinigen (deleteMemberCascade-Funktion in householdManagement.ts und demo.ts)
+
+## Fix: deleteMemberCascade – Sentinel-ID statt NULL/DELETE
+- [x] householdManagement.ts: alle FK-Felder auf Sentinel 0 statt NULL/DELETE
+- [x] demo.ts: gleiche Änderungen in der duplizierten deleteMemberCascade-Funktion
