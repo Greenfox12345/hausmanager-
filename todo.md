@@ -3385,3 +3385,9 @@
 - [x] Fix: JWT muss im tRPC-Client aktiv sein bevor getOnboardingData-Query feuert
 - [x] Fix: redirectToLogin darf Onboarding-Dialog nicht unterbrechen
 - [x] Fix: Onboarding-Dialog auch ohne vollständige Haushalt-Session öffnen können
+
+## Einkaufsliste im Onboarding-Dialog
+- [x] Backend: Shopping-Items NICHT beim Claim löschen (Zeile in userAuth.ts entfernen)
+- [x] Backend: getOnboardingData um shoppingItems erweitern (mit Kategorie-Name)
+- [x] Backend: applyOnboarding um deleteShoppingItemIds erweitern
+- [x] Frontend: Shopping-Tab im DemoOnboardingDialog (nach Kategorien gruppiert, auswählen & löschen)

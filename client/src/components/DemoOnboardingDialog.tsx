@@ -6,7 +6,8 @@
  *  1. Rename the household
  *  2. Review tasks (grouped by project, multi-project tasks highlighted in amber)
  *     and select which ones to delete
- *  3. Manage demo members (rename or remove)
+ *  3. Review shopping items (grouped by category) and select which ones to delete
+ *  4. Manage demo members (rename or remove)
  */
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
@@ -28,7 +29,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Home, Trash2, Users, CheckSquare, Pencil, X, Check, AlertTriangle } from "lucide-react";
+import {
+  Home,
+  Trash2,
+  Users,
+  CheckSquare,
+  Pencil,
+  X,
+  Check,
+  AlertTriangle,
+  ShoppingCart,
+} from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,10 +53,14 @@ interface OnboardingTask {
   dueDate: string | null;
 }
 
-interface OnboardingMember {
+interface OnboardingShoppingItem {
   id: number;
-  memberName: string;
-  isOwner: boolean;
+  name: string;
+  details: string | null;
+  isCompleted: boolean;
+  categoryId: number;
+  categoryName: string;
+  categoryColor: string;
 }
 
 interface MemberState {
@@ -74,6 +89,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
   // ── Local state ──────────────────────────────────────────────────────────
   const [householdName, setHouseholdName] = useState("");
   const [deleteTaskIds, setDeleteTaskIds] = useState<Set<number>>(new Set());
+  const [deleteShoppingIds, setDeleteShoppingIds] = useState<Set<number>>(new Set());
   const [memberStates, setMemberStates] = useState<Map<number, MemberState>>(new Map());
 
   // Sync household name from server once loaded
@@ -101,7 +117,6 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
   // ── Mutations ────────────────────────────────────────────────────────────
   const applyMutation = trpc.demo.applyOnboarding.useMutation({
     onSuccess: () => {
-      // Update household name in context
       if (currentHousehold) {
         setCurrentHousehold({ ...currentHousehold, householdName });
       }
@@ -113,13 +128,12 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
     },
   });
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Task helpers ─────────────────────────────────────────────────────────
 
   function toggleTask(id: number) {
     setDeleteTaskIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
@@ -131,6 +145,26 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
   function deselectAllTasks() {
     setDeleteTaskIds(new Set());
   }
+
+  // ── Shopping helpers ─────────────────────────────────────────────────────
+
+  function toggleShoppingItem(id: number) {
+    setDeleteShoppingIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAllShopping() {
+    if (data?.shoppingItems) setDeleteShoppingIds(new Set(data.shoppingItems.map((i) => i.id)));
+  }
+
+  function deselectAllShopping() {
+    setDeleteShoppingIds(new Set());
+  }
+
+  // ── Member helpers ───────────────────────────────────────────────────────
 
   function setMemberAction(id: number, action: MemberState["action"]) {
     setMemberStates((prev) => {
@@ -159,6 +193,8 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
     });
   }
 
+  // ── Save ─────────────────────────────────────────────────────────────────
+
   function handleSave() {
     if (!householdName.trim()) {
       toast.error("Bitte gib einen Haushaltsnamen ein.");
@@ -175,6 +211,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
       householdId,
       householdName: householdName.trim(),
       deleteTaskIds: Array.from(deleteTaskIds),
+      deleteShoppingItemIds: Array.from(deleteShoppingIds),
       members,
     });
   }
@@ -189,7 +226,6 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
       if (task.projectNames.length === 0) {
         noProject.push(task);
       } else {
-        // Primary group = first project
         const key = task.projectNames[0];
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key)!.push(task);
@@ -202,10 +238,28 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
     return result;
   }, [data?.tasks]);
 
+  // ── Grouped shopping items ────────────────────────────────────────────────
+  const groupedShopping = useMemo(() => {
+    if (!data?.shoppingItems) return [];
+    const groups = new Map<string, { color: string; items: OnboardingShoppingItem[] }>();
+
+    for (const item of data.shoppingItems) {
+      const key = item.categoryName;
+      if (!groups.has(key)) groups.set(key, { color: item.categoryColor, items: [] });
+      groups.get(key)!.items.push(item);
+    }
+
+    const result: { label: string; color: string; items: OnboardingShoppingItem[] }[] = [];
+    groups.forEach(({ color, items }, label) => result.push({ label, color, items }));
+    return result;
+  }, [data?.shoppingItems]);
+
   const demoMembers = useMemo(
     () => (data?.members ?? []).filter((m) => !m.isOwner),
     [data?.members]
   );
+
+  const totalShopping = data?.shoppingItems?.length ?? 0;
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -233,7 +287,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
           </div>
         ) : (
           <Tabs defaultValue="household" className="flex flex-col flex-1 min-h-0">
-            <TabsList className="mx-6 mt-4 mb-0 w-auto self-start">
+            <TabsList className="mx-6 mt-4 mb-0 w-auto self-start flex-wrap gap-y-1">
               <TabsTrigger value="household" className="gap-1.5">
                 <Home className="h-3.5 w-3.5" />
                 Haushalt
@@ -244,6 +298,15 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                 {deleteTaskIds.size > 0 && (
                   <Badge variant="destructive" className="ml-1 h-4 px-1 text-[10px]">
                     {deleteTaskIds.size}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="shopping" className="gap-1.5">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                Einkaufsliste
+                {deleteShoppingIds.size > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-4 px-1 text-[10px]">
+                    {deleteShoppingIds.size}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -351,6 +414,85 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               {deleteTaskIds.size > 0 && (
                 <p className="text-xs text-red-600 mt-2">
                   {deleteTaskIds.size} Aufgabe{deleteTaskIds.size !== 1 ? "n" : ""} wird gelöscht.
+                </p>
+              )}
+            </TabsContent>
+
+            {/* ── Tab: Einkaufsliste ── */}
+            <TabsContent value="shopping" className="flex flex-col flex-1 min-h-0 px-6 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-muted-foreground">
+                  Wähle Einträge aus, die du <strong>löschen</strong> möchtest. Alle anderen bleiben erhalten.
+                </p>
+                <div className="flex gap-2 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={selectAllShopping} className="text-xs h-7">
+                    Alle wählen
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={deselectAllShopping} className="text-xs h-7">
+                    Keine
+                  </Button>
+                </div>
+              </div>
+
+              {totalShopping === 0 ? (
+                <p className="text-sm text-muted-foreground py-4">Keine Einträge vorhanden.</p>
+              ) : (
+                <ScrollArea className="flex-1 -mx-1 px-1">
+                  <div className="space-y-4">
+                    {groupedShopping.map((group) => (
+                      <div key={group.label}>
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span
+                            className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: group.color }}
+                          />
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            {group.label}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          {group.items.map((item) => (
+                            <label
+                              key={item.id}
+                              className={`flex items-center gap-3 rounded-lg border px-3 py-2 cursor-pointer transition-colors select-none ${
+                                deleteShoppingIds.has(item.id)
+                                  ? "bg-red-50 border-red-200"
+                                  : "hover:bg-muted/50 border-transparent"
+                              }`}
+                            >
+                              <Checkbox
+                                checked={deleteShoppingIds.has(item.id)}
+                                onCheckedChange={() => toggleShoppingItem(item.id)}
+                                className="shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className={`text-sm ${deleteShoppingIds.has(item.id) ? "line-through text-muted-foreground" : item.isCompleted ? "line-through text-muted-foreground" : ""}`}>
+                                  {item.name}
+                                </span>
+                                {item.details && (
+                                  <span className="text-xs text-muted-foreground ml-2">{item.details}</span>
+                                )}
+                              </div>
+                              {item.isCompleted && !deleteShoppingIds.has(item.id) && (
+                                <Badge variant="secondary" className="text-[10px] h-4 px-1 shrink-0">
+                                  Erledigt
+                                </Badge>
+                              )}
+                              {deleteShoppingIds.has(item.id) && (
+                                <Trash2 className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+
+              {deleteShoppingIds.size > 0 && (
+                <p className="text-xs text-red-600 mt-2">
+                  {deleteShoppingIds.size} Eintrag{deleteShoppingIds.size !== 1 ? "einträge" : ""} wird gelöscht.
                 </p>
               )}
             </TabsContent>

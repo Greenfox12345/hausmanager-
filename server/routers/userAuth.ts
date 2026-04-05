@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { users, demoSessions, householdMembers, households, shoppingItems } from "../../drizzle/schema";
+import { users, demoSessions, householdMembers, households } from "../../drizzle/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -85,12 +85,7 @@ export const userAuthRouter = router({
             .set({ createdBy: userId })
             .where(eq(households.id, householdId));
 
-          // 3. Delete all demo shopping items (they are just example data)
-          await db
-            .delete(shoppingItems)
-            .where(eq(shoppingItems.householdId, householdId));
-
-          // 4. Mark session as claimed and extend expiry to 30 days
+          // 3. Mark session as claimed and extend expiry to 30 days
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
           await db

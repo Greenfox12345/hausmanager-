@@ -562,11 +562,34 @@ export const demoRouter = router({
         };
       });
 
-      // Fetch members (exclude the newly created user-linked member)
+      // Fetch members
       const members = await db
         .select()
         .from(householdMembers)
         .where(and(eq(householdMembers.householdId, input.householdId), eq(householdMembers.isActive, true)));
+
+      // Fetch shopping categories
+      const allCategories = await db
+        .select()
+        .from(shoppingCategories)
+        .where(eq(shoppingCategories.householdId, input.householdId));
+      const categoryMap = new Map(allCategories.map((c) => [c.id, { name: c.name, color: c.color }]));
+
+      // Fetch shopping items
+      const allShoppingItems = await db
+        .select()
+        .from(shoppingItems)
+        .where(eq(shoppingItems.householdId, input.householdId));
+
+      const shoppingList = allShoppingItems.map((item) => ({
+        id: item.id,
+        name: item.name,
+        details: item.details ?? null,
+        isCompleted: item.isCompleted,
+        categoryId: item.categoryId,
+        categoryName: categoryMap.get(item.categoryId)?.name ?? "Sonstige",
+        categoryColor: categoryMap.get(item.categoryId)?.color ?? "#6B7280",
+      }));
 
       return {
         householdName: hh.name,
@@ -577,6 +600,7 @@ export const demoRouter = router({
           memberName: m.memberName,
           isOwner: m.userId === ctx.user?.id,
         })),
+        shoppingItems: shoppingList,
       };
     }),
 
@@ -592,6 +616,7 @@ export const demoRouter = router({
         householdId: z.number(),
         householdName: z.string().min(1).max(100),
         deleteTaskIds: z.array(z.number()),
+        deleteShoppingItemIds: z.array(z.number()).default([]),
         members: z.array(
           z.object({
             id: z.number(),
@@ -624,6 +649,11 @@ export const demoRouter = router({
       // 2. Delete selected tasks
       if (input.deleteTaskIds.length > 0) {
         await db.delete(tasks).where(inArray(tasks.id, input.deleteTaskIds));
+      }
+
+      // 2b. Delete selected shopping items
+      if (input.deleteShoppingItemIds.length > 0) {
+        await db.delete(shoppingItems).where(inArray(shoppingItems.id, input.deleteShoppingItemIds));
       }
 
       // 3. Process members
