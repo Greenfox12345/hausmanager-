@@ -3391,3 +3391,6 @@
 - [x] Backend: getOnboardingData um shoppingItems erweitern (mit Kategorie-Name)
 - [x] Backend: applyOnboarding um deleteShoppingItemIds erweitern
 - [x] Frontend: Shopping-Tab im DemoOnboardingDialog (nach Kategorien gruppiert, auswählen & löschen)
+
+## Onboarding-Dialog Scroll-Fix
+- [x] DemoOnboardingDialog: Dialog-Höhe fixieren, Tab-Inhalte scrollen, Footer immer sichtbar
