@@ -3536,3 +3536,11 @@
 
 ## Bug: „Zu aktuellem Termin" bei vergangenen Terminen nicht sichtbar
 - [ ] Button nur bei isFutureOccurrence sichtbar – auch bei Aufgaben mit vergangenem nächsten Termin anzeigen
+
+## Bug: Skip-System nicht synchron (skippedDates + occurrenceNotes)
+- [x] db.ts: occurrenceNotes-Abfrage auch isSkipped=1 laden (vorher nur notes != '')
+- [x] Calendar.tsx: calculateFutureOccurrences prüft beide Quellen (skippedDates + occurrenceNotes.isSkipped)
+- [x] Calendar.tsx: findNextOpenOccurrence prüft beide Quellen (skippedDates + occurrenceNotes.isSkipped)
+- [x] TaskDetailDialog.tsx: RotationScheduleTable onSkipOccurrence auf skipOccurrence/restoreSkippedDate umstellen
+- [x] TaskDetailDialog.tsx: Rotation-Plan-Tabelle Skip-Button auf einheitliches System umstellen
+- [x] Tests: server/skip-system.test.ts (16 Tests alle bestanden)

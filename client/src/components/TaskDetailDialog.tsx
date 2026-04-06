@@ -1573,21 +1573,47 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                                   });
                                                 }
                                               } else {
-                                                // For rotation plan tasks: use skipRotationOccurrence (System A)
-                                                try {
-                                                  await skipRotationOccurrenceMutation.mutateAsync({
-                                                    taskId: task.id,
-                                                    occurrenceNumber: occ.occurrenceNumber,
-                                                  });
-                                                  handleRotationScheduleChange(
-                                                    rotationSchedule.map(o =>
-                                                      o.occurrenceNumber === occ.occurrenceNumber
-                                                        ? { ...o, isSkipped: !o.isSkipped }
-                                                        : o
-                                                    )
-                                                  );
-                                                } catch (error) {
-                                                  console.error('Failed to skip occurrence:', error);
+                                                // For rotation plan tasks: use unified skipOccurrence/restoreSkippedDate
+                                                // Calculate the date for this occurrence to use the unified API
+                                                const occDate = calculateOccurrenceDate(occ.occurrenceNumber) || occ.date;
+                                                if (occDate) {
+                                                  const dateStr = format(occDate, "yyyy-MM-dd");
+                                                  try {
+                                                    if (occ.isSkipped) {
+                                                      await restoreSkippedOccurrenceMutation.mutateAsync({
+                                                        taskId: task.id,
+                                                        householdId: household?.householdId ?? task.householdId ?? 0,
+                                                        memberId: member?.memberId ?? 0,
+                                                        dateToRestore: dateStr,
+                                                      });
+                                                    } else {
+                                                      await skipOccurrenceMutation.mutateAsync({
+                                                        taskId: task.id,
+                                                        householdId: household?.householdId ?? task.householdId ?? 0,
+                                                        memberId: member?.memberId ?? 0,
+                                                        dateToSkip: dateStr,
+                                                      });
+                                                    }
+                                                  } catch (error) {
+                                                    console.error('Failed to skip occurrence:', error);
+                                                  }
+                                                } else {
+                                                  // Fallback for irregular occurrences without calculable date
+                                                  try {
+                                                    await skipRotationOccurrenceMutation.mutateAsync({
+                                                      taskId: task.id,
+                                                      occurrenceNumber: occ.occurrenceNumber,
+                                                    });
+                                                    handleRotationScheduleChange(
+                                                      rotationSchedule.map(o =>
+                                                        o.occurrenceNumber === occ.occurrenceNumber
+                                                          ? { ...o, isSkipped: !o.isSkipped }
+                                                          : o
+                                                      )
+                                                    );
+                                                  } catch (error) {
+                                                    console.error('Failed to skip occurrence (fallback):', error);
+                                                  }
                                                 }
                                               }
                                             } else {
@@ -1763,11 +1789,34 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             excludedMemberIds={excludedMembers}
                             onSkipOccurrence={async (occurrenceNumber: number, isSkipped: boolean) => {
                               if (!task?.id) return;
-                              await skipRotationOccurrenceMutation.mutateAsync({
-                                taskId: task.id,
-                                occurrenceNumber,
-                                isSkipped,
-                              } as any);
+                              // Unified skip: calculate the date for this occurrence and use
+                              // skipOccurrence / restoreSkippedDate which write to both systems.
+                              const occDate = calculateOccurrenceDate(occurrenceNumber) ||
+                                rotationSchedule.find(o => o.occurrenceNumber === occurrenceNumber)?.date;
+                              if (occDate) {
+                                const dateStr = format(occDate, "yyyy-MM-dd");
+                                if (isSkipped) {
+                                  await skipOccurrenceMutation.mutateAsync({
+                                    taskId: task.id,
+                                    householdId: household?.householdId ?? task.householdId ?? 0,
+                                    memberId: member?.memberId ?? 0,
+                                    dateToSkip: dateStr,
+                                  });
+                                } else {
+                                  await restoreSkippedOccurrenceMutation.mutateAsync({
+                                    taskId: task.id,
+                                    householdId: household?.householdId ?? task.householdId ?? 0,
+                                    memberId: member?.memberId ?? 0,
+                                    dateToRestore: dateStr,
+                                  });
+                                }
+                              } else {
+                                // Fallback: use skipRotationOccurrence for irregular/special occurrences
+                                await skipRotationOccurrenceMutation.mutateAsync({
+                                  taskId: task.id,
+                                  occurrenceNumber,
+                                } as any);
+                              }
                             }}
                           />
                           <Button

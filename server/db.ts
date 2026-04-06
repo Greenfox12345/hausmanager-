@@ -451,7 +451,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
   let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean }[]> = {};
   if (recurringTaskIds.length > 0) {
     const [notesResult] = await db.execute(
-      sql`SELECT taskId, occurrenceNumber, notes, isSkipped FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND (notes IS NOT NULL AND notes != '') AND isSkipped = 0`
+      sql`SELECT taskId, occurrenceNumber, notes, isSkipped FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1)`
     );
     const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number }[];
     for (const row of notesRows) {

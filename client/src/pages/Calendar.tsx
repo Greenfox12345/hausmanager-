@@ -206,8 +206,8 @@ export default function Calendar() {
     const occurrences: Array<{ date: Date; isOriginal: boolean; occurrenceNote?: string }> = [];
     let currentDate = new Date(task.dueDate);
     const skippedDates = task.skippedDates || [];
-    // occurrenceNotes: array of { occurrenceNumber, notes } from backend
-    const occurrenceNotes: { occurrenceNumber: number; notes: string }[] = (task as any).occurrenceNotes || [];
+    // occurrenceNotes: array of { occurrenceNumber, notes, isSkipped } from backend
+    const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
     
     // Calculate max date (12 months from current month view)
     const maxDate = new Date(monthEnd);
@@ -230,13 +230,15 @@ export default function Calendar() {
 
       occurrenceNumber++;
 
-      // Check if this date is skipped
+      // Check if this date is skipped (unified: check both skippedDates array AND occurrenceNotes.isSkipped)
       const dateKey = format(nextDate, "yyyy-MM-dd");
-      const isSkipped = skippedDates.includes(dateKey);
+      const isSkippedByDate = skippedDates.includes(dateKey);
+      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occurrenceNumber);
+      const isSkippedByNote = noteEntry?.isSkipped === true;
+      const isSkipped = isSkippedByDate || isSkippedByNote;
 
       // Check if this occurrence has a note
-      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occurrenceNumber);
-      const hasNote = !!noteEntry;
+      const hasNote = !!(noteEntry?.notes);
 
       // Include if: within current month view AND not skipped
       // OR: has a note AND not skipped (always show, regardless of month)
@@ -260,6 +262,8 @@ export default function Calendar() {
     }
 
     const skippedDates = task.skippedDates || [];
+    // Unified: also check isSkipped from occurrenceNotes
+    const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
 
     // Helper: advance one interval step
     const advanceDate = (d: Date): Date => {
@@ -283,13 +287,18 @@ export default function Calendar() {
     cur.setHours(0, 0, 0, 0);
     const maxIterations = 5000;
     let i = 0;
+    let occNum = 1; // dueDate = occurrence 1
     while (cur <= maxDate && i < maxIterations) {
       const dateKey = format(cur, "yyyy-MM-dd");
-      if (!skippedDates.includes(dateKey)) {
+      // Unified: check both skippedDates array AND occurrenceNotes.isSkipped
+      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
+      const isSkippedByNote = noteEntry?.isSkipped === true;
+      if (!skippedDates.includes(dateKey) && !isSkippedByNote) {
         // Return the first non-skipped occurrence (oldest open = "current" appointment)
         return new Date(cur);
       }
       cur = advanceDate(cur);
+      occNum++;
       i++;
     }
 
