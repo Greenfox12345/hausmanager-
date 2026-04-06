@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, router } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import {
   getTasks,
+  getTaskById,
   createTask,
   updateTask,
   deleteTask,
@@ -1596,20 +1598,27 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasksList = await getTasks(input.householdId);
-      const task = tasksList.find(t => t.id === input.taskId);
+      // Use getTaskById to find the task directly by ID (avoids householdId mismatch for shared tasks)
+      const task = await getTaskById(input.taskId);
 
       if (!task) {
-        throw new Error("Task not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Add date to skippedDates array
+      // Add date to skippedDates array (deduplicate)
       const currentSkippedDates = task.skippedDates || [];
+      if (currentSkippedDates.includes(input.dateToSkip)) {
+        return { success: true }; // already skipped
+      }
       const updatedSkippedDates = [...currentSkippedDates, input.dateToSkip];
 
-      await updateTask(input.taskId, {
-        skippedDates: updatedSkippedDates,
-      });
+      // If the task has no dueDate yet, set it to the date being skipped
+      const updateData: any = { skippedDates: updatedSkippedDates };
+      if (!task.dueDate) {
+        updateData.dueDate = new Date(input.dateToSkip);
+      }
+
+      await updateTask(input.taskId, updateData);
 
       const skipLang = await getHouseholdLang(input.householdId);
       const skipLocale = skipLang === "en" ? "en-GB" : skipLang === "es" ? "es-ES" : "de-DE";

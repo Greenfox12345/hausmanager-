@@ -3497,3 +3497,13 @@
 
 ## Kalender: Termin auslassen auch in Aufgabe persistieren
 - [x] skipOccurrence: selectedTask wird nach Auslassen optimistisch mit neuem skippedDate aktualisiert
+
+## Kalender: Termin auslassen ohne dueDate
+- [ ] skipOccurrence setzt dueDate automatisch wenn noch keines vorhanden ist, dann erst überspringen
+
+## Kalender: Berechnete Wiederholungstermine korrekt auslassen
+- [x] skipOccurrence: getTaskById statt getTasks (vermeidet householdId-Mismatch bei geteilten Aufgaben)
+- [x] skipOccurrence: dueDate wird automatisch gesetzt wenn noch keines vorhanden
+- [x] skipOccurrence: Deduplizierung (doppeltes Auslassen wird ignoriert)
+- [x] skipOccurrence: onError im Frontend zeigt Fehlermeldung als Toast
+- [x] db.ts: getTaskById Hilfsfunktion hinzugefügt

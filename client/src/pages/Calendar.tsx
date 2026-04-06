@@ -145,6 +145,9 @@ export default function Calendar() {
       });
       toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
+    onError: (error) => {
+      toast.error(t("common:errors.generic", "Fehler: ") + error.message);
+    },
   });
 
   const markReturnedMutation = trpc.borrow.markReturned.useMutation({

@@ -473,6 +473,29 @@ export async function createTask(data: {
   return Number(result[0].insertId);
 }
 
+export async function getTaskById(taskId: number): Promise<Task | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [result] = await db.execute(
+    sql`SELECT * FROM tasks WHERE id = ${taskId} LIMIT 1`
+  );
+  const rows = result as unknown as any[];
+  if (!rows || rows.length === 0) return null;
+
+  const task = { ...rows[0] };
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'skippedDates', 'completionPhotoUrls', 'completionFileUrls'];
+  for (const field of jsonFields) {
+    if (task[field] && typeof task[field] === 'string') {
+      try { task[field] = JSON.parse(task[field]); } catch { /* leave as-is */ }
+    }
+  }
+  if (typeof task.isCompleted === 'number') task.isCompleted = task.isCompleted === 1;
+  if (typeof task.enableRotation === 'number') task.enableRotation = task.enableRotation === 1;
+  if (typeof task.irregularRecurrence === 'number') task.irregularRecurrence = task.irregularRecurrence === 1;
+  return task as Task;
+}
+
 export async function updateTask(id: number, data: Partial<Task>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
