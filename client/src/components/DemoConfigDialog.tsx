@@ -105,7 +105,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
           </div>
         </DialogHeader>
 
-        <div className="space-y-5 py-2 overflow-y-auto flex-1 pr-1">
+        <div className="space-y-5 py-2 overflow-y-auto flex-1 min-h-0 pr-1">
 
           {/* ── Eigener Name ── */}
           <div className="space-y-2">

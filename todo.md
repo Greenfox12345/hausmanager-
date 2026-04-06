@@ -3446,3 +3446,7 @@
 
 ## Bug: /members – Liste nach Löschen nicht aktualisiert
 - [x] kickMember-Mutation: getHouseholdMembers und getHouseholdSettings nach Erfolg invalidieren (refetchMembers + refetchSettings)
+
+## Bug: DemoConfigDialog – Items laden nicht (Zeile 108)
+- [x] Analysieren warum Einkaufsliste/Aufgaben-Slider-Bereich nicht korrekt rendert: flex-1 ohne min-h-0
+- [x] Fix: min-h-0 zum scrollbaren Container hinzugefügt
