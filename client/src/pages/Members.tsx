@@ -252,7 +252,13 @@ export default function Members() {
               </div>
             ) : (
               <div className="space-y-3">
-                {members.map((m) => (
+                {/* Registered members */}
+                {members.filter((m) => m.userId !== null).length > 0 && members.filter((m) => m.userId === null).length > 0 && (
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1 pt-1">
+                    Registrierte Mitglieder
+                  </p>
+                )}
+                {members.filter((m) => m.userId !== null).map((m) => (
                   <div
                     key={m.id}
                     className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
@@ -286,34 +292,6 @@ export default function Members() {
                         {m.isActive ? t("common:status.active") : t("common:status.inactive")}
                       </div>
                     </div>
-                    {/* Buttons for unregistered members (no userId) – only visible to admin */}
-                    {settings?.isAdmin && m.userId === null && (
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          disabled={generateInviteLinkMutation.isPending}
-                          onClick={() =>
-                            householdId &&
-                            generateInviteLinkMutation.mutate({ householdId, memberId: m.id })
-                          }
-                        >
-                          <Link2 className="h-3.5 w-3.5" />
-                          Einladen
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => setKickTarget({ id: m.id, name: m.memberName })}
-                        >
-                          <UserX className="h-3.5 w-3.5" />
-                          Entfernen
-                        </Button>
-                      </div>
-                    )}
-                    {/* Transfer admin button – only visible to admin, not for themselves, only for registered members */}
                     {settings?.isAdmin && m.userId !== null && m.userId !== settings?.adminUserId && m.isActive && (
                       <Button
                         variant="ghost"
@@ -327,10 +305,75 @@ export default function Members() {
                     )}
                   </div>
                 ))}
+
+                {/* Unregistered (dummy) members – visually distinct */}
+                {members.filter((m) => m.userId === null).length > 0 && (
+                  <>
+                    {members.filter((m) => m.userId !== null).length > 0 && (
+                      <div className="flex items-center gap-2 pt-2">
+                        <div className="h-px flex-1 bg-border" />
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2">
+                          Nicht registriert
+                        </p>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
+                    )}
+                    {members.filter((m) => m.userId === null).map((m) => (
+                      <div
+                        key={m.id}
+                        className="flex items-center gap-4 p-4 rounded-lg border border-dashed border-amber-200 bg-amber-50/40 dark:bg-amber-900/10 dark:border-amber-800/40 transition-all"
+                      >
+                        <Avatar className="h-12 w-12 opacity-80">
+                          <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 font-semibold">
+                            {getInitials(m.memberName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold flex items-center gap-2 flex-wrap">
+                            {m.memberName}
+                            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
+                              Platzhalter
+                            </span>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Noch nicht registriert
+                          </div>
+                        </div>
+                        {settings?.isAdmin && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                              disabled={generateInviteLinkMutation.isPending}
+                              onClick={() =>
+                                householdId &&
+                                generateInviteLinkMutation.mutate({ householdId, memberId: m.id })
+                              }
+                            >
+                              <Link2 className="h-3.5 w-3.5" />
+                              Einladen
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => setKickTarget({ id: m.id, name: m.memberName })}
+                            >
+                              <UserX className="h-3.5 w-3.5" />
+                              Entfernen
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
+
 
         {/* Invite Card */}
         <Card className="mb-6 shadow-sm">

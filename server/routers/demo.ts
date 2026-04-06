@@ -60,11 +60,18 @@ function expiresAt(): Date {
   return d;
 }
 
+interface DemoConfig {
+  memberNames?: string[];      // up to 4 custom names; defaults to ["Alex", "Maria", "Jonas", "Sophie"]
+  shoppingItemCount?: number;  // 0-20, default 11
+  taskCount?: number;          // 0-10, default 8
+  inventoryCount?: number;     // 0-10, default 6
+}
+
 /**
  * Seed a fresh demo household with realistic example data.
  * Returns { householdId, memberId } of the "primary" demo member.
  */
-async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
+async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: DemoConfig = {}) {
   if (!db) throw new Error("Database not available");
 
   const now = new Date();
@@ -82,7 +89,15 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
   const householdId = Number(hhResult.insertId);
 
   // ── 2. Mitglieder anlegen ────────────────────────────────────────────────
-  const memberNames = ["Alex", "Maria", "Jonas", "Sophie"];
+  // Use custom names if provided, pad/trim to exactly 4 members
+  const defaultNames = ["Alex", "Maria", "Jonas", "Sophie"];
+  const customNames = config.memberNames ?? [];
+  const memberNames = [
+    customNames[0] ?? defaultNames[0],
+    customNames[1] ?? defaultNames[1],
+    customNames[2] ?? defaultNames[2],
+    customNames[3] ?? defaultNames[3],
+  ];
   const memberIds: number[] = [];
   for (const name of memberNames) {
     const [mResult] = await db.insert(householdMembers).values({
@@ -109,9 +124,9 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
     catIds.push(Number(cResult.insertId));
   }
   const [lebensmittelCat, haushaltCat, pflegeCat, sonstigesCat] = catIds;
-
-  // ── 4. Einkaufsliste ─────────────────────────────────────────────────────
-  const shoppingData = [
+  // ── 4. Einkaufsliste ──────────────────────────────────────────────────────
+  const shoppingItemCount = config.shoppingItemCount ?? 11;
+  const allShoppingData = [
     { name: "Milch (2 Liter)", categoryId: lebensmittelCat, addedBy: mariaId, notes: "Bitte Vollmilch" },
     { name: "Brot (Vollkorn)", categoryId: lebensmittelCat, addedBy: alexId },
     { name: "Äpfel (1 kg)", categoryId: lebensmittelCat, addedBy: sophieId },
@@ -124,6 +139,7 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
     { name: "Zahnpasta", categoryId: pflegeCat, addedBy: jonasId },
     { name: "Batterien (AA)", categoryId: sonstigesCat, addedBy: alexId, notes: "Für die Fernbedienung" },
   ];
+  const shoppingData = allShoppingData.slice(0, Math.max(0, shoppingItemCount));
   for (const item of shoppingData) {
     await db.insert(shoppingItems).values({ householdId, ...item });
   }
@@ -233,8 +249,10 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>) {
     },
   ];
 
+  const taskCount = config.taskCount ?? taskData.length;
+  const filteredTaskData = taskData.slice(0, Math.max(0, taskCount));
   const taskIds: number[] = [];
-  for (const task of taskData) {
+  for (const task of filteredTaskData) {
     const [tResult] = await db.insert(tasks).values({
       householdId,
       name: task.name,
@@ -395,11 +413,21 @@ export const demoRouter = router({
    * Create a new isolated demo session with a fresh household and seed data.
    * Returns a demo JWT token that grants access to the demo household.
    */
-  createSession: publicProcedure.mutation(async () => {
+  createSession: publicProcedure
+    .input(z.object({
+      memberNames: z.array(z.string().min(1).max(30)).max(4).optional(),
+      shoppingItemCount: z.number().int().min(0).max(20).optional(),
+      taskCount: z.number().int().min(0).max(10).optional(),
+    }).optional())
+    .mutation(async ({ input }) => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
-     const { householdId, memberId } = await seedDemoHousehold(db);
+     const { householdId, memberId } = await seedDemoHousehold(db, {
+      memberNames: input?.memberNames,
+      shoppingItemCount: input?.shoppingItemCount,
+      taskCount: input?.taskCount,
+    });
     const token = generateToken();
     const expires = expiresAt();
     await db.insert(demoSessions).values({

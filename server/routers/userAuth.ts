@@ -143,12 +143,20 @@ export const userAuthRouter = router({
         { expiresIn: "30d" }
       );
 
+      // Fetch the claimed household name if available
+      let householdName: string | null = null;
+      if (claimedHouseholdId) {
+        const [hh] = await db.select({ name: households.name }).from(households).where(eq(households.id, claimedHouseholdId)).limit(1);
+        householdName = hh?.name ?? null;
+      }
+
       return {
         success: true,
         userId,
         token,
         claimedHouseholdId,
         claimedMemberId,
+        householdName,
         user: {
           id: userId,
           email: input.email,

@@ -3418,3 +3418,17 @@
 ## Bug: Einladungslink auf /members fehlt für transformierte Demo-Haushalte
 - [x] Analysieren warum Invite-Button nicht erscheint: household.createdBy war NULL bei alten Demo-Claims
 - [x] Fix: DB-Repair für alte Haushalte + isAdmin-Fallback via demoSessions.claimedByUserId in getHouseholdSettings
+
+## Bug-Batch April 2026
+- [ ] Fix 1: Nach Demo-Claim Haushalt sofort laden (kein erneuter Login nötig)
+- [ ] Fix 2: Einladungslink funktioniert nicht (Register-Flow mit invite-Token reparieren)
+- [ ] Fix 3: Onboarding-Dialog – untere Tabs schwer klickbar, Buttons nicht erreichbar
+- [ ] Feature: Demo-Start-Konfiguration – Mitbewohner-Namen und Datenmenge eingeben
+- [ ] Feature: Dummy-User farblich von echten Usern in Members-Liste abgrenzen
+
+## Bug-Batch April 2026 (abgeschlossen)
+- [x] Fix 1: Haushalt nach Demo-Claim sofort laden (setCurrentHousehold mit echtem Namen aus register-Response)
+- [x] Fix 2: Einladungslink-URL aus Request-Host-Header statt fehlender Env-Variable
+- [x] Fix 3: Onboarding-Dialog Tabs horizontal scrollbar, TabsContent overflow-y-auto, Footer immer erreichbar
+- [x] Feature: Demo-Start-Dialog (DemoConfigDialog.tsx) mit Mitbewohner-Namen und Datenmenge
+- [x] Feature: Dummy-User farblich von registrierten Mitgliedern trennen (amber/gestrichelt, Trennlinie)

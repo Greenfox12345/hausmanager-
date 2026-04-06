@@ -1031,7 +1031,13 @@ export const householdManagementRouter = router({
         .from(households)
         .where(eq(households.id, input.householdId))
         .limit(1);
-      if (!hh || hh.createdBy !== ctx.user.id) {
+      // Also accept users who claimed this household via a demo session (createdBy may lag)
+      const isOwner = hh && (hh.createdBy === ctx.user.id || (
+        await db.select({ id: demoSessions.id }).from(demoSessions)
+          .where(and(eq(demoSessions.householdId, input.householdId), eq(demoSessions.claimedByUserId, ctx.user.id)))
+          .limit(1)
+      ).length > 0);
+      if (!isOwner) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can generate invite links" });
       }
 
@@ -1060,9 +1066,12 @@ export const householdManagementRouter = router({
         { expiresIn: "7d" }
       );
 
-      // Build the full URL – use VITE_FRONTEND_FORGE_API_URL as base or fall back to relative
-      const appUrl = process.env.VITE_APP_URL || "";
-      const inviteLink = `${appUrl}/register?invite=${inviteToken}`;
+      // Build the full URL – derive origin from the request context or fall back to relative path.
+      // ctx.req is available via the tRPC context (Express request).
+      const origin = (ctx as any).req
+        ? `${(ctx as any).req.protocol}://${(ctx as any).req.get("host")}`
+        : "";
+      const inviteLink = `${origin}/register?invite=${inviteToken}`;
 
       return { inviteLink, memberName: targetMember.memberName };
     }),
@@ -1083,7 +1092,12 @@ export const householdManagementRouter = router({
         .from(households)
         .where(eq(households.id, input.householdId))
         .limit(1);
-      if (!hh || hh.createdBy !== ctx.user.id) {
+      const isOwnerForKick = hh && (hh.createdBy === ctx.user.id || (
+        await db.select({ id: demoSessions.id }).from(demoSessions)
+          .where(and(eq(demoSessions.householdId, input.householdId), eq(demoSessions.claimedByUserId, ctx.user.id)))
+          .limit(1)
+      ).length > 0);
+      if (!isOwnerForKick) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can kick members" });
       }
 

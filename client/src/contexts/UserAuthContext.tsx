@@ -111,7 +111,11 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
 
   // Demo sessions are authenticated via the JWT bearer token.
   // Regular sessions need a valid token + user from backend.
-  const isAuthenticated = isDemoSession ? !!token : (!!token && !!user);
+  // While the user query is loading (isLoading=true), treat the session as authenticated
+  // if a token is present – this prevents a brief flash to /login after claim.
+  const isAuthenticated = isDemoSession
+    ? !!token
+    : (!!token && (!!user || isLoading));
 
   // For demo sessions, create a synthetic user object so components that read user.name don't crash.
   const effectiveUser: User | null = isDemoSession

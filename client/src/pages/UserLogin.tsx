@@ -10,44 +10,18 @@ import { toast } from "sonner";
 import { Home, FlaskConical } from "lucide-react";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
+import DemoConfigDialog from "@/components/DemoConfigDialog";
 
 export default function UserLogin() {
   const [, setLocation] = useLocation();
   const { login, setCurrentHousehold } = useUserAuth();
   const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
+  const [showDemoConfig, setShowDemoConfig] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  });
-
-  const createDemoMutation = trpc.demo.createSession.useMutation({
-    onSuccess: (data) => {
-      // Store the demo JWT as auth_token so the tRPC client sends it as Bearer header.
-      // This allows the server to recognise demo users via the isDemo flag in the JWT.
-      login(data.demoJwt);
-
-      // Also keep demo_token + expires_at so the banner and useCompatAuth can detect demo mode.
-      localStorage.setItem("demo_token", data.demoToken);
-      localStorage.setItem("demo_expires_at", data.expiresAt);
-
-      // Notify UserAuthContext to re-check demo session state
-      window.dispatchEvent(new Event("demo-session-changed"));
-
-      // Set current household from demo
-      setCurrentHousehold({
-        householdId: data.householdId,
-        householdName: data.householdName,
-        memberId: data.memberId,
-        memberName: data.memberName,
-      });
-
-      setLocation("/shopping");
-    },
-    onError: () => {
-      toast.error(t("demo.demoError", "Demo konnte nicht gestartet werden."));
-    },
   });
 
   const loginMutation = trpc.userAuth.login.useMutation({
@@ -163,14 +137,17 @@ export default function UserLogin() {
               type="button"
               variant="outline"
               className="w-full gap-2 border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800 bg-amber-50/50"
-              disabled={createDemoMutation.isPending}
-              onClick={() => createDemoMutation.mutate()}
+              onClick={() => setShowDemoConfig(true)}
             >
               <FlaskConical className="h-4 w-4" />
-              {createDemoMutation.isPending
-                ? t("demo.demoLoading", "Demo wird gestartet...")
-                : t("demo.tryDemo", "Demo ausprobieren")}
+              {t("demo.tryDemo", "Demo ausprobieren")}
             </Button>
+
+            {/* Demo config dialog */}
+            <DemoConfigDialog
+              open={showDemoConfig}
+              onClose={() => setShowDemoConfig(false)}
+            />
 
             <div className="text-center text-sm text-gray-600">
               {t("login.noAccount", "Noch kein Konto?")}{" "}

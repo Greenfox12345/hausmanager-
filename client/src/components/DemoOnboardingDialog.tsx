@@ -287,7 +287,9 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
           </div>
         ) : (
           <Tabs defaultValue="household" className="flex flex-col flex-1 min-h-0 overflow-hidden">
-            <TabsList className="mx-6 mt-4 mb-0 w-auto self-start flex-wrap gap-y-1 shrink-0">
+            {/* Horizontal-scrollable tab bar so all 4 tabs are always reachable on small screens */}
+            <div className="px-6 mt-4 mb-0 shrink-0 overflow-x-auto">
+            <TabsList className="w-max min-w-full">
               <TabsTrigger value="household" className="gap-1.5">
                 <Home className="h-3.5 w-3.5" />
                 Haushalt
@@ -315,6 +317,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                 Mitglieder
               </TabsTrigger>
             </TabsList>
+            </div>
 
             {/* ── Tab: Haushalt ── */}
             <TabsContent value="household" className="px-6 py-4 flex-1 overflow-y-auto">

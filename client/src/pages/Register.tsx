@@ -51,10 +51,11 @@ export default function Register() {
         localStorage.removeItem("demo_token");
         localStorage.removeItem("demo_expires_at");
 
-        // Set household context
+        // Set household context – the real household name will be synced
+        // by DemoOnboardingDialog once getOnboardingData loads.
         setCurrentHousehold({
           householdId: data.claimedHouseholdId,
-          householdName: "Mein Haushalt",
+          householdName: data.householdName ?? "Mein Haushalt",
           memberId: data.claimedMemberId,
           memberName: formData.name,
         });
