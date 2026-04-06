@@ -261,3 +261,30 @@ describe("isDemoKick permission logic (pure unit)", () => {
     expect(isDemoKick({ isDemoUser: true }, 42)).toBe(false);
   });
 });
+
+describe("newMembers validation logic (pure unit)", () => {
+  // Mirror the backend logic: trim and skip empty names
+  function processNewMembers(names: string[]): string[] {
+    return names.map((n) => n.trim()).filter((n) => n.length > 0);
+  }
+
+  it("adds valid member names", () => {
+    expect(processNewMembers(["Anna", "Ben"])).toEqual(["Anna", "Ben"]);
+  });
+
+  it("trims whitespace from names", () => {
+    expect(processNewMembers(["  Anna  ", " Ben"])).toEqual(["Anna", "Ben"]);
+  });
+
+  it("skips empty names after trimming", () => {
+    expect(processNewMembers(["Anna", "  ", ""])).toEqual(["Anna"]);
+  });
+
+  it("returns empty array for all-empty input", () => {
+    expect(processNewMembers(["", "  "])).toEqual([]);
+  });
+
+  it("handles empty array input", () => {
+    expect(processNewMembers([])).toEqual([]);
+  });
+});

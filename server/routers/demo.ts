@@ -682,6 +682,7 @@ export const demoRouter = router({
             newName: z.string().optional(),
           })
         ),
+        newMembers: z.array(z.string().min(1).max(50)).default([]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -725,6 +726,18 @@ export const demoRouter = router({
             .set({ memberName: m.newName })
             .where(eq(householdMembers.id, m.id));
         }
+      }
+
+      // 4. Add new placeholder members
+      for (const name of input.newMembers) {
+        const trimmed = name.trim();
+        if (!trimmed) continue;
+        await db.insert(householdMembers).values({
+          householdId: input.householdId,
+          userId: null,
+          memberName: trimmed,
+          passwordHash: await bcrypt.hash("demo", 10),
+        });
       }
 
       return { success: true };

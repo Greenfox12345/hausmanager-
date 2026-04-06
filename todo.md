@@ -3476,3 +3476,9 @@
 - [x] kickMember-Prozedur: Demo-User-Erkennung via ctx.isDemoUser + ctx.demoHouseholdId repariert
 - [x] context.ts: demoHouseholdId und demoMemberId aus JWT in TrpcContext aufgenommen
 - [x] 5 neue Unit-Tests für isDemoKick-Logik (34 Tests gesamt)
+
+## DemoOnboardingDialog: Mitglieder-Tab
+- [x] Scroll-Fix: min-h-0 auf ScrollArea im Mitglieder-Tab (war bereits vorhanden)
+- [x] Mitglied hinzufügen: Eingabefeld + Button im Mitglieder-Tab des Einrichtungsdialogs
+- [x] Backend: applyOnboarding um newMembers-Feld erweitert
+- [x] 5 neue Unit-Tests für newMembers-Validierung (39 Tests gesamt)

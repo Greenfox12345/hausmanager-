@@ -91,6 +91,8 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
   const [deleteTaskIds, setDeleteTaskIds] = useState<Set<number>>(new Set());
   const [deleteShoppingIds, setDeleteShoppingIds] = useState<Set<number>>(new Set());
   const [memberStates, setMemberStates] = useState<Map<number, MemberState>>(new Map());
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMembersList, setNewMembersList] = useState<string[]>([]);
 
   // Sync household name from server once loaded
   useMemo(() => {
@@ -213,6 +215,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
       deleteTaskIds: Array.from(deleteTaskIds),
       deleteShoppingItemIds: Array.from(deleteShoppingIds),
       members,
+      newMembers: newMembersList,
     });
   }
 
@@ -524,7 +527,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
                   <Separator className="my-1" />
 
-                  {demoMembers.length === 0 && (
+                  {demoMembers.length === 0 && newMembersList.length === 0 && (
                     <p className="text-sm text-muted-foreground py-2">Keine weiteren Mitglieder.</p>
                   )}
 
@@ -600,8 +603,58 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                       </div>
                     );
                   })}
+                  {/* Newly added members (not yet saved) */}
+                  {newMembersList.map((name, idx) => (
+                    <div key={`new-${idx}`} className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5">
+                      <div className="h-7 w-7 rounded-full bg-green-200 flex items-center justify-center text-xs font-semibold text-green-800">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-sm flex-1">{name}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-red-500 hover:text-red-600"
+                        title="Entfernen"
+                        onClick={() => setNewMembersList((prev) => prev.filter((_, i) => i !== idx))}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
+
+              {/* Add new member input */}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t shrink-0">
+                <Input
+                  value={newMemberName}
+                  onChange={(e) => setNewMemberName(e.target.value)}
+                  placeholder="Name des neuen Mitbewohners"
+                  className="h-8 text-sm flex-1"
+                  maxLength={50}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newMemberName.trim()) {
+                      setNewMembersList((prev) => [...prev, newMemberName.trim()]);
+                      setNewMemberName("");
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 shrink-0"
+                  disabled={!newMemberName.trim()}
+                  onClick={() => {
+                    if (newMemberName.trim()) {
+                      setNewMembersList((prev) => [...prev, newMemberName.trim()]);
+                      setNewMemberName("");
+                    }
+                  }}
+                >
+                  <span className="text-base leading-none">+</span>
+                  Hinzufügen
+                </Button>
+              </div>
             </TabsContent>
           </Tabs>
         )}
