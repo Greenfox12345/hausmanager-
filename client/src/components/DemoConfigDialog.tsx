@@ -90,7 +90,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-md h-[90vh] flex flex-col top-[5vh] translate-y-0">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
             <div className="rounded-full bg-amber-100 p-2">

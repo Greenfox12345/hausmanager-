@@ -3450,3 +3450,7 @@
 ## Bug: DemoConfigDialog – Items laden nicht (Zeile 108)
 - [x] Analysieren warum Einkaufsliste/Aufgaben-Slider-Bereich nicht korrekt rendert: flex-1 ohne min-h-0
 - [x] Fix: min-h-0 zum scrollbaren Container hinzugefügt
+
+## Bug: DemoConfigDialog – nur Slider sichtbar, Name/Mitbewohner-Felder fehlen
+- [x] Ursache: Dialog zentriert vertikal, oberer Teil außerhalb Viewport
+- [x] Fix: h-[90vh] + top-[5vh] translate-y-0 damit Dialog von oben beginnt
