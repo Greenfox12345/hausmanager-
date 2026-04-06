@@ -1010,9 +1010,31 @@ export default function Calendar() {
                                             size="sm"
                                             variant="outline"
                                             className="w-full"
-                                            onClick={(e) => {
+                                            onClick={async (e) => {
                                               e.stopPropagation();
                                               setActionTask(task);
+                                              // For recurring tasks: check skip-chain before opening complete dialog
+                                              const isRecurring = Boolean(task.repeatInterval && task.repeatUnit);
+                                              if (isRecurring && household) {
+                                                try {
+                                                  const check = await utils.tasks.checkNextOccurrence.fetch({
+                                                    taskId: task.id,
+                                                    householdId: household.householdId,
+                                                  });
+                                                  if (check.skippedCount > 0) {
+                                                    setSkipConfirmData({
+                                                      skippedCount: check.skippedCount,
+                                                      skippedDates: check.skippedDates,
+                                                      nextDate: check.nextDate,
+                                                      pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
+                                                    });
+                                                    setSkipConfirmOpen(true);
+                                                    return;
+                                                  }
+                                                } catch {
+                                                  // ignore, proceed normally
+                                                }
+                                              }
                                               setCompleteDialogOpen(true);
                                             }}
                                           >
@@ -1324,9 +1346,30 @@ export default function Calendar() {
                                           size="sm"
                                           variant="outline"
                                           className="w-full"
-                                          onClick={(e) => {
+                                          onClick={async (e) => {
                                             e.stopPropagation();
                                             setActionTask(task);
+                                            const isRecurring = Boolean(task.repeatInterval && task.repeatUnit);
+                                            if (isRecurring && household) {
+                                              try {
+                                                const check = await utils.tasks.checkNextOccurrence.fetch({
+                                                  taskId: task.id,
+                                                  householdId: household.householdId,
+                                                });
+                                                if (check.skippedCount > 0) {
+                                                  setSkipConfirmData({
+                                                    skippedCount: check.skippedCount,
+                                                    skippedDates: check.skippedDates,
+                                                    nextDate: check.nextDate,
+                                                    pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
+                                                  });
+                                                  setSkipConfirmOpen(true);
+                                                  return;
+                                                }
+                                              } catch {
+                                                // ignore, proceed normally
+                                              }
+                                            }
                                             setCompleteDialogOpen(true);
                                           }}
                                         >
@@ -1547,9 +1590,30 @@ export default function Calendar() {
                                       size="sm"
                                       variant="outline"
                                       className="w-full"
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.stopPropagation();
                                         setActionTask(task);
+                                        const isRecurring = Boolean(task.repeatInterval && task.repeatUnit);
+                                        if (isRecurring && household) {
+                                          try {
+                                            const check = await utils.tasks.checkNextOccurrence.fetch({
+                                              taskId: task.id,
+                                              householdId: household.householdId,
+                                            });
+                                            if (check.skippedCount > 0) {
+                                              setSkipConfirmData({
+                                                skippedCount: check.skippedCount,
+                                                skippedDates: check.skippedDates,
+                                                nextDate: check.nextDate,
+                                                pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
+                                              });
+                                              setSkipConfirmOpen(true);
+                                              return;
+                                            }
+                                          } catch {
+                                            // ignore, proceed normally
+                                          }
+                                        }
                                         setCompleteDialogOpen(true);
                                       }}
                                     >

@@ -220,6 +220,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
+  // Skip-chain warning before completing a recurring task
+  const [skipCompleteWarnOpen, setSkipCompleteWarnOpen] = useState(false);
+  const [skipCompleteInfo, setSkipCompleteInfo] = useState<{ skippedCount: number; nextDate: string | null; skippedDates: string[] } | null>(null);
 
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
@@ -2360,7 +2363,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <Button
                             variant="default"
                             className="w-full"
-                            onClick={() => setShowCompleteDialog(true)}
+                            onClick={async () => {
+                              // For recurring tasks: check if next occurrence is skipped
+                              if ((task.enableRepeat || task.repeatUnit) && task.dueDate && household && member) {
+                                try {
+                                  const check = await utils.client.tasks.checkNextOccurrence.query({
+                                    taskId: task.id,
+                                    householdId: household.householdId,
+                                  });
+                                  if (check.skippedCount > 0) {
+                                    setSkipCompleteInfo(check);
+                                    setSkipCompleteWarnOpen(true);
+                                    return;
+                                  }
+                                } catch {
+                                  // ignore check errors, proceed normally
+                                }
+                              }
+                              setShowCompleteDialog(true);
+                            }}
                           >
                             <CheckCircle2 className="h-4 w-4 mr-2" />
                             {(task.enableRepeat || task.repeatUnit) ? t("dialog.completeOccurrence") : t("common:actions.complete")}
@@ -2678,6 +2699,51 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     )}
 
     {/* Warning: dueDate is a skipped date */}
+    {/* Skip-chain warning before completing a recurring task */}
+    <AlertDialog open={skipCompleteWarnOpen} onOpenChange={setSkipCompleteWarnOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <span className="text-orange-500">⚠️</span>
+            {t("calendar:skipChainWarning.title", "Folgetermine werden übersprungen")}
+          </AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div>
+              <p className="mb-2">
+                {t("calendar:skipChainWarning.body", "Beim Abschluss werden {{count}} Termin(e) übersprungen:", { count: skipCompleteInfo?.skippedCount ?? 0 })}
+              </p>
+              {skipCompleteInfo && skipCompleteInfo.skippedDates.length > 0 && (
+                <ul className="text-sm list-disc pl-4 mb-2 space-y-1">
+                  {skipCompleteInfo.skippedDates.map((d: string) => (
+                    <li key={d}>{d}</li>
+                  ))}
+                </ul>
+              )}
+              {skipCompleteInfo?.nextDate && (
+                <p className="text-sm text-muted-foreground">
+                  {t("calendar:skipChainWarning.nextDate", "Nächster offener Termin: {{date}}", { date: skipCompleteInfo.nextDate.split('T')[0] })}
+                </p>
+              )}
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setSkipCompleteWarnOpen(false); setSkipCompleteInfo(null); }}>
+            {t("common:actions.cancel", "Abbrechen")}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              setSkipCompleteWarnOpen(false);
+              setSkipCompleteInfo(null);
+              setShowCompleteDialog(true);
+            }}
+          >
+            {t("calendar:skipChainWarning.confirm", "Trotzdem abschließen")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
     <AlertDialog open={skippedDateWarnOpen} onOpenChange={setSkippedDateWarnOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
