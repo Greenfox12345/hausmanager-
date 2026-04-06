@@ -3432,3 +3432,6 @@
 - [x] Fix 3: Onboarding-Dialog Tabs horizontal scrollbar, TabsContent overflow-y-auto, Footer immer erreichbar
 - [x] Feature: Demo-Start-Dialog (DemoConfigDialog.tsx) mit Mitbewohner-Namen und Datenmenge
 - [x] Feature: Dummy-User farblich von registrierten Mitgliedern trennen (amber/gestrichelt, Trennlinie)
+
+## Onboarding-Dialog: vertikales Scrollen
+- [x] DemoOnboardingDialog: Tab-Inhalte vertikal scrollbar (data-[state=active]:flex + ScrollArea)

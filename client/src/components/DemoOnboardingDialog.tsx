@@ -320,7 +320,8 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             </div>
 
             {/* ── Tab: Haushalt ── */}
-            <TabsContent value="household" className="px-6 py-4 flex-1 overflow-y-auto">
+            <TabsContent value="household" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
+              <ScrollArea className="flex-1 -mx-1 px-1">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="hhname">Haushaltsname</Label>
@@ -336,10 +337,11 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                   </p>
                 </div>
               </div>
+              </ScrollArea>
             </TabsContent>
 
             {/* ── Tab: Aufgaben ── */}
-            <TabsContent value="tasks" className="flex flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
+            <TabsContent value="tasks" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
                   Wähle Aufgaben aus, die du <strong>löschen</strong> möchtest. Alle anderen bleiben erhalten.
@@ -422,7 +424,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             </TabsContent>
 
             {/* ── Tab: Einkaufsliste ── */}
-            <TabsContent value="shopping" className="flex flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
+            <TabsContent value="shopping" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
                   Wähle Einträge aus, die du <strong>löschen</strong> möchtest. Alle anderen bleiben erhalten.
@@ -501,7 +503,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             </TabsContent>
 
             {/* ── Tab: Mitglieder ── */}
-            <TabsContent value="members" className="flex flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
+            <TabsContent value="members" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <p className="text-sm text-muted-foreground mb-3">
                 Diese Demo-Mitglieder wurden automatisch angelegt. Du kannst sie umbenennen oder entfernen.
               </p>
