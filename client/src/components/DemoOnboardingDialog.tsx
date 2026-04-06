@@ -321,7 +321,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
             {/* ── Tab: Haushalt ── */}
             <TabsContent value="household" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
-              <ScrollArea className="flex-1 -mx-1 px-1">
+              <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="hhname">Haushaltsname</Label>
@@ -442,7 +442,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               {totalShopping === 0 ? (
                 <p className="text-sm text-muted-foreground py-4">Keine Einträge vorhanden.</p>
               ) : (
-                <ScrollArea className="flex-1 -mx-1 px-1">
+                <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                   <div className="space-y-4">
                     {groupedShopping.map((group) => (
                       <div key={group.label}>
@@ -507,7 +507,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               <p className="text-sm text-muted-foreground mb-3">
                 Diese Demo-Mitglieder wurden automatisch angelegt. Du kannst sie umbenennen oder entfernen.
               </p>
-              <ScrollArea className="flex-1 -mx-1 px-1">
+              <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                 <div className="space-y-2">
                   {/* Owner row */}
                   {data?.members.filter((m) => m.isOwner).map((m) => (
