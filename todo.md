@@ -3414,3 +3414,7 @@
 ## Bug: deleteMemberCascade – FK-Constraint auf shoppingItems.addedBy
 - [x] Schema: FK-Felder auf householdMembers.id nullable + onDelete:set null gesetzt; DB-Constraints direkt via SQL geändert
 - [x] deleteMemberCascade: DB übernimmt via onDelete:set null; nur completedBy/approvedBy explizit auf null gesetzt
+
+## Bug: Einladungslink auf /members fehlt für transformierte Demo-Haushalte
+- [x] Analysieren warum Invite-Button nicht erscheint: household.createdBy war NULL bei alten Demo-Claims
+- [x] Fix: DB-Repair für alte Haushalte + isAdmin-Fallback via demoSessions.claimedByUserId in getHouseholdSettings

@@ -12,7 +12,7 @@ import {
 import {
   households, householdMembers, users, shoppingCategories, householdDissolveVotes,
   shoppingItems, tasks, activityHistory, projects, inventoryItems, borrowRequests,
-  calendarEvents, householdConnections,
+  calendarEvents, householdConnections, demoSessions,
 } from "../../drizzle/schema";
 import { eq, and, count, asc, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -501,8 +501,30 @@ export const householdManagementRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Household not found" });
       }
 
-      // Admin = the user who created the household
-      const isAdmin = household.createdBy === ctx.user.id;
+      // Admin = the user who created the household.
+      // Fallback: also check demo_sessions.claimedByUserId in case createdBy was not
+      // updated (e.g. older demo claims before the fix).
+      let isAdmin = household.createdBy === ctx.user.id;
+      if (!isAdmin) {
+        const [claimedSession] = await db
+          .select({ claimedByUserId: demoSessions.claimedByUserId })
+          .from(demoSessions)
+          .where(
+            and(
+              eq(demoSessions.householdId, input.householdId),
+              eq(demoSessions.claimedByUserId, ctx.user.id)
+            )
+          )
+          .limit(1);
+        if (claimedSession) {
+          isAdmin = true;
+          // Also repair createdBy so future checks are fast
+          await db
+            .update(households)
+            .set({ createdBy: ctx.user.id })
+            .where(eq(households.id, input.householdId));
+        }
+      }
 
       return {
         id: household.id,
