@@ -2030,11 +2030,14 @@ export const tasksRouter = router({
       };
 
       // Start from the NEXT occurrence after current dueDate
+      // occurrenceIndex starts at 2 because:
+      // - Occurrence 1 in the rotation schedule = current dueDate (being completed)
+      // - Occurrence 2 = first next occurrence after dueDate
       let cur = advanceDate(new Date(task.dueDate));
       const skippedInChain: string[] = [];
       const maxIter = 500;
       let i = 0;
-      let occurrenceIndex = 1; // 1-based index of next occurrence
+      let occurrenceIndex = 2; // 1-based index matching rotation schedule (occ 1 = current dueDate)
 
       while (i < maxIter) {
         const key = fmt(cur);
