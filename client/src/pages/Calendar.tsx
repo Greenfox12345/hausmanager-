@@ -241,52 +241,43 @@ export default function Calendar() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const skippedDates = task.skippedDates || [];
-    
-    // First check if dueDate itself is still upcoming and not skipped
-    const dueDateNorm = new Date(task.dueDate);
-    dueDateNorm.setHours(0, 0, 0, 0);
-    const dueDateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-    if (dueDateNorm >= today && !skippedDates.includes(dueDateKey)) {
-      return new Date(task.dueDate);
+
+    // Helper: advance one interval step
+    const advanceDate = (d: Date): Date => {
+      const next = new Date(d);
+      if (task.repeatUnit === "days") {
+        next.setDate(next.getDate() + task.repeatInterval!);
+      } else if (task.repeatUnit === "weeks") {
+        next.setDate(next.getDate() + task.repeatInterval! * 7);
+      } else if (task.repeatUnit === "months") {
+        next.setMonth(next.getMonth() + task.repeatInterval!);
+      }
+      return next;
+    };
+
+    // Build all occurrences from dueDate up to 12 months in the future
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + 12);
+    const occurrences: Date[] = [];
+    let cur = new Date(task.dueDate);
+    cur.setHours(0, 0, 0, 0);
+    const maxIterations = 2000;
+    let i = 0;
+    while (cur <= maxDate && i < maxIterations) {
+      occurrences.push(new Date(cur));
+      cur = advanceDate(cur);
+      i++;
     }
 
-    // Calculate future occurrences (not limited to current month)
-    let currentDate = new Date(task.dueDate);
-    const maxDate = new Date(today);
-    maxDate.setMonth(maxDate.getMonth() + 12); // Look 12 months ahead
-    
-    let iterations = 0;
-    const maxIterations = 365;
-    
-    while (currentDate <= maxDate && iterations < maxIterations) {
-      // Advance to next occurrence
-      const nextDate = new Date(currentDate);
-      if (task.repeatUnit === "days") {
-        nextDate.setDate(nextDate.getDate() + task.repeatInterval);
-      } else if (task.repeatUnit === "weeks") {
-        nextDate.setDate(nextDate.getDate() + (task.repeatInterval * 7));
-      } else if (task.repeatUnit === "months") {
-        nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
-      }
-      
-      // Check if this date is skipped
-      const dateKey = format(nextDate, "yyyy-MM-dd");
-      const isSkipped = skippedDates.includes(dateKey);
-      
-      // Return first future non-skipped occurrence
-      const occDate = new Date(nextDate);
-      occDate.setHours(0, 0, 0, 0);
-      
-      if (occDate >= today && !isSkipped) {
-        return nextDate;
-      }
-      
-      currentDate = nextDate;
-      iterations++;
-    }
-    
-    // If no future occurrence found, return today
-    return today;
+    // Filter out skipped dates
+    const open = occurrences.filter(d => !skippedDates.includes(format(d, "yyyy-MM-dd")));
+    if (open.length === 0) return today;
+
+    // Prefer the first occurrence >= today; otherwise the last past occurrence
+    const future = open.find(d => d >= today);
+    if (future) return future;
+    // All open occurrences are in the past – return the most recent one
+    return open[open.length - 1];
   };
 
   // Group tasks and events by date (including future occurrences and completed history)

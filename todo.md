@@ -3530,3 +3530,6 @@
 
 ## Bug: calcOccurrenceNumber schlägt für fernere Termine fehl
 - [ ] calcOccurrenceNumber in db.ts robuster machen – monatliche und unregelmäßige Wiederholungen korrekt berechnen
+
+## Bug: „Zu aktuellem Termin" springt nicht in die Vergangenheit
+- [x] findNextOpenOccurrence: springt jetzt auch in die Vergangenheit wenn alle zukünftigen Termine übersprungen sind
