@@ -3454,3 +3454,7 @@
 ## Bug: DemoConfigDialog – nur Slider sichtbar, Name/Mitbewohner-Felder fehlen
 - [x] Ursache: Dialog zentriert vertikal, oberer Teil außerhalb Viewport
 - [x] Fix: h-[90vh] + top-[5vh] translate-y-0 damit Dialog von oben beginnt
+
+## DemoConfigDialog: Name/Mitbewohner-Trennung und Slider-Klarheit
+- [ ] Eigener Name und Mitbewohner-Namen klar trennen (aktuell verschwindet Alex wenn man oben einen Namen eingibt)
+- [ ] Aufgaben-Slider-Label präzisieren: erklärt was die Items sind

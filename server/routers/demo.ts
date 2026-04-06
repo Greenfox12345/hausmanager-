@@ -89,19 +89,19 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: 
   });
   const householdId = Number(hhResult.insertId);
 
-  // ── 2. Mitglieder anlegen ────────────────────────────────────────────────
-  // Owner member uses ownerName if provided, otherwise first custom name or default
-  const defaultNames = ["Alex", "Maria", "Jonas", "Sophie"];
-  const customNames = config.memberNames ?? [];
-  // Build member name list: length determined by customNames.length (1-4), pad with defaults
-  const memberCount = Math.max(1, Math.min(4, customNames.length > 0 ? customNames.length : 4));
-  const resolvedNames = Array.from({ length: memberCount }, (_, i) =>
-    customNames[i]?.trim() || defaultNames[i]
+  // ── 2. Mitglieder anlegen ────────────────────────────────────────────────────────────────────────────
+  // Slot 0 = Inhaber (ownerName or "Ich"), Slots 1-N = Mitbewohner (memberNames)
+  const defaultMemberNames = ["Alex", "Maria", "Jonas", "Sophie"];
+  const customMemberNames = config.memberNames ?? [];
+  const memberCount = Math.max(1, Math.min(4, customMemberNames.length > 0 ? customMemberNames.length : 4));
+  // Build resolved list for Mitbewohner slots (1-N)
+  const resolvedMemberNames = Array.from({ length: memberCount }, (_, i) =>
+    customMemberNames[i]?.trim() || defaultMemberNames[i]
   );
-  // Override first member with ownerName if provided
-  if (config.ownerName?.trim()) {
-    resolvedNames[0] = config.ownerName.trim();
-  }
+  // Slot 0: Inhaber
+  const ownerSlotName = config.ownerName?.trim() || "Ich";
+  // Full list: [owner, ...members]
+  const resolvedNames = [ownerSlotName, ...resolvedMemberNames];
   const memberIds: number[] = [];
   for (const name of resolvedNames) {
     const [mResult] = await db.insert(householdMembers).values({
@@ -112,7 +112,8 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: 
     });
     memberIds.push(Number(mResult.insertId));
   }
-  const [alexId, mariaId, jonasId, sophieId] = memberIds;
+  // memberIds[0] = owner (Inhaber), memberIds[1..4] = Mitbewohner
+  const [ownerId, alexId = ownerId, mariaId = ownerId, jonasId = ownerId, sophieId = ownerId] = memberIds;
 
 
   // ── 3. Einkaufskategorien ────────────────────────────────────────────────
@@ -407,7 +408,7 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: 
     });
   }
 
-  return { householdId, memberId: alexId, memberIds };
+  return { householdId, memberId: ownerId, memberIds };
 }
 
 // ─── Router ──────────────────────────────────────────────────────────────────

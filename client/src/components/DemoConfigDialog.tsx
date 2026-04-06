@@ -65,13 +65,14 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
   });
 
   const handleStart = () => {
-    // Resolve member names: use input or default for each active slot
-    const resolvedNames = Array.from({ length: memberCount }, (_, i) =>
+    // memberNames are the OTHER household members (not the owner)
+    // ownerName is sent separately as slot 0
+    const resolvedMemberNames = Array.from({ length: memberCount }, (_, i) =>
       memberNames[i]?.trim() || DEFAULT_MEMBER_NAMES[i]
     );
     createDemoMutation.mutate({
       ownerName: ownerName.trim() || undefined,
-      memberNames: resolvedNames,
+      memberNames: resolvedMemberNames,
       shoppingItemCount,
       taskCount,
     });
@@ -134,6 +135,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm font-medium">Mitbewohner</Label>
+                <span className="text-xs text-muted-foreground">(andere Personen im Haushalt)</span>
               </div>
               {/* Stepper für Anzahl */}
               <div className="flex items-center gap-2">
@@ -185,7 +187,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">Leere Felder erhalten Standardnamen.</p>
+            <p className="text-xs text-muted-foreground">Diese Personen sind zusätzlich zu dir im Demo-Haushalt. Leere Felder erhalten Standardnamen.</p>
           </div>
 
           <Separator />
