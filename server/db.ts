@@ -1375,16 +1375,6 @@ export async function setRotationSchedule(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Load existing isSkipped status before deleting
-  const existingNotes = await db.select()
-    .from(taskRotationOccurrenceNotes)
-    .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
-  
-  const skipStatusMap = new Map<number, boolean>();
-  for (const note of existingNotes) {
-    skipStatusMap.set(note.occurrenceNumber, (note as any).isSkipped || false);
-  }
-
   // Delete existing schedule and notes
   await db.delete(taskRotationSchedule).where(eq(taskRotationSchedule.taskId, taskId));
   await db.delete(taskRotationOccurrenceNotes).where(eq(taskRotationOccurrenceNotes.taskId, taskId));
@@ -1400,10 +1390,9 @@ export async function setRotationSchedule(
       });
     }
 
-    // Restore isSkipped status from existing data or use provided value
-    const isSkipped = occurrence.isSkipped !== undefined 
-      ? occurrence.isSkipped 
-      : (skipStatusMap.get(occurrence.occurrenceNumber) || false);
+    // Always use the isSkipped value from the passed schedule (never re-read from DB)
+    // Re-reading from DB by occurrence number causes cascade bugs when occurrences are renumbered
+    const isSkipped = occurrence.isSkipped ?? false;
 
     // Always insert a notes entry for every occurrence to ensure it persists
     // even when the occurrence has no members, notes, or special status.
