@@ -439,7 +439,7 @@
     "cancelled": "Cancelado"
   },
   "requiredItemsSection": {
-    "title": "Artículos requeridos"
+    "title": "Artículos"
   },
   "borrow": {
     "borrower": "Prestatario",
@@ -587,7 +587,7 @@
     "noOccurrences": "No hay citas planificadas"
   },
   "requiredItems": {
-    "title": "Artículos necesarios",
+    "title": "Artículos",
     "addItem": "+ Artículo",
     "noItems": "No hay artículos vinculados",
     "item": "Artículo",

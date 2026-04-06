@@ -209,7 +209,7 @@
     "noOccurrences": "Aucun rendez-vous prévu"
   },
   "requiredItems": {
-    "title": "Articles requis",
+    "title": "Articles",
     "addItem": "+ Article",
     "noItems": "Aucun article lié",
     "item": "Article",
@@ -507,7 +507,7 @@
     "cancelled": "Annulé"
   },
   "requiredItemsSection": {
-    "title": "Articles requis"
+    "title": "Articles"
   },
   "borrow": {
     "borrower": "Emprunteur",

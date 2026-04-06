@@ -209,7 +209,7 @@
     "noOccurrences": "没有计划的任务"
   },
   "requiredItems": {
-    "title": "所需物品",
+    "title": "物品",
     "addItem": "+ 物品",
     "noItems": "没有关联物品",
     "item": "物品",
@@ -507,7 +507,7 @@
     "cancelled": "已取消"
   },
   "requiredItemsSection": {
-    "title": "所需物品"
+    "title": "物品"
   },
   "borrow": {
     "borrower": "借用人",

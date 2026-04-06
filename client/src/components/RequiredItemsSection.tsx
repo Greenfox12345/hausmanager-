@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Edit2, Star } from "lucide-react";
+import { Calendar, ChevronDown, Edit2, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ItemPickerDialog } from "./ItemPickerDialog";
@@ -45,6 +45,7 @@ export function RequiredItemsSection({
   rotationSchedule,
   onItemAdded,
 }: RequiredItemsSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedOccurrence, setSelectedOccurrence] = useState<number | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
@@ -177,8 +178,17 @@ export function RequiredItemsSection({
 
   return (
     <Card className="p-6 mt-6">
-      <h3 className="text-lg font-semibold mb-4">{t("tasks:requiredItems.title")}</h3>
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity mb-2"
+      >
+        <ChevronDown className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-0' : '-rotate-90'}`} />
+        <h3 className="text-lg font-semibold">{t("tasks:requiredItems.title")}</h3>
+      </button>
 
+      {isExpanded && (
+      <>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -489,6 +499,8 @@ export function RequiredItemsSection({
           }}
           isSubmitting={revokeMutation.isPending}
         />
+      )}
+      </>
       )}
     </Card>
   );

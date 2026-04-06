@@ -209,7 +209,7 @@
     "noOccurrences": "Planlanmış randevu yok"
   },
   "requiredItems": {
-    "title": "Gerekli Öğeler",
+    "title": "Öğeler",
     "addItem": "+ Öğe",
     "noItems": "Bağlantılı öğe yok",
     "item": "Öğe",
@@ -506,7 +506,7 @@
     "cancelled": "İptal Edildi"
   },
   "requiredItemsSection": {
-    "title": "Gerekli Öğeler"
+    "title": "Öğeler"
   },
   "borrow": {
     "borrower": "Ödünç Alan",

@@ -209,7 +209,7 @@
     "noOccurrences": "Keine Termine geplant"
   },
   "requiredItems": {
-    "title": "Benötigte Gegenstände",
+    "title": "Gegenstände",
     "addItem": "+ Gegenstand",
     "noItems": "Keine Gegenstände verknüpft",
     "item": "Gegenstand",
@@ -507,7 +507,7 @@
     "cancelled": "Storniert"
   },
   "requiredItemsSection": {
-    "title": "Benötigte Gegenstände"
+    "title": "Gegenstände"
   },
   "borrow": {
     "borrower": "Ausleiher",

@@ -209,7 +209,7 @@
     "noOccurrences": "No appointments scheduled"
   },
   "requiredItems": {
-    "title": "Required Items",
+    "title": "Items",
     "addItem": "+ Item",
     "noItems": "No items linked",
     "item": "Item",
@@ -507,7 +507,7 @@
     "cancelled": "Cancelled"
   },
   "requiredItemsSection": {
-    "title": "Required Items"
+    "title": "Items"
   },
   "borrow": {
     "borrower": "Borrower",
