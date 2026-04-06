@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -2660,52 +2661,48 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     )}
 
     {/* Warning: dueDate is a skipped date */}
-    {skippedDateWarnOpen && (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={() => setSkippedDateWarnOpen(false)}>
-        <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
-          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+    <AlertDialog open={skippedDateWarnOpen} onOpenChange={setSkippedDateWarnOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
             <span className="text-orange-500">⚠️</span>
             Termin ist ausgelassen
-          </h3>
-          <p className="text-sm text-muted-foreground mb-2">
-            Der gewählte Termin ({dueDate}) ist bereits als „Auslassen“ markiert.
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">
-            Möchtest du den Termin trotzdem setzen? Der Auslassen-Eintrag wird dann automatisch entfernt.
-          </p>
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSkippedDateWarnOpen(false);
-                setPendingSaveData(null);
-              }}
-            >
-              Abbrechen
-            </Button>
-            <Button
-              onClick={async () => {
-                setSkippedDateWarnOpen(false);
-                // Remove the date from skippedDates before saving
-                if (task && dueDate) {
-                  const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
-                  // Optimistically update task.skippedDates so doSave doesn't re-trigger warning
-                  if (onTaskUpdated) {
-                    onTaskUpdated({ ...task, skippedDates: updatedSkipped });
-                  }
-                  // Also restore via backend (fire-and-forget, ignore errors)
-                  utils.tasks.list.invalidate();
+          </AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div>
+              <p className="mb-2">
+                Der gewählte Termin ({dueDate}) ist bereits als „Auslassen“ markiert.
+              </p>
+              <p>
+                Möchtest du den Termin trotzdem setzen? Der Auslassen-Eintrag wird dann automatisch entfernt.
+              </p>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setPendingSaveData(null)}>
+            Abbrechen
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              // Remove the date from skippedDates before saving
+              if (task && dueDate) {
+                const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
+                // Optimistically update task.skippedDates so doSave doesn't re-trigger warning
+                if (onTaskUpdated) {
+                  onTaskUpdated({ ...task, skippedDates: updatedSkipped });
                 }
-                if (pendingSaveData) await pendingSaveData();
-                setPendingSaveData(null);
-              }}
-            >
-              Trotzdem setzen
-            </Button>
-          </div>
-        </div>
-      </div>
-    )}
+                utils.tasks.list.invalidate();
+              }
+              if (pendingSaveData) await pendingSaveData();
+              setPendingSaveData(null);
+            }}
+          >
+            Trotzdem setzen
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </>
   );
 }
