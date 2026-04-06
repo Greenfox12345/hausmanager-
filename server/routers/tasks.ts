@@ -739,6 +739,18 @@ export const tasksRouter = router({
           }
         }
 
+        // Remove skippedDates that are before the new dueDate (they were consumed by the skip-chain)
+        const fmtDateLocal = (d: Date) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${day}`;
+        };
+        const newDueDateStr = fmtDateLocal(nextDueDate);
+        const cleanedSkippedDates = (task.skippedDates || []).filter(
+          (d: string) => d >= newDueDateStr
+        );
+
         // Update task to next occurrence (NOT completed)
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
@@ -746,6 +758,7 @@ export const tasksRouter = router({
           isCompleted: false,
           completedBy: null,
           completedAt: null,
+          skippedDates: cleanedSkippedDates,
         });
 
         // Log completion of THIS occurrence with ORIGINAL due date
