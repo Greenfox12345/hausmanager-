@@ -55,6 +55,15 @@ export default function Calendar() {
   // Event type filter for calendar view
   const [eventTypeFilter, setEventTypeFilter] = useState<"all" | "tasks" | "borrow_events">("all");
 
+  // Skip-confirmation dialog state
+  const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
+  const [skipConfirmData, setSkipConfirmData] = useState<{
+    skippedCount: number;
+    skippedDates: string[];
+    nextDate: string | null;
+    pendingCompleteData: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] } | null;
+  } | null>(null);
+
   const utils = trpc.useUtils();
 
   const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
@@ -509,6 +518,36 @@ export default function Calendar() {
   };
 
   const handleCompleteTask = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
+    if (!actionTask || !household || !member) return;
+
+    // For recurring tasks: check if the next occurrence is skipped
+    const isRecurring = Boolean(actionTask.repeatInterval && actionTask.repeatUnit);
+    if (isRecurring) {
+      try {
+        const check = await utils.tasks.checkNextOccurrence.fetch({
+          taskId: actionTask.id,
+          householdId: household.householdId,
+        });
+        if (check.skippedCount > 0) {
+          // Show confirmation dialog before completing
+          setSkipConfirmData({
+            skippedCount: check.skippedCount,
+            skippedDates: check.skippedDates,
+            nextDate: check.nextDate,
+            pendingCompleteData: data,
+          });
+          setSkipConfirmOpen(true);
+          return; // Wait for user confirmation
+        }
+      } catch (e) {
+        // If check fails, proceed with normal completion
+      }
+    }
+
+    await doCompleteTask(data);
+  };
+
+  const doCompleteTask = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
     if (!actionTask || !household || !member) return;
     // First toggle complete
     await completeTaskMutation.mutateAsync({
@@ -1634,6 +1673,68 @@ export default function Calendar() {
                 disabled={!noteText.trim() || addOccurrenceNoteMutation.isPending}
               >
                 {addOccurrenceNoteMutation.isPending ? t("common:loading", "...") : t("common:actions.save", "Speichern")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skip-confirmation dialog for recurring task completion */}
+      {skipConfirmOpen && skipConfirmData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSkipConfirmOpen(false)}>
+          <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-orange-500">⚠️</span>
+              {t("calendar:skipConfirm.title", "Übersprungene Termine")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              {skipConfirmData.skippedCount === 1
+                ? t("calendar:skipConfirm.singleSkip", "Der nächste Termin ({{date}}) ist bereits als \"Auslassen\" markiert. Die Aufgabe wird zum übernächsten offenen Termin weitergeleitet.", {
+                    date: skipConfirmData.skippedDates[0]
+                  })
+                : t("calendar:skipConfirm.multiSkip", "Die nächsten {{count}} Termine sind bereits als \"Auslassen\" markiert. Die Aufgabe wird zum nächsten offenen Termin weitergeleitet.", {
+                    count: skipConfirmData.skippedCount
+                  })
+              }
+            </p>
+            {skipConfirmData.skippedDates.length > 0 && (
+              <div className="bg-muted/50 rounded-md p-3 mb-4">
+                <p className="text-xs font-medium text-muted-foreground mb-1">{t("calendar:skipConfirm.skippedDates", "Übersprungene Termine:")}</p>
+                <ul className="text-sm space-y-0.5">
+                  {skipConfirmData.skippedDates.map(d => (
+                    <li key={d} className="text-orange-600">• {d}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {skipConfirmData.nextDate && (
+              <p className="text-sm font-medium mb-4">
+                {t("calendar:skipConfirm.nextOpen", "Nächster offener Termin:")}{" "}
+                <span className="text-primary">
+                  {format(new Date(skipConfirmData.nextDate), "dd.MM.yyyy", { locale: dateFnsLocale })}
+                </span>
+              </p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSkipConfirmOpen(false);
+                  setSkipConfirmData(null);
+                }}
+              >
+                {t("common:actions.cancel", "Abbrechen")}
+              </Button>
+              <Button
+                onClick={async () => {
+                  setSkipConfirmOpen(false);
+                  if (skipConfirmData.pendingCompleteData) {
+                    await doCompleteTask(skipConfirmData.pendingCompleteData);
+                  }
+                  setSkipConfirmData(null);
+                }}
+              >
+                {t("calendar:skipConfirm.confirm", "Trotzdem abschließen")}
               </Button>
             </div>
           </div>

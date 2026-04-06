@@ -1855,4 +1855,70 @@ export const tasksRouter = router({
         input.direction
       );
     }),
+
+  /**
+   * Check if the next occurrence(s) after completing a recurring task are skipped.
+   * Returns the first non-skipped next date and how many dates are skipped before it.
+   */
+  checkNextOccurrence: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const task = await getTaskById(input.taskId);
+      if (!task || !task.repeatInterval || !task.repeatUnit || !task.dueDate) {
+        return { skippedCount: 0, nextDate: null, skippedDates: [] as string[] };
+      }
+
+      const skippedDates: string[] = task.skippedDates || [];
+
+      const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
+
+      const advanceDate = (d: Date): Date => {
+        const next = new Date(d);
+        if (task.repeatUnit === "days") {
+          next.setDate(next.getDate() + (task.repeatInterval || 1));
+        } else if (task.repeatUnit === "weeks") {
+          next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
+        } else if (task.repeatUnit === "months") {
+          return getNextMonthlyOccurrence(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
+        }
+        return next;
+      };
+
+      // Format date as yyyy-MM-dd
+      const fmt = (d: Date) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      };
+
+      // Start from the NEXT occurrence after current dueDate
+      let cur = advanceDate(new Date(task.dueDate));
+      const skippedInChain: string[] = [];
+      const maxIter = 500;
+      let i = 0;
+
+      while (i < maxIter) {
+        const key = fmt(cur);
+        if (skippedDates.includes(key)) {
+          skippedInChain.push(key);
+          cur = advanceDate(cur);
+          i++;
+        } else {
+          // Found first non-skipped next occurrence
+          return {
+            skippedCount: skippedInChain.length,
+            nextDate: cur.toISOString(),
+            skippedDates: skippedInChain,
+          };
+        }
+      }
+
+      return { skippedCount: skippedInChain.length, nextDate: cur.toISOString(), skippedDates: skippedInChain };
+    }),
 });
