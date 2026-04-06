@@ -1745,3 +1745,86 @@ export async function getInventoryItemAllowedHouseholds(itemId: number): Promise
     .where(eq(inventoryItemAllowedHouseholds.inventoryItemId, itemId));
   return rows.map(r => r.allowedHouseholdId);
 }
+
+/**
+ * Calculate a deterministic occurrenceNumber for a repeatInterval task based on a date.
+ * occurrenceNumber = 1 for dueDate, 2 for dueDate+interval, etc.
+ * Returns null if the task has no dueDate or no repeatInterval.
+ */
+export function calcOccurrenceNumber(task: { dueDate?: Date | string | null; repeatInterval?: number | null; repeatUnit?: string | null }, targetDate: Date | string): number | null {
+  if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) return null;
+
+  const due = new Date(task.dueDate);
+  due.setHours(0, 0, 0, 0);
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
+
+  // Walk forward from dueDate until we reach targetDate
+  let current = new Date(due);
+  let occurrenceNumber = 1;
+  const maxIterations = 10000;
+
+  for (let i = 0; i < maxIterations; i++) {
+    if (current.getTime() === target.getTime()) return occurrenceNumber;
+    if (current.getTime() > target.getTime()) return null; // targetDate not on a valid occurrence
+
+    if (task.repeatUnit === "days") {
+      current.setDate(current.getDate() + task.repeatInterval);
+    } else if (task.repeatUnit === "weeks") {
+      current.setDate(current.getDate() + task.repeatInterval * 7);
+    } else if (task.repeatUnit === "months") {
+      current.setMonth(current.getMonth() + task.repeatInterval);
+    } else {
+      return null;
+    }
+    occurrenceNumber++;
+  }
+
+  return null;
+}
+
+/**
+ * Upsert a note/skip entry for a specific occurrence (by occurrenceNumber).
+ * Creates the record if it doesn't exist, updates it otherwise.
+ */
+export async function upsertOccurrenceNote(
+  taskId: number,
+  occurrenceNumber: number,
+  data: { notes?: string; isSkipped?: boolean }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select()
+    .from(taskRotationOccurrenceNotes)
+    .where(
+      and(
+        eq(taskRotationOccurrenceNotes.taskId, taskId),
+        eq(taskRotationOccurrenceNotes.occurrenceNumber, occurrenceNumber)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    const updateData: Record<string, unknown> = {};
+    if (data.notes !== undefined) updateData.notes = data.notes;
+    if (data.isSkipped !== undefined) updateData.isSkipped = data.isSkipped;
+    await db.update(taskRotationOccurrenceNotes)
+      .set(updateData as any)
+      .where(
+        and(
+          eq(taskRotationOccurrenceNotes.taskId, taskId),
+          eq(taskRotationOccurrenceNotes.occurrenceNumber, occurrenceNumber)
+        )
+      );
+  } else {
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber,
+      notes: data.notes || "",
+      isSkipped: data.isSkipped || false,
+    } as typeof taskRotationOccurrenceNotes.$inferInsert);
+  }
+
+  return { success: true };
+}

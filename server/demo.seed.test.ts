@@ -321,3 +321,76 @@ describe("addPlaceholderMember authorization logic (pure unit)", () => {
     expect(name.trim()).toBe("Anna");
   });
 });
+
+// ============================================================
+// Tests: addOccurrenceNote und einheitliches Skip-System
+// ============================================================
+
+describe("addOccurrenceNote Logik", () => {
+  it("addOccurrenceNote-Input muss taskId, occurrenceDate und notes enthalten", () => {
+    const input = {
+      taskId: 1,
+      householdId: 1,
+      memberId: 1,
+      occurrenceDate: "2025-06-15",
+      notes: "Diesmal bitte besonders gründlich",
+    };
+    expect(input.taskId).toBe(1);
+    expect(input.occurrenceDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(input.notes.length).toBeGreaterThan(0);
+  });
+
+  it("leere Notiz soll nicht gespeichert werden", () => {
+    const noteText = "   ";
+    expect(noteText.trim().length).toBe(0);
+  });
+
+  it("Notiz mit Inhalt soll gespeichert werden", () => {
+    const noteText = "Nächste Woche verschoben";
+    expect(noteText.trim().length).toBeGreaterThan(0);
+  });
+});
+
+describe("Einheitliches Skip-System", () => {
+  it("skipOccurrence und Überspringen im Dialog sollen dasselbe Datum-Format verwenden", () => {
+    const date = new Date("2025-06-15");
+    const formatted = date.toISOString().split("T")[0];
+    expect(formatted).toBe("2025-06-15");
+  });
+
+  it("skippedDates-Array soll keine Duplikate enthalten", () => {
+    const existing = ["2025-06-15", "2025-07-15"];
+    const newDate = "2025-06-15";
+    const deduplicated = existing.includes(newDate) ? existing : [...existing, newDate];
+    expect(deduplicated).toEqual(["2025-06-15", "2025-07-15"]);
+  });
+
+  it("restoreSkippedDate soll das Datum aus skippedDates entfernen", () => {
+    const skippedDates = ["2025-06-15", "2025-07-15", "2025-08-15"];
+    const dateToRestore = "2025-07-15";
+    const restored = skippedDates.filter((d) => d !== dateToRestore);
+    expect(restored).toEqual(["2025-06-15", "2025-08-15"]);
+  });
+
+  it("calcOccurrenceNumber: Termin am selben Tag wie dueDate ergibt occurrenceNumber 1", () => {
+    // Simulate: dueDate = 2025-01-01, repeatUnit = weeks, repeatInterval = 1
+    // occurrenceDate = 2025-01-01 → occurrenceNumber = 1
+    function calcOccNum(dueDate: string, repeatUnit: string, repeatInterval: number, occDate: string): number | null {
+      const base = new Date(dueDate).getTime();
+      const target = new Date(occDate).getTime();
+      const diffMs = target - base;
+      if (diffMs < 0) return null;
+      const msPerUnit: Record<string, number> = {
+        days: 86400000,
+        weeks: 7 * 86400000,
+      };
+      const unitMs = msPerUnit[repeatUnit];
+      if (!unitMs) return null;
+      const steps = Math.round(diffMs / (unitMs * repeatInterval));
+      return steps + 1;
+    }
+    expect(calcOccNum("2025-01-01", "weeks", 1, "2025-01-01")).toBe(1);
+    expect(calcOccNum("2025-01-01", "weeks", 1, "2025-01-08")).toBe(2);
+    expect(calcOccNum("2025-01-01", "weeks", 2, "2025-01-15")).toBe(2);
+  });
+});

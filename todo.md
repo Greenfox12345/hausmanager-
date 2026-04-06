@@ -3519,3 +3519,11 @@
 - [x] isSkipped in rotationSchedule wird aus task.skippedDates abgeleitet (kein Rotationsplan-System mehr)
 - [x] task.skippedDates in useEffect-Dependency-Array aufgenommen
 - [x] restoreSkippedOccurrenceMutation im Dialog hinzugefügt (Toggle-Funktion)
+
+## Einheitliches Termin-System (Kalender + Dialog)
+- [ ] Backend: skipOccurrence legt Rotationsplan-Eintrag an (falls nicht vorhanden) und setzt isSkipped=true
+- [ ] Backend: addOccurrenceNote legt Rotationsplan-Eintrag an und speichert Notiz
+- [ ] Frontend Kalender: Auslassen ruft skipRotationOccurrence auf (nicht skippedDates)
+- [ ] Frontend Kalender: „Notiz hinzufügen" Button zwischen „Zu aktuellem Termin" und „Auslassen"
+- [ ] Frontend Dialog: isSkipped und Notizen kommen aus Rotationsplan-Tabellen
+- [ ] Speichern im Dialog persistiert Rotationsplan-Einträge sofort

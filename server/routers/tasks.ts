@@ -22,6 +22,8 @@ import {
   deleteRotationOccurrence,
   skipRotationOccurrence,
   moveRotationOccurrence,
+  calcOccurrenceNumber,
+  upsertOccurrenceNote,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
 import {
@@ -1607,18 +1609,24 @@ export const tasksRouter = router({
 
       // Add date to skippedDates array (deduplicate)
       const currentSkippedDates = task.skippedDates || [];
-      if (currentSkippedDates.includes(input.dateToSkip)) {
-        return { success: true }; // already skipped
-      }
-      const updatedSkippedDates = [...currentSkippedDates, input.dateToSkip];
+      const alreadySkipped = currentSkippedDates.includes(input.dateToSkip);
+      if (!alreadySkipped) {
+        const updatedSkippedDates = [...currentSkippedDates, input.dateToSkip];
 
-      // If the task has no dueDate yet, set it to the date being skipped
-      const updateData: any = { skippedDates: updatedSkippedDates };
-      if (!task.dueDate) {
-        updateData.dueDate = new Date(input.dateToSkip);
+        // If the task has no dueDate yet, set it to the date being skipped
+        const updateData: any = { skippedDates: updatedSkippedDates };
+        if (!task.dueDate) {
+          updateData.dueDate = new Date(input.dateToSkip);
+        }
+        await updateTask(input.taskId, updateData);
       }
 
-      await updateTask(input.taskId, updateData);
+      // Also write into taskRotationOccurrenceNotes for unified dialog display
+      const taskForCalc = alreadySkipped ? task : { ...task, dueDate: task.dueDate || new Date(input.dateToSkip) };
+      const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
+      if (occNum !== null) {
+        await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
+      }
 
       const skipLang = await getHouseholdLang(input.householdId);
       const skipLocale = skipLang === "en" ? "en-GB" : skipLang === "es" ? "es-ES" : "de-DE";
@@ -1657,6 +1665,12 @@ export const tasksRouter = router({
       // Remove date from skippedDates array
       const currentSkippedDates = task.skippedDates || [];
       const updatedSkippedDates = currentSkippedDates.filter(date => date !== input.dateToRestore);
+
+      // Also update taskRotationOccurrenceNotes for unified dialog display
+      const restoreOccNum = calcOccurrenceNumber(task, input.dateToRestore);
+      if (restoreOccNum !== null) {
+        await upsertOccurrenceNote(input.taskId, restoreOccNum, { isSkipped: false });
+      }
 
       await updateTask(input.taskId, {
         skippedDates: updatedSkippedDates,
@@ -1790,6 +1804,39 @@ export const tasksRouter = router({
     )
     .mutation(async ({ input }) => {
       return await skipRotationOccurrence(input.taskId, input.occurrenceNumber);
+    }),
+
+  // Add or update a note for a specific occurrence (by date, for repeatInterval tasks)
+  addOccurrenceNote: publicProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+        householdId: z.number(),
+        memberId: z.number(),
+        occurrenceDate: z.string(), // yyyy-MM-dd
+        notes: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const task = await getTaskById(input.taskId);
+      if (!task) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+      }
+
+      // Ensure dueDate is set (needed for occurrenceNumber calculation)
+      if (!task.dueDate) {
+        await updateTask(input.taskId, { dueDate: new Date(input.occurrenceDate) });
+        task.dueDate = new Date(input.occurrenceDate);
+      }
+
+      const occNum = calcOccurrenceNumber(task, input.occurrenceDate);
+      if (occNum === null) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Could not calculate occurrence number for this date" });
+      }
+
+      await upsertOccurrenceNote(input.taskId, occNum, { notes: input.notes });
+
+      return { success: true, occurrenceNumber: occNum };
     }),
 
   // Move an occurrence up or down in the schedule

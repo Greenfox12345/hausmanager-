@@ -133,9 +133,28 @@ export default function Calendar() {
     },
   });
 
+  // State for occurrence note dialog
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [noteTask, setNoteTask] = useState<any | null>(null);
+  const [noteText, setNoteText] = useState("");
+
+  const addOccurrenceNoteMutation = trpc.tasks.addOccurrenceNote.useMutation({
+    onSuccess: () => {
+      utils.tasks.list.invalidate();
+      setNoteDialogOpen(false);
+      setNoteTask(null);
+      setNoteText("");
+      toast.success(t("calendar:messages.noteAdded", "Notiz gespeichert!"));
+    },
+    onError: (error) => {
+      toast.error(t("common:errors.generic", "Fehler: ") + error.message);
+    },
+  });
+
   const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
     onSuccess: (_data, variables) => {
       utils.tasks.list.invalidate();
+      utils.tasks.getRotationSchedule.invalidate();
       // Update selectedTask in-place so TaskDetailDialog reflects the new skippedDates immediately
       setSelectedTask((prev: any) => {
         if (!prev || prev.id !== variables.taskId) return prev;
@@ -895,6 +914,21 @@ export default function Calendar() {
                                           <Button
                                             size="sm"
                                             variant="outline"
+                                            className="w-full text-blue-600 hover:bg-blue-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                              setNoteTask({ ...task, targetDate });
+                                              setNoteText("");
+                                              setNoteDialogOpen(true);
+                                            }}
+                                          >
+                                            <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
+                                            {t("calendar:addNote", "Notiz hinzufügen")}
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
                                             className="w-full text-orange-600 hover:bg-orange-50"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1154,6 +1188,21 @@ export default function Calendar() {
                                         >
                                           <ArrowRight className="h-4 w-4 mr-1" />
                                           {t("calendar:actions.jumpToCurrent", "Zu aktuellem Termin")}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full text-blue-600 hover:bg-blue-50"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                            setNoteTask({ ...task, targetDate });
+                                            setNoteText("");
+                                            setNoteDialogOpen(true);
+                                          }}
+                                        >
+                                          <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
+                                          {t("calendar:addNote", "Notiz hinzufügen")}
                                         </Button>
                                         <Button
                                           size="sm"
@@ -1498,6 +1547,45 @@ export default function Calendar() {
         }}
       />
       
+      {/* Occurrence Note Dialog */}
+      {noteDialogOpen && noteTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setNoteDialogOpen(false)}>
+          <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-1">{t("calendar:addNote", "Notiz hinzufügen")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {noteTask.name} – {format(noteTask.targetDate, "dd.MM.yyyy", { locale: dateFnsLocale })}
+            </p>
+            <textarea
+              className="w-full border rounded-md p-3 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder={t("calendar:notePlaceholder", "Notiz für diesen Termin...")}
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              autoFocus
+            />
+            <div className="flex gap-2 mt-4 justify-end">
+              <Button variant="outline" onClick={() => { setNoteDialogOpen(false); setNoteTask(null); setNoteText(""); }}>
+                {t("common:actions.cancel", "Abbrechen")}
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!noteText.trim()) return;
+                  addOccurrenceNoteMutation.mutate({
+                    taskId: noteTask.id,
+                    householdId: household?.householdId ?? 0,
+                    memberId: member?.memberId ?? 0,
+                    occurrenceDate: format(noteTask.targetDate, "yyyy-MM-dd"),
+                    notes: noteText.trim(),
+                  });
+                }}
+                disabled={!noteText.trim() || addOccurrenceNoteMutation.isPending}
+              >
+                {addOccurrenceNoteMutation.isPending ? t("common:loading", "...") : t("common:actions.save", "Speichern")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomNav />
     </AppLayout>
   );
