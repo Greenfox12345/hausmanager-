@@ -3471,3 +3471,8 @@
 - [x] Backend: Demo-Slot-0 beim Seeden als Admin anlegen (adminUserId = Slot-0-memberId)
 - [x] Frontend: Kick-Button für Demo-User sichtbar, eigener Slot ausgeschlossen
 - [x] Tests für Kick-Button-Sichtbarkeit im Demo-Modus (6 neue Tests, 29 gesamt)
+
+## Bug: kickMember schlägt für Demo-User fehl
+- [x] kickMember-Prozedur: Demo-User-Erkennung via ctx.isDemoUser + ctx.demoHouseholdId repariert
+- [x] context.ts: demoHouseholdId und demoMemberId aus JWT in TrpcContext aufgenommen
+- [x] 5 neue Unit-Tests für isDemoKick-Logik (34 Tests gesamt)

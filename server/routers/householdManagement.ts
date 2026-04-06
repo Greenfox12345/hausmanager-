@@ -1086,19 +1086,25 @@ export const householdManagementRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
 
-      // Only the household owner may kick members
-      const [hh] = await db
-        .select()
-        .from(households)
-        .where(eq(households.id, input.householdId))
-        .limit(1);
-      const isOwnerForKick = hh && (hh.createdBy === ctx.user.id || (
-        await db.select({ id: demoSessions.id }).from(demoSessions)
-          .where(and(eq(demoSessions.householdId, input.householdId), eq(demoSessions.claimedByUserId, ctx.user.id)))
-          .limit(1)
-      ).length > 0);
-      if (!isOwnerForKick) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can kick members" });
+      // Only the household owner may kick members.
+      // Demo users are identified via ctx.isDemoUser + ctx.demoHouseholdId (from JWT).
+      const isDemoKick = (ctx as any).isDemoUser === true &&
+        (ctx as any).demoHouseholdId === input.householdId;
+
+      if (!isDemoKick) {
+        const [hh] = await db
+          .select()
+          .from(households)
+          .where(eq(households.id, input.householdId))
+          .limit(1);
+        const isOwnerForKick = hh && (hh.createdBy === ctx.user.id || (
+          await db.select({ id: demoSessions.id }).from(demoSessions)
+            .where(and(eq(demoSessions.householdId, input.householdId), eq(demoSessions.claimedByUserId, ctx.user.id)))
+            .limit(1)
+        ).length > 0);
+        if (!isOwnerForKick) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can kick members" });
+        }
       }
 
       // Verify the target member exists and is NOT registered (safety guard)

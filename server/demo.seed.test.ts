@@ -234,3 +234,30 @@ describe("kick button visibility (pure unit)", () => {
     expect(showKickButton({ isAdmin: true, isDemoUser: false, editingMemberId: null, targetMemberId: 1, ownMemberId: 1 })).toBe(false);
   });
 });
+
+describe("isDemoKick permission logic (pure unit)", () => {
+  // Mirror the logic from householdManagement.ts kickMember
+  function isDemoKick(ctx: { isDemoUser?: boolean; demoHouseholdId?: number }, inputHouseholdId: number): boolean {
+    return ctx.isDemoUser === true && ctx.demoHouseholdId === inputHouseholdId;
+  }
+
+  it("allows kick when isDemoUser=true and householdId matches", () => {
+    expect(isDemoKick({ isDemoUser: true, demoHouseholdId: 42 }, 42)).toBe(true);
+  });
+
+  it("denies kick when isDemoUser=true but householdId does not match", () => {
+    expect(isDemoKick({ isDemoUser: true, demoHouseholdId: 42 }, 99)).toBe(false);
+  });
+
+  it("denies kick when isDemoUser=false", () => {
+    expect(isDemoKick({ isDemoUser: false, demoHouseholdId: 42 }, 42)).toBe(false);
+  });
+
+  it("denies kick when isDemoUser is undefined", () => {
+    expect(isDemoKick({ demoHouseholdId: 42 }, 42)).toBe(false);
+  });
+
+  it("denies kick when demoHouseholdId is undefined", () => {
+    expect(isDemoKick({ isDemoUser: true }, 42)).toBe(false);
+  });
+});

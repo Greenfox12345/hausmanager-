@@ -11,6 +11,9 @@ export type TrpcContext = {
   res: CreateExpressContextOptions["res"];
   user: User | null;
   isDemoUser?: boolean;
+  /** Only set for demo sessions – the household and member from the JWT */
+  demoHouseholdId?: number;
+  demoMemberId?: number;
 };
 
 export async function createContext(
@@ -18,6 +21,8 @@ export async function createContext(
 ): Promise<TrpcContext> {
   let user: User | null = null;
   let isDemoUser = false;
+  let demoHouseholdId: number | undefined;
+  let demoMemberId: number | undefined;
 
   // Try Bearer token authentication first (new user auth system)
   const authHeader = opts.req.headers.authorization;
@@ -30,6 +35,8 @@ export async function createContext(
         // Demo JWT: create a synthetic demo user object so publicProcedures work
         // and the redirect-to-login guard in main.tsx doesn't fire.
         isDemoUser = true;
+        demoHouseholdId = decoded.householdId;
+        demoMemberId = decoded.memberId;
         user = {
           id: 0,
           openId: null,
@@ -67,5 +74,7 @@ export async function createContext(
     res: opts.res,
     user,
     isDemoUser,
+    demoHouseholdId,
+    demoMemberId,
   };
 }
