@@ -1998,6 +1998,15 @@ export const tasksRouter = router({
 
       const skippedDates: string[] = task.skippedDates || [];
 
+      // Also load rotation schedule to check isSkipped occurrences
+      const rotationSchedule = await getRotationSchedule(input.taskId);
+      // Build a set of occurrence indices (1-based) that are skipped in rotation
+      // Occurrence 1 = first next after dueDate, occurrence 2 = second next, etc.
+      const rotationSkippedIndices = new Set<number>();
+      rotationSchedule.forEach((occ, idx) => {
+        if (occ.isSkipped) rotationSkippedIndices.add(idx + 1);
+      });
+
       const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
 
       const advanceDate = (d: Date): Date => {
@@ -2025,12 +2034,17 @@ export const tasksRouter = router({
       const skippedInChain: string[] = [];
       const maxIter = 500;
       let i = 0;
+      let occurrenceIndex = 1; // 1-based index of next occurrence
 
       while (i < maxIter) {
         const key = fmt(cur);
-        if (skippedDates.includes(key)) {
+        // Check both skippedDates array AND rotation schedule isSkipped
+        const isSkippedByDate = skippedDates.includes(key);
+        const isSkippedByRotation = rotationSkippedIndices.has(occurrenceIndex);
+        if (isSkippedByDate || isSkippedByRotation) {
           skippedInChain.push(key);
           cur = advanceDate(cur);
+          occurrenceIndex++;
           i++;
         } else {
           // Found first non-skipped next occurrence
