@@ -3533,3 +3533,6 @@
 
 ## Bug: „Zu aktuellem Termin" springt nicht in die Vergangenheit
 - [x] findNextOpenOccurrence: springt jetzt auch in die Vergangenheit wenn alle zukünftigen Termine übersprungen sind
+
+## Bug: „Zu aktuellem Termin" bei vergangenen Terminen nicht sichtbar
+- [ ] Button nur bei isFutureOccurrence sichtbar – auch bei Aufgaben mit vergangenem nächsten Termin anzeigen

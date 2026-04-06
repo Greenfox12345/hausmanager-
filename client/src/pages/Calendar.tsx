@@ -885,7 +885,7 @@ export default function Calendar() {
                                           {t("common:actions.undo", "Rükgängig machen")}
                                         </Button>
                                       )}
-                                      {task.isFutureOccurrence && (
+                                      {(task.isFutureOccurrence || (task.repeatInterval && !task.isCompleted && !task.isCompletedOccurrence)) && (
                                         <>
                                           <Button
                                             size="sm"
@@ -1163,7 +1163,7 @@ export default function Calendar() {
                                         {t("calendar:actions.undo", "Rükgängig machen")}
                                       </Button>
                                     )}
-                                    {task.isFutureOccurrence && (
+                                    {(task.isFutureOccurrence || (task.repeatInterval && !task.isCompleted && !task.isCompletedOccurrence)) && (
                                       <>
                                         <Button
                                           size="sm"
