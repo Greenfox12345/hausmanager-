@@ -61,10 +61,11 @@ function expiresAt(): Date {
 }
 
 interface DemoConfig {
-  memberNames?: string[];      // up to 4 custom names; defaults to ["Alex", "Maria", "Jonas", "Sophie"]
-  shoppingItemCount?: number;  // 0-20, default 11
-  taskCount?: number;          // 0-10, default 8
-  inventoryCount?: number;     // 0-10, default 6
+  ownerName?: string;           // display name for the primary (owner) demo member
+  memberNames?: string[];       // up to 4 custom names for the other members; defaults to ["Alex", "Maria", "Jonas", "Sophie"]
+  shoppingItemCount?: number;   // 0-20, default 11
+  taskCount?: number;           // 0-10, default 8
+  inventoryCount?: number;      // 0-10, default 6
 }
 
 /**
@@ -89,17 +90,20 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: 
   const householdId = Number(hhResult.insertId);
 
   // ── 2. Mitglieder anlegen ────────────────────────────────────────────────
-  // Use custom names if provided, pad/trim to exactly 4 members
+  // Owner member uses ownerName if provided, otherwise first custom name or default
   const defaultNames = ["Alex", "Maria", "Jonas", "Sophie"];
   const customNames = config.memberNames ?? [];
-  const memberNames = [
-    customNames[0] ?? defaultNames[0],
-    customNames[1] ?? defaultNames[1],
-    customNames[2] ?? defaultNames[2],
-    customNames[3] ?? defaultNames[3],
-  ];
+  // Build member name list: length determined by customNames.length (1-4), pad with defaults
+  const memberCount = Math.max(1, Math.min(4, customNames.length > 0 ? customNames.length : 4));
+  const resolvedNames = Array.from({ length: memberCount }, (_, i) =>
+    customNames[i]?.trim() || defaultNames[i]
+  );
+  // Override first member with ownerName if provided
+  if (config.ownerName?.trim()) {
+    resolvedNames[0] = config.ownerName.trim();
+  }
   const memberIds: number[] = [];
-  for (const name of memberNames) {
+  for (const name of resolvedNames) {
     const [mResult] = await db.insert(householdMembers).values({
       householdId,
       userId: null,
@@ -415,7 +419,8 @@ export const demoRouter = router({
    */
   createSession: publicProcedure
     .input(z.object({
-      memberNames: z.array(z.string().min(1).max(30)).max(4).optional(),
+      ownerName: z.string().max(30).optional(),
+      memberNames: z.array(z.string().max(30)).max(4).optional(),
       shoppingItemCount: z.number().int().min(0).max(20).optional(),
       taskCount: z.number().int().min(0).max(10).optional(),
     }).optional())
@@ -424,6 +429,7 @@ export const demoRouter = router({
     if (!db) throw new Error("Database not available");
 
      const { householdId, memberId } = await seedDemoHousehold(db, {
+      ownerName: input?.ownerName,
       memberNames: input?.memberNames,
       shoppingItemCount: input?.shoppingItemCount,
       taskCount: input?.taskCount,

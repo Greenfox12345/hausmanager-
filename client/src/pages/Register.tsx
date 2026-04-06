@@ -29,11 +29,14 @@ export default function Register() {
   // Extract member invite token from URL query param (?invite=...)
   const inviteToken = searchParams.get("invite") ?? null;
 
+  // Pre-fill name from demo config if available
+  const demoOwnerName = localStorage.getItem("demo_owner_name") ?? "";
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    name: "",
+    name: demoOwnerName,
   });
 
   // Post-claim onboarding state
@@ -50,6 +53,7 @@ export default function Register() {
         // Clear demo storage (auth_token was already replaced by login() above)
         localStorage.removeItem("demo_token");
         localStorage.removeItem("demo_expires_at");
+        localStorage.removeItem("demo_owner_name");
 
         // Set household context – the real household name will be synced
         // by DemoOnboardingDialog once getOnboardingData loads.

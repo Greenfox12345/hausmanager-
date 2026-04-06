@@ -3435,3 +3435,11 @@
 
 ## Onboarding-Dialog: vertikales Scrollen
 - [x] DemoOnboardingDialog: Tab-Inhalte vertikal scrollbar (data-[state=active]:flex + ScrollArea)
+
+## Demo-Konfigurations-Dialog Erweiterung
+- [x] DemoConfigDialog: eigenen Namen eingeben (wird beim Claim vorausgefüllt)
+- [x] DemoConfigDialog: Mitgliederanzahl reduzieren (Stepper 1–4)
+- [x] DemoConfigDialog: Items-Menge einstellen (Einkaufsitems und Aufgaben)
+- [x] Backend: eigenen Namen in createSession/seedDemoHousehold verarbeiten
+- [x] Backend: Mitgliederanzahl in seedDemoHousehold berücksichtigen (customNames.length steuert Anzahl)
+- [x] Register.tsx: eigenen Namen aus Demo-Session vorausfüllen (demo_owner_name in localStorage)
