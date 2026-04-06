@@ -519,12 +519,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           }
         }
 
+        // For repeatInterval tasks (no enableRotation), derive isSkipped from task.skippedDates
+        let isSkipped = occ.isSkipped || false;
+        if (!task.enableRotation && calculatedDate && task.skippedDates) {
+          const dateStr = format(calculatedDate, "yyyy-MM-dd");
+          isSkipped = task.skippedDates.includes(dateStr);
+        }
+
         return {
           occurrenceNumber: occ.occurrenceNumber,
           members: occ.members,
           notes: occ.notes,
           date: calculatedDate, // Calculated date for regular occurrences
-          isSkipped: occ.isSkipped || false,
+          isSkipped,
           isSpecial: occ.isSpecial || false,
           specialName: occ.specialName,
           specialDate: occ.specialDate ? new Date(occ.specialDate) : undefined,
@@ -533,7 +540,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       });
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, task?.skippedDates, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
@@ -592,6 +599,54 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         const updated = await utils.tasks.getRotationSchedule.fetch({ taskId: task.id });
         setRotationSchedule(updated);
       }
+    },
+  });
+
+  // skipOccurrence for repeatInterval tasks (System B: task.skippedDates)
+  const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
+    onSuccess: (_data, variables) => {
+      utils.tasks.list.invalidate();
+      // Optimistically update rotationSchedule to reflect the new skip status
+      setRotationSchedule((prev: any[]) =>
+        prev.map((occ: any) => {
+          if (!occ.date) return occ;
+          const dateStr = format(occ.date, "yyyy-MM-dd");
+          if (dateStr === variables.dateToSkip) return { ...occ, isSkipped: true };
+          return occ;
+        })
+      );
+      // Also update task.skippedDates in parent
+      if (onTaskUpdated && task) {
+        const existing = task.skippedDates || [];
+        if (!existing.includes(variables.dateToSkip)) {
+          onTaskUpdated({ ...task, skippedDates: [...existing, variables.dateToSkip] });
+        }
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // restoreSkippedOccurrence for repeatInterval tasks (System B)
+  const restoreSkippedOccurrenceMutation = trpc.tasks.restoreSkippedDate.useMutation({
+    onSuccess: (_data, variables) => {
+      utils.tasks.list.invalidate();
+      setRotationSchedule((prev: any[]) =>
+        prev.map((occ: any) => {
+          if (!occ.date) return occ;
+          const dateStr = format(occ.date, "yyyy-MM-dd");
+          if (dateStr === variables.dateToRestore) return { ...occ, isSkipped: false };
+          return occ;
+        })
+      );
+      if (onTaskUpdated && task) {
+        const updated = (task.skippedDates || []).filter((d: string) => d !== variables.dateToRestore);
+        onTaskUpdated({ ...task, skippedDates: updated });
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
   
@@ -1473,22 +1528,43 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           size="sm"
                                           onClick={async () => {
                                             if (task?.id) {
-                                              // Save to DB immediately - query refetch will update "Kommende Termine"
-                                              try {
-                                                await skipRotationOccurrenceMutation.mutateAsync({
-                                                  taskId: task.id,
-                                                  occurrenceNumber: occ.occurrenceNumber,
-                                                });
-                                                // Also update local state for "Termine Planen" table
-                                                handleRotationScheduleChange(
-                                                  rotationSchedule.map(o =>
-                                                    o.occurrenceNumber === occ.occurrenceNumber
-                                                      ? { ...o, isSkipped: !o.isSkipped }
-                                                      : o
-                                                  )
-                                                );
-                                              } catch (error) {
-                                                console.error('Failed to skip occurrence:', error);
+                                              // For repeatInterval tasks (no rotation plan): use skipOccurrence (System B)
+                                              if (!task.enableRotation && occ.date) {
+                                                const dateStr = format(occ.date, "yyyy-MM-dd");
+                                                if (occ.isSkipped) {
+                                                  // Restore
+                                                  restoreSkippedOccurrenceMutation.mutate({
+                                                    taskId: task.id,
+                                                    householdId: household?.householdId ?? task.householdId ?? 0,
+                                                    memberId: member?.memberId ?? 0,
+                                                    dateToRestore: dateStr,
+                                                  });
+                                                } else {
+                                                  // Skip
+                                                  skipOccurrenceMutation.mutate({
+                                                    taskId: task.id,
+                                                    householdId: household?.householdId ?? task.householdId ?? 0,
+                                                    memberId: member?.memberId ?? 0,
+                                                    dateToSkip: dateStr,
+                                                  });
+                                                }
+                                              } else {
+                                                // For rotation plan tasks: use skipRotationOccurrence (System A)
+                                                try {
+                                                  await skipRotationOccurrenceMutation.mutateAsync({
+                                                    taskId: task.id,
+                                                    occurrenceNumber: occ.occurrenceNumber,
+                                                  });
+                                                  handleRotationScheduleChange(
+                                                    rotationSchedule.map(o =>
+                                                      o.occurrenceNumber === occ.occurrenceNumber
+                                                        ? { ...o, isSkipped: !o.isSkipped }
+                                                        : o
+                                                    )
+                                                  );
+                                                } catch (error) {
+                                                  console.error('Failed to skip occurrence:', error);
+                                                }
                                               }
                                             } else {
                                               // No taskId: just update local state (for task creation)

@@ -3513,3 +3513,9 @@
 - [x] restoreSkippedDateMutation.onSuccess: optimistisches Update mit neuem skippedDates-Array
 - [x] Calendar.onTaskUpdated: window.location.reload() durch utils.tasks.list.invalidate() + setSelectedTask ersetzt
 - [x] Kalender synchronisiert selectedTask sofort nach skipOccurrence und restoreSkippedDate
+
+## Bug: Überspringen/Auslassen nicht einheitlich
+- [x] Überspringen-Button im Bearbeitungsdialog repariert: ruft jetzt skipOccurrence (System B) für repeatInterval-Aufgaben auf
+- [x] isSkipped in rotationSchedule wird aus task.skippedDates abgeleitet (kein Rotationsplan-System mehr)
+- [x] task.skippedDates in useEffect-Dependency-Array aufgenommen
+- [x] restoreSkippedOccurrenceMutation im Dialog hinzugefügt (Toggle-Funktion)
