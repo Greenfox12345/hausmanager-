@@ -215,6 +215,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
   const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(false); // Default: collapsed
+  const [isExemptExpanded, setIsExemptExpanded] = useState(false); // Default: collapsed
   
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
@@ -1684,30 +1685,46 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         </div>
                         
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">{t("repeat.exempt")}</Label>
-                          <p className="text-xs text-muted-foreground mb-2">
-                            {t("repeat.exemptHint")}
-                          </p>
-                          <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
-                            {ownMembers.map((m) => (
-                              <div key={m.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
-                                <Checkbox
-                                  id={`exclude-${m.id}`}
-                                  checked={excludedMembers.includes(m.id)}
-                                  onCheckedChange={(checked) => {
-                                    setExcludedMembers(prev =>
-                                      checked
-                                        ? [...prev, m.id]
-                                        : prev.filter(id => id !== m.id)
-                                    );
-                                  }}
-                                />
-                                <Label htmlFor={`exclude-${m.id}`} className="cursor-pointer text-sm flex-1">
-                                  {m.memberName}
-                                </Label>
+                          <button
+                            type="button"
+                            onClick={() => setIsExemptExpanded(!isExemptExpanded)}
+                            className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity"
+                          >
+                            <ChevronDown className={`h-4 w-4 transition-transform ${isExemptExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                            <div className="space-y-0.5">
+                              <Label className="text-sm font-medium cursor-pointer">{t("repeat.exempt")}</Label>
+                              {!isExemptExpanded && excludedMembers.length > 0 && (
+                                <p className="text-xs text-muted-foreground">{excludedMembers.length} Mitglied(er) ausgenommen</p>
+                              )}
+                            </div>
+                          </button>
+                          {isExemptExpanded && (
+                            <>
+                              <p className="text-xs text-muted-foreground mb-2">
+                                {t("repeat.exemptHint")}
+                              </p>
+                              <div className="space-y-1 max-h-48 overflow-y-auto border rounded-lg p-2">
+                                {ownMembers.map((m) => (
+                                  <div key={m.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
+                                    <Checkbox
+                                      id={`exclude-${m.id}`}
+                                      checked={excludedMembers.includes(m.id)}
+                                      onCheckedChange={(checked) => {
+                                        setExcludedMembers(prev =>
+                                          checked
+                                            ? [...prev, m.id]
+                                            : prev.filter(id => id !== m.id)
+                                        );
+                                      }}
+                                    />
+                                    <Label htmlFor={`exclude-${m.id}`} className="cursor-pointer text-sm flex-1">
+                                      {m.memberName}
+                                    </Label>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Rotation Schedule Table - Only show in edit mode */}
