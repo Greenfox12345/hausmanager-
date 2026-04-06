@@ -917,7 +917,7 @@ export default function Calendar() {
                                       {task.enableRotation && (
                                         <Badge variant="outline" className="text-xs">
                                           <Target className="h-3 w-3 mr-1" />
-                                          {t("tasks:rotation", "Rotation")}
+                                          {t("tasks:repeat.rotation", "Rotation")}
                                         </Badge>
                                       )}
                                     </div>
