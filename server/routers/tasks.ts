@@ -601,6 +601,33 @@ export const tasksRouter = router({
           nextDueDate = getNextMonthlyOccurrence(currentDueDate, task.repeatInterval || 1, mode);
         }
 
+        // Skip-chain: advance nextDueDate past any skipped dates
+        {
+          const { getNextMonthlyOccurrence: getNextMonthly } = await import("../../shared/dateUtils");
+          const skippedDates: string[] = task.skippedDates || [];
+          const fmtDate = (d: Date) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${y}-${m}-${day}`;
+          };
+          const advanceOne = (d: Date): Date => {
+            const next = new Date(d);
+            if (task.repeatUnit === "days") {
+              next.setDate(next.getDate() + (task.repeatInterval || 1));
+            } else if (task.repeatUnit === "weeks") {
+              next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
+            } else if (task.repeatUnit === "months") {
+              return getNextMonthly(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
+            }
+            return next;
+          };
+          let maxSkipIter = 500;
+          while (skippedDates.includes(fmtDate(nextDueDate)) && maxSkipIter-- > 0) {
+            nextDueDate = advanceOne(nextDueDate);
+          }
+        }
+
         // Handle rotation if enabled
         let nextAssignee = task.assignedTo;
         if (task.enableRotation) {
