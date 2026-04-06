@@ -1777,12 +1777,35 @@ export async function getInventoryItemAllowedHouseholds(itemId: number): Promise
  * occurrenceNumber = 1 for dueDate, 2 for dueDate+interval, etc.
  * Returns null if the task has no dueDate or no repeatInterval.
  */
-/** Convert a Date to a local yyyy-MM-dd string (avoids UTC offset issues). */
+/** Convert a Date to a yyyy-MM-dd string using LOCAL date components.
+ * The frontend sends dates as local yyyy-MM-dd strings (e.g. "2025-04-02"),
+ * so we must use local date components on the server too for consistency.
+ */
 function toDateStr(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+/** Parse a yyyy-MM-dd string or Date into a local midnight Date.
+ * For yyyy-MM-dd strings (from frontend), parse as local midnight.
+ * For ISO timestamps from DB (e.g. "2025-04-01T22:00:00.000Z"), use local date components.
+ */
+function toUTCMidnight(d: Date | string): Date {
+  if (typeof d === "string") {
+    // If it's already a yyyy-MM-dd string, parse as local midnight (not UTC)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      const [y, mo, day] = d.split("-").map(Number);
+      const result = new Date(y, mo - 1, day, 0, 0, 0, 0);
+      return result;
+    }
+    // ISO timestamp from DB: parse and use LOCAL date components
+    const parsed = new Date(d);
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), 0, 0, 0, 0);
+  }
+  // Date object: normalize to local midnight
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
 }
 
 export function calcOccurrenceNumber(
@@ -1791,14 +1814,12 @@ export function calcOccurrenceNumber(
 ): number | null {
   if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) return null;
 
-  const due = new Date(task.dueDate);
-  due.setHours(0, 0, 0, 0);
-  const target = new Date(targetDate);
-  target.setHours(0, 0, 0, 0);
+  // Normalize both dates to UTC midnight to avoid timezone drift
+  const due = toUTCMidnight(task.dueDate);
+  const target = toUTCMidnight(targetDate);
   const targetStr = toDateStr(target);
 
-  // Walk forward from dueDate until we reach targetDate (compare as date strings
-  // to avoid DST / timezone-offset mismatches).
+  // Walk forward from dueDate until we reach targetDate (compare as UTC date strings)
   let current = new Date(due);
   let occurrenceNumber = 1;
   const maxIterations = 50000; // covers daily repeats for ~137 years
@@ -1808,16 +1829,18 @@ export function calcOccurrenceNumber(
     if (current.getTime() > target.getTime()) return null;
 
     if (task.repeatUnit === "days") {
-      current.setDate(current.getDate() + task.repeatInterval);
+      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval, 0, 0, 0, 0);
     } else if (task.repeatUnit === "weeks") {
-      current.setDate(current.getDate() + task.repeatInterval * 7);
+      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval * 7, 0, 0, 0, 0);
     } else if (task.repeatUnit === "months") {
       // Preserve the original day-of-month to avoid drift (e.g. Jan 31 + 1 month → Feb 28 → Mar 28)
       const origDay = due.getDate();
-      current.setMonth(current.getMonth() + task.repeatInterval);
-      // Clamp to last day of resulting month if necessary
-      const daysInMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate();
-      current.setDate(Math.min(origDay, daysInMonth));
+      const newMonth = current.getMonth() + task.repeatInterval;
+      const newYear = current.getFullYear() + Math.floor(newMonth / 12);
+      const normMonth = ((newMonth % 12) + 12) % 12;
+      // Clamp to last day of resulting month
+      const daysInMonth = new Date(newYear, normMonth + 1, 0).getDate();
+      current = new Date(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0);
     } else {
       return null;
     }
