@@ -155,6 +155,10 @@ export default function Members() {
       // If the renamed member is the current user's own slot, update context
       if (currentHousehold && data.memberId === currentHousehold.memberId) {
         setCurrentHousehold({ ...currentHousehold, memberName: data.newName });
+        // Keep demo_owner_name in sync so the registration form shows the updated name
+        if (isDemoUser && localStorage.getItem("demo_owner_name") !== null) {
+          localStorage.setItem("demo_owner_name", data.newName);
+        }
       }
     },
     onError: (error) => {

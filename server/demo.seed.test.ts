@@ -163,3 +163,35 @@ describe("renameMember – permission logic (pure unit)", () => {
     expect(canRenameRegistered({ id: 2, userId: 99 }, { memberId: 1, isAdmin: true })).toBe(false);
   });
 });
+
+describe("demo_owner_name localStorage sync (pure unit)", () => {
+  // Simulate the logic from Members.tsx onSuccess handler
+  function syncDemoOwnerName(
+    isDemoUser: boolean,
+    renamedMemberId: number,
+    ownMemberId: number,
+    newName: string,
+    storedValue: string | null
+  ): string | null {
+    if (renamedMemberId !== ownMemberId) return storedValue; // not own slot → no change
+    if (!isDemoUser) return storedValue; // not demo → no change
+    if (storedValue === null) return storedValue; // key not present → no change
+    return newName; // update
+  }
+
+  it("updates demo_owner_name when own slot is renamed in demo mode", () => {
+    expect(syncDemoOwnerName(true, 1, 1, "Neuer Name", "Alter Name")).toBe("Neuer Name");
+  });
+
+  it("does not update if renamed member is not own slot", () => {
+    expect(syncDemoOwnerName(true, 2, 1, "Neuer Name", "Alter Name")).toBe("Alter Name");
+  });
+
+  it("does not update if not in demo mode", () => {
+    expect(syncDemoOwnerName(false, 1, 1, "Neuer Name", "Alter Name")).toBe("Alter Name");
+  });
+
+  it("does not update if demo_owner_name was never set (null)", () => {
+    expect(syncDemoOwnerName(true, 1, 1, "Neuer Name", null)).toBeNull();
+  });
+});
