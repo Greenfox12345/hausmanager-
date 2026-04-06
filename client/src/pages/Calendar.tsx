@@ -213,7 +213,15 @@ export default function Calendar() {
     today.setHours(0, 0, 0, 0);
     const skippedDates = task.skippedDates || [];
     
-    // Calculate all future occurrences manually (not limited to current month)
+    // First check if dueDate itself is still upcoming and not skipped
+    const dueDateNorm = new Date(task.dueDate);
+    dueDateNorm.setHours(0, 0, 0, 0);
+    const dueDateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
+    if (dueDateNorm >= today && !skippedDates.includes(dueDateKey)) {
+      return new Date(task.dueDate);
+    }
+
+    // Calculate future occurrences (not limited to current month)
     let currentDate = new Date(task.dueDate);
     const maxDate = new Date(today);
     maxDate.setMonth(maxDate.getMonth() + 12); // Look 12 months ahead
@@ -222,7 +230,7 @@ export default function Calendar() {
     const maxIterations = 365;
     
     while (currentDate <= maxDate && iterations < maxIterations) {
-      // Calculate next occurrence
+      // Advance to next occurrence
       const nextDate = new Date(currentDate);
       if (task.repeatUnit === "days") {
         nextDate.setDate(nextDate.getDate() + task.repeatInterval);
@@ -236,7 +244,7 @@ export default function Calendar() {
       const dateKey = format(nextDate, "yyyy-MM-dd");
       const isSkipped = skippedDates.includes(dateKey);
       
-      // Check if this is today or in the future and not skipped
+      // Return first future non-skipped occurrence
       const occDate = new Date(nextDate);
       occDate.setHours(0, 0, 0, 0);
       

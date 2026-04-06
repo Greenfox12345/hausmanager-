@@ -3491,3 +3491,6 @@
 
 ## Kalender: Navigation zum Aufgaben-Tag
 - [x] Klick auf „Zu aktuellem Termin“ navigiert zum Tag des nächsten Termins der Aufgabe (setSelectedDate ergänzt)
+
+## Kalender: findNextOpenOccurrence Bugfix
+- [x] dueDate selbst wird zuerst geprüft bevor Wiederholungen berechnet werden (verhindert Off-by-one)
