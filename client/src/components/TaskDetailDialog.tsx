@@ -214,7 +214,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
-  const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(true); // Default: expanded
+  const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(false); // Default: collapsed
   
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
