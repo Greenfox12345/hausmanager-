@@ -3527,3 +3527,6 @@
 - [ ] Frontend Kalender: „Notiz hinzufügen" Button zwischen „Zu aktuellem Termin" und „Auslassen"
 - [ ] Frontend Dialog: isSkipped und Notizen kommen aus Rotationsplan-Tabellen
 - [ ] Speichern im Dialog persistiert Rotationsplan-Einträge sofort
+
+## Bug: calcOccurrenceNumber schlägt für fernere Termine fehl
+- [ ] calcOccurrenceNumber in db.ts robuster machen – monatliche und unregelmäßige Wiederholungen korrekt berechnen

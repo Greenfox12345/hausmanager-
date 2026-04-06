@@ -1751,29 +1751,47 @@ export async function getInventoryItemAllowedHouseholds(itemId: number): Promise
  * occurrenceNumber = 1 for dueDate, 2 for dueDate+interval, etc.
  * Returns null if the task has no dueDate or no repeatInterval.
  */
-export function calcOccurrenceNumber(task: { dueDate?: Date | string | null; repeatInterval?: number | null; repeatUnit?: string | null }, targetDate: Date | string): number | null {
+/** Convert a Date to a local yyyy-MM-dd string (avoids UTC offset issues). */
+function toDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function calcOccurrenceNumber(
+  task: { dueDate?: Date | string | null; repeatInterval?: number | null; repeatUnit?: string | null },
+  targetDate: Date | string
+): number | null {
   if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) return null;
 
   const due = new Date(task.dueDate);
   due.setHours(0, 0, 0, 0);
   const target = new Date(targetDate);
   target.setHours(0, 0, 0, 0);
+  const targetStr = toDateStr(target);
 
-  // Walk forward from dueDate until we reach targetDate
+  // Walk forward from dueDate until we reach targetDate (compare as date strings
+  // to avoid DST / timezone-offset mismatches).
   let current = new Date(due);
   let occurrenceNumber = 1;
-  const maxIterations = 10000;
+  const maxIterations = 50000; // covers daily repeats for ~137 years
 
   for (let i = 0; i < maxIterations; i++) {
-    if (current.getTime() === target.getTime()) return occurrenceNumber;
-    if (current.getTime() > target.getTime()) return null; // targetDate not on a valid occurrence
+    if (toDateStr(current) === targetStr) return occurrenceNumber;
+    if (current.getTime() > target.getTime()) return null;
 
     if (task.repeatUnit === "days") {
       current.setDate(current.getDate() + task.repeatInterval);
     } else if (task.repeatUnit === "weeks") {
       current.setDate(current.getDate() + task.repeatInterval * 7);
     } else if (task.repeatUnit === "months") {
+      // Preserve the original day-of-month to avoid drift (e.g. Jan 31 + 1 month → Feb 28 → Mar 28)
+      const origDay = due.getDate();
       current.setMonth(current.getMonth() + task.repeatInterval);
+      // Clamp to last day of resulting month if necessary
+      const daysInMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate();
+      current.setDate(Math.min(origDay, daysInMonth));
     } else {
       return null;
     }
