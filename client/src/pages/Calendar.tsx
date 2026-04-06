@@ -233,13 +233,12 @@ export default function Calendar() {
   };
 
   // Find next open occurrence for a recurring task
+  // Returns the FIRST non-skipped occurrence starting from dueDate (oldest open = "current" appointment)
   const findNextOpenOccurrence = (task: typeof tasks[0]) => {
     if (!task.repeatInterval || !task.repeatUnit || !task.dueDate) {
       return new Date(task.dueDate!);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const skippedDates = task.skippedDates || [];
 
     // Helper: advance one interval step
@@ -255,29 +254,27 @@ export default function Calendar() {
       return next;
     };
 
-    // Build all occurrences from dueDate up to 12 months in the future
+    // Build occurrences from dueDate up to 24 months in the future
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const maxDate = new Date(today);
-    maxDate.setMonth(maxDate.getMonth() + 12);
-    const occurrences: Date[] = [];
+    maxDate.setMonth(maxDate.getMonth() + 24);
     let cur = new Date(task.dueDate);
     cur.setHours(0, 0, 0, 0);
-    const maxIterations = 2000;
+    const maxIterations = 5000;
     let i = 0;
     while (cur <= maxDate && i < maxIterations) {
-      occurrences.push(new Date(cur));
+      const dateKey = format(cur, "yyyy-MM-dd");
+      if (!skippedDates.includes(dateKey)) {
+        // Return the first non-skipped occurrence (oldest open = "current" appointment)
+        return new Date(cur);
+      }
       cur = advanceDate(cur);
       i++;
     }
 
-    // Filter out skipped dates
-    const open = occurrences.filter(d => !skippedDates.includes(format(d, "yyyy-MM-dd")));
-    if (open.length === 0) return today;
-
-    // Prefer the first occurrence >= today; otherwise the last past occurrence
-    const future = open.find(d => d >= today);
-    if (future) return future;
-    // All open occurrences are in the past – return the most recent one
-    return open[open.length - 1];
+    // All occurrences within range are skipped – return dueDate as fallback
+    return new Date(task.dueDate);
   };
 
   // Group tasks and events by date (including future occurrences and completed history)
@@ -885,12 +882,12 @@ export default function Calendar() {
                                           {t("common:actions.undo", "Rükgängig machen")}
                                         </Button>
                                       )}
-                                      {(task.isFutureOccurrence || (task.repeatInterval && !task.isCompleted && !task.isCompletedOccurrence)) && (
+                                      {task.isFutureOccurrence && (
                                         <>
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="w-full"
+                                            className="w-full col-span-2"
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               const nextDate = findNextOpenOccurrence(task);
@@ -962,6 +959,21 @@ export default function Calendar() {
                                           <Button
                                             size="sm"
                                             variant="outline"
+                                            className="w-full text-blue-600 hover:bg-blue-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                              setNoteTask({ ...task, targetDate });
+                                              setNoteText("");
+                                              setNoteDialogOpen(true);
+                                            }}
+                                          >
+                                            <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
+                                            {t("calendar:addNote", "Notiz hinzufügen")}
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
                                             className="w-full"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -972,10 +984,6 @@ export default function Calendar() {
                                             <Target className="h-4 w-4 mr-1" />
                                             {t("tasks:actions.milestone", "Zwischenziel")}
                                           </Button>
-                                        </>
-                                      )}
-                                      {!task.isFutureOccurrence && (
-                                        <>
                                           <Button
                                             size="sm"
                                             variant="outline"
@@ -989,6 +997,30 @@ export default function Calendar() {
                                             <Bell className="h-4 w-4 mr-1" />
                                             {t("tasks:actions.remind", "Erinnern")}
                                           </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full text-orange-600 hover:bg-orange-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
+                                                const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                                skipOccurrenceMutation.mutate({
+                                                  taskId: task.id,
+                                                  householdId: household?.householdId ?? 0,
+                                                  memberId: member?.memberId ?? 0,
+                                                  dateToSkip: format(targetDate, "yyyy-MM-dd"),
+                                                });
+                                              }
+                                            }}
+                                          >
+                                            <X className="h-4 w-4 mr-1" />
+                                            {t("calendar:skip", "Auslassen")}
+                                          </Button>
+                                        </>
+                                      )}
+                                      {!task.isFutureOccurrence && (
+                                        <>
                                           <Button
                                             size="sm"
                                             variant="outline"
@@ -1163,12 +1195,12 @@ export default function Calendar() {
                                         {t("calendar:actions.undo", "Rükgängig machen")}
                                       </Button>
                                     )}
-                                    {(task.isFutureOccurrence || (task.repeatInterval && !task.isCompleted && !task.isCompletedOccurrence)) && (
+                                    {task.isFutureOccurrence && (
                                       <>
                                         <Button
                                           size="sm"
                                           variant="outline"
-                                          className="w-full"
+                                          className="w-full col-span-2"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             const nextDate = findNextOpenOccurrence(task);
@@ -1235,6 +1267,21 @@ export default function Calendar() {
                                         <Button
                                           size="sm"
                                           variant="outline"
+                                          className="w-full text-blue-600 hover:bg-blue-50"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                            setNoteTask({ ...task, targetDate });
+                                            setNoteText("");
+                                            setNoteDialogOpen(true);
+                                          }}
+                                        >
+                                          <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
+                                          {t("calendar:addNote", "Notiz hinzufügen")}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
                                           className="w-full"
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -1245,10 +1292,6 @@ export default function Calendar() {
                                           <Target className="h-4 w-4 mr-1" />
                                           {t("tasks:actions.milestone", "Zwischenziel")}
                                         </Button>
-                                      </>
-                                    )}
-                                    {!task.isCompletedOccurrence && !task.isFutureOccurrence && (
-                                      <>
                                         <Button
                                           size="sm"
                                           variant="outline"
@@ -1261,6 +1304,26 @@ export default function Calendar() {
                                         >
                                           <Bell className="h-4 w-4 mr-1" />
                                           {t("tasks:actions.sendReminder", "Erinnern")}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full text-orange-600 hover:bg-orange-50"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (confirm(t("calendar:messages.confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
+                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                              skipOccurrenceMutation.mutate({
+                                                taskId: task.id,
+                                                householdId: household?.householdId ?? 0,
+                                                memberId: member?.memberId ?? 0,
+                                                dateToSkip: format(targetDate, "yyyy-MM-dd"),
+                                              });
+                                            }
+                                          }}
+                                        >
+                                          <X className="h-4 w-4 mr-1" />
+                                          {t("calendar:actions.skip", "Auslassen")}
                                         </Button>
                                       </>
                                     )}
