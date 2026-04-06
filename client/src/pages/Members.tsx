@@ -384,7 +384,7 @@ export default function Members() {
                           )}
                           {m.id === member?.memberId && (
                             <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                              {t("members:you")}
+                              Du
                             </span>
                           )}
                           {/* Edit own name button for registered users */}
@@ -479,6 +479,11 @@ export default function Members() {
                               <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
                                 Platzhalter
                               </span>
+                              {m.id === member?.memberId && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                                  Du
+                                </span>
+                              )}
                               {/* Edit button – shown for demo users and admins */}
                               {canEditMember(m) && (
                                 <button
