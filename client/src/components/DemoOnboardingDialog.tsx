@@ -359,7 +359,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               {data?.tasks && data.tasks.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4">Keine Aufgaben vorhanden.</p>
               ) : (
-                <ScrollArea className="flex-1 -mx-1 px-1">
+                <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                   <div className="space-y-4">
                     {groupedTasks.map((group) => (
                       <div key={group.label}>
