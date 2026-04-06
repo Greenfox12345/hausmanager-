@@ -1214,4 +1214,42 @@ export const householdManagementRouter = router({
 
       return { success: true, memberId: input.memberId, newName: input.newName };
     }),
+
+  /**
+   * Add a new placeholder (unregistered) member to a household.
+   * Allowed for: household owner, demo-session user (Slot 0).
+   */
+  addPlaceholderMember: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberName: z.string().min(1).max(50),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Authorization: owner OR demo-session user for this household
+      const isDemoUser = ctx.isDemoUser && ctx.demoHouseholdId === input.householdId;
+      if (!isDemoUser) {
+        const [hh] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
+        if (!hh || hh.createdBy !== ctx.user?.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only the household owner can add placeholder members" });
+        }
+      }
+
+      const passwordHash = await bcrypt.hash("placeholder", 10);
+      const [newMember] = await db
+        .insert(householdMembers)
+        .values({
+          householdId: input.householdId,
+          userId: null,
+          memberName: input.memberName.trim(),
+          passwordHash,
+        })
+        .$returningId();
+
+      return { success: true, memberId: newMember.id, memberName: input.memberName.trim() };
+    }),
 });

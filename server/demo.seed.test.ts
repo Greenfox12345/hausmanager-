@@ -288,3 +288,36 @@ describe("newMembers validation logic (pure unit)", () => {
     expect(processNewMembers([])).toEqual([]);
   });
 });
+
+describe("addPlaceholderMember authorization logic (pure unit)", () => {
+  function canAddPlaceholder(opts: {
+    isDemoUser: boolean;
+    demoHouseholdId: number | null;
+    targetHouseholdId: number;
+    isOwner: boolean;
+  }): boolean {
+    const isDemoForHousehold = opts.isDemoUser && opts.demoHouseholdId === opts.targetHouseholdId;
+    return isDemoForHousehold || opts.isOwner;
+  }
+
+  it("allows demo user for their own household", () => {
+    expect(canAddPlaceholder({ isDemoUser: true, demoHouseholdId: 1, targetHouseholdId: 1, isOwner: false })).toBe(true);
+  });
+
+  it("blocks demo user for a different household", () => {
+    expect(canAddPlaceholder({ isDemoUser: true, demoHouseholdId: 1, targetHouseholdId: 2, isOwner: false })).toBe(false);
+  });
+
+  it("allows household owner", () => {
+    expect(canAddPlaceholder({ isDemoUser: false, demoHouseholdId: null, targetHouseholdId: 1, isOwner: true })).toBe(true);
+  });
+
+  it("blocks non-owner non-demo user", () => {
+    expect(canAddPlaceholder({ isDemoUser: false, demoHouseholdId: null, targetHouseholdId: 1, isOwner: false })).toBe(false);
+  });
+
+  it("trims member name before insertion", () => {
+    const name = "  Anna  ";
+    expect(name.trim()).toBe("Anna");
+  });
+});

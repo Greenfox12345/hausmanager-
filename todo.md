@@ -3482,3 +3482,9 @@
 - [x] Mitglied hinzufügen: Eingabefeld + Button im Mitglieder-Tab des Einrichtungsdialogs
 - [x] Backend: applyOnboarding um newMembers-Feld erweitert
 - [x] 5 neue Unit-Tests für newMembers-Validierung (39 Tests gesamt)
+
+## Members-Seite: Platzhalter-Mitglied hinzufügen
+- [x] Button im Platzhalter-Bereich (für Admin und Demo-User)
+- [x] Inline-Eingabefeld mit Bestätigen/Abbrechen (Enter/Escape)
+- [x] Backend-Prozedur addPlaceholderMember in householdManagement.ts
+- [x] 5 neue Unit-Tests für Berechtigungslogik (44 Tests gesamt)

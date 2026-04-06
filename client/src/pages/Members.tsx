@@ -48,10 +48,24 @@ export default function Members() {
   const [editingName, setEditingName] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
 
+  // Add placeholder member state
+  const [showAddPlaceholder, setShowAddPlaceholder] = useState(false);
+  const [newPlaceholderName, setNewPlaceholderName] = useState("");
+
   const { t, i18n } = useTranslation(["members", "common"]);
   const currentUiLang = getCurrentLanguage();
 
   const householdId = currentHousehold?.householdId;
+
+  const addPlaceholderMutation = trpc.householdManagement.addPlaceholderMember.useMutation({
+    onSuccess: () => {
+      refetchMembers();
+      setNewPlaceholderName("");
+      setShowAddPlaceholder(false);
+      toast.success("Mitglied hinzugefügt");
+    },
+    onError: (err) => toast.error("Fehler: " + err.message),
+  });
 
   const { data: members = [], isLoading, refetch: refetchMembers } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -425,7 +439,7 @@ export default function Members() {
                 ))}
 
                 {/* Unregistered (placeholder) members – visually distinct */}
-                {members.filter((m) => m.userId === null).length > 0 && (
+                {(members.filter((m) => m.userId === null).length > 0 || (settings?.isAdmin || isDemoUser)) && (
                   <>
                     {members.filter((m) => m.userId !== null).length > 0 && (
                       <div className="flex items-center gap-2 pt-2">
@@ -433,7 +447,65 @@ export default function Members() {
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2">
                           Nicht registriert
                         </p>
+                        {(settings?.isAdmin || isDemoUser) && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 gap-1 text-xs text-muted-foreground hover:text-foreground px-2"
+                            onClick={() => setShowAddPlaceholder((v) => !v)}
+                          >
+                            <Plus className="h-3 w-3" />
+                            Hinzufügen
+                          </Button>
+                        )}
                         <div className="h-px flex-1 bg-border" />
+                      </div>
+                    )}
+                    {members.filter((m) => m.userId !== null).length === 0 && (settings?.isAdmin || isDemoUser) && (
+                      <div className="flex justify-end mb-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1.5 text-xs"
+                          onClick={() => setShowAddPlaceholder((v) => !v)}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Mitbewohner hinzufügen
+                        </Button>
+                      </div>
+                    )}
+                    {showAddPlaceholder && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Input
+                          value={newPlaceholderName}
+                          onChange={(e) => setNewPlaceholderName(e.target.value)}
+                          placeholder="Name des Mitbewohners"
+                          className="h-8 text-sm flex-1"
+                          maxLength={50}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && newPlaceholderName.trim()) {
+                              addPlaceholderMutation.mutate({ householdId: household!.householdId, memberName: newPlaceholderName.trim() });
+                            }
+                            if (e.key === "Escape") { setShowAddPlaceholder(false); setNewPlaceholderName(""); }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          className="h-8 gap-1"
+                          disabled={!newPlaceholderName.trim() || addPlaceholderMutation.isPending}
+                          onClick={() => addPlaceholderMutation.mutate({ householdId: household!.householdId, memberName: newPlaceholderName.trim() })}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8"
+                          onClick={() => { setShowAddPlaceholder(false); setNewPlaceholderName(""); }}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     )}
                     {members.filter((m) => m.userId === null).map((m) => (
