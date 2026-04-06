@@ -2000,11 +2000,12 @@ export const tasksRouter = router({
 
       // Also load rotation schedule to check isSkipped occurrences
       const rotationSchedule = await getRotationSchedule(input.taskId);
-      // Build a set of occurrence indices (1-based) that are skipped in rotation
-      // Occurrence 1 = first next after dueDate, occurrence 2 = second next, etc.
+      // Build a set of occurrence indices (1-based) that are skipped in rotation.
+      // IMPORTANT: Occurrence 1 (idx=0) = current dueDate being completed → SKIP IT.
+      // Only Occurrence 2+ (idx >= 1) are relevant for upcoming appointments.
       const rotationSkippedIndices = new Set<number>();
       rotationSchedule.forEach((occ, idx) => {
-        if (occ.isSkipped) rotationSkippedIndices.add(idx + 1);
+        if (idx >= 1 && occ.isSkipped) rotationSkippedIndices.add(idx + 1);
       });
 
       const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
