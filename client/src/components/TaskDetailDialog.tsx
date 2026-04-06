@@ -2712,6 +2712,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               } catch (error: any) {
                 toast.error(error.message || t("messages.completeError"));
               }
+              // Switch back to detail view (close edit mode)
+              setIsEditing(false);
               setPendingSaveData(null);
             }}
           >
