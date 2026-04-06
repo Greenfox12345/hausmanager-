@@ -134,8 +134,15 @@ export default function Calendar() {
   });
 
   const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       utils.tasks.list.invalidate();
+      // Update selectedTask in-place so TaskDetailDialog reflects the new skippedDates immediately
+      setSelectedTask((prev: any) => {
+        if (!prev || prev.id !== variables.taskId) return prev;
+        const existing = prev.skippedDates || [];
+        if (existing.includes(variables.dateToSkip)) return prev;
+        return { ...prev, skippedDates: [...existing, variables.dateToSkip] };
+      });
       toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
   });

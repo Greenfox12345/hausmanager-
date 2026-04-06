@@ -3494,3 +3494,6 @@
 
 ## Kalender: findNextOpenOccurrence Bugfix
 - [x] dueDate selbst wird zuerst geprüft bevor Wiederholungen berechnet werden (verhindert Off-by-one)
+
+## Kalender: Termin auslassen auch in Aufgabe persistieren
+- [x] skipOccurrence: selectedTask wird nach Auslassen optimistisch mit neuem skippedDate aktualisiert
