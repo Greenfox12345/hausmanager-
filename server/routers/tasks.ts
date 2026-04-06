@@ -1104,44 +1104,22 @@ export const tasksRouter = router({
             console.log('[completeTask] Occurrence items shifted successfully');
           }
 
-          // ===== 4b. Advance past rotation-skipped occurrences =====
-          // If the new first occurrence(s) in the rotation schedule are marked as isSkipped,
-          // we need to advance dueDate past them and remove those occurrences from the schedule.
+          // ===== 4b. Clean up rotation-skipped occurrences from the schedule =====
+          // Skip-Chain A (above) already advanced nextDueDate past skippedDates.
+          // Here we only remove rotation-schedule entries whose isSkipped=true so the
+          // schedule stays in sync. We do NOT advance nextDueDate again (that would
+          // cause double-skipping when skipOccurrence writes to both systems).
           if (nextDueDate) {
             let scheduleAfterDelete = await getRotationSchedule(input.taskId);
-            const { getNextMonthlyOccurrence: getNextMonthlyRot } = await import("../../shared/dateUtils");
-            const advanceOneRot = (d: Date): Date => {
-              const next = new Date(d);
-              if (task.repeatUnit === "days") {
-                next.setDate(next.getDate() + (task.repeatInterval || 1));
-              } else if (task.repeatUnit === "weeks") {
-                next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
-              } else if (task.repeatUnit === "months") {
-                return getNextMonthlyRot(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
-              }
-              return next;
-            };
             let maxRotIter = 50;
             while (scheduleAfterDelete.length > 0 && scheduleAfterDelete[0].isSkipped && maxRotIter-- > 0) {
-              console.log('[completeTask] Rotation-skip: advancing past occurrence', scheduleAfterDelete[0].occurrenceNumber, 'isSkipped=true');
-              // Remove this skipped occurrence from schedule
+              console.log('[completeTask] Rotation-cleanup: removing skipped occurrence', scheduleAfterDelete[0].occurrenceNumber, 'from schedule (nextDueDate unchanged)');
+              // Remove this skipped occurrence from schedule only (no dueDate advance)
               await deleteRotationOccurrence(input.taskId, scheduleAfterDelete[0].occurrenceNumber);
-              // Advance dueDate one more step
-              nextDueDate = advanceOneRot(nextDueDate);
               // Reload schedule
               scheduleAfterDelete = await getRotationSchedule(input.taskId);
             }
-            // Update task dueDate if it changed
-            const fmtRot = (d: Date) => {
-              const y = d.getFullYear();
-              const mo = String(d.getMonth() + 1).padStart(2, "0");
-              const day = String(d.getDate()).padStart(2, "0");
-              return `${y}-${mo}-${day}`;
-            };
-            const newDueFmt = fmtRot(nextDueDate);
-            const cleanedAfterRot = (task.skippedDates || []).filter((d: string) => d > newDueFmt);
-            await updateTask(input.taskId, { dueDate: nextDueDate, skippedDates: cleanedAfterRot });
-            console.log('[completeTask] After rotation-skip-chain: dueDate=', nextDueDate.toISOString());
+            console.log('[completeTask] After rotation-cleanup: dueDate stays at', nextDueDate.toISOString());
           }
 
           // Check if we need to extend the schedule (less than 3 future occurrences)

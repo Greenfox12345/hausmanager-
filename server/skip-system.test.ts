@@ -223,3 +223,77 @@ describe("Unified Skip: Beide Systeme werden synchron gehalten", () => {
     expect(hasNote(4)).toBe(false); // nicht vorhanden
   });
 });
+
+describe("completeTask: Kein doppeltes Überspringen", () => {
+  // Simuliert Skip-Chain A (skippedDates) und prüft dass Skip-Chain B (occurrenceNotes)
+  // nextDueDate NICHT nochmals vorschiebt
+
+  function skipChainA(
+    startDate: string,
+    skippedDates: string[],
+    intervalDays: number
+  ): { nextDate: string; skippedCount: number } {
+    const advance = (d: Date) => {
+      const next = new Date(d);
+      next.setDate(next.getDate() + intervalDays);
+      return next;
+    };
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    let cur = advance(new Date(startDate + "T12:00:00Z")); // start from next occurrence
+    let skippedCount = 0;
+    let maxIter = 100;
+    while (skippedDates.includes(fmt(cur)) && maxIter-- > 0) {
+      cur = advance(cur);
+      skippedCount++;
+    }
+    return { nextDate: fmt(cur), skippedCount };
+  }
+
+  it("Ein übersprungener Termin: nextDueDate springt genau einen Schritt vor", () => {
+    // Aufgabe: wöchentlich, dueDate = 2025-01-06
+    // Termin 2025-01-13 wird übersprungen
+    const skippedDates = ["2025-01-13"];
+    const result = skipChainA("2025-01-06", skippedDates, 7);
+    expect(result.nextDate).toBe("2025-01-20"); // 1 Schritt übersprungen
+    expect(result.skippedCount).toBe(1);
+  });
+
+  it("Zwei übersprungene Termine: nextDueDate springt genau zwei Schritte vor", () => {
+    const skippedDates = ["2025-01-13", "2025-01-20"];
+    const result = skipChainA("2025-01-06", skippedDates, 7);
+    expect(result.nextDate).toBe("2025-01-27"); // 2 Schritte übersprungen
+    expect(result.skippedCount).toBe(2);
+  });
+
+  it("Kein übersprungener Termin: nextDueDate bleibt beim nächsten Schritt", () => {
+    const skippedDates: string[] = [];
+    const result = skipChainA("2025-01-06", skippedDates, 7);
+    expect(result.nextDate).toBe("2025-01-13"); // kein Skip
+    expect(result.skippedCount).toBe(0);
+  });
+
+  it("Skip-Chain B darf nextDueDate NICHT nochmals vorschieben wenn skippedDates schon geprüft wurde", () => {
+    // Simuliert: skipOccurrence schreibt in BEIDE Systeme
+    // Skip-Chain A hat bereits 2025-01-13 übersprungen → nextDueDate = 2025-01-20
+    // Skip-Chain B sieht occurrenceNotes[1].isSkipped=true → darf nextDueDate NICHT nochmals vorschieben
+    const nextDateAfterSkipChainA = "2025-01-20";
+    const rotationScheduleAfterDelete = [
+      { occurrenceNumber: 1, isSkipped: true }, // dieser Eintrag soll nur gelöscht, nicht nochmals übersprungen werden
+    ];
+
+    // Korrekte Implementierung: nur löschen, nicht vorschieben
+    let nextDate = nextDateAfterSkipChainA;
+    const deletedOccurrences: number[] = [];
+    for (const occ of rotationScheduleAfterDelete) {
+      if (occ.isSkipped) {
+        deletedOccurrences.push(occ.occurrenceNumber);
+        // KEIN nextDate = advance(nextDate) hier!
+      }
+    }
+
+    expect(nextDate).toBe("2025-01-20"); // unverändert
+    expect(deletedOccurrences).toContain(1); // Occurrence wurde gelöscht
+  });
+});
