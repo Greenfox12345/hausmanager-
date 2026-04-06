@@ -2685,16 +2685,33 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={async () => {
-              // Remove the date from skippedDates before saving
-              if (task && dueDate) {
-                const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
-                // Optimistically update task.skippedDates so doSave doesn't re-trigger warning
-                if (onTaskUpdated) {
-                  onTaskUpdated({ ...task, skippedDates: updatedSkipped });
-                }
-                utils.tasks.list.invalidate();
+              if (!task || !household || !member) return;
+              // 1. Remove the date from skippedDates optimistically
+              const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
+              if (onTaskUpdated) {
+                onTaskUpdated({ ...task, skippedDates: updatedSkipped });
               }
-              if (pendingSaveData) await pendingSaveData();
+              // 2. Complete the task → backend advances dueDate past skip-chain
+              try {
+                const result = await utils.client.tasks.completeTask.mutate({
+                  taskId: task.id,
+                  householdId: household.householdId,
+                  memberId: member.memberId,
+                });
+                await utils.tasks.list.invalidate();
+                await utils.activities.getByTaskId.invalidate();
+                if (result.isRecurring) {
+                  const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+                  const updatedTask = refreshedTasks.find((t: any) => t.id === task.id);
+                  if (updatedTask && onTaskUpdated) onTaskUpdated(updatedTask);
+                  toast.success(t("messages.completedRecurring"));
+                } else {
+                  if (onTaskUpdated) onTaskUpdated({ ...task, isCompleted: true, completed: true });
+                  toast.success(t("messages.completed"));
+                }
+              } catch (error: any) {
+                toast.error(error.message || t("messages.completeError"));
+              }
               setPendingSaveData(null);
             }}
           >
