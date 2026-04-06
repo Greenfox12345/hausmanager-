@@ -1001,6 +1001,7 @@ export const tasksRouter = router({
         {
           const { getNextMonthlyOccurrence: getNextMonthlySkip } = await import("../../shared/dateUtils");
           const skippedDates: string[] = task.skippedDates || [];
+          console.log('[completeTask] SKIP-CHAIN START: nextDueDate=', nextDueDate.toISOString(), 'skippedDates=', JSON.stringify(skippedDates));
           const fmtSkip = (d: Date) => {
             const y = d.getFullYear();
             const mo = String(d.getMonth() + 1).padStart(2, "0");
@@ -1036,6 +1037,7 @@ export const tasksRouter = router({
           return `${y}-${mo}-${day}`;
         })();
         const cleanedSkipped = (task.skippedDates || []).filter((d: string) => d > newDueDateFmt);
+        console.log('[completeTask] CLEANUP: newDueDateFmt=', newDueDateFmt, 'original skippedDates=', JSON.stringify(task.skippedDates), 'cleanedSkipped=', JSON.stringify(cleanedSkipped));
 
         // For recurring tasks: update to next occurrence in a SINGLE write (no intermediate isCompleted=true)
         await updateTask(input.taskId, {
@@ -1100,6 +1102,46 @@ export const tasksRouter = router({
               }
             }
             console.log('[completeTask] Occurrence items shifted successfully');
+          }
+
+          // ===== 4b. Advance past rotation-skipped occurrences =====
+          // If the new first occurrence(s) in the rotation schedule are marked as isSkipped,
+          // we need to advance dueDate past them and remove those occurrences from the schedule.
+          if (nextDueDate) {
+            let scheduleAfterDelete = await getRotationSchedule(input.taskId);
+            const { getNextMonthlyOccurrence: getNextMonthlyRot } = await import("../../shared/dateUtils");
+            const advanceOneRot = (d: Date): Date => {
+              const next = new Date(d);
+              if (task.repeatUnit === "days") {
+                next.setDate(next.getDate() + (task.repeatInterval || 1));
+              } else if (task.repeatUnit === "weeks") {
+                next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
+              } else if (task.repeatUnit === "months") {
+                return getNextMonthlyRot(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
+              }
+              return next;
+            };
+            let maxRotIter = 50;
+            while (scheduleAfterDelete.length > 0 && scheduleAfterDelete[0].isSkipped && maxRotIter-- > 0) {
+              console.log('[completeTask] Rotation-skip: advancing past occurrence', scheduleAfterDelete[0].occurrenceNumber, 'isSkipped=true');
+              // Remove this skipped occurrence from schedule
+              await deleteRotationOccurrence(input.taskId, scheduleAfterDelete[0].occurrenceNumber);
+              // Advance dueDate one more step
+              nextDueDate = advanceOneRot(nextDueDate);
+              // Reload schedule
+              scheduleAfterDelete = await getRotationSchedule(input.taskId);
+            }
+            // Update task dueDate if it changed
+            const fmtRot = (d: Date) => {
+              const y = d.getFullYear();
+              const mo = String(d.getMonth() + 1).padStart(2, "0");
+              const day = String(d.getDate()).padStart(2, "0");
+              return `${y}-${mo}-${day}`;
+            };
+            const newDueFmt = fmtRot(nextDueDate);
+            const cleanedAfterRot = (task.skippedDates || []).filter((d: string) => d > newDueFmt);
+            await updateTask(input.taskId, { dueDate: nextDueDate, skippedDates: cleanedAfterRot });
+            console.log('[completeTask] After rotation-skip-chain: dueDate=', nextDueDate.toISOString());
           }
 
           // Check if we need to extend the schedule (less than 3 future occurrences)
