@@ -507,8 +507,9 @@ export default function Members() {
                             </div>
                           )}
                         </div>
-                        {/* Action buttons – only shown when not in edit mode */}
-                        {(settings?.isAdmin || isDemoUser) && editingMemberId !== m.id && (
+                        {/* Action buttons – only shown when not in edit mode.
+                             Demo users can remove any slot except their own (Slot 0). */}
+                        {(settings?.isAdmin || isDemoUser) && editingMemberId !== m.id && m.id !== member?.memberId && (
                           <div className="flex items-center gap-1 shrink-0">
                             {!isDemoUser && (
                               <Button

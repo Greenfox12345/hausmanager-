@@ -3466,3 +3466,8 @@
 - [x] Registrierte User: eigener Slot + unregistrierte Mitglieder (nur Admin)
 - [x] Einladungs-Karte und Danger Zone im Demo-Modus ausgeblendet
 - [x] 6 neue Unit-Tests für renameMember-Berechtigungslogik (19 Tests gesamt in demo.seed.test.ts)
+
+## Demo-Admin-Rechte für Slot 0
+- [x] Backend: Demo-Slot-0 beim Seeden als Admin anlegen (adminUserId = Slot-0-memberId)
+- [x] Frontend: Kick-Button für Demo-User sichtbar, eigener Slot ausgeschlossen
+- [x] Tests für Kick-Button-Sichtbarkeit im Demo-Modus (6 neue Tests, 29 gesamt)

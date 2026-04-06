@@ -195,3 +195,42 @@ describe("demo_owner_name localStorage sync (pure unit)", () => {
     expect(syncDemoOwnerName(true, 1, 1, "Neuer Name", null)).toBeNull();
   });
 });
+
+describe("kick button visibility (pure unit)", () => {
+  // Mirror the condition from Members.tsx:
+  // (settings?.isAdmin || isDemoUser) && editingMemberId !== m.id && m.id !== member?.memberId
+  function showKickButton(opts: {
+    isAdmin: boolean;
+    isDemoUser: boolean;
+    editingMemberId: number | null;
+    targetMemberId: number;
+    ownMemberId: number;
+  }): boolean {
+    const { isAdmin, isDemoUser, editingMemberId, targetMemberId, ownMemberId } = opts;
+    return (isAdmin || isDemoUser) && editingMemberId !== targetMemberId && targetMemberId !== ownMemberId;
+  }
+
+  it("demo user sees kick button for other members", () => {
+    expect(showKickButton({ isAdmin: false, isDemoUser: true, editingMemberId: null, targetMemberId: 2, ownMemberId: 1 })).toBe(true);
+  });
+
+  it("demo user does NOT see kick button for own slot", () => {
+    expect(showKickButton({ isAdmin: false, isDemoUser: true, editingMemberId: null, targetMemberId: 1, ownMemberId: 1 })).toBe(false);
+  });
+
+  it("demo user does NOT see kick button while editing that member", () => {
+    expect(showKickButton({ isAdmin: false, isDemoUser: true, editingMemberId: 2, targetMemberId: 2, ownMemberId: 1 })).toBe(false);
+  });
+
+  it("non-admin non-demo user does NOT see kick button", () => {
+    expect(showKickButton({ isAdmin: false, isDemoUser: false, editingMemberId: null, targetMemberId: 2, ownMemberId: 1 })).toBe(false);
+  });
+
+  it("admin sees kick button for other members", () => {
+    expect(showKickButton({ isAdmin: true, isDemoUser: false, editingMemberId: null, targetMemberId: 2, ownMemberId: 1 })).toBe(true);
+  });
+
+  it("admin does NOT see kick button for own slot", () => {
+    expect(showKickButton({ isAdmin: true, isDemoUser: false, editingMemberId: null, targetMemberId: 1, ownMemberId: 1 })).toBe(false);
+  });
+});
