@@ -215,6 +215,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
   const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(true); // Default: expanded
   
+  // Warn-dialog state: dueDate lands on a skipped date
+  const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
+  const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
+
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
   const availableMembers = useMemo(() => 
@@ -693,6 +697,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.error(t("messages.assigneeRequired"));
       return;
     }
+
+    // Check if the new dueDate is in skippedDates → warn before saving
+    const skippedDates: string[] = task.skippedDates || [];
+    if (dueDate && skippedDates.includes(dueDate)) {
+      // Store the save action and show warning
+      setPendingSaveData(() => () => doSave());
+      setSkippedDateWarnOpen(true);
+      return;
+    }
+
+    await doSave();
+  };
+
+  const doSave = async () => {
+    if (!household || !task) return;
 
     // Send date and time separately to avoid timezone issues
     const dueDateString = dueDate || null;
@@ -2638,6 +2657,54 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         open={showPDFViewer}
         onOpenChange={setShowPDFViewer}
       />
+    )}
+
+    {/* Warning: dueDate is a skipped date */}
+    {skippedDateWarnOpen && (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={() => setSkippedDateWarnOpen(false)}>
+        <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+            <span className="text-orange-500">⚠️</span>
+            Termin ist ausgelassen
+          </h3>
+          <p className="text-sm text-muted-foreground mb-2">
+            Der gewählte Termin ({dueDate}) ist bereits als „Auslassen“ markiert.
+          </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Möchtest du den Termin trotzdem setzen? Der Auslassen-Eintrag wird dann automatisch entfernt.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSkippedDateWarnOpen(false);
+                setPendingSaveData(null);
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={async () => {
+                setSkippedDateWarnOpen(false);
+                // Remove the date from skippedDates before saving
+                if (task && dueDate) {
+                  const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
+                  // Optimistically update task.skippedDates so doSave doesn't re-trigger warning
+                  if (onTaskUpdated) {
+                    onTaskUpdated({ ...task, skippedDates: updatedSkipped });
+                  }
+                  // Also restore via backend (fire-and-forget, ignore errors)
+                  utils.tasks.list.invalidate();
+                }
+                if (pendingSaveData) await pendingSaveData();
+                setPendingSaveData(null);
+              }}
+            >
+              Trotzdem setzen
+            </Button>
+          </div>
+        </div>
+      </div>
     )}
   </>
   );
