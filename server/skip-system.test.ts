@@ -118,6 +118,37 @@ describe("occurrenceNotes SQL-Filter-Logik", () => {
   });
 });
 
+describe("Kalender: Occurrence 1 (dueDate) wird auf Skip geprüft", () => {
+  it("tasksByDate: dueDate wird nicht eingefügt wenn es in skippedDates ist", () => {
+    function shouldIncludeDueDate(
+      dateKey: string,
+      skippedDates: string[],
+      occ1IsSkipped: boolean
+    ): boolean {
+      return !skippedDates.includes(dateKey) && !occ1IsSkipped;
+    }
+
+    expect(shouldIncludeDueDate("2025-01-06", [], false)).toBe(true);
+    expect(shouldIncludeDueDate("2025-01-06", ["2025-01-06"], false)).toBe(false);
+    expect(shouldIncludeDueDate("2025-01-06", [], true)).toBe(false);
+    expect(shouldIncludeDueDate("2025-01-06", ["2025-01-06"], true)).toBe(false);
+  });
+
+  it("Occurrence 1 und 2 können unabhängig übersprungen werden", () => {
+    const skippedDates = ["2025-01-06"];
+    const occurrenceNotes = [{ occurrenceNumber: 1, notes: "", isSkipped: true }];
+
+    function isOccSkipped(dateKey: string, occNum: number): boolean {
+      const isSkippedByDate = skippedDates.includes(dateKey);
+      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
+      return isSkippedByDate || noteEntry?.isSkipped === true;
+    }
+
+    expect(isOccSkipped("2025-01-06", 1)).toBe(true);
+    expect(isOccSkipped("2025-01-13", 2)).toBe(false);
+  });
+});
+
 describe("Unified Skip: Beide Systeme werden synchron gehalten", () => {
   it("skipOccurrence-Logik: Datum wird zu skippedDates hinzugefügt (dedupliziert)", () => {
     const existingSkipped = ["2025-01-06", "2025-01-20"];

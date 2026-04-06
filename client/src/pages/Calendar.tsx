@@ -311,15 +311,20 @@ export default function Calendar() {
     const grouped: Record<string, Array<(typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number }) | (typeof calendarEvents[0] & { isCalendarEvent: true })>> = {};
     
     tasks.forEach(task => {
-      // Add current task
+      // Add current task (Occurrence 1 = dueDate)
       if (task.dueDate) {
         const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-        if (!grouped[dateKey]) {
-          grouped[dateKey] = [];
+        // Unified skip check: skippedDates array AND occurrenceNotes[1].isSkipped
+        const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
+        const isOcc1Skipped = (task.skippedDates || []).includes(dateKey) || occ1Note?.isSkipped === true;
+        if (!isOcc1Skipped) {
+          if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+          }
+          // Attach note for occurrence number 1 (current appointment)
+          const currentNote = occ1Note?.notes || null;
+          grouped[dateKey].push({ ...task, occurrenceNote: currentNote } as any);
         }
-        // Attach note for occurrence number 1 (current appointment)
-        const currentNote = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1 && n.notes)?.notes || null;
-        grouped[dateKey].push({ ...task, occurrenceNote: currentNote } as any);
       }
 
       // Add future occurrences for recurring tasks
@@ -388,10 +393,15 @@ export default function Calendar() {
         const taskDate = new Date(task.dueDate);
         taskDate.setHours(0, 0, 0, 0);
         
-        // Include if within range OR overdue (and not completed)
-        if ((taskDate <= endDate) || (taskDate < today && !task.isCompleted)) {
+        // Unified skip check for Occurrence 1 (dueDate)
+        const dateKey = format(taskDate, "yyyy-MM-dd");
+        const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
+        const isOcc1Skipped = (task.skippedDates || []).includes(dateKey) || occ1Note?.isSkipped === true;
+        
+        // Include if within range OR overdue (and not completed) AND not skipped
+        if (!isOcc1Skipped && ((taskDate <= endDate) || (taskDate < today && !task.isCompleted))) {
           // Attach note for occurrence number 1 (current appointment)
-          const currentNote = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1 && n.notes)?.notes || null;
+          const currentNote = occ1Note?.notes || null;
           allTasks.push({
             ...task,
             occurrenceNote: currentNote,
