@@ -1647,11 +1647,11 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const tasksList = await getTasks(input.householdId);
-      const task = tasksList.find(t => t.id === input.taskId);
+      // Use getTaskById to avoid householdId mismatch for shared tasks
+      const task = await getTaskById(input.taskId);
 
       if (!task) {
-        throw new Error("Task not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
       // Remove date from skippedDates array

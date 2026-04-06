@@ -3507,3 +3507,9 @@
 - [x] skipOccurrence: Deduplizierung (doppeltes Auslassen wird ignoriert)
 - [x] skipOccurrence: onError im Frontend zeigt Fehlermeldung als Toast
 - [x] db.ts: getTaskById Hilfsfunktion hinzugefügt
+
+## Bug: Ausgelassene Termine nicht synchron zwischen Kalender und TaskDetailDialog
+- [x] restoreSkippedDate: getTaskById statt getTasks (kein householdId-Mismatch)
+- [x] restoreSkippedDateMutation.onSuccess: optimistisches Update mit neuem skippedDates-Array
+- [x] Calendar.onTaskUpdated: window.location.reload() durch utils.tasks.list.invalidate() + setSelectedTask ersetzt
+- [x] Kalender synchronisiert selectedTask sofort nach skipOccurrence und restoreSkippedDate

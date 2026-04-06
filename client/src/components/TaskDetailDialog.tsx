@@ -615,12 +615,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Restore skipped date mutation
   const restoreSkippedDateMutation = trpc.tasks.restoreSkippedDate.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success(t("messages.occurrenceRestored"));
       utils.tasks.list.invalidate();
+      // Optimistically update the task's skippedDates in the parent
       if (onTaskUpdated && task) {
-        // Refresh the task to show updated skippedDates
-        onTaskUpdated(task);
+        const updatedSkippedDates = (task.skippedDates || []).filter(
+          (d: string) => d !== variables.dateToRestore
+        );
+        onTaskUpdated({ ...task, skippedDates: updatedSkippedDates });
       }
     },
     onError: () => {

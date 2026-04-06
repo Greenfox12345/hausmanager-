@@ -1443,9 +1443,16 @@ export default function Calendar() {
           if (!open) setSelectedTask(null);
         }}
         members={members.map(m => ({ memberId: m.id, memberName: m.memberName }))}
-        onTaskUpdated={() => {
-          // Refetch tasks after update
-          window.location.reload(); // Simple approach for now
+        onTaskUpdated={(updatedTask?: any) => {
+          utils.tasks.list.invalidate();
+          utils.calendar.getEvents.invalidate();
+          // If the updated task object is provided, sync selectedTask immediately
+          if (updatedTask) {
+            setSelectedTask((prev: any) => {
+              if (!prev || prev.id !== updatedTask.id) return prev;
+              return { ...prev, ...updatedTask };
+            });
+          }
         }}
       />
 
