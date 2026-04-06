@@ -3458,3 +3458,11 @@
 ## DemoConfigDialog: Name/Mitbewohner-Trennung und Slider-Klarheit
 - [ ] Eigener Name und Mitbewohner-Namen klar trennen (aktuell verschwindet Alex wenn man oben einen Namen eingibt)
 - [ ] Aufgaben-Slider-Label präzisieren: erklärt was die Items sind
+
+## Mitgliedernamen inline ändern (Demo & Platzhalter)
+- [x] Backend: renameMember-Prozedur in householdManagement.ts (Demo-User + Admin-Rechte)
+- [x] Frontend: Inline-Bearbeitung auf Members.tsx (Stift-Icon, Input, Bestätigen/Abbrechen)
+- [x] Demo-User: alle unregistrierten Slots bearbeitbar (eigener Name + Mitbewohner)
+- [x] Registrierte User: eigener Slot + unregistrierte Mitglieder (nur Admin)
+- [x] Einladungs-Karte und Danger Zone im Demo-Modus ausgeblendet
+- [x] 6 neue Unit-Tests für renameMember-Berechtigungslogik (19 Tests gesamt in demo.seed.test.ts)

@@ -22,15 +22,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock, DoorOpen, Trash2, Vote, Undo2, Crown, Link2, UserX, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowLeft, Users, LogOut, Plus, Copy, Check, Globe, Home, Lock,
+  DoorOpen, Trash2, Vote, Undo2, Crown, Link2, UserX, ExternalLink,
+  Pencil, X,
+} from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type SupportedLanguageCode } from "@/lib/i18n";
 
 export default function Members() {
   const [, setLocation] = useLocation();
-  const { household, member, isAuthenticated, logout } = useCompatAuth();
+  const { household, member, isAuthenticated, isDemoSession: isDemoUser, logout } = useCompatAuth();
   const { currentHousehold, setCurrentHousehold } = useUserAuth();
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -38,6 +42,12 @@ export default function Members() {
   const [inviteLinkData, setInviteLinkData] = useState<{ link: string; memberName: string } | null>(null);
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [kickTarget, setKickTarget] = useState<{ id: number; name: string } | null>(null);
+
+  // Inline rename state: memberId → draft name
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
   const { t, i18n } = useTranslation(["members", "common"]);
   const currentUiLang = getCurrentLanguage();
 
@@ -80,7 +90,6 @@ export default function Members() {
       } else {
         toast.success(t("members:household.leftSuccess"));
       }
-      // Clear local household state and redirect
       logout();
       setLocation("/household-selection");
     },
@@ -136,6 +145,23 @@ export default function Members() {
     },
   });
 
+  // Rename member mutation
+  const renameMemberMutation = trpc.householdManagement.renameMember.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Name auf "${data.newName}" geändert.`);
+      setEditingMemberId(null);
+      setEditingName("");
+      refetchMembers();
+      // If the renamed member is the current user's own slot, update context
+      if (currentHousehold && data.memberId === currentHousehold.memberId) {
+        setCurrentHousehold({ ...currentHousehold, memberName: data.newName });
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   // Transfer admin mutation
   const transferAdminMutation = trpc.householdManagement.transferAdmin.useMutation({
     onSuccess: (data) => {
@@ -158,6 +184,13 @@ export default function Members() {
       toast.error(error.message);
     },
   });
+
+  // Focus input when edit mode opens
+  useEffect(() => {
+    if (editingMemberId !== null) {
+      setTimeout(() => editInputRef.current?.focus(), 50);
+    }
+  }, [editingMemberId]);
 
   const currentHouseholdLang = settings?.language || "de";
   const currentLangInfo = SUPPORTED_LANGUAGES.find((l) => l.code === currentHouseholdLang);
@@ -202,6 +235,42 @@ export default function Members() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const startEditing = (id: number, currentName: string) => {
+    setEditingMemberId(id);
+    setEditingName(currentName);
+  };
+
+  const cancelEditing = () => {
+    setEditingMemberId(null);
+    setEditingName("");
+  };
+
+  const commitRename = (memberId: number) => {
+    const trimmed = editingName.trim();
+    if (!trimmed || !householdId) return;
+    renameMemberMutation.mutate({ householdId, memberId, newName: trimmed });
+  };
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent, memberId: number) => {
+    if (e.key === "Enter") commitRename(memberId);
+    if (e.key === "Escape") cancelEditing();
+  };
+
+  // A member is editable when:
+  // - it is unregistered (userId === null), OR
+  // - it is the current user's own slot (registered users can rename themselves)
+  // AND the current user is either a demo user or the admin
+  const canEditMember = (m: { id: number; userId: number | null }) => {
+    if (isDemoUser) {
+      // Demo users can rename all unregistered members (all slots are unregistered in demo)
+      return m.userId === null;
+    }
+    // Registered users: own slot always editable; other unregistered slots only if admin
+    const isOwnSlot = m.id === member?.memberId;
+    const isAdmin = settings?.isAdmin;
+    return isOwnSlot || (isAdmin && m.userId === null);
   };
 
   const voteProgress = dissolveStatus
@@ -275,25 +344,69 @@ export default function Members() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold flex items-center gap-2 flex-wrap">
-                        {m.memberName}
-                        {m.userId === settings?.adminUserId && (
-                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
-                            <Crown className="h-3 w-3" />
-                            {t("members:admin")}
-                          </span>
-                        )}
-                        {m.id === member?.memberId && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                            {t("members:you")}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {m.isActive ? t("common:status.active") : t("common:status.inactive")}
-                      </div>
+                      {/* Inline edit for own registered slot */}
+                      {editingMemberId === m.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            ref={editInputRef}
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => handleRenameKeyDown(e, m.id)}
+                            maxLength={50}
+                            className="h-8 text-sm font-semibold"
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-green-600 hover:text-green-700"
+                            disabled={renameMemberMutation.isPending}
+                            onClick={() => commitRename(m.id)}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-muted-foreground"
+                            onClick={cancelEditing}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="font-semibold flex items-center gap-2 flex-wrap">
+                          {m.memberName}
+                          {m.userId === settings?.adminUserId && (
+                            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
+                              <Crown className="h-3 w-3" />
+                              {t("members:admin")}
+                            </span>
+                          )}
+                          {m.id === member?.memberId && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                              {t("members:you")}
+                            </span>
+                          )}
+                          {/* Edit own name button for registered users */}
+                          {canEditMember(m) && (
+                            <button
+                              type="button"
+                              onClick={() => startEditing(m.id, m.memberName)}
+                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              title="Namen ändern"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {editingMemberId !== m.id && (
+                        <div className="text-sm text-muted-foreground">
+                          {m.isActive ? t("common:status.active") : t("common:status.inactive")}
+                        </div>
+                      )}
                     </div>
-                    {settings?.isAdmin && m.userId !== null && m.userId !== settings?.adminUserId && m.isActive && (
+                    {settings?.isAdmin && m.userId !== null && m.userId !== settings?.adminUserId && m.isActive && editingMemberId !== m.id && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -307,7 +420,7 @@ export default function Members() {
                   </div>
                 ))}
 
-                {/* Unregistered (dummy) members – visually distinct */}
+                {/* Unregistered (placeholder) members – visually distinct */}
                 {members.filter((m) => m.userId === null).length > 0 && (
                   <>
                     {members.filter((m) => m.userId !== null).length > 0 && (
@@ -326,35 +439,83 @@ export default function Members() {
                       >
                         <Avatar className="h-12 w-12 opacity-80">
                           <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 font-semibold">
-                            {getInitials(m.memberName)}
+                            {getInitials(editingMemberId === m.id ? editingName || m.memberName : m.memberName)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <div className="font-semibold flex items-center gap-2 flex-wrap">
-                            {m.memberName}
-                            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
-                              Platzhalter
-                            </span>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Noch nicht registriert
-                          </div>
+                          {editingMemberId === m.id ? (
+                            /* ── Inline edit mode ── */
+                            <div className="flex items-center gap-2">
+                              <Input
+                                ref={editInputRef}
+                                value={editingName}
+                                onChange={(e) => setEditingName(e.target.value)}
+                                onKeyDown={(e) => handleRenameKeyDown(e, m.id)}
+                                maxLength={50}
+                                className="h-8 text-sm font-semibold border-amber-300 focus-visible:ring-amber-400"
+                              />
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-green-600 hover:text-green-700"
+                                disabled={renameMemberMutation.isPending}
+                                onClick={() => commitRename(m.id)}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-muted-foreground"
+                                onClick={cancelEditing}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            /* ── Display mode ── */
+                            <div className="font-semibold flex items-center gap-2 flex-wrap">
+                              {m.memberName}
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
+                                Platzhalter
+                              </span>
+                              {/* Edit button – shown for demo users and admins */}
+                              {canEditMember(m) && (
+                                <button
+                                  type="button"
+                                  onClick={() => startEditing(m.id, m.memberName)}
+                                  className="text-amber-500 hover:text-amber-700 transition-colors"
+                                  title="Namen ändern"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {editingMemberId !== m.id && (
+                            <div className="text-sm text-muted-foreground">
+                              Noch nicht registriert
+                            </div>
+                          )}
                         </div>
-                        {settings?.isAdmin && (
+                        {/* Action buttons – only shown when not in edit mode */}
+                        {(settings?.isAdmin || isDemoUser) && editingMemberId !== m.id && (
                           <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                              disabled={generateInviteLinkMutation.isPending}
-                              onClick={() =>
-                                householdId &&
-                                generateInviteLinkMutation.mutate({ householdId, memberId: m.id })
-                              }
-                            >
-                              <Link2 className="h-3.5 w-3.5" />
-                              Einladen
-                            </Button>
+                            {!isDemoUser && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                disabled={generateInviteLinkMutation.isPending}
+                                onClick={() =>
+                                  householdId &&
+                                  generateInviteLinkMutation.mutate({ householdId, memberId: m.id })
+                                }
+                              >
+                                <Link2 className="h-3.5 w-3.5" />
+                                Einladen
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -376,68 +537,70 @@ export default function Members() {
         </Card>
 
 
-        {/* Invite Card */}
-        <Card className="mb-6 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                {t("members:newMember")}
-              </span>
-              {!showInviteCode && (
-                <Button onClick={() => setShowInviteCode(true)} size="sm">
-                  {t("members:actions.showInviteCode")}
-                </Button>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {showInviteCode ? (
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground">
-                  <p>{t("members:messages.shareInviteCode")}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    value={household?.inviteCode || ""}
-                    readOnly
-                    className="font-mono text-lg text-center"
-                  />
+        {/* Invite Card – hidden in demo mode */}
+        {!isDemoUser && (
+          <Card className="mb-6 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  {t("members:newMember")}
+                </span>
+                {!showInviteCode && (
+                  <Button onClick={() => setShowInviteCode(true)} size="sm">
+                    {t("members:actions.showInviteCode")}
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {showInviteCode ? (
+                <div className="space-y-4">
+                  <div className="text-sm text-muted-foreground">
+                    <p>{t("members:messages.shareInviteCode")}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      value={household?.inviteCode || ""}
+                      readOnly
+                      className="font-mono text-lg text-center"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      onClick={handleCopyInviteCode}
+                    >
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                    <p><strong>{t("common:messages.howItWorks")}</strong></p>
+                    <ol className="list-decimal list-inside mt-2 space-y-1">
+                      <li>{t("members:messages.step1")}</li>
+                      <li>{t("members:messages.step2")}</li>
+                      <li>{t("members:messages.step3")}</li>
+                      <li>{t("members:messages.step4")}</li>
+                    </ol>
+                  </div>
                   <Button
-                    type="button"
-                    size="icon"
                     variant="outline"
-                    onClick={handleCopyInviteCode}
+                    onClick={() => setShowInviteCode(false)}
+                    className="w-full"
                   >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {t("common:actions.close")}
                   </Button>
                 </div>
-                <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                  <p><strong>{t("common:messages.howItWorks")}</strong></p>
-                  <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>{t("members:messages.step1")}</li>
-                    <li>{t("members:messages.step2")}</li>
-                    <li>{t("members:messages.step3")}</li>
-                    <li>{t("members:messages.step4")}</li>
-                  </ol>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  <p>
+                    {t("members:messages.clickToShowInviteCode")}
+                  </p>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowInviteCode(false)}
-                  className="w-full"
-                >
-                  {t("common:actions.close")}
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-muted-foreground">
-                <p>
-                  {t("members:messages.clickToShowInviteCode")}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Language Settings Card */}
         <Card className="mb-6 shadow-sm">
@@ -520,161 +683,163 @@ export default function Members() {
           </CardContent>
         </Card>
 
-        {/* Danger Zone Card */}
-        <Card className="shadow-sm border border-destructive/20 bg-destructive/[0.02]">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-destructive uppercase tracking-wide">
-              <Trash2 className="h-4 w-4" />
-              {t("members:household.dangerZone")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-0 p-0">
+        {/* Danger Zone Card – hidden in demo mode */}
+        {!isDemoUser && (
+          <Card className="shadow-sm border border-destructive/20 bg-destructive/[0.02]">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold text-destructive uppercase tracking-wide">
+                <Trash2 className="h-4 w-4" />
+                {t("members:household.dangerZone")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0 p-0">
 
-            {/* Leave Household */}
-            <div className="flex items-start justify-between gap-4 px-6 py-4 border-t border-destructive/10">
-              <div className="flex items-start gap-3 min-w-0">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-                  <DoorOpen className="h-4 w-4 text-destructive" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{t("members:household.leaveTitle")}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t("members:household.leaveDescription")}</p>
-                </div>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
-                    disabled={leaveHouseholdMutation.isPending}
-                  >
-                    <DoorOpen className="h-3.5 w-3.5" />
-                    {t("members:household.leaveButton")}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t("members:household.leaveConfirmTitle")}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t("members:household.leaveConfirmDescription", { name: household?.householdName })}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-destructive hover:bg-destructive/90"
-                      onClick={() => householdId && leaveHouseholdMutation.mutate({ householdId })}
-                    >
-                      {t("members:household.leaveButton")}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-
-            {/* Dissolve Household by Vote */}
-            <div className="px-6 py-4 border-t border-destructive/10 space-y-3">
-              <div className="flex items-start justify-between gap-4">
+              {/* Leave Household */}
+              <div className="flex items-start justify-between gap-4 px-6 py-4 border-t border-destructive/10">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-                    <Vote className="h-4 w-4 text-destructive" />
+                    <DoorOpen className="h-4 w-4 text-destructive" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">{t("members:household.dissolveTitle")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      {t("members:household.dissolveDescription", {
-                        needed: dissolveStatus?.majorityNeeded ?? "?",
-                        total: dissolveStatus?.totalMembers ?? "?",
-                      })}
-                    </p>
+                    <p className="text-sm font-medium">{t("members:household.leaveTitle")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t("members:household.leaveDescription")}</p>
                   </div>
                 </div>
-
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
+                      disabled={leaveHouseholdMutation.isPending}
+                    >
+                      <DoorOpen className="h-3.5 w-3.5" />
+                      {t("members:household.leaveButton")}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("members:household.leaveConfirmTitle")}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("members:household.leaveConfirmDescription", { name: household?.householdName })}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive hover:bg-destructive/90"
+                        onClick={() => householdId && leaveHouseholdMutation.mutate({ householdId })}
+                      >
+                        {t("members:household.leaveButton")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
-              {/* Vote progress bar – full width below the title row */}
-              {dissolveStatus && dissolveStatus.totalMembers > 0 && (
-                <div className="space-y-1.5 pl-11">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>
-                      {t("members:household.votesCount", {
-                        count: dissolveStatus.voteCount,
-                        total: dissolveStatus.totalMembers,
-                      })}
-                    </span>
-                    <span className="text-destructive/70 font-medium">
-                      {t("members:household.votesNeeded", { needed: dissolveStatus.majorityNeeded })}
-                    </span>
+              {/* Dissolve Household by Vote */}
+              <div className="px-6 py-4 border-t border-destructive/10 space-y-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+                      <Vote className="h-4 w-4 text-destructive" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{t("members:household.dissolveTitle")}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        {t("members:household.dissolveDescription", {
+                          needed: dissolveStatus?.majorityNeeded ?? "?",
+                          total: dissolveStatus?.totalMembers ?? "?",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <Progress
-                    value={voteProgress}
-                    className="h-1.5 [&>div]:bg-destructive"
-                  />
                 </div>
-              )}
 
-              {/* Action button or already-voted state */}
-              <div className="pl-11 flex items-center gap-3 flex-wrap">
-                {!dissolveStatus?.hasVoted ? (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
-                        disabled={voteDisolveMutation.isPending}
-                      >
-                        <Vote className="h-3.5 w-3.5" />
-                        {t("members:household.dissolveVoteButton")}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>{t("members:household.dissolveConfirmTitle")}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t("members:household.dissolveConfirmDescription", {
-                            name: household?.householdName,
-                            needed: dissolveStatus?.majorityNeeded ?? "?",
-                            total: dissolveStatus?.totalMembers ?? "?",
-                          })}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-destructive hover:bg-destructive/90"
-                          onClick={() => householdId && voteDisolveMutation.mutate({ householdId })}
-                        >
-                          {t("members:household.dissolveVoteButton")}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <Badge variant="destructive" className="gap-1">
-                      <Vote className="h-3 w-3" />
-                      {t("members:household.alreadyVoted")}
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1 text-muted-foreground"
-                      onClick={() => householdId && retractVoteMutation.mutate({ householdId })}
-                      disabled={retractVoteMutation.isPending}
-                    >
-                      <Undo2 className="h-3 w-3" />
-                      {t("members:household.retractVote")}
-                    </Button>
+                {/* Vote progress bar */}
+                {dissolveStatus && dissolveStatus.totalMembers > 0 && (
+                  <div className="space-y-1.5 pl-11">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>
+                        {t("members:household.votesCount", {
+                          count: dissolveStatus.voteCount,
+                          total: dissolveStatus.totalMembers,
+                        })}
+                      </span>
+                      <span className="text-destructive/70 font-medium">
+                        {t("members:household.votesNeeded", { needed: dissolveStatus.majorityNeeded })}
+                      </span>
+                    </div>
+                    <Progress
+                      value={voteProgress}
+                      className="h-1.5 [&>div]:bg-destructive"
+                    />
                   </div>
                 )}
-              </div>
-            </div>
 
-          </CardContent>
-        </Card>
+                {/* Action button or already-voted state */}
+                <div className="pl-11 flex items-center gap-3 flex-wrap">
+                  {!dissolveStatus?.hasVoted ? (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
+                          disabled={voteDisolveMutation.isPending}
+                        >
+                          <Vote className="h-3.5 w-3.5" />
+                          {t("members:household.dissolveVoteButton")}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t("members:household.dissolveConfirmTitle")}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("members:household.dissolveConfirmDescription", {
+                              name: household?.householdName,
+                              needed: dissolveStatus?.majorityNeeded ?? "?",
+                              total: dissolveStatus?.totalMembers ?? "?",
+                            })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t("common:actions.cancel")}</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive hover:bg-destructive/90"
+                            onClick={() => householdId && voteDisolveMutation.mutate({ householdId })}
+                          >
+                            {t("members:household.dissolveVoteButton")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <Badge variant="destructive" className="gap-1">
+                        <Vote className="h-3 w-3" />
+                        {t("members:household.alreadyVoted")}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1 text-muted-foreground"
+                        onClick={() => householdId && retractVoteMutation.mutate({ householdId })}
+                        disabled={retractVoteMutation.isPending}
+                      >
+                        <Undo2 className="h-3 w-3" />
+                        {t("members:household.retractVote")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </CardContent>
+          </Card>
+        )}
       </div>
+
       {/* Transfer Admin Confirmation Dialog */}
       <AlertDialog open={!!transferTarget} onOpenChange={(open) => !open && setTransferTarget(null)}>
         <AlertDialogContent>

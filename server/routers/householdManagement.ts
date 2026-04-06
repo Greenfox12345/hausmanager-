@@ -1123,4 +1123,89 @@ export const householdManagementRouter = router({
 
       return { success: true, memberName: targetMember.memberName };
     }),
+
+  /**
+   * Rename an unregistered (placeholder) member or the demo owner's own member slot.
+   *
+   * Rules:
+   * - The caller must be a member of the household.
+   * - The target member must be unregistered (userId === null) OR be the caller's own slot.
+   * - Demo users (isDemoUser) may rename any unregistered member in their household.
+   * - Registered users may rename unregistered members only if they are the household admin.
+   */
+  renameMember: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        memberId: z.number(),
+        newName: z.string().min(1).max(50).trim(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Verify the target member exists and belongs to this household
+      const [targetMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.id, input.memberId),
+            eq(householdMembers.householdId, input.householdId)
+          )
+        )
+        .limit(1);
+      if (!targetMember) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" });
+      }
+
+      // Verify the caller is a member of this household
+      const [callerMember] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.userId, ctx.user.id)
+          )
+        )
+        .limit(1);
+
+      const isDemoUser = (ctx as any).isDemoUser === true;
+
+      // Demo users: check via demoSessions that they belong to this household
+      if (isDemoUser) {
+        // Demo users can rename any unregistered member in their household
+        if (targetMember.userId !== null) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot rename a registered user" });
+        }
+      } else {
+        // Registered users: must be a member of the household
+        if (!callerMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You are not a member of this household" });
+        }
+        // May rename their own slot (even if registered) or unregistered members if admin
+        const isOwnSlot = targetMember.userId === ctx.user.id;
+        const [hh] = await db.select().from(households).where(eq(households.id, input.householdId)).limit(1);
+        const isAdmin = hh?.createdBy === ctx.user.id || (
+          await db.select({ id: demoSessions.id }).from(demoSessions)
+            .where(and(eq(demoSessions.householdId, input.householdId), eq(demoSessions.claimedByUserId, ctx.user.id)))
+            .limit(1)
+        ).length > 0;
+        if (!isOwnSlot && !isAdmin) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can rename other members" });
+        }
+        if (!isOwnSlot && targetMember.userId !== null) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot rename a registered user" });
+        }
+      }
+
+      await db
+        .update(householdMembers)
+        .set({ memberName: input.newName })
+        .where(eq(householdMembers.id, input.memberId));
+
+      return { success: true, memberId: input.memberId, newName: input.newName };
+    }),
 });

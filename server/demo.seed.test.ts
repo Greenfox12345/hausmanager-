@@ -123,3 +123,43 @@ describe("Demo seed – inventory count resolution", () => {
     expect(resolveInventoryCount({ inventoryCount: -1 }, TOTAL_ITEMS)).toBe(0);
   });
 });
+
+describe("renameMember – permission logic (pure unit)", () => {
+  // Mirror the canRename logic from Members.tsx / householdManagement.ts
+  function canRenameDemo(target: { userId: number | null }): boolean {
+    // Demo users can rename any unregistered member
+    return target.userId === null;
+  }
+
+  function canRenameRegistered(
+    target: { id: number; userId: number | null },
+    caller: { memberId: number; isAdmin: boolean }
+  ): boolean {
+    const isOwnSlot = target.id === caller.memberId;
+    return isOwnSlot || (caller.isAdmin && target.userId === null);
+  }
+
+  it("demo user can rename unregistered member", () => {
+    expect(canRenameDemo({ userId: null })).toBe(true);
+  });
+
+  it("demo user cannot rename registered member", () => {
+    expect(canRenameDemo({ userId: 42 })).toBe(false);
+  });
+
+  it("registered user can rename own slot", () => {
+    expect(canRenameRegistered({ id: 1, userId: 10 }, { memberId: 1, isAdmin: false })).toBe(true);
+  });
+
+  it("registered admin can rename unregistered member", () => {
+    expect(canRenameRegistered({ id: 2, userId: null }, { memberId: 1, isAdmin: true })).toBe(true);
+  });
+
+  it("registered non-admin cannot rename other member", () => {
+    expect(canRenameRegistered({ id: 2, userId: null }, { memberId: 1, isAdmin: false })).toBe(false);
+  });
+
+  it("registered admin cannot rename another registered member", () => {
+    expect(canRenameRegistered({ id: 2, userId: 99 }, { memberId: 1, isAdmin: true })).toBe(false);
+  });
+});
