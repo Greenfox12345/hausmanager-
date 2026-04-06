@@ -43,7 +43,7 @@ export default function Members() {
 
   const householdId = currentHousehold?.householdId;
 
-  const { data: members = [], isLoading } = trpc.household.getHouseholdMembers.useQuery(
+  const { data: members = [], isLoading, refetch: refetchMembers } = trpc.household.getHouseholdMembers.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -127,6 +127,7 @@ export default function Members() {
     onSuccess: (data) => {
       toast.success(`${data.memberName} wurde aus dem Haushalt entfernt.`);
       setKickTarget(null);
+      refetchMembers();
       refetchSettings();
     },
     onError: (error) => {

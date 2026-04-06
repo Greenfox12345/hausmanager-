@@ -3443,3 +3443,6 @@
 - [x] Backend: eigenen Namen in createSession/seedDemoHousehold verarbeiten
 - [x] Backend: Mitgliederanzahl in seedDemoHousehold berücksichtigen (customNames.length steuert Anzahl)
 - [x] Register.tsx: eigenen Namen aus Demo-Session vorausfüllen (demo_owner_name in localStorage)
+
+## Bug: /members – Liste nach Löschen nicht aktualisiert
+- [x] kickMember-Mutation: getHouseholdMembers und getHouseholdSettings nach Erfolg invalidieren (refetchMembers + refetchSettings)
