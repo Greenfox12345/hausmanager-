@@ -747,8 +747,11 @@ export const tasksRouter = router({
           return `${y}-${m}-${day}`;
         };
         const newDueDateStr = fmtDateLocal(nextDueDate);
+        // Keep only skippedDates that are strictly AFTER the new dueDate.
+        // Dates equal to or before newDueDateStr were consumed by the skip-chain
+        // and must be removed so the new dueDate is not treated as skipped.
         const cleanedSkippedDates = (task.skippedDates || []).filter(
-          (d: string) => d >= newDueDateStr
+          (d: string) => d > newDueDateStr
         );
 
         // Update task to next occurrence (NOT completed)
