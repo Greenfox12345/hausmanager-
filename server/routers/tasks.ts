@@ -996,10 +996,47 @@ export const tasksRouter = router({
           }
         }
         console.log('[completeTask] Next due date calculated:', nextDueDate.toISOString());
+
+        // Skip-chain: advance nextDueDate past any skipped dates
+        {
+          const { getNextMonthlyOccurrence: getNextMonthlySkip } = await import("../../shared/dateUtils");
+          const skippedDates: string[] = task.skippedDates || [];
+          const fmtSkip = (d: Date) => {
+            const y = d.getFullYear();
+            const mo = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${y}-${mo}-${day}`;
+          };
+          const advanceOneSkip = (d: Date): Date => {
+            const next = new Date(d);
+            if (task.repeatUnit === "days") {
+              next.setDate(next.getDate() + (task.repeatInterval || 1));
+            } else if (task.repeatUnit === "weeks") {
+              next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
+            } else if (task.repeatUnit === "months") {
+              return getNextMonthlySkip(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
+            }
+            return next;
+          };
+          let maxSkipIter = 500;
+          while (skippedDates.includes(fmtSkip(nextDueDate)) && maxSkipIter-- > 0) {
+            nextDueDate = advanceOneSkip(nextDueDate);
+          }
+          console.log('[completeTask] Next due date after skip-chain:', nextDueDate.toISOString());
+        }
       }
 
       // ===== 3. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
       if (isRecurring && nextDueDate) {
+        // Clean up skippedDates: remove all entries <= new dueDate (consumed by skip-chain)
+        const newDueDateFmt = (() => {
+          const y = nextDueDate.getFullYear();
+          const mo = String(nextDueDate.getMonth() + 1).padStart(2, "0");
+          const day = String(nextDueDate.getDate()).padStart(2, "0");
+          return `${y}-${mo}-${day}`;
+        })();
+        const cleanedSkipped = (task.skippedDates || []).filter((d: string) => d > newDueDateFmt);
+
         // For recurring tasks: update to next occurrence in a SINGLE write (no intermediate isCompleted=true)
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
@@ -1008,6 +1045,7 @@ export const tasksRouter = router({
           completedAt: null,
           completionPhotoUrls: input.photoUrls || [],
           completionFileUrls: input.fileUrls || [],
+          skippedDates: cleanedSkipped,
         });
       } else {
         // For non-recurring tasks: mark as completed
