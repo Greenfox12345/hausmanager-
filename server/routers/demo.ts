@@ -308,7 +308,10 @@ async function seedDemoHousehold(db: Awaited<ReturnType<typeof getDb>>, config: 
     },
   ];
 
-  for (const item of inventoryData) {
+  const inventoryCount = config.inventoryCount ?? inventoryData.length;
+  const filteredInventoryData = inventoryData.slice(0, Math.max(0, inventoryCount));
+
+  for (const item of filteredInventoryData) {
     const [iResult] = await db.insert(inventoryItems).values({
       householdId,
       name: item.name,
@@ -424,6 +427,7 @@ export const demoRouter = router({
       memberNames: z.array(z.string().max(30)).max(4).optional(),
       shoppingItemCount: z.number().int().min(0).max(20).optional(),
       taskCount: z.number().int().min(0).max(10).optional(),
+      inventoryCount: z.number().int().min(0).max(6).optional(),
     }).optional())
     .mutation(async ({ input }) => {
     const db = await getDb();
@@ -434,6 +438,7 @@ export const demoRouter = router({
       memberNames: input?.memberNames,
       shoppingItemCount: input?.shoppingItemCount,
       taskCount: input?.taskCount,
+      inventoryCount: input?.inventoryCount,
     });
     const token = generateToken();
     const expires = expiresAt();

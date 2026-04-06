@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { FlaskConical, Users, ShoppingCart, CheckSquare, X, UserCircle, Minus, Plus } from "lucide-react";
+import { FlaskConical, Users, ShoppingCart, CheckSquare, X, UserCircle, Minus, Plus, Package } from "lucide-react";
 import { toast } from "sonner";
 
 interface DemoConfigDialogProps {
@@ -39,6 +39,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
   // Items
   const [shoppingItemCount, setShoppingItemCount] = useState(11);
   const [taskCount, setTaskCount] = useState(8);
+  const [inventoryCount, setInventoryCount] = useState(6);
 
   const createDemoMutation = trpc.demo.createSession.useMutation({
     onSuccess: (data) => {
@@ -75,6 +76,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
       memberNames: resolvedMemberNames,
       shoppingItemCount,
       taskCount,
+      inventoryCount,
     });
   };
 
@@ -239,6 +241,31 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Keine</span>
               <span>Alle (8)</span>
+            </div>
+          </div>
+
+          {/* ── Inventar ── */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-medium">Inventar</Label>
+              </div>
+              <span className="text-sm font-semibold tabular-nums text-amber-700">
+                {inventoryCount === 0 ? "Leer" : `${inventoryCount} ${inventoryCount === 1 ? "Gegenstand" : "Gegenstände"}`}
+              </span>
+            </div>
+            <Slider
+              min={0}
+              max={6}
+              step={1}
+              value={[inventoryCount]}
+              onValueChange={([v]) => setInventoryCount(v)}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Leer</span>
+              <span>Alle (6)</span>
             </div>
           </div>
         </div>

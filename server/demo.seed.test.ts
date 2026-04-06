@@ -12,8 +12,13 @@
  */
 import { describe, it, expect } from "vitest";
 
-// ── Pure helper extracted from seedDemoHousehold ──────────────────────────────
-// This mirrors the exact logic in server/routers/demo.ts so we can unit-test it.
+// ── Pure helpers extracted from seedDemoHousehold ──────────────────────────────
+// These mirror the exact logic in server/routers/demo.ts so we can unit-test it.
+
+function resolveInventoryCount(config: { inventoryCount?: number }, totalItems: number): number {
+  return Math.max(0, config.inventoryCount ?? totalItems);
+}
+
 function resolveNames(config: {
   ownerName?: string;
   memberNames?: string[];
@@ -92,5 +97,29 @@ describe("Demo seed – member name resolution", () => {
     // Empty string → falls back to default "Alex"
     expect(names[1]).toBe("Alex");
     expect(names[2]).toBe("Maria");
+  });
+});
+
+describe("Demo seed – inventory count resolution", () => {
+  const TOTAL_ITEMS = 6;
+
+  it("uses all items when inventoryCount is not provided", () => {
+    expect(resolveInventoryCount({}, TOTAL_ITEMS)).toBe(6);
+  });
+
+  it("uses all items when inventoryCount equals total", () => {
+    expect(resolveInventoryCount({ inventoryCount: 6 }, TOTAL_ITEMS)).toBe(6);
+  });
+
+  it("returns 0 when inventoryCount is 0 (empty inventory)", () => {
+    expect(resolveInventoryCount({ inventoryCount: 0 }, TOTAL_ITEMS)).toBe(0);
+  });
+
+  it("returns partial count when inventoryCount is between 1 and 5", () => {
+    expect(resolveInventoryCount({ inventoryCount: 3 }, TOTAL_ITEMS)).toBe(3);
+  });
+
+  it("never returns negative count", () => {
+    expect(resolveInventoryCount({ inventoryCount: -1 }, TOTAL_ITEMS)).toBe(0);
   });
 });
