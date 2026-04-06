@@ -867,6 +867,7 @@ export default function Calendar() {
                                               e.stopPropagation();
                                               const nextDate = findNextOpenOccurrence(task);
                                               setCurrentMonth(nextDate);
+                                              setSelectedDate(nextDate);
                                               toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
                                             }}
                                           >
@@ -1129,6 +1130,7 @@ export default function Calendar() {
                                             e.stopPropagation();
                                             const nextDate = findNextOpenOccurrence(task);
                                             setCurrentMonth(nextDate);
+                                            setSelectedDate(nextDate);
                                             toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
                                           }}
                                         >

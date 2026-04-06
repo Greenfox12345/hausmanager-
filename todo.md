@@ -3488,3 +3488,6 @@
 - [x] Inline-Eingabefeld mit Bestätigen/Abbrechen (Enter/Escape)
 - [x] Backend-Prozedur addPlaceholderMember in householdManagement.ts
 - [x] 5 neue Unit-Tests für Berechtigungslogik (44 Tests gesamt)
+
+## Kalender: Navigation zum Aufgaben-Tag
+- [x] Klick auf „Zu aktuellem Termin“ navigiert zum Tag des nächsten Termins der Aufgabe (setSelectedDate ergänzt)
