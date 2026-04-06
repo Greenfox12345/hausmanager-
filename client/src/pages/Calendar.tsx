@@ -203,9 +203,11 @@ export default function Calendar() {
       return [];
     }
 
-    const occurrences: Array<{ date: Date; isOriginal: boolean }> = [];
+    const occurrences: Array<{ date: Date; isOriginal: boolean; occurrenceNote?: string }> = [];
     let currentDate = new Date(task.dueDate);
     const skippedDates = task.skippedDates || [];
+    // occurrenceNotes: array of { occurrenceNumber, notes } from backend
+    const occurrenceNotes: { occurrenceNumber: number; notes: string }[] = (task as any).occurrenceNotes || [];
     
     // Calculate max date (12 months from current month view)
     const maxDate = new Date(monthEnd);
@@ -213,6 +215,7 @@ export default function Calendar() {
     
     let iterations = 0;
     const maxIterations = 365; // Safety limit
+    let occurrenceNumber = 1; // dueDate = occurrence 1
 
     while (currentDate <= maxDate && iterations < maxIterations) {
       // Calculate next occurrence
@@ -225,13 +228,21 @@ export default function Calendar() {
         nextDate.setMonth(nextDate.getMonth() + task.repeatInterval);
       }
 
+      occurrenceNumber++;
+
       // Check if this date is skipped
       const dateKey = format(nextDate, "yyyy-MM-dd");
       const isSkipped = skippedDates.includes(dateKey);
 
-      // Only include if within current month view AND not skipped
-      if (nextDate >= monthStart && nextDate <= monthEnd && !isSkipped) {
-        occurrences.push({ date: nextDate, isOriginal: false });
+      // Check if this occurrence has a note
+      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occurrenceNumber);
+      const hasNote = !!noteEntry;
+
+      // Include if: within current month view AND not skipped
+      // OR: has a note AND not skipped (always show, regardless of month)
+      const inMonthView = nextDate >= monthStart && nextDate <= monthEnd;
+      if (!isSkipped && (inMonthView || hasNote)) {
+        occurrences.push({ date: nextDate, isOriginal: false, occurrenceNote: noteEntry?.notes });
       }
 
       currentDate = nextDate;
@@ -308,7 +319,7 @@ export default function Calendar() {
           if (!grouped[dateKey]) {
             grouped[dateKey] = [];
           }
-          grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date } as any);
+          grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date, occurrenceNote: occurrence.occurrenceNote } as any);
         });
       }
     });
@@ -382,12 +393,14 @@ export default function Calendar() {
           const occurrenceDate = new Date(occurrence.date);
           occurrenceDate.setHours(0, 0, 0, 0);
           
-          if (occurrenceDate <= endDate) {
+          // Always include if within range, OR if it has a note (even if in the future beyond range)
+          if (occurrenceDate <= endDate || occurrence.occurrenceNote) {
             allTasks.push({ 
               ...task, 
               dueDate: occurrence.date, 
               isFutureOccurrence: true,
               occurrenceDate: occurrence.date,
+              occurrenceNote: occurrence.occurrenceNote,
               isOverdue: false
             } as any);
           }
@@ -868,6 +881,12 @@ export default function Calendar() {
                                       )}
                                     </div>
                                     
+                                    {(task as any).occurrenceNote && (
+                                      <p className="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 mt-1 flex items-center gap-1">
+                                        <span>📝</span>
+                                        <span>{(task as any).occurrenceNote}</span>
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
                                       <span>{getMemberNames(task.assignedTo)}</span>
                                       {task.dueDate && (
@@ -1186,6 +1205,12 @@ export default function Calendar() {
                                   )}
                                 </div>
                                 
+                                {(task as any).occurrenceNote && (
+                                  <p className="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 mt-1 flex items-center gap-1">
+                                    <span>📝</span>
+                                    <span>{(task as any).occurrenceNote}</span>
+                                  </p>
+                                )}
                                 <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
                                   <span>{getMemberNames(task.assignedTo)}</span>
                                   {task.dueDate && (

@@ -443,7 +443,33 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     };
   });
 
-  return tasksWithNames as any;
+  // Load occurrence notes for all tasks that have repeatInterval (for calendar display)
+  const recurringTaskIds = tasksWithNames
+    .filter((t: any) => t.repeatInterval && t.repeatUnit)
+    .map((t: any) => t.id as number);
+
+  let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean }[]> = {};
+  if (recurringTaskIds.length > 0) {
+    const [notesResult] = await db.execute(
+      sql`SELECT taskId, occurrenceNumber, notes, isSkipped FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND (notes IS NOT NULL AND notes != '') AND isSkipped = 0`
+    );
+    const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number }[];
+    for (const row of notesRows) {
+      if (!occurrenceNotesMap[row.taskId]) occurrenceNotesMap[row.taskId] = [];
+      occurrenceNotesMap[row.taskId].push({
+        occurrenceNumber: row.occurrenceNumber,
+        notes: row.notes,
+        isSkipped: row.isSkipped === 1,
+      });
+    }
+  }
+
+  const tasksWithOccurrenceNotes = tasksWithNames.map((t: any) => ({
+    ...t,
+    occurrenceNotes: occurrenceNotesMap[t.id] || [],
+  }));
+
+  return tasksWithOccurrenceNotes as any;
 }
 
 export async function createTask(data: {
