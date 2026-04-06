@@ -125,5 +125,6 @@
   "occurrence": "Ocurrencia",
   "skip": "Omitir",
   "tasksOn": "Tareas el",
-  "tasksWithoutDates": "Tareas sin citas"
+  "tasksWithoutDates": "Tareas sin citas",
+  "editNote": "Editar nota"
 }

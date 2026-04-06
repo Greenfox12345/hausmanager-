@@ -81,5 +81,6 @@
   "tasksOn": "任务于",
   "tasksWithoutDates": "没有日期的任务",
   "today": "今天",
-  "months": "月"
+  "months": "月",
+  "editNote": "编辑备注"
 }

@@ -308,7 +308,9 @@ export default function Calendar() {
         if (!grouped[dateKey]) {
           grouped[dateKey] = [];
         }
-        grouped[dateKey].push(task);
+        // Attach note for occurrence number 1 (current appointment)
+        const currentNote = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1 && n.notes)?.notes || null;
+        grouped[dateKey].push({ ...task, occurrenceNote: currentNote } as any);
       }
 
       // Add future occurrences for recurring tasks
@@ -379,10 +381,13 @@ export default function Calendar() {
         
         // Include if within range OR overdue (and not completed)
         if ((taskDate <= endDate) || (taskDate < today && !task.isCompleted)) {
+          // Attach note for occurrence number 1 (current appointment)
+          const currentNote = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1 && n.notes)?.notes || null;
           allTasks.push({
             ...task,
+            occurrenceNote: currentNote,
             isOverdue: taskDate < today && !task.isCompleted
-          });
+          } as any);
         }
       }
       
@@ -965,12 +970,12 @@ export default function Calendar() {
                                               e.stopPropagation();
                                               const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                               setNoteTask({ ...task, targetDate });
-                                              setNoteText("");
+                                              setNoteText((task as any).occurrenceNote || "");
                                               setNoteDialogOpen(true);
                                             }}
                                           >
                                             <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                            {t("calendar:addNote", "Notiz hinzufügen")}
+                                            {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                                           </Button>
                                           <Button
                                             size="sm"
@@ -1022,12 +1027,12 @@ export default function Calendar() {
                                               e.stopPropagation();
                                               const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                               setNoteTask({ ...task, targetDate });
-                                              setNoteText("");
+                                              setNoteText((task as any).occurrenceNote || "");
                                               setNoteDialogOpen(true);
                                             }}
                                           >
                                             <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                            {t("calendar:addNote", "Notiz hinzufügen")}
+                                            {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                                           </Button>
                                           <Button
                                             size="sm"
@@ -1284,12 +1289,12 @@ export default function Calendar() {
                                             e.stopPropagation();
                                             const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                             setNoteTask({ ...task, targetDate });
-                                            setNoteText("");
+                                            setNoteText((task as any).occurrenceNote || "");
                                             setNoteDialogOpen(true);
                                           }}
                                         >
                                           <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                          {t("calendar:addNote", "Notiz hinzufügen")}
+                                          {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                                         </Button>
                                         <Button
                                           size="sm"
@@ -1336,12 +1341,12 @@ export default function Calendar() {
                                             e.stopPropagation();
                                             const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
                                             setNoteTask({ ...task, targetDate });
-                                            setNoteText("");
+                                            setNoteText((task as any).occurrenceNote || "");
                                             setNoteDialogOpen(true);
                                           }}
                                         >
                                           <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                          {t("calendar:addNote", "Notiz hinzufügen")}
+                                          {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                                         </Button>
                                         <Button
                                           size="sm"
@@ -1669,7 +1674,7 @@ export default function Calendar() {
       {noteDialogOpen && noteTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setNoteDialogOpen(false)}>
           <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-1">{t("calendar:addNote", "Notiz hinzufügen")}</h3>
+            <h3 className="text-lg font-semibold mb-1">{noteText ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}</h3>
             <p className="text-sm text-muted-foreground mb-4">
               {noteTask.name} – {format(noteTask.targetDate, "dd.MM.yyyy", { locale: dateFnsLocale })}
             </p>
