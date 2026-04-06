@@ -93,6 +93,8 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
   const [memberStates, setMemberStates] = useState<Map<number, MemberState>>(new Map());
   const [newMemberName, setNewMemberName] = useState("");
   const [newMembersList, setNewMembersList] = useState<string[]>([]);
+  const [editingNewMemberIdx, setEditingNewMemberIdx] = useState<number | null>(null);
+  const [editingNewMemberName, setEditingNewMemberName] = useState("");
 
   // Sync household name from server once loaded
   useMemo(() => {
@@ -605,20 +607,60 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                   })}
                   {/* Newly added members (not yet saved) */}
                   {newMembersList.map((name, idx) => (
-                    <div key={`new-${idx}`} className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5">
-                      <div className="h-7 w-7 rounded-full bg-green-200 flex items-center justify-center text-xs font-semibold text-green-800">
-                        {name.charAt(0).toUpperCase()}
+                    <div key={`new-${idx}`} className="flex items-center gap-3 rounded-lg border border-border bg-background/60 px-3 py-2.5">
+                      <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                        {(editingNewMemberIdx === idx ? editingNewMemberName : name).charAt(0).toUpperCase() || "?"}
                       </div>
-                      <span className="text-sm flex-1">{name}</span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-7 w-7 text-red-500 hover:text-red-600"
-                        title="Entfernen"
-                        onClick={() => setNewMembersList((prev) => prev.filter((_, i) => i !== idx))}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
+                      {editingNewMemberIdx === idx ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            value={editingNewMemberName}
+                            onChange={(e) => setEditingNewMemberName(e.target.value)}
+                            className="h-7 text-sm flex-1"
+                            autoFocus
+                            maxLength={50}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && editingNewMemberName.trim()) {
+                                setNewMembersList((prev) => prev.map((n, i) => i === idx ? editingNewMemberName.trim() : n));
+                                setEditingNewMemberIdx(null);
+                              }
+                              if (e.key === "Escape") setEditingNewMemberIdx(null);
+                            }}
+                          />
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
+                            if (editingNewMemberName.trim()) {
+                              setNewMembersList((prev) => prev.map((n, i) => i === idx ? editingNewMemberName.trim() : n));
+                            }
+                            setEditingNewMemberIdx(null);
+                          }}>
+                            <Check className="h-3.5 w-3.5 text-green-600" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-sm flex-1">{name}</span>
+                      )}
+                      {editingNewMemberIdx !== idx && (
+                        <div className="flex gap-1 shrink-0">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7"
+                            title="Umbenennen"
+                            onClick={() => { setEditingNewMemberIdx(idx); setEditingNewMemberName(name); }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 text-red-500 hover:text-red-600"
+                            title="Entfernen"
+                            onClick={() => setNewMembersList((prev) => prev.filter((_, i) => i !== idx))}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
