@@ -108,9 +108,10 @@ export default function Calendar() {
     },
   });
 
-  const completeTaskMutation = trpc.tasks.toggleComplete.useMutation({
+  const completeTaskMutation = trpc.tasks.completeTask.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
+      utils.activities.list.invalidate();
       setCompleteDialogOpen(false);
       setActionTask(null);
       toast.success(t("tasks:messages.completed"));
@@ -578,23 +579,15 @@ export default function Calendar() {
 
   const doCompleteTask = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
     if (!actionTask || !household || !member) return;
-    // First toggle complete
+    // Use completeTask directly (handles rotation, skip-chain, milestone in one call)
     await completeTaskMutation.mutateAsync({
       taskId: actionTask.id,
       householdId: household.householdId,
       memberId: member.memberId,
-      isCompleted: true,
+      comment: data.comment,
+      photoUrls: data.photoUrls,
+      fileUrls: data.fileUrls,
     });
-    // Then add milestone if there's a comment or photo
-    if (data.comment || data.photoUrls.length > 0) {
-      await milestoneMutation.mutateAsync({
-        taskId: actionTask.id,
-        householdId: household.householdId,
-        memberId: member.memberId,
-        comment: data.comment,
-        photoUrls: data.photoUrls,
-      });
-    }
   };
 
   const handleAddMilestone = async (data: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] }) => {
