@@ -458,7 +458,7 @@ export function RotationScheduleTable({
   };
 
   return (
-    <div className="space-y-4 min-w-0">
+    <div className="space-y-4 w-full min-w-0">
       <div className="flex flex-wrap justify-between items-center gap-2">
         <h3 className="text-lg font-semibold">{t("tasks:rotationPlan.title")}</h3>
         <div className="flex gap-2">
@@ -473,8 +473,8 @@ export function RotationScheduleTable({
         </div>
       </div>
 
-      <div className="border rounded-lg bg-card">
-        <div className="overflow-x-auto">
+      <div className="border rounded-lg bg-card w-full">
+        <div className="overflow-x-auto w-full">
         <table className="w-full min-w-[600px]">
           <thead className="bg-muted">
             <tr>

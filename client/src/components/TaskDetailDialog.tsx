@@ -1079,7 +1079,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 min-w-0 overflow-x-hidden">
           {isEditing ? (
             // Edit Mode
             <>
@@ -1798,7 +1798,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <Label className="text-sm font-medium cursor-pointer">{t("repeat.rotationPlan")}</Label>
                             </button>
                             {isRotationPlanExpanded && (
-                              <div className="space-y-3 min-w-0 overflow-hidden">
+                              <div className="space-y-3 w-full min-w-0 overflow-x-hidden">
                                 <p className="text-xs text-muted-foreground">
                                   {t("repeat.planRotationHint")}
                                 </p>

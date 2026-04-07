@@ -3601,3 +3601,6 @@
 ## Bugfixes Rotationsplan + Sondertermine
 - [x] Rotationsplan-Tabelle verbreitert noch den Dialog — CSS-Containment Fix nötig
 - [x] Extra Verantwortliche bei Sonderterminen speichern nicht
+
+## Rotationsplan Dialog-Breite (erneut)
+- [x] Rotationsplan-Tabelle macht Dialog-Inhalt noch zu breit trotz overflow-x-hidden am DialogContent
