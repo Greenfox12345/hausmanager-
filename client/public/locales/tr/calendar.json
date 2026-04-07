@@ -82,5 +82,20 @@
   "tasksWithoutDates": "Tarihsiz Görevler",
   "today": "Bugün",
   "months": "Aylar",
-  "editNote": "Notu düzenle"
+  "editNote": "Notu düzenle",
+  "addNote": "Not ekle",
+  "notePlaceholder": "Bu etkinlik için not...",
+  "specialOccurrence": "Özel etkinlik",
+  "messages": {
+    "created": "Etkinlik oluşturuldu",
+    "updated": "Etkinlik güncellendi",
+    "deleted": "Etkinlik silindi",
+    "deleteConfirm": "Bu etkinliği gerçekten silmek istiyor musunuz?",
+    "overview": "Takvim ve tüm etkinliklere genel bakış",
+    "confirmUndo": "Bu etkinliğin tamamlanmasını geri almak istiyor musunuz? Görev bu tarihe geri dönecektir.",
+    "confirmSkip": "Bu etkinliği atlamak istiyor musunuz? Artık takvimde görünmeyecek.",
+    "jumpedToCurrent": "Mevcut etkinliğe atlandı",
+    "occurrenceSkipped": "Etkinlik atlandı!",
+    "noteAdded": "Not kaydedildi!"
+  }
 }
