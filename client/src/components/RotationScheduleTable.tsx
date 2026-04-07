@@ -264,70 +264,55 @@ export function RotationScheduleTable({
   };
 
   /**
-   * Auto-fill: assigns eligible members to all positions using round-robin.
+   * Auto-fill: fills only EMPTY positions (memberId === 0) using round-robin.
+   * - Already assigned positions are left untouched.
    * - Skipped occurrences are left untouched.
-   * - Within each occurrence no member is assigned twice (when requiredPersons > 1).
-   * - The sequence starts with the first current assignee (position 1) so the
-   *   existing assignment for occurrence 1 is preserved where possible.
+   * - Avoids assigning the same person to consecutive occurrences at the same position
+   *   (when multiple members are available).
    */
   const handleAutoFill = () => {
     if (eligibleMembers.length === 0) return;
 
-    // Build a flat ordered list: start from the first current assignee if present
-    const startMemberId = schedule[0]?.members.find(m => m.position === 1)?.memberId;
-    const startIndex = startMemberId
-      ? Math.max(0, eligibleMembers.findIndex(m => m.memberId === startMemberId))
-      : 0;
-    const ordered = [
-      ...eligibleMembers.slice(startIndex),
-      ...eligibleMembers.slice(0, startIndex),
-    ];
+    setSchedule(prev => {
+      const newSchedule = prev.map(occ => ({
+        ...occ,
+        members: occ.members.map(m => ({ ...m })),
+      }));
+      let memberIndex = 0;
 
-    // Separate counter per position so each position rotates independently
-    const positionCounters: Record<number, number> = {};
-    for (let pos = 1; pos <= requiredPersons; pos++) {
-      positionCounters[pos] = pos - 1; // stagger starting points
-    }
+      for (let occIdx = 0; occIdx < newSchedule.length; occIdx++) {
+        const occ = newSchedule[occIdx];
 
-    const filled = schedule.map(occ => {
-      // Don't touch skipped occurrences
-      if (occ.isSkipped) return occ;
+        // Don't touch skipped occurrences
+        if (occ.isSkipped) continue;
 
-      const newMembers = occ.members.map(m => ({ ...m }));
+        for (let posIdx = 0; posIdx < occ.members.length; posIdx++) {
+          const member = occ.members[posIdx];
 
-      for (let pos = 1; pos <= requiredPersons; pos++) {
-        // Collect member IDs already assigned to OTHER positions in this occurrence
-        const takenInOcc = newMembers
-          .filter(m => m.position !== pos)
-          .map(m => m.memberId)
-          .filter(id => id !== 0);
+          // Only fill if currently unassigned
+          if (member.memberId !== 0) continue;
 
-        // Find next eligible member (skip those already used in this occurrence)
-        let attempts = 0;
-        let candidate: Member | undefined;
-        while (attempts < ordered.length) {
-          const idx = positionCounters[pos] % ordered.length;
-          const member = ordered[idx];
-          if (!takenInOcc.includes(member.memberId)) {
-            candidate = member;
-            positionCounters[pos]++;
-            break;
+          // Get the member assigned to the same position in the previous occurrence
+          const prevOccMemberId = occIdx > 0
+            ? newSchedule[occIdx - 1].members[posIdx]?.memberId
+            : null;
+
+          // Pick next candidate from round-robin
+          let selectedMember = eligibleMembers[memberIndex % eligibleMembers.length];
+
+          // If multiple members available, avoid repeating the same person consecutively
+          if (eligibleMembers.length > 1 && prevOccMemberId && selectedMember.memberId === prevOccMemberId) {
+            selectedMember = eligibleMembers[(memberIndex + 1) % eligibleMembers.length];
           }
-          positionCounters[pos]++;
-          attempts++;
-        }
 
-        const memberEntry = newMembers.find(m => m.position === pos);
-        if (memberEntry && candidate) {
-          memberEntry.memberId = candidate.memberId;
+          occ.members[posIdx] = { ...member, memberId: selectedMember.memberId };
+          memberIndex++;
         }
       }
 
-      return { ...occ, members: newMembers };
+      onChangeRef.current(newSchedule);
+      return newSchedule;
     });
-
-    setSchedule(filled);
-    onChangeRef.current(filled);
   };
 
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
