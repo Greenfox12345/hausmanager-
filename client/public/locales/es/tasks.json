@@ -451,7 +451,9 @@
   "upcomingOccurrences": {
     "empty": "Sin próximas ocurrencias",
     "noDate": "Sin fecha",
-    "open": "Abrir"
+    "open": "Abrir",
+    "editNote": "Editar nota",
+    "addNote": "Agregar nota…"
   },
   "rotationPlan": {
     "title": "Plan de rotación",

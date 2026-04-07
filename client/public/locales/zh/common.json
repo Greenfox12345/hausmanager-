@@ -59,7 +59,8 @@
     "selectAll": "全选",
     "showLess": "显示更少",
     "undo": "撤销",
-    "logout": "退出"
+    "logout": "退出",
+    "confirmDelete": "是的，删除"
   },
   "status": {
     "active": "活跃",

@@ -59,7 +59,8 @@
     "selectAll": "Tout sélectionner",
     "showLess": "Afficher moins",
     "undo": "Annuler",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "confirmDelete": "Oui, supprimer"
   },
   "status": {
     "active": "Actif",

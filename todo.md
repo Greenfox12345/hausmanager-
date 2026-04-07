@@ -3568,3 +3568,11 @@
 - [x] Fix 2: Initialisierung füllt leere members-Arrays mit Platzhaltern auf (RotationScheduleTable.tsx)
 - [x] Fix 3: Struktureller Sync normalisiert ebenfalls die members (RotationScheduleTable.tsx)
 - [x] Unit Tests geschrieben und bestanden (12 Tests in rotation-member-fix.test.ts)
+
+## UI-Verbesserungen Aufgabendetails (Batch)
+- [x] Dauer-Anzeige: "0" nicht anzeigen wenn keine Dauer angegeben
+- [x] Kommende Termine Tabelle: kompakter (weniger Abstand zwischen Zahl, Datum, Uhrzeit, Verantwortliche, Notizen)
+- [x] Kommende Termine: Verantwortliche inline bearbeitbar
+- [x] Kommende Termine: Notizen inline bearbeitbar
+- [x] Gegenstände-Tabelle: eigenständig horizontal scrollbar (nicht das ganze Fenster breiter machen)
+- [x] Aufgabendetails: Löschen-Button neben "Erinnerung senden"

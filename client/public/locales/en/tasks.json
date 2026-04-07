@@ -524,7 +524,9 @@
   "upcomingOccurrences": {
     "empty": "No upcoming appointments planned",
     "noDate": "No date",
-    "open": "Still open"
+    "open": "Still open",
+    "editNote": "Edit note",
+    "addNote": "Add note…"
   },
   "rotationPlan": {
     "title": "Rotation Plan",

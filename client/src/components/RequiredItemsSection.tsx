@@ -189,8 +189,8 @@ export function RequiredItemsSection({
 
       {isExpanded && (
       <>
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto max-w-full" style={{ overflowX: 'auto', maxWidth: '100%', contain: 'inline-size' }}>
+        <table className="border-collapse" style={{ minWidth: 'max-content' }}>
           <thead>
             <tr>
               {rotationSchedule.filter(occ => !occ.isSkipped).map((occ) => (

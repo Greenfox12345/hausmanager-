@@ -524,7 +524,9 @@
   "upcomingOccurrences": {
     "empty": "没有即将到来的任务",
     "noDate": "无日期",
-    "open": "仍开放"
+    "open": "仍开放",
+    "editNote": "编辑备注",
+    "addNote": "添加备注…"
   },
   "rotationPlan": {
     "title": "轮换计划",

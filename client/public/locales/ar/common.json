@@ -59,7 +59,8 @@
     "selectAll": "تحديد الكل",
     "showLess": "عرض أقل",
     "undo": "تراجع",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "confirmDelete": "نعم، احذف"
   },
   "status": {
     "active": "نشط",

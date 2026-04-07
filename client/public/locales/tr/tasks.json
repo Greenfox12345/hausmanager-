@@ -523,7 +523,9 @@
   "upcomingOccurrences": {
     "empty": "Planlanmış yaklaşan randevu yok",
     "noDate": "Tarih Yok",
-    "open": "Hala Açık"
+    "open": "Hala Açık",
+    "editNote": "Notu düzenle",
+    "addNote": "Not ekle…"
   },
   "rotationPlan": {
     "title": "Rotasyon Planı",

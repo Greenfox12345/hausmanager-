@@ -198,7 +198,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [durationTime, setDurationTime] = useState("00:00"); // HH:MM format
-  const [durationDays, setDurationDays] = useState("0");
+  const [durationDays, setDurationDays] = useState("");
   const [frequency, setFrequency] = useState<"once" | "daily" | "weekly" | "monthly" | "custom">("once");
   const [customFrequencyDays, setCustomFrequencyDays] = useState(1);
   const [repeatMode, setRepeatMode] = useState<"none" | "irregular" | "regular">("none");
@@ -393,7 +393,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       // Load duration
-      setDurationDays(String(task.durationDays || 0));
+      setDurationDays(task.durationDays && task.durationDays > 0 ? String(task.durationDays) : "");
       const minutes = task.durationMinutes || 0;
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
@@ -678,6 +678,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const updateDependenciesMutation = trpc.projects.updateDependencies.useMutation();
   
+  // Delete task mutation
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteTaskMutation = trpc.tasks.delete.useMutation({
+    onSuccess: () => {
+      toast.success(t("messages.taskDeleted", "Aufgabe gelöscht"));
+      utils.tasks.list.invalidate();
+      onOpenChange(false);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   // Restore task mutation
   const restoreTask = trpc.tasks.toggleComplete.useMutation({
     onSuccess: () => {
@@ -929,7 +942,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
       
       // Load duration
-      setDurationDays(String(task.durationDays || 0));
+      setDurationDays(task.durationDays && task.durationDays > 0 ? String(task.durationDays) : "");
       const minutes = task.durationMinutes || 0;
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
@@ -2204,6 +2217,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           date: calculatedDate,
                           time: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : undefined,
                           responsiblePersons: memberNames,
+                          memberIds: occ.members.filter((m: any) => m.memberId !== 0).map((m: any) => m.memberId),
                           notes: occ.notes,
                           isSkipped: occ.isSkipped || false,
                           isSpecial: occ.isSpecial || false,
@@ -2224,6 +2238,52 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         const dateB = b.date ? new Date(b.date).getTime() : Infinity;
                         return dateA - dateB;
                       })}
+                    members={members}
+                    requiredPersons={task.requiredPersons || 1}
+                    onMembersChange={(occurrenceNumber, memberIds) => {
+                      const updated = rotationSchedule.map((occ: any) => {
+                        if (occ.occurrenceNumber !== occurrenceNumber) return occ;
+                        const newMembers = memberIds.map((id, i) => ({ position: i + 1, memberId: id }));
+                        return { ...occ, members: newMembers };
+                      });
+                      handleRotationScheduleChange(updated);
+                      // Auto-save immediately
+                      if (task?.id) {
+                        setRotationScheduleMutation.mutate({
+                          taskId: task.id,
+                          schedule: updated.map((o: any) => ({
+                            occurrenceNumber: o.occurrenceNumber,
+                            members: o.members.filter((m: any) => m.memberId !== 0),
+                            notes: o.notes,
+                            isSkipped: o.isSkipped,
+                            isSpecial: o.isSpecial,
+                            specialName: o.specialName,
+                            specialDate: o.specialDate,
+                          })),
+                        });
+                      }
+                    }}
+                    onNotesChange={(occurrenceNumber, notes) => {
+                      const updated = rotationSchedule.map((occ: any) =>
+                        occ.occurrenceNumber === occurrenceNumber ? { ...occ, notes } : occ
+                      );
+                      handleRotationScheduleChange(updated);
+                      // Auto-save immediately
+                      if (task?.id) {
+                        setRotationScheduleMutation.mutate({
+                          taskId: task.id,
+                          schedule: updated.map((o: any) => ({
+                            occurrenceNumber: o.occurrenceNumber,
+                            members: o.members.filter((m: any) => m.memberId !== 0),
+                            notes: o.notes,
+                            isSkipped: o.isSkipped,
+                            isSpecial: o.isSpecial,
+                            specialName: o.specialName,
+                            specialDate: o.specialDate,
+                          })),
+                        });
+                      }
+                    }}
                     />
                     )}
                   </div>
@@ -2477,12 +2537,48 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           </Button>
                           <Button
                             variant="outline"
-                            className="w-full col-span-2"
+                            className="w-full"
                             onClick={() => setShowReminderDialog(true)}
                           >
                             <Bell className="h-4 w-4 mr-2" />
                             {t("dialog.sendReminder")}
                           </Button>
+                          {!showDeleteConfirm ? (
+                            <Button
+                              variant="outline"
+                              className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground border-destructive/40"
+                              onClick={() => setShowDeleteConfirm(true)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              {t("common:actions.delete", "Löschen")}
+                            </Button>
+                          ) : (
+                            <div className="col-span-2 flex gap-2 items-center p-2 rounded-lg bg-destructive/10 border border-destructive/30">
+                              <span className="text-xs text-destructive flex-1">{t("dialog.confirmDelete")}</span>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={deleteTaskMutation.isPending}
+                                onClick={() => {
+                                  if (!household || !member) return;
+                                  deleteTaskMutation.mutate({
+                                    taskId: task.id,
+                                    householdId: household.householdId,
+                                    memberId: member.memberId,
+                                  });
+                                }}
+                              >
+                                {t("common:actions.confirmDelete", "Ja, löschen")}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowDeleteConfirm(false)}
+                              >
+                                {t("common:actions.cancel", "Abbrechen")}
+                              </Button>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>

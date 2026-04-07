@@ -59,7 +59,8 @@
     "selectAll": "Tümünü Seç",
     "showLess": "Daha Az Göster",
     "undo": "Geri Al",
-    "logout": "Çıkış Yap"
+    "logout": "Çıkış Yap",
+    "confirmDelete": "Evet, sil"
   },
   "status": {
     "active": "Aktif",

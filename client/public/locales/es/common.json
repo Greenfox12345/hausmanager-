@@ -93,7 +93,8 @@
     "deselectAll": "Deseleccionar todas",
     "editDetails": "Editar detalles",
     "showLess": "Mostrar menos",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "confirmDelete": "Sí, eliminar"
   },
   "status": {
     "active": "Activo",
