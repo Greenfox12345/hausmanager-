@@ -816,7 +816,7 @@ export default function Calendar() {
                                       ? item.icon + " " + item.title
                                       : item.isCompletedOccurrence
                                       ? t("calendar:completedOccurrence", "Erledigter Termin")
-                                      : item.isFutureOccurrence
+                                      : item.isFutureOccurrence && (item as any).repeatUnit !== 'irregular' && !(item as any).isSpecialOccurrence
                                       ? t("calendar:futureOccurrence", "Folgetermin")
                                       : ""
                                 }
@@ -934,7 +934,7 @@ export default function Calendar() {
                                           {t("calendar:completedOccurrence", "Erledigter Termin")}
                                         </Badge>
                                       )}
-                                      {task.isFutureOccurrence && (
+                                      {task.isFutureOccurrence && task.repeatUnit !== 'irregular' && !(task as any).isSpecialOccurrence && (
                                         <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                                           {t("calendar:futureOccurrence", "Folgetermin")}
                                         </Badge>
@@ -1261,7 +1261,7 @@ export default function Calendar() {
                                       {t("tasks:overdue", "Überfällig")}
                                     </Badge>
                                   )}
-                                  {task.isFutureOccurrence && (
+                                  {task.isFutureOccurrence && task.repeatUnit !== 'irregular' && !(task as any).isSpecialOccurrence && (
                                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
                                       {t("calendar:futureOccurrence", "Folgetermin")}
                                     </Badge>
