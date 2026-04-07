@@ -670,7 +670,7 @@ export default function Shopping() {
 
   return (
     <AppLayout>
-      <div className="container py-6 max-w-4xl pb-24">
+      <div className="container py-6 max-w-4xl pb-36">
         <div className="mb-6 flex items-center gap-4">
           <Button
             variant="outline"
@@ -815,30 +815,7 @@ export default function Shopping() {
               </SelectContent>
             </Select>
           </div>
-          {selectedItemIds.size > 0 && (
-            <Button
-              onClick={handleOpenTaskDialog}
-              variant="outline"
-              className="shrink-0"
-            >
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              {t("shopping:organizeAsTask", "Einkauf als Aufgabe organisieren")} ({selectedItemIds.size})
-            </Button>
-          )}
         </div>
-
-        {selectedItemIds.size > 0 && (
-          <div className="mb-6">
-            <Button
-              onClick={() => setShowCompleteDialog(true)}
-              className="w-full"
-              size="lg"
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {t("shopping:completeShoppingCount", "Einkauf abschließen ({{count}} Artikel)", { count: selectedItemIds.size })}
-            </Button>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">
@@ -1565,6 +1542,31 @@ export default function Shopping() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Fixierte Aktions-Bar über der Tab-Navigation – nur sichtbar wenn Artikel ausgewählt */}
+      {selectedItemIds.size > 0 && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t shadow-lg">
+          <div className="container max-w-2xl mx-auto px-4 py-2 flex gap-2">
+            <Button
+              onClick={() => setShowCompleteDialog(true)}
+              className="flex-1"
+              size="sm"
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {t("shopping:completeShoppingCount", "Einkauf abschließen ({{count}} Artikel)", { count: selectedItemIds.size })}
+            </Button>
+            <Button
+              onClick={handleOpenTaskDialog}
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {t("shopping:organizeAsTask", "Als Aufgabe")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </AppLayout>
