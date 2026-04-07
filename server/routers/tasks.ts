@@ -26,6 +26,7 @@ import {
   upsertOccurrenceNote,
   getSkippedOccurrenceNumbers,
   clearSkippedOccurrencesUpTo,
+  getRealRotationSchedule,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
 import {
@@ -676,36 +677,47 @@ export const tasksRouter = router({
               // Shift schedule down (occurrence 2 becomes 1, etc.)
               await shiftRotationSchedule(input.taskId);
               
-              // Check if we need to extend the schedule (less than 3 future occurrences)
-              const updatedSchedule = await getRotationSchedule(input.taskId);
-              if (updatedSchedule.length < 3 && task.requiredPersons) {
-                // Get available members (excluding excluded ones)
+              // Ensure at least 3 real (non-virtual) occurrences remain in the schedule
+              if (task.requiredPersons) {
                 const db = await getDb();
                 if (db) {
                   const { taskRotationExclusions } = await import("../../drizzle/schema");
                   const exclusions = await db.select().from(taskRotationExclusions)
                     .where(eq(taskRotationExclusions.taskId, input.taskId));
                   const excludedIds = exclusions.map(e => e.memberId);
-                  
-                  const members = await getHouseholdMembers(input.householdId);
-                  const availableMembers = members.filter(m => m.isActive && !excludedIds.includes(m.id));
-                  
-                  // Add a new occurrence (simple round-robin for auto-extension)
-                  const newOccurrenceNumber = updatedSchedule.length + 1;
-                  const newMembers: { position: number; memberId: number }[] = [];
-                  
-                  for (let i = 0; i < task.requiredPersons; i++) {
-                    if (availableMembers.length > 0) {
-                      const memberIndex = (newOccurrenceNumber - 1 + i) % availableMembers.length;
-                      newMembers.push({
-                        position: i + 1,
-                        memberId: availableMembers[memberIndex].id,
-                      });
+                  const members2 = await getHouseholdMembers(input.householdId);
+                  const availableMembers = members2.filter(m => m.isActive && !excludedIds.includes(m.id));
+
+                  let safetyCounter = 0;
+                  while (safetyCounter++ < 10) {
+                    const realSchedule = await getRealRotationSchedule(input.taskId);
+                    if (realSchedule.length >= 3) break;
+
+                    const newOccurrenceNumber = realSchedule.length > 0
+                      ? Math.max(...realSchedule.map(r => r.occurrenceNumber)) + 1
+                      : 1;
+                    const newMembers: { position: number; memberId: number }[] = [];
+
+                    for (let i = 0; i < task.requiredPersons; i++) {
+                      if (availableMembers.length > 0) {
+                        const lastRealOcc = realSchedule[realSchedule.length - 1];
+                        const lastMember = lastRealOcc?.members?.[0];
+                        const lastIdx = lastMember
+                          ? availableMembers.findIndex(m => m.id === lastMember.memberId)
+                          : -1;
+                        const memberIndex = (lastIdx + 1 + i) % availableMembers.length;
+                        newMembers.push({
+                          position: i + 1,
+                          memberId: availableMembers[memberIndex < 0 ? 0 : memberIndex].id,
+                        });
+                      }
                     }
-                  }
-                  
-                  if (newMembers.length > 0) {
-                    await extendRotationSchedule(input.taskId, newOccurrenceNumber, newMembers);
+
+                    if (newMembers.length > 0) {
+                      await extendRotationSchedule(input.taskId, newOccurrenceNumber, newMembers);
+                    } else {
+                      break;
+                    }
                   }
                 }
               }
@@ -1109,34 +1121,51 @@ export const tasksRouter = router({
             console.log('[completeTask] After rotation-cleanup: dueDate stays at', nextDueDate.toISOString());
           }
 
-          // Check if we need to extend the schedule (less than 3 future occurrences)
-          const updatedSchedule = await getRotationSchedule(input.taskId);
-          if (updatedSchedule.length < 3 && task.requiredPersons) {
+          // Ensure at least 3 real (non-virtual) occurrences remain in the schedule
+          const MIN_REAL_OCCURRENCES = 3;
+          if (task.requiredPersons) {
             const db2 = await getDb();
             if (db2) {
               const { taskRotationExclusions: excTable } = await import("../../drizzle/schema");
               const exclusions = await db2.select().from(excTable)
                 .where(eq(excTable.taskId, input.taskId));
               const excludedIds = exclusions.map(e => e.memberId);
-              
               const members = await getHouseholdMembers(input.householdId);
               const availableMembers = members.filter(m => m.isActive && !excludedIds.includes(m.id));
-              
-              const newOccurrenceNumber = updatedSchedule.length + 1;
-              const newMembers: { position: number; memberId: number }[] = [];
-              
-              for (let i = 0; i < task.requiredPersons; i++) {
-                if (availableMembers.length > 0) {
-                  const memberIndex = (newOccurrenceNumber - 1 + i) % availableMembers.length;
-                  newMembers.push({
-                    position: i + 1,
-                    memberId: availableMembers[memberIndex].id,
-                  });
+
+              // Loop until we have at least MIN_REAL_OCCURRENCES real entries in DB
+              let safetyCounter = 0;
+              while (safetyCounter++ < 10) {
+                const realSchedule = await getRealRotationSchedule(input.taskId);
+                if (realSchedule.length >= MIN_REAL_OCCURRENCES) break;
+
+                const newOccurrenceNumber = realSchedule.length > 0
+                  ? Math.max(...realSchedule.map(r => r.occurrenceNumber)) + 1
+                  : 1;
+                const newMembers: { position: number; memberId: number }[] = [];
+
+                for (let i = 0; i < task.requiredPersons; i++) {
+                  if (availableMembers.length > 0) {
+                    // Use the last real occurrence's members as base for rotation
+                    const lastRealOcc = realSchedule[realSchedule.length - 1];
+                    const lastMember = lastRealOcc?.members?.[0];
+                    const lastIdx = lastMember
+                      ? availableMembers.findIndex(m => m.id === lastMember.memberId)
+                      : -1;
+                    const memberIndex = (lastIdx + 1 + i) % availableMembers.length;
+                    newMembers.push({
+                      position: i + 1,
+                      memberId: availableMembers[memberIndex < 0 ? 0 : memberIndex].id,
+                    });
+                  }
                 }
-              }
-              
-              if (newMembers.length > 0) {
-                await extendSchedule(input.taskId, newOccurrenceNumber, newMembers);
+
+                if (newMembers.length > 0) {
+                  await extendSchedule(input.taskId, newOccurrenceNumber, newMembers);
+                  console.log('[completeTask] Extended schedule to occurrence', newOccurrenceNumber);
+                } else {
+                  break; // No members available, stop
+                }
               }
             }
           }

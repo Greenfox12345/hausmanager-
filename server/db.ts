@@ -1282,7 +1282,54 @@ export async function deleteCalendarEventsByBorrowRequest(borrowRequestId: numbe
 // ==================== Task Rotation Schedule ====================
 
 /**
- * Get rotation schedule for a task
+ * Returns the real (DB-only) rotation schedule without virtual padding.
+ * Use this when you need to know how many entries are actually stored.
+ */
+export async function getRealRotationSchedule(taskId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const scheduleEntries = await db.select().from(taskRotationSchedule)
+    .where(eq(taskRotationSchedule.taskId, taskId))
+    .orderBy(taskRotationSchedule.occurrenceNumber, taskRotationSchedule.position);
+
+  const notes = await db.select().from(taskRotationOccurrenceNotes)
+    .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+
+  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string; isSkipped?: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date }> = {};
+
+  for (const entry of scheduleEntries) {
+    if (!grouped[entry.occurrenceNumber]) {
+      grouped[entry.occurrenceNumber] = { members: [] };
+    }
+    grouped[entry.occurrenceNumber].members.push({ position: entry.position, memberId: entry.memberId });
+  }
+
+  for (const note of notes) {
+    if (!grouped[note.occurrenceNumber]) {
+      grouped[note.occurrenceNumber] = { members: [] };
+    }
+    grouped[note.occurrenceNumber].notes = note.notes || undefined;
+    grouped[note.occurrenceNumber].isSkipped = (note as TaskRotationOccurrenceNote).isSkipped || false;
+    grouped[note.occurrenceNumber].isSpecial = (note as any).isSpecial || false;
+    grouped[note.occurrenceNumber].specialName = (note as any).specialName || undefined;
+    grouped[note.occurrenceNumber].specialDate = (note as any).specialDate || undefined;
+  }
+
+  return Object.entries(grouped)
+    .map(([occurrenceNumber, data]) => ({
+      occurrenceNumber: parseInt(occurrenceNumber),
+      members: data.members.sort((a, b) => a.position - b.position),
+      notes: data.notes,
+      isSkipped: data.isSkipped || false,
+      isSpecial: data.isSpecial || false,
+      specialName: data.specialName,
+      specialDate: data.specialDate,
+    }))
+    .sort((a, b) => a.occurrenceNumber - b.occurrenceNumber);
+}
+
+/**
  * Returns schedule entries grouped by occurrence number with member details and notes
  */
 export async function getRotationSchedule(taskId: number) {
