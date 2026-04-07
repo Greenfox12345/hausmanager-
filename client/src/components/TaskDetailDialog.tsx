@@ -2221,9 +2221,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         };
                       })
                       .filter((occ: any) => {
-                        // Always show first 3 occurrences
+                        // For irregular repeat mode: show all occurrences (they are all manually entered)
+                        if (task.repeatUnit === "irregular") return true;
+                        // For regular repeat mode: always show first 3 occurrences
                         if (occ._index < 3) return true;
-                        // Show occurrences with assigned people or notes
+                        // Show occurrences with assigned people, notes, or special features
                         return occ._hasSpecialFeatures;
                       })
                       .sort((a: any, b: any) => {

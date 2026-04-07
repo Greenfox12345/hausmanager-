@@ -3616,3 +3616,7 @@
 - [x] Dialog vertikal scrollbar machen
 - [x] Pflichtfeld-* beim Namen-Feld anzeigen
 - [x] Buttontext-Übersetzung reparieren
+
+## Unregelmäßige Wiederholungen Fixes
+- [x] Sondertermine beeinflussen Terminzähler nicht (Termin 1, Sondertermin, Termin 2, ...)
+- [x] Alle Termine unter Kommende Termine anzeigen (nicht nur 3)

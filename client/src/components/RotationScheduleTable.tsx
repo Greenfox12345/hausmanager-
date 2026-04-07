@@ -154,11 +154,18 @@ export function RotationScheduleTable({
         return { ...occ, members: filledMembers.sort((a, b) => a.position - b.position) };
       });
       // Sort chronologically: special appointments by specialDate, regular by calculated date
-      const sortedSchedule = normalizedSchedule.sort((a, b) => {
+      const sorted = normalizedSchedule.sort((a, b) => {
         const dateA = a.specialDate ? new Date(a.specialDate).getTime() : (calculateOccurrenceDate(a.occurrenceNumber)?.getTime() ?? Infinity);
         const dateB = b.specialDate ? new Date(b.specialDate).getTime() : (calculateOccurrenceDate(b.occurrenceNumber)?.getTime() ?? Infinity);
         return dateA - dateB;
-      }).map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 }));
+      });
+      // Renumber: regular occurrences get 1, 2, 3...; special occurrences get 1000, 1001, 1002...
+      let regN = 1;
+      let specN = 1000;
+      const sortedSchedule = sorted.map(occ => ({
+        ...occ,
+        occurrenceNumber: occ.isSpecial ? specN++ : regN++,
+      }));
       setSchedule(sortedSchedule);
       isInitialized.current = true;
     } else {
@@ -441,12 +448,19 @@ export function RotationScheduleTable({
     };
 
     // Add and re-sort
-    const updatedSchedule = [...schedule, newOccurrence].sort((a, b) => {
+    const sorted = [...schedule, newOccurrence].sort((a, b) => {
       const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
       const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
       if (!dateA || !dateB) return 0;
       return dateA.getTime() - dateB.getTime();
-    }).map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 })); // Renumber after sorting
+    });
+    // Renumber: regular occurrences get 1, 2, 3...; special occurrences get 1000, 1001, 1002...
+    let regNum = 1;
+    let specNum = 1000;
+    const updatedSchedule = sorted.map(occ => ({
+      ...occ,
+      occurrenceNumber: occ.isSpecial ? specNum++ : regNum++,
+    }));
 
     setSchedule(updatedSchedule);
 
