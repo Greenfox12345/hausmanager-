@@ -3555,3 +3555,4 @@
 - [x] Shopping: Karten der Gegenstände kompakter/dünner gestalten
 - [x] Shopping: Aktions-Buttons in fixierte Bottom-Bar über Tab-Navigation verschieben
 - [x] Bug: +4h Uhrzeit-Drift beim Abschließen von wiederkehrenden Aufgaben (alle Termine werden um 4h verschoben)
+- [x] Bug: Automatisches Ausfüllen von Verantwortlichen in Rotationsplanung funktioniert nicht bei allen Aufgaben

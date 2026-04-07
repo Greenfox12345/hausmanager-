@@ -263,6 +263,73 @@ export function RotationScheduleTable({
     }
   };
 
+  /**
+   * Auto-fill: assigns eligible members to all positions using round-robin.
+   * - Skipped occurrences are left untouched.
+   * - Within each occurrence no member is assigned twice (when requiredPersons > 1).
+   * - The sequence starts with the first current assignee (position 1) so the
+   *   existing assignment for occurrence 1 is preserved where possible.
+   */
+  const handleAutoFill = () => {
+    if (eligibleMembers.length === 0) return;
+
+    // Build a flat ordered list: start from the first current assignee if present
+    const startMemberId = schedule[0]?.members.find(m => m.position === 1)?.memberId;
+    const startIndex = startMemberId
+      ? Math.max(0, eligibleMembers.findIndex(m => m.memberId === startMemberId))
+      : 0;
+    const ordered = [
+      ...eligibleMembers.slice(startIndex),
+      ...eligibleMembers.slice(0, startIndex),
+    ];
+
+    // Separate counter per position so each position rotates independently
+    const positionCounters: Record<number, number> = {};
+    for (let pos = 1; pos <= requiredPersons; pos++) {
+      positionCounters[pos] = pos - 1; // stagger starting points
+    }
+
+    const filled = schedule.map(occ => {
+      // Don't touch skipped occurrences
+      if (occ.isSkipped) return occ;
+
+      const newMembers = occ.members.map(m => ({ ...m }));
+
+      for (let pos = 1; pos <= requiredPersons; pos++) {
+        // Collect member IDs already assigned to OTHER positions in this occurrence
+        const takenInOcc = newMembers
+          .filter(m => m.position !== pos)
+          .map(m => m.memberId)
+          .filter(id => id !== 0);
+
+        // Find next eligible member (skip those already used in this occurrence)
+        let attempts = 0;
+        let candidate: Member | undefined;
+        while (attempts < ordered.length) {
+          const idx = positionCounters[pos] % ordered.length;
+          const member = ordered[idx];
+          if (!takenInOcc.includes(member.memberId)) {
+            candidate = member;
+            positionCounters[pos]++;
+            break;
+          }
+          positionCounters[pos]++;
+          attempts++;
+        }
+
+        const memberEntry = newMembers.find(m => m.position === pos);
+        if (memberEntry && candidate) {
+          memberEntry.memberId = candidate.memberId;
+        }
+      }
+
+      return { ...occ, members: newMembers };
+    });
+
+    setSchedule(filled);
+    onChangeRef.current(filled);
+  };
+
   const handleMemberChange = (occurrenceNumber: number, position: number, memberId: number) => {
     setSchedule(prev => {
       const newSchedule = prev.map(occ => {
@@ -317,7 +384,7 @@ export function RotationScheduleTable({
             <Star className="h-4 w-4" />
             {t("tasks:specialOccurrence.label")}
           </Button>
-          <Button type="button" variant="outline" onClick={() => {}} className="gap-2">
+          <Button type="button" variant="outline" onClick={handleAutoFill} className="gap-2">
             <Wand2 className="h-4 w-4" />
             {t("tasks:rotationPlan.autoFill")}
           </Button>
