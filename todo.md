@@ -3597,3 +3597,7 @@
 - [x] Zurücksetzen-Button bei Sonderterminen in Termine-Planen-Tabelle entfernen
 - [x] Sondertermine: mehr Verantwortliche als requiredPersons erlauben (+-Button unter letztem Verantwortlichen)
 - [x] Sondertermin-Erstellung: Verantwortliche direkt auswählbar machen
+
+## Bugfixes Rotationsplan + Sondertermine
+- [x] Rotationsplan-Tabelle verbreitert noch den Dialog — CSS-Containment Fix nötig
+- [x] Extra Verantwortliche bei Sonderterminen speichern nicht

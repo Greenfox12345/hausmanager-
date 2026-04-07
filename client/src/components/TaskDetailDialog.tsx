@@ -822,10 +822,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       if (repeatMode !== "none" && rotationSchedule.length > 0) {
         const schedulePayload = rotationSchedule.map(occ => ({
           occurrenceNumber: occ.occurrenceNumber,
-          // Filter out unassigned AND trim to requiredPersons count
+          // Filter out unassigned; for special occurrences allow more than requiredPersons
           members: occ.members
             .filter(m => m.memberId !== 0)
-            .slice(0, requiredPersons || occ.members.length),
+            .slice(0, occ.isSpecial ? occ.members.length : (requiredPersons || occ.members.length)),
           notes: occ.notes,
           isSkipped: occ.isSkipped, // Preserve skip status
           isSpecial: occ.isSpecial, // Preserve special occurrence flag
@@ -1034,7 +1034,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       if (!val) setShowDeleteConfirm(false);
       onOpenChange(val);
     }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
