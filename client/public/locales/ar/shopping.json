@@ -127,7 +127,7 @@
     "completeButton": "إكمال التسوق"
   },
   "allCategories": "جميع الفئات",
-  "completeShoppingCount": "تم إكمال {{count}} عنصر",
+  "completeShoppingCount": "{{count}} عناصر للشراء",
   "createTaskFromItems": "إنشاء مهمة من العناصر",
   "editItem": "تعديل العنصر",
   "itemDetails": "تفاصيل العنصر",

@@ -188,7 +188,7 @@
     "completeButton": "Completar compra"
   },
   "allCategories": "Todas las categorías",
-  "completeShoppingCount": "{{count}} artículos completados",
+  "completeShoppingCount": "{{count}} artículos para comprar",
   "createTaskFromItems": "Crear tarea a partir de artículos",
   "itemDetails": "Detalles del artículo",
   "loadingList": "Cargando lista de compras...",

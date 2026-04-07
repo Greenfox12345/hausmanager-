@@ -127,7 +127,7 @@
     "completeButton": "完成购物"
   },
   "allCategories": "所有类别",
-  "completeShoppingCount": "{{count}}个商品已完成",
+  "completeShoppingCount": "{{count}}个商品待购买",
   "createTaskFromItems": "从商品创建任务",
   "editItem": "编辑商品",
   "itemDetails": "商品详情",

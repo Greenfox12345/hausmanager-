@@ -127,7 +127,7 @@
     "completeButton": "Alışverişi Tamamla"
   },
   "allCategories": "Tüm Kategoriler",
-  "completeShoppingCount": "{{count}} öğe tamamlandı",
+  "completeShoppingCount": "{{count}} ürün alınacak",
   "createTaskFromItems": "Öğelerden Görev Oluştur",
   "editItem": "Öğeyi Düzenle",
   "itemDetails": "Öğe Detayları",

@@ -127,7 +127,7 @@
     "completeButton": "Terminer les courses"
   },
   "allCategories": "Toutes les catégories",
-  "completeShoppingCount": "{{count}} article(s) terminé(s)",
+  "completeShoppingCount": "{{count}} article(s) à acheter",
   "createTaskFromItems": "Créer une tâche à partir des articles",
   "editItem": "Modifier l'article",
   "itemDetails": "Détails de l'article",

@@ -127,7 +127,7 @@
     "completeButton": "Complete Shopping"
   },
   "allCategories": "All categories",
-  "completeShoppingCount": "{{count}} items completed",
+  "completeShoppingCount": "{{count}} items to buy",
   "createTaskFromItems": "Create task from items",
   "editItem": "Edit item",
   "itemDetails": "Item details",
