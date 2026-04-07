@@ -3631,3 +3631,12 @@
 
 ## Sync erster Termin bei unregelmäßigen Aufgaben
 - [x] Datum des ersten Termins im Rotationsplan synchronisiert "erster Termin"-Datum oben im Formular
+
+## Demo Tutorial
+- [x] DemoTutorial-Komponente mit 10 Schritten (geführte Tour durch alle Hauptfunktionen)
+- [x] Tutorial automatisch nach Demo-Start anzeigen (?tutorial=1 URL-Parameter)
+- [x] Tutorial-Button im DemoBanner (jederzeit erneut öffnen)
+- [x] Schritt-Punkte-Navigation und Fortschrittsleiste
+- [x] "Diese Seite öffnen"-Link in jedem Schritt mit Route
+- [x] Übersetzungen für alle 7 Sprachen (de, en, fr, es, tr, zh, ar)
+- [x] tutorial-Namespace in i18n-Konfiguration registriert

@@ -1,0 +1,83 @@
+{
+  "title": "Tutorial",
+  "skip": "Omitir",
+  "finish": "¡Empezar!",
+  "goToPage": "Abrir esta página ahora",
+  "steps": {
+    "welcome": {
+      "title": "¡Bienvenido a Haushaltsmanager!",
+      "description": "Este breve recorrido te muestra las funciones principales. Puedes saltarlo en cualquier momento y reiniciarlo más tarde.",
+      "h1": "Navega usando la barra lateral izquierda",
+      "h2": "Todos los datos pertenecen a tu hogar de demostración",
+      "h3": "Prueba todo libremente – nada se romperá"
+    },
+    "tasks": {
+      "title": "Gestionar tareas",
+      "description": "Crea tareas para tu hogar, asígnalas a miembros y establece fechas de vencimiento. Las tareas pueden ser únicas o recurrentes.",
+      "h1": "Tareas únicas o recurrentes",
+      "h2": "Asignar tareas a miembros del hogar",
+      "h3": "Usar proyectos para agrupar tareas relacionadas",
+      "badge": "Tareas"
+    },
+    "recurring": {
+      "title": "Tareas recurrentes",
+      "description": "Crea tareas que se repiten automáticamente – diaria, semanal, mensualmente o según un plan de rotación personalizado.",
+      "h1": "Intervalos fijos: diario, semanal, mensual",
+      "h2": "Planificar citas irregulares individualmente",
+      "h3": "Plan de rotación: asignar tareas por turnos"
+    },
+    "calendar": {
+      "title": "Calendario & citas",
+      "description": "El calendario muestra todas las tareas y citas próximas en una vista mensual o de lista clara. Los seguimientos, fechas especiales y préstamos están codificados por colores.",
+      "h1": "Vista mensual y lista cronológica",
+      "h2": "Completar u omitir citas directamente desde el calendario",
+      "h3": "Notas de citas para cada seguimiento individual",
+      "badge": "Calendario"
+    },
+    "shopping": {
+      "title": "Lista de compras",
+      "description": "Mantén una lista de compras compartida para tu hogar. Los artículos pueden ordenarse por categoría, vincularse a tareas y marcarse durante las compras.",
+      "h1": "Lista compartida para todos los miembros del hogar",
+      "h2": "Categorías con código de color",
+      "h3": "Vincular artículos a tareas",
+      "badge": "Compras"
+    },
+    "inventory": {
+      "title": "Inventario & préstamos",
+      "description": "Gestiona los objetos de tu hogar. Puedes registrar artículos, establecer reglas de préstamo y rastrear procesos de préstamo – incluso entre hogares.",
+      "h1": "Lista de inventario con categorías y fotos",
+      "h2": "Gestionar reglas y solicitudes de préstamo",
+      "h3": "Fechas de devolución visibles en el calendario",
+      "badge": "Inventario"
+    },
+    "projects": {
+      "title": "Proyectos",
+      "description": "Agrupa tareas relacionadas en proyectos. Los proyectos ayudan a estructurar claramente empresas más grandes como renovaciones o mudanzas.",
+      "h1": "Asignar tareas a uno o más proyectos",
+      "h2": "Ver el progreso de un vistazo",
+      "badge": "Proyectos"
+    },
+    "members": {
+      "title": "Miembros & vecindario",
+      "description": "Invita a más personas a tu hogar y gestiona roles. La función de vecindario te permite conectarte con otros hogares y compartir objetos.",
+      "h1": "Añadir miembros mediante código de invitación",
+      "h2": "Asignar tareas a miembros específicos",
+      "h3": "Red de vecindario para préstamos compartidos",
+      "badge": "Miembros"
+    },
+    "history": {
+      "title": "Historial & estadísticas",
+      "description": "El historial muestra todas las tareas completadas y actividades de tu hogar. Mantén un seguimiento de quién hizo qué y cuándo.",
+      "h1": "Visión cronológica de todas las actividades",
+      "h2": "Filtrar por miembro o tarea",
+      "badge": "Historial"
+    },
+    "finish": {
+      "title": "¡Listo para empezar!",
+      "description": "Has visto todas las funciones principales. Explora el hogar de demostración con calma – todos los datos están pre-rellenados para que puedas probarlo todo.",
+      "h1": "Los datos de demostración están pre-rellenados para explorar",
+      "h2": "Crea una cuenta para conservar tu hogar permanentemente",
+      "h3": "El tutorial puede reiniciarse en cualquier momento desde el banner de demostración"
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "title": "Tutoriel",
+  "skip": "Passer",
+  "finish": "C'est parti !",
+  "goToPage": "Ouvrir cette page maintenant",
+  "steps": {
+    "welcome": {
+      "title": "Bienvenue dans Haushaltsmanager !",
+      "description": "Cette courte visite vous présente les principales fonctionnalités. Vous pouvez la passer à tout moment et la relancer plus tard.",
+      "h1": "Naviguez via la barre latérale gauche",
+      "h2": "Toutes les données appartiennent à votre ménage de démonstration",
+      "h3": "Essayez tout librement – rien ne se cassera"
+    },
+    "tasks": {
+      "title": "Gérer les tâches",
+      "description": "Créez des tâches pour votre ménage, assignez-les aux membres et définissez des dates d'échéance. Les tâches peuvent être ponctuelles ou récurrentes.",
+      "h1": "Tâches ponctuelles ou récurrentes",
+      "h2": "Assigner des tâches aux membres du ménage",
+      "h3": "Utiliser des projets pour regrouper les tâches liées",
+      "badge": "Tâches"
+    },
+    "recurring": {
+      "title": "Tâches récurrentes",
+      "description": "Créez des tâches qui se répètent automatiquement – quotidiennement, hebdomadairement, mensuellement ou selon un planning de rotation personnalisé.",
+      "h1": "Intervalles fixes : quotidien, hebdomadaire, mensuel",
+      "h2": "Planifier des rendez-vous irréguliers individuellement",
+      "h3": "Planning de rotation : assigner les tâches à tour de rôle"
+    },
+    "calendar": {
+      "title": "Calendrier & rendez-vous",
+      "description": "Le calendrier affiche toutes les tâches et rendez-vous à venir dans une vue mensuelle ou liste claire. Les suivis, dates spéciales et prêts sont codés par couleur.",
+      "h1": "Vue mensuelle et liste chronologique",
+      "h2": "Terminer ou sauter des rendez-vous directement depuis le calendrier",
+      "h3": "Notes de rendez-vous pour chaque suivi individuel",
+      "badge": "Calendrier"
+    },
+    "shopping": {
+      "title": "Liste de courses",
+      "description": "Gérez une liste de courses commune pour votre ménage. Les articles peuvent être triés par catégorie, liés à des tâches et cochés lors des achats.",
+      "h1": "Liste commune pour tous les membres du ménage",
+      "h2": "Catégories avec code couleur",
+      "h3": "Lier les articles aux tâches",
+      "badge": "Courses"
+    },
+    "inventory": {
+      "title": "Inventaire & prêts",
+      "description": "Gérez les objets de votre ménage. Vous pouvez enregistrer des articles, définir des règles d'emprunt et suivre les prêts – même entre ménages.",
+      "h1": "Liste d'inventaire avec catégories et photos",
+      "h2": "Gérer les règles et demandes d'emprunt",
+      "h3": "Dates de retour visibles dans le calendrier",
+      "badge": "Inventaire"
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Regroupez les tâches liées dans des projets. Les projets aident à structurer clairement des entreprises plus importantes comme des rénovations ou des déménagements.",
+      "h1": "Assigner des tâches à un ou plusieurs projets",
+      "h2": "Voir la progression en un coup d'œil",
+      "badge": "Projets"
+    },
+    "members": {
+      "title": "Membres & voisinage",
+      "description": "Invitez d'autres personnes dans votre ménage et gérez les rôles. La fonctionnalité de voisinage vous permet de vous connecter avec d'autres ménages et de partager des objets.",
+      "h1": "Ajouter des membres via un code d'invitation",
+      "h2": "Assigner des tâches à des membres spécifiques",
+      "h3": "Réseau de voisinage pour les prêts partagés",
+      "badge": "Membres"
+    },
+    "history": {
+      "title": "Historique & statistiques",
+      "description": "L'historique affiche toutes les tâches accomplies et activités de votre ménage. Gardez une vue d'ensemble de qui a fait quoi et quand.",
+      "h1": "Vue chronologique de toutes les activités",
+      "h2": "Filtrer par membre ou tâche",
+      "badge": "Historique"
+    },
+    "finish": {
+      "title": "Prêt à commencer !",
+      "description": "Vous avez découvert toutes les fonctionnalités principales. Explorez le ménage de démonstration à votre rythme – toutes les données sont pré-remplies.",
+      "h1": "Les données de démonstration sont pré-remplies pour explorer",
+      "h2": "Créez un compte pour conserver votre ménage définitivement",
+      "h3": "Le tutoriel peut être relancé à tout moment via la bannière de démonstration"
+    }
+  }
+}

@@ -58,7 +58,9 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
         memberName: data.memberName,
       });
       onClose();
-      setLocation("/shopping");
+      // Tutorial beim ersten Demo-Start anzeigen
+      localStorage.removeItem("demo_tutorial_seen");
+      setLocation("/shopping?tutorial=1");
     },
     onError: () => {
       toast.error("Demo konnte nicht gestartet werden.");

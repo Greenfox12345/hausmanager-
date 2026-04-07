@@ -1,0 +1,83 @@
+{
+  "title": "Tutorial",
+  "skip": "Skip",
+  "finish": "Get started!",
+  "goToPage": "Open this page now",
+  "steps": {
+    "welcome": {
+      "title": "Welcome to Haushaltsmanager!",
+      "description": "This short tour shows you the key features. You can skip it at any time and restart it later.",
+      "h1": "Navigate using the left sidebar",
+      "h2": "All data belongs to your demo household",
+      "h3": "Feel free to try everything – nothing will break"
+    },
+    "tasks": {
+      "title": "Manage tasks",
+      "description": "Create tasks for your household, assign them to members, and set due dates. Tasks can be one-time or recurring.",
+      "h1": "One-time or regularly recurring tasks",
+      "h2": "Assign tasks to household members",
+      "h3": "Use projects to group related tasks",
+      "badge": "Tasks"
+    },
+    "recurring": {
+      "title": "Recurring tasks",
+      "description": "Create tasks that repeat automatically – daily, weekly, monthly, or on a custom rotation schedule. Irregular appointments can be planned manually.",
+      "h1": "Fixed intervals: daily, weekly, monthly",
+      "h2": "Plan irregular appointments individually",
+      "h3": "Rotation schedule: assign tasks in turns"
+    },
+    "calendar": {
+      "title": "Calendar & appointments",
+      "description": "The calendar shows all upcoming tasks and appointments in a clear monthly or list view. Follow-up appointments, special dates, and loans are color-coded.",
+      "h1": "Month view and chronological list",
+      "h2": "Complete or skip appointments directly from the calendar",
+      "h3": "Appointment notes for individual follow-up dates",
+      "badge": "Calendar"
+    },
+    "shopping": {
+      "title": "Shopping list",
+      "description": "Maintain a shared shopping list for your household. Items can be sorted by category, linked to tasks, and checked off while shopping.",
+      "h1": "Shared list for all household members",
+      "h2": "Categories with color coding",
+      "h3": "Link items to tasks",
+      "badge": "Shopping"
+    },
+    "inventory": {
+      "title": "Inventory & loans",
+      "description": "Manage items in your household. You can record articles, set borrowing rules, and track loan processes – even across households.",
+      "h1": "Inventory list with categories and photos",
+      "h2": "Manage borrowing rules and requests",
+      "h3": "Return dates visible in the calendar",
+      "badge": "Inventory"
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Group related tasks into projects. Projects help structure larger undertakings like renovations or moves clearly.",
+      "h1": "Assign tasks to one or more projects",
+      "h2": "See progress at a glance",
+      "badge": "Projects"
+    },
+    "members": {
+      "title": "Members & neighborhood",
+      "description": "Invite more people to your household and manage roles. The neighborhood feature lets you connect with other households and share items.",
+      "h1": "Add members via invitation code",
+      "h2": "Assign tasks to specific members",
+      "h3": "Neighborhood network for shared loans",
+      "badge": "Members"
+    },
+    "history": {
+      "title": "History & statistics",
+      "description": "The history shows all completed tasks and activities of your household. Keep track of who did what and when.",
+      "h1": "Chronological overview of all activities",
+      "h2": "Filter by member or task",
+      "badge": "History"
+    },
+    "finish": {
+      "title": "Ready to go!",
+      "description": "You've seen all the main features. Explore the demo household at your leisure – all data is pre-filled so you can try everything right away.",
+      "h1": "Demo data is pre-filled for you to explore",
+      "h2": "Create an account to keep your household permanently",
+      "h3": "The tutorial can be restarted anytime via the demo banner"
+    }
+  }
+}

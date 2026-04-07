@@ -1,0 +1,83 @@
+{
+  "title": "Tutorial",
+  "skip": "Überspringen",
+  "finish": "Loslegen!",
+  "goToPage": "Diese Seite jetzt öffnen",
+  "steps": {
+    "welcome": {
+      "title": "Willkommen im Haushaltsmanager!",
+      "description": "Diese kurze Tour zeigt dir die wichtigsten Funktionen. Du kannst sie jederzeit überspringen und später erneut starten.",
+      "h1": "Navigiere über die linke Seitenleiste",
+      "h2": "Alle Daten gehören zu deinem Demo-Haushalt",
+      "h3": "Du kannst alles ausprobieren – nichts geht kaputt"
+    },
+    "tasks": {
+      "title": "Aufgaben verwalten",
+      "description": "Erstelle Aufgaben für deinen Haushalt, weise sie Mitgliedern zu und lege Fälligkeitstermine fest. Aufgaben können einmalig oder wiederkehrend sein.",
+      "h1": "Einmalige oder regelmäßig wiederkehrende Aufgaben",
+      "h2": "Zuweisung an Haushaltsmitglieder",
+      "h3": "Projekte zur Gruppierung verwandter Aufgaben",
+      "badge": "Aufgaben"
+    },
+    "recurring": {
+      "title": "Wiederkehrende Aufgaben",
+      "description": "Lege Aufgaben an, die sich automatisch wiederholen – täglich, wöchentlich, monatlich oder nach einem individuellen Rotationsplan. Unregelmäßige Termine können manuell geplant werden.",
+      "h1": "Feste Intervalle: täglich, wöchentlich, monatlich",
+      "h2": "Unregelmäßige Termine individuell planen",
+      "h3": "Rotationsplan: Aufgaben reihum zuweisen"
+    },
+    "calendar": {
+      "title": "Kalender & Termine",
+      "description": "Der Kalender zeigt alle anstehenden Aufgaben und Termine in einer übersichtlichen Monats- oder Listenansicht. Folgetermine, Sondertermine und Ausleihen sind farblich markiert.",
+      "h1": "Monatsansicht und chronologische Liste",
+      "h2": "Termine direkt aus dem Kalender abschließen oder auslassen",
+      "h3": "Terminnotizen für einzelne Folgetermine",
+      "badge": "Kalender"
+    },
+    "shopping": {
+      "title": "Einkaufsliste",
+      "description": "Führe eine gemeinsame Einkaufsliste für deinen Haushalt. Artikel können nach Kategorien sortiert, mit Aufgaben verknüpft und beim Einkauf abgehakt werden.",
+      "h1": "Gemeinsame Liste für alle Haushaltsmitglieder",
+      "h2": "Kategorien mit Farbmarkierung",
+      "h3": "Artikel mit Aufgaben verknüpfen",
+      "badge": "Einkauf"
+    },
+    "inventory": {
+      "title": "Inventar & Ausleihen",
+      "description": "Verwalte Gegenstände in deinem Haushalt. Du kannst Artikel erfassen, Ausleihregeln festlegen und Ausleihvorgänge nachverfolgen – auch haushaltsübergreifend.",
+      "h1": "Inventarliste mit Kategorien und Fotos",
+      "h2": "Ausleihregeln und Anfragen verwalten",
+      "h3": "Rückgabetermine im Kalender sichtbar",
+      "badge": "Inventar"
+    },
+    "projects": {
+      "title": "Projekte",
+      "description": "Gruppiere zusammengehörige Aufgaben in Projekten. Projekte helfen, größere Vorhaben wie Renovierungen oder Umzüge übersichtlich zu strukturieren.",
+      "h1": "Aufgaben einem oder mehreren Projekten zuordnen",
+      "h2": "Fortschritt auf einen Blick sehen",
+      "badge": "Projekte"
+    },
+    "members": {
+      "title": "Mitglieder & Nachbarschaft",
+      "description": "Lade weitere Personen in deinen Haushalt ein und verwalte Rollen. Über die Nachbarschaftsfunktion kannst du dich mit anderen Haushalten vernetzen und Gegenstände teilen.",
+      "h1": "Mitglieder per Einladungscode hinzufügen",
+      "h2": "Aufgaben gezielt zuweisen",
+      "h3": "Nachbarschaftsnetzwerk für gemeinsame Ausleihen",
+      "badge": "Mitglieder"
+    },
+    "history": {
+      "title": "Verlauf & Statistiken",
+      "description": "Im Verlauf siehst du alle abgeschlossenen Aufgaben und Aktivitäten deines Haushalts. So behältst du den Überblick, wer was wann erledigt hat.",
+      "h1": "Chronologische Übersicht aller Aktivitäten",
+      "h2": "Nach Mitglied oder Aufgabe filtern",
+      "badge": "Verlauf"
+    },
+    "finish": {
+      "title": "Bereit loszulegen!",
+      "description": "Du hast alle Hauptfunktionen kennengelernt. Erkunde den Demo-Haushalt in Ruhe – alle Daten sind vorausgefüllt, damit du alles direkt ausprobieren kannst.",
+      "h1": "Demo-Daten sind zum Ausprobieren vorausgefüllt",
+      "h2": "Erstelle ein Konto, um deinen Haushalt dauerhaft zu behalten",
+      "h3": "Das Tutorial ist jederzeit über das Demo-Banner erneut aufrufbar"
+    }
+  }
+}

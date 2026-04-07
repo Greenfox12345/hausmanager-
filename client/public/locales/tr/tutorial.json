@@ -1,0 +1,83 @@
+{
+  "title": "Eğitim",
+  "skip": "Atla",
+  "finish": "Başlayalım!",
+  "goToPage": "Bu sayfayı şimdi aç",
+  "steps": {
+    "welcome": {
+      "title": "Haushaltsmanager'a Hoş Geldiniz!",
+      "description": "Bu kısa tur size temel özellikleri gösterir. İstediğiniz zaman atlayabilir ve daha sonra yeniden başlatabilirsiniz.",
+      "h1": "Sol kenar çubuğunu kullanarak gezinin",
+      "h2": "Tüm veriler demo hanenize aittir",
+      "h3": "Her şeyi özgürce deneyin – hiçbir şey bozulmaz"
+    },
+    "tasks": {
+      "title": "Görevleri yönet",
+      "description": "Haneniz için görevler oluşturun, üyelere atayın ve son tarihler belirleyin. Görevler tek seferlik veya tekrarlayan olabilir.",
+      "h1": "Tek seferlik veya düzenli tekrarlayan görevler",
+      "h2": "Görevleri hane üyelerine atama",
+      "h3": "İlgili görevleri gruplamak için projeler kullanma",
+      "badge": "Görevler"
+    },
+    "recurring": {
+      "title": "Tekrarlayan görevler",
+      "description": "Otomatik olarak tekrarlanan görevler oluşturun – günlük, haftalık, aylık veya özel bir rotasyon planına göre.",
+      "h1": "Sabit aralıklar: günlük, haftalık, aylık",
+      "h2": "Düzensiz randevuları bireysel olarak planlama",
+      "h3": "Rotasyon planı: görevleri sırayla atama"
+    },
+    "calendar": {
+      "title": "Takvim & randevular",
+      "description": "Takvim, tüm yaklaşan görevleri ve randevuları açık bir aylık veya liste görünümünde gösterir. Takip randevuları, özel tarihler ve ödünçler renk kodludur.",
+      "h1": "Aylık görünüm ve kronolojik liste",
+      "h2": "Takvimden doğrudan randevuları tamamlama veya atlama",
+      "h3": "Bireysel takip tarihleri için randevu notları",
+      "badge": "Takvim"
+    },
+    "shopping": {
+      "title": "Alışveriş listesi",
+      "description": "Haneniz için ortak bir alışveriş listesi tutun. Ürünler kategoriye göre sıralanabilir, görevlere bağlanabilir ve alışveriş sırasında işaretlenebilir.",
+      "h1": "Tüm hane üyeleri için ortak liste",
+      "h2": "Renk kodlu kategoriler",
+      "h3": "Ürünleri görevlere bağlama",
+      "badge": "Alışveriş"
+    },
+    "inventory": {
+      "title": "Envanter & ödünçler",
+      "description": "Hanenizdeki eşyaları yönetin. Ürünleri kaydedebilir, ödünç verme kuralları belirleyebilir ve ödünç süreçlerini takip edebilirsiniz – haneler arasında bile.",
+      "h1": "Kategoriler ve fotoğraflarla envanter listesi",
+      "h2": "Ödünç verme kurallarını ve talepleri yönetme",
+      "h3": "Takvimde görünür iade tarihleri",
+      "badge": "Envanter"
+    },
+    "projects": {
+      "title": "Projeler",
+      "description": "İlgili görevleri projelerde gruplandırın. Projeler, tadilat veya taşınma gibi daha büyük girişimleri net bir şekilde yapılandırmaya yardımcı olur.",
+      "h1": "Görevleri bir veya daha fazla projeye atama",
+      "h2": "İlerlemeyi bir bakışta görme",
+      "badge": "Projeler"
+    },
+    "members": {
+      "title": "Üyeler & komşuluk",
+      "description": "Hanenize daha fazla kişi davet edin ve rolleri yönetin. Komşuluk özelliği, diğer hanelerle bağlantı kurmanıza ve eşya paylaşmanıza olanak tanır.",
+      "h1": "Davet kodu ile üye ekleme",
+      "h2": "Görevleri belirli üyelere atama",
+      "h3": "Paylaşılan ödünçler için komşuluk ağı",
+      "badge": "Üyeler"
+    },
+    "history": {
+      "title": "Geçmiş & istatistikler",
+      "description": "Geçmiş, hanenizin tamamlanan tüm görevlerini ve etkinliklerini gösterir. Kimin ne zaman ne yaptığını takip edin.",
+      "h1": "Tüm etkinliklerin kronolojik görünümü",
+      "h2": "Üye veya göreve göre filtrele",
+      "badge": "Geçmiş"
+    },
+    "finish": {
+      "title": "Başlamaya hazır!",
+      "description": "Tüm temel özellikleri gördünüz. Demo haneyi rahatça keşfedin – tüm veriler önceden doldurulmuştur.",
+      "h1": "Demo verileri keşfetmeniz için önceden doldurulmuştur",
+      "h2": "Hanenizi kalıcı olarak saklamak için bir hesap oluşturun",
+      "h3": "Eğitim, demo banner'ı aracılığıyla istediğiniz zaman yeniden başlatılabilir"
+    }
+  }
+}
