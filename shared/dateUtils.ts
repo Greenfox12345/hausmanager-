@@ -64,10 +64,21 @@ export function getNextMonthlyOccurrence(
   mode: 'same_date' | 'same_weekday'
 ): Date {
   if (mode === 'same_date') {
-    // Simple: add months, keep same day of month
-    const result = new Date(currentDate);
-    result.setMonth(result.getMonth() + monthsToAdd);
-    return result;
+    // Add months while clamping to the last day of the target month.
+    // Using setMonth() alone can overflow (e.g. Jan 31 + 1 month → Mar 3).
+    const y = currentDate.getFullYear();
+    const mo = currentDate.getMonth(); // 0-based
+    const day = currentDate.getDate();
+    const h = currentDate.getHours();
+    const min = currentDate.getMinutes();
+
+    const targetMo = mo + monthsToAdd;
+    const targetYear = y + Math.floor(targetMo / 12);
+    const normMo = ((targetMo % 12) + 12) % 12;
+    // Clamp to last day of target month (e.g. Jan 31 → Feb 28)
+    const daysInMonth = new Date(targetYear, normMo + 1, 0).getDate();
+    const clampedDay = Math.min(day, daysInMonth);
+    return new Date(targetYear, normMo, clampedDay, h, min, 0, 0);
   } else {
     // Complex: find the same weekday occurrence in the target month
     const { weekday, occurrence } = getWeekdayOccurrence(currentDate);

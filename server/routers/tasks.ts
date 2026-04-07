@@ -364,11 +364,11 @@ export const tasksRouter = router({
         const [year, month, day] = input.dueDate.split('-').map(Number);
         if (input.dueTime) {
           const [hours, minutes] = input.dueTime.split(':').map(Number);
-          // Create UTC date to avoid timezone shifts
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+          // Use LOCAL time so mysql2 stores the exact clock time the user entered
+          dueDatetime = new Date(year, month - 1, day, hours, minutes, 0, 0);
         } else {
-          // No time: store as UTC midnight so getUTCDate() always returns the correct day
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+          // No time: store as local midnight
+          dueDatetime = new Date(year, month - 1, day, 0, 0, 0, 0);
         }
       }
 
@@ -506,11 +506,11 @@ export const tasksRouter = router({
         const [year, month, day] = dueDate.split('-').map(Number);
         if (dueTime) {
           const [hours, minutes] = dueTime.split(':').map(Number);
-          // Create UTC date to avoid timezone shifts
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+          // Use LOCAL time so mysql2 stores the exact clock time the user entered
+          dueDatetime = new Date(year, month - 1, day, hours, minutes, 0, 0);
         } else {
-          // No time: store as UTC midnight so getUTCDate() always returns the correct day
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+          // No time: store as local midnight
+          dueDatetime = new Date(year, month - 1, day, 0, 0, 0, 0);
         }
       }
 
