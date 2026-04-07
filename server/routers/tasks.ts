@@ -1357,8 +1357,8 @@ export const tasksRouter = router({
       // If the task has no dueDate yet, set it first so calcOccurrenceNumber works
       let taskForCalc = task;
       if (!task.dueDate) {
-        await updateTask(input.taskId, { dueDate: new Date(input.dateToSkip) });
-        taskForCalc = { ...task, dueDate: new Date(input.dateToSkip) };
+        await updateTask(input.taskId, { dueDateRaw: input.dateToSkip.includes(' ') ? input.dateToSkip : input.dateToSkip + ' 00:00:00' });
+        taskForCalc = { ...task, dueDate: input.dateToSkip as any };
       }
       const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
       if (occNum !== null) {
@@ -1554,8 +1554,8 @@ export const tasksRouter = router({
 
       // Ensure dueDate is set (needed for occurrenceNumber calculation)
       if (!task.dueDate) {
-        await updateTask(input.taskId, { dueDate: new Date(input.occurrenceDate) });
-        task.dueDate = new Date(input.occurrenceDate);
+        await updateTask(input.taskId, { dueDateRaw: input.occurrenceDate.includes(' ') ? input.occurrenceDate : input.occurrenceDate + ' 00:00:00' });
+        task.dueDate = input.occurrenceDate as any;
       }
 
       const occNum = calcOccurrenceNumber(task, input.occurrenceDate);

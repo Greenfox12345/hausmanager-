@@ -44,33 +44,30 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
+
 /**
  * Normalize a DATETIME value from db.execute() (raw SQL).
  *
- * Strategy: "wall-clock time" — the DB stores the time exactly as the user entered it
- * (e.g. "14:30:00" means 14:30 Uhr, regardless of timezone).
- * We must preserve this value without any timezone shift.
+ * Returns a STRING like "2026-04-07 14:00:00" — never a Date object.
+ * This prevents Superjson/tRPC from converting to UTC during transport.
  *
- * db.execute() returns strings like "2026-11-29 14:30:00".
- * new Date("2026-11-29 14:30:00") interprets as LOCAL time on the server (UTC-4),
- * which would give getHours()=14 on the server but the Date object would be UTC 18:30.
+ * When new Date("2026-04-07 14:00:00") is called (without 'Z'),
+ * JavaScript interprets it as LOCAL time in ANY timezone:
+ *   - Server (UTC-4): getHours() = 14 ✓
+ *   - Browser (UTC+2): getHours() = 14 ✓
  *
- * We want: getHours() === 14 (the stored wall-clock time).
- * So we use new Date(value.replace(' ', 'T')) WITHOUT 'Z' → local interpretation.
- * On UTC-4 server: getHours()=14, getUTCHours()=18 — but we always use getHours().
- *
- * The round-trip (write/read) uses the same local convention throughout.
+ * This is the "wall-clock time" strategy: the stored time is always
+ * interpreted as the local time of whoever reads it.
  */
-function normalizeDatetimeFromRawSQL(value: unknown): Date | null {
+function normalizeDatetimeFromRawSQL(value: unknown): string | null {
   if (value == null) return null;
   if (typeof value === 'string') {
-    // "2026-11-29 14:30:00" → "2026-11-29T14:30:00" → local Date (getHours()=14)
-    return new Date(value.replace(' ', 'T'));
+    // Already a string like "2026-11-29 14:30:00" — return as-is
+    return value;
   }
   if (value instanceof Date) {
-    // mysql2 sometimes returns Date objects already interpreted as local time.
-    // Return as-is: getHours() already gives the correct wall-clock time.
-    return value;
+    // mysql2 sometimes returns Date objects — convert back to wall-clock string
+    return dateToWallClockString(value);
   }
   return null;
 }
@@ -787,7 +784,7 @@ export async function getActivityHistory(householdId: number, limit: number = 30
               name: task.name,
               description: task.description,
               assignedTo: task.assignedTo,
-              dueDate: task.dueDate,
+              dueDate: task.dueDate ? dateToWallClockString(task.dueDate) : null,
             },
           };
         }

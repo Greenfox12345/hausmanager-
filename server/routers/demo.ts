@@ -8,7 +8,7 @@
  */
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
-import { getDb } from "../db";
+import { getDb, dateToWallClockString } from "../db";
 import {
   demoSessions,
   households,
@@ -616,7 +616,7 @@ export const demoRouter = router({
           projectIds: pIds,
           projectNames,
           isDuplicated: pIds.length > 1, // assigned to multiple projects
-          dueDate: t.dueDate?.toISOString() ?? null,
+          dueDate: t.dueDate ? dateToWallClockString(t.dueDate) : null,
         };
       });
 

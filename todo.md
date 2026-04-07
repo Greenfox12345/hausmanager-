@@ -3559,3 +3559,4 @@
 - [x] Bug: Manuelle Zuteilung von Verantwortlichen in Rotationsplanung wird nicht übernommen / gespeichert
 - [x] Bug: Termine werden um 2h nach hinten gesetzt beim Speichern einer bearbeiteten Aufgabe
 - [x] Bug: Bearbeitungsdialog zeigt Uhrzeit 2h zu wenig (wall-clock strategy implementiert)
+- [x] Refactoring: Alle Aufgabenzeit-Transformationen timezone-frei machen

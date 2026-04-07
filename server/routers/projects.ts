@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { getDb, createActivityLog, getHouseholdById } from "../db";
+import { getDb, createActivityLog, getHouseholdById, dateToWallClockString } from "../db";
 import {
   projectCreated,
   projectUpdated,
@@ -122,7 +122,11 @@ export const projectsRouter = router({
         .where(eq(tasks.householdId, input.householdId))
         .orderBy(desc(tasks.createdAt));
 
-      return taskList;
+      // Convert Date objects to wall-clock strings to prevent Superjson UTC shift
+      return taskList.map(t => ({
+        ...t,
+        dueDate: t.dueDate ? dateToWallClockString(t.dueDate) : null,
+      }));
     }),
 
   // Add task dependencies
