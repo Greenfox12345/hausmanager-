@@ -49,6 +49,7 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
   return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
+import { handleRecurringCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 
 // ─── German label helpers ───────────────────────────────────────────────────
@@ -589,179 +590,16 @@ export const tasksRouter = router({
       const isRecurring = task.repeatInterval && task.repeatUnit;
 
       if (input.isCompleted && isRecurring) {
-        // For recurring tasks: move to next occurrence instead of marking as completed
-        const currentDueDate = task.dueDate ? new Date(task.dueDate) : new Date();
-        let nextDueDate = new Date(currentDueDate);
-
-        if (task.repeatUnit === "days") {
-          nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval || 1));
-        } else if (task.repeatUnit === "weeks") {
-          nextDueDate.setDate(nextDueDate.getDate() + ((task.repeatInterval || 1) * 7));
-        } else if (task.repeatUnit === "months") {
-          // Use monthlyRecurrenceMode if set
-          const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-          const mode = task.monthlyRecurrenceMode || "same_date";
-          nextDueDate = getNextMonthlyOccurrence(currentDueDate, task.repeatInterval || 1, mode);
-        }
-
-        // Skip-chain: advance nextDueDate past any skipped dates
-        {
-          const { getNextMonthlyOccurrence: getNextMonthly } = await import("../../shared/dateUtils");
-          const skippedOccNumsToggle = await getSkippedOccurrenceNumbers(input.taskId);
-          const advanceOne = (d: Date): Date => {
-            const next = new Date(d);
-            if (task.repeatUnit === "days") {
-              next.setDate(next.getDate() + (task.repeatInterval || 1));
-            } else if (task.repeatUnit === "weeks") {
-              next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
-            } else if (task.repeatUnit === "months") {
-              return getNextMonthly(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
-            }
-            return next;
-          };
-          let maxSkipIter = 500;
-          let highestConsumedToggle = 0;
-          while (maxSkipIter-- > 0) {
-            const occNum = calcOccurrenceNumber(task, nextDueDate);
-            if (occNum !== null && skippedOccNumsToggle.has(occNum)) {
-              highestConsumedToggle = Math.max(highestConsumedToggle, occNum);
-              nextDueDate = advanceOne(nextDueDate);
-            } else {
-              break;
-            }
-          }
-          if (highestConsumedToggle > 0) {
-            await clearSkippedOccurrencesUpTo(input.taskId, highestConsumedToggle);
-          }
-        }
-
-        // Handle rotation if enabled
-        let nextAssignee = task.assignedTo;
-        if (task.enableRotation) {
-          // Check if rotation schedule exists
-          const schedule = await getRotationSchedule(input.taskId);
-          
-          if (schedule && schedule.length > 0) {
-            // Use rotation schedule
-            const nextOccurrence = schedule.find(occ => occ.occurrenceNumber === 1);
-            
-            if (nextOccurrence && nextOccurrence.members.length > 0) {
-              // Get member IDs from schedule
-              nextAssignee = nextOccurrence.members.map(m => m.memberId);
-              
-              // Get member names for logging
-              const members = await getHouseholdMembers(input.householdId);
-              const nextMemberNames = nextAssignee
-                .map(id => members.find(m => m.id === id)?.memberName || `#${id}`)
-                .join(", ");
-              
-              const rotateLang1 = await getHouseholdLang(input.householdId);
-              const prevNames1 = (task.assignedTo as number[] | null)?.map(id => {
-                const m = ([] as {id:number;memberName:string}[]).find(x => x.id === id);
-                return m?.memberName ?? `#${id}`;
-              }).join(", ") ?? "–";
-              await createActivityLog({
-                householdId: input.householdId,
-                memberId: input.memberId,
-                activityType: "task",
-                action: "rotated",
-                description: taskRotated(rotateLang1, task.name, prevNames1, nextMemberNames),
-                relatedItemId: input.taskId,
-                metadata: {
-                  previousAssignee: task.assignedTo,
-                  nextAssignee,
-                  nextAssigneeNames: nextMemberNames,
-                },
-              });
-              
-              // Shift schedule down (occurrence 2 becomes 1, etc.)
-              await shiftRotationSchedule(input.taskId);
-              
-              // Ensure at least 3 real (non-virtual) occurrences remain in the schedule
-              if (task.requiredPersons) {
-                const db = await getDb();
-                if (db) {
-                  const { taskRotationExclusions } = await import("../../drizzle/schema");
-                  const exclusions = await db.select().from(taskRotationExclusions)
-                    .where(eq(taskRotationExclusions.taskId, input.taskId));
-                  const excludedIds = exclusions.map(e => e.memberId);
-                  const members2 = await getHouseholdMembers(input.householdId);
-                  const availableMembers = members2.filter(m => m.isActive && !excludedIds.includes(m.id));
-
-                  let safetyCounter = 0;
-                  while (safetyCounter++ < 10) {
-                    const realSchedule = await getRealRotationSchedule(input.taskId);
-                    if (realSchedule.length >= 3) break;
-
-                    const newOccurrenceNumber = realSchedule.length > 0
-                      ? Math.max(...realSchedule.map(r => r.occurrenceNumber)) + 1
-                      : 1;
-                    const newMembers: { position: number; memberId: number }[] = [];
-
-                    for (let i = 0; i < task.requiredPersons; i++) {
-                      if (availableMembers.length > 0) {
-                        const lastRealOcc = realSchedule[realSchedule.length - 1];
-                        const lastMember = lastRealOcc?.members?.[0];
-                        const lastIdx = lastMember
-                          ? availableMembers.findIndex(m => m.id === lastMember.memberId)
-                          : -1;
-                        const memberIndex = (lastIdx + 1 + i) % availableMembers.length;
-                        newMembers.push({
-                          position: i + 1,
-                          memberId: availableMembers[memberIndex < 0 ? 0 : memberIndex].id,
-                        });
-                      }
-                    }
-
-                    if (newMembers.length > 0) {
-                      await extendRotationSchedule(input.taskId, newOccurrenceNumber, newMembers);
-                    } else {
-                      break;
-                    }
-                  }
-                }
-              }
-            }
-          } else if (task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
-            // Fallback to old rotation logic (single assignee round-robin)
-            const members = await getHouseholdMembers(input.householdId);
-            const activeMembers = members.filter(m => m.isActive);
-
-            if (activeMembers.length > 1) {
-              const currentAssigneeId = task.assignedTo[0];
-              const currentIndex = activeMembers.findIndex(m => m.id === currentAssigneeId);
-              const nextIndex = (currentIndex + 1) % activeMembers.length;
-              const nextMember = activeMembers[nextIndex];
-
-              if (nextMember) {
-                nextAssignee = [nextMember.id];
-
-                const rotateLang2 = await getHouseholdLang(input.householdId);
-                const prevMember2 = members.find(m => m.id === (task.assignedTo as number[])[0]);
-                const prevName2 = prevMember2?.memberName ?? `#${(task.assignedTo as number[])[0]}`;
-                await createActivityLog({
-                  householdId: input.householdId,
-                  memberId: input.memberId,
-                  activityType: "task",
-                  action: "rotated",
-                  description: taskRotated(rotateLang2, task.name, prevName2, nextMember.memberName),
-                  relatedItemId: input.taskId,
-                  metadata: {
-                    previousAssignee: task.assignedTo,
-                    nextAssignee: [nextMember.id],
-                    nextAssigneeName: nextMember.memberName,
-                  },
-                });
-              }
-            }
-          }
-        }
+        // For recurring tasks: delegate all recurring logic to shared helper
+        const { nextDueDate } = await handleRecurringCompletion(
+          task,
+          input.householdId,
+          null, // toggleComplete has no occurrenceDetails, use occurrence 1
+        );
 
         // Update task to next occurrence (NOT completed)
-        // skippedDates is no longer used; skip status is managed via occurrenceNotes
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
-          assignedTo: nextAssignee,
           isCompleted: false,
           completedBy: null,
           completedAt: null,
@@ -958,88 +796,19 @@ export const tasksRouter = router({
         }
       }
 
-      // ===== 2. Calculate next due date for recurring tasks =====
+      // ===== 2-5. Calculate next due date, skip-chain, rotation cleanup, ensure min occurrences =====
       let nextDueDate: Date | null = null;
       if (isRecurring && task.dueDate) {
-        const currentDueDate = task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate);
-        nextDueDate = new Date(currentDueDate);
-
-        // Use repeatInterval + repeatUnit as primary source (more reliable than frequency)
-        if (task.repeatInterval && task.repeatUnit) {
-          if (task.repeatUnit === "days") {
-            nextDueDate.setDate(nextDueDate.getDate() + task.repeatInterval);
-          } else if (task.repeatUnit === "weeks") {
-            nextDueDate.setDate(nextDueDate.getDate() + (task.repeatInterval * 7));
-          } else if (task.repeatUnit === "months") {
-            // Use monthlyRecurrenceMode if set
-            const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-            const mode = task.monthlyRecurrenceMode || "same_date";
-            nextDueDate = getNextMonthlyOccurrence(currentDueDate, task.repeatInterval, mode);
-          }
-        } else {
-          // Fallback to frequency field
-          switch (task.frequency) {
-            case "daily":
-              nextDueDate.setDate(nextDueDate.getDate() + 1);
-              break;
-            case "weekly":
-              nextDueDate.setDate(nextDueDate.getDate() + 7);
-              break;
-            case "monthly": {
-              const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-              const mode = task.monthlyRecurrenceMode || "same_date";
-              nextDueDate = getNextMonthlyOccurrence(currentDueDate, 1, mode);
-              break;
-            }
-            case "custom":
-              if (task.customFrequencyDays) {
-                nextDueDate.setDate(nextDueDate.getDate() + task.customFrequencyDays);
-              }
-              break;
-          }
-        }
-        console.log('[completeTask] Next due date calculated:', nextDueDate.toISOString());
-
-        // Skip-chain: advance nextDueDate past any skipped occurrences (occurrenceNotes is single source of truth)
-        {
-          const { getNextMonthlyOccurrence: getNextMonthlySkip } = await import("../../shared/dateUtils");
-          const skippedOccNums = await getSkippedOccurrenceNumbers(input.taskId);
-          console.log('[completeTask] SKIP-CHAIN START: nextDueDate=', nextDueDate.toISOString(), 'skippedOccNums=', Array.from(skippedOccNums));
-          const advanceOneSkip = (d: Date): Date => {
-            const next = new Date(d);
-            if (task.repeatUnit === "days") {
-              next.setDate(next.getDate() + (task.repeatInterval || 1));
-            } else if (task.repeatUnit === "weeks") {
-              next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
-            } else if (task.repeatUnit === "months") {
-              return getNextMonthlySkip(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
-            }
-            return next;
-          };
-          let maxSkipIter = 500;
-          let highestConsumedOccNum = 0;
-          while (maxSkipIter-- > 0) {
-            const occNum = calcOccurrenceNumber(task, nextDueDate);
-            if (occNum !== null && skippedOccNums.has(occNum)) {
-              console.log('[completeTask] Skipping occurrence', occNum, 'at', nextDueDate.toISOString());
-              highestConsumedOccNum = Math.max(highestConsumedOccNum, occNum);
-              nextDueDate = advanceOneSkip(nextDueDate);
-            } else {
-              break;
-            }
-          }
-          // Clean up consumed skip entries (only pure skip entries without notes)
-          if (highestConsumedOccNum > 0) {
-            await clearSkippedOccurrencesUpTo(input.taskId, highestConsumedOccNum);
-          }
-          console.log('[completeTask] Next due date after skip-chain:', nextDueDate.toISOString());
-        }
+        const result = await handleRecurringCompletion(
+          task,
+          input.householdId,
+          occurrenceDetails?.occurrenceNumber ?? null,
+        );
+        nextDueDate = result.nextDueDate;
       }
 
       // ===== 3. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
       if (isRecurring && nextDueDate) {
-        // For recurring tasks: update to next occurrence in a SINGLE write (no intermediate isCompleted=true)
-        // skippedDates is no longer used; skip status is managed via occurrenceNotes
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
           isCompleted: false,
@@ -1057,160 +826,6 @@ export const tasksRouter = router({
           completionPhotoUrls: input.photoUrls || [],
           completionFileUrls: input.fileUrls || [],
         });
-      }
-
-      // ===== 4. Remove completed occurrence and shift remaining ones =====
-      if (isRecurring && occurrenceDetails) {
-        try {
-          // Remove the completed occurrence (this also renumbers remaining ones)
-          await deleteRotationOccurrence(input.taskId, occurrenceDetails.occurrenceNumber);
-          console.log('[completeTask] Occurrence', occurrenceDetails.occurrenceNumber, 'removed and remaining shifted');
-
-          // Shift task_occurrence_items: remove items for completed occurrence, renumber rest
-          const db = await getDb();
-          if (db) {
-            const { taskOccurrenceItems: toiTable } = await import("../../drizzle/schema");
-            
-            // Delete items for the completed occurrence
-            await db.delete(toiTable).where(
-              and(
-                eq(toiTable.taskId, input.taskId),
-                eq(toiTable.occurrenceNumber, occurrenceDetails.occurrenceNumber)
-              )
-            );
-
-            // Get remaining items and renumber them
-            const remainingItems = await db.select().from(toiTable)
-              .where(eq(toiTable.taskId, input.taskId))
-              .orderBy(toiTable.occurrenceNumber);
-
-            // Build a mapping of old occurrence numbers to new ones
-            const occNumberSet = Array.from(new Set(remainingItems.map(i => i.occurrenceNumber))).sort((a, b) => a - b);
-            const occMapping = new Map<number, number>();
-            occNumberSet.forEach((oldNum, index) => {
-              occMapping.set(oldNum, index + 1);
-            });
-
-            // Update occurrence numbers
-            for (const item of remainingItems) {
-              const newOccNum = occMapping.get(item.occurrenceNumber);
-              if (newOccNum !== undefined && newOccNum !== item.occurrenceNumber) {
-                await db.update(toiTable)
-                  .set({ occurrenceNumber: newOccNum })
-                  .where(eq(toiTable.id, item.id));
-              }
-            }
-            console.log('[completeTask] Occurrence items shifted successfully');
-          }
-
-          // ===== 4b. Clean up rotation-skipped occurrences from the schedule =====
-          // Skip-Chain A (above) already advanced nextDueDate past skippedDates.
-          // Here we only remove rotation-schedule entries whose isSkipped=true so the
-          // schedule stays in sync. We do NOT advance nextDueDate again (that would
-          // cause double-skipping when skipOccurrence writes to both systems).
-          if (nextDueDate) {
-            let scheduleAfterDelete = await getRotationSchedule(input.taskId);
-            let maxRotIter = 50;
-            while (scheduleAfterDelete.length > 0 && scheduleAfterDelete[0].isSkipped && maxRotIter-- > 0) {
-              console.log('[completeTask] Rotation-cleanup: removing skipped occurrence', scheduleAfterDelete[0].occurrenceNumber, 'from schedule (nextDueDate unchanged)');
-              // Remove this skipped occurrence from schedule only (no dueDate advance)
-              await deleteRotationOccurrence(input.taskId, scheduleAfterDelete[0].occurrenceNumber);
-              // Reload schedule
-              scheduleAfterDelete = await getRotationSchedule(input.taskId);
-            }
-            console.log('[completeTask] After rotation-cleanup: dueDate stays at', nextDueDate.toISOString());
-          }
-
-          // Ensure at least 3 real (non-virtual) occurrences remain in the schedule
-          const MIN_REAL_OCCURRENCES = 3;
-          if (task.requiredPersons) {
-            const db2 = await getDb();
-            if (db2) {
-              const { taskRotationExclusions: excTable } = await import("../../drizzle/schema");
-              const exclusions = await db2.select().from(excTable)
-                .where(eq(excTable.taskId, input.taskId));
-              const excludedIds = exclusions.map(e => e.memberId);
-              const members = await getHouseholdMembers(input.householdId);
-              const availableMembers = members.filter(m => m.isActive && !excludedIds.includes(m.id));
-
-              // Loop until we have at least MIN_REAL_OCCURRENCES real entries in DB
-              let safetyCounter = 0;
-              while (safetyCounter++ < 10) {
-                const realSchedule = await getRealRotationSchedule(input.taskId);
-                if (realSchedule.length >= MIN_REAL_OCCURRENCES) break;
-
-                const newOccurrenceNumber = realSchedule.length > 0
-                  ? Math.max(...realSchedule.map(r => r.occurrenceNumber)) + 1
-                  : 1;
-                const newMembers: { position: number; memberId: number }[] = [];
-
-                for (let i = 0; i < task.requiredPersons; i++) {
-                  if (availableMembers.length > 0) {
-                    // Use the last real occurrence's members as base for rotation
-                    const lastRealOcc = realSchedule[realSchedule.length - 1];
-                    const lastMember = lastRealOcc?.members?.[0];
-                    const lastIdx = lastMember
-                      ? availableMembers.findIndex(m => m.id === lastMember.memberId)
-                      : -1;
-                    const memberIndex = (lastIdx + 1 + i) % availableMembers.length;
-                    newMembers.push({
-                      position: i + 1,
-                      memberId: availableMembers[memberIndex < 0 ? 0 : memberIndex].id,
-                    });
-                  }
-                }
-
-                if (newMembers.length > 0) {
-                  await extendSchedule(input.taskId, newOccurrenceNumber, newMembers);
-                  console.log('[completeTask] Extended schedule to occurrence', newOccurrenceNumber);
-                } else {
-                  break; // No members available, stop
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.error('[completeTask] Error removing occurrence:', e);
-        }
-      }
-
-      // ===== 5. Handle rotation if enabled (assign next person) =====
-      if (isRecurring && (task.enableRotation || occurrenceDetails)) {
-        try {
-          // After occurrence removal, the new first occurrence has the next assignees
-          // Update task.assignedTo to match the new first occurrence
-          const updatedSchedule = await getRotationSchedule(input.taskId);
-          const newFirstOcc = updatedSchedule.find(occ => !occ.isSkipped) || updatedSchedule[0];
-          if (newFirstOcc && newFirstOcc.members.length > 0) {
-            await updateTask(input.taskId, {
-              assignedTo: newFirstOcc.members.map(m => m.memberId),
-            });
-          }
-        } catch (e) {
-          console.error('[completeTask] Error updating rotation assignee:', e);
-          // Fallback: old rotation logic
-          if (task.enableRotation && task.assignedTo && Array.isArray(task.assignedTo) && task.assignedTo.length === 1) {
-            const members = await getHouseholdMembers(input.householdId);
-            const activeMembers = members.filter(m => m.isActive);
-            const db = await getDb();
-            if (db) {
-              const exclusions = await db.select()
-                .from(taskRotationExclusions)
-                .where(eq(taskRotationExclusions.taskId, input.taskId));
-              const excludedMemberIds = new Set(exclusions.map(e => e.memberId));
-              const eligibleMembers = activeMembers.filter(m => !excludedMemberIds.has(m.id));
-              if (eligibleMembers.length > 0) {
-                const currentAssigneeId = task.assignedTo[0];
-                const currentIndex = eligibleMembers.findIndex(m => m.id === currentAssigneeId);
-                const nextIndex = (currentIndex + 1) % eligibleMembers.length;
-                const nextMember = eligibleMembers[nextIndex];
-                if (nextMember) {
-                  await updateTask(input.taskId, { assignedTo: [nextMember.id] });
-                }
-              }
-            }
-          }
-        }
       }
 
       // ===== 6. Build activity log with occurrence details (multilingual) =====

@@ -3544,3 +3544,9 @@
 - [x] TaskDetailDialog.tsx: RotationScheduleTable onSkipOccurrence auf skipOccurrence/restoreSkippedDate umstellen
 - [x] TaskDetailDialog.tsx: Rotation-Plan-Tabelle Skip-Button auf einheitliches System umstellen
 - [x] Tests: server/skip-system.test.ts (16 Tests alle bestanden)
+
+## Refactoring: toggleComplete + completeTask vereinheitlichen
+- [ ] Gemeinsame Hilfsfunktion handleRecurringCompletion extrahieren (Skip-Chain, Rotation-Shift, Mindest-3, Assignee-Update)
+- [ ] completeTask auf Hilfsfunktion umstellen
+- [ ] toggleComplete auf Hilfsfunktion umstellen
+- [ ] Tests aktualisieren
