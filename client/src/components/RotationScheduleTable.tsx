@@ -152,7 +152,13 @@ export function RotationScheduleTable({
         }
         return { ...occ, members: filledMembers.sort((a, b) => a.position - b.position) };
       });
-      setSchedule(normalizedSchedule);
+      // Sort chronologically: special appointments by specialDate, regular by calculated date
+      const sortedSchedule = normalizedSchedule.sort((a, b) => {
+        const dateA = a.specialDate ? new Date(a.specialDate).getTime() : (calculateOccurrenceDate(a.occurrenceNumber)?.getTime() ?? Infinity);
+        const dateB = b.specialDate ? new Date(b.specialDate).getTime() : (calculateOccurrenceDate(b.occurrenceNumber)?.getTime() ?? Infinity);
+        return dateA - dateB;
+      }).map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 }));
+      setSchedule(sortedSchedule);
       isInitialized.current = true;
     } else {
       // Create default 3 occurrences
@@ -442,8 +448,8 @@ export function RotationScheduleTable({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 min-w-0">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <h3 className="text-lg font-semibold">{t("tasks:rotationPlan.title")}</h3>
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={() => setIsAddingSpecialOccurrence(true)} className="gap-2">
@@ -457,7 +463,8 @@ export function RotationScheduleTable({
         </div>
       </div>
 
-      <div className="border rounded-lg overflow-x-auto max-w-full">
+      <div className="border rounded-lg bg-card">
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[600px]">
           <thead className="bg-muted">
             <tr>
@@ -713,6 +720,7 @@ export function RotationScheduleTable({
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Special Occurrence Dialog */}

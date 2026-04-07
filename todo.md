@@ -3588,3 +3588,7 @@
 - [x] Wiederholungsintervall-Dropdown: {{count}} vor Tagen/Wochen/Monate statt korrekte Übersetzung
 - [x] Termine-Planen-Tabelle: Aktionen sollen direkt nach dem Datum kommen
 - [x] Rotationsplan-Tabelle: eigenständig horizontal scrollbar (nicht das ganze Fenster breiter machen)
+
+## Rotationsplan UI + Sondertermine
+- [x] Rotationsplan-Tabelle in eigene scrollbare Karte (Card) im Dialog packen
+- [x] Sondertermine chronologisch einsortieren statt am Ende anhängen

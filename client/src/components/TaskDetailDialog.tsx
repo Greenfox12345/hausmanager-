@@ -1818,7 +1818,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <Label className="text-sm font-medium cursor-pointer">{t("repeat.rotationPlan")}</Label>
                             </button>
                             {isRotationPlanExpanded && (
-                              <div className="space-y-3">
+                              <div className="space-y-3 min-w-0 overflow-hidden">
                                 <p className="text-xs text-muted-foreground">
                                   {t("repeat.planRotationHint")}
                                 </p>
