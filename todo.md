@@ -3607,3 +3607,7 @@
 
 ## Termine-Planen-Tabelle Scroll
 - [x] Termine-Planen-Tabelle im Edit-Modus horizontal scrollbar machen
+
+## UpcomingOccurrencesTable Fixes
+- [x] +-Button für extra Verantwortliche bei Sonderterminen funktioniert nicht
+- [x] Tabelle horizontal scrollbar machen
