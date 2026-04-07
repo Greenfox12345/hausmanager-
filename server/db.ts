@@ -494,21 +494,24 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
 
   // Load occurrence notes for all tasks that have repeatInterval (for calendar display)
   const recurringTaskIds = tasksWithNames
-    .filter((t: any) => t.repeatInterval && t.repeatUnit)
+    .filter((t: any) => (t.repeatInterval && t.repeatUnit) || t.repeatUnit === 'irregular')
     .map((t: any) => t.id as number);
 
-  let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean }[]> = {};
+  let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date }[]> = {};
   if (recurringTaskIds.length > 0) {
     const [notesResult] = await db.execute(
-      sql`SELECT taskId, occurrenceNumber, notes, isSkipped FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1)`
+      sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1 OR isSpecial = 1 OR specialDate IS NOT NULL)`
     );
-    const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number }[];
+    const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number; isSpecial?: number; specialName?: string; specialDate?: string | Date }[];
     for (const row of notesRows) {
       if (!occurrenceNotesMap[row.taskId]) occurrenceNotesMap[row.taskId] = [];
       occurrenceNotesMap[row.taskId].push({
         occurrenceNumber: row.occurrenceNumber,
         notes: row.notes,
         isSkipped: row.isSkipped === 1,
+        isSpecial: row.isSpecial === 1,
+        specialName: row.specialName || undefined,
+        specialDate: row.specialDate ? new Date(row.specialDate) : undefined,
       });
     }
   }

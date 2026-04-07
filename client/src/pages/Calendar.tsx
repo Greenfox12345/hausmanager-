@@ -321,8 +321,8 @@ export default function Calendar() {
         }
       }
 
-      // Add future occurrences for recurring tasks
-      if (task.repeatInterval && task.repeatUnit) {
+      // Add future occurrences for recurring tasks (regular intervals)
+      if (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
         const futureOccurrences = calculateFutureOccurrences(task);
         futureOccurrences.forEach(occurrence => {
           const dateKey = format(occurrence.date, "yyyy-MM-dd");
@@ -332,6 +332,28 @@ export default function Calendar() {
           grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date, occurrenceNote: occurrence.occurrenceNote } as any);
         });
       }
+
+      // Add irregular occurrences and special occurrences from rotation schedule
+      const occurrenceNotes: any[] = (task as any).occurrenceNotes || [];
+      occurrenceNotes.forEach((occ: any) => {
+        if (!occ.specialDate) return; // only entries with a date
+        const occDate = new Date(occ.specialDate);
+        if (isNaN(occDate.getTime())) return;
+        const isInMonth = occDate >= monthStart && occDate <= monthEnd;
+        if (!isInMonth) return; // only show in current month view
+        if (occ.isSkipped) return; // skip skipped occurrences
+        const dateKey = format(occDate, "yyyy-MM-dd");
+        if (!grouped[dateKey]) grouped[dateKey] = [];
+        grouped[dateKey].push({
+          ...task,
+          isFutureOccurrence: true,
+          isSpecialOccurrence: occ.isSpecial || false,
+          specialOccurrenceName: occ.specialName,
+          occurrenceDate: occDate,
+          occurrenceNumber: occ.occurrenceNumber,
+          occurrenceNote: occ.notes,
+        } as any);
+      });
     });
 
     // Add completed occurrences from activity history
@@ -403,8 +425,8 @@ export default function Calendar() {
         }
       }
       
-      // Add future occurrences for recurring tasks
-      if (task.repeatInterval && task.repeatUnit) {
+      // Add future occurrences for recurring tasks (regular intervals)
+      if (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
         const futureOccurrences = calculateFutureOccurrences(task, chronologicalRange);
         futureOccurrences.forEach(occurrence => {
           const occurrenceDate = new Date(occurrence.date);
@@ -423,6 +445,29 @@ export default function Calendar() {
           }
         });
       }
+
+      // Add irregular occurrences and special occurrences from rotation schedule
+      const occurrenceNotesForChron: any[] = (task as any).occurrenceNotes || [];
+      occurrenceNotesForChron.forEach((occ: any) => {
+        if (!occ.specialDate) return;
+        const occDate = new Date(occ.specialDate);
+        if (isNaN(occDate.getTime())) return;
+        const occDateNorm = new Date(occDate);
+        occDateNorm.setHours(0, 0, 0, 0);
+        if (occ.isSkipped) return;
+        if (occDateNorm > endDate && !occ.notes) return; // skip if beyond range and no note
+        allTasks.push({
+          ...task,
+          dueDate: occDate,
+          isFutureOccurrence: true,
+          isSpecialOccurrence: occ.isSpecial || false,
+          specialOccurrenceName: occ.specialName,
+          occurrenceDate: occDate,
+          occurrenceNumber: occ.occurrenceNumber,
+          occurrenceNote: occ.notes,
+          isOverdue: occDateNorm < today && !task.isCompleted,
+        } as any);
+      });
     });
     
     // Sort: overdue first, then by due date (oldest first)

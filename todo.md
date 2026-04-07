@@ -3620,3 +3620,7 @@
 ## Unregelmäßige Wiederholungen Fixes
 - [x] Sondertermine beeinflussen Terminzähler nicht (Termin 1, Sondertermin, Termin 2, ...)
 - [x] Alle Termine unter Kommende Termine anzeigen (nicht nur 3)
+
+## Kalender: Unregelmäßige + Sondertermine
+- [x] Unregelmäßige Termine im Kalender anzeigen (specialDate aus rotation_schedule)
+- [x] Sondertermine im Kalender anzeigen (isSpecial + specialDate)
