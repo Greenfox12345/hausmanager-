@@ -27,6 +27,17 @@ export function DemoBanner({ demoToken, expiresAt }: DemoBannerProps) {
     return () => clearInterval(id);
   }, [expiresAt]);
 
+  // Autostart-Flag: Tutorial nach Demo-Start automatisch öffnen
+  useEffect(() => {
+    const flag = localStorage.getItem("demo_tutorial_autostart");
+    if (flag === "1") {
+      localStorage.removeItem("demo_tutorial_autostart");
+      // Kleines Delay damit die Seite fertig geladen ist
+      const timer = setTimeout(() => setTutorialOpen(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   if (dismissed) return null;
 
   return (

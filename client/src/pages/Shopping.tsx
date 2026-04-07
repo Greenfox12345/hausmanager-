@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -18,7 +18,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
-import { DemoTutorial } from "@/components/DemoTutorial";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -41,20 +40,9 @@ const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: stri
 
 export default function Shopping() {
   const { t } = useTranslation(["shopping", "common"]);
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const { household, member, isAuthenticated } = useCompatAuth();
-  const [tutorialOpen, setTutorialOpen] = useState(false);
-
-  // Tutorial automatisch anzeigen wenn ?tutorial=1 in der URL
-  useEffect(() => {
-    if (location.includes("tutorial=1") || new URLSearchParams(window.location.search).get("tutorial") === "1") {
-      setTutorialOpen(true);
-      // URL bereinigen ohne Reload
-      const url = new URL(window.location.href);
-      url.searchParams.delete("tutorial");
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, []);
+  // Tutorial wird über DemoBanner gesteuert (kein lokaler State mehr nötig)
   const [newItemName, setNewItemName] = useState("");
   const [newItemDetails, setNewItemDetails] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
@@ -683,7 +671,6 @@ export default function Shopping() {
 
   return (
     <AppLayout>
-      <DemoTutorial open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
       <div className="container py-6 max-w-4xl pb-36">
         <div className="mb-6 flex items-center gap-4">
           <Button

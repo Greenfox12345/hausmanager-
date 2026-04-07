@@ -247,6 +247,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           return (
             <button
               key={item.href}
+              data-nav={item.href}
               onClick={() => {
                 setLocation(item.href);
                 setSidebarOpen(false);

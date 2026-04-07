@@ -58,9 +58,11 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
         memberName: data.memberName,
       });
       onClose();
-      // Tutorial beim ersten Demo-Start anzeigen
+      // Tutorial beim ersten Demo-Start anzeigen:
+      // Wir setzen ein Flag, das DemoBanner beim nächsten Render aufgreift
       localStorage.removeItem("demo_tutorial_seen");
-      setLocation("/shopping?tutorial=1");
+      localStorage.setItem("demo_tutorial_autostart", "1");
+      setLocation("/shopping");
     },
     onError: () => {
       toast.error("Demo konnte nicht gestartet werden.");
