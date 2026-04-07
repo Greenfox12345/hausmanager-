@@ -437,7 +437,8 @@
   "memberSelect": {
     "placeholder": "选择...",
     "open": "开放",
-    "alreadyAssigned": " (已分配)"
+    "alreadyAssigned": " (已分配)",
+    "addPerson": "Add person"
   },
   "notes": {
     "placeholder": "备注..."

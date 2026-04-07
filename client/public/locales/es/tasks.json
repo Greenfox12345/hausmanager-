@@ -369,7 +369,8 @@
   "memberSelect": {
     "placeholder": "Seleccionar miembro...",
     "open": "Abrir selección",
-    "alreadyAssigned": "Ya asignado"
+    "alreadyAssigned": "Ya asignado",
+    "addPerson": "Añadir persona"
   },
   "notes": {
     "placeholder": "Notas..."

@@ -73,6 +73,7 @@ export function RotationScheduleTable({
   const [isAddingSpecialOccurrence, setIsAddingSpecialOccurrence] = useState(false);
   const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
   const [specialOccurrenceDate, setSpecialOccurrenceDate] = useState<Date | undefined>(undefined);
+  const [specialOccurrenceMembers, setSpecialOccurrenceMembers] = useState<number[]>([]);
   const [isItemPickerOpen, setIsItemPickerOpen] = useState(false);
   const [selectedOccurrenceForItem, setSelectedOccurrenceForItem] = useState<number | null>(null);
   const isInitialized = useRef(false);
@@ -422,9 +423,17 @@ export function RotationScheduleTable({
   const handleAddSpecialOccurrence = () => {
     if (!specialOccurrenceName || !specialOccurrenceDate) return;
 
+    // Build members: start with selected members, fill remaining required positions with 0
+    const selectedMembers = specialOccurrenceMembers.filter(id => id !== 0);
+    const totalPositions = Math.max(requiredPersons, selectedMembers.length);
+    const members = Array.from({ length: totalPositions }, (_, i) => ({
+      position: i + 1,
+      memberId: i < specialOccurrenceMembers.length ? specialOccurrenceMembers[i] : 0,
+    }));
+
     const newOccurrence: ScheduleOccurrence = {
       occurrenceNumber: schedule.length + 1, // Placeholder, will be re-sorted
-      members: Array.from({ length: requiredPersons }, (_, i) => ({ position: i + 1, memberId: 0 })),
+      members,
       notes: "",
       isSpecial: true,
       specialName: specialOccurrenceName,
@@ -445,6 +454,7 @@ export function RotationScheduleTable({
     setIsAddingSpecialOccurrence(false);
     setSpecialOccurrenceName("");
     setSpecialOccurrenceDate(undefined);
+    setSpecialOccurrenceMembers([]);
   };
 
   return (
@@ -576,52 +586,128 @@ export function RotationScheduleTable({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: requiredPersons }, (_, posIndex) => {
-              const position = posIndex + 1;
-              return (
-                <tr key={position} className="border-t">
-                  {schedule.map((occ) => {
-                    const member = occ.members.find(m => m.position === position);
-                    const selectedMemberId = member?.memberId || 0;
-                    
-                    // Get all member IDs already assigned to OTHER positions in this occurrence
-                    const assignedMemberIds = occ.members
-                      .filter(m => m.position !== position && m.memberId !== 0)
-                      .map(m => m.memberId);
-                    
-                    return (
-                      <td key={occ.occurrenceNumber} className="p-2">
-                        <Select
-                          value={selectedMemberId.toString()}
-                          onValueChange={(value) =>
-                            handleMemberChange(occ.occurrenceNumber, position, parseInt(value))
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={t("tasks:memberSelect.placeholder")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
-                            {eligibleMembers.map((m) => {
-                              const isAlreadyAssigned = assignedMemberIds.includes(m.memberId);
-                              return (
-                                <SelectItem 
-                                  key={m.memberId} 
-                                  value={m.memberId.toString()}
-                                  disabled={isAlreadyAssigned}
-                                >
-                                  {m.memberName}{isAlreadyAssigned ? t("tasks:memberSelect.alreadyAssigned") : ''}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                    );
-                  })}
-                </tr>
+            {(() => {
+              // Calculate max member positions across all occurrences
+              // For special occurrences, allow more than requiredPersons
+              const maxPositions = Math.max(
+                requiredPersons,
+                ...schedule.map(occ => occ.members.length)
               );
-            })}
+              return Array.from({ length: maxPositions }, (_, posIndex) => {
+                const position = posIndex + 1;
+                const isExtraRow = position > requiredPersons;
+                return (
+                  <tr key={position} className="border-t">
+                    {schedule.map((occ) => {
+                      const occMemberCount = occ.members.length;
+                      const isLastMemberRow = position === occMemberCount;
+                      const hasSlotHere = occ.isSpecial || position <= requiredPersons;
+                      const member = occ.members.find(m => m.position === position);
+                      const selectedMemberId = member?.memberId || 0;
+                      
+                      // Get all member IDs already assigned to OTHER positions in this occurrence
+                      const assignedMemberIds = occ.members
+                        .filter(m => m.position !== position && m.memberId !== 0)
+                        .map(m => m.memberId);
+
+                      // For extra rows: only show dropdown for special occurrences that have this position
+                      if (isExtraRow && !occ.isSpecial) {
+                        return (
+                          <td key={occ.occurrenceNumber} className="p-2">
+                            {/* Empty cell for non-special occurrences in extra rows */}
+                          </td>
+                        );
+                      }
+                      if (isExtraRow && occ.isSpecial && position > occMemberCount) {
+                        return (
+                          <td key={occ.occurrenceNumber} className="p-2">
+                            {/* Empty cell - this special occurrence doesn't have this many members yet */}
+                          </td>
+                        );
+                      }
+                      
+                      return (
+                        <td key={occ.occurrenceNumber} className="p-2">
+                          <div className="flex flex-col gap-1">
+                            <Select
+                              value={selectedMemberId.toString()}
+                              onValueChange={(value) =>
+                                handleMemberChange(occ.occurrenceNumber, position, parseInt(value))
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={t("tasks:memberSelect.placeholder")} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
+                                {eligibleMembers.map((m) => {
+                                  const isAlreadyAssigned = assignedMemberIds.includes(m.memberId);
+                                  return (
+                                    <SelectItem 
+                                      key={m.memberId} 
+                                      value={m.memberId.toString()}
+                                      disabled={isAlreadyAssigned}
+                                    >
+                                      {m.memberName}{isAlreadyAssigned ? t("tasks:memberSelect.alreadyAssigned") : ''}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                            {/* Show remove button for extra members on special occurrences */}
+                            {isExtraRow && occ.isSpecial && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-5 w-full text-xs text-destructive hover:text-destructive p-0"
+                                onClick={() => {
+                                  setSchedule(prev => prev.map(o => {
+                                    if (o.occurrenceNumber !== occ.occurrenceNumber) return o;
+                                    const newMembers = o.members
+                                      .filter(m => m.position !== position)
+                                      .map((m, idx) => ({ ...m, position: idx + 1 }));
+                                    return { ...o, members: newMembers };
+                                  }));
+                                }}
+                              >
+                                <X className="h-3 w-3 mr-0.5" />
+                                {t("common:actions.delete")}
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              });
+            })()}
+            {/* Add extra member row for special occurrences */}
+            <tr className="border-t">
+              {schedule.map((occ) => (
+                <td key={occ.occurrenceNumber} className="p-1">
+                  {occ.isSpecial && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-full text-xs text-muted-foreground hover:text-foreground gap-1"
+                      onClick={() => {
+                        setSchedule(prev => prev.map(o => {
+                          if (o.occurrenceNumber !== occ.occurrenceNumber) return o;
+                          const nextPos = o.members.length + 1;
+                          return { ...o, members: [...o.members, { position: nextPos, memberId: 0 }] };
+                        }));
+                      }}
+                    >
+                      <Plus className="h-3 w-3" />
+                      {t("tasks:memberSelect.addPerson")}
+                    </Button>
+                  )}
+                </td>
+              ))}
+            </tr>
             {/* Notes row */}
             <tr className="border-t">
               {schedule.map((occ) => (
@@ -752,6 +838,62 @@ export function RotationScheduleTable({
                 className="rounded-md border"
               />
             </div>
+            {/* Verantwortliche für Sondertermin */}
+            <div className="space-y-2">
+              <Label>{t("tasks:fields.assignees")}</Label>
+              <div className="space-y-2">
+                {specialOccurrenceMembers.map((memberId, idx) => {
+                  const assignedOtherIds = specialOccurrenceMembers.filter((_, i) => i !== idx);
+                  return (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Select
+                        value={String(memberId)}
+                        onValueChange={(val) => {
+                          setSpecialOccurrenceMembers(prev => prev.map((id, i) => i === idx ? parseInt(val) : id));
+                        }}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder={t("tasks:memberSelect.placeholder")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
+                          {eligibleMembers.map((m) => (
+                            <SelectItem
+                              key={m.memberId}
+                              value={String(m.memberId)}
+                              disabled={assignedOtherIds.includes(m.memberId)}
+                            >
+                              {m.memberName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {idx >= requiredPersons && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
+                          onClick={() => setSpecialOccurrenceMembers(prev => prev.filter((_, i) => i !== idx))}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-1"
+                  onClick={() => setSpecialOccurrenceMembers(prev => [...prev, 0])}
+                >
+                  <Plus className="h-3 w-3" />
+                  {t("tasks:memberSelect.addPerson")}
+                </Button>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -761,6 +903,7 @@ export function RotationScheduleTable({
                 setIsAddingSpecialOccurrence(false);
                 setSpecialOccurrenceName("");
                 setSpecialOccurrenceDate(undefined);
+                setSpecialOccurrenceMembers([]);
               }}
             >
               {t("common:actions.cancel")}

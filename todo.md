@@ -3592,3 +3592,8 @@
 ## Rotationsplan UI + Sondertermine
 - [x] Rotationsplan-Tabelle in eigene scrollbare Karte (Card) im Dialog packen
 - [x] Sondertermine chronologisch einsortieren statt am Ende anhängen
+
+## Sondertermine Verbesserungen
+- [x] Zurücksetzen-Button bei Sonderterminen in Termine-Planen-Tabelle entfernen
+- [x] Sondertermine: mehr Verantwortliche als requiredPersons erlauben (+-Button unter letztem Verantwortlichen)
+- [x] Sondertermin-Erstellung: Verantwortliche direkt auswählbar machen

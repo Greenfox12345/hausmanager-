@@ -436,7 +436,8 @@
   "memberSelect": {
     "placeholder": "Seç...",
     "open": "Açık",
-    "alreadyAssigned": " (zaten atanmış)"
+    "alreadyAssigned": " (zaten atanmış)",
+    "addPerson": "Kişi ekle"
   },
   "notes": {
     "placeholder": "Notlar..."

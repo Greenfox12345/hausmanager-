@@ -437,7 +437,8 @@
   "memberSelect": {
     "placeholder": "Sélectionner...",
     "open": "Ouvert",
-    "alreadyAssigned": " (déjà assigné)"
+    "alreadyAssigned": " (déjà assigné)",
+    "addPerson": "Ajouter une personne"
   },
   "notes": {
     "placeholder": "Notes..."

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
-import { Calendar, User, FileText, Check, X } from "lucide-react";
+import { Calendar, User, FileText, Check, X, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -101,39 +101,72 @@ export function UpcomingOccurrencesTable({
                 <td className="px-2 py-1.5">
                   {canEdit && onMembersChange && members.length > 0 ? (
                     // Inline-editable member selects
-                    <div className="flex flex-wrap gap-1">
-                      {Array.from({ length: requiredPersons }, (_, i) => {
-                        const currentId = occ.memberIds?.[i] ?? 0;
-                        const assignedOtherIds = (occ.memberIds || []).filter((_, idx) => idx !== i);
-                        return (
-                          <Select
-                            key={i}
-                            value={String(currentId)}
-                            onValueChange={(val) => {
-                              const newIds = Array.from({ length: requiredPersons }, (_, idx) =>
-                                idx === i ? parseInt(val) : (occ.memberIds?.[idx] ?? 0)
-                              );
-                              onMembersChange(occ.occurrenceNumber, newIds);
-                            }}
-                          >
-                            <SelectTrigger className="h-7 text-xs min-w-[100px] max-w-[140px]">
-                              <SelectValue placeholder={t("tasks:memberSelect.open")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
-                              {members.map((m) => (
-                                <SelectItem
-                                  key={m.memberId}
-                                  value={String(m.memberId)}
-                                  disabled={assignedOtherIds.includes(m.memberId)}
+                    <div className="flex flex-wrap gap-1 items-center">
+                      {(() => {
+                        // For special occurrences, show all assigned members (may exceed requiredPersons)
+                        const memberCount = occ.isSpecial
+                          ? Math.max(requiredPersons, occ.memberIds?.length ?? 0)
+                          : requiredPersons;
+                        return Array.from({ length: memberCount }, (_, i) => {
+                          const currentId = occ.memberIds?.[i] ?? 0;
+                          const assignedOtherIds = (occ.memberIds || []).filter((_, idx) => idx !== i);
+                          return (
+                            <div key={i} className="flex items-center gap-0.5">
+                              <Select
+                                value={String(currentId)}
+                                onValueChange={(val) => {
+                                  const newIds = Array.from({ length: memberCount }, (_, idx) =>
+                                    idx === i ? parseInt(val) : (occ.memberIds?.[idx] ?? 0)
+                                  );
+                                  onMembersChange(occ.occurrenceNumber, newIds);
+                                }}
+                              >
+                                <SelectTrigger className="h-7 text-xs min-w-[100px] max-w-[140px]">
+                                  <SelectValue placeholder={t("tasks:memberSelect.open")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="0">{t("tasks:memberSelect.open")}</SelectItem>
+                                  {members.map((m) => (
+                                    <SelectItem
+                                      key={m.memberId}
+                                      value={String(m.memberId)}
+                                      disabled={assignedOtherIds.includes(m.memberId)}
+                                    >
+                                      {m.memberName}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {/* Remove button for extra members on special occurrences */}
+                              {occ.isSpecial && i >= requiredPersons && (
+                                <button
+                                  type="button"
+                                  className="h-5 w-5 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded"
+                                  onClick={() => {
+                                    const newIds = (occ.memberIds || []).filter((_, idx) => idx !== i);
+                                    onMembersChange(occ.occurrenceNumber, newIds);
+                                  }}
                                 >
-                                  {m.memberName}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        );
-                      })}
+                                  <X className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        });
+                      })()}
+                      {/* Add person button for special occurrences */}
+                      {occ.isSpecial && (
+                        <button
+                          type="button"
+                          className="h-7 px-1.5 flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded border border-dashed"
+                          onClick={() => {
+                            const newIds = [...(occ.memberIds || []), 0];
+                            onMembersChange(occ.occurrenceNumber, newIds);
+                          }}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      )}
                     </div>
                   ) : (
                     // Read-only display
