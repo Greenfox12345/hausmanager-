@@ -165,30 +165,51 @@ export function RotationScheduleTable({
     }
   }, [dueDate, initialSchedule, requiredPersons, currentAssignees, repeatInterval, repeatUnit, monthlyRecurrenceMode]); // Re-run when dueDate is set
 
-  // Sync schedule with initialSchedule changes (e.g., when parent adds new occurrence or updates skip status)
+  // Sync schedule with initialSchedule changes.
+  // IMPORTANT: Only sync structural changes (different occurrence numbers / count),
+  // NOT member or notes changes — those come from user edits and must not be overwritten.
   useEffect(() => {
     if (!isInitialized.current) return;
     if (!initialSchedule) return;
-    
-    // Set flag to prevent onChange during sync
-    isSyncingWithInitialSchedule.current = true;
-    
-    // Sync with initialSchedule: update length, isSkipped, and other properties
-    // Sort by date to maintain chronological order
-    const sorted = initialSchedule.slice().sort((a, b) => {
-      // For irregular/special: use specialDate, for regular: calculate on-the-fly
-      const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
-      const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
-      if (!dateA || !dateB) return 0;
-      return dateA.getTime() - dateB.getTime();
+
+    setSchedule(prev => {
+      // Build a set of occurrence numbers currently in local state
+      const localNums = new Set(prev.map(o => o.occurrenceNumber));
+      const incomingNums = new Set(initialSchedule.map(o => o.occurrenceNumber));
+
+      // Check if the set of occurrence numbers changed (added / removed occurrences)
+      const structuralChange =
+        localNums.size !== incomingNums.size ||
+        Array.from(incomingNums).some(n => !localNums.has(n));
+
+      if (structuralChange) {
+        // Full replace: new occurrences were added or removed
+        isSyncingWithInitialSchedule.current = true;
+        const sorted = initialSchedule.slice().sort((a, b) => {
+          const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
+          const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
+          if (!dateA || !dateB) return 0;
+          return dateA.getTime() - dateB.getTime();
+        });
+        setTimeout(() => { isSyncingWithInitialSchedule.current = false; }, 0);
+        return sorted;
+      }
+
+      // No structural change: only sync isSkipped / isSpecial / specialName / specialDate
+      // from initialSchedule — preserve local members and notes.
+      const incomingMap = new Map(initialSchedule.map(o => [o.occurrenceNumber, o]));
+      return prev.map(occ => {
+        const incoming = incomingMap.get(occ.occurrenceNumber);
+        if (!incoming) return occ;
+        return {
+          ...occ,
+          isSkipped: incoming.isSkipped,
+          isSpecial: incoming.isSpecial,
+          specialName: incoming.specialName,
+          specialDate: incoming.specialDate,
+        };
+      });
     });
-    
-    setSchedule(sorted);
-    
-    // Reset flag after sync
-    setTimeout(() => {
-      isSyncingWithInitialSchedule.current = false;
-    }, 0);
   }, [initialSchedule, calculateOccurrenceDate]);
 
   // Update dates when relevant props change (but don't trigger onChange)
