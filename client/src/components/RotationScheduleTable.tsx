@@ -79,6 +79,10 @@ export function RotationScheduleTable({
   const isUpdatingDates = useRef(false);
   const isSyncingWithInitialSchedule = useRef(false);
   const onChangeRef = useRef(onChange);
+  // Track the last initialSchedule we processed to detect structural changes
+  const lastInitialScheduleRef = useRef<ScheduleOccurrence[] | undefined>(undefined);
+  // Track whether the current schedule change came from a user action (not from initialSchedule sync)
+  const userEditedRef = useRef(false);
   
   // Keep onChange ref up to date
   useEffect(() => {
@@ -166,41 +170,64 @@ export function RotationScheduleTable({
   }, [dueDate, initialSchedule, requiredPersons, currentAssignees, repeatInterval, repeatUnit, monthlyRecurrenceMode]); // Re-run when dueDate is set
 
   // Sync schedule with initialSchedule changes.
-  // IMPORTANT: Only sync structural changes (different occurrence numbers / count),
-  // NOT member or notes changes — those come from user edits and must not be overwritten.
+  // Strategy: compare incoming initialSchedule with the last one we processed.
+  // - If occurrence numbers changed (structural): full replace.
+  // - If only non-structural fields changed (isSkipped, isSpecial, etc.): patch those fields only.
+  // - If the change came from our own onChange call (userEditedRef): skip entirely to break the loop.
   useEffect(() => {
     if (!isInitialized.current) return;
     if (!initialSchedule) return;
 
-    setSchedule(prev => {
-      // Build a set of occurrence numbers currently in local state
-      const localNums = new Set(prev.map(o => o.occurrenceNumber));
-      const incomingNums = new Set(initialSchedule.map(o => o.occurrenceNumber));
+    const prev = lastInitialScheduleRef.current;
 
-      // Check if the set of occurrence numbers changed (added / removed occurrences)
-      const structuralChange =
-        localNums.size !== incomingNums.size ||
-        Array.from(incomingNums).some(n => !localNums.has(n));
+    // If this is the very first time we see initialSchedule after init, just record it
+    if (!prev) {
+      lastInitialScheduleRef.current = initialSchedule;
+      return;
+    }
 
-      if (structuralChange) {
-        // Full replace: new occurrences were added or removed
-        isSyncingWithInitialSchedule.current = true;
-        const sorted = initialSchedule.slice().sort((a, b) => {
-          const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
-          const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
-          if (!dateA || !dateB) return 0;
-          return dateA.getTime() - dateB.getTime();
-        });
-        setTimeout(() => { isSyncingWithInitialSchedule.current = false; }, 0);
-        return sorted;
-      }
+    // If the change was triggered by our own onChange (user edit), skip to avoid loop
+    if (userEditedRef.current) {
+      userEditedRef.current = false;
+      lastInitialScheduleRef.current = initialSchedule;
+      return;
+    }
 
-      // No structural change: only sync isSkipped / isSpecial / specialName / specialDate
-      // from initialSchedule — preserve local members and notes.
-      const incomingMap = new Map(initialSchedule.map(o => [o.occurrenceNumber, o]));
-      return prev.map(occ => {
+    const prevNums = new Set(prev.map(o => o.occurrenceNumber));
+    const incomingNums = new Set(initialSchedule.map(o => o.occurrenceNumber));
+    const structuralChange =
+      prevNums.size !== incomingNums.size ||
+      Array.from(incomingNums).some(n => !prevNums.has(n));
+
+    lastInitialScheduleRef.current = initialSchedule;
+
+    if (structuralChange) {
+      // Full replace: new occurrences were added or removed externally
+      isSyncingWithInitialSchedule.current = true;
+      const sorted = initialSchedule.slice().sort((a, b) => {
+        const dateA = a.specialDate || calculateOccurrenceDate(a.occurrenceNumber);
+        const dateB = b.specialDate || calculateOccurrenceDate(b.occurrenceNumber);
+        if (!dateA || !dateB) return 0;
+        return dateA.getTime() - dateB.getTime();
+      });
+      setSchedule(sorted);
+      setTimeout(() => { isSyncingWithInitialSchedule.current = false; }, 0);
+      return;
+    }
+
+    // Non-structural change: only patch isSkipped / isSpecial / specialName / specialDate
+    const incomingMap = new Map(initialSchedule.map(o => [o.occurrenceNumber, o]));
+    setSchedule(current =>
+      current.map(occ => {
         const incoming = incomingMap.get(occ.occurrenceNumber);
         if (!incoming) return occ;
+        // Only update if these specific fields actually changed
+        if (
+          occ.isSkipped === incoming.isSkipped &&
+          occ.isSpecial === incoming.isSpecial &&
+          occ.specialName === incoming.specialName &&
+          occ.specialDate === incoming.specialDate
+        ) return occ; // No change — return same reference to avoid re-render
         return {
           ...occ,
           isSkipped: incoming.isSkipped,
@@ -208,8 +235,8 @@ export function RotationScheduleTable({
           specialName: incoming.specialName,
           specialDate: incoming.specialDate,
         };
-      });
-    });
+      })
+    );
   }, [initialSchedule, calculateOccurrenceDate]);
 
   // Update dates when relevant props change (but don't trigger onChange)
@@ -227,6 +254,8 @@ export function RotationScheduleTable({
     if (!isInitialized.current || isUpdatingDates.current || isSyncingWithInitialSchedule.current) return;
     // Only notify if schedule actually has content (prevent notification on initial empty state)
     if (schedule.length > 0) {
+      // Mark that the next initialSchedule change will come from our own onChange call
+      userEditedRef.current = true;
       onChangeRef.current(schedule);
     }
   }, [schedule]);
