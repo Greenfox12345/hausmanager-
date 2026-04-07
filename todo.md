@@ -3550,3 +3550,6 @@
 - [ ] completeTask auf Hilfsfunktion umstellen
 - [ ] toggleComplete auf Hilfsfunktion umstellen
 - [ ] Tests aktualisieren
+
+- [x] Shopping: Artikel ohne Kategorie speicherbar machen (Kategorie optional)
+- [x] Shopping: Karten der Gegenstände kompakter/dünner gestalten

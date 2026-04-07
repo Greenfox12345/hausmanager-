@@ -211,6 +211,13 @@
       "when": 1775520267717,
       "tag": "0041_modern_salo",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "5",
+      "when": 1775565251149,
+      "tag": "0042_goofy_speed",
+      "breakpoints": true
     }
   ]
 }

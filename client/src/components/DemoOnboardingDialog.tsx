@@ -58,7 +58,7 @@ interface OnboardingShoppingItem {
   name: string;
   details: string | null;
   isCompleted: boolean;
-  categoryId: number;
+  categoryId: number | null;
   categoryName: string;
   categoryColor: string;
 }

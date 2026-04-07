@@ -644,9 +644,9 @@ export const demoRouter = router({
         name: item.name,
         details: item.details ?? null,
         isCompleted: item.isCompleted,
-        categoryId: item.categoryId,
-        categoryName: categoryMap.get(item.categoryId)?.name ?? "Sonstige",
-        categoryColor: categoryMap.get(item.categoryId)?.color ?? "#6B7280",
+        categoryId: item.categoryId ?? null,
+        categoryName: (item.categoryId != null ? categoryMap.get(item.categoryId)?.name : undefined) ?? "Sonstige",
+        categoryColor: (item.categoryId != null ? categoryMap.get(item.categoryId)?.color : undefined) ?? "#6B7280",
       }));
 
       return {

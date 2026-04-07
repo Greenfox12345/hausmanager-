@@ -114,7 +114,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   id: int("id").autoincrement().primaryKey(),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
-  categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
+  categoryId: int("categoryId").references(() => shoppingCategories.id, { onDelete: "set null" }),
   details: varchar("details", { length: 100 }),
   photoUrls: json("photoUrls").$type<string[] | {url: string, filename: string}[]>().default([]),
   notes: text("notes"),
@@ -275,7 +275,7 @@ export const inventoryItems = mysqlTable("inventory_items", {
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   details: text("details"),
-  categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "restrict" }),
+  categoryId: int("categoryId").references(() => shoppingCategories.id, { onDelete: "set null" }),
   photoUrls: json("photoUrls").$type<string[] | {url: string, filename: string}[]>().default([]),
   ownershipType: mysqlEnum("ownershipType", ["personal", "household"]).default("household").notNull(),
   /**

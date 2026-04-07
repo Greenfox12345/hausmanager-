@@ -327,14 +327,9 @@ export default function Shopping() {
     );
   }
 
-  // Set default category when categories load
-  if (categories.length > 0 && newItemCategoryId === null) {
-    setNewItemCategoryId(categories[0].id);
-  }
-
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName.trim() || !newItemCategoryId) return;
+    if (!newItemName.trim()) return;
 
     addMutation.mutate({
       householdId: household.householdId,
@@ -718,16 +713,17 @@ export default function Shopping() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="itemCategory">{t("shopping:fields.category", "Kategorie")}</Label>
+                <Label htmlFor="itemCategory">{t("shopping:fields.category", "Kategorie")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
                 <div className="flex items-center gap-2">
                   <Select 
-                    value={newItemCategoryId?.toString() || ""} 
-                    onValueChange={(value) => setNewItemCategoryId(Number(value))}
+                    value={newItemCategoryId?.toString() || "none"} 
+                    onValueChange={(value) => setNewItemCategoryId(value === "none" ? null : Number(value))}
                   >
                     <SelectTrigger id="itemCategory">
-                      <SelectValue />
+                      <SelectValue placeholder={t("shopping:fields.noCategory", "Keine Kategorie")} />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">{t("shopping:fields.noCategory", "Keine Kategorie")}</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat.id} value={cat.id.toString()}>
                           {cat.name}
@@ -865,55 +861,44 @@ export default function Shopping() {
                   item.isCompleted ? "opacity-60" : "hover:shadow-md"
                 }`}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
+                <CardContent className="px-3 py-2">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       checked={selectedItemIds.has(item.id)}
                       onCheckedChange={() => handleToggleItemSelection(item.id)}
-                      className="mt-1 touch-target"
+                      className="shrink-0 touch-target"
                     />
                     <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setDetailItem(item); setShowDetailDialog(true); }}>
-                      <div className={`font-medium flex items-center gap-2 ${
-                        selectedItemIds.has(item.id) ? "line-through text-muted-foreground" : ""
-                      }`}>
-                        {item.name}
-                        {item.taskId && (
-                          <ShoppingCart className="h-4 w-4 text-primary" />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`font-medium text-sm ${selectedItemIds.has(item.id) ? "line-through text-muted-foreground" : ""}`}>
+                          {item.name}
+                        </span>
+                        {item.taskId && <ShoppingCart className="h-3 w-3 text-primary shrink-0" />}
+                        {item.categoryId != null && (
+                          <span 
+                            className="inline-block px-1.5 py-0 rounded-full text-xs font-medium border leading-5"
+                            style={getCategoryStyle(item.categoryId)}
+                          >
+                            {getCategoryName(item.categoryId)}
+                          </span>
+                        )}
+                        {item.details && (
+                          <span className="text-xs text-muted-foreground">{item.details}</span>
                         )}
                       </div>
-                      {item.details && (
-                        <div className="text-sm text-muted-foreground mt-0.5">
-                          {item.details}
-                        </div>
-                      )}
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
                         const photos = normalizePhotoUrls(item.photoUrls);
                         return (
-                          <div className="flex gap-1 mt-2">
+                          <div className="flex gap-1 mt-1">
                             {photos.slice(0, 3).map((photo, idx) => (
-                              <img
-                                key={idx}
-                                src={photo.url}
-                                alt={photo.filename}
-                                className="w-12 h-12 object-cover rounded border"
-                              />
+                              <img key={idx} src={photo.url} alt={photo.filename} className="w-8 h-8 object-cover rounded border" />
                             ))}
                             {photos.length > 3 && (
-                              <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                                +{photos.length - 3}
-                              </div>
+                              <div className="w-8 h-8 rounded border bg-muted flex items-center justify-center text-xs text-muted-foreground">+{photos.length - 3}</div>
                             )}
                           </div>
                         );
                       })()}
-                      <div className="mt-1">
-                        <span 
-                          className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
-                          style={getCategoryStyle(item.categoryId)}
-                        >
-                          {getCategoryName(item.categoryId)}
-                        </span>
-                      </div>
                     </div>
                     <Button
                       variant="ghost"
@@ -1034,15 +1019,16 @@ export default function Shopping() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editItemCategory">{t("shopping:fields.category", "Kategorie")}</Label>
+                <Label htmlFor="editItemCategory">{t("shopping:fields.category", "Kategorie")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
                 <Select
-                  value={editItemCategoryId?.toString() || ""}
-                  onValueChange={(value) => setEditItemCategoryId(Number(value))}
+                  value={editItemCategoryId?.toString() || "none"}
+                  onValueChange={(value) => setEditItemCategoryId(value === "none" ? null : Number(value))}
                 >
                   <SelectTrigger id="editItemCategory">
-                    <SelectValue placeholder={t("shopping:fields.selectCategory", "Kategorie wählen")} />
+                    <SelectValue placeholder={t("shopping:fields.noCategory", "Keine Kategorie")} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">{t("shopping:fields.noCategory", "Keine Kategorie")}</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id.toString()}>
                         <span

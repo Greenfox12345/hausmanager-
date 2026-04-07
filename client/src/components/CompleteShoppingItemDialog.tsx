@@ -41,7 +41,7 @@ interface ShoppingItem {
   id: number;
   name: string;
   details?: string | null;
-  categoryId: number;
+  categoryId: number | null;
   photoUrls?: any;
 }
 

@@ -265,7 +265,7 @@ export async function getShoppingItems(householdId: number): Promise<ShoppingIte
 export async function createShoppingItem(data: {
   householdId: number;
   name: string;
-  categoryId: number;
+  categoryId?: number | null;
   details?: string;
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
