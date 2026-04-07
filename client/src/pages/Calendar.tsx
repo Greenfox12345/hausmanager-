@@ -566,6 +566,7 @@ export default function Calendar() {
 
   const getFrequencyBadge = (task: typeof tasks[0]) => {
     if (!task.repeatInterval || !task.repeatUnit) return null;
+    if (task.repeatUnit === 'irregular') return null;
     
     const interval = task.repeatInterval;
     const unit = task.repeatUnit;
@@ -816,7 +817,7 @@ export default function Calendar() {
                                       ? item.icon + " " + item.title
                                       : item.isCompletedOccurrence
                                       ? t("calendar:completedOccurrence", "Erledigter Termin")
-                                      : item.isFutureOccurrence && (item as any).repeatUnit !== 'irregular' && !(item as any).isSpecialOccurrence
+                                      : item.isFutureOccurrence
                                       ? t("calendar:futureOccurrence", "Folgetermin")
                                       : ""
                                 }
@@ -934,7 +935,7 @@ export default function Calendar() {
                                           {t("calendar:completedOccurrence", "Erledigter Termin")}
                                         </Badge>
                                       )}
-                                      {task.isFutureOccurrence && task.repeatUnit !== 'irregular' && !(task as any).isSpecialOccurrence && (
+                                      {task.isFutureOccurrence && (
                                         <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                                           {t("calendar:futureOccurrence", "Folgetermin")}
                                         </Badge>
@@ -1261,7 +1262,7 @@ export default function Calendar() {
                                       {t("tasks:overdue", "Überfällig")}
                                     </Badge>
                                   )}
-                                  {task.isFutureOccurrence && task.repeatUnit !== 'irregular' && !(task as any).isSpecialOccurrence && (
+                                  {task.isFutureOccurrence && (
                                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
                                       {t("calendar:futureOccurrence", "Folgetermin")}
                                     </Badge>
