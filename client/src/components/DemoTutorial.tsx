@@ -1,19 +1,19 @@
 /**
  * DemoTutorial
  *
- * Interaktive, geführte Tour durch die Hauptfunktionen des Haushaltsmanagers.
- * - Navigiert automatisch zur jeweiligen Seite
- * - Hebt das entsprechende Sidebar-Element mit einem Spotlight-Rahmen hervor
- * - Positioniert sich als kompaktes Fenster unten rechts, damit die Seite sichtbar bleibt
- * - Wird nach dem Demo-Login automatisch angezeigt (sofern noch nicht gesehen)
- * - Kann jederzeit über den DemoBanner erneut geöffnet werden
+ * Persistentes Tutorial-Panel, das über alle Seitenwechsel hinweg offen bleibt.
+ * - Kein Overlay / kein Backdrop – der Nutzer kann die App frei benutzen
+ * - Navigiert NICHT automatisch – der Nutzer klickt selbst durch die App
+ * - Hebt das jeweils relevante Sidebar-Element mit einem Spotlight-Rahmen hervor
+ * - Lebt als globales Singleton in App.tsx (via TutorialContext)
+ * - Wird über TutorialContext geöffnet/geschlossen
  */
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTutorial } from "@/contexts/TutorialContext";
 import {
   CheckSquare,
   ShoppingCart,
@@ -43,19 +43,12 @@ interface TutorialStep {
   descriptionFallback: string;
   highlightsKey?: string[];
   highlightsFallback?: string[];
-  /** Route zu der navigiert wird wenn dieser Schritt aktiv ist */
-  route?: string;
   /** data-nav-Wert des Sidebar-Elements das hervorgehoben werden soll */
   spotlightNav?: string;
   badge?: { textKey: string; textFallback: string; color: string };
 }
 
-interface DemoTutorialProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-// ─── Tutorial-Schritte (Reihenfolge: Shopping vor Tasks) ─────────────────────
+// ─── Tutorial-Schritte ────────────────────────────────────────────────────────
 
 const STEPS: TutorialStep[] = [
   {
@@ -66,14 +59,13 @@ const STEPS: TutorialStep[] = [
     titleFallback: "Willkommen im Haushaltsmanager!",
     descriptionKey: "tutorial:steps.welcome.description",
     descriptionFallback:
-      "Diese kurze Tour zeigt dir die wichtigsten Funktionen. Du kannst sie jederzeit überspringen und später erneut starten.",
+      "Diese kurze Tour zeigt dir die wichtigsten Funktionen. Klick dich einfach selbst durch die App – das Tutorial begleitet dich dabei.",
     highlightsKey: ["tutorial:steps.welcome.h1", "tutorial:steps.welcome.h2", "tutorial:steps.welcome.h3"],
     highlightsFallback: [
       "Navigiere über die linke Seitenleiste",
       "Alle Daten gehören zu deinem Demo-Haushalt",
       "Du kannst alles ausprobieren – nichts geht kaputt",
     ],
-    route: "/",
     spotlightNav: "/",
   },
   {
@@ -95,7 +87,6 @@ const STEPS: TutorialStep[] = [
       "Kategorien mit Farbmarkierung",
       "Artikel mit Aufgaben verknüpfen",
     ],
-    route: "/shopping",
     spotlightNav: "/shopping",
     badge: { textKey: "tutorial:steps.shopping.badge", textFallback: "Einkauf", color: "bg-orange-100 text-orange-700" },
   },
@@ -118,7 +109,6 @@ const STEPS: TutorialStep[] = [
       "Zuweisung an Haushaltsmitglieder",
       "Projekte zur Gruppierung verwandter Aufgaben",
     ],
-    route: "/tasks",
     spotlightNav: "/tasks",
     badge: { textKey: "tutorial:steps.tasks.badge", textFallback: "Aufgaben", color: "bg-green-100 text-green-700" },
   },
@@ -141,7 +131,6 @@ const STEPS: TutorialStep[] = [
       "Unregelmäßige Termine individuell planen",
       "Rotationsplan: Aufgaben reihum zuweisen",
     ],
-    route: "/tasks",
     spotlightNav: "/tasks",
   },
   {
@@ -163,7 +152,6 @@ const STEPS: TutorialStep[] = [
       "Termine direkt aus dem Kalender abschließen oder auslassen",
       "Terminnotizen für einzelne Folgetermine",
     ],
-    route: "/calendar",
     spotlightNav: "/calendar",
     badge: { textKey: "tutorial:steps.calendar.badge", textFallback: "Kalender", color: "bg-indigo-100 text-indigo-700" },
   },
@@ -186,7 +174,6 @@ const STEPS: TutorialStep[] = [
       "Ausleihregeln und Anfragen verwalten",
       "Rückgabetermine im Kalender sichtbar",
     ],
-    route: "/inventory",
     spotlightNav: "/inventory",
     badge: { textKey: "tutorial:steps.inventory.badge", textFallback: "Inventar", color: "bg-teal-100 text-teal-700" },
   },
@@ -207,7 +194,6 @@ const STEPS: TutorialStep[] = [
       "Aufgaben einem oder mehreren Projekten zuordnen",
       "Fortschritt auf einen Blick sehen",
     ],
-    route: "/projects",
     spotlightNav: "/projects",
     badge: { textKey: "tutorial:steps.projects.badge", textFallback: "Projekte", color: "bg-violet-100 text-violet-700" },
   },
@@ -230,30 +216,8 @@ const STEPS: TutorialStep[] = [
       "Aufgaben gezielt zuweisen",
       "Nachbarschaftsnetzwerk für gemeinsame Ausleihen",
     ],
-    route: "/members",
     spotlightNav: "/members",
     badge: { textKey: "tutorial:steps.members.badge", textFallback: "Mitglieder", color: "bg-pink-100 text-pink-700" },
-  },
-  {
-    icon: History,
-    iconColor: "text-slate-600",
-    iconBg: "bg-slate-100",
-    titleKey: "tutorial:steps.history.title",
-    titleFallback: "Verlauf & Statistiken",
-    descriptionKey: "tutorial:steps.history.description",
-    descriptionFallback:
-      "Im Verlauf siehst du alle abgeschlossenen Aufgaben und Aktivitäten deines Haushalts. So behältst du den Überblick, wer was wann erledigt hat.",
-    highlightsKey: [
-      "tutorial:steps.history.h1",
-      "tutorial:steps.history.h2",
-    ],
-    highlightsFallback: [
-      "Chronologische Übersicht aller Aktivitäten",
-      "Nach Mitglied oder Aufgabe filtern",
-    ],
-    route: "/history",
-    spotlightNav: "/history",
-    badge: { textKey: "tutorial:steps.history.badge", textFallback: "Verlauf", color: "bg-slate-100 text-slate-700" },
   },
   {
     icon: Star,
@@ -279,32 +243,22 @@ const STEPS: TutorialStep[] = [
 
 // ─── Spotlight-Hook ───────────────────────────────────────────────────────────
 
-/**
- * Hebt das Sidebar-Element mit dem angegebenen data-nav-Wert hervor.
- * Fügt eine CSS-Klasse hinzu und entfernt sie beim Cleanup.
- */
 function useSpotlight(navPath: string | undefined, active: boolean) {
   useEffect(() => {
     if (!active || !navPath) return;
 
-    // Kleines Delay damit die Navigation abgeschlossen ist
-    const timer = setTimeout(() => {
+    const applySpotlight = () => {
       const el = document.querySelector<HTMLElement>(`[data-nav="${navPath}"]`);
       if (!el) return;
-
       el.classList.add("tutorial-spotlight");
-
-      // Scroll ins Sichtfeld wenn nötig
       el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
 
-      return () => {
-        el.classList.remove("tutorial-spotlight");
-      };
-    }, 350);
+    // Kurzes Delay damit DOM-Updates abgeschlossen sind
+    const timer = setTimeout(applySpotlight, 200);
 
     return () => {
       clearTimeout(timer);
-      // Cleanup beim Schritt-Wechsel
       const el = document.querySelector<HTMLElement>(`[data-nav="${navPath}"]`);
       el?.classList.remove("tutorial-spotlight");
     };
@@ -313,46 +267,21 @@ function useSpotlight(navPath: string | undefined, active: boolean) {
 
 // ─── Komponente ───────────────────────────────────────────────────────────────
 
-const TUTORIAL_SEEN_KEY = "demo_tutorial_seen";
-
-export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
+/**
+ * DemoTutorial – globales Singleton, wird in App.tsx eingebunden.
+ * Keine Props nötig – liest alles aus TutorialContext.
+ */
+export function DemoTutorial() {
   const { t } = useTranslation();
-  const [, setLocation] = useLocation();
-  const [step, setStep] = useState(0);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const { open, step, closeTutorial, setStep, nextStep, prevStep, totalSteps } = useTutorial();
 
-  const currentStep = STEPS[step];
+  const currentStep = STEPS[step] ?? STEPS[0];
   const isFirst = step === 0;
-  const isLast = step === STEPS.length - 1;
-  const progress = ((step + 1) / STEPS.length) * 100;
+  const isLast = step === totalSteps - 1;
+  const progress = ((step + 1) / totalSteps) * 100;
 
   // Spotlight auf das aktuelle Sidebar-Element
   useSpotlight(currentStep.spotlightNav, open);
-
-  // Navigiere zur Seite des aktuellen Schritts
-  useEffect(() => {
-    if (!open) return;
-    if (currentStep.route) {
-      setLocation(currentStep.route);
-    }
-  }, [step, open]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleClose = useCallback(() => {
-    localStorage.setItem(TUTORIAL_SEEN_KEY, "1");
-    onClose();
-  }, [onClose]);
-
-  const handleNext = useCallback(() => {
-    if (isLast) {
-      handleClose();
-    } else {
-      setStep((s) => s + 1);
-    }
-  }, [isLast, handleClose]);
-
-  const handlePrev = useCallback(() => {
-    setStep((s) => Math.max(0, s - 1));
-  }, []);
 
   if (!open) return null;
 
@@ -377,11 +306,10 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
         }
       `}</style>
 
-      {/* Tutorial-Panel – unten rechts, kompakt */}
+      {/* Tutorial-Panel – unten rechts, kein Overlay */}
       <div
-        ref={panelRef}
-        className="fixed bottom-6 right-6 z-[200] w-[360px] max-w-[calc(100vw-2rem)] bg-background rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden"
-        style={{ maxHeight: "calc(100vh - 3rem)" }}
+        className="fixed bottom-6 right-6 z-[200] w-[340px] max-w-[calc(100vw-2rem)] bg-background rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden"
+        style={{ maxHeight: "calc(100vh - 5rem)" }}
       >
         {/* Fortschrittsleiste */}
         <div className="h-1 bg-muted w-full shrink-0">
@@ -401,10 +329,10 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">
-              {step + 1} / {STEPS.length}
+              {step + 1} / {totalSteps}
             </span>
             <button
-              onClick={handleClose}
+              onClick={closeTutorial}
               className="text-muted-foreground hover:text-foreground transition-colors rounded-md p-1 hover:bg-accent"
               aria-label={t("common:actions.close", "Schließen")}
             >
@@ -413,7 +341,7 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
           </div>
         </div>
 
-        {/* Inhalt – scrollbar wenn nötig */}
+        {/* Inhalt */}
         <div className="px-4 py-4 flex flex-col gap-3 overflow-y-auto">
           {/* Icon + Titel */}
           <div className="flex items-start gap-3">
@@ -458,11 +386,18 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
               })}
             </ul>
           )}
+
+          {/* Hinweis: Nutzer kann selbst navigieren */}
+          {currentStep.spotlightNav && (
+            <p className="text-xs text-primary/70 italic">
+              {t("tutorial:selfNavigate", "→ Klicke den hervorgehobenen Menüpunkt in der Seitenleiste")}
+            </p>
+          )}
         </div>
 
         {/* Schritt-Punkte */}
         <div className="flex items-center justify-center gap-1 py-2 shrink-0">
-          {STEPS.map((_, i) => (
+          {Array.from({ length: totalSteps }).map((_, i) => (
             <button
               key={i}
               onClick={() => setStep(i)}
@@ -478,24 +413,24 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
           ))}
         </div>
 
-        {/* Footer / Navigation */}
+        {/* Footer */}
         <div className="px-4 pb-4 flex items-center justify-between gap-2 shrink-0">
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleClose}
+            onClick={closeTutorial}
             className="text-muted-foreground text-xs h-8 px-2"
           >
             {t("tutorial:skip", "Überspringen")}
           </Button>
           <div className="flex items-center gap-1.5">
             {!isFirst && (
-              <Button variant="outline" size="sm" onClick={handlePrev} className="gap-1 h-8 text-xs px-3">
+              <Button variant="outline" size="sm" onClick={prevStep} className="gap-1 h-8 text-xs px-3">
                 <ArrowLeft className="h-3 w-3" />
                 {t("common:actions.back", "Zurück")}
               </Button>
             )}
-            <Button size="sm" onClick={handleNext} className="gap-1 h-8 text-xs px-3">
+            <Button size="sm" onClick={nextStep} className="gap-1 h-8 text-xs px-3">
               {isLast
                 ? t("tutorial:finish", "Loslegen!")
                 : t("common:actions.next", "Weiter")}
@@ -508,12 +443,5 @@ export function DemoTutorial({ open, onClose }: DemoTutorialProps) {
   );
 }
 
-/** Gibt true zurück, wenn das Tutorial noch nicht gesehen wurde. */
-export function shouldShowTutorial(): boolean {
-  return !localStorage.getItem(TUTORIAL_SEEN_KEY);
-}
-
-/** Setzt den Tutorial-Status zurück (für erneutes Anzeigen). */
-export function resetTutorial(): void {
-  localStorage.removeItem(TUTORIAL_SEEN_KEY);
-}
+// Re-export für Abwärtskompatibilität (wird in TutorialContext definiert)
+export { resetTutorial } from "@/contexts/TutorialContext";

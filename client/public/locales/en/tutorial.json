@@ -79,5 +79,6 @@
       "h2": "Create an account to keep your household permanently",
       "h3": "The tutorial can be restarted anytime via the demo banner"
     }
-  }
+  },
+  "selfNavigate": "→ Click the highlighted menu item in the sidebar"
 }

@@ -25,6 +25,8 @@ import Borrows from "./pages/Borrows";
 import { Privacy } from "./pages/Privacy";
 import Imprint from "./pages/Imprint";
 import HouseholdSettings from "./pages/HouseholdSettings";
+import { TutorialProvider } from "./contexts/TutorialContext";
+import { DemoTutorial } from "./components/DemoTutorial";
 
 function Router() {
   return (
@@ -72,11 +74,15 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <UserAuthProvider>
-          <TooltipProvider>
-            <DirectionManager />
-            <Toaster />
-            <Router />
-          </TooltipProvider>
+          <TutorialProvider>
+            <TooltipProvider>
+              <DirectionManager />
+              <Toaster />
+              <Router />
+              {/* Tutorial-Panel: global, bleibt über alle Seitenwechsel hinweg offen */}
+              <DemoTutorial />
+            </TooltipProvider>
+          </TutorialProvider>
         </UserAuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

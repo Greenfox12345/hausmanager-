@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { FlaskConical, X, UserPlus, Clock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { DemoTutorial, resetTutorial } from "./DemoTutorial";
+import { resetTutorial } from "@/contexts/TutorialContext";
+import { useTutorial } from "@/contexts/TutorialContext";
 
 interface DemoBannerProps {
   demoToken: string;
@@ -15,7 +16,7 @@ export function DemoBanner({ demoToken, expiresAt }: DemoBannerProps) {
   const { t } = useTranslation("auth");
   const [dismissed, setDismissed] = useState(false);
   const [hoursLeft, setHoursLeft] = useState(0);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const { openTutorial } = useTutorial();
 
   useEffect(() => {
     const update = () => {
@@ -26,17 +27,6 @@ export function DemoBanner({ demoToken, expiresAt }: DemoBannerProps) {
     const id = setInterval(update, 60_000);
     return () => clearInterval(id);
   }, [expiresAt]);
-
-  // Autostart-Flag: Tutorial nach Demo-Start automatisch öffnen
-  useEffect(() => {
-    const flag = localStorage.getItem("demo_tutorial_autostart");
-    if (flag === "1") {
-      localStorage.removeItem("demo_tutorial_autostart");
-      // Kleines Delay damit die Seite fertig geladen ist
-      const timer = setTimeout(() => setTutorialOpen(true), 600);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   if (dismissed) return null;
 
@@ -65,7 +55,7 @@ export function DemoBanner({ demoToken, expiresAt }: DemoBannerProps) {
           className="shrink-0 border-amber-400 text-amber-800 hover:bg-amber-100 bg-white gap-1.5 text-xs h-7 px-2"
           onClick={() => {
             resetTutorial();
-            setTutorialOpen(true);
+            openTutorial(0);
           }}
         >
           <BookOpen className="h-3 w-3" />
@@ -90,7 +80,6 @@ export function DemoBanner({ demoToken, expiresAt }: DemoBannerProps) {
         </button>
       </div>
 
-      <DemoTutorial open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
     </>
   );
 }
