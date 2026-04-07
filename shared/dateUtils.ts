@@ -170,3 +170,56 @@ export function getNextMonthlyOccurrenceExplicit(
   
   return result;
 }
+
+/**
+ * UTC-based version of getNextMonthlyOccurrence.
+ * Uses UTC date components throughout to avoid server-timezone drift.
+ * A date like 2025-01-13T00:00:00Z stays on the 13th regardless of server TZ.
+ */
+export function getNextMonthlyOccurrenceUTC(
+  currentDate: Date,
+  monthsToAdd: number,
+  mode: 'same_date' | 'same_weekday'
+): Date {
+  const y = currentDate.getUTCFullYear();
+  const mo = currentDate.getUTCMonth(); // 0-based
+  const day = currentDate.getUTCDate();
+  const h = currentDate.getUTCHours();
+  const min = currentDate.getUTCMinutes();
+
+  const targetMo = mo + monthsToAdd;
+
+  if (mode === 'same_date') {
+    // Clamp to last day of target month to avoid overflow (e.g. Jan 31 + 1 month)
+    const targetYear = y + Math.floor(targetMo / 12);
+    const normMo = ((targetMo % 12) + 12) % 12;
+    const daysInMonth = new Date(Date.UTC(targetYear, normMo + 1, 0)).getUTCDate();
+    const clampedDay = Math.min(day, daysInMonth);
+    return new Date(Date.UTC(targetYear, normMo, clampedDay, h, min));
+  } else {
+    // same_weekday: find the same nth weekday in the target month
+    const targetYear = y + Math.floor(targetMo / 12);
+    const normMo = ((targetMo % 12) + 12) % 12;
+
+    // Determine which nth weekday the current date is (UTC)
+    const weekday = currentDate.getUTCDay(); // 0=Sun
+    const occurrence = Math.ceil(day / 7);   // 1-5
+
+    // Find the first day of target month
+    const firstOfMonth = new Date(Date.UTC(targetYear, normMo, 1));
+    const firstWeekday = firstOfMonth.getUTCDay();
+
+    // Days until first occurrence of target weekday
+    const daysUntil = (weekday - firstWeekday + 7) % 7;
+    const targetDay = 1 + daysUntil + (occurrence - 1) * 7;
+
+    // Check if this day exists in the month
+    const daysInMonth = new Date(Date.UTC(targetYear, normMo + 1, 0)).getUTCDate();
+    if (targetDay <= daysInMonth) {
+      return new Date(Date.UTC(targetYear, normMo, targetDay, h, min));
+    }
+    // Fallback: use the previous (4th) occurrence
+    const fallbackDay = targetDay - 7;
+    return new Date(Date.UTC(targetYear, normMo, fallbackDay, h, min));
+  }
+}

@@ -361,13 +361,14 @@ export const tasksRouter = router({
       // Combine date and time if both provided
       let dueDatetime: Date | undefined;
       if (input.dueDate) {
+        const [year, month, day] = input.dueDate.split('-').map(Number);
         if (input.dueTime) {
-          const [year, month, day] = input.dueDate.split('-').map(Number);
           const [hours, minutes] = input.dueTime.split(':').map(Number);
           // Create UTC date to avoid timezone shifts
           dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
-          dueDatetime = new Date(input.dueDate);
+          // No time: store as UTC midnight so getUTCDate() always returns the correct day
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
         }
       }
 
@@ -502,13 +503,14 @@ export const tasksRouter = router({
       // Combine date and time if both provided
       let dueDatetime: Date | undefined;
       if (dueDate) {
+        const [year, month, day] = dueDate.split('-').map(Number);
         if (dueTime) {
-          const [year, month, day] = dueDate.split('-').map(Number);
           const [hours, minutes] = dueTime.split(':').map(Number);
           // Create UTC date to avoid timezone shifts
           dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
-          dueDatetime = new Date(dueDate);
+          // No time: store as UTC midnight so getUTCDate() always returns the correct day
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
         }
       }
 

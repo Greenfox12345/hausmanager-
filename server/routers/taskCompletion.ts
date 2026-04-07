@@ -64,40 +64,48 @@ export interface TaskForCompletion {
   assignedTo: number[] | null;
 }
 
-/** Advance a date by one interval */
+/**
+ * Advance a date by one interval using UTC date components to avoid
+ * server-timezone drift (server may run in UTC-5, UTC+2, etc.).
+ *
+ * All arithmetic is done on UTC year/month/day so that a date like
+ * 2025-01-13T00:00:00Z stays on the 13th regardless of server TZ.
+ */
 async function advanceByInterval(d: Date, task: TaskForCompletion): Promise<Date> {
-  const next = new Date(d);
+  // Extract UTC components to avoid local-timezone day-shift
+  const y = d.getUTCFullYear();
+  const mo = d.getUTCMonth();   // 0-based
+  const day = d.getUTCDate();
+  const h = d.getUTCHours();
+  const min = d.getUTCMinutes();
+
   if (task.repeatUnit === "days") {
-    next.setDate(next.getDate() + (task.repeatInterval || 1));
-    return next;
+    return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1), h, min));
   }
   if (task.repeatUnit === "weeks") {
-    next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
-    return next;
+    return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1) * 7, h, min));
   }
   if (task.repeatUnit === "months") {
-    const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-    return getNextMonthlyOccurrence(next, task.repeatInterval || 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
+    const { getNextMonthlyOccurrenceUTC } = await import("../../shared/dateUtils");
+    return getNextMonthlyOccurrenceUTC(d, task.repeatInterval || 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
   }
   // Fallback: frequency field
   switch (task.frequency) {
     case "daily":
-      next.setDate(next.getDate() + 1);
-      return next;
+      return new Date(Date.UTC(y, mo, day + 1, h, min));
     case "weekly":
-      next.setDate(next.getDate() + 7);
-      return next;
+      return new Date(Date.UTC(y, mo, day + 7, h, min));
     case "monthly": {
-      const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-      return getNextMonthlyOccurrence(next, 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
+      const { getNextMonthlyOccurrenceUTC } = await import("../../shared/dateUtils");
+      return getNextMonthlyOccurrenceUTC(d, 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
     }
     case "custom":
       if (task.customFrequencyDays) {
-        next.setDate(next.getDate() + task.customFrequencyDays);
+        return new Date(Date.UTC(y, mo, day + task.customFrequencyDays, h, min));
       }
-      return next;
+      return d;
   }
-  return next;
+  return d;
 }
 
 /**
