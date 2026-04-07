@@ -44,7 +44,40 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+/**
+ * Normalize a DATETIME value from db.execute() (raw SQL).
+ *
+ * db.execute() bypasses Drizzle's mapFromDriverValue, so DATETIME columns
+ * come back as plain strings like "2026-11-29 14:30:00".
+ * new Date("2026-11-29 14:30:00") interprets this as LOCAL time (server TZ),
+ * which causes a +4h drift on UTC-4 servers.
+ *
+ * This function replicates Drizzle's mapping:
+ *   new Date(value.replace(' ', 'T') + 'Z')  →  treats the DB value as UTC.
+ *
+ * Drizzle's mapToDriverValue does the reverse:
+ *   date.toISOString().replace('T', ' ').replace('Z', '')  →  writes UTC string.
+ *
+ * So the round-trip is: DB "14:30" → Date(14:30 UTC) → toISOString "14:30" → DB "14:30".
+ */
+function normalizeDatetimeFromRawSQL(value: unknown): Date | null {
+  if (value == null) return null;
+  if (typeof value === 'string') {
+    // "2026-11-29 14:30:00" → "2026-11-29T14:30:00Z" → UTC Date
+    return new Date(value.replace(' ', 'T') + 'Z');
+  }
+  if (value instanceof Date) {
+    // mysql2 sometimes returns Date objects (interpreted as local time).
+    // Re-interpret the local components as UTC to match Drizzle's convention.
+    return new Date(Date.UTC(
+      value.getFullYear(), value.getMonth(), value.getDate(),
+      value.getHours(), value.getMinutes(), value.getSeconds(), value.getMilliseconds()
+    ));
+  }
+  return null;
+}
+
+let _db: ReturnType<typeof drizzle> | null = null;;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
@@ -405,6 +438,13 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     if (typeof parsed.isCompleted === 'number') parsed.isCompleted = parsed.isCompleted === 1;
     if (typeof parsed.enableRotation === 'number') parsed.enableRotation = parsed.enableRotation === 1;
     if (typeof parsed.irregularRecurrence === 'number') parsed.irregularRecurrence = parsed.irregularRecurrence === 1;
+    // Normalize datetime fields: db.execute() returns strings like "2026-11-29 14:30:00"
+    // which new Date() would interpret as LOCAL time. We must treat them as UTC
+    // (matching Drizzle's mapFromDriverValue: new Date(value.replace(' ','T')+'Z')).
+    parsed.dueDate = normalizeDatetimeFromRawSQL(parsed.dueDate);
+    parsed.completedAt = normalizeDatetimeFromRawSQL(parsed.completedAt);
+    parsed.createdAt = normalizeDatetimeFromRawSQL(parsed.createdAt);
+    parsed.updatedAt = normalizeDatetimeFromRawSQL(parsed.updatedAt);
     return parsed;
   });
 
@@ -519,6 +559,11 @@ export async function getTaskById(taskId: number): Promise<Task | null> {
   if (typeof task.isCompleted === 'number') task.isCompleted = task.isCompleted === 1;
   if (typeof task.enableRotation === 'number') task.enableRotation = task.enableRotation === 1;
   if (typeof task.irregularRecurrence === 'number') task.irregularRecurrence = task.irregularRecurrence === 1;
+  // Normalize datetime fields from raw SQL (same as getTasks)
+  task.dueDate = normalizeDatetimeFromRawSQL(task.dueDate);
+  task.completedAt = normalizeDatetimeFromRawSQL(task.completedAt);
+  task.createdAt = normalizeDatetimeFromRawSQL(task.createdAt);
+  task.updatedAt = normalizeDatetimeFromRawSQL(task.updatedAt);
   return task as Task;
 }
 
