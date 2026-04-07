@@ -3624,3 +3624,7 @@
 ## Kalender: Unregelmäßige + Sondertermine
 - [x] Unregelmäßige Termine im Kalender anzeigen (specialDate aus rotation_schedule)
 - [x] Sondertermine im Kalender anzeigen (isSpecial + specialDate)
+
+## Kalender: Sondertermine visuell unterscheiden
+- [x] Sondertermine mit Stern-Symbol statt Punkt im Kalender
+- [x] "Sondertermin"-Label neben "Folgetermin" in der Kalenderansicht

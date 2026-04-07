@@ -780,6 +780,17 @@ export default function Calendar() {
                               const isCalendarEvent = item.isCalendarEvent;
                               const eventType = isCalendarEvent ? item.eventType : null;
                               
+                              // Sondertermine get a star symbol instead of a dot
+                              const isSpecial = item.isSpecialOccurrence;
+                              if (isSpecial) {
+                                return (
+                                  <span
+                                    key={i}
+                                    className="text-[10px] leading-none text-amber-500"
+                                    title={item.specialOccurrenceName || t("calendar:specialOccurrence", "Sondertermin")}
+                                  >★</span>
+                                );
+                              }
                               return (
                                 <div
                                   key={i}
@@ -926,6 +937,11 @@ export default function Calendar() {
                                       {task.isFutureOccurrence && (
                                         <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                                           {t("calendar:futureOccurrence", "Folgetermin")}
+                                        </Badge>
+                                      )}
+                                      {(task as any).isSpecialOccurrence && (
+                                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                                          ★ {t("calendar:specialOccurrence", "Sondertermin")}
                                         </Badge>
                                       )}
                                       {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
@@ -1248,6 +1264,11 @@ export default function Calendar() {
                                   {task.isFutureOccurrence && (
                                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
                                       {t("calendar:futureOccurrence", "Folgetermin")}
+                                    </Badge>
+                                  )}
+                                  {(task as any).isSpecialOccurrence && (
+                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
+                                      ★ {t("calendar:specialOccurrence", "Sondertermin")}
                                     </Badge>
                                   )}
                                   {task.isCompletedOccurrence && (
