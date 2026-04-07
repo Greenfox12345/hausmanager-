@@ -39,7 +39,7 @@ export default function Tasks() {
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [durationTime, setDurationTime] = useState("00:00"); // HH:MM format
-  const [durationDays, setDurationDays] = useState("0");
+  const [durationDays, setDurationDays] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
   
   // Repeat options

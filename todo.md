@@ -3576,3 +3576,9 @@
 - [x] Kommende Termine: Notizen inline bearbeitbar
 - [x] Gegenstände-Tabelle: eigenständig horizontal scrollbar (nicht das ganze Fenster breiter machen)
 - [x] Aufgabendetails: Löschen-Button neben "Erinnerung senden"
+
+## Nachbesserungen UI-Verbesserungen
+- [x] Inline-Bearbeitung: Daten nach Speichern invalidieren + Verlaufseintrag erzeugen
+- [x] Dauer "0" wird noch bei Terminende angezeigt (View-Modus) - Fix: Tasks.tsx durationDays Init auf leeren String
+- [x] Löschdialog: fehlender Übersetzungsschlüssel - war unter messages.confirmDelete statt dialog.confirmDelete
+- [x] Löschdialog: Reset bei Schließen des Dialogs und bei Navigation zwischen Aufgaben

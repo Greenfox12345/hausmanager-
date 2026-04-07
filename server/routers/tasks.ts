@@ -1463,6 +1463,8 @@ export const tasksRouter = router({
     .input(
       z.object({
         taskId: z.number(),
+        householdId: z.number().optional(),
+        memberId: z.number().optional(),
         schedule: z.array(
           z.object({
             occurrenceNumber: z.number(),
@@ -1483,8 +1485,26 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      console.log('🔍 Server received rotation schedule:', JSON.stringify(input.schedule, null, 2));
-      return await setRotationSchedule(input.taskId, input.schedule);
+      console.log('\uD83D\uDD0D Server received rotation schedule:', JSON.stringify(input.schedule, null, 2));
+      const result = await setRotationSchedule(input.taskId, input.schedule);
+      // Create activity log if householdId and memberId are provided
+      if (input.householdId && input.memberId) {
+        try {
+          const lang = await getHouseholdLang(input.householdId);
+          const desc = lang === 'de' ? 'Rotationsplan aktualisiert' : 'Rotation schedule updated';
+          await createActivityLog({
+            householdId: input.householdId,
+            memberId: input.memberId,
+            activityType: 'task',
+            action: 'update',
+            description: desc,
+            relatedItemId: input.taskId,
+          });
+        } catch (e) {
+          console.error('Failed to create activity log for rotation schedule update:', e);
+        }
+      }
+      return result;
     }),
 
   // Extend rotation schedule by adding one more occurrence

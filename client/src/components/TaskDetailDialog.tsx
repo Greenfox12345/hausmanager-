@@ -594,7 +594,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     },
   });
   
-  const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation();
+  const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation({
+    onSuccess: () => {
+      // Invalidate rotation schedule data so it reloads when dialog reopens
+      if (task?.id) {
+        utils.tasks.getRotationSchedule.invalidate({ taskId: task.id });
+      }
+      utils.tasks.list.invalidate();
+      utils.activities.getByTaskId.invalidate();
+    },
+  });
   const addItemToOccurrenceMutation = trpc.taskOccurrenceItems.addItemToOccurrence.useMutation();
   const removeItemFromOccurrenceMutation = trpc.taskOccurrenceItems.removeItemFromOccurrence.useMutation();
   const removeAllTaskItemsMutation = trpc.taskOccurrenceItems.removeAllTaskItems.useMutation();
@@ -1021,7 +1030,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   return (
     <>
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(val) => {
+      if (!val) setShowDeleteConfirm(false);
+      onOpenChange(val);
+    }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
@@ -1032,7 +1044,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={onNavigatePrevious}
+                    onClick={() => { setShowDeleteConfirm(false); onNavigatePrevious?.(); }}
                     disabled={currentTaskIndex === 0}
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -1044,7 +1056,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={onNavigateNext}
+                    onClick={() => { setShowDeleteConfirm(false); onNavigateNext?.(); }}
                     disabled={currentTaskIndex === (taskList.length - 1)}
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -2251,6 +2263,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       if (task?.id) {
                         setRotationScheduleMutation.mutate({
                           taskId: task.id,
+                          householdId: household?.householdId,
+                          memberId: member?.memberId,
                           schedule: updated.map((o: any) => ({
                             occurrenceNumber: o.occurrenceNumber,
                             members: o.members.filter((m: any) => m.memberId !== 0),
@@ -2272,6 +2286,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       if (task?.id) {
                         setRotationScheduleMutation.mutate({
                           taskId: task.id,
+                          householdId: household?.householdId,
+                          memberId: member?.memberId,
                           schedule: updated.map((o: any) => ({
                             occurrenceNumber: o.occurrenceNumber,
                             members: o.members.filter((m: any) => m.memberId !== 0),
@@ -2554,7 +2570,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             </Button>
                           ) : (
                             <div className="col-span-2 flex gap-2 items-center p-2 rounded-lg bg-destructive/10 border border-destructive/30">
-                              <span className="text-xs text-destructive flex-1">{t("dialog.confirmDelete")}</span>
+                              <span className="text-xs text-destructive flex-1">{t("messages.confirmDelete")}</span>
                               <Button
                                 variant="destructive"
                                 size="sm"
