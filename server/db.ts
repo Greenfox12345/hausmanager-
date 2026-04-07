@@ -1818,30 +1818,36 @@ export async function getInventoryItemAllowedHouseholds(itemId: number): Promise
  * so we must use local date components on the server too for consistency.
  */
 function toDateStr(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  // Use UTC components — Drizzle always gives us UTC-based Date objects
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
-/** Parse a yyyy-MM-dd string or Date into a local midnight Date.
- * For yyyy-MM-dd strings (from frontend), parse as local midnight.
- * For ISO timestamps from DB (e.g. "2025-04-01T22:00:00.000Z"), use local date components.
+/**
+ * Normalize a date to UTC midnight for day-level comparison.
+ *
+ * Drizzle ORM's datetime column:
+ *   mapToDriverValue:   date.toISOString() → writes UTC string to MySQL
+ *   mapFromDriverValue: new Date(value + 'Z') → reads as UTC Date
+ *
+ * Therefore all Date objects from the DB are UTC-based.
+ * We must use getUTCFullYear/getUTCMonth/getUTCDate to extract the correct calendar date.
  */
 function toUTCMidnight(d: Date | string): Date {
   if (typeof d === "string") {
-    // If it's already a yyyy-MM-dd string, parse as local midnight (not UTC)
+    // yyyy-MM-dd string from frontend: treat as UTC midnight directly
     if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
       const [y, mo, day] = d.split("-").map(Number);
-      const result = new Date(y, mo - 1, day, 0, 0, 0, 0);
-      return result;
+      return new Date(Date.UTC(y, mo - 1, day, 0, 0, 0, 0));
     }
-    // ISO timestamp from DB: parse and use LOCAL date components
+    // ISO timestamp or other string: parse, then extract UTC date components
     const parsed = new Date(d);
-    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), 0, 0, 0, 0);
+    return new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate(), 0, 0, 0, 0));
   }
-  // Date object: normalize to local midnight
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+  // Date object from Drizzle: use UTC components
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
 }
 
 export function calcOccurrenceNumber(
@@ -1865,18 +1871,18 @@ export function calcOccurrenceNumber(
     if (current.getTime() > target.getTime()) return null;
 
     if (task.repeatUnit === "days") {
-      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval, 0, 0, 0, 0);
+      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + task.repeatInterval, 0, 0, 0, 0));
     } else if (task.repeatUnit === "weeks") {
-      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval * 7, 0, 0, 0, 0);
+      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + task.repeatInterval * 7, 0, 0, 0, 0));
     } else if (task.repeatUnit === "months") {
       // Preserve the original day-of-month to avoid drift (e.g. Jan 31 + 1 month → Feb 28 → Mar 28)
-      const origDay = due.getDate();
-      const newMonth = current.getMonth() + task.repeatInterval;
-      const newYear = current.getFullYear() + Math.floor(newMonth / 12);
+      const origDay = due.getUTCDate();
+      const newMonth = current.getUTCMonth() + task.repeatInterval;
+      const newYear = current.getUTCFullYear() + Math.floor(newMonth / 12);
       const normMonth = ((newMonth % 12) + 12) % 12;
       // Clamp to last day of resulting month
-      const daysInMonth = new Date(newYear, normMonth + 1, 0).getDate();
-      current = new Date(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0);
+      const daysInMonth = new Date(Date.UTC(newYear, normMonth + 1, 0)).getUTCDate();
+      current = new Date(Date.UTC(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0));
     } else {
       return null;
     }

@@ -364,11 +364,12 @@ export const tasksRouter = router({
         const [year, month, day] = input.dueDate.split('-').map(Number);
         if (input.dueTime) {
           const [hours, minutes] = input.dueTime.split(':').map(Number);
-          // Use LOCAL time so mysql2 stores the exact clock time the user entered
-          dueDatetime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+          // Use Date.UTC: Drizzle writes toISOString() (UTC) to DB, so we must
+          // provide UTC values that match what the user entered as clock time.
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
-          // No time: store as local midnight
-          dueDatetime = new Date(year, month - 1, day, 0, 0, 0, 0);
+          // No time: store as UTC midnight
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
         }
       }
 
@@ -506,11 +507,12 @@ export const tasksRouter = router({
         const [year, month, day] = dueDate.split('-').map(Number);
         if (dueTime) {
           const [hours, minutes] = dueTime.split(':').map(Number);
-          // Use LOCAL time so mysql2 stores the exact clock time the user entered
-          dueDatetime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+          // Use Date.UTC: Drizzle writes toISOString() (UTC) to DB, so we must
+          // provide UTC values that match what the user entered as clock time.
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
         } else {
-          // No time: store as local midnight
-          dueDatetime = new Date(year, month - 1, day, 0, 0, 0, 0);
+          // No time: store as UTC midnight
+          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
         }
       }
 
@@ -1596,22 +1598,24 @@ export const tasksRouter = router({
       const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
 
       const advanceDate = (d: Date): Date => {
-        const next = new Date(d);
+        // Use UTC components — Drizzle gives us UTC-based Date objects
+        const y = d.getUTCFullYear(), mo = d.getUTCMonth(), day = d.getUTCDate();
+        const h = d.getUTCHours(), min = d.getUTCMinutes();
         if (task.repeatUnit === "days") {
-          next.setDate(next.getDate() + (task.repeatInterval || 1));
+          return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1), h, min));
         } else if (task.repeatUnit === "weeks") {
-          next.setDate(next.getDate() + (task.repeatInterval || 1) * 7);
+          return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1) * 7, h, min));
         } else if (task.repeatUnit === "months") {
-          return getNextMonthlyOccurrence(next, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
+          return getNextMonthlyOccurrence(d, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
         }
-        return next;
+        return d;
       };
 
-      // Format date as yyyy-MM-dd
+      // Format date as yyyy-MM-dd using UTC components
       const fmt = (d: Date) => {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(d.getUTCDate()).padStart(2, "0");
         return `${y}-${m}-${day}`;
       };
 

@@ -65,43 +65,47 @@ export interface TaskForCompletion {
 }
 
 /**
- * Advance a date by one interval using LOCAL date components.
+ * Advance a date by one interval using UTC date components.
  *
- * mysql2 reads/writes DATETIME as local time strings, so we must use
- * local (non-UTC) date arithmetic to preserve the clock time the user entered.
- * e.g. '2025-04-07 10:00:00' in MySQL -> Date.getHours() = 10 (local) = correct.
+ * Drizzle ORM's datetime column uses:
+ *   mapToDriverValue:   date.toISOString().replace('T',' ').replace('Z','')  → writes UTC string
+ *   mapFromDriverValue: new Date(value + 'Z')                                → reads as UTC
+ *
+ * Therefore all Date objects coming from the DB are UTC-based.
+ * We MUST use getUTCFullYear/getUTCMonth/getUTCDate/getUTCHours and Date.UTC()
+ * so that the calendar date stored in the DB is preserved exactly.
  */
 async function advanceByInterval(d: Date, task: TaskForCompletion): Promise<Date> {
-  // Use LOCAL components so the clock time is preserved across intervals
-  const y = d.getFullYear();
-  const mo = d.getMonth();   // 0-based
-  const day = d.getDate();
-  const h = d.getHours();
-  const min = d.getMinutes();
+  // Use UTC components — Drizzle always gives us UTC Date objects
+  const y = d.getUTCFullYear();
+  const mo = d.getUTCMonth();   // 0-based
+  const day = d.getUTCDate();
+  const h = d.getUTCHours();
+  const min = d.getUTCMinutes();
 
   if (task.repeatUnit === "days") {
-    return new Date(y, mo, day + (task.repeatInterval || 1), h, min, 0, 0);
+    return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1), h, min));
   }
   if (task.repeatUnit === "weeks") {
-    return new Date(y, mo, day + (task.repeatInterval || 1) * 7, h, min, 0, 0);
+    return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1) * 7, h, min));
   }
   if (task.repeatUnit === "months") {
-    const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-    return getNextMonthlyOccurrence(d, task.repeatInterval || 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
+    const { getNextMonthlyOccurrenceUTC } = await import("../../shared/dateUtils");
+    return getNextMonthlyOccurrenceUTC(d, task.repeatInterval || 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
   }
   // Fallback: frequency field
   switch (task.frequency) {
     case "daily":
-      return new Date(y, mo, day + 1, h, min, 0, 0);
+      return new Date(Date.UTC(y, mo, day + 1, h, min));
     case "weekly":
-      return new Date(y, mo, day + 7, h, min, 0, 0);
+      return new Date(Date.UTC(y, mo, day + 7, h, min));
     case "monthly": {
-      const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
-      return getNextMonthlyOccurrence(d, 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
+      const { getNextMonthlyOccurrenceUTC } = await import("../../shared/dateUtils");
+      return getNextMonthlyOccurrenceUTC(d, 1, (task.monthlyRecurrenceMode as "same_date" | "same_weekday") || "same_date");
     }
     case "custom":
       if (task.customFrequencyDays) {
-        return new Date(y, mo, day + task.customFrequencyDays, h, min, 0, 0);
+        return new Date(Date.UTC(y, mo, day + task.customFrequencyDays, h, min));
       }
       return d;
   }

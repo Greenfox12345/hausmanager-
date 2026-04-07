@@ -63,50 +63,8 @@ export function getNextMonthlyOccurrence(
   monthsToAdd: number,
   mode: 'same_date' | 'same_weekday'
 ): Date {
-  if (mode === 'same_date') {
-    // Add months while clamping to the last day of the target month.
-    // Using setMonth() alone can overflow (e.g. Jan 31 + 1 month → Mar 3).
-    const y = currentDate.getFullYear();
-    const mo = currentDate.getMonth(); // 0-based
-    const day = currentDate.getDate();
-    const h = currentDate.getHours();
-    const min = currentDate.getMinutes();
-
-    const targetMo = mo + monthsToAdd;
-    const targetYear = y + Math.floor(targetMo / 12);
-    const normMo = ((targetMo % 12) + 12) % 12;
-    // Clamp to last day of target month (e.g. Jan 31 → Feb 28)
-    const daysInMonth = new Date(targetYear, normMo + 1, 0).getDate();
-    const clampedDay = Math.min(day, daysInMonth);
-    return new Date(targetYear, normMo, clampedDay, h, min, 0, 0);
-  } else {
-    // Complex: find the same weekday occurrence in the target month
-    const { weekday, occurrence } = getWeekdayOccurrence(currentDate);
-    
-    const targetMonth = new Date(currentDate);
-    targetMonth.setMonth(targetMonth.getMonth() + monthsToAdd);
-    
-    const result = getNthWeekdayOfMonth(
-      targetMonth.getFullYear(),
-      targetMonth.getMonth(),
-      weekday,
-      occurrence
-    );
-    
-    // Fallback to last occurrence if nth doesn't exist (e.g., 5th Monday)
-    if (!result) {
-      // Try the previous occurrence
-      const fallback = getNthWeekdayOfMonth(
-        targetMonth.getFullYear(),
-        targetMonth.getMonth(),
-        weekday,
-        occurrence - 1
-      );
-      return fallback || targetMonth; // Ultimate fallback to first of month
-    }
-    
-    return result;
-  }
+  // Delegate to the UTC version — Drizzle always gives us UTC-based Date objects.
+  return getNextMonthlyOccurrenceUTC(currentDate, monthsToAdd, mode);
 }
 
 /**
