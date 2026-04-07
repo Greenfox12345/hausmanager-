@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Download, ExternalLink, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 
@@ -76,6 +76,7 @@ export function PDFViewer({ url, filename, open, onOpenChange }: PDFViewerProps)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-7xl h-[90vh] p-0 flex flex-col">
+        <DialogTitle className="sr-only">PDF-Viewer</DialogTitle>
         {/* Header */}
         <div className="p-4 border-b space-y-3">
           {/* First Row: Title and Actions */}

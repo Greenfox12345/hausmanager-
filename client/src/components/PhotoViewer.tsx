@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface Photo {
@@ -58,6 +58,7 @@ export function PhotoViewer({ photos, initialIndex = 0, open, onOpenChange }: Ph
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+        <DialogTitle className="sr-only">Bildvorschau</DialogTitle>
         <div className="relative w-full h-full flex flex-col">
           {/* Header */}
           <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent">

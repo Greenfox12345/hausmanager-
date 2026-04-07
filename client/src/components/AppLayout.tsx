@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -326,6 +326,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
               <SidebarContent />
             </SheetContent>
           </Sheet>
