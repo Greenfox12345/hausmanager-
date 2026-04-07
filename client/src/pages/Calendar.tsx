@@ -59,7 +59,7 @@ export default function Calendar() {
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
   const [skipConfirmData, setSkipConfirmData] = useState<{
     skippedCount: number;
-    skippedDates: string[];
+    skippedOccurrenceDates: string[];
     nextDate: string | null;
     pendingCompleteData: { comment?: string; photoUrls: {url: string, filename: string}[]; fileUrls?: {url: string, filename: string}[] } | null;
   } | null>(null);
@@ -164,12 +164,11 @@ export default function Calendar() {
     onSuccess: (_data, variables) => {
       utils.tasks.list.invalidate();
       utils.tasks.getRotationSchedule.invalidate();
-      // Update selectedTask in-place so TaskDetailDialog reflects the new skippedDates immediately
+      // Update selectedTask in-place so TaskDetailDialog reflects the new skip status immediately
+      // occurrenceNotes is the single source of truth - invalidate will refresh from server
       setSelectedTask((prev: any) => {
         if (!prev || prev.id !== variables.taskId) return prev;
-        const existing = prev.skippedDates || [];
-        if (existing.includes(variables.dateToSkip)) return prev;
-        return { ...prev, skippedDates: [...existing, variables.dateToSkip] };
+        return { ...prev }; // trigger re-render; list invalidation will update occurrenceNotes
       });
       toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
@@ -205,8 +204,7 @@ export default function Calendar() {
 
     const occurrences: Array<{ date: Date; isOriginal: boolean; occurrenceNote?: string }> = [];
     let currentDate = new Date(task.dueDate);
-    const skippedDates = task.skippedDates || [];
-    // occurrenceNotes: array of { occurrenceNumber, notes, isSkipped } from backend
+    // occurrenceNotes is the single source of truth for skip status
     const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
     
     // Calculate max date (12 months from current month view)
@@ -230,12 +228,9 @@ export default function Calendar() {
 
       occurrenceNumber++;
 
-      // Check if this date is skipped (unified: check both skippedDates array AND occurrenceNotes.isSkipped)
-      const dateKey = format(nextDate, "yyyy-MM-dd");
-      const isSkippedByDate = skippedDates.includes(dateKey);
+      // Check if this occurrence is skipped (occurrenceNotes is single source of truth)
       const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occurrenceNumber);
-      const isSkippedByNote = noteEntry?.isSkipped === true;
-      const isSkipped = isSkippedByDate || isSkippedByNote;
+      const isSkipped = noteEntry?.isSkipped === true;
 
       // Check if this occurrence has a note
       const hasNote = !!(noteEntry?.notes);
@@ -261,8 +256,7 @@ export default function Calendar() {
       return new Date(task.dueDate!);
     }
 
-    const skippedDates = task.skippedDates || [];
-    // Unified: also check isSkipped from occurrenceNotes
+    // occurrenceNotes is the single source of truth for skip status
     const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
 
     // Helper: advance one interval step
@@ -289,11 +283,10 @@ export default function Calendar() {
     let i = 0;
     let occNum = 1; // dueDate = occurrence 1
     while (cur <= maxDate && i < maxIterations) {
-      const dateKey = format(cur, "yyyy-MM-dd");
-      // Unified: check both skippedDates array AND occurrenceNotes.isSkipped
+      // occurrenceNotes is single source of truth for skip status
       const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
-      const isSkippedByNote = noteEntry?.isSkipped === true;
-      if (!skippedDates.includes(dateKey) && !isSkippedByNote) {
+      const isSkipped = noteEntry?.isSkipped === true;
+      if (!isSkipped) {
         // Return the first non-skipped occurrence (oldest open = "current" appointment)
         return new Date(cur);
       }
@@ -314,9 +307,9 @@ export default function Calendar() {
       // Add current task (Occurrence 1 = dueDate)
       if (task.dueDate) {
         const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-        // Unified skip check: skippedDates array AND occurrenceNotes[1].isSkipped
+        // occurrenceNotes is the single source of truth for skip status
         const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
-        const isOcc1Skipped = (task.skippedDates || []).includes(dateKey) || occ1Note?.isSkipped === true;
+        const isOcc1Skipped = occ1Note?.isSkipped === true;
         if (!isOcc1Skipped) {
           if (!grouped[dateKey]) {
             grouped[dateKey] = [];
@@ -393,10 +386,9 @@ export default function Calendar() {
         const taskDate = new Date(task.dueDate);
         taskDate.setHours(0, 0, 0, 0);
         
-        // Unified skip check for Occurrence 1 (dueDate)
-        const dateKey = format(taskDate, "yyyy-MM-dd");
+        // occurrenceNotes is the single source of truth for skip status
         const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
-        const isOcc1Skipped = (task.skippedDates || []).includes(dateKey) || occ1Note?.isSkipped === true;
+        const isOcc1Skipped = occ1Note?.isSkipped === true;
         
         // Include if within range OR overdue (and not completed) AND not skipped
         if (!isOcc1Skipped && ((taskDate <= endDate) || (taskDate < today && !task.isCompleted))) {
@@ -569,7 +561,7 @@ export default function Calendar() {
           // Show confirmation dialog before completing
           setSkipConfirmData({
             skippedCount: check.skippedCount,
-            skippedDates: check.skippedDates,
+            skippedOccurrenceDates: check.skippedOccurrenceDates,
             nextDate: check.nextDate,
             pendingCompleteData: data,
           });
@@ -1043,7 +1035,7 @@ export default function Calendar() {
                                                   if (check.skippedCount > 0) {
                                                     setSkipConfirmData({
                                                       skippedCount: check.skippedCount,
-                                                      skippedDates: check.skippedDates,
+                                                      skippedOccurrenceDates: check.skippedOccurrenceDates,
                                                       nextDate: check.nextDate,
                                                       pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
                                                     });
@@ -1378,7 +1370,7 @@ export default function Calendar() {
                                                 if (check.skippedCount > 0) {
                                                   setSkipConfirmData({
                                                     skippedCount: check.skippedCount,
-                                                    skippedDates: check.skippedDates,
+                                                    skippedOccurrenceDates: check.skippedOccurrenceDates,
                                                     nextDate: check.nextDate,
                                                     pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
                                                   });
@@ -1622,7 +1614,7 @@ export default function Calendar() {
                                             if (check.skippedCount > 0) {
                                               setSkipConfirmData({
                                                 skippedCount: check.skippedCount,
-                                                skippedDates: check.skippedDates,
+                                                skippedOccurrenceDates: check.skippedOccurrenceDates,
                                                 nextDate: check.nextDate,
                                                 pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
                                               });
@@ -1803,18 +1795,18 @@ export default function Calendar() {
             <p className="text-sm text-muted-foreground mb-3">
               {skipConfirmData.skippedCount === 1
                 ? t("calendar:skipConfirm.singleSkip", "Der nächste Termin ({{date}}) ist bereits als \"Auslassen\" markiert. Die Aufgabe wird zum übernächsten offenen Termin weitergeleitet.", {
-                    date: skipConfirmData.skippedDates[0]
+                    date: skipConfirmData.skippedOccurrenceDates[0]
                   })
                 : t("calendar:skipConfirm.multiSkip", "Die nächsten {{count}} Termine sind bereits als \"Auslassen\" markiert. Die Aufgabe wird zum nächsten offenen Termin weitergeleitet.", {
                     count: skipConfirmData.skippedCount
                   })
               }
             </p>
-            {skipConfirmData.skippedDates.length > 0 && (
+            {skipConfirmData.skippedOccurrenceDates.length > 0 && (
               <div className="bg-muted/50 rounded-md p-3 mb-4">
                 <p className="text-xs font-medium text-muted-foreground mb-1">{t("calendar:skipConfirm.skippedDates", "Übersprungene Termine:")}</p>
                 <ul className="text-sm space-y-0.5">
-                  {skipConfirmData.skippedDates.map(d => (
+                  {skipConfirmData.skippedOccurrenceDates.map(d => (
                     <li key={d} className="text-orange-600">• {d}</li>
                   ))}
                 </ul>

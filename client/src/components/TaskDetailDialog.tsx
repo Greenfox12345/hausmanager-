@@ -53,7 +53,6 @@ interface Task {
   createdAt?: string | Date | null;
   frequency?: string | null;
   customFrequencyDays?: number | null;
-  skippedDates?: string[] | null;
   householdId?: number | null;
   householdName?: string | null;
   sharedHouseholdNames?: string | null;
@@ -222,7 +221,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
   // Skip-chain warning before completing a recurring task
   const [skipCompleteWarnOpen, setSkipCompleteWarnOpen] = useState(false);
-  const [skipCompleteInfo, setSkipCompleteInfo] = useState<{ skippedCount: number; nextDate: string | null; skippedDates: string[] } | null>(null);
+  const [skipCompleteInfo, setSkipCompleteInfo] = useState<{ skippedCount: number; nextDate: string | null; skippedOccurrenceDates: string[] } | null>(null);
 
   // Wrap setRotationSchedule in useCallback to prevent infinite re-renders in RotationScheduleTable
   // Memoize availableMembers to prevent infinite re-renders in RotationScheduleTable
@@ -528,12 +527,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           }
         }
 
-        // For repeatInterval tasks (no enableRotation), derive isSkipped from task.skippedDates
-        let isSkipped = occ.isSkipped || false;
-        if (!task.enableRotation && calculatedDate && task.skippedDates) {
-          const dateStr = format(calculatedDate, "yyyy-MM-dd");
-          isSkipped = task.skippedDates.includes(dateStr);
-        }
+        // occurrenceNotes.isSkipped is the single source of truth for skip status
+        const isSkipped = occ.isSkipped || false;
 
         return {
           occurrenceNumber: occ.occurrenceNumber,
@@ -549,7 +544,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       });
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, task?.skippedDates, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
@@ -624,11 +619,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           return occ;
         })
       );
-      // Also update task.skippedDates in parent
+      // Update occurrenceNotes optimistically in parent (occurrenceNotes is single source of truth)
       if (onTaskUpdated && task) {
-        const existing = task.skippedDates || [];
-        if (!existing.includes(variables.dateToSkip)) {
-          onTaskUpdated({ ...task, skippedDates: [...existing, variables.dateToSkip] });
+        const occNotes: any[] = (task as any).occurrenceNotes || [];
+        // Find the occurrence number for this date from rotationSchedule
+        const matchingOcc = rotationSchedule.find((occ: any) => {
+          if (!occ.date) return false;
+          return format(occ.date, "yyyy-MM-dd") === variables.dateToSkip;
+        });
+        if (matchingOcc) {
+          const occNum = matchingOcc.occurrenceNumber;
+          const existing = occNotes.find((n: any) => n.occurrenceNumber === occNum);
+          const updatedNotes = existing
+            ? occNotes.map((n: any) => n.occurrenceNumber === occNum ? { ...n, isSkipped: true } : n)
+            : [...occNotes, { occurrenceNumber: occNum, notes: "", isSkipped: true }];
+          onTaskUpdated({ ...task, occurrenceNotes: updatedNotes } as any);
         }
       }
     },
@@ -649,9 +654,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           return occ;
         })
       );
+      // Update occurrenceNotes optimistically in parent (occurrenceNotes is single source of truth)
       if (onTaskUpdated && task) {
-        const updated = (task.skippedDates || []).filter((d: string) => d !== variables.dateToRestore);
-        onTaskUpdated({ ...task, skippedDates: updated });
+        const occNotes: any[] = (task as any).occurrenceNotes || [];
+        const matchingOcc = rotationSchedule.find((occ: any) => {
+          if (!occ.date) return false;
+          return format(occ.date, "yyyy-MM-dd") === variables.dateToRestore;
+        });
+        if (matchingOcc) {
+          const occNum = matchingOcc.occurrenceNumber;
+          const updatedNotes = occNotes.map((n: any) => n.occurrenceNumber === occNum ? { ...n, isSkipped: false } : n);
+          onTaskUpdated({ ...task, occurrenceNotes: updatedNotes } as any);
+        }
       }
     },
     onError: (error) => {
@@ -682,12 +696,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     onSuccess: (_data, variables) => {
       toast.success(t("messages.occurrenceRestored"));
       utils.tasks.list.invalidate();
-      // Optimistically update the task's skippedDates in the parent
+      // Update occurrenceNotes optimistically in parent (occurrenceNotes is single source of truth)
       if (onTaskUpdated && task) {
-        const updatedSkippedDates = (task.skippedDates || []).filter(
-          (d: string) => d !== variables.dateToRestore
+        const occNotes: any[] = (task as any).occurrenceNotes || [];
+        const updatedNotes = occNotes.map((n: any) =>
+          format(new Date(variables.dateToRestore), "yyyy-MM-dd") === variables.dateToRestore
+            ? n // can't match by date here without occNum, just invalidate
+            : n
         );
-        onTaskUpdated({ ...task, skippedDates: updatedSkippedDates });
+        // Invalidate is sufficient since we already call utils.tasks.list.invalidate()
+        onTaskUpdated({ ...task } as any);
       }
     },
     onError: () => {
@@ -703,13 +721,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       return;
     }
 
-    // Check if the new dueDate is in skippedDates → warn before saving
-    const skippedDates: string[] = task.skippedDates || [];
-    if (dueDate && skippedDates.includes(dueDate)) {
-      // Store the save action and show warning
-      setPendingSaveData(() => () => doSave());
-      setSkippedDateWarnOpen(true);
-      return;
+    // Check if the new dueDate is a skipped occurrence → warn before saving
+    // occurrenceNotes is the single source of truth for skip status
+    const occNotes: any[] = (task as any).occurrenceNotes || [];
+    if (dueDate) {
+      const occ1 = occNotes.find((n: any) => n.occurrenceNumber === 1);
+      if (occ1?.isSkipped) {
+        setPendingSaveData(() => () => doSave());
+        setSkippedDateWarnOpen(true);
+        return;
+      }
     }
 
     await doSave();
@@ -1854,39 +1875,46 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 )}
                 
-                {/* Skipped Dates */}
-                {task.repeatInterval && task.repeatUnit && task.skippedDates && task.skippedDates.length > 0 && (
-                  <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-semibold mb-3">{t("tasks:skippedDates", "Ausgelassene Termine")} ({task.skippedDates.length})</h4>
-                    <div className="space-y-2">
-                      {task.skippedDates.map((dateStr: string, idx: number) => (
-                        <div key={`${dateStr}-${idx}`} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
-                          <span className="text-sm">
-                            {format(new Date(dateStr), "PPP", { locale: dateFnsLocale })}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs"
-                            onClick={() => {
-                              if (confirm(`Möchten Sie den ausgelassenen Termin vom ${format(new Date(dateStr), "PPP", { locale: dateFnsLocale })} wiederherstellen?`)) {
-                                restoreSkippedDateMutation.mutate({
-                                  taskId: task.id,
-                                  householdId: household?.householdId ?? 0,
-                                  memberId: member?.memberId ?? 0,
-                                  dateToRestore: dateStr,
-                                });
-                              }
-                            }}
-                          >
-                            <RotateCcw className="h-3 w-3 mr-1" />
-                            {t("common:actions.restore")}
-                          </Button>
-                        </div>
-                      ))}
+                {/* Skipped Dates - derived from rotationSchedule (occurrenceNotes is single source of truth) */}
+                {(() => {
+                  const skippedOccs = rotationSchedule.filter((occ: any) => occ.isSkipped && occ.date);
+                  if (!task.repeatInterval || !task.repeatUnit || skippedOccs.length === 0) return null;
+                  return (
+                    <div className="border-t pt-4 mt-4">
+                      <h4 className="text-sm font-semibold mb-3">{t("tasks:skippedDates", "Ausgelassene Termine")} ({skippedOccs.length})</h4>
+                      <div className="space-y-2">
+                        {skippedOccs.map((occ: any) => {
+                          const dateStr = format(occ.date, "yyyy-MM-dd");
+                          return (
+                            <div key={`${occ.occurrenceNumber}-${dateStr}`} className="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
+                              <span className="text-sm">
+                                {format(occ.date, "PPP", { locale: dateFnsLocale })}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs"
+                                onClick={() => {
+                                  if (confirm(`Möchten Sie den ausgelassenen Termin vom ${format(occ.date, "PPP", { locale: dateFnsLocale })} wiederherstellen?`)) {
+                                    restoreSkippedDateMutation.mutate({
+                                      taskId: task.id,
+                                      householdId: household?.householdId ?? 0,
+                                      memberId: member?.memberId ?? 0,
+                                      dateToRestore: dateStr,
+                                    });
+                                  }
+                                }}
+                              >
+                                <RotateCcw className="h-3 w-3 mr-1" />
+                                {t("common:actions.restore")}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* Project Task Section */}
@@ -2761,9 +2789,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               <p className="mb-2">
                 {t("calendar:skipChainWarning.body", "Beim Abschluss werden {{count}} Termin(e) übersprungen:", { count: skipCompleteInfo?.skippedCount ?? 0 })}
               </p>
-              {skipCompleteInfo && skipCompleteInfo.skippedDates.length > 0 && (
-                <ul className="text-sm list-disc pl-4 mb-2 space-y-1">
-                  {skipCompleteInfo.skippedDates.map((d: string) => (
+              {skipCompleteInfo && skipCompleteInfo.skippedOccurrenceDates.length > 0 && (
+                <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                  {skipCompleteInfo.skippedOccurrenceDates.map((d: string) => (
                     <li key={d}>{d}</li>
                   ))}
                 </ul>
@@ -2818,10 +2846,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           <AlertDialogAction
             onClick={async () => {
               if (!task || !household || !member) return;
-              // 1. Remove the date from skippedDates optimistically
-              const updatedSkipped = (task.skippedDates || []).filter((d: string) => d !== dueDate);
+              // 1. Mark occurrence 1 as not skipped optimistically (occurrenceNotes is single source of truth)
               if (onTaskUpdated) {
-                onTaskUpdated({ ...task, skippedDates: updatedSkipped });
+                const occNotes: any[] = (task as any).occurrenceNotes || [];
+                const updatedNotes = occNotes.map((n: any) => n.occurrenceNumber === 1 ? { ...n, isSkipped: false } : n);
+                onTaskUpdated({ ...task, occurrenceNotes: updatedNotes } as any);
               }
               // 2. Complete the task → backend advances dueDate past skip-chain
               try {

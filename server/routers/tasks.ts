@@ -24,6 +24,8 @@ import {
   moveRotationOccurrence,
   calcOccurrenceNumber,
   upsertOccurrenceNote,
+  getSkippedOccurrenceNumbers,
+  clearSkippedOccurrencesUpTo,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
 import {
@@ -604,13 +606,7 @@ export const tasksRouter = router({
         // Skip-chain: advance nextDueDate past any skipped dates
         {
           const { getNextMonthlyOccurrence: getNextMonthly } = await import("../../shared/dateUtils");
-          const skippedDates: string[] = task.skippedDates || [];
-          const fmtDate = (d: Date) => {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            return `${y}-${m}-${day}`;
-          };
+          const skippedOccNumsToggle = await getSkippedOccurrenceNumbers(input.taskId);
           const advanceOne = (d: Date): Date => {
             const next = new Date(d);
             if (task.repeatUnit === "days") {
@@ -623,8 +619,18 @@ export const tasksRouter = router({
             return next;
           };
           let maxSkipIter = 500;
-          while (skippedDates.includes(fmtDate(nextDueDate)) && maxSkipIter-- > 0) {
-            nextDueDate = advanceOne(nextDueDate);
+          let highestConsumedToggle = 0;
+          while (maxSkipIter-- > 0) {
+            const occNum = calcOccurrenceNumber(task, nextDueDate);
+            if (occNum !== null && skippedOccNumsToggle.has(occNum)) {
+              highestConsumedToggle = Math.max(highestConsumedToggle, occNum);
+              nextDueDate = advanceOne(nextDueDate);
+            } else {
+              break;
+            }
+          }
+          if (highestConsumedToggle > 0) {
+            await clearSkippedOccurrencesUpTo(input.taskId, highestConsumedToggle);
           }
         }
 
@@ -739,29 +745,14 @@ export const tasksRouter = router({
           }
         }
 
-        // Remove skippedDates that are before the new dueDate (they were consumed by the skip-chain)
-        const fmtDateLocal = (d: Date) => {
-          const y = d.getFullYear();
-          const m = String(d.getMonth() + 1).padStart(2, "0");
-          const day = String(d.getDate()).padStart(2, "0");
-          return `${y}-${m}-${day}`;
-        };
-        const newDueDateStr = fmtDateLocal(nextDueDate);
-        // Keep only skippedDates that are strictly AFTER the new dueDate.
-        // Dates equal to or before newDueDateStr were consumed by the skip-chain
-        // and must be removed so the new dueDate is not treated as skipped.
-        const cleanedSkippedDates = (task.skippedDates || []).filter(
-          (d: string) => d > newDueDateStr
-        );
-
         // Update task to next occurrence (NOT completed)
+        // skippedDates is no longer used; skip status is managed via occurrenceNotes
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
           assignedTo: nextAssignee,
           isCompleted: false,
           completedBy: null,
           completedAt: null,
-          skippedDates: cleanedSkippedDates,
         });
 
         // Log completion of THIS occurrence with ORIGINAL due date
@@ -997,17 +988,11 @@ export const tasksRouter = router({
         }
         console.log('[completeTask] Next due date calculated:', nextDueDate.toISOString());
 
-        // Skip-chain: advance nextDueDate past any skipped dates
+        // Skip-chain: advance nextDueDate past any skipped occurrences (occurrenceNotes is single source of truth)
         {
           const { getNextMonthlyOccurrence: getNextMonthlySkip } = await import("../../shared/dateUtils");
-          const skippedDates: string[] = task.skippedDates || [];
-          console.log('[completeTask] SKIP-CHAIN START: nextDueDate=', nextDueDate.toISOString(), 'skippedDates=', JSON.stringify(skippedDates));
-          const fmtSkip = (d: Date) => {
-            const y = d.getFullYear();
-            const mo = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            return `${y}-${mo}-${day}`;
-          };
+          const skippedOccNums = await getSkippedOccurrenceNumbers(input.taskId);
+          console.log('[completeTask] SKIP-CHAIN START: nextDueDate=', nextDueDate.toISOString(), 'skippedOccNums=', Array.from(skippedOccNums));
           const advanceOneSkip = (d: Date): Date => {
             const next = new Date(d);
             if (task.repeatUnit === "days") {
@@ -1020,8 +1005,20 @@ export const tasksRouter = router({
             return next;
           };
           let maxSkipIter = 500;
-          while (skippedDates.includes(fmtSkip(nextDueDate)) && maxSkipIter-- > 0) {
-            nextDueDate = advanceOneSkip(nextDueDate);
+          let highestConsumedOccNum = 0;
+          while (maxSkipIter-- > 0) {
+            const occNum = calcOccurrenceNumber(task, nextDueDate);
+            if (occNum !== null && skippedOccNums.has(occNum)) {
+              console.log('[completeTask] Skipping occurrence', occNum, 'at', nextDueDate.toISOString());
+              highestConsumedOccNum = Math.max(highestConsumedOccNum, occNum);
+              nextDueDate = advanceOneSkip(nextDueDate);
+            } else {
+              break;
+            }
+          }
+          // Clean up consumed skip entries (only pure skip entries without notes)
+          if (highestConsumedOccNum > 0) {
+            await clearSkippedOccurrencesUpTo(input.taskId, highestConsumedOccNum);
           }
           console.log('[completeTask] Next due date after skip-chain:', nextDueDate.toISOString());
         }
@@ -1029,17 +1026,8 @@ export const tasksRouter = router({
 
       // ===== 3. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
       if (isRecurring && nextDueDate) {
-        // Clean up skippedDates: remove all entries <= new dueDate (consumed by skip-chain)
-        const newDueDateFmt = (() => {
-          const y = nextDueDate.getFullYear();
-          const mo = String(nextDueDate.getMonth() + 1).padStart(2, "0");
-          const day = String(nextDueDate.getDate()).padStart(2, "0");
-          return `${y}-${mo}-${day}`;
-        })();
-        const cleanedSkipped = (task.skippedDates || []).filter((d: string) => d > newDueDateFmt);
-        console.log('[completeTask] CLEANUP: newDueDateFmt=', newDueDateFmt, 'original skippedDates=', JSON.stringify(task.skippedDates), 'cleanedSkipped=', JSON.stringify(cleanedSkipped));
-
         // For recurring tasks: update to next occurrence in a SINGLE write (no intermediate isCompleted=true)
+        // skippedDates is no longer used; skip status is managed via occurrenceNotes
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
           isCompleted: false,
@@ -1047,7 +1035,6 @@ export const tasksRouter = router({
           completedAt: null,
           completionPhotoUrls: input.photoUrls || [],
           completionFileUrls: input.fileUrls || [],
-          skippedDates: cleanedSkipped,
         });
       } else {
         // For non-recurring tasks: mark as completed
@@ -1708,22 +1695,13 @@ export const tasksRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Add date to skippedDates array (deduplicate)
-      const currentSkippedDates = task.skippedDates || [];
-      const alreadySkipped = currentSkippedDates.includes(input.dateToSkip);
-      if (!alreadySkipped) {
-        const updatedSkippedDates = [...currentSkippedDates, input.dateToSkip];
-
-        // If the task has no dueDate yet, set it to the date being skipped
-        const updateData: any = { skippedDates: updatedSkippedDates };
-        if (!task.dueDate) {
-          updateData.dueDate = new Date(input.dateToSkip);
-        }
-        await updateTask(input.taskId, updateData);
+      // Compute occurrence number for this date
+      // If the task has no dueDate yet, set it first so calcOccurrenceNumber works
+      let taskForCalc = task;
+      if (!task.dueDate) {
+        await updateTask(input.taskId, { dueDate: new Date(input.dateToSkip) });
+        taskForCalc = { ...task, dueDate: new Date(input.dateToSkip) };
       }
-
-      // Also write into taskRotationOccurrenceNotes for unified dialog display
-      const taskForCalc = alreadySkipped ? task : { ...task, dueDate: task.dueDate || new Date(input.dateToSkip) };
       const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
       if (occNum !== null) {
         await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
@@ -1763,19 +1741,11 @@ export const tasksRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Remove date from skippedDates array
-      const currentSkippedDates = task.skippedDates || [];
-      const updatedSkippedDates = currentSkippedDates.filter(date => date !== input.dateToRestore);
-
-      // Also update taskRotationOccurrenceNotes for unified dialog display
+      // Mark occurrence as not skipped in occurrenceNotes (single source of truth)
       const restoreOccNum = calcOccurrenceNumber(task, input.dateToRestore);
       if (restoreOccNum !== null) {
         await upsertOccurrenceNote(input.taskId, restoreOccNum, { isSkipped: false });
       }
-
-      await updateTask(input.taskId, {
-        skippedDates: updatedSkippedDates,
-      });
 
       const restoreLang = await getHouseholdLang(input.householdId);
       const restoreLocale = restoreLang === "en" ? "en-GB" : restoreLang === "es" ? "es-ES" : "de-DE";
@@ -1971,20 +1941,11 @@ export const tasksRouter = router({
     .query(async ({ input }) => {
       const task = await getTaskById(input.taskId);
       if (!task || !task.repeatInterval || !task.repeatUnit || !task.dueDate) {
-        return { skippedCount: 0, nextDate: null, skippedDates: [] as string[] };
+        return { skippedCount: 0, nextDate: null, skippedOccurrenceDates: [] as string[] };
       }
 
-      const skippedDates: string[] = task.skippedDates || [];
-
-      // Also load rotation schedule to check isSkipped occurrences
-      const rotationSchedule = await getRotationSchedule(input.taskId);
-      // Build a set of occurrence indices (1-based) that are skipped in rotation.
-      // IMPORTANT: Occurrence 1 (idx=0) = current dueDate being completed → SKIP IT.
-      // Only Occurrence 2+ (idx >= 1) are relevant for upcoming appointments.
-      const rotationSkippedIndices = new Set<number>();
-      rotationSchedule.forEach((occ, idx) => {
-        if (idx >= 1 && occ.isSkipped) rotationSkippedIndices.add(idx + 1);
-      });
+      // occurrenceNotes is the single source of truth for skip status
+      const skippedOccNums = await getSkippedOccurrenceNumbers(input.taskId);
 
       const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
 
@@ -2008,36 +1969,29 @@ export const tasksRouter = router({
         return `${y}-${m}-${day}`;
       };
 
-      // Start from the NEXT occurrence after current dueDate
-      // occurrenceIndex starts at 2 because:
-      // - Occurrence 1 in the rotation schedule = current dueDate (being completed)
-      // - Occurrence 2 = first next occurrence after dueDate
+      // Start from the NEXT occurrence after current dueDate (occurrence 2 = first after dueDate)
       let cur = advanceDate(new Date(task.dueDate));
       const skippedInChain: string[] = [];
       const maxIter = 500;
       let i = 0;
-      let occurrenceIndex = 2; // 1-based index matching rotation schedule (occ 1 = current dueDate)
 
       while (i < maxIter) {
-        const key = fmt(cur);
-        // Check both skippedDates array AND rotation schedule isSkipped
-        const isSkippedByDate = skippedDates.includes(key);
-        const isSkippedByRotation = rotationSkippedIndices.has(occurrenceIndex);
-        if (isSkippedByDate || isSkippedByRotation) {
-          skippedInChain.push(key);
+        const occNum = calcOccurrenceNumber(task, cur);
+        const isSkipped = occNum !== null && skippedOccNums.has(occNum);
+        if (isSkipped) {
+          skippedInChain.push(fmt(cur));
           cur = advanceDate(cur);
-          occurrenceIndex++;
           i++;
         } else {
           // Found first non-skipped next occurrence
           return {
             skippedCount: skippedInChain.length,
             nextDate: cur.toISOString(),
-            skippedDates: skippedInChain,
+            skippedOccurrenceDates: skippedInChain,
           };
         }
       }
 
-      return { skippedCount: skippedInChain.length, nextDate: cur.toISOString(), skippedDates: skippedInChain };
+      return { skippedCount: skippedInChain.length, nextDate: cur.toISOString(), skippedOccurrenceDates: skippedInChain };
     }),
 });

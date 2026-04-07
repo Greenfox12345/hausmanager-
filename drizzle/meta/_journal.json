@@ -204,6 +204,13 @@
       "when": 1775420334134,
       "tag": "0040_nifty_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1775520267717,
+      "tag": "0041_modern_salo",
+      "breakpoints": true
     }
   ]
 }

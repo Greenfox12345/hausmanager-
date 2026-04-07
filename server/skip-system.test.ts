@@ -1,10 +1,8 @@
 /**
  * Tests für das vereinheitlichte Skip-System
  *
- * Prüft, dass:
- * 1. calcOccurrenceNumber korrekt die Occurrence-Nummer für ein Datum berechnet
- * 2. Die SQL-Filterlogik für occurrenceNotes isSkipped=1 Einträge enthält
- * 3. Die Kalender-Logik beide Quellen (skippedDates + occurrenceNotes.isSkipped) kombiniert
+ * Nach der Migration: occurrenceNotes.isSkipped ist die einzige Quelle der Wahrheit.
+ * skippedDates wird nicht mehr verwendet.
  *
  * Alle Tests ohne Datenbankzugriff.
  */
@@ -118,97 +116,49 @@ describe("occurrenceNotes SQL-Filter-Logik", () => {
   });
 });
 
-describe("Kalender: Occurrence 1 (dueDate) wird auf Skip geprüft", () => {
-  it("tasksByDate: dueDate wird nicht eingefügt wenn es in skippedDates ist", () => {
-    function shouldIncludeDueDate(
-      dateKey: string,
-      skippedDates: string[],
-      occ1IsSkipped: boolean
-    ): boolean {
-      return !skippedDates.includes(dateKey) && !occ1IsSkipped;
-    }
+describe("occurrenceNotes als einzige Quelle der Wahrheit (nach Migration)", () => {
+  /**
+   * Nach der Migration verwendet der Kalender nur noch occurrenceNotes.isSkipped.
+   * skippedDates wird nicht mehr geprüft.
+   */
 
-    expect(shouldIncludeDueDate("2025-01-06", [], false)).toBe(true);
-    expect(shouldIncludeDueDate("2025-01-06", ["2025-01-06"], false)).toBe(false);
-    expect(shouldIncludeDueDate("2025-01-06", [], true)).toBe(false);
-    expect(shouldIncludeDueDate("2025-01-06", ["2025-01-06"], true)).toBe(false);
+  function isOccurrenceSkipped(
+    occNum: number,
+    occurrenceNotes: { occurrenceNumber: number; isSkipped?: boolean }[]
+  ): boolean {
+    const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
+    return noteEntry?.isSkipped === true;
+  }
+
+  it("Occurrence 1 (dueDate) wird nicht eingefügt wenn isSkipped=true", () => {
+    const occurrenceNotes = [{ occurrenceNumber: 1, isSkipped: true }];
+    expect(isOccurrenceSkipped(1, occurrenceNotes)).toBe(true);
+  });
+
+  it("Occurrence 1 wird eingefügt wenn kein occurrenceNotes-Eintrag vorhanden", () => {
+    const occurrenceNotes: { occurrenceNumber: number; isSkipped?: boolean }[] = [];
+    expect(isOccurrenceSkipped(1, occurrenceNotes)).toBe(false);
+  });
+
+  it("Occurrence 2 wird übersprungen wenn isSkipped=true", () => {
+    const occurrenceNotes = [{ occurrenceNumber: 2, isSkipped: true }];
+    expect(isOccurrenceSkipped(2, occurrenceNotes)).toBe(true);
+    expect(isOccurrenceSkipped(1, occurrenceNotes)).toBe(false); // Occurrence 1 nicht betroffen
   });
 
   it("Occurrence 1 und 2 können unabhängig übersprungen werden", () => {
-    const skippedDates = ["2025-01-06"];
-    const occurrenceNotes = [{ occurrenceNumber: 1, notes: "", isSkipped: true }];
-
-    function isOccSkipped(dateKey: string, occNum: number): boolean {
-      const isSkippedByDate = skippedDates.includes(dateKey);
-      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
-      return isSkippedByDate || noteEntry?.isSkipped === true;
-    }
-
-    expect(isOccSkipped("2025-01-06", 1)).toBe(true);
-    expect(isOccSkipped("2025-01-13", 2)).toBe(false);
-  });
-});
-
-describe("Unified Skip: Beide Systeme werden synchron gehalten", () => {
-  it("skipOccurrence-Logik: Datum wird zu skippedDates hinzugefügt (dedupliziert)", () => {
-    const existingSkipped = ["2025-01-06", "2025-01-20"];
-    const dateToSkip = "2025-01-13";
-
-    const alreadySkipped = existingSkipped.includes(dateToSkip);
-    const updatedSkipped = alreadySkipped
-      ? existingSkipped
-      : [...existingSkipped, dateToSkip];
-
-    expect(updatedSkipped).toContain("2025-01-13");
-    expect(updatedSkipped.length).toBe(3);
-    expect(alreadySkipped).toBe(false);
-  });
-
-  it("skipOccurrence-Logik: Doppeltes Überspringen wird dedupliziert", () => {
-    const existingSkipped = ["2025-01-06", "2025-01-13"];
-    const dateToSkip = "2025-01-13";
-
-    const alreadySkipped = existingSkipped.includes(dateToSkip);
-    const updatedSkipped = alreadySkipped
-      ? existingSkipped
-      : [...existingSkipped, dateToSkip];
-
-    expect(updatedSkipped.length).toBe(2);
-    expect(alreadySkipped).toBe(true);
-  });
-
-  it("restoreSkippedDate-Logik: Datum wird aus skippedDates entfernt", () => {
-    const existingSkipped = ["2025-01-06", "2025-01-13", "2025-01-20"];
-    const dateToRestore = "2025-01-13";
-
-    const updatedSkipped = existingSkipped.filter(d => d !== dateToRestore);
-
-    expect(updatedSkipped).not.toContain("2025-01-13");
-    expect(updatedSkipped.length).toBe(2);
-  });
-
-  it("Kalender-Logik: isSkipped aus beiden Quellen kombiniert", () => {
-    const skippedDates = ["2025-01-06"]; // System A (skippedDates)
     const occurrenceNotes = [
-      { occurrenceNumber: 2, notes: "", isSkipped: true }, // System B (occurrenceNotes)
+      { occurrenceNumber: 1, isSkipped: true },
+      { occurrenceNumber: 2, isSkipped: false },
     ];
-
-    function isOccurrenceSkipped(dateKey: string, occNum: number): boolean {
-      const isSkippedByDate = skippedDates.includes(dateKey);
-      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
-      const isSkippedByNote = noteEntry?.isSkipped === true;
-      return isSkippedByDate || isSkippedByNote;
-    }
-
-    expect(isOccurrenceSkipped("2025-01-06", 1)).toBe(true);  // via skippedDates
-    expect(isOccurrenceSkipped("2025-01-13", 2)).toBe(true);  // via occurrenceNotes
-    expect(isOccurrenceSkipped("2025-01-20", 3)).toBe(false); // nicht übersprungen
+    expect(isOccurrenceSkipped(1, occurrenceNotes)).toBe(true);
+    expect(isOccurrenceSkipped(2, occurrenceNotes)).toBe(false);
   });
 
   it("Kalender-Logik: hasNote berücksichtigt nur Einträge mit tatsächlichem Notiztext", () => {
     const occurrenceNotes = [
       { occurrenceNumber: 1, notes: "Wichtige Notiz", isSkipped: false },
-      { occurrenceNumber: 2, notes: "", isSkipped: true }, // übersprungen, keine Notiz
+      { occurrenceNumber: 2, notes: "", isSkipped: true },
       { occurrenceNumber: 3, notes: null as any, isSkipped: false },
     ];
 
@@ -217,83 +167,108 @@ describe("Unified Skip: Beide Systeme werden synchron gehalten", () => {
       return !!(noteEntry?.notes);
     }
 
-    expect(hasNote(1)).toBe(true);  // hat Notiztext
-    expect(hasNote(2)).toBe(false); // leerer String = keine Notiz
-    expect(hasNote(3)).toBe(false); // null = keine Notiz
-    expect(hasNote(4)).toBe(false); // nicht vorhanden
+    expect(hasNote(1)).toBe(true);
+    expect(hasNote(2)).toBe(false);
+    expect(hasNote(3)).toBe(false);
+    expect(hasNote(4)).toBe(false);
   });
 });
 
-describe("completeTask: Kein doppeltes Überspringen", () => {
-  // Simuliert Skip-Chain A (skippedDates) und prüft dass Skip-Chain B (occurrenceNotes)
-  // nextDueDate NICHT nochmals vorschiebt
-
-  function skipChainA(
-    startDate: string,
-    skippedDates: string[],
-    intervalDays: number
-  ): { nextDate: string; skippedCount: number } {
-    const advance = (d: Date) => {
-      const next = new Date(d);
-      next.setDate(next.getDate() + intervalDays);
-      return next;
-    };
-    const fmt = (d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-    let cur = advance(new Date(startDate + "T12:00:00Z")); // start from next occurrence
-    let skippedCount = 0;
-    let maxIter = 100;
-    while (skippedDates.includes(fmt(cur)) && maxIter-- > 0) {
-      cur = advance(cur);
-      skippedCount++;
-    }
-    return { nextDate: fmt(cur), skippedCount };
+describe("getSkippedOccurrenceNumbers: Alle übersprungenen Nummern laden", () => {
+  /**
+   * Simuliert die neue Hilfsfunktion getSkippedOccurrenceNumbers aus db.ts.
+   * Gibt ein Set aller occurrenceNumbers zurück, bei denen isSkipped=true ist.
+   */
+  function getSkippedOccurrenceNumbers(
+    occurrenceNotes: { occurrenceNumber: number; isSkipped: boolean }[]
+  ): Set<number> {
+    return new Set(
+      occurrenceNotes.filter(n => n.isSkipped).map(n => n.occurrenceNumber)
+    );
   }
 
-  it("Ein übersprungener Termin: nextDueDate springt genau einen Schritt vor", () => {
-    // Aufgabe: wöchentlich, dueDate = 2025-01-06
-    // Termin 2025-01-13 wird übersprungen
-    const skippedDates = ["2025-01-13"];
-    const result = skipChainA("2025-01-06", skippedDates, 7);
-    expect(result.nextDate).toBe("2025-01-20"); // 1 Schritt übersprungen
+  it("gibt leeres Set zurück wenn keine übersprungenen Einträge", () => {
+    const notes = [
+      { occurrenceNumber: 1, isSkipped: false },
+      { occurrenceNumber: 2, isSkipped: false },
+    ];
+    expect(getSkippedOccurrenceNumbers(notes).size).toBe(0);
+  });
+
+  it("gibt korrekte Nummern zurück", () => {
+    const notes = [
+      { occurrenceNumber: 1, isSkipped: false },
+      { occurrenceNumber: 2, isSkipped: true },
+      { occurrenceNumber: 3, isSkipped: true },
+    ];
+    const result = getSkippedOccurrenceNumbers(notes);
+    expect(result.has(2)).toBe(true);
+    expect(result.has(3)).toBe(true);
+    expect(result.has(1)).toBe(false);
+  });
+});
+
+describe("completeTask: Kein doppeltes Überspringen (occurrenceNotes-basiert)", () => {
+  /**
+   * Die Skip-Chain in completeTask verwendet jetzt nur noch occurrenceNotes.
+   * Skip-Chain B löscht nur Rotation-Occurrences, schiebt nextDueDate NICHT vor.
+   */
+
+  function skipChainOccurrenceNotes(
+    currentOccurrenceNumber: number,
+    skippedNumbers: Set<number>,
+    maxIterations = 100
+  ): { nextOccurrenceNumber: number; skippedCount: number } {
+    let occNum = currentOccurrenceNumber + 1; // Start with next occurrence
+    let skippedCount = 0;
+    let i = 0;
+    while (skippedNumbers.has(occNum) && i < maxIterations) {
+      occNum++;
+      skippedCount++;
+      i++;
+    }
+    return { nextOccurrenceNumber: occNum, skippedCount };
+  }
+
+  it("Ein übersprungener Termin: springt genau einen Schritt vor", () => {
+    const skippedNumbers = new Set([2]); // Occurrence 2 übersprungen
+    const result = skipChainOccurrenceNotes(1, skippedNumbers);
+    expect(result.nextOccurrenceNumber).toBe(3);
     expect(result.skippedCount).toBe(1);
   });
 
-  it("Zwei übersprungene Termine: nextDueDate springt genau zwei Schritte vor", () => {
-    const skippedDates = ["2025-01-13", "2025-01-20"];
-    const result = skipChainA("2025-01-06", skippedDates, 7);
-    expect(result.nextDate).toBe("2025-01-27"); // 2 Schritte übersprungen
+  it("Zwei übersprungene Termine: springt genau zwei Schritte vor", () => {
+    const skippedNumbers = new Set([2, 3]);
+    const result = skipChainOccurrenceNotes(1, skippedNumbers);
+    expect(result.nextOccurrenceNumber).toBe(4);
     expect(result.skippedCount).toBe(2);
   });
 
-  it("Kein übersprungener Termin: nextDueDate bleibt beim nächsten Schritt", () => {
-    const skippedDates: string[] = [];
-    const result = skipChainA("2025-01-06", skippedDates, 7);
-    expect(result.nextDate).toBe("2025-01-13"); // kein Skip
+  it("Kein übersprungener Termin: bleibt beim nächsten Schritt", () => {
+    const skippedNumbers = new Set<number>();
+    const result = skipChainOccurrenceNotes(1, skippedNumbers);
+    expect(result.nextOccurrenceNumber).toBe(2);
     expect(result.skippedCount).toBe(0);
   });
 
-  it("Skip-Chain B darf nextDueDate NICHT nochmals vorschieben wenn skippedDates schon geprüft wurde", () => {
-    // Simuliert: skipOccurrence schreibt in BEIDE Systeme
-    // Skip-Chain A hat bereits 2025-01-13 übersprungen → nextDueDate = 2025-01-20
-    // Skip-Chain B sieht occurrenceNotes[1].isSkipped=true → darf nextDueDate NICHT nochmals vorschieben
-    const nextDateAfterSkipChainA = "2025-01-20";
+  it("Skip-Chain B darf nextDueDate NICHT nochmals vorschieben", () => {
+    // Nach Skip-Chain A: nextOccurrenceNumber = 3 (Occurrence 2 wurde übersprungen)
+    // Skip-Chain B sieht Rotation-Occurrence mit isSkipped=true → nur löschen, nicht vorschieben
+    const nextOccurrenceAfterSkipChainA = 3;
     const rotationScheduleAfterDelete = [
-      { occurrenceNumber: 1, isSkipped: true }, // dieser Eintrag soll nur gelöscht, nicht nochmals übersprungen werden
+      { occurrenceNumber: 1, isSkipped: true }, // gelöscht, nicht nochmals übersprungen
     ];
 
-    // Korrekte Implementierung: nur löschen, nicht vorschieben
-    let nextDate = nextDateAfterSkipChainA;
+    let finalOccurrence = nextOccurrenceAfterSkipChainA;
     const deletedOccurrences: number[] = [];
     for (const occ of rotationScheduleAfterDelete) {
       if (occ.isSkipped) {
         deletedOccurrences.push(occ.occurrenceNumber);
-        // KEIN nextDate = advance(nextDate) hier!
+        // KEIN finalOccurrence++ hier!
       }
     }
 
-    expect(nextDate).toBe("2025-01-20"); // unverändert
-    expect(deletedOccurrences).toContain(1); // Occurrence wurde gelöscht
+    expect(finalOccurrence).toBe(3); // unverändert
+    expect(deletedOccurrences).toContain(1);
   });
 });

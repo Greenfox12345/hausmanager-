@@ -389,7 +389,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
   const rawTasks = tasksResult as unknown as any[];
 
   // Parse JSON fields that come as strings from raw SQL
-  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'skippedDates', 'completionPhotoUrls', 'completionFileUrls'];
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls'];
   const tasksWithSharing = rawTasks.map(task => {
     const parsed = { ...task };
     for (const field of jsonFields) {
@@ -510,7 +510,7 @@ export async function getTaskById(taskId: number): Promise<Task | null> {
   if (!rows || rows.length === 0) return null;
 
   const task = { ...rows[0] };
-  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'skippedDates', 'completionPhotoUrls', 'completionFileUrls'];
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls'];
   for (const field of jsonFields) {
     if (task[field] && typeof task[field] === 'string') {
       try { task[field] = JSON.parse(task[field]); } catch { /* leave as-is */ }
@@ -1883,4 +1883,32 @@ export async function upsertOccurrenceNote(
   }
 
   return { success: true };
+}
+
+/**
+ * Returns all occurrence numbers that are marked as skipped for a task.
+ * This is the single source of truth for skip status (replaces skippedDates).
+ */
+export async function getSkippedOccurrenceNumbers(taskId: number): Promise<Set<number>> {
+  const db = await getDb();
+  if (!db) return new Set();
+
+  const [result] = await db.execute(
+    sql`SELECT occurrenceNumber FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND isSkipped = 1`
+  );
+  const rows = result as unknown as { occurrenceNumber: number }[];
+  return new Set(rows.map(r => r.occurrenceNumber));
+}
+
+/**
+ * Clear all isSkipped=true entries up to and including a given occurrence number.
+ * Called after completeTask to clean up consumed skip entries.
+ */
+export async function clearSkippedOccurrencesUpTo(taskId: number, maxOccurrenceNumber: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(
+    sql`DELETE FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND isSkipped = 1 AND occurrenceNumber <= ${maxOccurrenceNumber} AND (notes IS NULL OR notes = '') AND isSpecial = 0`
+  );
 }
