@@ -3561,3 +3561,10 @@
 - [x] Bug: Bearbeitungsdialog zeigt Uhrzeit 2h zu wenig (wall-clock strategy implementiert)
 - [x] Refactoring: Alle Aufgabenzeit-Transformationen timezone-frei machen
 - [x] Bug: Im Bearbeitungsdialog können bei bestehenden Terminen keine Verantwortlichen ausgewählt werden (Dropdown öffnet, Auswahl wird nicht übernommen)
+
+## Bug Fix: Verantwortlichkeiten bei initialen Terminen nicht änderbar
+- [x] Root Cause: handleMemberChange mapped über leeres members-Array (members: [] aus DB weil memberId=0 gefiltert wird)
+- [x] Fix 1: handleMemberChange erstellt neuen Eintrag wenn Position nicht existiert (RotationScheduleTable.tsx)
+- [x] Fix 2: Initialisierung füllt leere members-Arrays mit Platzhaltern auf (RotationScheduleTable.tsx)
+- [x] Fix 3: Struktureller Sync normalisiert ebenfalls die members (RotationScheduleTable.tsx)
+- [x] Unit Tests geschrieben und bestanden (12 Tests in rotation-member-fix.test.ts)

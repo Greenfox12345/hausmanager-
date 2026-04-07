@@ -138,7 +138,21 @@ export function RotationScheduleTable({
     
     if (initialSchedule && initialSchedule.length > 0) {
       // Use provided initial schedule (dates are either in specialDate or calculated on-the-fly)
-      setSchedule(initialSchedule);
+      // Ensure every occurrence has member slots for all required positions.
+      // DB may return members: [] for occurrences where no member was assigned yet.
+      const normalizedSchedule = initialSchedule.map(occ => {
+        if (occ.members.length >= requiredPersons) return occ;
+        // Fill missing positions with unassigned placeholders (memberId: 0)
+        const existingPositions = new Set(occ.members.map(m => m.position));
+        const filledMembers = [...occ.members];
+        for (let pos = 1; pos <= requiredPersons; pos++) {
+          if (!existingPositions.has(pos)) {
+            filledMembers.push({ position: pos, memberId: 0 });
+          }
+        }
+        return { ...occ, members: filledMembers.sort((a, b) => a.position - b.position) };
+      });
+      setSchedule(normalizedSchedule);
       isInitialized.current = true;
     } else {
       // Create default 3 occurrences
@@ -210,7 +224,19 @@ export function RotationScheduleTable({
         if (!dateA || !dateB) return 0;
         return dateA.getTime() - dateB.getTime();
       });
-      setSchedule(sorted);
+      // Normalize: ensure every occurrence has member slots for all required positions
+      const normalized = sorted.map(occ => {
+        if (occ.members.length >= requiredPersons) return occ;
+        const existingPositions = new Set(occ.members.map(m => m.position));
+        const filledMembers = [...occ.members];
+        for (let pos = 1; pos <= requiredPersons; pos++) {
+          if (!existingPositions.has(pos)) {
+            filledMembers.push({ position: pos, memberId: 0 });
+          }
+        }
+        return { ...occ, members: filledMembers.sort((a, b) => a.position - b.position) };
+      });
+      setSchedule(normalized);
       setTimeout(() => { isSyncingWithInitialSchedule.current = false; }, 0);
       return;
     }
@@ -366,9 +392,20 @@ export function RotationScheduleTable({
       const newSchedule = prev.map(occ => {
         if (occ.occurrenceNumber !== occurrenceNumber) return occ;
         
-        const newMembers = occ.members.map(m =>
-          m.position === position ? { ...m, memberId } : m
-        );
+        // Check if a member entry for this position already exists
+        const hasPosition = occ.members.some(m => m.position === position);
+        
+        let newMembers;
+        if (hasPosition) {
+          // Update existing entry
+          newMembers = occ.members.map(m =>
+            m.position === position ? { ...m, memberId } : m
+          );
+        } else {
+          // No entry for this position yet (e.g. loaded from DB with empty members)
+          // Create a new entry
+          newMembers = [...occ.members, { position, memberId }];
+        }
         
         return { ...occ, members: newMembers };
       });
