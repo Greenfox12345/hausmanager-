@@ -3628,3 +3628,6 @@
 ## Kalender: Sondertermine visuell unterscheiden
 - [x] Sondertermine mit Stern-Symbol statt Punkt im Kalender
 - [x] "Sondertermin"-Label neben "Folgetermin" in der Kalenderansicht
+
+## Sync erster Termin bei unregelmäßigen Aufgaben
+- [x] Datum des ersten Termins im Rotationsplan synchronisiert "erster Termin"-Datum oben im Formular

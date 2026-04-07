@@ -301,6 +301,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     // For irregular appointments: don't sort or renumber, just update the schedule as-is
     if (repeatUnit === 'irregular') {
       setRotationSchedule(schedule);
+      // Sync dueDate with the first occurrence's specialDate
+      const firstOcc = schedule.find(occ => !occ.isSpecial && occ.occurrenceNumber === 1);
+      if (firstOcc?.specialDate) {
+        const d = new Date(firstOcc.specialDate);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        setDueDate(dateStr);
+      }
       return;
     }
     
