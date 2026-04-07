@@ -3604,3 +3604,6 @@
 
 ## Rotationsplan Dialog-Breite (erneut)
 - [x] Rotationsplan-Tabelle macht Dialog-Inhalt noch zu breit trotz overflow-x-hidden am DialogContent
+
+## Termine-Planen-Tabelle Scroll
+- [x] Termine-Planen-Tabelle im Edit-Modus horizontal scrollbar machen

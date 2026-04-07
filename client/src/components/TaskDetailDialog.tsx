@@ -1466,8 +1466,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         {isTerminePlanenExpanded && (<>
                         
                         {/* Notes Table */}
-                        <div className="border rounded-lg overflow-hidden">
-                          <table className="w-full">
+                        <div className="border rounded-lg overflow-hidden w-full">
+                          <div className="overflow-x-auto w-full">
+                          <table className="w-full min-w-[500px]">
                             <thead className="bg-muted">
                               <tr>
                                 <th className="p-2 text-left text-sm font-medium w-32">{t("dialog.date")}</th>
@@ -1683,6 +1684,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               })}
                             </tbody>
                           </table>
+                          </div>
                         </div>
                         
                         {/* Add Occurrence Button */}
