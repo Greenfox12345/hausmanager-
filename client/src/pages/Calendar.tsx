@@ -337,6 +337,8 @@ export default function Calendar() {
       const occurrenceNotes: any[] = (task as any).occurrenceNotes || [];
       occurrenceNotes.forEach((occ: any) => {
         if (!occ.specialDate) return; // only entries with a date
+        // For irregular tasks: skip occurrenceNumber=1 if it matches task.dueDate (already added above)
+        if (task.repeatUnit === 'irregular' && occ.occurrenceNumber === 1 && !occ.isSpecial) return;
         const occDate = new Date(occ.specialDate);
         if (isNaN(occDate.getTime())) return;
         const isInMonth = occDate >= monthStart && occDate <= monthEnd;
@@ -450,6 +452,8 @@ export default function Calendar() {
       const occurrenceNotesForChron: any[] = (task as any).occurrenceNotes || [];
       occurrenceNotesForChron.forEach((occ: any) => {
         if (!occ.specialDate) return;
+        // For irregular tasks: skip occurrenceNumber=1 if it matches task.dueDate (already added above)
+        if (task.repeatUnit === 'irregular' && occ.occurrenceNumber === 1 && !occ.isSpecial) return;
         const occDate = new Date(occ.specialDate);
         if (isNaN(occDate.getTime())) return;
         const occDateNorm = new Date(occDate);
