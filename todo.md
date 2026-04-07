@@ -3611,3 +3611,8 @@
 ## UpcomingOccurrencesTable Fixes
 - [x] +-Button für extra Verantwortliche bei Sonderterminen funktioniert nicht
 - [x] Tabelle horizontal scrollbar machen
+
+## Sondertermin-Dialog Fixes
+- [x] Dialog vertikal scrollbar machen
+- [x] Pflichtfeld-* beim Namen-Feld anzeigen
+- [x] Buttontext-Übersetzung reparieren

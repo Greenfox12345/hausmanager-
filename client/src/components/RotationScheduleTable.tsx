@@ -811,7 +811,7 @@ export function RotationScheduleTable({
 
       {/* Special Occurrence Dialog */}
       <Dialog open={isAddingSpecialOccurrence} onOpenChange={setIsAddingSpecialOccurrence}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Star className="h-5 w-5 text-yellow-600" />
@@ -820,7 +820,10 @@ export function RotationScheduleTable({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="special-name">{t("tasks:specialOccurrence.nameLabel")}</Label>
+              <Label htmlFor="special-name">
+                {t("tasks:specialOccurrence.nameLabel")}
+                <span className="text-destructive ml-1">*</span>
+              </Label>
               <Input
                 id="special-name"
                 placeholder={t("tasks:specialOccurrence.nameExamplePlaceholder")}
@@ -915,7 +918,7 @@ export function RotationScheduleTable({
               className="gap-2"
             >
               <Star className="h-4 w-4" />
-              {t("common:add")}
+              {t("common:actions.add")}
             </Button>
           </DialogFooter>
         </DialogContent>
