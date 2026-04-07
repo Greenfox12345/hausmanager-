@@ -47,34 +47,46 @@ import { ENV } from './_core/env';
 /**
  * Normalize a DATETIME value from db.execute() (raw SQL).
  *
- * db.execute() bypasses Drizzle's mapFromDriverValue, so DATETIME columns
- * come back as plain strings like "2026-11-29 14:30:00".
- * new Date("2026-11-29 14:30:00") interprets this as LOCAL time (server TZ),
- * which causes a +4h drift on UTC-4 servers.
+ * Strategy: "wall-clock time" — the DB stores the time exactly as the user entered it
+ * (e.g. "14:30:00" means 14:30 Uhr, regardless of timezone).
+ * We must preserve this value without any timezone shift.
  *
- * This function replicates Drizzle's mapping:
- *   new Date(value.replace(' ', 'T') + 'Z')  →  treats the DB value as UTC.
+ * db.execute() returns strings like "2026-11-29 14:30:00".
+ * new Date("2026-11-29 14:30:00") interprets as LOCAL time on the server (UTC-4),
+ * which would give getHours()=14 on the server but the Date object would be UTC 18:30.
  *
- * Drizzle's mapToDriverValue does the reverse:
- *   date.toISOString().replace('T', ' ').replace('Z', '')  →  writes UTC string.
+ * We want: getHours() === 14 (the stored wall-clock time).
+ * So we use new Date(value.replace(' ', 'T')) WITHOUT 'Z' → local interpretation.
+ * On UTC-4 server: getHours()=14, getUTCHours()=18 — but we always use getHours().
  *
- * So the round-trip is: DB "14:30" → Date(14:30 UTC) → toISOString "14:30" → DB "14:30".
+ * The round-trip (write/read) uses the same local convention throughout.
  */
 function normalizeDatetimeFromRawSQL(value: unknown): Date | null {
   if (value == null) return null;
   if (typeof value === 'string') {
-    // "2026-11-29 14:30:00" → "2026-11-29T14:30:00Z" → UTC Date
-    return new Date(value.replace(' ', 'T') + 'Z');
+    // "2026-11-29 14:30:00" → "2026-11-29T14:30:00" → local Date (getHours()=14)
+    return new Date(value.replace(' ', 'T'));
   }
   if (value instanceof Date) {
-    // mysql2 sometimes returns Date objects (interpreted as local time).
-    // Re-interpret the local components as UTC to match Drizzle's convention.
-    return new Date(Date.UTC(
-      value.getFullYear(), value.getMonth(), value.getDate(),
-      value.getHours(), value.getMinutes(), value.getSeconds(), value.getMilliseconds()
-    ));
+    // mysql2 sometimes returns Date objects already interpreted as local time.
+    // Return as-is: getHours() already gives the correct wall-clock time.
+    return value;
   }
   return null;
+}
+
+/**
+ * Convert a Date object to a MySQL DATETIME string using LOCAL components.
+ * Use this when writing a Date that was created with the wall-clock strategy
+ * (new Date(str) without 'Z') to bypass Drizzle's toISOString() UTC conversion.
+ *
+ * Example: new Date('2026-04-07T14:00:00') on UTC-4 server
+ *   → getHours() = 14, getUTCHours() = 18
+ *   → returns '2026-04-07 14:00:00'  ✓ (not '2026-04-07 18:00:00')
+ */
+export function dateToWallClockString(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 let _db: ReturnType<typeof drizzle> | null = null;;
@@ -526,6 +538,7 @@ export async function createTask(data: {
   enableRotation?: boolean;
   requiredPersons?: number;
   dueDate?: Date;
+  dueDateRaw?: string; // Raw SQL string to bypass Drizzle's UTC mapping
   durationDays?: number;
   durationMinutes?: number;
   projectIds?: number[];
@@ -535,7 +548,18 @@ export async function createTask(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(tasks).values(data);
+  const { dueDateRaw, ...insertData } = data;
+  if (dueDateRaw !== undefined) {
+    // Write dueDate directly as SQL string to bypass Drizzle's toISOString() UTC conversion
+    const { dueDate: _ignored, ...dataWithoutDueDate } = insertData as any;
+    const result = await db.insert(tasks).values({
+      ...dataWithoutDueDate,
+      dueDate: sql.raw(`'${dueDateRaw}'`) as any,
+    });
+    return Number(result[0].insertId);
+  }
+
+  const result = await db.insert(tasks).values(insertData);
   return Number(result[0].insertId);
 }
 
@@ -567,7 +591,7 @@ export async function getTaskById(taskId: number): Promise<Task | null> {
   return task as Task;
 }
 
-export async function updateTask(id: number, data: Partial<Task>) {
+export async function updateTask(id: number, data: Partial<Task> & { dueDateRaw?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -604,7 +628,18 @@ export async function updateTask(id: number, data: Partial<Task>) {
     }
   }
 
-  await db.update(tasks).set(data).where(eq(tasks.id, id));
+  // If dueDateRaw is provided, write it directly as a SQL string to bypass
+  // Drizzle's datetime mapping (which would shift by server timezone via toISOString())
+  const { dueDateRaw, ...restData } = data;
+  if (dueDateRaw !== undefined) {
+    // Remove dueDate from restData to avoid Drizzle's UTC conversion
+    const { dueDate: _ignored, ...dataWithoutDueDate } = restData as any;
+    await db.update(tasks)
+      .set({ ...dataWithoutDueDate, dueDate: sql.raw(`'${dueDateRaw}'`) as any })
+      .where(eq(tasks.id, id));
+  } else {
+    await db.update(tasks).set(restData).where(eq(tasks.id, id));
+  }
 }
 
 export async function deleteTask(id: number) {
@@ -1863,10 +1898,10 @@ export async function getInventoryItemAllowedHouseholds(itemId: number): Promise
  * so we must use local date components on the server too for consistency.
  */
 function toDateStr(d: Date): string {
-  // Use UTC components — Drizzle always gives us UTC-based Date objects
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
+  // Wall-clock strategy: use LOCAL components (normalizeDatetimeFromRawSQL gives local dates)
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -1882,17 +1917,17 @@ function toDateStr(d: Date): string {
  */
 function toUTCMidnight(d: Date | string): Date {
   if (typeof d === "string") {
-    // yyyy-MM-dd string from frontend: treat as UTC midnight directly
+    // yyyy-MM-dd string from frontend: treat as local midnight
     if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
       const [y, mo, day] = d.split("-").map(Number);
-      return new Date(Date.UTC(y, mo - 1, day, 0, 0, 0, 0));
+      return new Date(y, mo - 1, day, 0, 0, 0, 0);
     }
-    // ISO timestamp or other string: parse, then extract UTC date components
-    const parsed = new Date(d);
-    return new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate(), 0, 0, 0, 0));
+    // Other string (e.g. "2026-04-07 14:00:00"): parse without Z → local time
+    const parsed = new Date(d.replace(' ', 'T'));
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), 0, 0, 0, 0);
   }
-  // Date object from Drizzle: use UTC components
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
+  // Date object: use LOCAL components (wall-clock strategy)
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
 }
 
 export function calcOccurrenceNumber(
@@ -1901,12 +1936,12 @@ export function calcOccurrenceNumber(
 ): number | null {
   if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) return null;
 
-  // Normalize both dates to UTC midnight to avoid timezone drift
+  // Normalize both dates to local midnight for day-level comparison (wall-clock strategy)
   const due = toUTCMidnight(task.dueDate);
   const target = toUTCMidnight(targetDate);
   const targetStr = toDateStr(target);
 
-  // Walk forward from dueDate until we reach targetDate (compare as UTC date strings)
+  // Walk forward from dueDate until we reach targetDate (compare as local date strings)
   let current = new Date(due);
   let occurrenceNumber = 1;
   const maxIterations = 50000; // covers daily repeats for ~137 years
@@ -1916,18 +1951,18 @@ export function calcOccurrenceNumber(
     if (current.getTime() > target.getTime()) return null;
 
     if (task.repeatUnit === "days") {
-      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + task.repeatInterval, 0, 0, 0, 0));
+      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval, 0, 0, 0, 0);
     } else if (task.repeatUnit === "weeks") {
-      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + task.repeatInterval * 7, 0, 0, 0, 0));
+      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval * 7, 0, 0, 0, 0);
     } else if (task.repeatUnit === "months") {
       // Preserve the original day-of-month to avoid drift (e.g. Jan 31 + 1 month → Feb 28 → Mar 28)
-      const origDay = due.getUTCDate();
-      const newMonth = current.getUTCMonth() + task.repeatInterval;
-      const newYear = current.getUTCFullYear() + Math.floor(newMonth / 12);
+      const origDay = due.getDate();
+      const newMonth = current.getMonth() + task.repeatInterval;
+      const newYear = current.getFullYear() + Math.floor(newMonth / 12);
       const normMonth = ((newMonth % 12) + 12) % 12;
       // Clamp to last day of resulting month
-      const daysInMonth = new Date(Date.UTC(newYear, normMonth + 1, 0)).getUTCDate();
-      current = new Date(Date.UTC(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0));
+      const daysInMonth = new Date(newYear, normMonth + 1, 0).getDate();
+      current = new Date(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0);
     } else {
       return null;
     }

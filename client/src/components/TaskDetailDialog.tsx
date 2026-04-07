@@ -377,13 +377,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        // Use UTC methods: task.dueDate is a UTC timestamp (Drizzle stores/reads as UTC)
-        // Using local methods would shift the time by the user's timezone offset
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        // Wall-clock strategy: DB stores time as entered by user.
+        // normalizeDatetimeFromRawSQL returns new Date(str) WITHOUT 'Z',
+        // so getHours() returns the correct wall-clock time (same as displayed).
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
         setDueDate(`${year}-${month}-${day}`);
         setDueTime(`${hours}:${minutes}`);
       } else {
@@ -912,13 +913,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       
       if (task.dueDate) {
         const date = new Date(task.dueDate);
-        // Use UTC methods: task.dueDate is a UTC timestamp (Drizzle stores/reads as UTC)
-        // Using local methods would shift the time by the user's timezone offset
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        // Wall-clock strategy: DB stores time as entered by user.
+        // normalizeDatetimeFromRawSQL returns new Date(str) WITHOUT 'Z',
+        // so getHours() returns the correct wall-clock time (same as displayed).
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
         setDueDate(`${year}-${month}-${day}`);
         setDueTime(`${hours}:${minutes}`);
       } else {

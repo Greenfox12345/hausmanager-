@@ -27,6 +27,7 @@ import {
   getSkippedOccurrenceNumbers,
   clearSkippedOccurrencesUpTo,
   getRealRotationSchedule,
+  dateToWallClockString,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
 import {
@@ -359,18 +360,17 @@ export const tasksRouter = router({
     )
     .mutation(async ({ input }) => {
       // Combine date and time if both provided
+      // Strategy: "wall-clock time" - store exactly what the user entered, no TZ conversion.
       let dueDatetime: Date | undefined;
+      let dueDatetimeStringCreate: string | undefined;
       if (input.dueDate) {
-        const [year, month, day] = input.dueDate.split('-').map(Number);
         if (input.dueTime) {
-          const [hours, minutes] = input.dueTime.split(':').map(Number);
-          // Use Date.UTC: Drizzle writes toISOString() (UTC) to DB, so we must
-          // provide UTC values that match what the user entered as clock time.
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+          dueDatetimeStringCreate = `${input.dueDate} ${input.dueTime}:00`;
         } else {
-          // No time: store as UTC midnight
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+          dueDatetimeStringCreate = `${input.dueDate} 00:00:00`;
         }
+        // Date object for internal use (getHours() returns wall-clock time)
+        dueDatetime = new Date(dueDatetimeStringCreate.replace(' ', 'T'));
       }
 
       const taskId = await createTask({
@@ -387,6 +387,7 @@ export const tasksRouter = router({
         enableRotation: input.enableRotation,
         requiredPersons: input.requiredPersons,
         dueDate: dueDatetime,
+        dueDateRaw: dueDatetimeStringCreate,
         durationDays: input.durationDays,
         durationMinutes: input.durationMinutes,
         projectIds: input.projectIds || [],
@@ -502,18 +503,22 @@ export const tasksRouter = router({
       }
 
       // Combine date and time if both provided
+      // Strategy: "wall-clock time" - store exactly what the user entered.
+      // We use new Date(dateStr) WITHOUT timezone suffix so the server interprets
+      // it as local time. Drizzle's mapToDriverValue then writes toISOString() which
+      // would shift by server TZ. To avoid this, we pass the raw string to updateTask
+      // which writes it via sql.raw() directly.
       let dueDatetime: Date | undefined;
+      let dueDatetimeString: string | undefined;
       if (dueDate) {
-        const [year, month, day] = dueDate.split('-').map(Number);
         if (dueTime) {
-          const [hours, minutes] = dueTime.split(':').map(Number);
-          // Use Date.UTC: Drizzle writes toISOString() (UTC) to DB, so we must
-          // provide UTC values that match what the user entered as clock time.
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+          dueDatetimeString = `${dueDate} ${dueTime}:00`;
         } else {
-          // No time: store as UTC midnight
-          dueDatetime = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+          dueDatetimeString = `${dueDate} 00:00:00`;
         }
+        // Also create a Date object for functions that need it (buildUpdateChanges, advanceByInterval)
+        // Use local interpretation so getHours() returns the wall-clock time
+        dueDatetime = new Date(dueDatetimeString.replace(' ', 'T'));
       }
 
       // Normalize sharedHouseholdIds: empty array -> null for clean DB storage
@@ -545,9 +550,11 @@ export const tasksRouter = router({
       if (normalizedUpdates.irregularRecurrence === null) normalizedUpdates.irregularRecurrence = false;
 
       // Update the task with all values in a single call
+      // Pass dueDatetimeString (raw SQL string) to bypass Drizzle's UTC mapping
       await updateTask(taskId, {
         ...normalizedUpdates,
         dueDate: dueDatetime,
+        ...(dueDatetimeString !== undefined ? { dueDateRaw: dueDatetimeString } : {}),
       });
 
       // Build description string (multilingual)
@@ -602,8 +609,10 @@ export const tasksRouter = router({
         );
 
         // Update task to next occurrence (NOT completed)
+        // Use dueDateRaw to bypass Drizzle's UTC conversion (wall-clock strategy)
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
+          dueDateRaw: dateToWallClockString(nextDueDate),
           isCompleted: false,
           completedBy: null,
           completedAt: null,
@@ -815,6 +824,7 @@ export const tasksRouter = router({
       if (isRecurring && nextDueDate) {
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
+          dueDateRaw: dateToWallClockString(nextDueDate),
           isCompleted: false,
           completedBy: null,
           completedAt: null,
@@ -1598,24 +1608,24 @@ export const tasksRouter = router({
       const { getNextMonthlyOccurrence } = await import("../../shared/dateUtils");
 
       const advanceDate = (d: Date): Date => {
-        // Use UTC components — Drizzle gives us UTC-based Date objects
-        const y = d.getUTCFullYear(), mo = d.getUTCMonth(), day = d.getUTCDate();
-        const h = d.getUTCHours(), min = d.getUTCMinutes();
+        // Wall-clock strategy: use LOCAL components
+        const y = d.getFullYear(), mo = d.getMonth(), day = d.getDate();
+        const h = d.getHours(), min = d.getMinutes();
         if (task.repeatUnit === "days") {
-          return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1), h, min));
+          return new Date(y, mo, day + (task.repeatInterval || 1), h, min);
         } else if (task.repeatUnit === "weeks") {
-          return new Date(Date.UTC(y, mo, day + (task.repeatInterval || 1) * 7, h, min));
+          return new Date(y, mo, day + (task.repeatInterval || 1) * 7, h, min);
         } else if (task.repeatUnit === "months") {
           return getNextMonthlyOccurrence(d, task.repeatInterval || 1, task.monthlyRecurrenceMode || "same_date");
         }
         return d;
       };
 
-      // Format date as yyyy-MM-dd using UTC components
+      // Format date as yyyy-MM-dd using LOCAL components
       const fmt = (d: Date) => {
-        const y = d.getUTCFullYear();
-        const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-        const day = String(d.getUTCDate()).padStart(2, "0");
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
         return `${y}-${m}-${day}`;
       };
 
