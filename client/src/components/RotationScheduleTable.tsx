@@ -457,8 +457,8 @@ export function RotationScheduleTable({
         </div>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
+      <div className="border rounded-lg overflow-x-auto max-w-full">
+        <table className="w-full min-w-[600px]">
           <thead className="bg-muted">
             <tr>
               {schedule.map((occ) => (

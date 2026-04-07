@@ -3582,3 +3582,9 @@
 - [x] Dauer "0" wird noch bei Terminende angezeigt (View-Modus) - Fix: Tasks.tsx durationDays Init auf leeren String
 - [x] Löschdialog: fehlender Übersetzungsschlüssel - war unter messages.confirmDelete statt dialog.confirmDelete
 - [x] Löschdialog: Reset bei Schließen des Dialogs und bei Navigation zwischen Aufgaben
+
+## UI-Fixes Aufgabe Bearbeiten
+- [x] Fehlende Übersetzungen: dialog.durationHours und dialog.durationDays werden als Platzhalter angezeigt
+- [x] Wiederholungsintervall-Dropdown: {{count}} vor Tagen/Wochen/Monate statt korrekte Übersetzung
+- [x] Termine-Planen-Tabelle: Aktionen sollen direkt nach dem Datum kommen
+- [x] Rotationsplan-Tabelle: eigenständig horizontal scrollbar (nicht das ganze Fenster breiter machen)

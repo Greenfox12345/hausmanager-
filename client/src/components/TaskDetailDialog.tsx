@@ -1272,7 +1272,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               {/* Duration fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="task-duration-time">{t("dialog.durationHours")}</Label>
+                  <Label htmlFor="task-duration-time">{t("fields.durationTime")}</Label>
                   <Input
                     id="task-duration-time"
                     type="time"
@@ -1282,7 +1282,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="task-duration-days">{t("dialog.durationDays")}</Label>
+                  <Label htmlFor="task-duration-days">{t("fields.durationDays")}</Label>
                   <Input
                     id="task-duration-days"
                     type="number"
@@ -1366,9 +1366,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="days">{t("repeat.daysN_other", "Tage")}</SelectItem>
-                              <SelectItem value="weeks">{t("repeat.weeksN_other", "Wochen")}</SelectItem>
-                              <SelectItem value="months">{t("repeat.monthsN_other", "Monate")}</SelectItem>
+                              <SelectItem value="days">{t("repeat.days")}</SelectItem>
+                              <SelectItem value="weeks">{t("repeat.weeks")}</SelectItem>
+                              <SelectItem value="months">{t("repeat.months")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1471,8 +1471,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             <thead className="bg-muted">
                               <tr>
                                 <th className="p-2 text-left text-sm font-medium w-32">{t("dialog.date")}</th>
+                                <th className="p-2 text-center text-sm font-medium w-24">{t("dialog.actionsCol")}</th>
                                 <th className="p-2 text-left text-sm font-medium">{t("dialog.notes")}</th>
-                                <th className="p-2 text-center text-sm font-medium w-40">{t("dialog.actionsCol")}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1579,23 +1579,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       </div>
                                     </td>
                                     <td className="p-2">
-                                      <Textarea
-                                        placeholder={t("dialog.addNote")}
-                                        value={occ.notes || ""}
-                                        onChange={(e) => {
-                                          handleRotationScheduleChange(
-                                            rotationSchedule.map(o =>
-                                              o.occurrenceNumber === occ.occurrenceNumber
-                                                ? { ...o, notes: e.target.value }
-                                                : o
-                                            )
-                                          );
-                                        }}
-                                        className="min-h-[60px] resize-none"
-                                      />
-                                    </td>
-                                    <td className="p-2">
-                                      <div className="flex gap-1 justify-center items-start pt-2">
+                                      <div className="flex gap-1 justify-center items-start">
                                         <Button
                                           type="button"
                                           variant={occ.isSkipped ? "default" : "ghost"}
@@ -1697,6 +1681,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           <Trash2 className="h-3.5 w-3.5" />
                                         </Button>
                                       </div>
+                                    </td>
+                                    <td className="p-2">
+                                      <Textarea
+                                        placeholder={t("dialog.addNote")}
+                                        value={occ.notes || ""}
+                                        onChange={(e) => {
+                                          handleRotationScheduleChange(
+                                            rotationSchedule.map(o =>
+                                              o.occurrenceNumber === occ.occurrenceNumber
+                                                ? { ...o, notes: e.target.value }
+                                                : o
+                                            )
+                                          );
+                                        }}
+                                        className="min-h-[60px] resize-none"
+                                      />
                                     </td>
                                   </tr>
                                 );
