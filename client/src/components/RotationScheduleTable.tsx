@@ -268,7 +268,6 @@ export function RotationScheduleTable({
         ...occ,
         occurrenceNumber: index + 1,
       }));
-      onChangeRef.current(renumbered);
       return renumbered;
     });
   };
@@ -291,7 +290,6 @@ export function RotationScheduleTable({
               isSkipped: newSkipStatus,
             };
           });
-          onChangeRef.current(updated);
           return updated;
         });
       } catch (error) {
@@ -307,7 +305,6 @@ export function RotationScheduleTable({
             isSkipped: newSkipStatus,
           };
         });
-        onChangeRef.current(updated);
         return updated;
       });
     }
@@ -360,7 +357,6 @@ export function RotationScheduleTable({
         }
       }
 
-      onChangeRef.current(newSchedule);
       return newSchedule;
     });
   };
@@ -376,7 +372,6 @@ export function RotationScheduleTable({
         
         return { ...occ, members: newMembers };
       });
-      onChangeRef.current(newSchedule);
       return newSchedule;
     });
   };
@@ -402,7 +397,6 @@ export function RotationScheduleTable({
     }).map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 })); // Renumber after sorting
 
     setSchedule(updatedSchedule);
-    onChangeRef.current(updatedSchedule);
 
     // Reset dialog
     setIsAddingSpecialOccurrence(false);
@@ -445,7 +439,6 @@ export function RotationScheduleTable({
                                 : o
                             );
                             setSchedule(newSchedule);
-                            onChange(newSchedule);
                           }}
                           className="h-7 text-sm text-yellow-600 dark:text-yellow-500 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-yellow-500 px-1 text-center"
                           placeholder={t("tasks:specialOccurrence.namePlaceholder")}
@@ -473,7 +466,6 @@ export function RotationScheduleTable({
                                       : o
                                   );
                                   setSchedule(newSchedule);
-                                  onChange(newSchedule);
                                 }
                               }}
                               locale={dateFnsLocale}
@@ -514,7 +506,6 @@ export function RotationScheduleTable({
                                       : o
                                   );
                                   setSchedule(newSchedule);
-                                  onChange(newSchedule);
                                 }
                               }}
                               locale={dateFnsLocale}
@@ -601,7 +592,6 @@ export function RotationScheduleTable({
                           : o
                       );
                       setSchedule(newSchedule);
-                      onChange(newSchedule);
                     }}
                     className="w-full min-h-[60px] p-2 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -631,7 +621,6 @@ export function RotationScheduleTable({
                                 : o
                             );
                             setSchedule(newSchedule);
-                            onChange(newSchedule);
                           }}
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
                         >
@@ -757,7 +746,6 @@ export function RotationScheduleTable({
                 : o
             );
             setSchedule(newSchedule);
-            onChange(newSchedule);
           }
         }}
         excludeItemIds={

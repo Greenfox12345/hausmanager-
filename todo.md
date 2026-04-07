@@ -3560,3 +3560,4 @@
 - [x] Bug: Termine werden um 2h nach hinten gesetzt beim Speichern einer bearbeiteten Aufgabe
 - [x] Bug: Bearbeitungsdialog zeigt Uhrzeit 2h zu wenig (wall-clock strategy implementiert)
 - [x] Refactoring: Alle Aufgabenzeit-Transformationen timezone-frei machen
+- [x] Bug: Im Bearbeitungsdialog können bei bestehenden Terminen keine Verantwortlichen ausgewählt werden (Dropdown öffnet, Auswahl wird nicht übernommen)
