@@ -236,6 +236,25 @@ export default function Neighborhood() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
+                    {/* Eigener Haushaltscode */}
+                    {household?.inviteCode && (
+                      <div className="rounded-lg bg-muted p-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground">{t("neighborhood:fields.ownCode", "Dein Haushaltscode")}</p>
+                          <p className="font-mono font-bold tracking-widest text-lg">{household.inviteCode}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(household.inviteCode!);
+                            toast.success(t("neighborhood:messages.codeCopied", "Code kopiert!"));
+                          }}
+                        >
+                          {t("common:actions.copy", "Kopieren")}
+                        </Button>
+                      </div>
+                    )}
                     <div>
                       <Label htmlFor="search">{t("neighborhood:fields.inviteCode", "Einladungscode eingeben")}</Label>
                       <div className="flex gap-2 mt-2">

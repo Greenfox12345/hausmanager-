@@ -20,7 +20,8 @@
     "household": "Hane",
     "allHouseholds": "Tüm Haneler",
     "item": "Öğe",
-    "items": "Öğeler"
+    "items": "Öğeler",
+    "ownCode": "Ev kodunuz"
   },
   "messages": {
     "collaborate": "Diğer hanelerle işbirliği yapın",
@@ -54,6 +55,7 @@
     "loadingItems": "Öğeler yükleniyor...",
     "noItemsAvailable": "Hiç öğe yok",
     "noItemsHint": "Bağlı haneler önce öğelerini başkalarıyla paylaşmalıdır.",
-    "noItemsForHousehold": "Bu hane için öğe bulunamadı."
+    "noItemsForHousehold": "Bu hane için öğe bulunamadı.",
+    "codeCopied": "Kod kopyalandı!"
   }
 }

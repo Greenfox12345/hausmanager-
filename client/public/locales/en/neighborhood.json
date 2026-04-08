@@ -20,7 +20,8 @@
     "household": "Household",
     "allHouseholds": "All Households",
     "item": "item",
-    "items": "items"
+    "items": "items",
+    "ownCode": "Your household code"
   },
   "messages": {
     "collaborate": "Collaborate with other households",
@@ -54,6 +55,7 @@
     "loadingItems": "Loading items...",
     "noItemsAvailable": "No items available",
     "noItemsHint": "Connected households need to share their items first.",
-    "noItemsForHousehold": "No items found for this household."
+    "noItemsForHousehold": "No items found for this household.",
+    "codeCopied": "Code copied!"
   }
 }

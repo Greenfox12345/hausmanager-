@@ -20,7 +20,8 @@
     "household": "家庭",
     "allHouseholds": "所有家庭",
     "item": "物品",
-    "items": "物品"
+    "items": "物品",
+    "ownCode": "您的家庭代码"
   },
   "messages": {
     "collaborate": "与其他家庭合作",
@@ -54,6 +55,7 @@
     "loadingItems": "正在加载物品...",
     "noItemsAvailable": "没有可用物品",
     "noItemsHint": "已连接的家庭必须先将其物品分享给其他人。",
-    "noItemsForHousehold": "未找到此家庭的物品。 "
+    "noItemsForHousehold": "未找到此家庭的物品。 ",
+    "codeCopied": "代码已复制！"
   }
 }

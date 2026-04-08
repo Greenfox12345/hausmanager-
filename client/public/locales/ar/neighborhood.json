@@ -20,7 +20,8 @@
     "household": "الأسرة",
     "allHouseholds": "جميع الأسر",
     "item": "الشيء",
-    "items": "الأشياء"
+    "items": "الأشياء",
+    "ownCode": "رمز منزلك"
   },
   "messages": {
     "collaborate": "التعاون مع الأسر الأخرى",
@@ -54,6 +55,7 @@
     "loadingItems": "جاري تحميل الأشياء...",
     "noItemsAvailable": "لا توجد أشياء متاحة",
     "noItemsHint": "يجب على الأسر المتصلة أولاً مشاركة أشيائها مع الآخرين.",
-    "noItemsForHousehold": "لم يتم العثور على أشياء لهذه الأسرة."
+    "noItemsForHousehold": "لم يتم العثور على أشياء لهذه الأسرة.",
+    "codeCopied": "تم نسخ الرمز!"
   }
 }

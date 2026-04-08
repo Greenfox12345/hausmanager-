@@ -20,7 +20,8 @@
     "household": "Foyer",
     "allHouseholds": "Tous les foyers",
     "item": "Objet",
-    "items": "Objets"
+    "items": "Objets",
+    "ownCode": "Votre code de foyer"
   },
   "messages": {
     "collaborate": "Collaborer avec d'autres foyers",
@@ -54,6 +55,7 @@
     "loadingItems": "Chargement des objets...",
     "noItemsAvailable": "Aucun objet disponible",
     "noItemsHint": "Les foyers connectés doivent d'abord partager leurs objets avec les autres.",
-    "noItemsForHousehold": "Aucun objet trouvé pour ce foyer."
+    "noItemsForHousehold": "Aucun objet trouvé pour ce foyer.",
+    "codeCopied": "Code copié !"
   }
 }

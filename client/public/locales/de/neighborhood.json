@@ -20,7 +20,8 @@
     "household": "Haushalt",
     "allHouseholds": "Alle Haushalte",
     "item": "Gegenstand",
-    "items": "Gegenstände"
+    "items": "Gegenstände",
+    "ownCode": "Dein Haushaltscode"
   },
   "messages": {
     "collaborate": "Mit anderen Haushalten zusammenarbeiten",
@@ -54,6 +55,7 @@
     "loadingItems": "Lade Gegenstände...",
     "noItemsAvailable": "Keine Gegenstände verfügbar",
     "noItemsHint": "Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.",
-    "noItemsForHousehold": "Keine Gegenstände für diesen Haushalt gefunden."
+    "noItemsForHousehold": "Keine Gegenstände für diesen Haushalt gefunden.",
+    "codeCopied": "Code kopiert!"
   }
 }
