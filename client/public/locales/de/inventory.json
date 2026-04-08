@@ -114,7 +114,12 @@
     "itemAdded": "Artikel hinzugefügt",
     "nameCategoryRequired": "Name und Kategorie sind erforderlich",
     "noItems": "Keine Artikel gefunden.",
-    "selectOwner": "Bitte wähle mindestens einen Eigentümer"
+    "selectOwner": "Bitte wähle mindestens einen Eigentümer",
+    "photoUploadError": "Fehler beim Hochladen des Fotos",
+    "sharingError": "Fehler beim Ändern der Freigabe",
+    "approveError": "Fehler beim Genehmigen der Anfrage",
+    "rejectError": "Fehler beim Ablehnen der Anfrage",
+    "revokeError": "Fehler beim Widerrufen der Genehmigung"
   },
   "labels": {
     "item": "Gegenstand"

@@ -312,7 +312,22 @@
     "deletedCount": "{{count}} tasks deleted",
     "markedReturned": "Marked as returned!",
     "milestoneRecorded": "Milestone recorded!",
-    "undone": "Completion undone!"
+    "undone": "Completion undone!",
+    "skipError": "Error skipping occurrence",
+    "restoreOccurrenceError": "Error restoring occurrence",
+    "linkError": "Error linking",
+    "batchDeleteError": "Error deleting tasks",
+    "batchAssignError": "Error assigning tasks",
+    "batchCompleteError": "Error completing tasks",
+    "milestoneError": "Error saving milestone",
+    "reminderError": "Error sending reminder",
+    "restoreSkipError": "Error restoring occurrence",
+    "commentError": "Error adding comment",
+    "deleteCommentError": "Error deleting comment",
+    "fileUploadError": "Error uploading file",
+    "fileDeleteError": "Error deleting file",
+    "linkAddError": "Error adding link",
+    "linkDeleteError": "Error deleting link"
   },
   "gantt": {
     "title": "Gantt chart",

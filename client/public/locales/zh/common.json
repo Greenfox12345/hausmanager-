@@ -167,7 +167,8 @@
     "create": "创建家庭",
     "join": "加入家庭",
     "settings": {
-      "saved": "设置已保存"
+      "saved": "设置已保存",
+      "saveError": "保存设置出错"
     },
     "language": "家庭语言",
     "languageHint": "此语言用于所有家庭成员可见的历史记录和通知。",
@@ -178,7 +179,8 @@
     "inviteCode": "邀请码",
     "leaveHousehold": "离开家庭",
     "deleteHousehold": "删除家庭",
-    "adminOnly": "只有家庭创建者可以更改家庭语言。"
+    "adminOnly": "只有家庭创建者可以更改家庭语言。",
+    "switchError": "切换家庭出错"
   },
   "language": {
     "select": "选择语言",

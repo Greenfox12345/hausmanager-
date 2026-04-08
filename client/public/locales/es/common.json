@@ -212,7 +212,8 @@
     "join": "Unirse a un hogar",
     "settings": {
       "saved": "Configuración guardada",
-      "title": "Configuración del hogar"
+      "title": "Configuración del hogar",
+      "saveError": "Error al guardar la configuración"
     },
     "language": "Idioma del hogar",
     "languageHint": "Este idioma se usa para las entradas del historial y notificaciones visibles para todos los miembros.",
@@ -223,7 +224,8 @@
     "inviteCode": "Código de invitación",
     "leaveHousehold": "Abandonar hogar",
     "deleteHousehold": "Eliminar hogar",
-    "adminOnly": "Solo el creador del hogar puede cambiar el idioma del hogar."
+    "adminOnly": "Solo el creador del hogar puede cambiar el idioma del hogar.",
+    "switchError": "Error al cambiar de hogar"
   },
   "language": {
     "title": "Configuración de idioma",

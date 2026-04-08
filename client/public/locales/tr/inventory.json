@@ -114,7 +114,12 @@
     "itemAdded": "Öğe eklendi",
     "nameCategoryRequired": "Ad ve kategori gerekli",
     "noItems": "Öğe bulunamadı.",
-    "selectOwner": "Lütfen en az bir sahip seçin"
+    "selectOwner": "Lütfen en az bir sahip seçin",
+    "photoUploadError": "Fotoğraf yüklenirken hata oluştu",
+    "sharingError": "Paylaşım değiştirilirken hata oluştu",
+    "approveError": "İstek onaylanırken hata oluştu",
+    "rejectError": "İstek reddedilirken hata oluştu",
+    "revokeError": "Onay iptal edilirken hata oluştu"
   },
   "labels": {
     "item": "Öğe"

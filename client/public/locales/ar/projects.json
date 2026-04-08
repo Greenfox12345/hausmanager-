@@ -116,7 +116,12 @@
     "noAvailableTasks": "لا توجد مهام متاحة بدون تعيين مشروع",
     "noOtherProjects": "لا توجد مشاريع أخرى متاحة",
     "selectProject": "اختر مشروعًا من القائمة لعرض التفاصيل والمهام",
-    "noProjects": "لا توجد مشاريع بعد. أنشئ مشروعك الأول!"
+    "noProjects": "لا توجد مشاريع بعد. أنشئ مشروعك الأول!",
+    "linkError": "خطأ في الربط",
+    "completeError": "خطأ في إتمام المهمة",
+    "milestoneError": "خطأ في حفظ المعلم",
+    "reminderError": "خطأ في إرسال التذكير",
+    "taskUpdateError": "خطأ في تحديث المهمة"
   },
   "taskProgress": "تم إنجاز {{completed}} / {{total}} مهام"
 }

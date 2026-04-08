@@ -32,8 +32,8 @@ export default function HouseholdSettings() {
       toast.success(t("household.settings.saved"));
       refetchSettings();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("household.settings.saveError"));
     },
   });
 
@@ -151,7 +151,7 @@ export default function HouseholdSettings() {
                       {t("labels.language")}: <strong>{currentLangInfo?.flag} {currentLangInfo?.name || currentHouseholdLang}</strong>
                     </p>
                     <p className="text-xs mt-1">
-                      Nur der Haushaltsersteller kann die Haushaltssprache ändern.
+                      {t("household.settings.onlyAdminCanChange", "Nur der Haushaltsersteller kann die Haushaltssprache ändern.")}
                     </p>
                   </div>
                 </div>

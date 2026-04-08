@@ -3645,3 +3645,7 @@
 - [x] DemoConfigDialog: alle hardcodierten deutschen Strings durch t()-Keys ersetzt
 - [x] DemoOnboardingDialog: alle hardcodierten deutschen Strings durch t()-Keys ersetzt
 - [x] Neue Keys "demoConfig" und "demoOnboarding" in alle 7 Sprachdateien (auth.json) eingetragen (de, en, fr, es, tr, zh, ar)
+
+## i18n: Fehlermeldungen übersetzen
+- [x] Alle toast.error(err.message)-Aufrufe durch übersetzte t()-Keys ersetzen (Tasks, Shopping, Inventory, InventoryDetail, Neighborhood, Projects, Borrows, BorrowPickupReturnDialogs, TaskDetailDialog, AppLayout, HouseholdSettings, Members)
+- [x] Fehlende Übersetzungskeys in alle 7 Sprachdateien eingetragen (de, en, fr, es, tr, zh, ar)

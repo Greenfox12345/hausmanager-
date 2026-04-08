@@ -57,6 +57,8 @@
     "noItemsHint": "Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.",
     "noItemsForHousehold": "Keine Gegenstände für diesen Haushalt gefunden.",
     "codeCopied": "Code kopiert!",
-    "demoSearchDisabled": "Im Demo-Modus können keine echten Haushalte gefunden werden."
+    "demoSearchDisabled": "Im Demo-Modus können keine echten Haushalte gefunden werden.",
+    "inviteError": "Fehler beim Senden der Einladung",
+    "borrowError": "Fehler beim Senden der Ausleih-Anfrage"
   }
 }

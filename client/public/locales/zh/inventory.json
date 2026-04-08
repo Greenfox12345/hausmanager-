@@ -114,7 +114,12 @@
     "itemAdded": "物品已添加",
     "nameCategoryRequired": "名称和类别是必填项",
     "noItems": "未找到物品。",
-    "selectOwner": "请选择至少一位所有者"
+    "selectOwner": "请选择至少一位所有者",
+    "photoUploadError": "上传照片出错",
+    "sharingError": "更改共享出错",
+    "approveError": "批准请求出错",
+    "rejectError": "拒绝请求出错",
+    "revokeError": "撤销批准出错"
   },
   "labels": {
     "item": "物品"

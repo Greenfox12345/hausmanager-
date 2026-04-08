@@ -102,7 +102,7 @@ export default function InventoryDetail() {
     },
     onError: (error: any) => {
       setUploadingPhoto(false);
-      toast.error(error.message);
+      toast.error(t("inventory:messages.photoUploadError"));
     },
   });
 
@@ -115,8 +115,8 @@ export default function InventoryDetail() {
       setIsEditing(false);
       toast.success(t("inventory:messages.itemUpdated", "Artikel aktualisiert"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.updateError"));
     },
   });
 
@@ -125,8 +125,8 @@ export default function InventoryDetail() {
       utils.inventory.getAllowedHouseholds.invalidate({ itemId });
       utils.inventory.list.invalidate();
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.sharingError"));
     },
   });
 
@@ -135,8 +135,8 @@ export default function InventoryDetail() {
       toast.success(t("inventory:messages.itemDeleted", "Artikel gelöscht"));
       setLocation("/inventory");
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.deleteError"));
     },
   });
 
@@ -150,8 +150,8 @@ export default function InventoryDetail() {
       }
       utils.borrow.listByItem.invalidate({ itemId });
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.borrowError"));
     },
   });
 
@@ -160,8 +160,8 @@ export default function InventoryDetail() {
       toast.success(t("inventory:messages.requestApproved", "Anfrage genehmigt"));
       utils.borrow.listByItem.invalidate({ itemId });
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.approveError"));
     },
   });
 
@@ -170,8 +170,8 @@ export default function InventoryDetail() {
       toast.success(t("inventory:messages.requestRejected", "Anfrage abgelehnt"));
       utils.borrow.listByItem.invalidate({ itemId });
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.rejectError"));
     },
   });
 
@@ -182,8 +182,8 @@ export default function InventoryDetail() {
       setShowRevokeDialog(false);
       setRevokeRequest(null);
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.revokeError"));
     },
   });
 

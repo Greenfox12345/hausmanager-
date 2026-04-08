@@ -114,7 +114,12 @@
     "itemAdded": "تمت إضافة العنصر",
     "nameCategoryRequired": "الاسم والفئة مطلوبان",
     "noItems": "لم يتم العثور على عناصر.",
-    "selectOwner": "الرجاء اختيار مالك واحد على الأقل"
+    "selectOwner": "الرجاء اختيار مالك واحد على الأقل",
+    "photoUploadError": "خطأ في تحميل الصورة",
+    "sharingError": "خطأ في تغيير المشاركة",
+    "approveError": "خطأ في الموافقة على الطلب",
+    "rejectError": "خطأ في رفض الطلب",
+    "revokeError": "خطأ في إلغاء الموافقة"
   },
   "labels": {
     "item": "عنصر"

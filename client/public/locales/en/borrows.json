@@ -29,7 +29,8 @@
     "title": "Return Item",
     "confirm": "Confirm Return",
     "notes": "Notes",
-    "condition": "Condition"
+    "condition": "Condition",
+    "error": "Error confirming return"
   },
   "status": {
     "pending": "Pending",
@@ -94,7 +95,9 @@
     "cancelled": "Borrowing cancelled",
     "requestSentDesc": "Request has been sent",
     "revokeError": "Error revoking",
-    "revokeSuccess": "Successfully revoked"
+    "revokeSuccess": "Successfully revoked",
+    "cancelError": "Error cancelling borrow",
+    "pickupError": "Error confirming pickup"
   },
   "labels": {
     "borrower": "Borrower",
@@ -250,5 +253,8 @@
   "borrowing": "Borrowing",
   "hidePast": "Hide past",
   "showPast": "Show past",
-  "tabCalendar": "Calendar"
+  "tabCalendar": "Calendar",
+  "pickup": {
+    "error": "Error confirming pickup"
+  }
 }

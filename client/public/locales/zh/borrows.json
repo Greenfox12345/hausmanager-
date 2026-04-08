@@ -29,7 +29,8 @@
     "title": "确认归还",
     "confirm": "确认归还",
     "notes": "归还备注",
-    "condition": "归还时状况"
+    "condition": "归还时状况",
+    "error": "确认归还出错"
   },
   "status": {
     "pending": "待处理",
@@ -94,7 +95,9 @@
     "cancelled": "借用已取消",
     "requestSentDesc": "请求已发送",
     "revokeError": "撤销时出错",
-    "revokeSuccess": "已成功撤销"
+    "revokeSuccess": "已成功撤销",
+    "cancelError": "取消借用出错",
+    "pickupError": "确认取件时出错"
   },
   "labels": {
     "borrower": "借用人",
@@ -250,5 +253,8 @@
   "borrowing": "借用",
   "hidePast": "隐藏过去",
   "showPast": "显示过去",
-  "tabCalendar": "日历"
+  "tabCalendar": "日历",
+  "pickup": {
+    "error": "确认取货出错"
+  }
 }

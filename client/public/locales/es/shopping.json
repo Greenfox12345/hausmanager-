@@ -95,7 +95,12 @@
     "shoppingCompleted": "¡Compra completada!",
     "taskLinkError": "Error al vincular las tareas",
     "taskLinked": "Tarea creada y vinculada",
-    "updateError": "Error al actualizar"
+    "updateError": "Error al actualizar",
+    "addError": "Error al añadir el artículo",
+    "categoryCreateError": "Error al crear la categoría",
+    "categoryRenameError": "Error al renombrar la categoría",
+    "categoryDeleteError": "Error al eliminar la categoría",
+    "completeError": "Error al completar la compra"
   },
   "filter": {
     "all": "Todo",

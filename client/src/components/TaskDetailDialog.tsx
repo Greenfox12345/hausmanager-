@@ -655,8 +655,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         }
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("messages.skipError"));
     },
   });
 
@@ -686,8 +686,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         }
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("messages.restoreSkipError"));
     },
   });
   
@@ -702,8 +702,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       utils.tasks.list.invalidate();
       onOpenChange(false);
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("messages.deleteError"));
     },
   });
 

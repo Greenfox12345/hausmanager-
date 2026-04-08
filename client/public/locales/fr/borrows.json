@@ -29,7 +29,8 @@
     "title": "Confirmer le retour",
     "confirm": "Confirmer le retour",
     "notes": "Notes de retour",
-    "condition": "État au retour"
+    "condition": "État au retour",
+    "error": "Erreur lors de la confirmation du retour"
   },
   "status": {
     "pending": "En attente",
@@ -94,7 +95,9 @@
     "cancelled": "Emprunt annulé",
     "requestSentDesc": "La demande a été envoyée",
     "revokeError": "Erreur lors de la révocation",
-    "revokeSuccess": "Révoqué avec succès"
+    "revokeSuccess": "Révoqué avec succès",
+    "cancelError": "Erreur lors de l'annulation de l'emprunt",
+    "pickupError": "Erreur lors de la confirmation du retrait"
   },
   "labels": {
     "borrower": "Emprunteur",
@@ -250,5 +253,8 @@
   "borrowing": "Emprunt",
   "hidePast": "Masquer les passées",
   "showPast": "Afficher les passées",
-  "tabCalendar": "Calendrier"
+  "tabCalendar": "Calendrier",
+  "pickup": {
+    "error": "Erreur lors de la confirmation du retrait"
+  }
 }

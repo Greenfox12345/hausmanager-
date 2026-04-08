@@ -63,7 +63,16 @@
     "memberAdded": "Üye eklendi",
     "memberRemoved": "{{name}} haneden çıkarıldı.",
     "memberRenamed": "İsim \"{{name}}\" olarak değiştirildi.",
-    "inviteLinkCopied": "Davet bağlantısı kopyalandı!"
+    "inviteLinkCopied": "Davet bağlantısı kopyalandı!",
+    "addError": "Üye eklenirken hata oluştu",
+    "renameError": "Yeniden adlandırma hatası",
+    "leaveError": "Haneden ayrılırken hata oluştu",
+    "dissolveError": "Hane çözülürken hata oluştu",
+    "inviteLinkError": "Davet bağlantısı oluşturulurken hata oluştu",
+    "transferError": "Yönetici hakları aktarılırken hata oluştu",
+    "retractVoteError": "Oy geri çekilirken hata oluştu",
+    "settingsSaveError": "Ayarlar kaydedilemedi",
+    "householdNameSaveError": "Hane adı kaydedilemedi"
   },
   "allMembers": "Tüm Üyeler",
   "selectMember": "Üye Seç",

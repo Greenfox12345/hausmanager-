@@ -38,7 +38,8 @@
     "leaveConfirm": "您确定要离开此家庭吗？",
     "delete": "删除家庭",
     "deleteConfirm": "您确定要删除此家庭吗？此操作无法撤销。",
-    "deleteWarning": "所有数据将被不可逆地删除。"
+    "deleteWarning": "所有数据将被不可逆地删除。",
+    "saveError": "保存设置出错"
   },
   "inviteDialog": {
     "title": "家庭创建成功！",

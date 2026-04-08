@@ -63,7 +63,16 @@
     "memberAdded": "Mitglied hinzugefügt",
     "memberRemoved": "{{name}} wurde aus dem Haushalt entfernt.",
     "memberRenamed": "Name auf \"{{name}}\" geändert.",
-    "inviteLinkCopied": "Einladungslink kopiert!"
+    "inviteLinkCopied": "Einladungslink kopiert!",
+    "addError": "Fehler beim Hinzufügen des Mitglieds",
+    "renameError": "Fehler beim Umbenennen",
+    "leaveError": "Fehler beim Verlassen des Haushalts",
+    "dissolveError": "Fehler beim Auflösen des Haushalts",
+    "inviteLinkError": "Fehler beim Generieren des Einladungslinks",
+    "transferError": "Fehler beim Übertragen der Adminrechte",
+    "retractVoteError": "Fehler beim Zurückziehen der Stimme",
+    "settingsSaveError": "Fehler beim Speichern der Einstellungen",
+    "householdNameSaveError": "Fehler beim Speichern des Haushaltsnamens"
   },
   "allMembers": "Alle Mitglieder",
   "selectMember": "Mitglied auswählen",

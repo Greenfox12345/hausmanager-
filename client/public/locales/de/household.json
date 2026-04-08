@@ -38,7 +38,8 @@
     "leaveConfirm": "Möchtest du diesen Haushalt wirklich verlassen?",
     "delete": "Haushalt löschen",
     "deleteConfirm": "Möchtest du diesen Haushalt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteWarning": "Alle Daten werden unwiderruflich gelöscht."
+    "deleteWarning": "Alle Daten werden unwiderruflich gelöscht.",
+    "saveError": "Fehler beim Speichern der Einstellungen"
   },
   "inviteDialog": {
     "title": "Haushalt erfolgreich erstellt!",

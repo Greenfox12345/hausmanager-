@@ -167,7 +167,8 @@
     "create": "Create household",
     "join": "Join household",
     "settings": {
-      "saved": "Settings saved"
+      "saved": "Settings saved",
+      "saveError": "Error saving settings"
     },
     "language": "Household language",
     "languageHint": "This language is used for history entries and notifications visible to all household members.",
@@ -178,7 +179,8 @@
     "inviteCode": "Invite code",
     "leaveHousehold": "Leave household",
     "deleteHousehold": "Delete household",
-    "adminOnly": "Only the household creator can change the household language."
+    "adminOnly": "Only the household creator can change the household language.",
+    "switchError": "Error switching household"
   },
   "language": {
     "select": "Select language",

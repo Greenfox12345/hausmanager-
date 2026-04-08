@@ -29,7 +29,8 @@
     "title": "تأكيد الإرجاع",
     "confirm": "تأكيد الإرجاع",
     "notes": "ملاحظات الإرجاع",
-    "condition": "الحالة عند الإرجاع"
+    "condition": "الحالة عند الإرجاع",
+    "error": "خطأ في تأكيد الإعادة"
   },
   "status": {
     "pending": "معلق",
@@ -94,7 +95,9 @@
     "cancelled": "تم إلغاء الاستعارة",
     "requestSentDesc": "تم إرسال الطلب",
     "revokeError": "خطأ في الإلغاء",
-    "revokeSuccess": "تم الإلغاء بنجاح"
+    "revokeSuccess": "تم الإلغاء بنجاح",
+    "cancelError": "خطأ في إلغاء الاستعارة",
+    "pickupError": "خطأ في تأكيد الاستلام"
   },
   "labels": {
     "borrower": "المستعير",
@@ -250,5 +253,8 @@
   "borrowing": "استعارة",
   "hidePast": "إخفاء السابقة",
   "showPast": "عرض السابقة",
-  "tabCalendar": "التقويم"
+  "tabCalendar": "التقويم",
+  "pickup": {
+    "error": "خطأ في تأكيد الاستلام"
+  }
 }

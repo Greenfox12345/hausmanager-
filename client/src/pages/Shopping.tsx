@@ -132,8 +132,8 @@ export default function Shopping() {
       setNewItemPhotoUrls([]);
       toast.success(t("shopping:messages.itemAdded", "Artikel hinzugefügt"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.addError"));
     },
   });
 
@@ -169,8 +169,8 @@ export default function Shopping() {
       setShowEditDialog(false);
       toast.success(t("shopping:messages.itemUpdated", "Artikel aktualisiert"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.updateError"));
     },
   });
 
@@ -188,8 +188,8 @@ export default function Shopping() {
       setShowCompleteDialog(false);
       toast.success(t("shopping:messages.shoppingCompleted", "Einkauf abgeschlossen!"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.completeError"));
     },
   });
 
@@ -206,8 +206,8 @@ export default function Shopping() {
         setPendingCategoryCallback(null);
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.categoryCreateError"));
     },
   });
 
@@ -219,8 +219,8 @@ export default function Shopping() {
       setEditingCategoryId(null);
       toast.success(t("shopping:messages.categoryRenamed", "Kategorie umbenannt"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.categoryRenameError"));
     },
   });
 
@@ -229,8 +229,8 @@ export default function Shopping() {
       utils.shopping.listCategories.invalidate();
       toast.success(t("shopping:messages.categoryDeleted", "Kategorie gelöscht"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.categoryDeleteError"));
     },
   });
 
@@ -293,8 +293,8 @@ export default function Shopping() {
       setTaskFollowups([]);
       toast.success(t("shopping:messages.taskLinked", "Aufgabe erstellt und verknüpft"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("shopping:messages.taskLinkError"));
     },
   });
 

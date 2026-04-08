@@ -116,7 +116,12 @@
     "noAvailableTasks": "Proje ataması olmayan mevcut görev yok",
     "noOtherProjects": "Başka proje yok",
     "selectProject": "Detayları ve görevleri görmek için listeden bir proje seçin",
-    "noProjects": "Henüz proje yok. İlk projenizi oluşturun!"
+    "noProjects": "Henüz proje yok. İlk projenizi oluşturun!",
+    "linkError": "Bağlanırken hata oluştu",
+    "completeError": "Görev tamamlanırken hata oluştu",
+    "milestoneError": "Kilometre taşı kaydedilirken hata oluştu",
+    "reminderError": "Hatırlatıcı gönderilirken hata oluştu",
+    "taskUpdateError": "Görev güncellenirken hata oluştu"
   },
   "taskProgress": "{{completed}} / {{total}} görev tamamlandı"
 }

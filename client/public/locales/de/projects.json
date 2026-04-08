@@ -116,7 +116,12 @@
     "noAvailableTasks": "Keine verfügbaren Aufgaben ohne Projektzuordnung",
     "noOtherProjects": "Keine weiteren Projekte verfügbar",
     "selectProject": "Wählen Sie ein Projekt aus der Liste aus, um Details und Aufgaben anzuzeigen",
-    "noProjects": "Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!"
+    "noProjects": "Noch keine Projekte vorhanden. Erstellen Sie Ihr erstes Projekt!",
+    "linkError": "Fehler beim Verknüpfen",
+    "completeError": "Fehler beim Abschließen der Aufgabe",
+    "milestoneError": "Fehler beim Speichern des Zwischenziels",
+    "reminderError": "Fehler beim Senden der Erinnerung",
+    "taskUpdateError": "Fehler beim Aktualisieren der Aufgabe"
   },
   "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt"
 }

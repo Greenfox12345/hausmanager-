@@ -312,7 +312,22 @@
     "deletedCount": "{{count}} Aufgaben gelöscht",
     "markedReturned": "Als zurückgegeben markiert!",
     "milestoneRecorded": "Zwischenziel vermerkt!",
-    "undone": "Abschluss rükgängig gemacht!"
+    "undone": "Abschluss rükgängig gemacht!",
+    "skipError": "Fehler beim Überspringen des Termins",
+    "restoreOccurrenceError": "Fehler beim Wiederherstellen des Termins",
+    "linkError": "Fehler beim Verknüpfen",
+    "batchDeleteError": "Fehler beim Löschen der Aufgaben",
+    "batchAssignError": "Fehler beim Zuweisen der Aufgaben",
+    "batchCompleteError": "Fehler beim Abschließen der Aufgaben",
+    "milestoneError": "Fehler beim Speichern des Zwischenziels",
+    "reminderError": "Fehler beim Senden der Erinnerung",
+    "restoreSkipError": "Fehler beim Wiederherstellen des Termins",
+    "commentError": "Fehler beim Hinzufügen des Kommentars",
+    "deleteCommentError": "Fehler beim Löschen des Kommentars",
+    "fileUploadError": "Fehler beim Hochladen der Datei",
+    "fileDeleteError": "Fehler beim Löschen der Datei",
+    "linkAddError": "Fehler beim Hinzufügen des Links",
+    "linkDeleteError": "Fehler beim Löschen des Links"
   },
   "gantt": {
     "title": "Gantt-Diagramm",
@@ -438,7 +453,7 @@
     "placeholder": "Wählen...",
     "open": "Offen",
     "alreadyAssigned": " (bereits zugewiesen)",
-    "addPerson": "Person hinzuf\u00fcgen"
+    "addPerson": "Person hinzufügen"
   },
   "notes": {
     "placeholder": "Notizen..."

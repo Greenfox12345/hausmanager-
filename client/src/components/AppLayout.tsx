@@ -176,7 +176,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       // Reload current page to refresh data
       window.location.reload();
     } catch (error: any) {
-      toast.error(error.message || "Wechsel fehlgeschlagen");
+      toast.error(t("household.switchError"));
     }
   };
 

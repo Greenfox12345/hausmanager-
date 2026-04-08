@@ -63,7 +63,16 @@
     "memberAdded": "Member added",
     "memberRemoved": "{{name}} has been removed from the household.",
     "memberRenamed": "Name changed to \"{{name}}\".",
-    "inviteLinkCopied": "Invitation link copied!"
+    "inviteLinkCopied": "Invitation link copied!",
+    "addError": "Error adding member",
+    "renameError": "Error renaming",
+    "leaveError": "Error leaving household",
+    "dissolveError": "Error dissolving household",
+    "inviteLinkError": "Error generating invite link",
+    "transferError": "Error transferring admin rights",
+    "retractVoteError": "Error retracting vote",
+    "settingsSaveError": "Error saving settings",
+    "householdNameSaveError": "Error saving household name"
   },
   "allMembers": "All members",
   "selectMember": "Select member",

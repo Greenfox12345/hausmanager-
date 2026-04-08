@@ -57,6 +57,8 @@
     "noItemsHint": "Les foyers connectés doivent d'abord partager leurs objets avec les autres.",
     "noItemsForHousehold": "Aucun objet trouvé pour ce foyer.",
     "codeCopied": "Code copié !",
-    "demoSearchDisabled": "En mode démo, aucun foyer réel ne peut être trouvé."
+    "demoSearchDisabled": "En mode démo, aucun foyer réel ne peut être trouvé.",
+    "inviteError": "Erreur lors de l'envoi de l'invitation",
+    "borrowError": "Erreur lors de l'envoi de la demande d'emprunt"
   }
 }

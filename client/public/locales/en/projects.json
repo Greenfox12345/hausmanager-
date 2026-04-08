@@ -116,7 +116,12 @@
     "noAvailableTasks": "No available tasks without project assignment",
     "noOtherProjects": "No other projects available",
     "selectProject": "Select a project from the list to view details and tasks",
-    "noProjects": "No projects yet. Click 'New Project' to get started!"
+    "noProjects": "No projects yet. Click 'New Project' to get started!",
+    "linkError": "Error linking",
+    "completeError": "Error completing task",
+    "milestoneError": "Error saving milestone",
+    "reminderError": "Error sending reminder",
+    "taskUpdateError": "Error updating task"
   },
   "taskProgress": "{{completed}} / {{total}} tasks completed"
 }

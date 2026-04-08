@@ -38,7 +38,8 @@
     "leaveConfirm": "Bu evden gerçekten ayrılmak istiyor musunuz?",
     "delete": "Evi sil",
     "deleteConfirm": "Bu evi gerçekten silmek istiyor musunuz? Bu işlem geri alınamaz.",
-    "deleteWarning": "Tüm veriler kalıcı olarak silinecektir."
+    "deleteWarning": "Tüm veriler kalıcı olarak silinecektir.",
+    "saveError": "Ayarlar kaydedilemedi"
   },
   "inviteDialog": {
     "title": "Ev başarıyla oluşturuldu!",

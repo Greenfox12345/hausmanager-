@@ -112,7 +112,12 @@
     "categoryUpdated": "Categoría actualizada",
     "nameCategoryRequired": "El nombre y la categoría son obligatorios",
     "noItems": "No se encontraron artículos.",
-    "selectOwner": "Por favor, seleccione al menos un propietario"
+    "selectOwner": "Por favor, seleccione al menos un propietario",
+    "photoUploadError": "Error al subir la foto",
+    "sharingError": "Error al cambiar el uso compartido",
+    "approveError": "Error al aprobar la solicitud",
+    "rejectError": "Error al rechazar la solicitud",
+    "revokeError": "Error al revocar la aprobación"
   },
   "filter": {
     "all": "Todo",

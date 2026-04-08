@@ -85,7 +85,9 @@
     "borrowStartUpdated": "Fecha de recogida actualizada",
     "requestSentDesc": "Solicitud enviada",
     "revokeError": "Error al revocar",
-    "revokeSuccess": "Revocado correctamente"
+    "revokeSuccess": "Revocado correctamente",
+    "cancelError": "Error al cancelar el préstamo",
+    "pickupError": "Error al confirmar la recogida"
   },
   "tabs": {
     "active": "Activos",
@@ -133,7 +135,8 @@
     "title": "Confirmar devolución",
     "confirm": "Confirmar devolución",
     "notes": "Notas de devolución",
-    "condition": "Estado al devolver"
+    "condition": "Estado al devolver",
+    "error": "Error al confirmar la devolución"
   },
   "pickupRecord": "Registrado en la recogida",
   "returnRecord": "Registrado en la devolución",
@@ -303,5 +306,8 @@
   "borrowing": "Préstamo",
   "hidePast": "Ocultar pasadas",
   "showPast": "Mostrar pasadas",
-  "tabCalendar": "Calendario"
+  "tabCalendar": "Calendario",
+  "pickup": {
+    "error": "Error al confirmar la recogida"
+  }
 }

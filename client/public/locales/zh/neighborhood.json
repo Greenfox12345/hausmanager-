@@ -57,6 +57,8 @@
     "noItemsHint": "已连接的家庭必须先将其物品分享给其他人。",
     "noItemsForHousehold": "未找到此家庭的物品。 ",
     "codeCopied": "代码已复制！",
-    "demoSearchDisabled": "在演示模式下，无法找到真实的家庭。"
+    "demoSearchDisabled": "在演示模式下，无法找到真实的家庭。",
+    "inviteError": "发送邀请出错",
+    "borrowError": "发送借用请求出错"
   }
 }

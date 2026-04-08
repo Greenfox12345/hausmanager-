@@ -26,7 +26,8 @@
     "leaveConfirm": "¿Realmente deseas abandonar este hogar?",
     "delete": "Eliminar hogar",
     "deleteConfirm": "¿Realmente deseas eliminar este hogar? Esta acción no se puede deshacer.",
-    "deleteWarning": "Todos los datos se eliminarán de forma irreversible."
+    "deleteWarning": "Todos los datos se eliminarán de forma irreversible.",
+    "saveError": "Error al guardar la configuración"
   },
   "members": {
     "title": "Miembros",

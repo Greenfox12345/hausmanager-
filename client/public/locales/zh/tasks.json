@@ -312,7 +312,22 @@
     "deletedCount": "{{count}} 个任务已删除",
     "markedReturned": "已标记为已归还！",
     "milestoneRecorded": "里程碑已记录！",
-    "undone": "已撤销完成！"
+    "undone": "已撤销完成！",
+    "skipError": "跳过事件出错",
+    "restoreOccurrenceError": "恢复事件出错",
+    "linkError": "链接出错",
+    "batchDeleteError": "删除任务出错",
+    "batchAssignError": "分配任务出错",
+    "batchCompleteError": "完成任务出错",
+    "milestoneError": "保存里程碑出错",
+    "reminderError": "发送提醒出错",
+    "restoreSkipError": "恢复时出错",
+    "commentError": "添加评论时出错",
+    "deleteCommentError": "删除评论时出错",
+    "fileUploadError": "上传文件时出错",
+    "fileDeleteError": "删除文件时出错",
+    "linkAddError": "添加链接时出错",
+    "linkDeleteError": "删除链接时出错"
   },
   "gantt": {
     "title": "甘特图",

@@ -79,7 +79,12 @@
     "shoppingCompleted": "تم إكمال التسوق!",
     "taskLinkError": "خطأ في ربط المهام",
     "taskLinked": "تم إنشاء المهمة وربطها",
-    "updateError": "خطأ في التحديث"
+    "updateError": "خطأ في التحديث",
+    "addError": "خطأ في إضافة العنصر",
+    "categoryCreateError": "خطأ في إنشاء الفئة",
+    "categoryRenameError": "خطأ في إعادة تسمية الفئة",
+    "categoryDeleteError": "خطأ في حذف الفئة",
+    "completeError": "خطأ في إتمام التسوق"
   },
   "renameCategory": "إعادة تسمية",
   "manageCategories": "إدارة الفئات",

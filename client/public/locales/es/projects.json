@@ -92,7 +92,12 @@
     "noAvailableTasks": "No hay tareas disponibles sin asignación de proyecto",
     "noOtherProjects": "No hay más proyectos disponibles",
     "selectProject": "Seleccione un proyecto de la lista para ver detalles y tareas",
-    "noProjects": "Aún no hay proyectos. ¡Cree su primer proyecto!"
+    "noProjects": "Aún no hay proyectos. ¡Cree su primer proyecto!",
+    "linkError": "Error al vincular",
+    "completeError": "Error al completar la tarea",
+    "milestoneError": "Error al guardar el hito",
+    "reminderError": "Error al enviar el recordatorio",
+    "taskUpdateError": "Error al actualizar la tarea"
   },
   "priority": {
     "low": "Baja",

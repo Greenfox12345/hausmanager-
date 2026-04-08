@@ -99,8 +99,8 @@ export default function Inventory() {
       setNewCategoryColor("#3b82f6");
       toast.success(t("inventory:messages.categoryAdded", "Kategorie hinzugefügt"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.categoryCreateError"));
     },
   });
 
@@ -110,8 +110,8 @@ export default function Inventory() {
       setEditingCategory(null);
       toast.success(t("inventory:messages.categoryUpdated", "Kategorie aktualisiert"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.updateError"));
     },
   });
 
@@ -120,8 +120,8 @@ export default function Inventory() {
       utils.shopping.listCategories.invalidate();
       toast.success(t("inventory:messages.categoryDeleted", "Kategorie gelöscht"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.deleteError"));
     },
   });
 
@@ -133,7 +133,7 @@ export default function Inventory() {
     },
     onError: (error: any) => {
       setUploadingPhoto(false);
-      toast.error(error.message);
+      toast.error(t("inventory:messages.photoUploadError"));
     },
   });
 
@@ -149,8 +149,8 @@ export default function Inventory() {
       setNewItemPhotos([]);
       toast.success(t("inventory:messages.itemAdded", "Artikel hinzugefügt"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.createError"));
     },
   });
 
@@ -159,8 +159,8 @@ export default function Inventory() {
       utils.inventory.list.invalidate();
       toast.success(t("inventory:messages.itemDeleted", "Artikel gelöscht"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("inventory:messages.deleteError"));
     },
   });
 

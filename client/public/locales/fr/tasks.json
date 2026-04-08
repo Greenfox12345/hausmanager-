@@ -312,7 +312,22 @@
     "deletedCount": "{{count}} tâches supprimées",
     "markedReturned": "Marqué comme rendu !",
     "milestoneRecorded": "Étape clé enregistrée !",
-    "undone": "Finalisation annulée !"
+    "undone": "Finalisation annulée !",
+    "skipError": "Erreur lors du saut de l'occurrence",
+    "restoreOccurrenceError": "Erreur lors de la restauration de l'occurrence",
+    "linkError": "Erreur lors de la liaison",
+    "batchDeleteError": "Erreur lors de la suppression des tâches",
+    "batchAssignError": "Erreur lors de l'attribution des tâches",
+    "batchCompleteError": "Erreur lors de la complétion des tâches",
+    "milestoneError": "Erreur lors de l'enregistrement du jalon",
+    "reminderError": "Erreur lors de l'envoi du rappel",
+    "restoreSkipError": "Erreur lors de la restauration de l'occurrence",
+    "commentError": "Erreur lors de l'ajout du commentaire",
+    "deleteCommentError": "Erreur lors de la suppression du commentaire",
+    "fileUploadError": "Erreur lors du téléchargement du fichier",
+    "fileDeleteError": "Erreur lors de la suppression du fichier",
+    "linkAddError": "Erreur lors de l'ajout du lien",
+    "linkDeleteError": "Erreur lors de la suppression du lien"
   },
   "gantt": {
     "title": "Diagramme de Gantt",

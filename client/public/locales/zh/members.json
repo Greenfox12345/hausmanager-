@@ -63,7 +63,16 @@
     "memberAdded": "成员已添加",
     "memberRemoved": "{{name}} 已从家庭中移除。",
     "memberRenamed": "名称已更改为 {{name}}。",
-    "inviteLinkCopied": "邀请链接已复制！"
+    "inviteLinkCopied": "邀请链接已复制！",
+    "addError": "添加成员出错",
+    "renameError": "重命名出错",
+    "leaveError": "离开家庭出错",
+    "dissolveError": "解散家庭出错",
+    "inviteLinkError": "生成邀请链接出错",
+    "transferError": "转让管理员权限出错",
+    "retractVoteError": "撤回投票出错",
+    "settingsSaveError": "保存设置出错",
+    "householdNameSaveError": "保存家庭名称出错"
   },
   "allMembers": "所有成员",
   "selectMember": "选择成员",

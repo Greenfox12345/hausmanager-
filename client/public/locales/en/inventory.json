@@ -114,7 +114,12 @@
     "itemAdded": "Item added",
     "nameCategoryRequired": "Name and category are required",
     "noItems": "No items found.",
-    "selectOwner": "Please select at least one owner"
+    "selectOwner": "Please select at least one owner",
+    "photoUploadError": "Error uploading photo",
+    "sharingError": "Error changing sharing",
+    "approveError": "Error approving request",
+    "rejectError": "Error rejecting request",
+    "revokeError": "Error revoking approval"
   },
   "labels": {
     "item": "Item"

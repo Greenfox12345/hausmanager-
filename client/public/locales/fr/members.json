@@ -63,7 +63,16 @@
     "memberAdded": "Membre ajouté",
     "memberRemoved": "{{name}} a été retiré du foyer.",
     "memberRenamed": "Nom changé en \"{{name}}\".",
-    "inviteLinkCopied": "Lien d'invitation copié !"
+    "inviteLinkCopied": "Lien d'invitation copié !",
+    "addError": "Erreur lors de l'ajout du membre",
+    "renameError": "Erreur lors du renommage",
+    "leaveError": "Erreur lors de la sortie du foyer",
+    "dissolveError": "Erreur lors de la dissolution du foyer",
+    "inviteLinkError": "Erreur lors de la génération du lien d'invitation",
+    "transferError": "Erreur lors du transfert des droits d'administrateur",
+    "retractVoteError": "Erreur lors du retrait du vote",
+    "settingsSaveError": "Erreur lors de l'enregistrement des paramètres",
+    "householdNameSaveError": "Erreur lors de l'enregistrement du nom du foyer"
   },
   "allMembers": "Tous les membres",
   "selectMember": "Sélectionner un membre",

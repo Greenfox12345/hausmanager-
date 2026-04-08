@@ -169,14 +169,14 @@ export default function Tasks() {
       utils.projects.getAllDependencies.invalidate();
       toast.success(t("tasks:messages.bidirectionalLinks"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.linkError"));
     },
   });
 
   const addMutation = trpc.tasks.add.useMutation({
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.createError"));
     },
   });
 
@@ -195,8 +195,8 @@ export default function Tasks() {
       toast.success(t("tasks:messages.deletedCount", { count: data.deletedCount }));
       exitBatchMode();
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.batchDeleteError"));
     },
   });
   
@@ -206,8 +206,8 @@ export default function Tasks() {
       toast.success(t("tasks:messages.assignedCount", { count: data.updatedCount }));
       exitBatchMode();
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.batchAssignError"));
     },
   });
   
@@ -217,8 +217,8 @@ export default function Tasks() {
       toast.success(t("tasks:messages.completedCount", { count: data.completedCount }));
       exitBatchMode();
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.batchCompleteError"));
     },
   });
 
@@ -231,8 +231,8 @@ export default function Tasks() {
         toast.success(t("tasks:messages.taskCompleted"));
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.completeError"));
     },
   });
 
@@ -240,8 +240,8 @@ export default function Tasks() {
     onSuccess: () => {
       toast.success(t("tasks:messages.milestoneAdded"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.milestoneError"));
     },
   });
 
@@ -249,8 +249,8 @@ export default function Tasks() {
     onSuccess: () => {
       toast.success(t("tasks:messages.reminderSent"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("tasks:messages.reminderError"));
     },
   });
 

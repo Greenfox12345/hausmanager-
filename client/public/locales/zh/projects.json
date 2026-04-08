@@ -116,7 +116,12 @@
     "noAvailableTasks": "没有可用的未分配任务",
     "noOtherProjects": "没有其他可用项目",
     "selectProject": "从列表中选择一个项目以查看详细信息和任务",
-    "noProjects": "暂无项目。创建你的第一个项目！"
+    "noProjects": "暂无项目。创建你的第一个项目！",
+    "linkError": "链接出错",
+    "completeError": "完成任务出错",
+    "milestoneError": "保存里程碑出错",
+    "reminderError": "发送提醒出错",
+    "taskUpdateError": "更新任务出错"
   },
   "taskProgress": "已完成{{completed}} / 总计{{total}}个任务"
 }

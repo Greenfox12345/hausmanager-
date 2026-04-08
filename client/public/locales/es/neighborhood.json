@@ -85,7 +85,9 @@
     "noItemsHint": "Los hogares conectados deben compartir primero sus artículos con otros.",
     "noItemsForHousehold": "No se encontraron artículos para este hogar.",
     "codeCopied": "¡Código copiado!",
-    "demoSearchDisabled": "En modo demo, no se pueden encontrar hogares reales."
+    "demoSearchDisabled": "En modo demo, no se pueden encontrar hogares reales.",
+    "inviteError": "Error al enviar la invitación",
+    "borrowError": "Error al enviar la solicitud de préstamo"
   },
   "search": "Buscar hogares...",
   "noResults": "Sin resultados",

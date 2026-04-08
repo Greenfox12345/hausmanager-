@@ -114,7 +114,12 @@
     "noAvailableTasks": "Aucune tâche disponible sans affectation de projet",
     "noOtherProjects": "Aucun autre projet disponible",
     "selectProject": "Sélectionnez un projet dans la liste pour afficher les détails et les tâches",
-    "noProjects": "Aucun projet disponible. Créez votre premier projet !"
+    "noProjects": "Aucun projet disponible. Créez votre premier projet !",
+    "linkError": "Erreur lors de la liaison",
+    "completeError": "Erreur lors de la complétion de la tâche",
+    "milestoneError": "Erreur lors de l'enregistrement du jalon",
+    "reminderError": "Erreur lors de l'envoi du rappel",
+    "taskUpdateError": "Erreur lors de la mise à jour de la tâche"
   },
   "taskProgress": "{{completed}} / {{total}} tâches terminées"
 }

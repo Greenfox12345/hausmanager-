@@ -171,7 +171,8 @@
     "create": "Ev oluştur",
     "join": "Eve katıl",
     "settings": {
-      "saved": "Ayarlar kaydedildi"
+      "saved": "Ayarlar kaydedildi",
+      "saveError": "Ayarlar kaydedilemedi"
     },
     "language": "Ev dili",
     "languageHint": "Bu dil, tüm ev üyelerinin gördüğü geçmiş girişleri ve bildirimler için kullanılacaktır.",
@@ -182,7 +183,8 @@
     "inviteCode": "Davet Kodu",
     "leaveHousehold": "Evden ayrıl",
     "deleteHousehold": "Evi sil",
-    "adminOnly": "Sadece ev sahibi ev dilini değiştirebilir."
+    "adminOnly": "Sadece ev sahibi ev dilini değiştirebilir.",
+    "switchError": "Hane değiştirme hatası"
   },
   "language": {
     "select": "Dil seç",

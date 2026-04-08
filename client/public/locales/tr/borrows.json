@@ -29,7 +29,8 @@
     "title": "İadeyi Onayla",
     "confirm": "İadeyi Onayla",
     "notes": "İade notları",
-    "condition": "İade sırasındaki durum"
+    "condition": "İade sırasındaki durum",
+    "error": "İade onaylanırken hata oluştu"
   },
   "status": {
     "pending": "Beklemede",
@@ -94,7 +95,9 @@
     "cancelled": "Ödünç alma iptal edildi",
     "requestSentDesc": "Talep gönderildi",
     "revokeError": "Geri çekme sırasında hata oluştu",
-    "revokeSuccess": "Başarıyla geri çekildi"
+    "revokeSuccess": "Başarıyla geri çekildi",
+    "cancelError": "Ödünç alma iptal edilirken hata oluştu",
+    "pickupError": "Teslim alım onaylanırken hata oluştu"
   },
   "labels": {
     "borrower": "Ödünç Alan",
@@ -250,5 +253,8 @@
   "borrowing": "Ödünç alma",
   "hidePast": "Geçmişleri gizle",
   "showPast": "Geçmişleri göster",
-  "tabCalendar": "Takvim"
+  "tabCalendar": "Takvim",
+  "pickup": {
+    "error": "Teslim alma onaylanırken hata oluştu"
+  }
 }

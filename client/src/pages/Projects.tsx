@@ -189,8 +189,8 @@ export default function Projects() {
       utils.projects.getAllDependencies.invalidate();
       toast.success(t("tasks:messages.bidirectionalLinks", "Bidirektionale Verknüpfungen erstellt"));
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("projects:messages.linkError"));
     },
   });
   
@@ -200,8 +200,8 @@ export default function Projects() {
       utils.tasks.list.invalidate();
       setCompleteDialogOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("projects:messages.completeError"));
     },
   });
 
@@ -211,8 +211,8 @@ export default function Projects() {
       utils.tasks.list.invalidate();
       setMilestoneDialogOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("projects:messages.milestoneError"));
     },
   });
 
@@ -221,8 +221,8 @@ export default function Projects() {
       toast.success(t("tasks:messages.reminderSent", "Erinnerung gesendet!"));
       setReminderDialogOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("projects:messages.reminderError"));
     },
   });
 
@@ -232,8 +232,8 @@ export default function Projects() {
       utils.tasks.list.invalidate();
       utils.shopping.list.invalidate();
     },
-    onError: (error: any) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("projects:messages.taskUpdateError"));
     },
   });
 

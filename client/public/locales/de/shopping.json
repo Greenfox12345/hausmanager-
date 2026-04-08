@@ -79,7 +79,12 @@
     "shoppingCompleted": "Einkauf abgeschlossen!",
     "taskLinkError": "Fehler beim Verknüpfen der Aufgaben",
     "taskLinked": "Aufgabe erstellt und verknüpft",
-    "updateError": "Fehler beim Aktualisieren"
+    "updateError": "Fehler beim Aktualisieren",
+    "addError": "Fehler beim Hinzufügen des Artikels",
+    "categoryCreateError": "Fehler beim Erstellen der Kategorie",
+    "categoryRenameError": "Fehler beim Umbenennen der Kategorie",
+    "categoryDeleteError": "Fehler beim Löschen der Kategorie",
+    "completeError": "Fehler beim Abschließen des Einkaufs"
   },
   "renameCategory": "Umbenennen",
   "manageCategories": "Kategorien verwalten",

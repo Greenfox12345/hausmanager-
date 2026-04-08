@@ -79,7 +79,12 @@
     "shoppingCompleted": "Shopping completed!",
     "taskLinkError": "Error linking tasks",
     "taskLinked": "Task created and linked",
-    "updateError": "Error updating"
+    "updateError": "Error updating",
+    "addError": "Error adding item",
+    "categoryCreateError": "Error creating category",
+    "categoryRenameError": "Error renaming category",
+    "categoryDeleteError": "Error deleting category",
+    "completeError": "Error completing shopping"
   },
   "renameCategory": "Rename",
   "manageCategories": "Manage Categories",

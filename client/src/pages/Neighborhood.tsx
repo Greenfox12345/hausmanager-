@@ -84,8 +84,8 @@ export default function Neighborhood() {
       setSearchQuery("");
       setInviteDialogOpen(false);
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("neighborhood:messages.inviteError"));
     },
   });
 
@@ -121,8 +121,8 @@ export default function Neighborhood() {
         toast.success(t("neighborhood:messages.borrowRequestSent", "Ausleih-Anfrage gesendet. Warte auf Genehmigung."));
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("neighborhood:messages.borrowError"));
     },
   });
 

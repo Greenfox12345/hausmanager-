@@ -79,7 +79,12 @@
     "shoppingCompleted": "Alışveriş tamamlandı!",
     "taskLinkError": "Görevleri bağlarken hata oluştu",
     "taskLinked": "Görev oluşturuldu ve bağlandı",
-    "updateError": "Güncelleme hatası"
+    "updateError": "Güncelleme hatası",
+    "addError": "Ürün eklenirken hata oluştu",
+    "categoryCreateError": "Kategori oluşturulurken hata oluştu",
+    "categoryRenameError": "Kategori yeniden adlandırılırken hata oluştu",
+    "categoryDeleteError": "Kategori silinirken hata oluştu",
+    "completeError": "Alışveriş tamamlanırken hata oluştu"
   },
   "renameCategory": "Yeniden Adlandır",
   "manageCategories": "Kategorileri Yönet",

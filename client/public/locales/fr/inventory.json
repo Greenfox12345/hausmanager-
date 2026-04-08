@@ -114,7 +114,12 @@
     "itemAdded": "Article ajouté",
     "nameCategoryRequired": "Le nom et la catégorie sont obligatoires",
     "noItems": "Aucun article trouvé.",
-    "selectOwner": "Veuillez sélectionner au moins un propriétaire"
+    "selectOwner": "Veuillez sélectionner au moins un propriétaire",
+    "photoUploadError": "Erreur lors du téléchargement de la photo",
+    "sharingError": "Erreur lors du changement de partage",
+    "approveError": "Erreur lors de l'approbation de la demande",
+    "rejectError": "Erreur lors du refus de la demande",
+    "revokeError": "Erreur lors de la révocation de l'approbation"
   },
   "labels": {
     "item": "Article"

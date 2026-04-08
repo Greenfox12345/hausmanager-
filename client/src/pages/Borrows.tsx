@@ -89,7 +89,7 @@ export default function Borrows() {
       toast.success(t("borrows:messages.approved", "Ausleihe genehmigt"));
       utils.borrow.getPendingForMember.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: () => toast.error(t("borrows:messages.approveError")),
   });
 
   const rejectMutation = trpc.borrow.reject.useMutation({
@@ -99,7 +99,7 @@ export default function Borrows() {
       setRejectReason("");
       utils.borrow.getPendingForMember.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: () => toast.error(t("borrows:messages.rejectError")),
   });
 
   const revokeMutation = trpc.borrow.revoke.useMutation({
@@ -109,7 +109,7 @@ export default function Borrows() {
       setRevokeTarget(null);
       utils.borrow.getPendingForMember.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: () => toast.error(t("borrows:messages.revokeError")),
   });
 
   const cancelMutation = trpc.borrow.cancel.useMutation({
@@ -119,7 +119,7 @@ export default function Borrows() {
       setCancelBorrow(null);
       utils.borrow.getMyBorrows.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: () => toast.error(t("borrows:messages.cancelError")),
   });
 
   const createBorrowMutation = trpc.borrow.request.useMutation({
@@ -129,7 +129,7 @@ export default function Borrows() {
       setSelectedItem(null);
       utils.borrow.getMyBorrows.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: () => toast.error(t("borrows:messages.requestError")),
   });
 
   const filteredPending = useMemo(() => {

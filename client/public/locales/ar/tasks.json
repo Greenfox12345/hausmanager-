@@ -311,7 +311,21 @@
     "deleteMultipleTitle": "حذف {{count}} مهام",
     "deleteMultipleMessage": "هل تريد حقًا حذف {{count}} المهام المحددة؟",
     "completeMultipleTitle": "إكمال {{count}} مهام",
-    "completeMultipleMessage": "هل تريد حقًا إكمال {{count}} المهام المحددة؟"
+    "completeMultipleMessage": "هل تريد حقًا إكمال {{count}} المهام المحددة؟",
+    "restoreOccurrenceError": "خطأ في استعادة الحدث",
+    "linkError": "خطأ في الربط",
+    "batchDeleteError": "خطأ في حذف المهام",
+    "batchAssignError": "خطأ في تعيين المهام",
+    "batchCompleteError": "خطأ في إتمام المهام",
+    "milestoneError": "خطأ في حفظ المعلم",
+    "reminderError": "خطأ في إرسال التذكير",
+    "restoreSkipError": "خطأ في استعادة الحدث",
+    "commentError": "خطأ في إضافة التعليق",
+    "deleteCommentError": "خطأ في حذف التعليق",
+    "fileUploadError": "خطأ في رفع الملف",
+    "fileDeleteError": "خطأ في حذف الملف",
+    "linkAddError": "خطأ في إضافة الرابط",
+    "linkDeleteError": "خطأ في حذف الرابط"
   },
   "priority": {
     "low": "منخفض",

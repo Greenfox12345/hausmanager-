@@ -171,7 +171,8 @@
     "create": "Créer un foyer",
     "join": "Rejoindre un foyer",
     "settings": {
-      "saved": "Paramètres enregistrés"
+      "saved": "Paramètres enregistrés",
+      "saveError": "Erreur lors de l'enregistrement des paramètres"
     },
     "language": "Langue du foyer",
     "languageHint": "Cette langue est utilisée pour les entrées d'historique et les notifications visibles par tous les membres du foyer.",
@@ -182,7 +183,8 @@
     "inviteCode": "Code d'invitation",
     "leaveHousehold": "Quitter le foyer",
     "deleteHousehold": "Supprimer le foyer",
-    "adminOnly": "Seul le créateur du foyer peut modifier la langue du foyer."
+    "adminOnly": "Seul le créateur du foyer peut modifier la langue du foyer.",
+    "switchError": "Erreur lors du changement de foyer"
   },
   "language": {
     "select": "Sélectionner la langue",

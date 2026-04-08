@@ -167,7 +167,8 @@
     "create": "Haushalt erstellen",
     "join": "Haushalt beitreten",
     "settings": {
-      "saved": "Einstellungen gespeichert"
+      "saved": "Einstellungen gespeichert",
+      "saveError": "Fehler beim Speichern der Einstellungen"
     },
     "language": "Haushaltssprache",
     "languageHint": "Diese Sprache wird für Verlaufseinträge und Benachrichtigungen verwendet, die alle Haushaltsmitglieder sehen.",
@@ -178,7 +179,8 @@
     "inviteCode": "Einladungscode",
     "leaveHousehold": "Haushalt verlassen",
     "deleteHousehold": "Haushalt löschen",
-    "adminOnly": "Nur der Haushaltsersteller kann die Haushaltssprache ändern."
+    "adminOnly": "Nur der Haushaltsersteller kann die Haushaltssprache ändern.",
+    "switchError": "Fehler beim Wechseln des Haushalts"
   },
   "language": {
     "select": "Sprache auswählen",

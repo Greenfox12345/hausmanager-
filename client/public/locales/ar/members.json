@@ -63,7 +63,16 @@
     "memberAdded": "تمت إضافة العضو",
     "memberRemoved": "تمت إزالة {{name}} من المنزل.",
     "memberRenamed": "تم تغيير الاسم إلى \"{{name}}\".",
-    "inviteLinkCopied": "تم نسخ رابط الدعوة!"
+    "inviteLinkCopied": "تم نسخ رابط الدعوة!",
+    "addError": "خطأ في إضافة العضو",
+    "renameError": "خطأ في إعادة التسمية",
+    "leaveError": "خطأ في مغادرة المنزل",
+    "dissolveError": "خطأ في حل المنزل",
+    "inviteLinkError": "خطأ في إنشاء رابط الدعوة",
+    "transferError": "خطأ في نقل حقوق المشرف",
+    "retractVoteError": "خطأ في سحب التصويت",
+    "settingsSaveError": "خطأ في حفظ الإعدادات",
+    "householdNameSaveError": "خطأ في حفظ اسم المنزل"
   },
   "allMembers": "جميع الأعضاء",
   "selectMember": "اختر عضوًا",

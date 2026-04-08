@@ -38,7 +38,8 @@
     "leaveConfirm": "Are you sure you want to leave this household?",
     "delete": "Delete Household",
     "deleteConfirm": "Are you sure you want to delete this household? This action cannot be undone.",
-    "deleteWarning": "All data associated with this household will be permanently deleted."
+    "deleteWarning": "All data associated with this household will be permanently deleted.",
+    "saveError": "Error saving settings"
   },
   "inviteDialog": {
     "title": "Household Created Successfully!",

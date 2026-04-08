@@ -317,7 +317,7 @@ export function PickupDialog({ open, onOpenChange, request, memberId, onSuccess 
       setCheckedItems(new Set());
       setReqUploads({});
     },
-    onError: (err) => toast.error(err.message),
+    onError: () => toast.error(t("borrows:messages.pickupError")),
   });
 
   const checklist = request.guideline?.checklistItems ?? [];
@@ -474,7 +474,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
       setCheckedItems(new Set());
       setReqUploads({});
     },
-    onError: (err) => toast.error(err.message),
+    onError: () => toast.error(t("borrows:messages.returnError")),
   });
 
   const checklist = request.guideline?.checklistItems ?? [];

@@ -68,7 +68,7 @@ export default function Members() {
       setShowAddPlaceholder(false);
       toast.success(t("members:messages.memberAdded"));
     },
-    onError: (err) => toast.error(err.message),
+    onError: () => toast.error(t("members:messages.addError")),
   });
 
   const { data: members = [], isLoading, refetch: refetchMembers } = trpc.household.getHouseholdMembers.useQuery(
@@ -98,8 +98,8 @@ export default function Members() {
       }
       refetchSettings();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.householdNameSaveError"));
     },
   });
 
@@ -108,8 +108,8 @@ export default function Members() {
       toast.success(t("common:household.settings.saved"));
       refetchSettings();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.settingsSaveError"));
     },
   });
 
@@ -126,8 +126,8 @@ export default function Members() {
       logout();
       setLocation("/household-selection");
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.leaveError"));
     },
   });
 
@@ -149,8 +149,8 @@ export default function Members() {
         refetchDissolveStatus();
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.dissolveError"));
     },
   });
 
@@ -159,8 +159,8 @@ export default function Members() {
     onSuccess: (data) => {
       setInviteLinkData({ link: data.inviteLink, memberName: data.memberName });
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.inviteLinkError"));
     },
   });
 
@@ -172,8 +172,8 @@ export default function Members() {
       refetchMembers();
       refetchSettings();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.removeError"));
       setKickTarget(null);
     },
   });
@@ -194,8 +194,8 @@ export default function Members() {
         }
       }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.renameError"));
     },
   });
 
@@ -206,8 +206,8 @@ export default function Members() {
       refetchSettings();
       setTransferTarget(null);
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.transferError"));
     },
   });
 
@@ -217,8 +217,8 @@ export default function Members() {
       toast.success(t("members:household.voteRetracted"));
       refetchDissolveStatus();
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: () => {
+      toast.error(t("members:messages.retractVoteError"));
     },
   });
 

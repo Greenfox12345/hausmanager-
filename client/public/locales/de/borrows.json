@@ -29,7 +29,8 @@
     "title": "Rückgabe bestätigen",
     "confirm": "Rückgabe bestätigen",
     "notes": "Rückgabenotizen",
-    "condition": "Zustand bei Rückgabe"
+    "condition": "Zustand bei Rückgabe",
+    "error": "Fehler beim Bestätigen der Rückgabe"
   },
   "status": {
     "pending": "Ausstehend",
@@ -94,7 +95,9 @@
     "cancelled": "Ausleihe storniert",
     "requestSentDesc": "Anfrage wurde gesendet",
     "revokeError": "Fehler beim Widerrufen",
-    "revokeSuccess": "Erfolgreich widerrufen"
+    "revokeSuccess": "Erfolgreich widerrufen",
+    "cancelError": "Fehler beim Stornieren der Ausleihe",
+    "pickupError": "Fehler beim Bestätigen der Abholung"
   },
   "labels": {
     "borrower": "Ausleiher",
@@ -250,5 +253,8 @@
   "borrowing": "Ausleihe",
   "hidePast": "Vergangene ausblenden",
   "showPast": "Vergangene anzeigen",
-  "tabCalendar": "Kalender"
+  "tabCalendar": "Kalender",
+  "pickup": {
+    "error": "Fehler beim Bestätigen der Abholung"
+  }
 }

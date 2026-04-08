@@ -38,11 +38,12 @@
     "leaveConfirm": "Voulez-vous vraiment quitter ce foyer ?",
     "delete": "Supprimer le foyer",
     "deleteConfirm": "Voulez-vous vraiment supprimer ce foyer ? Cette action est irréversible.",
-    "deleteWarning": "Toutes les données seront définitivement supprimées."
+    "deleteWarning": "Toutes les données seront définitivement supprimées.",
+    "saveError": "Erreur lors de l'enregistrement des paramètres"
   },
   "inviteDialog": {
     "title": "Foyer créé avec succès !",
-    "description": "Partagez ce code d'invitation avec d'autres personnes afin qu'elles puissent rejoindre votre foyer \"{{householdName}}\"." ,
+    "description": "Partagez ce code d'invitation avec d'autres personnes afin qu'elles puissent rejoindre votre foyer \"{{householdName}}\".",
     "copied": "Code d'invitation copié !",
     "copyError": "Erreur lors de la copie",
     "hint": "Indice",

@@ -79,7 +79,12 @@
     "shoppingCompleted": "购物完成！",
     "taskLinkError": "任务链接错误",
     "taskLinked": "任务已创建并链接",
-    "updateError": "更新错误"
+    "updateError": "更新错误",
+    "addError": "添加商品出错",
+    "categoryCreateError": "创建分类出错",
+    "categoryRenameError": "重命名分类出错",
+    "categoryDeleteError": "删除分类出错",
+    "completeError": "完成购物出错"
   },
   "renameCategory": "重命名",
   "manageCategories": "管理类别",

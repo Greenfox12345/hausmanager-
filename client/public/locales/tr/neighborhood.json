@@ -57,6 +57,8 @@
     "noItemsHint": "Bağlı haneler önce öğelerini başkalarıyla paylaşmalıdır.",
     "noItemsForHousehold": "Bu hane için öğe bulunamadı.",
     "codeCopied": "Kod kopyalandı!",
-    "demoSearchDisabled": "Demo modunda gerçek haneler bulunamaz."
+    "demoSearchDisabled": "Demo modunda gerçek haneler bulunamaz.",
+    "inviteError": "Davet gönderilirken hata oluştu",
+    "borrowError": "Ödünç alma isteği gönderilirken hata oluştu"
   }
 }

@@ -55,7 +55,16 @@
     "memberAdded": "Miembro añadido",
     "memberRemoved": "{{name}} ha sido eliminado del hogar.",
     "memberRenamed": "Nombre cambiado a \"{{name}}\".",
-    "inviteLinkCopied": "¡Enlace de invitación copiado!"
+    "inviteLinkCopied": "¡Enlace de invitación copiado!",
+    "addError": "Error al añadir miembro",
+    "renameError": "Error al renombrar",
+    "leaveError": "Error al salir del hogar",
+    "dissolveError": "Error al disolver el hogar",
+    "inviteLinkError": "Error al generar el enlace de invitación",
+    "transferError": "Error al transferir derechos de administrador",
+    "retractVoteError": "Error al retirar el voto",
+    "settingsSaveError": "Error al guardar la configuración",
+    "householdNameSaveError": "Error al guardar el nombre del hogar"
   },
   "household": {
     "language": "Idioma del hogar",
