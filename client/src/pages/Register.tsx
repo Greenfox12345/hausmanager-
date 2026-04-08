@@ -18,8 +18,9 @@ export default function Register() {
   const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
-  // Extract demo token from URL query param or localStorage
-  const searchParams = new URLSearchParams(location.split("?")[1] ?? "");
+  // Extract URL query params – wouter's useLocation() returns only the path,
+  // so we read the query string directly from window.location.search
+  const searchParams = new URLSearchParams(window.location.search);
   const demoTokenFromUrl = searchParams.get("demo");
   const demoTokenFromStorage = localStorage.getItem("demo_token");
   const demoToken = demoTokenFromUrl ?? demoTokenFromStorage ?? null;

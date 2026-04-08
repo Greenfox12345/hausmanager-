@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useUserAuth } from "@/contexts/UserAuthContext";
@@ -41,6 +41,22 @@ export default function HouseholdSelection() {
     { userId: currentUser?.id },
     { enabled: !!currentUser?.id }
   );
+
+  // Auto-select: if the user has exactly one household (e.g. after joining via invite link),
+  // select it immediately without requiring a manual click.
+  useEffect(() => {
+    if (households && households.length === 1) {
+      const h = households[0] as any;
+      setCurrentHousehold({
+        householdId: h.householdId,
+        householdName: h.householdName,
+        memberId: h.memberId,
+        memberName: h.memberName,
+        inviteCode: h.inviteCode,
+      });
+      setLocation("/shopping");
+    }
+  }, [households]);
 
   // Create household mutation
   const createHouseholdMutation = trpc.householdManagement.createHousehold.useMutation({
