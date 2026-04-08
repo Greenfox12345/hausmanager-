@@ -8,7 +8,7 @@ import App from "./App";
 // OAuth removed - using internal auth system
 import "./index.css";
 // Initialize i18n before app renders
-import "./lib/i18n";
+import i18n from "./lib/i18n";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -103,10 +103,20 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
-);
+function renderApp() {
+  createRoot(document.getElementById("root")!).render(
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+
+// Warte auf i18n-Initialisierung, bevor die App gerendert wird.
+// Dadurch stehen alle Übersetzungen bereits beim ersten Render bereit.
+if (i18n.isInitialized) {
+  renderApp();
+} else {
+  i18n.on("initialized", renderApp);
+}

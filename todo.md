@@ -3649,3 +3649,6 @@
 ## i18n: Fehlermeldungen übersetzen
 - [x] Alle toast.error(err.message)-Aufrufe durch übersetzte t()-Keys ersetzen (Tasks, Shopping, Inventory, InventoryDetail, Neighborhood, Projects, Borrows, BorrowPickupReturnDialogs, TaskDetailDialog, AppLayout, HouseholdSettings, Members)
 - [x] Fehlende Übersetzungskeys in alle 7 Sprachdateien eingetragen (de, en, fr, es, tr, zh, ar)
+
+## Bugfix: i18n-Ladereihenfolge
+- [x] main.tsx wartet jetzt auf i18n.initialized bevor App gerendert wird – behebt fehlende Übersetzungen beim ersten Render (DemoConfigDialog, DemoOnboardingDialog, UserLogin)
