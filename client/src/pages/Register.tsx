@@ -71,9 +71,10 @@ export default function Register() {
           localStorage.setItem("onboarding_in_progress", "1");
           setOnboardingHouseholdId(data.claimedHouseholdId);
         } else {
-          // Invite-Token-Claim: navigate directly to the app
+          // Invite-Token-Claim: navigate to household-selection so the user can
+          // review their households and choose one (or the auto-select kicks in)
           toast.success(t("register.inviteSuccess", "Registrierung erfolgreich! Sie sind dem Haushalt beigetreten."));
-          setLocation("/shopping");
+          setLocation("/household-selection");
         }
       } else {
         toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));

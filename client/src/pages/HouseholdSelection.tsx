@@ -17,7 +17,7 @@ import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage, type Supported
 
 export default function HouseholdSelection() {
   const [, setLocation] = useLocation();
-  const { setCurrentHousehold, token, isAuthenticated } = useUserAuth();
+  const { setCurrentHousehold, token, isAuthenticated, user: authUser, isLoading: authLoading } = useUserAuth();
   const { t } = useTranslation(["auth", "common"]);
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
@@ -30,33 +30,19 @@ export default function HouseholdSelection() {
   const [inviteCode, setInviteCode] = useState("");
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
-  // Get current user
-  const { data: currentUser, isLoading: userLoading } = trpc.userAuth.getCurrentUser.useQuery(
-    { token: token || undefined },
-    { enabled: !!token, retry: false }
-  );
+  // Use user from auth context (already loaded, no extra query needed)
+  const currentUser = authUser;
+  const userLoading = authLoading;
 
   // Get user's households
   const { data: households, refetch: refetchHouseholds } = trpc.householdManagement.listUserHouseholds.useQuery(
     { userId: currentUser?.id },
-    { enabled: !!currentUser?.id }
+    { enabled: !!currentUser?.id && currentUser.id > 0 }
   );
 
-  // Auto-select: if the user has exactly one household (e.g. after joining via invite link),
-  // select it immediately without requiring a manual click.
-  useEffect(() => {
-    if (households && households.length === 1) {
-      const h = households[0] as any;
-      setCurrentHousehold({
-        householdId: h.householdId,
-        householdName: h.householdName,
-        memberId: h.memberId,
-        memberName: h.memberName,
-        inviteCode: h.inviteCode,
-      });
-      setLocation("/shopping");
-    }
-  }, [households]);
+  // No auto-select: the user should always see their households and choose manually.
+  // This is especially important for users who arrive via an invite link and want
+  // to review their household before entering the app.
 
   // Create household mutation
   const createHouseholdMutation = trpc.householdManagement.createHousehold.useMutation({
@@ -210,9 +196,9 @@ export default function HouseholdSelection() {
             <CardContent className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
-                  {currentUser.profileImageUrl ? (
+                  {(currentUser as any).profileImageUrl ? (
                     <img
-                      src={currentUser.profileImageUrl}
+                      src={(currentUser as any).profileImageUrl}
                       alt={currentUser.name}
                       className="h-full w-full object-cover"
                     />
