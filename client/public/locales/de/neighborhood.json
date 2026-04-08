@@ -56,6 +56,7 @@
     "noItemsAvailable": "Keine Gegenstände verfügbar",
     "noItemsHint": "Verbundene Haushalte müssen ihre Gegenstände erst für andere freigeben.",
     "noItemsForHousehold": "Keine Gegenstände für diesen Haushalt gefunden.",
-    "codeCopied": "Code kopiert!"
+    "codeCopied": "Code kopiert!",
+    "demoSearchDisabled": "Im Demo-Modus können keine echten Haushalte gefunden werden."
   }
 }

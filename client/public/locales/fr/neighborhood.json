@@ -56,6 +56,7 @@
     "noItemsAvailable": "Aucun objet disponible",
     "noItemsHint": "Les foyers connectés doivent d'abord partager leurs objets avec les autres.",
     "noItemsForHousehold": "Aucun objet trouvé pour ce foyer.",
-    "codeCopied": "Code copié !"
+    "codeCopied": "Code copié !",
+    "demoSearchDisabled": "En mode démo, aucun foyer réel ne peut être trouvé."
   }
 }

@@ -84,7 +84,8 @@
     "noItemsAvailable": "No hay artículos disponibles",
     "noItemsHint": "Los hogares conectados deben compartir primero sus artículos con otros.",
     "noItemsForHousehold": "No se encontraron artículos para este hogar.",
-    "codeCopied": "¡Código copiado!"
+    "codeCopied": "¡Código copiado!",
+    "demoSearchDisabled": "En modo demo, no se pueden encontrar hogares reales."
   },
   "search": "Buscar hogares...",
   "noResults": "Sin resultados",

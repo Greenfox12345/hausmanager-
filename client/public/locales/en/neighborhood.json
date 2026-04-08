@@ -56,6 +56,7 @@
     "noItemsAvailable": "No items available",
     "noItemsHint": "Connected households need to share their items first.",
     "noItemsForHousehold": "No items found for this household.",
-    "codeCopied": "Code copied!"
+    "codeCopied": "Code copied!",
+    "demoSearchDisabled": "In demo mode, no real households can be found."
   }
 }

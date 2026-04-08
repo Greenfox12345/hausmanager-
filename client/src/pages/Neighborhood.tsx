@@ -21,7 +21,7 @@ import { BottomNav } from "@/components/BottomNav";
 type ActiveTab = "connect" | "borrow";
 
 export default function Neighborhood() {
-  const { household, member } = useCompatAuth();
+  const { household, member, isDemoSession } = useCompatAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>("connect");
   const [searchQuery, setSearchQuery] = useState("");
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function Neighborhood() {
 
   const { data: searchResults = [] } = trpc.neighborhood.searchHouseholds.useQuery(
     { query: searchQuery, currentHouseholdId: household?.householdId ?? 0 },
-    { enabled: !!household && searchQuery.length > 0 }
+    { enabled: !!household && searchQuery.length > 0 && !isDemoSession }
   );
 
   // Load shared inventory items from connected households
@@ -291,7 +291,12 @@ export default function Neighborhood() {
                       </div>
                     )}
 
-                    {searchQuery.length > 0 && searchResults.length === 0 && (
+                    {isDemoSession && searchQuery.length > 0 && (
+                      <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200 text-center">
+                        {t("neighborhood:messages.demoSearchDisabled", "Im Demo-Modus können keine echten Haushalte gefunden werden.")}
+                      </div>
+                    )}
+                    {!isDemoSession && searchQuery.length > 0 && searchResults.length === 0 && (
                       <p className="text-sm text-muted-foreground text-center py-4">
                         {t("neighborhood:messages.noHouseholdFound", "Kein Haushalt mit diesem Einladungscode gefunden")}
                       </p>
