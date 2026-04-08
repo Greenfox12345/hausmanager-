@@ -97,7 +97,9 @@
     "transferAdminDescription": "Voulez-vous vraiment transférer le rôle d'administrateur à {{name}} ? Vous perdrez vos droits de gestion pour ce foyer.",
     "transferAdminConfirm": "Oui, transférer",
     "adminTransferred": "{{name}} est maintenant le nouvel administrateur du foyer.",
-    "retractVoteButton": "Retirer le vote"
+    "retractVoteButton": "Retirer le vote",
+    "renameTitle": "Nom du foyer",
+    "renameSuccess": "Le nom du foyer a été modifié"
   },
   "admin": "Admin"
 }

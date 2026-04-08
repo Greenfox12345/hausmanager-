@@ -608,6 +608,74 @@ export const householdManagementRouter = router({
     }),
 
   /**
+   * Rename a household (admin only)
+   */
+  renameHousehold: protectedProcedure
+    .input(
+      z.object({
+        householdId: z.number(),
+        name: z.string().min(1).max(100),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verify user is a member of this household
+      const [member] = await db
+        .select()
+        .from(householdMembers)
+        .where(
+          and(
+            eq(householdMembers.userId, ctx.user.id),
+            eq(householdMembers.householdId, input.householdId),
+            eq(householdMembers.isActive, true)
+          )
+        )
+        .limit(1);
+
+      if (!member) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a member of this household",
+        });
+      }
+
+      // Only the household creator (admin) can rename
+      const [household] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, input.householdId))
+        .limit(1);
+
+      if (!household) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Household not found" });
+      }
+
+      if (household.createdBy !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the household creator can rename the household",
+        });
+      }
+
+      await db
+        .update(households)
+        .set({ name: input.name })
+        .where(eq(households.id, input.householdId));
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: member.id,
+        activityType: "member",
+        action: "householdRenamed",
+        description: `${member.memberName} hat den Haushalt in "${input.name}" umbenannt.`,
+      });
+
+      return { success: true, name: input.name };
+    }),
+
+  /**
    * Get current household member for authenticated user
    */
   getCurrentMember: protectedProcedure

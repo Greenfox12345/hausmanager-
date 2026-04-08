@@ -97,7 +97,9 @@
     "transferAdminDescription": "Yönetici rolünü gerçekten {{name}}'e aktarmak istiyor musunuz? Bu hanedeki yönetim haklarınızı kaybedeceksiniz.",
     "transferAdminConfirm": "Evet, Aktar",
     "adminTransferred": "{{name}} artık hanenin yeni yöneticisi.",
-    "retractVoteButton": "Oyu Geri Çek"
+    "retractVoteButton": "Oyu Geri Çek",
+    "renameTitle": "Hane Adı",
+    "renameSuccess": "Hane adı güncellendi"
   },
   "admin": "Yönetici"
 }

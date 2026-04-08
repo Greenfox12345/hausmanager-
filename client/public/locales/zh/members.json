@@ -97,7 +97,9 @@
     "transferAdminDescription": "你确定要将管理员角色转移给 {{name}} 吗？你将失去此家庭的管理权限。",
     "transferAdminConfirm": "是，转移",
     "adminTransferred": "{{name}} 现在是家庭的新管理员。",
-    "retractVoteButton": "撤回投票"
+    "retractVoteButton": "撤回投票",
+    "renameTitle": "家庭名称",
+    "renameSuccess": "家庭名称已更新"
   },
   "admin": "管理员"
 }

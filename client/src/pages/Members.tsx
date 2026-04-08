@@ -52,6 +52,10 @@ export default function Members() {
   const [showAddPlaceholder, setShowAddPlaceholder] = useState(false);
   const [newPlaceholderName, setNewPlaceholderName] = useState("");
 
+  // Rename household state
+  const [editingHouseholdName, setEditingHouseholdName] = useState(false);
+  const [householdNameDraft, setHouseholdNameDraft] = useState("");
+
   const { t, i18n } = useTranslation(["members", "common"]);
   const currentUiLang = getCurrentLanguage();
 
@@ -83,6 +87,21 @@ export default function Members() {
     { householdId: householdId! },
     { enabled: !!householdId }
   );
+
+  const renameHouseholdMutation = trpc.householdManagement.renameHousehold.useMutation({
+    onSuccess: (data) => {
+      toast.success(t("members:household.renameSuccess"));
+      setEditingHouseholdName(false);
+      // Update household name in context
+      if (currentHousehold) {
+        setCurrentHousehold({ ...currentHousehold, householdName: data.name });
+      }
+      refetchSettings();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const updateLanguageMutation = trpc.householdManagement.updateHouseholdLanguage.useMutation({
     onSuccess: () => {
@@ -683,6 +702,83 @@ export default function Members() {
             </CardContent>
           </Card>
         )}
+
+        {/* Household Name Card */}
+        <Card className="mb-6 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Home className="h-5 w-5" />
+              {t("members:household.renameTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {settings?.isAdmin ? (
+              editingHouseholdName ? (
+                <div className="flex gap-2">
+                  <Input
+                    value={householdNameDraft}
+                    onChange={(e) => setHouseholdNameDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (householdNameDraft.trim() && householdId) {
+                          renameHouseholdMutation.mutate({ householdId, name: householdNameDraft.trim() });
+                        }
+                      } else if (e.key === "Escape") {
+                        setEditingHouseholdName(false);
+                      }
+                    }}
+                    placeholder={currentHousehold?.householdName || ""}
+                    maxLength={100}
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (householdNameDraft.trim() && householdId) {
+                        renameHouseholdMutation.mutate({ householdId, name: householdNameDraft.trim() });
+                      }
+                    }}
+                    disabled={!householdNameDraft.trim() || renameHouseholdMutation.isPending}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingHouseholdName(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{currentHousehold?.householdName}</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setHouseholdNameDraft(currentHousehold?.householdName || "");
+                      setEditingHouseholdName(true);
+                    }}
+                    className="gap-1.5"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    {t("common:actions.edit")}
+                  </Button>
+                </div>
+              )
+            ) : (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Lock className="h-4 w-4 shrink-0" />
+                <div>
+                  <p className="text-sm">{currentHousehold?.householdName}</p>
+                  <p className="text-xs mt-1">{t("common:household.adminOnly")}</p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Language Settings Card */}
         <Card className="mb-6 shadow-sm">

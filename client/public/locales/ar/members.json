@@ -97,7 +97,9 @@
     "transferAdminDescription": "هل تريد حقًا نقل دور المسؤول إلى {{name}}؟ ستفقد بذلك صلاحيات الإدارة لهذه الأسرة.",
     "transferAdminConfirm": "نعم، انقل",
     "adminTransferred": "{{name}} هو الآن المسؤول الجديد للأسرة.",
-    "retractVoteButton": "سحب التصويت"
+    "retractVoteButton": "سحب التصويت",
+    "renameTitle": "اسم المنزل",
+    "renameSuccess": "تم تحديث اسم المنزل"
   },
   "admin": "مسؤول"
 }

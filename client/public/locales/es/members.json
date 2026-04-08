@@ -88,7 +88,9 @@
     "leaveButton": "Abandonar hogar",
     "retractVoteButton": "Retirar voto",
     "alreadyVoted": "Ya ha votado",
-    "dangerZoneDescription": "Estas acciones son irreversibles. Por favor, proceda con cuidado."
+    "dangerZoneDescription": "Estas acciones son irreversibles. Por favor, proceda con cuidado.",
+    "renameTitle": "Nombre del hogar",
+    "renameSuccess": "El nombre del hogar ha sido actualizado"
   },
   "status": {
     "active": "Activo",
