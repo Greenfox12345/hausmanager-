@@ -107,8 +107,9 @@ export const userAuthRouter = router({
             memberId: number;
             type: string;
           };
+          console.log('[invite] decoded token:', decoded);
           if (decoded.type === "member_invite") {
-            // Find the member slot and verify it is still unregistered
+            // Find the member slot
             const [slot] = await db
               .select()
               .from(householdMembers)
@@ -120,8 +121,10 @@ export const userAuthRouter = router({
               )
               .limit(1);
 
+            console.log('[invite] slot found:', slot ? `id=${slot.id} userId=${slot.userId}` : 'null');
+
             if (slot && slot.userId === null) {
-              // Link the new user to the existing member slot
+              // Slot is free – link the new user to the existing member slot
               await db
                 .update(householdMembers)
                 .set({ userId, memberName: input.name, isActive: true })
@@ -129,10 +132,66 @@ export const userAuthRouter = router({
 
               claimedHouseholdId = decoded.householdId;
               claimedMemberId = decoded.memberId;
+              console.log('[invite] claimed slot successfully');
+            } else if (slot && slot.userId === userId) {
+              // Slot already belongs to this user (re-registration attempt)
+              claimedHouseholdId = decoded.householdId;
+              claimedMemberId = decoded.memberId;
+              console.log('[invite] slot already owned by this user, returning household');
+            } else if (slot && slot.userId !== null) {
+              // Slot already claimed by another user – create a new member slot instead
+              console.log('[invite] slot already claimed by another user, creating new slot');
+              const [newMemberResult] = await db.insert(householdMembers).values({
+                householdId: decoded.householdId,
+                userId,
+                memberName: input.name,
+                isActive: true,
+              });
+              claimedHouseholdId = decoded.householdId;
+              claimedMemberId = Number(newMemberResult.insertId);
+            } else {
+              // Slot not found (deleted or wrong env) – try to join the household directly
+              console.log('[invite] slot not found for memberId:', decoded.memberId, '– trying to join household', decoded.householdId);
+              const [hh] = await db
+                .select({ id: households.id })
+                .from(households)
+                .where(eq(households.id, decoded.householdId))
+                .limit(1);
+              if (hh) {
+                // Check if user is already a member
+                const [existingMember] = await db
+                  .select()
+                  .from(householdMembers)
+                  .where(
+                    and(
+                      eq(householdMembers.householdId, decoded.householdId),
+                      eq(householdMembers.userId, userId)
+                    )
+                  )
+                  .limit(1);
+                if (existingMember) {
+                  claimedHouseholdId = decoded.householdId;
+                  claimedMemberId = existingMember.id;
+                  console.log('[invite] user already member, returning existing slot');
+                } else {
+                  const [newMemberResult] = await db.insert(householdMembers).values({
+                    householdId: decoded.householdId,
+                    userId,
+                    memberName: input.name,
+                    isActive: true,
+                  });
+                  claimedHouseholdId = decoded.householdId;
+                  claimedMemberId = Number(newMemberResult.insertId);
+                  console.log('[invite] created new member slot in household', decoded.householdId);
+                }
+              } else {
+                console.log('[invite] household', decoded.householdId, 'not found');
+              }
             }
           }
-        } catch {
-          // Invalid / expired invite token – ignore silently, registration still succeeds
+        } catch (err) {
+          // Invalid / expired invite token – log and continue
+          console.log('[invite] token verification failed:', (err as Error).message);
         }
       }
 

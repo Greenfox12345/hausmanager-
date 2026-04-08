@@ -18,17 +18,19 @@ export default function Register() {
   const { t } = useTranslation("auth");
   const [currentLang, setCurrentLang] = useState<SupportedLanguageCode>(getCurrentLanguage());
 
-  // Extract URL query params – wouter's useLocation() returns only the path,
-  // so we read the query string directly from window.location.search
-  const searchParams = new URLSearchParams(window.location.search);
-  const demoTokenFromUrl = searchParams.get("demo");
-  const demoTokenFromStorage = localStorage.getItem("demo_token");
-  const demoToken = demoTokenFromUrl ?? demoTokenFromStorage ?? null;
+  // Extract URL query params once on mount – wouter's useLocation() only returns
+  // the path, so we use window.location.search. Stored in state so the values
+  // are stable across re-renders and available inside mutation callbacks.
+  const [inviteToken] = useState<string | null>(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get("invite");
+  });
+  const [demoToken] = useState<string | null>(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get("demo") ?? localStorage.getItem("demo_token");
+  });
   const demoExpiresAt = localStorage.getItem("demo_expires_at");
   const isDemoActive = demoToken !== null && demoExpiresAt !== null && new Date(demoExpiresAt) > new Date();
-
-  // Extract member invite token from URL query param (?invite=...)
-  const inviteToken = searchParams.get("invite") ?? null;
 
   // Pre-fill name from demo config if available
   const demoOwnerName = localStorage.getItem("demo_owner_name") ?? "";
