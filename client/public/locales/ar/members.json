@@ -59,7 +59,11 @@
     "step3": "أدخل رمز الدعوة وقم بالتأكيد",
     "step4": "تم! أصبح الشخص الآن عضوًا في أسرتك",
     "clickToShowInviteCode": "انقر على \"عرض رمز الدعوة\" لدعوة أعضاء جدد.",
-    "inviteCodeCopied": "تم نسخ رمز الدعوة!"
+    "inviteCodeCopied": "تم نسخ رمز الدعوة!",
+    "memberAdded": "تمت إضافة العضو",
+    "memberRemoved": "تمت إزالة {{name}} من المنزل.",
+    "memberRenamed": "تم تغيير الاسم إلى \"{{name}}\".",
+    "inviteLinkCopied": "تم نسخ رابط الدعوة!"
   },
   "allMembers": "جميع الأعضاء",
   "selectMember": "اختر عضوًا",

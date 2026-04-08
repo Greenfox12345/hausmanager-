@@ -59,7 +59,11 @@
     "step3": "Davet kodunu girin ve onaylayın",
     "step4": "Tamamlandı! Kişi artık hanenizin bir üyesi",
     "clickToShowInviteCode": "Yeni üyeleri davet etmek için \"Davet Kodunu Göster\" seçeneğine tıklayın.",
-    "inviteCodeCopied": "Davet kodu kopyalandı!"
+    "inviteCodeCopied": "Davet kodu kopyalandı!",
+    "memberAdded": "Üye eklendi",
+    "memberRemoved": "{{name}} haneden çıkarıldı.",
+    "memberRenamed": "İsim \"{{name}}\" olarak değiştirildi.",
+    "inviteLinkCopied": "Davet bağlantısı kopyalandı!"
   },
   "allMembers": "Tüm Üyeler",
   "selectMember": "Üye Seç",

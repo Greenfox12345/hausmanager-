@@ -59,7 +59,11 @@
     "step3": "Einladungscode eingeben und bestätigen",
     "step4": "Fertig! Die Person ist jetzt Mitglied Ihres Haushalts",
     "clickToShowInviteCode": "Klicken Sie auf \"Einladungscode anzeigen\", um neue Mitglieder einzuladen.",
-    "inviteCodeCopied": "Einladungscode kopiert!"
+    "inviteCodeCopied": "Einladungscode kopiert!",
+    "memberAdded": "Mitglied hinzugefügt",
+    "memberRemoved": "{{name}} wurde aus dem Haushalt entfernt.",
+    "memberRenamed": "Name auf \"{{name}}\" geändert.",
+    "inviteLinkCopied": "Einladungslink kopiert!"
   },
   "allMembers": "Alle Mitglieder",
   "selectMember": "Mitglied auswählen",

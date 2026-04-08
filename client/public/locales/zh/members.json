@@ -59,7 +59,11 @@
     "step3": "输入邀请码并确认",
     "step4": "完成! 该用户现在是您家庭的成员",
     "clickToShowInviteCode": "点击 \"显示邀请码\" 以邀请新成员。",
-    "inviteCodeCopied": "邀请码已复制!"
+    "inviteCodeCopied": "邀请码已复制!",
+    "memberAdded": "成员已添加",
+    "memberRemoved": "{{name}} 已从家庭中移除。",
+    "memberRenamed": "名称已更改为 {{name}}。",
+    "inviteLinkCopied": "邀请链接已复制！"
   },
   "allMembers": "所有成员",
   "selectMember": "选择成员",

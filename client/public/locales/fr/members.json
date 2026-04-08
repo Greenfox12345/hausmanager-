@@ -59,7 +59,11 @@
     "step3": "Saisir et confirmer le code d'invitation",
     "step4": "Terminé ! La personne est maintenant membre de votre foyer",
     "clickToShowInviteCode": "Cliquez sur \"Afficher le code d'invitation\" pour inviter de nouveaux membres.",
-    "inviteCodeCopied": "Code d'invitation copié !"
+    "inviteCodeCopied": "Code d'invitation copié !",
+    "memberAdded": "Membre ajouté",
+    "memberRemoved": "{{name}} a été retiré du foyer.",
+    "memberRenamed": "Nom changé en \"{{name}}\".",
+    "inviteLinkCopied": "Lien d'invitation copié !"
   },
   "allMembers": "Tous les membres",
   "selectMember": "Sélectionner un membre",

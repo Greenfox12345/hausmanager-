@@ -66,9 +66,9 @@ export default function Members() {
       refetchMembers();
       setNewPlaceholderName("");
       setShowAddPlaceholder(false);
-      toast.success("Mitglied hinzugefügt");
+      toast.success(t("members:messages.memberAdded"));
     },
-    onError: (err) => toast.error("Fehler: " + err.message),
+    onError: (err) => toast.error(err.message),
   });
 
   const { data: members = [], isLoading, refetch: refetchMembers } = trpc.household.getHouseholdMembers.useQuery(
@@ -167,7 +167,7 @@ export default function Members() {
   // Kick (delete) unregistered member mutation
   const kickMemberMutation = trpc.householdManagement.kickMember.useMutation({
     onSuccess: (data) => {
-      toast.success(`${data.memberName} wurde aus dem Haushalt entfernt.`);
+      toast.success(t("members:messages.memberRemoved", { name: data.memberName }));
       setKickTarget(null);
       refetchMembers();
       refetchSettings();
@@ -181,7 +181,7 @@ export default function Members() {
   // Rename member mutation
   const renameMemberMutation = trpc.householdManagement.renameMember.useMutation({
     onSuccess: (data) => {
-      toast.success(`Name auf "${data.newName}" geändert.`);
+      toast.success(t("members:messages.memberRenamed", { name: data.newName }));
       setEditingMemberId(null);
       setEditingName("");
       refetchMembers();
@@ -241,7 +241,7 @@ export default function Members() {
     try {
       await navigator.clipboard.writeText(link);
       setInviteLinkCopied(true);
-      toast.success("Einladungslink kopiert!");
+      toast.success(t("members:messages.inviteLinkCopied"));
       setTimeout(() => setInviteLinkCopied(false), 2000);
     } catch {
       toast.error(t("common:messages.copyError"));

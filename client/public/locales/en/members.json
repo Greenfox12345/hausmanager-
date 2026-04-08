@@ -59,7 +59,11 @@
     "step3": "Enter and confirm the invitation code",
     "step4": "Done! The person is now a member of your household",
     "clickToShowInviteCode": "Click \"Show Invitation Code\" to invite new members.",
-    "inviteCodeCopied": "Invitation code copied!"
+    "inviteCodeCopied": "Invitation code copied!",
+    "memberAdded": "Member added",
+    "memberRemoved": "{{name}} has been removed from the household.",
+    "memberRenamed": "Name changed to \"{{name}}\".",
+    "inviteLinkCopied": "Invitation link copied!"
   },
   "allMembers": "All members",
   "selectMember": "Select member",

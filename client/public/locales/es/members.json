@@ -51,7 +51,11 @@
     "removeError": "Error al eliminar el miembro",
     "cannotRemoveSelf": "No puedes eliminarte a ti mismo",
     "cannotRemoveLastAdmin": "No se puede eliminar al último administrador",
-    "manageMembers": "Miembros y configuración del hogar"
+    "manageMembers": "Miembros y configuración del hogar",
+    "memberAdded": "Miembro añadido",
+    "memberRemoved": "{{name}} ha sido eliminado del hogar.",
+    "memberRenamed": "Nombre cambiado a \"{{name}}\".",
+    "inviteLinkCopied": "¡Enlace de invitación copiado!"
   },
   "household": {
     "language": "Idioma del hogar",
