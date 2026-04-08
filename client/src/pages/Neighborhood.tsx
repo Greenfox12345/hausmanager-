@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
+import { BottomNav } from "@/components/BottomNav";
 
 type ActiveTab = "connect" | "borrow";
 
@@ -537,6 +538,7 @@ export default function Neighborhood() {
           isSubmitting={borrowRequestMutation.isPending}
         />
       )}
+      <BottomNav />
     </AppLayout>
   );
 }
