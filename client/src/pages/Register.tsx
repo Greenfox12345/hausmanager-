@@ -50,13 +50,7 @@ export default function Register() {
       }
 
       if (data.claimedHouseholdId && data.claimedMemberId) {
-        // Clear demo storage (auth_token was already replaced by login() above)
-        localStorage.removeItem("demo_token");
-        localStorage.removeItem("demo_expires_at");
-        localStorage.removeItem("demo_owner_name");
-
-        // Set household context – the real household name will be synced
-        // by DemoOnboardingDialog once getOnboardingData loads.
+        // Set household context immediately
         setCurrentHousehold({
           householdId: data.claimedHouseholdId,
           householdName: data.householdName ?? "Mein Haushalt",
@@ -64,11 +58,20 @@ export default function Register() {
           memberName: formData.name,
         });
 
-        toast.success(t("demo.demoHouseholdClaimed", "Demo-Haushalt erfolgreich übernommen!"));
-        // Guard: prevent redirectToLoginIfUnauthorized from firing during onboarding
-        localStorage.setItem("onboarding_in_progress", "1");
-        // Show onboarding dialog
-        setOnboardingHouseholdId(data.claimedHouseholdId);
+        if (isDemoActive) {
+          // Demo-Claim: clear demo storage and show onboarding dialog
+          localStorage.removeItem("demo_token");
+          localStorage.removeItem("demo_expires_at");
+          localStorage.removeItem("demo_owner_name");
+          toast.success(t("demo.demoHouseholdClaimed", "Demo-Haushalt erfolgreich übernommen!"));
+          // Guard: prevent redirectToLoginIfUnauthorized from firing during onboarding
+          localStorage.setItem("onboarding_in_progress", "1");
+          setOnboardingHouseholdId(data.claimedHouseholdId);
+        } else {
+          // Invite-Token-Claim: navigate directly to the app
+          toast.success(t("register.inviteSuccess", "Registrierung erfolgreich! Sie sind dem Haushalt beigetreten."));
+          setLocation("/shopping");
+        }
       } else {
         toast.success(t("register.success", "Registrierung erfolgreich! Sie können sich jetzt anmelden."));
         if (data.token) {
