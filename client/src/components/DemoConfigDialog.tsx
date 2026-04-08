@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ const DEFAULT_MEMBER_NAMES = ["Alex", "Maria", "Jonas", "Sophie"];
 export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProps) {
   const [, setLocation] = useLocation();
   const { login, setCurrentHousehold } = useUserAuth();
+  const { t } = useTranslation("auth");
 
   // Eigener Name
   const [ownerName, setOwnerName] = useState("");
@@ -65,7 +67,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
       setLocation("/shopping");
     },
     onError: () => {
-      toast.error("Demo konnte nicht gestartet werden.");
+      toast.error(t("demoConfig.startError"));
     },
   });
 
@@ -95,6 +97,24 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
   const decreaseMemberCount = () => setMemberCount((c) => Math.max(1, c - 1));
   const increaseMemberCount = () => setMemberCount((c) => Math.min(4, c + 1));
 
+  // Einkaufsliste-Label
+  const shoppingLabel =
+    shoppingItemCount === 0
+      ? t("demoConfig.shoppingEmpty")
+      : t("demoConfig.shoppingItems", { count: shoppingItemCount });
+
+  // Aufgaben-Label
+  const tasksLabel =
+    taskCount === 0
+      ? t("demoConfig.tasksNone")
+      : t("demoConfig.tasksCount_other", { count: taskCount });
+
+  // Inventar-Label
+  const inventoryLabel =
+    inventoryCount === 0
+      ? t("demoConfig.inventoryEmpty")
+      : t("demoConfig.inventoryCount_other", { count: inventoryCount });
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-md h-[90vh] flex flex-col top-[5vh] translate-y-0">
@@ -104,9 +124,9 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
               <FlaskConical className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <DialogTitle className="text-lg">Demo konfigurieren</DialogTitle>
+              <DialogTitle className="text-lg">{t("demoConfig.title")}</DialogTitle>
               <DialogDescription className="text-sm mt-0.5">
-                Passe die Demo an deinen Haushalt an.
+                {t("demoConfig.subtitle")}
               </DialogDescription>
             </div>
           </div>
@@ -118,18 +138,18 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <UserCircle className="h-4 w-4 text-muted-foreground" />
-              <Label className="text-sm font-medium">Dein Name</Label>
-              <span className="text-xs text-muted-foreground">(optional)</span>
+              <Label className="text-sm font-medium">{t("demoConfig.ownerName")}</Label>
+              <span className="text-xs text-muted-foreground">{t("demoConfig.ownerNameOptional")}</span>
             </div>
             <Input
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              placeholder="z. B. Max"
+              placeholder={t("demoConfig.ownerNamePlaceholder")}
               maxLength={30}
               className="text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              Wird bei der Registrierung vorausgefüllt und kann dort geändert werden.
+              {t("demoConfig.ownerNameHint")}
             </p>
           </div>
 
@@ -140,8 +160,8 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Mitbewohner</Label>
-                <span className="text-xs text-muted-foreground">(andere Personen im Haushalt)</span>
+                <Label className="text-sm font-medium">{t("demoConfig.roommates")}</Label>
+                <span className="text-xs text-muted-foreground">{t("demoConfig.roommatesHint")}</span>
               </div>
               {/* Stepper für Anzahl */}
               <div className="flex items-center gap-2">
@@ -193,7 +213,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">Diese Personen sind zusätzlich zu dir im Demo-Haushalt. Leere Felder erhalten Standardnamen.</p>
+            <p className="text-xs text-muted-foreground">{t("demoConfig.roommatesNote")}</p>
           </div>
 
           <Separator />
@@ -203,10 +223,10 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Einkaufsliste</Label>
+                <Label className="text-sm font-medium">{t("demoConfig.shoppingList")}</Label>
               </div>
               <span className="text-sm font-semibold tabular-nums text-amber-700">
-                {shoppingItemCount === 0 ? "Leer" : `${shoppingItemCount} Artikel`}
+                {shoppingLabel}
               </span>
             </div>
             <Slider
@@ -218,8 +238,8 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Leer</span>
-              <span>Voll (11)</span>
+              <span>{t("demoConfig.shoppingEmpty")}</span>
+              <span>{t("demoConfig.shoppingFull")}</span>
             </div>
           </div>
 
@@ -228,10 +248,10 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Aufgaben</Label>
+                <Label className="text-sm font-medium">{t("demoConfig.tasks")}</Label>
               </div>
               <span className="text-sm font-semibold tabular-nums text-amber-700">
-                {taskCount === 0 ? "Keine" : `${taskCount} ${taskCount === 1 ? "Aufgabe" : "Aufgaben"}`}
+                {tasksLabel}
               </span>
             </div>
             <Slider
@@ -243,8 +263,8 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Keine</span>
-              <span>Alle (8)</span>
+              <span>{t("demoConfig.tasksNone")}</span>
+              <span>{t("demoConfig.tasksAll")}</span>
             </div>
           </div>
 
@@ -253,10 +273,10 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Inventar</Label>
+                <Label className="text-sm font-medium">{t("demoConfig.inventory")}</Label>
               </div>
               <span className="text-sm font-semibold tabular-nums text-amber-700">
-                {inventoryCount === 0 ? "Leer" : `${inventoryCount} ${inventoryCount === 1 ? "Gegenstand" : "Gegenstände"}`}
+                {inventoryLabel}
               </span>
             </div>
             <Slider
@@ -268,15 +288,15 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Leer</span>
-              <span>Alle (6)</span>
+              <span>{t("demoConfig.inventoryEmpty")}</span>
+              <span>{t("demoConfig.inventoryAll")}</span>
             </div>
           </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t">
           <Button variant="ghost" onClick={onClose} disabled={createDemoMutation.isPending}>
-            Abbrechen
+            {t("demoConfig.cancel")}
           </Button>
           <Button
             onClick={handleStart}
@@ -284,7 +304,7 @@ export default function DemoConfigDialog({ open, onClose }: DemoConfigDialogProp
             className="gap-2 bg-amber-500 hover:bg-amber-600 text-white"
           >
             <FlaskConical className="h-4 w-4" />
-            {createDemoMutation.isPending ? "Wird gestartet…" : "Demo starten"}
+            {createDemoMutation.isPending ? t("demoConfig.starting") : t("demoConfig.start")}
           </Button>
         </DialogFooter>
       </DialogContent>

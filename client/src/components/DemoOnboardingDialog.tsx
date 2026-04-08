@@ -12,6 +12,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useUserAuth } from "@/contexts/UserAuthContext";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,6 +80,7 @@ interface Props {
 
 export default function DemoOnboardingDialog({ open, householdId, onClose }: Props) {
   const { setCurrentHousehold, currentHousehold } = useUserAuth();
+  const { t } = useTranslation("auth");
 
   // ── Server data ──────────────────────────────────────────────────────────
   const { data, isLoading } = trpc.demo.getOnboardingData.useQuery(
@@ -124,11 +126,11 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
       if (currentHousehold) {
         setCurrentHousehold({ ...currentHousehold, householdName });
       }
-      toast.success("Haushalt erfolgreich eingerichtet!");
+      toast.success(t("demoOnboarding.saveSuccess"));
       onClose();
     },
     onError: (err) => {
-      toast.error("Fehler beim Speichern: " + err.message);
+      toast.error(t("demoOnboarding.saveError", { message: err.message }));
     },
   });
 
@@ -201,7 +203,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
   function handleSave() {
     if (!householdName.trim()) {
-      toast.error("Bitte gib einen Haushaltsnamen ein.");
+      toast.error(t("demoOnboarding.nameRequired"));
       return;
     }
 
@@ -239,9 +241,9 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
     const result: { label: string; tasks: OnboardingTask[] }[] = [];
     groups.forEach((tasks, label) => result.push({ label, tasks }));
-    if (noProject.length > 0) result.push({ label: "Ohne Projekt", tasks: noProject });
+    if (noProject.length > 0) result.push({ label: t("demoOnboarding.noProject"), tasks: noProject });
     return result;
-  }, [data?.tasks]);
+  }, [data?.tasks, t]);
 
   // ── Grouped shopping items ────────────────────────────────────────────────
   const groupedShopping = useMemo(() => {
@@ -278,9 +280,9 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               <Home className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <DialogTitle className="text-xl">Haushalt einrichten</DialogTitle>
+              <DialogTitle className="text-xl">{t("demoOnboarding.title")}</DialogTitle>
               <DialogDescription className="text-sm mt-0.5">
-                Passe deinen übernommenen Haushalt an, bevor du loslegst.
+                {t("demoOnboarding.subtitle")}
               </DialogDescription>
             </div>
           </div>
@@ -288,7 +290,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-            Daten werden geladen…
+            {t("demoOnboarding.loading")}
           </div>
         ) : (
           <Tabs defaultValue="household" className="flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -297,11 +299,11 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             <TabsList className="w-max min-w-full">
               <TabsTrigger value="household" className="gap-1.5">
                 <Home className="h-3.5 w-3.5" />
-                Haushalt
+                {t("demoOnboarding.tabHousehold")}
               </TabsTrigger>
               <TabsTrigger value="tasks" className="gap-1.5">
                 <CheckSquare className="h-3.5 w-3.5" />
-                Aufgaben
+                {t("demoOnboarding.tabTasks")}
                 {deleteTaskIds.size > 0 && (
                   <Badge variant="destructive" className="ml-1 h-4 px-1 text-[10px]">
                     {deleteTaskIds.size}
@@ -310,7 +312,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               </TabsTrigger>
               <TabsTrigger value="shopping" className="gap-1.5">
                 <ShoppingCart className="h-3.5 w-3.5" />
-                Einkaufsliste
+                {t("demoOnboarding.tabShopping")}
                 {deleteShoppingIds.size > 0 && (
                   <Badge variant="destructive" className="ml-1 h-4 px-1 text-[10px]">
                     {deleteShoppingIds.size}
@@ -319,7 +321,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               </TabsTrigger>
               <TabsTrigger value="members" className="gap-1.5">
                 <Users className="h-3.5 w-3.5" />
-                Mitglieder
+                {t("demoOnboarding.tabMembers")}
               </TabsTrigger>
             </TabsList>
             </div>
@@ -329,16 +331,16 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
               <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="hhname">Haushaltsname</Label>
+                  <Label htmlFor="hhname">{t("demoOnboarding.householdNameLabel")}</Label>
                   <Input
                     id="hhname"
                     value={householdName}
                     onChange={(e) => setHouseholdName(e.target.value)}
-                    placeholder="z.B. Familie Müller"
+                    placeholder={t("demoOnboarding.householdNamePlaceholder")}
                     className="max-w-sm"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Gib deinem Haushalt einen persönlichen Namen.
+                    {t("demoOnboarding.householdNameHint")}
                   </p>
                 </div>
               </div>
@@ -349,20 +351,20 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             <TabsContent value="tasks" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
-                  Wähle Aufgaben aus, die du <strong>löschen</strong> möchtest. Alle anderen bleiben erhalten.
+                  {t("demoOnboarding.tasksHintPlain")}
                 </p>
                 <div className="flex gap-2 shrink-0">
                   <Button variant="ghost" size="sm" onClick={selectAllTasks} className="text-xs h-7">
-                    Alle wählen
+                    {t("demoOnboarding.selectAll")}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={deselectAllTasks} className="text-xs h-7">
-                    Keine
+                    {t("demoOnboarding.selectNone")}
                   </Button>
                 </div>
               </div>
 
               {data?.tasks && data.tasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4">Keine Aufgaben vorhanden.</p>
+                <p className="text-sm text-muted-foreground py-4">{t("demoOnboarding.noTasks")}</p>
               ) : (
                 <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                   <div className="space-y-4">
@@ -396,7 +398,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                                   {task.isDuplicated && (
                                     <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 text-[10px] h-4 px-1 gap-0.5">
                                       <AlertTriangle className="h-2.5 w-2.5" />
-                                      Mehrere Projekte
+                                      {t("demoOnboarding.multipleProjects")}
                                     </Badge>
                                   )}
                                   {task.projectNames.slice(1).map((pn) => (
@@ -423,7 +425,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
               {deleteTaskIds.size > 0 && (
                 <p className="text-xs text-red-600 mt-2">
-                  {deleteTaskIds.size} Aufgabe{deleteTaskIds.size !== 1 ? "n" : ""} wird gelöscht.
+                  {t("demoOnboarding.tasksWillDelete_other", { count: deleteTaskIds.size })}
                 </p>
               )}
             </TabsContent>
@@ -432,20 +434,20 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             <TabsContent value="shopping" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
-                  Wähle Einträge aus, die du <strong>löschen</strong> möchtest. Alle anderen bleiben erhalten.
+                  {t("demoOnboarding.shoppingHint")}
                 </p>
                 <div className="flex gap-2 shrink-0">
                   <Button variant="ghost" size="sm" onClick={selectAllShopping} className="text-xs h-7">
-                    Alle wählen
+                    {t("demoOnboarding.selectAll")}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={deselectAllShopping} className="text-xs h-7">
-                    Keine
+                    {t("demoOnboarding.selectNone")}
                   </Button>
                 </div>
               </div>
 
               {totalShopping === 0 ? (
-                <p className="text-sm text-muted-foreground py-4">Keine Einträge vorhanden.</p>
+                <p className="text-sm text-muted-foreground py-4">{t("demoOnboarding.noShopping")}</p>
               ) : (
                 <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                   <div className="space-y-4">
@@ -485,7 +487,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                               </div>
                               {item.isCompleted && !deleteShoppingIds.has(item.id) && (
                                 <Badge variant="secondary" className="text-[10px] h-4 px-1 shrink-0">
-                                  Erledigt
+                                  {t("demoOnboarding.done")}
                                 </Badge>
                               )}
                               {deleteShoppingIds.has(item.id) && (
@@ -502,7 +504,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
 
               {deleteShoppingIds.size > 0 && (
                 <p className="text-xs text-red-600 mt-2">
-                  {deleteShoppingIds.size} Eintrag{deleteShoppingIds.size !== 1 ? "einträge" : ""} wird gelöscht.
+                  {t("demoOnboarding.shoppingWillDelete_other", { count: deleteShoppingIds.size })}
                 </p>
               )}
             </TabsContent>
@@ -510,19 +512,19 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
             {/* ── Tab: Mitglieder ── */}
             <TabsContent value="members" className="data-[state=active]:flex data-[state=active]:flex-col flex-1 min-h-0 overflow-hidden px-6 py-4">
               <p className="text-sm text-muted-foreground mb-3">
-                Diese Demo-Mitglieder wurden automatisch angelegt. Du kannst sie umbenennen oder entfernen.
+                {t("demoOnboarding.membersHint")}
               </p>
               <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
                 <div className="space-y-2">
                   {/* Owner row */}
                   {data?.members.filter((m) => m.isOwner).map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5">
-                      <div className="h-7 w-7 rounded-full bg-blue-200 flex items-center justify-center text-xs font-semibold text-blue-800">
+                    <div key={m.id} className="flex items-center gap-3 rounded-lg border border-border px-3 py-2.5">
+                      <div className="h-7 w-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0">
                         {m.memberName.charAt(0).toUpperCase()}
                       </div>
                       <span className="text-sm font-medium flex-1">{m.memberName}</span>
                       <Badge variant="secondary" className="text-[10px] h-4 px-1.5 bg-blue-100 text-blue-700">
-                        Du (Inhaber)
+                        {t("demoOnboarding.youOwner")}
                       </Badge>
                     </div>
                   ))}
@@ -530,7 +532,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                   <Separator className="my-1" />
 
                   {demoMembers.length === 0 && newMembersList.length === 0 && (
-                    <p className="text-sm text-muted-foreground py-2">Keine weiteren Mitglieder.</p>
+                    <p className="text-sm text-muted-foreground py-2">{t("demoOnboarding.noMembers")}</p>
                   )}
 
                   {demoMembers.map((m) => {
@@ -573,7 +575,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                                 size="icon"
                                 variant="ghost"
                                 className="h-7 w-7"
-                                title="Umbenennen"
+                                title={t("demoOnboarding.renameTitle")}
                                 onClick={() => setMemberAction(m.id, "rename")}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
@@ -584,7 +586,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                                 size="icon"
                                 variant="ghost"
                                 className="h-7 w-7"
-                                title="Wiederherstellen"
+                                title={t("demoOnboarding.restoreTitle")}
                                 onClick={() => setMemberAction(m.id, "keep")}
                               >
                                 <Check className="h-3.5 w-3.5 text-green-600" />
@@ -594,7 +596,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                                 size="icon"
                                 variant="ghost"
                                 className="h-7 w-7 text-red-500 hover:text-red-600"
-                                title="Entfernen"
+                                title={t("demoOnboarding.removeTitle")}
                                 onClick={() => setMemberAction(m.id, "remove")}
                               >
                                 <X className="h-3.5 w-3.5" />
@@ -645,7 +647,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                             size="icon"
                             variant="ghost"
                             className="h-7 w-7"
-                            title="Umbenennen"
+                            title={t("demoOnboarding.renameTitle")}
                             onClick={() => { setEditingNewMemberIdx(idx); setEditingNewMemberName(name); }}
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -654,7 +656,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                             size="icon"
                             variant="ghost"
                             className="h-7 w-7 text-red-500 hover:text-red-600"
-                            title="Entfernen"
+                            title={t("demoOnboarding.removeTitle")}
                             onClick={() => setNewMembersList((prev) => prev.filter((_, i) => i !== idx))}
                           >
                             <X className="h-3.5 w-3.5" />
@@ -671,7 +673,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                 <Input
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
-                  placeholder="Name des neuen Mitbewohners"
+                  placeholder={t("demoOnboarding.newMemberPlaceholder")}
                   className="h-8 text-sm flex-1"
                   maxLength={50}
                   onKeyDown={(e) => {
@@ -694,7 +696,7 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
                   }}
                 >
                   <span className="text-base leading-none">+</span>
-                  Hinzufügen
+                  {t("demoOnboarding.addMember")}
                 </Button>
               </div>
             </TabsContent>
@@ -704,14 +706,14 @@ export default function DemoOnboardingDialog({ open, householdId, onClose }: Pro
         {/* Footer – always visible */}
         <DialogFooter className="px-6 py-4 border-t flex-row justify-between items-center gap-2 shrink-0">
           <Button variant="ghost" onClick={onClose} disabled={applyMutation.isPending}>
-            Überspringen
+            {t("demoOnboarding.skip")}
           </Button>
           <Button
             onClick={handleSave}
             disabled={isLoading || applyMutation.isPending || !householdName.trim()}
             className="gap-2"
           >
-            {applyMutation.isPending ? "Wird gespeichert…" : "Haushalt einrichten"}
+            {applyMutation.isPending ? t("demoOnboarding.saving") : t("demoOnboarding.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

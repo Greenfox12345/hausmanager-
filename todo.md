@@ -3640,3 +3640,8 @@
 - [x] "Diese Seite öffnen"-Link in jedem Schritt mit Route
 - [x] Übersetzungen für alle 7 Sprachen (de, en, fr, es, tr, zh, ar)
 - [x] tutorial-Namespace in i18n-Konfiguration registriert
+
+## i18n: Demo-Dialoge übersetzen
+- [x] DemoConfigDialog: alle hardcodierten deutschen Strings durch t()-Keys ersetzt
+- [x] DemoOnboardingDialog: alle hardcodierten deutschen Strings durch t()-Keys ersetzt
+- [x] Neue Keys "demoConfig" und "demoOnboarding" in alle 7 Sprachdateien (auth.json) eingetragen (de, en, fr, es, tr, zh, ar)
