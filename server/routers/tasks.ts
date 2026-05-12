@@ -1674,4 +1674,115 @@ export const tasksRouter = router({
 
       return { skippedCount: skippedInChain.length, nextDate: cur.toISOString(), skippedOccurrenceDates: skippedInChain };
     }),
+
+  // ─── Aufgaben-Kategorien ────────────────────────────────────────────────────
+
+  /** Alle Kategorien eines Haushalts abrufen */
+  listCategories: publicProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { taskCategories } = await import("../../drizzle/schema");
+      return db.select().from(taskCategories)
+        .where(eq(taskCategories.householdId, input.householdId))
+        .orderBy(taskCategories.name);
+    }),
+
+  /** Neue Kategorie erstellen */
+  createCategory: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      name: z.string().min(1).max(100),
+      color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#6B7280"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { taskCategories } = await import("../../drizzle/schema");
+      const result = await db.insert(taskCategories).values({
+        householdId: input.householdId,
+        name: input.name,
+        color: input.color,
+      });
+      return { id: Number(result[0].insertId) };
+    }),
+
+  /** Kategorie löschen */
+  deleteCategory: publicProcedure
+    .input(z.object({ categoryId: z.number(), householdId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { taskCategories } = await import("../../drizzle/schema");
+      await db.delete(taskCategories)
+        .where(and(eq(taskCategories.id, input.categoryId), eq(taskCategories.householdId, input.householdId)));
+      return { success: true };
+    }),
+
+  /** Kategorien einer Aufgabe setzen (ersetzt alle vorhandenen Zuordnungen) */
+  setTaskCategories: publicProcedure
+    .input(z.object({
+      taskId: z.number(),
+      categoryIds: z.array(z.number()),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { taskCategoryAssignments } = await import("../../drizzle/schema");
+      // Alle alten Zuordnungen löschen
+      await db.delete(taskCategoryAssignments)
+        .where(eq(taskCategoryAssignments.taskId, input.taskId));
+      // Neue Zuordnungen einfügen
+      if (input.categoryIds.length > 0) {
+        await db.insert(taskCategoryAssignments).values(
+          input.categoryIds.map(catId => ({ taskId: input.taskId, categoryId: catId }))
+        );
+      }
+      return { success: true };
+    }),
+
+  /** Kategorien für mehrere Aufgaben abrufen (für die Listenansicht) */
+  getTaskCategoryAssignments: publicProcedure
+    .input(z.object({ householdId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { taskCategoryAssignments, taskCategories, tasks: tasksTable } = await import("../../drizzle/schema");
+      // Alle Aufgaben des Haushalts holen, dann deren Kategorie-Zuordnungen
+      const taskRows = await db.select({ id: tasksTable.id })
+        .from(tasksTable)
+        .where(eq(tasksTable.householdId, input.householdId));
+      if (taskRows.length === 0) return [];
+      const taskIds = taskRows.map(t => t.id);
+      const assignments = await db
+        .select({
+          taskId: taskCategoryAssignments.taskId,
+          categoryId: taskCategories.id,
+          categoryName: taskCategories.name,
+          categoryColor: taskCategories.color,
+        })
+        .from(taskCategoryAssignments)
+        .innerJoin(taskCategories, eq(taskCategoryAssignments.categoryId, taskCategories.id))
+        .where(inArray(taskCategoryAssignments.taskId, taskIds));
+      return assignments;
+    }),
+
+  /** Kategorien einer einzelnen Aufgabe abrufen */
+  getTaskCategories: publicProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { taskCategoryAssignments, taskCategories } = await import("../../drizzle/schema");
+      return db
+        .select({
+          id: taskCategories.id,
+          name: taskCategories.name,
+          color: taskCategories.color,
+        })
+        .from(taskCategoryAssignments)
+        .innerJoin(taskCategories, eq(taskCategoryAssignments.categoryId, taskCategories.id))
+        .where(eq(taskCategoryAssignments.taskId, input.taskId));
+    }),
 });

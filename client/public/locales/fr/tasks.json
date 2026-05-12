@@ -593,5 +593,16 @@
     "rotationBetweenMembers": "Rotation entre les membres du foyer",
     "requiredPersonsPlaceholder": "ex. 2"
   },
-  "sharedWith": "Partagé avec"
+  "sharedWith": "Partagé avec",
+  "categories": {
+    "label": "Catégories",
+    "filterLabel": "Catégories",
+    "new": "Nouveau",
+    "createTitle": "Nouvelle catégorie",
+    "nameLabel": "Nom",
+    "namePlaceholder": "ex. Urgent",
+    "colorLabel": "Couleur",
+    "createSuccess": "Catégorie créée",
+    "createError": "Impossible de créer la catégorie"
+  }
 }

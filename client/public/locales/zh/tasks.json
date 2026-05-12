@@ -593,5 +593,16 @@
     "rotationBetweenMembers": "成员之间轮换",
     "requiredPersonsPlaceholder": "例如：2"
   },
-  "sharedWith": "共享给"
+  "sharedWith": "共享给",
+  "categories": {
+    "label": "分类",
+    "filterLabel": "分类",
+    "new": "新建",
+    "createTitle": "新分类",
+    "nameLabel": "名称",
+    "namePlaceholder": "例如：紧急",
+    "colorLabel": "颜色",
+    "createSuccess": "分类已创建",
+    "createError": "无法创建分类"
+  }
 }

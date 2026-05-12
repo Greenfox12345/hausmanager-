@@ -593,5 +593,16 @@
     "rotationBetweenMembers": "Hane üyeleri arasında rotasyon",
     "requiredPersonsPlaceholder": "ör. 2"
   },
-  "sharedWith": "İle paylaşıldı"
+  "sharedWith": "İle paylaşıldı",
+  "categories": {
+    "label": "Kategoriler",
+    "filterLabel": "Kategoriler",
+    "new": "Yeni",
+    "createTitle": "Yeni Kategori",
+    "nameLabel": "Ad",
+    "namePlaceholder": "örn. Acil",
+    "colorLabel": "Renk",
+    "createSuccess": "Kategori oluşturuldu",
+    "createError": "Kategori oluşturulamadı"
+  }
 }

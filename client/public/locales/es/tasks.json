@@ -643,5 +643,16 @@
     "rating": "Valoración",
     "completedBy": "Completado por",
     "completedAt": "Completado el"
+  },
+  "categories": {
+    "label": "Categorías",
+    "filterLabel": "Categorías",
+    "new": "Nuevo",
+    "createTitle": "Nueva categoría",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "p. ej. Urgente",
+    "colorLabel": "Color",
+    "createSuccess": "Categoría creada",
+    "createError": "No se pudo crear la categoría"
   }
 }

@@ -225,6 +225,13 @@
       "when": 1778619405007,
       "tag": "0043_wide_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1778622401511,
+      "tag": "0044_fuzzy_starjammers",
+      "breakpoints": true
     }
   ]
 }

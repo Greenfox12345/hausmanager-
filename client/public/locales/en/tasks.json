@@ -593,5 +593,16 @@
     "rotationBetweenMembers": "Rotation between household members",
     "requiredPersonsPlaceholder": "e.g. 2"
   },
-  "sharedWith": "Shared with"
+  "sharedWith": "Shared with",
+  "categories": {
+    "label": "Categories",
+    "filterLabel": "Categories",
+    "new": "New",
+    "createTitle": "New Category",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Urgent",
+    "colorLabel": "Color",
+    "createSuccess": "Category created",
+    "createError": "Could not create category"
+  }
 }

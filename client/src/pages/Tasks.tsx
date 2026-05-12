@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 import { DatePickerInput } from "@/components/DatePickerInput";
+import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -80,6 +81,9 @@ export default function Tasks() {
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false);
   const [batchAssignTo, setBatchAssignTo] = useState<number | null>(null); // Single member for batch assign
   
+  // Kategorie-State für neues Formular
+  const [newTaskCategoryIds, setNewTaskCategoryIds] = useState<number[]>([]);
+
   // Filter and sorting states
   const [filterExpanded, setFilterExpanded] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "completed">("all");
@@ -87,6 +91,7 @@ export default function Tasks() {
   const [dueDateFilter, setDueDateFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
   const [sortBy, setSortBy] = useState<"dueDate" | "name" | "createdAt">("dueDate");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [categoryFilter, setCategoryFilter] = useState<number[]>([]); // Kategorie-Filter (Mehrfachauswahl)
   
   const toggleTaskSelection = (taskId: number) => {
     setSelectedTaskIds(prev => 
@@ -151,6 +156,18 @@ export default function Tasks() {
   );
 
   const { data: availableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  // Kategorie-Zuordnungen für alle Aufgaben laden
+  const { data: taskCategoryAssignments = [] } = trpc.tasks.getTaskCategoryAssignments.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  // Alle Kategorien des Haushalts laden (für Filterleiste)
+  const { data: taskCategories = [] } = trpc.tasks.listCategories.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -254,6 +271,12 @@ export default function Tasks() {
     },
   });
 
+  const setTaskCategoriesMutation = trpc.tasks.setTaskCategories.useMutation({
+    onSuccess: () => {
+      utils.tasks.getTaskCategoryAssignments.invalidate();
+    },
+  });
+
   // Calculate available members for rotation
   const availableMembers = members.filter(m => !excludedMembers.includes(m.id));
   const availableCount = availableMembers.length;
@@ -337,6 +360,14 @@ export default function Tasks() {
         nonResponsiblePermission: shareWithNeighbors && sharedHouseholdIds.length > 0 ? nonResponsiblePermission : "full",
       });
 
+      // Kategorien zuweisen
+      if (newTaskCategoryIds.length > 0) {
+        await setTaskCategoriesMutation.mutateAsync({
+          taskId: taskResult.id,
+          categoryIds: newTaskCategoryIds,
+        });
+      }
+
       // Add dependencies if this is a project task
       if (isProjectTask && (prerequisites.length > 0 || followups.length > 0)) {
         await addDependenciesMutation.mutateAsync({
@@ -399,6 +430,7 @@ export default function Tasks() {
       setNewProjectDescription("");
       setPrerequisites([]);
       setFollowups([]);
+      setNewTaskCategoryIds([]);
       
       // Find and open detail dialog for new task
       const newTask = refreshedTasks.find(t => t.id === taskResult.id);
@@ -551,6 +583,16 @@ export default function Tasks() {
       });
     }
     
+    // Kategorie-Filter
+    if (categoryFilter.length > 0) {
+      const taskIdsWithCategory = new Set(
+        taskCategoryAssignments
+          .filter(a => categoryFilter.includes(a.categoryId))
+          .map(a => a.taskId)
+      );
+      filtered = filtered.filter(t => taskIdsWithCategory.has(t.id));
+    }
+
     // Sort
     filtered.sort((a, b) => {
       let comparison = 0;
@@ -571,7 +613,7 @@ export default function Tasks() {
     });
     
     return filtered;
-  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection]);
+  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments]);
   
   const resetFilters = () => {
     setStatusFilter("all");
@@ -579,6 +621,7 @@ export default function Tasks() {
     setDueDateFilter("all");
     setSortBy("dueDate");
     setSortDirection("asc");
+    setCategoryFilter([]);
   };
 
   // Loading state if household or member not available
@@ -644,6 +687,15 @@ export default function Tasks() {
                   rows={2}
                 />
               </div>
+
+              {/* Kategorien */}
+              {household && (
+                <TaskCategorySelector
+                  householdId={household.householdId}
+                  selectedCategoryIds={newTaskCategoryIds}
+                  onChange={setNewTaskCategoryIds}
+                />
+              )}
 
               {/* Date and time picker */}
               <div className="grid grid-cols-2 gap-3">
@@ -1172,6 +1224,41 @@ export default function Tasks() {
                     </Select>
                   </div>
                   
+                  {/* Kategorie-Filter */}
+                  {taskCategories.length > 0 && (
+                    <div className="md:col-span-4">
+                      <Label className="text-xs">{t("tasks:categories.filterLabel", "Kategorien")}</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {taskCategories.map((cat) => {
+                          const isActive = categoryFilter.includes(cat.id);
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() =>
+                                setCategoryFilter(prev =>
+                                  prev.includes(cat.id)
+                                    ? prev.filter(id => id !== cat.id)
+                                    : [...prev, cat.id]
+                                )
+                              }
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${
+                                isActive ? "ring-2 ring-offset-1 opacity-100" : "opacity-60 hover:opacity-90"
+                              }`}
+                              style={{
+                                borderColor: cat.color,
+                                color: isActive ? "#fff" : cat.color,
+                                backgroundColor: isActive ? cat.color : "transparent",
+                              }}
+                            >
+                              {cat.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Sort By */}
                   <div>
                     <Label className="text-xs">{t("common:sortBy")}</Label>
@@ -1398,6 +1485,19 @@ export default function Tasks() {
                             {t("tasks:messages.sharedWith", "Geteilt mit")} {(task as any).sharedHouseholdNames}
                           </span>
                         )}
+                        {/* Kategorie-Badges */}
+                        {taskCategoryAssignments
+                          .filter(a => a.taskId === task.id)
+                          .map(a => (
+                            <span
+                              key={a.categoryId}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                              style={{ backgroundColor: a.categoryColor + "22", color: a.categoryColor, border: `1px solid ${a.categoryColor}44` }}
+                            >
+                              {a.categoryName}
+                            </span>
+                          ))
+                        }
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-1 shrink-0">

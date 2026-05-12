@@ -3661,3 +3661,10 @@
 - [ ] Frontend: "Bis"-Anzeige in der Listenzeile zwischen Name und Kategorie
 - [ ] Frontend: Abgelaufene Artikel farblich markieren (orange/rot)
 - [ ] i18n: neededBy-Keys in alle 7 Sprachdateien
+
+## Feature: Aufgaben-Kategorien
+- [ ] DB: task_categories + task_category_assignments Tabellen
+- [ ] Backend: CRUD-Prozeduren (list, create, delete) + Zuweisung bei create/update task
+- [ ] Frontend: Mehrfachauswahl + Neu-Erstellen-Button im Aufgaben-Formular (Erstellen + Bearbeiten)
+- [ ] Frontend: Filterleiste nach Kategorien in der Aufgabenliste
+- [ ] i18n: Keys in alle 7 Sprachen

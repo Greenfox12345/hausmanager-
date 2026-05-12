@@ -354,5 +354,16 @@
     "noteAdded": "{{user}} أضاف ملاحظة إلى المهمة \"{{task}}\"",
     "occurrenceSkipped": "{{user}} تخطى موعدًا للمهمة \"{{task}}\"",
     "occurrenceResumed": "{{user}} استأنف موعدًا للمهمة \"{{task}}\""
+  },
+  "categories": {
+    "label": "الفئات",
+    "filterLabel": "الفئات",
+    "new": "جديد",
+    "createTitle": "فئة جديدة",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "مثال: عاجل",
+    "colorLabel": "اللون",
+    "createSuccess": "تم إنشاء الفئة",
+    "createError": "تعذر إنشاء الفئة"
   }
 }
