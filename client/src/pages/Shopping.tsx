@@ -439,14 +439,14 @@ export default function Shopping() {
 
   const handleEditItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editItemName.trim() || !editItemCategoryId || !editingItemId) return;
+    if (!editItemName.trim() || !editingItemId) return;
 
     updateMutation.mutate({
       itemId: editingItemId,
       householdId: household.householdId,
       memberId: member.memberId,
       name: editItemName.trim(),
-      categoryId: editItemCategoryId,
+      categoryId: editItemCategoryId ?? undefined,
       details: editItemQuantity.trim() || undefined,
       photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
       neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,
