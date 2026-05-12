@@ -800,12 +800,10 @@ export default function Shopping() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
-                <input
+                <DatePickerInput
                   id="itemNeededBy"
-                  type="date"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   value={newItemNeededBy}
-                  onChange={(e) => setNewItemNeededBy(e.target.value)}
+                  onChange={setNewItemNeededBy}
                   disabled={!newItemName.trim()}
                 />
               </div>
@@ -1090,12 +1088,10 @@ export default function Shopping() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="editItemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
-                <input
+                <DatePickerInput
                   id="editItemNeededBy"
-                  type="date"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   value={editItemNeededBy}
-                  onChange={(e) => setEditItemNeededBy(e.target.value)}
+                  onChange={setEditItemNeededBy}
                 />
               </div>
             </div>
