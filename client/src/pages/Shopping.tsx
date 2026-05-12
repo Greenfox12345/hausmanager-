@@ -1516,6 +1516,27 @@ export default function Shopping() {
                   <p className="text-sm">{detailItem.details}</p>
                 </div>
               )}
+
+              {detailItem.neededBy && (() => {
+                const now = Date.now();
+                const isOverdue = detailItem.neededBy < now;
+                const dateStr = new Date(detailItem.neededBy).toLocaleDateString(undefined, {
+                  day: "2-digit", month: "2-digit", year: "numeric"
+                });
+                return (
+                  <div>
+                    <Label className="text-muted-foreground">{t("shopping:fields.neededBy", "Gebraucht bis")}</Label>
+                    <p className={`text-sm font-medium mt-0.5 ${
+                      isOverdue ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"
+                    }`}>
+                      {dateStr}
+                      {isOverdue && (
+                        <span className="ml-2 text-xs font-normal">{t("shopping:fields.overdue", "(abgelaufen)")}</span>
+                      )}
+                    </p>
+                  </div>
+                );
+              })()}
               
               {detailItem.photoUrls && detailItem.photoUrls.length > 0 && (
                 <div>

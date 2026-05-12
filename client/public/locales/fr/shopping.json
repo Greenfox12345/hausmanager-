@@ -32,7 +32,8 @@
     "selectCategory": "Choisir une catégorie",
     "taskPlaceholder": "ex : Faire les courses",
     "neededBy": "Nécessaire avant le",
-    "neededByShort": "Avant"
+    "neededByShort": "Avant",
+    "overdue": "(expiré)"
   },
   "status": {
     "open": "Ouvert",

@@ -32,7 +32,8 @@
     "selectCategory": "Kategori Seç",
     "taskPlaceholder": "örn. Alışverişi yap",
     "neededBy": "Gerekli tarih",
-    "neededByShort": "Tarih"
+    "neededByShort": "Tarih",
+    "overdue": "(süresi geçti)"
   },
   "status": {
     "open": "Açık",

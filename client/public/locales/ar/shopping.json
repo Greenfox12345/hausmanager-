@@ -32,7 +32,8 @@
     "selectCategory": "اختر فئة",
     "taskPlaceholder": "على سبيل المثال: إنجاز التسوق",
     "neededBy": "مطلوب بحلول",
-    "neededByShort": "بحلول"
+    "neededByShort": "بحلول",
+    "overdue": "(منتهي)"
   },
   "status": {
     "open": "مفتوح",

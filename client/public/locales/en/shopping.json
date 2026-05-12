@@ -32,7 +32,8 @@
     "selectCategory": "Select category",
     "taskPlaceholder": "e.g. Go grocery shopping",
     "neededBy": "Needed by",
-    "neededByShort": "By"
+    "neededByShort": "By",
+    "overdue": "(overdue)"
   },
   "status": {
     "open": "Open",

@@ -32,7 +32,8 @@
     "selectCategory": "选择类别",
     "taskPlaceholder": "例如：完成购物",
     "neededBy": "需要日期",
-    "neededByShort": "截止"
+    "neededByShort": "截止",
+    "overdue": "(已过期)"
   },
   "status": {
     "open": "开放",

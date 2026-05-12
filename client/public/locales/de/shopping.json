@@ -32,7 +32,8 @@
     "selectCategory": "Kategorie wählen",
     "taskPlaceholder": "z.B. Einkauf erledigen",
     "neededBy": "Gebraucht bis",
-    "neededByShort": "Bis"
+    "neededByShort": "Bis",
+    "overdue": "(abgelaufen)"
   },
   "status": {
     "open": "Offen",

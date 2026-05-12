@@ -36,7 +36,8 @@
     "selectCategory": "Seleccionar categoría",
     "taskPlaceholder": "p.ej. Hacer la compra",
     "neededBy": "Necesario antes del",
-    "neededByShort": "Antes del"
+    "neededByShort": "Antes del",
+    "overdue": "(vencido)"
   },
   "actions": {
     "check": "Marcar",
