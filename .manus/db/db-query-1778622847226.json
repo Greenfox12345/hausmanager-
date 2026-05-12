@@ -1,0 +1,13 @@
+{
+  "query": "\n-- Alte Zuordnungen löschen (Tabelle leeren, nicht droppen)\nDELETE FROM task_category_assignments WHERE 1=1;\n\n-- FK-Constraint auf shopping_categories ändern ist nicht direkt möglich in MySQL ohne DROP/ADD\n-- Stattdessen: Tabelle neu aufbauen über ALTER TABLE\n-- Zuerst alten FK entfernen (Name ermitteln)\nSELECT CONSTRAINT_NAME \nFROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \nWHERE TABLE_NAME = 'task_category_assignments' \nAND COLUMN_NAME = 'categoryId'\nAND TABLE_SCHEMA = DATABASE();\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute \n-- Alte Zuordnungen löschen (Tabelle leeren, nicht droppen)\nDELETE FROM task_category_assignments WHERE 1=1;\n\n-- FK-Constraint auf shopping_categories ändern ist nicht direkt möglich in MySQL ohne DROP/ADD\n-- Stattdessen: Tabelle neu aufbauen über ALTER TABLE\n-- Zuerst alten FK entfernen (Name ermitteln)\nSELECT CONSTRAINT_NAME \nFROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \nWHERE TABLE_NAME = 'task_category_assignments' \nAND COLUMN_NAME = 'categoryId'\nAND TABLE_SCHEMA = DATABASE();\n",
+  "rows": [
+    {
+      "CONSTRAINT_NAME": "fk_2"
+    }
+  ],
+  "messages": [],
+  "stdout": "CONSTRAINT_NAME\nfk_2\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

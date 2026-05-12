@@ -689,9 +689,10 @@ export default function Tasks() {
               </div>
 
               {/* Kategorien */}
-              {household && (
+              {household && member && (
                 <TaskCategorySelector
                   householdId={household.householdId}
+                  memberId={member.memberId}
                   selectedCategoryIds={newTaskCategoryIds}
                   onChange={setNewTaskCategoryIds}
                 />

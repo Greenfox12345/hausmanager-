@@ -593,27 +593,12 @@ export type DemoSession = typeof demoSessions.$inferSelect;
 export type InsertDemoSession = typeof demoSessions.$inferInsert;
 
 /**
- * Task categories - haushaltweite Farbkategorien für Aufgaben
- */
-export const taskCategories = mysqlTable("task_categories", {
-  id: int("id").autoincrement().primaryKey(),
-  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 100 }).notNull(),
-  color: varchar("color", { length: 7 }).default("#6B7280").notNull(), // Hex-Farbcode
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TaskCategory = typeof taskCategories.$inferSelect;
-export type InsertTaskCategory = typeof taskCategories.$inferInsert;
-
-/**
- * Task category assignments - Zuordnung von Kategorien zu Aufgaben (n:m)
+ * Task category assignments - Zuordnung von haushaltweiten Kategorien (shopping_categories) zu Aufgaben (n:m)
  */
 export const taskCategoryAssignments = mysqlTable("task_category_assignments", {
   id: int("id").autoincrement().primaryKey(),
   taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
-  categoryId: int("categoryId").notNull().references(() => taskCategories.id, { onDelete: "cascade" }),
+  categoryId: int("categoryId").notNull().references(() => shoppingCategories.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

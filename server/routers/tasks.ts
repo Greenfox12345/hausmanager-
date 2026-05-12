@@ -1677,19 +1677,19 @@ export const tasksRouter = router({
 
   // ─── Aufgaben-Kategorien ────────────────────────────────────────────────────
 
-  /** Alle Kategorien eines Haushalts abrufen */
+  /** Alle Kategorien eines Haushalts abrufen (nutzt die gemeinsamen shopping_categories) */
   listCategories: publicProcedure
     .input(z.object({ householdId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-      const { taskCategories } = await import("../../drizzle/schema");
-      return db.select().from(taskCategories)
-        .where(eq(taskCategories.householdId, input.householdId))
-        .orderBy(taskCategories.name);
+      const { shoppingCategories } = await import("../../drizzle/schema");
+      return db.select().from(shoppingCategories)
+        .where(eq(shoppingCategories.householdId, input.householdId))
+        .orderBy(shoppingCategories.name);
     }),
 
-  /** Neue Kategorie erstellen */
+  /** Neue Kategorie erstellen (nutzt die gemeinsamen shopping_categories) */
   createCategory: publicProcedure
     .input(z.object({
       householdId: z.number(),
@@ -1699,8 +1699,8 @@ export const tasksRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      const { taskCategories } = await import("../../drizzle/schema");
-      const result = await db.insert(taskCategories).values({
+      const { shoppingCategories } = await import("../../drizzle/schema");
+      const result = await db.insert(shoppingCategories).values({
         householdId: input.householdId,
         name: input.name,
         color: input.color,
@@ -1708,15 +1708,15 @@ export const tasksRouter = router({
       return { id: Number(result[0].insertId) };
     }),
 
-  /** Kategorie löschen */
+  /** Kategorie löschen (nutzt die gemeinsamen shopping_categories) */
   deleteCategory: publicProcedure
     .input(z.object({ categoryId: z.number(), householdId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      const { taskCategories } = await import("../../drizzle/schema");
-      await db.delete(taskCategories)
-        .where(and(eq(taskCategories.id, input.categoryId), eq(taskCategories.householdId, input.householdId)));
+      const { shoppingCategories } = await import("../../drizzle/schema");
+      await db.delete(shoppingCategories)
+        .where(and(eq(shoppingCategories.id, input.categoryId), eq(shoppingCategories.householdId, input.householdId)));
       return { success: true };
     }),
 
@@ -1748,7 +1748,7 @@ export const tasksRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-      const { taskCategoryAssignments, taskCategories, tasks: tasksTable } = await import("../../drizzle/schema");
+      const { taskCategoryAssignments, shoppingCategories, tasks: tasksTable } = await import("../../drizzle/schema");
       // Alle Aufgaben des Haushalts holen, dann deren Kategorie-Zuordnungen
       const taskRows = await db.select({ id: tasksTable.id })
         .from(tasksTable)
@@ -1758,12 +1758,12 @@ export const tasksRouter = router({
       const assignments = await db
         .select({
           taskId: taskCategoryAssignments.taskId,
-          categoryId: taskCategories.id,
-          categoryName: taskCategories.name,
-          categoryColor: taskCategories.color,
+          categoryId: shoppingCategories.id,
+          categoryName: shoppingCategories.name,
+          categoryColor: shoppingCategories.color,
         })
         .from(taskCategoryAssignments)
-        .innerJoin(taskCategories, eq(taskCategoryAssignments.categoryId, taskCategories.id))
+        .innerJoin(shoppingCategories, eq(taskCategoryAssignments.categoryId, shoppingCategories.id))
         .where(inArray(taskCategoryAssignments.taskId, taskIds));
       return assignments;
     }),
@@ -1774,15 +1774,15 @@ export const tasksRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-      const { taskCategoryAssignments, taskCategories } = await import("../../drizzle/schema");
+      const { taskCategoryAssignments, shoppingCategories } = await import("../../drizzle/schema");
       return db
         .select({
-          id: taskCategories.id,
-          name: taskCategories.name,
-          color: taskCategories.color,
+          id: shoppingCategories.id,
+          name: shoppingCategories.name,
+          color: shoppingCategories.color,
         })
         .from(taskCategoryAssignments)
-        .innerJoin(taskCategories, eq(taskCategoryAssignments.categoryId, taskCategories.id))
+        .innerJoin(shoppingCategories, eq(taskCategoryAssignments.categoryId, shoppingCategories.id))
         .where(eq(taskCategoryAssignments.taskId, input.taskId));
     }),
 });

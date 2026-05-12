@@ -29,12 +29,14 @@ const PRESET_COLORS = [
 
 interface TaskCategorySelectorProps {
   householdId: number;
+  memberId: number;
   selectedCategoryIds: number[];
   onChange: (ids: number[]) => void;
 }
 
 export function TaskCategorySelector({
   householdId,
+  memberId,
   selectedCategoryIds,
   onChange,
 }: TaskCategorySelectorProps) {
@@ -46,18 +48,19 @@ export function TaskCategorySelector({
   const [newCatName, setNewCatName] = useState("");
   const [newCatColor, setNewCatColor] = useState(PRESET_COLORS[5]); // Blau als Standard
 
-  // Kategorien laden
-  const { data: categories = [] } = trpc.tasks.listCategories.useQuery(
+  // Kategorien laden – nutzt die gemeinsamen shopping_categories des Haushalts
+  const { data: categories = [] } = trpc.shopping.listCategories.useQuery(
     { householdId },
     { enabled: !!householdId }
   );
 
-  // Neue Kategorie erstellen
-  const createMutation = trpc.tasks.createCategory.useMutation({
+  // Neue Kategorie erstellen – legt sie in shopping_categories an (haushaltsweit)
+  const createMutation = trpc.shopping.createCategory.useMutation({
     onSuccess: (data) => {
+      utils.shopping.listCategories.invalidate({ householdId });
       utils.tasks.listCategories.invalidate({ householdId });
       // Neu erstellte Kategorie direkt auswählen
-      onChange([...selectedCategoryIds, data.id]);
+      onChange([...selectedCategoryIds, data.categoryId]);
       setNewCatName("");
       setNewCatColor(PRESET_COLORS[5]);
       setShowCreateDialog(false);
@@ -80,6 +83,7 @@ export function TaskCategorySelector({
     if (!newCatName.trim()) return;
     createMutation.mutate({
       householdId,
+      memberId,
       name: newCatName.trim(),
       color: newCatColor,
     });

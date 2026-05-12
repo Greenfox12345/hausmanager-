@@ -232,6 +232,13 @@
       "when": 1778622401511,
       "tag": "0044_fuzzy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "5",
+      "when": 1778623011165,
+      "tag": "0045_flippant_wasp",
+      "breakpoints": true
     }
   ]
 }
