@@ -90,7 +90,7 @@ export const shoppingRouter = router({
         householdId: z.number(),
         memberId: z.number(),
         name: z.string().optional(),
-        categoryId: z.number().optional(),
+        categoryId: z.number().nullable().optional(),
         details: z.string().optional(),
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),

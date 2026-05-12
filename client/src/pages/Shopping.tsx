@@ -446,7 +446,7 @@ export default function Shopping() {
       householdId: household.householdId,
       memberId: member.memberId,
       name: editItemName.trim(),
-      categoryId: editItemCategoryId ?? undefined,
+      categoryId: editItemCategoryId,  // null = Kategorie entfernen, undefined = nicht geändert
       details: editItemQuantity.trim() || undefined,
       photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
       neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,

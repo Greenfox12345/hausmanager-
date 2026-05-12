@@ -328,7 +328,7 @@ export async function createShoppingItem(data: {
 
 export async function updateShoppingItem(id: number, data: {
   name?: string;
-  categoryId?: number;
+  categoryId?: number | null;
   details?: string;
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
