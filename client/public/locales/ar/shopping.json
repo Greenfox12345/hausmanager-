@@ -30,7 +30,9 @@
     "fileSelect": "اختيار الملفات",
     "noFileSelected": "لم يتم اختيار ملفات",
     "selectCategory": "اختر فئة",
-    "taskPlaceholder": "على سبيل المثال: إنجاز التسوق"
+    "taskPlaceholder": "على سبيل المثال: إنجاز التسوق",
+    "neededBy": "مطلوب بحلول",
+    "neededByShort": "بحلول"
   },
   "status": {
     "open": "مفتوح",

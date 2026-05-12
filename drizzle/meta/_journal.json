@@ -218,6 +218,13 @@
       "when": 1775565251149,
       "tag": "0042_goofy_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "5",
+      "when": 1778619405007,
+      "tag": "0043_wide_proteus",
+      "breakpoints": true
     }
   ]
 }

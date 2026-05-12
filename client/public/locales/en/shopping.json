@@ -30,7 +30,9 @@
     "fileSelect": "Choose files",
     "noFileSelected": "No files selected",
     "selectCategory": "Select category",
-    "taskPlaceholder": "e.g. Go grocery shopping"
+    "taskPlaceholder": "e.g. Go grocery shopping",
+    "neededBy": "Needed by",
+    "neededByShort": "By"
   },
   "status": {
     "open": "Open",

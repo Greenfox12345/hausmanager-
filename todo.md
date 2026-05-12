@@ -3652,3 +3652,12 @@
 
 ## Bugfix: i18n-Ladereihenfolge
 - [x] main.tsx wartet jetzt auf i18n.initialized bevor App gerendert wird – behebt fehlende Übersetzungen beim ersten Render (DemoConfigDialog, DemoOnboardingDialog, UserLogin)
+
+## Feature: "Gebraucht bis"-Datum in der Einkaufsliste
+- [ ] Datenbankschema: neededBy-Spalte (bigint, nullable) in shopping_items
+- [ ] Migration: pnpm db:push
+- [ ] Backend: create/update/list-Prozeduren um neededBy erweitern
+- [ ] Frontend: Datumseingabe im Formular (optional)
+- [ ] Frontend: "Bis"-Anzeige in der Listenzeile zwischen Name und Kategorie
+- [ ] Frontend: Abgelaufene Artikel farblich markieren (orange/rot)
+- [ ] i18n: neededBy-Keys in alle 7 Sprachdateien

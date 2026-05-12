@@ -34,7 +34,9 @@
     "fileSelect": "Seleccionar archivos",
     "noFileSelected": "Ningún archivo seleccionado",
     "selectCategory": "Seleccionar categoría",
-    "taskPlaceholder": "p.ej. Hacer la compra"
+    "taskPlaceholder": "p.ej. Hacer la compra",
+    "neededBy": "Necesario antes del",
+    "neededByShort": "Antes del"
   },
   "actions": {
     "check": "Marcar",

@@ -30,7 +30,9 @@
     "fileSelect": "Dosyaları Seç",
     "noFileSelected": "Dosya Seçilmedi",
     "selectCategory": "Kategori Seç",
-    "taskPlaceholder": "örn. Alışverişi yap"
+    "taskPlaceholder": "örn. Alışverişi yap",
+    "neededBy": "Gerekli tarih",
+    "neededByShort": "Tarih"
   },
   "status": {
     "open": "Açık",

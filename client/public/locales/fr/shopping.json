@@ -30,7 +30,9 @@
     "fileSelect": "Sélectionner des fichiers",
     "noFileSelected": "Aucun fichier sélectionné",
     "selectCategory": "Choisir une catégorie",
-    "taskPlaceholder": "ex : Faire les courses"
+    "taskPlaceholder": "ex : Faire les courses",
+    "neededBy": "Nécessaire avant le",
+    "neededByShort": "Avant"
   },
   "status": {
     "open": "Ouvert",

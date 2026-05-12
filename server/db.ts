@@ -311,6 +311,7 @@ export async function createShoppingItem(data: {
   details?: string;
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
+  neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
   addedBy: number;
 }) {
   const db = await getDb();
@@ -331,6 +332,7 @@ export async function updateShoppingItem(id: number, data: {
   details?: string;
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
+  neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
   isCompleted?: boolean;
   completedBy?: number | null;
   completedAt?: Date | null;

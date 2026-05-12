@@ -54,6 +54,7 @@ export const shoppingRouter = router({
         details: z.string().optional(),
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
+        neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
       })
     )
     .mutation(async ({ input }) => {
@@ -64,6 +65,7 @@ export const shoppingRouter = router({
         details: input.details,
         photoUrls: input.photoUrls,
         notes: input.notes,
+        neededBy: input.neededBy,
         addedBy: input.memberId,
       });
 
@@ -92,6 +94,7 @@ export const shoppingRouter = router({
         details: z.string().optional(),
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
+        neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
       })
     )
     .mutation(async ({ input }) => {

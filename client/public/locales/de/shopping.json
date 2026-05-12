@@ -30,7 +30,9 @@
     "fileSelect": "Dateien auswählen",
     "noFileSelected": "Keine Dateien ausgewählt",
     "selectCategory": "Kategorie wählen",
-    "taskPlaceholder": "z.B. Einkauf erledigen"
+    "taskPlaceholder": "z.B. Einkauf erledigen",
+    "neededBy": "Gebraucht bis",
+    "neededByShort": "Bis"
   },
   "status": {
     "open": "Offen",

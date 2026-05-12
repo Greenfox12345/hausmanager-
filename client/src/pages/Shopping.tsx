@@ -47,6 +47,7 @@ export default function Shopping() {
   const [newItemDetails, setNewItemDetails] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
+  const [newItemNeededBy, setNewItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -58,6 +59,7 @@ export default function Shopping() {
   const [editItemCategoryId, setEditItemCategoryId] = useState<number | null>(null);
   const [editItemQuantity, setEditItemQuantity] = useState("");
   const [editItemPhotoUrls, setEditItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
+  const [editItemNeededBy, setEditItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
   // Category management state
@@ -130,6 +132,7 @@ export default function Shopping() {
       setNewItemName("");
       setNewItemDetails("");
       setNewItemPhotoUrls([]);
+      setNewItemNeededBy("");
       toast.success(t("shopping:messages.itemAdded", "Artikel hinzugefügt"));
     },
     onError: () => {
@@ -339,6 +342,7 @@ export default function Shopping() {
       categoryId: newItemCategoryId,
       details: newItemDetails.trim() || undefined,
       photoUrls: newItemPhotoUrls.length > 0 ? newItemPhotoUrls : undefined,
+      neededBy: newItemNeededBy ? new Date(newItemNeededBy).getTime() : null,
     });
   };
 
@@ -388,6 +392,8 @@ export default function Shopping() {
     setEditItemCategoryId(item.categoryId);
     setEditItemQuantity(item.details || "");
     setEditItemPhotoUrls(normalizePhotoUrls(item.photoUrls));
+    // neededBy: Unix-Timestamp (ms) → ISO-Datum-String für <input type="date">
+    setEditItemNeededBy(item.neededBy ? new Date(item.neededBy).toISOString().split("T")[0] : "");
     setShowEditDialog(true);
   };
 
@@ -443,6 +449,7 @@ export default function Shopping() {
       categoryId: editItemCategoryId,
       details: editItemQuantity.trim() || undefined,
       photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
+      neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,
     });
   };
 
@@ -791,6 +798,17 @@ export default function Shopping() {
                   </div>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                <input
+                  id="itemNeededBy"
+                  type="date"
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newItemNeededBy}
+                  onChange={(e) => setNewItemNeededBy(e.target.value)}
+                  disabled={!newItemName.trim()}
+                />
+              </div>
               <Button type="submit" className="w-full" disabled={addMutation.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
                 {addMutation.isPending ? t("common:actions.loading", "Wird geladen...") : t("shopping:actions.addItem", "Artikel hinzufügen")}
@@ -852,6 +870,18 @@ export default function Shopping() {
                           {item.name}
                         </span>
                         {item.taskId && <ShoppingCart className="h-3 w-3 text-primary shrink-0" />}
+                        {item.neededBy && (() => {
+                          const now = Date.now();
+                          const isOverdue = item.neededBy < now;
+                          const dateStr = new Date(item.neededBy).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" });
+                          return (
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0 rounded leading-5 ${
+                              isOverdue ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400" : "bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+                            }`}>
+                              {t("shopping:fields.neededByShort", "Bis")} {dateStr}
+                            </span>
+                          );
+                        })()}
                         {item.categoryId != null && (
                           <span 
                             className="inline-block px-1.5 py-0 rounded-full text-xs font-medium border leading-5"
@@ -1057,6 +1087,16 @@ export default function Shopping() {
                     ))}
                   </div>
                 )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editItemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                <input
+                  id="editItemNeededBy"
+                  type="date"
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  value={editItemNeededBy}
+                  onChange={(e) => setEditItemNeededBy(e.target.value)}
+                />
               </div>
             </div>
             <DialogFooter>

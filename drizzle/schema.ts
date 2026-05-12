@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json } from "drizzle-orm/mysql-core";
+import { int, bigint, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -119,6 +119,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   photoUrls: json("photoUrls").$type<string[] | {url: string, filename: string}[]>().default([]),
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
+  neededBy: bigint("neededBy", { mode: "number" }), // Optional: Unix-Timestamp (ms) – "Gebraucht bis"-Datum
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
   addedBy: int("addedBy").references(() => householdMembers.id, { onDelete: "set null" }),
   completedBy: int("completedBy").references(() => householdMembers.id),

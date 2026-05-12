@@ -30,7 +30,9 @@
     "fileSelect": "选择文件",
     "noFileSelected": "未选择文件",
     "selectCategory": "选择类别",
-    "taskPlaceholder": "例如：完成购物"
+    "taskPlaceholder": "例如：完成购物",
+    "neededBy": "需要日期",
+    "neededByShort": "截止"
   },
   "status": {
     "open": "开放",
