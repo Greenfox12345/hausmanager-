@@ -38,7 +38,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { DemoBanner } from "@/components/DemoBanner";
-import DemoOnboardingDialog from "@/components/DemoOnboardingDialog";
+import { useTutorial } from "@/contexts/TutorialContext";
 
 
 interface AppLayoutProps {
@@ -49,7 +49,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
   const { user, currentHousehold, logout: userLogout, setCurrentHousehold, isDemoSession } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const { openTutorial } = useTutorial();
   const { t } = useTranslation("common");
   
   // Detect desktop/mobile for conditional rendering
@@ -199,7 +199,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               size="icon"
               className="h-8 w-8"
               title={t("nav.tutorial", "Tutorial")}
-              onClick={() => setTutorialOpen(true)}
+              onClick={() => { openTutorial(0); setSidebarOpen(false); }}
             >
               <BookOpen className="h-4 w-4" />
             </Button>
@@ -400,14 +400,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </main>
       )}
 
-      {/* Tutorial-Dialog – für alle Nutzer zugänglich */}
-      {tutorialOpen && currentHousehold && (
-        <DemoOnboardingDialog
-          open={tutorialOpen}
-          householdId={currentHousehold.householdId}
-          onClose={() => setTutorialOpen(false)}
-        />
-      )}
+      {/* DemoTutorial wird global in App.tsx gerendert und via TutorialContext gesteuert */}
     </div>
   );
 }
