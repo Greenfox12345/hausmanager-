@@ -23,7 +23,8 @@
     "demo": {
       "createAccount": "إنشاء حساب",
       "exitDemo": "الخروج من العرض التوضيحي"
-    }
+    },
+    "tutorial": "الدليل التعليمي"
   },
   "actions": {
     "save": "حفظ",

@@ -23,7 +23,8 @@
     "demo": {
       "createAccount": "Hesap oluştur",
       "exitDemo": "Demodan çık"
-    }
+    },
+    "tutorial": "Eğitim"
   },
   "actions": {
     "save": "Kaydet",

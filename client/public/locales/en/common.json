@@ -23,7 +23,8 @@
     "demo": {
       "createAccount": "Create account",
       "exitDemo": "Exit demo"
-    }
+    },
+    "tutorial": "Tutorial"
   },
   "actions": {
     "save": "Save",

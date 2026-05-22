@@ -23,7 +23,8 @@
     },
     "more": "Weiteres",
     "shopping_label": "Einkaufen",
-    "calendar_label": "Termine"
+    "calendar_label": "Termine",
+    "tutorial": "Tutorial"
   },
   "actions": {
     "save": "Speichern",

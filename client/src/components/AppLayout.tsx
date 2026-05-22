@@ -31,12 +31,14 @@ import {
   Package,
   HandCoins,
   UserPlus,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { DemoBanner } from "@/components/DemoBanner";
+import DemoOnboardingDialog from "@/components/DemoOnboardingDialog";
 
 
 interface AppLayoutProps {
@@ -47,6 +49,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [, setLocation] = useLocation();
   const { user, currentHousehold, logout: userLogout, setCurrentHousehold, isDemoSession } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const { t } = useTranslation("common");
   
   // Detect desktop/mobile for conditional rendering
@@ -191,6 +194,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <h2 className="text-xl font-bold">{t("app.name")}</h2>
           <div className="flex items-center gap-1">
             <LanguageSwitcher compact />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title={t("nav.tutorial", "Tutorial")}
+              onClick={() => setTutorialOpen(true)}
+            >
+              <BookOpen className="h-4 w-4" />
+            </Button>
             {!isDemoSession && <NotificationBell />}
           </div>
         </div>
@@ -386,6 +398,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <main>
           {children}
         </main>
+      )}
+
+      {/* Tutorial-Dialog – für alle Nutzer zugänglich */}
+      {tutorialOpen && currentHousehold && (
+        <DemoOnboardingDialog
+          open={tutorialOpen}
+          householdId={currentHousehold.householdId}
+          onClose={() => setTutorialOpen(false)}
+        />
       )}
     </div>
   );

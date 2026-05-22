@@ -24,7 +24,8 @@
     "demo": {
       "createAccount": "Crear cuenta",
       "exitDemo": "Salir del demo"
-    }
+    },
+    "tutorial": "Tutorial"
   },
   "actions": {
     "save": "Guardar",

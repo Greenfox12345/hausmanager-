@@ -23,7 +23,8 @@
     "demo": {
       "createAccount": "创建账户",
       "exitDemo": "退出演示"
-    }
+    },
+    "tutorial": "教程"
   },
   "actions": {
     "save": "保存",
