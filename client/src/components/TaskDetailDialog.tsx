@@ -2152,8 +2152,34 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <span className="text-muted-foreground">{t("dialog.repeatLabel")}:</span>{" "}
                       <strong>
                         {task.repeatUnit === "irregular" 
-                          ? t("repeat.irregular") 
-                          : t("repeat.every", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("repeat.days") : task.repeatUnit === "weeks" ? t("repeat.weeks") : t("repeat.months") })}
+                          ? t("repeat.irregular")
+                          : task.repeatUnit === "months"
+                            ? (() => {
+                                const base = t("repeat.monthly", "Monatlich");
+                                if (task.monthlyRecurrenceMode === "same_weekday") {
+                                  const occurrenceLabels: Record<number, string> = {
+                                    1: t("repeat.first", "1."),
+                                    2: t("repeat.second", "2."),
+                                    3: t("repeat.third", "3."),
+                                    4: t("repeat.fourth", "4."),
+                                    5: t("weekdays.last", "Letzter"),
+                                  };
+                                  const weekdayLabels: Record<number, string> = {
+                                    0: t("weekdays.sunday", "Sonntag"),
+                                    1: t("weekdays.monday", "Montag"),
+                                    2: t("weekdays.tuesday", "Dienstag"),
+                                    3: t("weekdays.wednesday", "Mittwoch"),
+                                    4: t("weekdays.thursday", "Donnerstag"),
+                                    5: t("weekdays.friday", "Freitag"),
+                                    6: t("weekdays.saturday", "Samstag"),
+                                  };
+                                  const occLabel = occurrenceLabels[task.monthlyOccurrence ?? 1] ?? "";
+                                  const dayLabel = weekdayLabels[task.monthlyWeekday ?? 1] ?? "";
+                                  return `${base} (${occLabel} ${dayLabel})`;
+                                }
+                                return base;
+                              })()
+                            : t("repeat.every", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("repeat.days") : task.repeatUnit === "weeks" ? t("repeat.weeks") : t("repeat.months") })}
                       </strong>
                     </span>
                   </div>

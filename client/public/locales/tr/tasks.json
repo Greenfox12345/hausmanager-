@@ -101,10 +101,10 @@
     "sameDate": "Aynı günde (ör. her ayın 15'i)",
     "sameWeekday": "Sabit Hafta Günü",
     "whichInMonth": "Ayın Hangisi",
-    "first": "1. (birinci)",
-    "second": "2. (ikinci)",
-    "third": "3. (üçüncü)",
-    "fourth": "4. (dördüncü)",
+    "first": "1.",
+    "second": "2.",
+    "third": "3.",
+    "fourth": "4.",
     "exemptHint": "Rotasyondan hariç tutulan üyeler",
     "planAppointments": "Randevuları Planla",
     "planAppointmentsHint": "Belirli randevular için notlar ekleyin",
@@ -210,7 +210,7 @@
     "noOccurrences": "Planlanmış randevu yok"
   },
   "requiredItems": {
-    "title": "Öğeler",
+    "title": "Randevular için eşya ödünç al",
     "addItem": "+ Öğe",
     "noItems": "Bağlantılı öğe yok",
     "item": "Öğe",
@@ -524,7 +524,7 @@
     "cancelled": "İptal Edildi"
   },
   "requiredItemsSection": {
-    "title": "Öğeler"
+    "title": "Randevular için eşya ödünç al"
   },
   "borrow": {
     "borrower": "Ödünç Alan",

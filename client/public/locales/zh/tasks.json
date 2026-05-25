@@ -101,10 +101,10 @@
     "sameDate": "在同一天 (例如每月15日)",
     "sameWeekday": "固定工作日",
     "whichInMonth": "本月第几个",
-    "first": "第1个 (第一个)",
-    "second": "第2个 (第二个)",
-    "third": "第3个 (第三个)",
-    "fourth": "第4个 (第四个)",
+    "first": "第1",
+    "second": "第2",
+    "third": "第3",
+    "fourth": "第4",
     "exemptHint": "将从轮换中排除的成员",
     "planAppointments": "计划约会",
     "planAppointmentsHint": "为特定约会添加备注",
@@ -210,7 +210,7 @@
     "noOccurrences": "没有计划的任务"
   },
   "requiredItems": {
-    "title": "物品",
+    "title": "为预约借用物品",
     "addItem": "+ 物品",
     "noItems": "没有关联物品",
     "item": "物品",
@@ -524,7 +524,7 @@
     "cancelled": "已取消"
   },
   "requiredItemsSection": {
-    "title": "物品"
+    "title": "为预约借用物品"
   },
   "borrow": {
     "borrower": "借用人",

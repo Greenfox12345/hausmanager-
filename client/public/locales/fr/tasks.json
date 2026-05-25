@@ -101,10 +101,10 @@
     "sameDate": "Le même jour (ex. chaque 15)",
     "sameWeekday": "Jour fixe de la semaine",
     "whichInMonth": "Lequel dans le mois",
-    "first": "1er (premier)",
-    "second": "2e (deuxième)",
-    "third": "3e (troisième)",
-    "fourth": "4e (quatrième)",
+    "first": "1er",
+    "second": "2e",
+    "third": "3e",
+    "fourth": "4e",
     "exemptHint": "Membres exclus de la rotation",
     "planAppointments": "Planifier les rendez-vous",
     "planAppointmentsHint": "Ajouter des notes pour des rendez-vous spécifiques",
@@ -210,7 +210,7 @@
     "noOccurrences": "Aucun rendez-vous prévu"
   },
   "requiredItems": {
-    "title": "Articles",
+    "title": "Emprunter des objets pour des rendez-vous",
     "addItem": "+ Article",
     "noItems": "Aucun article lié",
     "item": "Article",
@@ -524,7 +524,7 @@
     "cancelled": "Annulé"
   },
   "requiredItemsSection": {
-    "title": "Articles"
+    "title": "Emprunter des objets pour des rendez-vous"
   },
   "borrow": {
     "borrower": "Emprunteur",

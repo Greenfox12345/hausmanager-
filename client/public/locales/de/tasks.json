@@ -101,10 +101,10 @@
     "sameDate": "Am gleichen Tag (z.B. jeden 15.)",
     "sameWeekday": "Fester Wochentag",
     "whichInMonth": "Welcher im Monat",
-    "first": "1. (erster)",
-    "second": "2. (zweiter)",
-    "third": "3. (dritter)",
-    "fourth": "4. (vierter)",
+    "first": "1.",
+    "second": "2.",
+    "third": "3.",
+    "fourth": "4.",
     "exemptHint": "Mitglieder, die von der Rotation ausgeschlossen werden",
     "planAppointments": "Termine Planen",
     "planAppointmentsHint": "Fügen Sie Notizen für spezifische Termine hinzu",
@@ -210,7 +210,7 @@
     "noOccurrences": "Keine Termine geplant"
   },
   "requiredItems": {
-    "title": "Gegenstände",
+    "title": "Gegenstände zu Terminen ausleihen",
     "addItem": "+ Gegenstand",
     "noItems": "Keine Gegenstände verknüpft",
     "item": "Gegenstand",
@@ -524,7 +524,7 @@
     "cancelled": "Storniert"
   },
   "requiredItemsSection": {
-    "title": "Gegenstände"
+    "title": "Gegenstände zu Terminen ausleihen"
   },
   "borrow": {
     "borrower": "Ausleiher",

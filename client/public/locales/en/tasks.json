@@ -101,10 +101,10 @@
     "sameDate": "Same date (e.g. every 15th)",
     "sameWeekday": "Fixed weekday",
     "whichInMonth": "Which in month",
-    "first": "1st (first)",
-    "second": "2nd (second)",
-    "third": "3rd (third)",
-    "fourth": "4th (fourth)",
+    "first": "1st",
+    "second": "2nd",
+    "third": "3rd",
+    "fourth": "4th",
     "exemptHint": "Members excluded from rotation",
     "planAppointments": "Plan Appointments",
     "planAppointmentsHint": "Add notes for specific appointments",
@@ -210,7 +210,7 @@
     "noOccurrences": "No appointments scheduled"
   },
   "requiredItems": {
-    "title": "Items",
+    "title": "Borrow items for appointments",
     "addItem": "+ Item",
     "noItems": "No items linked",
     "item": "Item",
@@ -524,7 +524,7 @@
     "cancelled": "Cancelled"
   },
   "requiredItemsSection": {
-    "title": "Items"
+    "title": "Borrow items for appointments"
   },
   "borrow": {
     "borrower": "Borrower",

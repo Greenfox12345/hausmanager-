@@ -113,10 +113,10 @@
     "sameDate": "El mismo día (p.ej. cada día 15)",
     "sameWeekday": "Día de la semana fijo",
     "whichInMonth": "Cuál en el mes",
-    "first": "1.º (primero)",
-    "second": "2.º (segundo)",
-    "third": "3.º (tercero)",
-    "fourth": "4.º (cuarto)",
+    "first": "1.°",
+    "second": "2.°",
+    "third": "3.°",
+    "fourth": "4.°",
     "exemptHint": "Miembros excluidos de la rotación",
     "planAppointments": "Planificar citas",
     "planAppointmentsHint": "Añada notas para citas específicas",
@@ -457,7 +457,7 @@
     "cancelled": "Cancelado"
   },
   "requiredItemsSection": {
-    "title": "Artículos"
+    "title": "Tomar prestados artículos para citas"
   },
   "borrow": {
     "borrower": "Prestatario",
@@ -607,7 +607,7 @@
     "noOccurrences": "No hay citas planificadas"
   },
   "requiredItems": {
-    "title": "Artículos",
+    "title": "Tomar prestados artículos para citas",
     "addItem": "+ Artículo",
     "noItems": "No hay artículos vinculados",
     "item": "Artículo",
