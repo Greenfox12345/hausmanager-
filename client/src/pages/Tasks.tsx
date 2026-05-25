@@ -1608,8 +1608,23 @@ export default function Tasks() {
           open={completeDialogOpen}
           onOpenChange={setCompleteDialogOpen}
           task={(() => {
+            // Determine the chronologically earliest non-skipped occurrence as the current one
             const occNotes: any[] = (selectedTask as any).occurrenceNotes || [];
-            const currentOcc = occNotes.find((n: any) => !n.isSkipped) || occNotes[0];
+            const nonSkipped = occNotes.filter((n: any) => !n.isSkipped);
+            const taskDueDate = selectedTask.dueDate ? new Date(selectedTask.dueDate) : new Date();
+            const getEffDate = (occ: any) => {
+              if (occ.isSpecial && occ.specialDate) return new Date(occ.specialDate);
+              const steps = occ.occurrenceNumber - 1;
+              const d = new Date(taskDueDate);
+              const interval = selectedTask.repeatInterval || 1;
+              const unit = selectedTask.repeatUnit;
+              if (unit === 'days') d.setDate(d.getDate() + interval * steps);
+              else if (unit === 'weeks') d.setDate(d.getDate() + interval * 7 * steps);
+              else if (unit === 'months') d.setMonth(d.getMonth() + interval * steps);
+              return d;
+            };
+            const sorted = [...nonSkipped].sort((a, b) => getEffDate(a).getTime() - getEffDate(b).getTime());
+            const currentOcc = sorted[0] || occNotes[0];
             const isSpecial = currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
             return {
               ...selectedTask,

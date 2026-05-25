@@ -2773,15 +2773,39 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
              isRecurring: Boolean(task.repeatUnit),
              dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
              isSpecialOccurrence: (() => {
-               // The current occurrence is always the first non-skipped entry in the rotation schedule
-               // (occurrenceNumber=1). Check if it is a special occurrence.
-               if (!rotationSchedule) return false;
-               const currentOcc = rotationSchedule.find((occ: any) => !occ.isSkipped) || rotationSchedule[0];
+               // The current occurrence is the chronologically earliest non-skipped entry.
+               // Special occurrences use specialDate; regular ones use calculated date from task.dueDate.
+               if (!rotationSchedule || !task.dueDate) return false;
+               const taskDueDate = new Date(task.dueDate);
+               const nonSkipped = rotationSchedule.filter((occ: any) => !occ.isSkipped);
+               const getEffDate = (occ: any) => {
+                 if (occ.isSpecial && occ.specialDate) return new Date(occ.specialDate);
+                 const steps = occ.occurrenceNumber - 1;
+                 const d = new Date(taskDueDate);
+                 if (task.repeatUnit === 'days') d.setDate(d.getDate() + (task.repeatInterval || 1) * steps);
+                 else if (task.repeatUnit === 'weeks') d.setDate(d.getDate() + (task.repeatInterval || 1) * 7 * steps);
+                 else if (task.repeatUnit === 'months') d.setMonth(d.getMonth() + (task.repeatInterval || 1) * steps);
+                 return d;
+               };
+               const sorted = [...nonSkipped].sort((a: any, b: any) => getEffDate(a).getTime() - getEffDate(b).getTime());
+               const currentOcc = sorted[0];
                return currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
              })(),
              specialName: (() => {
-               if (!rotationSchedule) return undefined;
-               const currentOcc = rotationSchedule.find((occ: any) => !occ.isSkipped) || rotationSchedule[0];
+               if (!rotationSchedule || !task.dueDate) return undefined;
+               const taskDueDate = new Date(task.dueDate);
+               const nonSkipped = rotationSchedule.filter((occ: any) => !occ.isSkipped);
+               const getEffDate = (occ: any) => {
+                 if (occ.isSpecial && occ.specialDate) return new Date(occ.specialDate);
+                 const steps = occ.occurrenceNumber - 1;
+                 const d = new Date(taskDueDate);
+                 if (task.repeatUnit === 'days') d.setDate(d.getDate() + (task.repeatInterval || 1) * steps);
+                 else if (task.repeatUnit === 'weeks') d.setDate(d.getDate() + (task.repeatInterval || 1) * 7 * steps);
+                 else if (task.repeatUnit === 'months') d.setMonth(d.getMonth() + (task.repeatInterval || 1) * steps);
+                 return d;
+               };
+               const sorted = [...nonSkipped].sort((a: any, b: any) => getEffDate(a).getTime() - getEffDate(b).getTime());
+               const currentOcc = sorted[0];
                if (currentOcc?.isSpecial === true) return currentOcc?.specialName || undefined;
                return undefined;
              })(),

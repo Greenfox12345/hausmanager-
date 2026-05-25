@@ -263,16 +263,25 @@ export default function Calendar() {
   };
 
   // Find next open occurrence for a recurring task
-  // Returns the FIRST non-skipped occurrence starting from dueDate (oldest open = "current" appointment)
+  // Returns the chronologically EARLIEST non-skipped occurrence (including special occurrences)
   const findNextOpenOccurrence = (task: typeof tasks[0]) => {
     if (!task.repeatInterval || !task.repeatUnit || !task.dueDate) {
       return new Date(task.dueDate!);
     }
 
     // occurrenceNotes is the single source of truth for skip status
-    const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
+    const occurrenceNotes: any[] = (task as any).occurrenceNotes || [];
 
-    // Helper: advance one interval step
+    // Check if any special occurrence (with specialDate) is the earliest non-skipped appointment
+    const specialOccs = occurrenceNotes.filter(
+      (n: any) => n.isSpecial && n.specialDate && !n.isSkipped
+    );
+    const earliestSpecial = specialOccs
+      .map((n: any) => new Date(n.specialDate))
+      .filter((d: Date) => !isNaN(d.getTime()))
+      .sort((a: Date, b: Date) => a.getTime() - b.getTime())[0];
+
+    // Find the earliest non-skipped regular occurrence
     const advanceDate = (d: Date): Date => {
       const next = new Date(d);
       if (task.repeatUnit === "days") {
@@ -285,7 +294,6 @@ export default function Calendar() {
       return next;
     };
 
-    // Build occurrences from dueDate up to 24 months in the future
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const maxDate = new Date(today);
@@ -294,22 +302,25 @@ export default function Calendar() {
     cur.setHours(0, 0, 0, 0);
     const maxIterations = 5000;
     let i = 0;
-    let occNum = 1; // dueDate = occurrence 1
+    let occNum = 1;
+    let earliestRegular: Date | null = null;
     while (cur <= maxDate && i < maxIterations) {
-      // occurrenceNotes is single source of truth for skip status
-      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occNum);
+      const noteEntry = occurrenceNotes.find((n: any) => n.occurrenceNumber === occNum);
       const isSkipped = noteEntry?.isSkipped === true;
       if (!isSkipped) {
-        // Return the first non-skipped occurrence (oldest open = "current" appointment)
-        return new Date(cur);
+        earliestRegular = new Date(cur);
+        break;
       }
       cur = advanceDate(cur);
       occNum++;
       i++;
     }
 
-    // All occurrences within range are skipped – return dueDate as fallback
-    return new Date(task.dueDate);
+    // Return the chronologically earliest between special and regular
+    if (earliestSpecial && earliestRegular) {
+      return earliestSpecial.getTime() <= earliestRegular.getTime() ? earliestSpecial : earliestRegular;
+    }
+    return earliestSpecial || earliestRegular || new Date(task.dueDate);
   };
 
   // Group tasks and events by date (including future occurrences and completed history)
@@ -357,6 +368,8 @@ export default function Calendar() {
             const occNum = noteEntry.occurrenceNumber;
             if (occNum <= 1) return; // Occurrence 1 = dueDate, already added
             if (noteEntry.isSkipped) return;
+            // Special occurrences have their own date (specialDate) and are handled separately below
+            if (noteEntry.isSpecial && noteEntry.specialDate) return;
             const calcDate = new Date(task.dueDate!);
             const steps = occNum - 1;
             if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
@@ -393,9 +406,15 @@ export default function Calendar() {
         if (occ.isSkipped) return; // skip skipped occurrences
         const dateKey = format(occDate, "yyyy-MM-dd");
         if (!grouped[dateKey]) grouped[dateKey] = [];
+        // Determine if this special occurrence is the CURRENT appointment:
+        // A special occurrence is the current appointment if its specialDate is <= task.dueDate
+        // (i.e., it's due before or on the same day as the next regular appointment)
+        const taskDueDate = task.dueDate ? new Date(task.dueDate) : null;
+        const isCurrentAppointment = taskDueDate && occDate.getTime() <= taskDueDate.getTime();
         grouped[dateKey].push({
           ...task,
-          isFutureOccurrence: true,
+          dueDate: occDate,
+          isFutureOccurrence: !isCurrentAppointment,
           isSpecialOccurrence: occ.isSpecial || false,
           specialOccurrenceName: occ.specialName,
           occurrenceDate: occDate,
@@ -562,6 +581,8 @@ export default function Calendar() {
             const occNum = noteEntry.occurrenceNumber;
             if (occNum <= 1) return; // Occurrence 1 = dueDate, already added above
             if (noteEntry.isSkipped) return;
+            // Special occurrences have their own date (specialDate) and are handled separately below
+            if (noteEntry.isSpecial && noteEntry.specialDate) return;
             // Calculate date: dueDate + (occNum - 1) * interval
             const calcDate = new Date(task.dueDate!);
             const steps = occNum - 1;
@@ -613,10 +634,14 @@ export default function Calendar() {
         occDateNorm.setHours(0, 0, 0, 0);
         if (occ.isSkipped) return;
         if (occDateNorm > endDate && !occ.notes) return; // skip if beyond range and no note
+        // Determine if this special occurrence is the CURRENT appointment:
+        // A special occurrence is the current appointment if its specialDate is <= task.dueDate
+        const taskDueDate = task.dueDate ? new Date(task.dueDate) : null;
+        const isCurrentAppointment = taskDueDate && occDate.getTime() <= taskDueDate.getTime();
         allTasks.push({
           ...task,
           dueDate: occDate,
-          isFutureOccurrence: true,
+          isFutureOccurrence: !isCurrentAppointment,
           isSpecialOccurrence: occ.isSpecial || false,
           specialOccurrenceName: occ.specialName,
           occurrenceDate: occDate,
@@ -1571,9 +1596,23 @@ export default function Calendar() {
             open={completeDialogOpen}
             onOpenChange={setCompleteDialogOpen}
             task={(() => {
-              // Determine if the current occurrence (occ 1) is a special occurrence
+              // Determine the chronologically earliest non-skipped occurrence as the current one
               const occNotes: any[] = (actionTask as any).occurrenceNotes || [];
-              const currentOcc = occNotes.find((n: any) => !n.isSkipped) || occNotes[0];
+              const nonSkipped = occNotes.filter((n: any) => !n.isSkipped);
+              const taskDueDate = actionTask.dueDate ? new Date(actionTask.dueDate) : new Date();
+              const getEffDate = (occ: any) => {
+                if (occ.isSpecial && occ.specialDate) return new Date(occ.specialDate);
+                const steps = occ.occurrenceNumber - 1;
+                const d = new Date(taskDueDate);
+                const interval = actionTask.repeatInterval || 1;
+                const unit = actionTask.repeatUnit;
+                if (unit === 'days') d.setDate(d.getDate() + interval * steps);
+                else if (unit === 'weeks') d.setDate(d.getDate() + interval * 7 * steps);
+                else if (unit === 'months') d.setMonth(d.getMonth() + interval * steps);
+                return d;
+              };
+              const sorted = [...nonSkipped].sort((a, b) => getEffDate(a).getTime() - getEffDate(b).getTime());
+              const currentOcc = sorted[0] || occNotes[0];
               const isSpecial = currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
               return {
                 ...actionTask,

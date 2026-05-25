@@ -763,10 +763,27 @@ export const tasksRouter = router({
       if (isRecurring) {
         try {
           const schedule = await getRotationSchedule(input.taskId);
-          // Find the current occurrence (occurrence 1 = the one being completed):
-          // The first non-skipped occurrence is always occurrence 1 (the current one).
-          // It may be a special occurrence (isSpecial=true, specialDate set) or a regular one.
-          const currentOcc = schedule.find(occ => !occ.isSkipped) || schedule[0];
+          // Find the current occurrence: the one with the earliest effective date.
+          // For special occurrences: effective date = specialDate
+          // For regular occurrences: effective date = task.dueDate + (occurrenceNumber - 1) * interval
+          // The chronologically earliest non-skipped occurrence is the current one.
+          const taskDueDate = task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate!);
+          const nonSkipped = schedule.filter(occ => !occ.isSkipped);
+          const getEffectiveDate = (occ: typeof nonSkipped[0]) => {
+            if (occ.isSpecial && occ.specialDate) {
+              return new Date(occ.specialDate);
+            }
+            // Regular occurrence: calculate from task.dueDate + (occNum - 1) * interval
+            const steps = occ.occurrenceNumber - 1;
+            const d = new Date(taskDueDate);
+            if (task.repeatUnit === 'days') d.setDate(d.getDate() + (task.repeatInterval || 1) * steps);
+            else if (task.repeatUnit === 'weeks') d.setDate(d.getDate() + (task.repeatInterval || 1) * 7 * steps);
+            else if (task.repeatUnit === 'months') d.setMonth(d.getMonth() + (task.repeatInterval || 1) * steps);
+            return d;
+          };
+          // Sort by effective date and pick the earliest
+          const sortedByDate = nonSkipped.sort((a, b) => getEffectiveDate(a).getTime() - getEffectiveDate(b).getTime());
+          const currentOcc = sortedByDate[0] || schedule[0];
           
           if (currentOcc) {
             // Get member names for this occurrence
