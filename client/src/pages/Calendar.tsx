@@ -45,6 +45,8 @@ export default function Calendar() {
   const [actionTask, setActionTask] = useState<any | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const taskCalendarRef = useRef<TaskCalendarHandle>(null);
+  // Ref to close the popup after completing a task
+  const pendingPopupCloseRef = useRef<(() => void) | null>(null);
   
   // Filter and sort state for tasks without dates
   const [filterAssignee, setFilterAssignee] = useState<number | null>(null);
@@ -117,6 +119,11 @@ export default function Calendar() {
       setCompleteDialogOpen(false);
       setActionTask(null);
       toast.success(t("tasks:messages.completed"));
+      // Close the popup after completing a task
+      if (pendingPopupCloseRef.current) {
+        pendingPopupCloseRef.current();
+        pendingPopupCloseRef.current = null;
+      }
     },
   });
 
@@ -995,7 +1002,7 @@ export default function Calendar() {
                           )}
                           {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
                             <>
-                              <Button size="sm" variant="outline" onClick={async (e) => { e.stopPropagation(); setActionTask(task); const isRecurring = Boolean(task.repeatInterval && task.repeatUnit); if (isRecurring && household) { try { const check = await utils.tasks.checkNextOccurrence.fetch({ taskId: task.id, householdId: household.householdId }); if (check.skippedCount > 0) { setSkipConfirmData({ skippedCount: check.skippedCount, skippedOccurrenceDates: check.skippedOccurrenceDates, nextDate: check.nextDate, pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] } }); setSkipConfirmOpen(true); return; } } catch {} } setCompleteDialogOpen(true); }}>
+                              <Button size="sm" variant="outline" onClick={async (e) => { e.stopPropagation(); setActionTask(task); pendingPopupCloseRef.current = onClose; const isRecurring = Boolean(task.repeatInterval && task.repeatUnit); if (isRecurring && household) { try { const check = await utils.tasks.checkNextOccurrence.fetch({ taskId: task.id, householdId: household.householdId }); if (check.skippedCount > 0) { setSkipConfirmData({ skippedCount: check.skippedCount, skippedOccurrenceDates: check.skippedOccurrenceDates, nextDate: check.nextDate, pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] } }); setSkipConfirmOpen(true); return; } } catch {} } setCompleteDialogOpen(true); }}>
                                 <Check className="h-4 w-4 mr-1" />{t("tasks:actions.complete", "Abschließen")}
                               </Button>
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
