@@ -169,15 +169,15 @@ export function TaskCalendar({ occurrences, onTaskClick, renderDetail }: TaskCal
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <Button variant="outline" size="icon" onClick={goToPrevMonth}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <Popover open={monthPickerOpen} onOpenChange={setMonthPickerOpen}>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center gap-1 text-lg font-semibold min-w-[160px] justify-center hover:opacity-70 transition-opacity rounded px-2 py-1"
+                className="flex items-center gap-1 text-lg font-semibold flex-1 justify-center hover:opacity-70 transition-opacity rounded px-2 py-1"
                 title={t("common:labels.selectMonthYear", "Monat und Jahr auswählen")}
               >
                 {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
@@ -222,7 +222,7 @@ export function TaskCalendar({ occurrences, onTaskClick, renderDetail }: TaskCal
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={goToToday}>
+        <Button variant="outline" size="sm" onClick={goToToday} className="shrink-0">
           <Calendar className="w-4 h-4 mr-1" /> {t("common:labels.today", "Heute")}
         </Button>
       </div>
