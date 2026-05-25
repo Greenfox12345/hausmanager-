@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users, Star } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
-import { TaskCalendar, type TaskOccurrence } from "@/components/TaskCalendar";
+import { TaskCalendar, type TaskOccurrence, type TaskCalendarHandle } from "@/components/TaskCalendar";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
@@ -44,6 +44,7 @@ export default function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [actionTask, setActionTask] = useState<any | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const taskCalendarRef = useRef<TaskCalendarHandle>(null);
   
   // Filter and sort state for tasks without dates
   const [filterAssignee, setFilterAssignee] = useState<number | null>(null);
@@ -822,6 +823,7 @@ export default function Calendar() {
               </CardHeader>
               <CardContent>
                 <TaskCalendar
+                  ref={taskCalendarRef}
                   occurrences={(() => {
                     let occs = taskOccurrences;
                     if (eventTypeFilter === "tasks") occs = occs.filter(o => !o.isCalendarEvent);
@@ -903,7 +905,7 @@ export default function Calendar() {
                           )}
                           {task.isFutureOccurrence && (
                             <>
-                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); }}>
+                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
                                 <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
                               </Button>
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>

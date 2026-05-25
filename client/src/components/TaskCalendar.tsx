@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, setMonth, setYear, isPast } from "date-fns";
+import { forwardRef, useImperativeHandle } from "react";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Calendar, ChevronDown, Star, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,11 @@ interface TaskCalendarProps {
   renderDetail?: (occ: TaskOccurrence, onClose: () => void) => React.ReactNode;
 }
 
+export interface TaskCalendarHandle {
+  /** Navigate to the given date and open the detail card for the first occurrence of the given taskId on that date */
+  jumpToOccurrence: (date: Date, taskId: number) => void;
+}
+
 // ─── Color helpers ───────────────────────────────────────────────────────────
 
 function getBarColor(occ: TaskOccurrence): { bar: string; text: string; striped?: boolean } {
@@ -74,7 +80,7 @@ function getBarColor(occ: TaskOccurrence): { bar: string; text: string; striped?
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function TaskCalendar({ occurrences, onTaskClick, renderDetail }: TaskCalendarProps) {
+export const TaskCalendar = forwardRef<TaskCalendarHandle, TaskCalendarProps>(function TaskCalendar({ occurrences, onTaskClick, renderDetail }, ref) {
   const { t, i18n } = useTranslation(["calendar", "common"]);
   const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
 
@@ -142,6 +148,33 @@ export function TaskCalendar({ occurrences, onTaskClick, renderDetail }: TaskCal
   const goToPrevMonth = () => { setCurrentMonth(m => subMonths(m, 1)); setSelected(null); };
   const goToNextMonth = () => { setCurrentMonth(m => addMonths(m, 1)); setSelected(null); };
   const goToToday = () => { setCurrentMonth(new Date()); setSelected(null); };
+
+  useImperativeHandle(ref, () => ({
+    jumpToOccurrence(date: Date, taskId: number) {
+      // Navigate to the correct month
+      setCurrentMonth(startOfMonth(date));
+      // After state update, find the occurrence and select it
+      setTimeout(() => {
+        // Find the occurrence matching taskId and date
+        const occ = occurrences.find(o =>
+          o.taskId === taskId && isSameDay(new Date(o.date), date) && !o.isFutureOccurrence
+        ) || occurrences.find(o =>
+          o.taskId === taskId && isSameDay(new Date(o.date), date)
+        );
+        if (!occ) return;
+        // Find which week this date falls in
+        const calStart = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
+        const calEnd = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
+        const days = eachDayOfInterval({ start: calStart, end: calEnd });
+        const wks: Date[][] = [];
+        for (let i = 0; i < days.length; i += 7) wks.push(days.slice(i, i + 7));
+        const weekIndex = wks.findIndex(week => week.some(d => isSameDay(d, date)));
+        if (weekIndex !== -1) {
+          setSelected({ occ, weekIndex });
+        }
+      }, 80);
+    },
+  }), [occurrences]);
 
   const DAY_HEADERS = Array.from({ length: 7 }, (_, i) => {
     const refDate = new Date(2023, 0, 2 + i); // Mon … Sun
@@ -346,4 +379,4 @@ export function TaskCalendar({ occurrences, onTaskClick, renderDetail }: TaskCal
       )}
     </div>
   );
-}
+});
