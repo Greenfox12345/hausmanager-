@@ -318,18 +318,29 @@ export default function Calendar() {
     
     tasks.forEach(task => {
       // Add current task (Occurrence 1 = dueDate)
+      // Special case: if occurrence 1 is a special occurrence (isSpecial=true, specialDate set),
+      // use specialDate as the display date instead of task.dueDate
       if (task.dueDate) {
-        const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-        // occurrenceNotes is the single source of truth for skip status
-        const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
+        const occurrenceNotesList: any[] = (task as any).occurrenceNotes || [];
+        const occ1Note = occurrenceNotesList.find((n: any) => n.occurrenceNumber === 1);
         const isOcc1Skipped = occ1Note?.isSkipped === true;
+        // If occurrence 1 is a special occurrence, use its specialDate as the display date
+        const occ1IsSpecial = occ1Note?.isSpecial === true && occ1Note?.specialDate;
+        const displayDate = occ1IsSpecial ? new Date(occ1Note.specialDate) : new Date(task.dueDate);
+        const taskDueDateKey = format(displayDate, "yyyy-MM-dd");
         if (!isOcc1Skipped) {
-          if (!grouped[dateKey]) {
-            grouped[dateKey] = [];
+          if (!grouped[taskDueDateKey]) {
+            grouped[taskDueDateKey] = [];
           }
           // Attach note for occurrence number 1 (current appointment)
           const currentNote = occ1Note?.notes || null;
-          grouped[dateKey].push({ ...task, occurrenceNote: currentNote } as any);
+          grouped[taskDueDateKey].push({
+            ...task,
+            dueDate: displayDate,
+            occurrenceNote: currentNote,
+            isSpecialOccurrence: !!occ1IsSpecial,
+            specialOccurrenceName: occ1IsSpecial ? occ1Note.specialName : undefined,
+          } as any);
         }
       }
 
@@ -373,8 +384,8 @@ export default function Calendar() {
       const occurrenceNotes: any[] = (task as any).occurrenceNotes || [];
       occurrenceNotes.forEach((occ: any) => {
         if (!occ.specialDate) return; // only entries with a date
-        // For irregular tasks: skip occurrenceNumber=1 if it matches task.dueDate (already added above)
-        if (task.repeatUnit === 'irregular' && occ.occurrenceNumber === 1 && !occ.isSpecial) return;
+        // Occurrence 1 is always handled as the main entry above (whether special or not)
+        if (occ.occurrenceNumber === 1) return;
         const occDate = new Date(occ.specialDate);
         if (isNaN(occDate.getTime())) return;
         const isInMonth = occDate >= wideMonthStart && occDate <= wideMonthEnd;
@@ -509,12 +520,14 @@ export default function Calendar() {
     // Add current tasks
     tasks.forEach(task => {
       if (task.dueDate) {
-        const taskDate = new Date(task.dueDate);
-        taskDate.setHours(0, 0, 0, 0);
-        
-        // occurrenceNotes is the single source of truth for skip status
-        const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
+        const occNotesList: any[] = (task as any).occurrenceNotes || [];
+        const occ1Note = occNotesList.find((n: any) => n.occurrenceNumber === 1);
         const isOcc1Skipped = occ1Note?.isSkipped === true;
+        // If occurrence 1 is a special occurrence, use its specialDate as the display date
+        const occ1IsSpecial = occ1Note?.isSpecial === true && occ1Note?.specialDate;
+        const displayDate = occ1IsSpecial ? new Date(occ1Note.specialDate) : new Date(task.dueDate);
+        const taskDate = new Date(displayDate);
+        taskDate.setHours(0, 0, 0, 0);
         
         // Include if: within range AND not skipped
         // Exclude: completed single-occurrence tasks (isCompleted=true, no repeatInterval)
@@ -525,7 +538,10 @@ export default function Calendar() {
           const currentNote = occ1Note?.notes || null;
           allTasks.push({
             ...task,
+            dueDate: displayDate,
             occurrenceNote: currentNote,
+            isSpecialOccurrence: !!occ1IsSpecial,
+            specialOccurrenceName: occ1IsSpecial ? occ1Note.specialName : undefined,
             isOverdue: taskDate < today && !task.isCompleted
           } as any);
         }
@@ -589,8 +605,8 @@ export default function Calendar() {
       const occurrenceNotesForChron: any[] = (task as any).occurrenceNotes || [];
       occurrenceNotesForChron.forEach((occ: any) => {
         if (!occ.specialDate) return;
-        // For irregular tasks: skip occurrenceNumber=1 if it matches task.dueDate (already added above)
-        if (task.repeatUnit === 'irregular' && occ.occurrenceNumber === 1 && !occ.isSpecial) return;
+        // Occurrence 1 is always handled as the main entry above (whether special or not)
+        if (occ.occurrenceNumber === 1) return;
         const occDate = new Date(occ.specialDate);
         if (isNaN(occDate.getTime())) return;
         const occDateNorm = new Date(occDate);

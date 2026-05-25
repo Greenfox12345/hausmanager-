@@ -763,7 +763,9 @@ export const tasksRouter = router({
       if (isRecurring) {
         try {
           const schedule = await getRotationSchedule(input.taskId);
-          // Find the first non-skipped occurrence
+          // Find the current occurrence (occurrence 1 = the one being completed):
+          // The first non-skipped occurrence is always occurrence 1 (the current one).
+          // It may be a special occurrence (isSpecial=true, specialDate set) or a regular one.
           const currentOcc = schedule.find(occ => !occ.isSkipped) || schedule[0];
           
           if (currentOcc) {
