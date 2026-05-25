@@ -113,6 +113,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!task?.id && !!household && open && activeTab === "history" }
   );
   
+  // Sub-tab state for history tab
+  const [historySubTab, setHistorySubTab] = useState<"activities" | "past_appointments">("activities");
+  
+  // Delete activity mutation
+  const deleteActivityMutation = trpc.activities.deleteById.useMutation({
+    onSuccess: () => {
+      utils.activities.getByTaskId.invalidate({ taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 });
+      toast.success("Eintrag gelöscht");
+    },
+    onError: () => toast.error("Fehler beim Löschen"),
+  });
+  
   // Project state (must be declared before queries that use it)
   const [isProjectTask, setIsProjectTask] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
@@ -2660,79 +2672,161 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               </TabsContent>
               
               <TabsContent value="history" className="space-y-4 mt-4">
-                {taskHistory.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <HistoryIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>{t("dialog.noHistory")}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {taskHistory.map((activity: any) => {
-                      const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
-                      return (
-                        <div key={activity.id} className="border rounded-lg p-4 space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className="text-xs">
-                                  {activity.action}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(new Date(activity.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
-                                </span>
-                              </div>
-                              <p className="text-sm">{activity.description}</p>
-                              {activity.comment && (
-                                <p className="text-sm text-muted-foreground mt-2 italic">"{activity.comment}"</p>
-                              )}
-                              {activityMember && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  von {activityMember.memberName}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {activity.photoUrls && activity.photoUrls.length > 0 && (
-                            <div className="grid grid-cols-3 gap-2 mt-3">
-                              {activity.photoUrls.map((photo: {url: string, filename: string}, idx: number) => (
-                                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
-                                  <img
-                                    src={photo.url}
-                                    alt={photo.filename}
-                                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => {
-                                      setViewerPhotos(activity.photoUrls);
-                                      setViewerPhotoIndex(idx);
-                                      setShowPhotoViewer(true);
-                                    }}
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                {/* Sub-tab selector */}
+                <div className="flex gap-1 border-b pb-2">
+                  <button
+                    onClick={() => setHistorySubTab("activities")}
+                    className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
+                      historySubTab === "activities"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <HistoryIcon className="h-3.5 w-3.5 inline mr-1.5" />
+                    Aktivitäten ({taskHistory.filter((a: any) => a.action !== 'completeTask').length})
+                  </button>
+                  <button
+                    onClick={() => setHistorySubTab("past_appointments")}
+                    className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
+                      historySubTab === "past_appointments"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <Calendar className="h-3.5 w-3.5 inline mr-1.5" />
+                    Vergangene Termine ({taskHistory.filter((a: any) => a.action === 'completeTask').length})
+                  </button>
+                </div>
 
-                          {activity.fileUrls && activity.fileUrls.length > 0 && (
-                            <div className="space-y-2 mt-3">
-                              {activity.fileUrls.map((file: {url: string, filename: string}, idx: number) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => {
-                                    setViewerPDF(file);
-                                    setShowPDFViewer(true);
-                                  }}
-                                  className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors w-full text-left"
-                                >
-                                  <FileText className="h-5 w-5 text-red-600 shrink-0" />
-                                  <span className="text-sm truncate">{file.filename}</span>
-                                </button>
-                              ))}
+                {/* Activities sub-tab */}
+                {historySubTab === "activities" && (
+                  <>
+                    {taskHistory.filter((a: any) => a.action !== 'completeTask').length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <HistoryIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>{t("dialog.noHistory")}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {taskHistory.filter((a: any) => a.action !== 'completeTask').map((activity: any) => {
+                          const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
+                          return (
+                            <div key={activity.id} className="border rounded-lg p-4 space-y-2">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge variant="outline" className="text-xs">
+                                      {activity.action}
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">
+                                      {format(new Date(activity.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm">{activity.description}</p>
+                                  {activity.comment && (
+                                    <p className="text-sm text-muted-foreground mt-2 italic">"{activity.comment}"</p>
+                                  )}
+                                  {activityMember && (
+                                    <p className="text-xs text-muted-foreground mt-1">von {activityMember.memberName}</p>
+                                  )}
+                                </div>
+                              </div>
+                              {activity.photoUrls && activity.photoUrls.length > 0 && (
+                                <div className="grid grid-cols-3 gap-2 mt-3">
+                                  {activity.photoUrls.map((photo: {url: string, filename: string}, idx: number) => (
+                                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
+                                      <img src={photo.url} alt={photo.filename} className="w-full h-full object-cover cursor-pointer hover:opacity-90" onClick={() => { setViewerPhotos(activity.photoUrls); setViewerPhotoIndex(idx); setShowPhotoViewer(true); }} />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {activity.fileUrls && activity.fileUrls.length > 0 && (
+                                <div className="space-y-2 mt-3">
+                                  {activity.fileUrls.map((file: {url: string, filename: string}, idx: number) => (
+                                    <button key={idx} onClick={() => { setViewerPDF(file); setShowPDFViewer(true); }} className="flex items-center gap-2 p-2 rounded-lg border hover:border-primary hover:bg-accent/5 transition-colors w-full text-left">
+                                      <FileText className="h-5 w-5 text-red-600 shrink-0" />
+                                      <span className="text-sm truncate">{file.filename}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Past appointments sub-tab */}
+                {historySubTab === "past_appointments" && (
+                  <>
+                    {taskHistory.filter((a: any) => a.action === 'completeTask').length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>Noch keine vergangenen Termine</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {taskHistory.filter((a: any) => a.action === 'completeTask').map((activity: any) => {
+                          const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
+                          const meta = activity.metadata || {};
+                          const occ = meta.occurrence || {};
+                          const isSpecial = occ.isSpecial || false;
+                          const specialName = occ.specialName;
+                          const originalDate = meta.originalDueDate ? new Date(meta.originalDueDate) : new Date(activity.createdAt);
+                          return (
+                            <div key={activity.id} className="border rounded-lg p-3 flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-medium">
+                                    {format(originalDate, i18n.language === "de" ? "dd.MM.yyyy" : "MM/dd/yyyy")}
+                                  </span>
+                                  {isSpecial && specialName && (
+                                    <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300">
+                                      ⭐ {specialName}
+                                    </Badge>
+                                  )}
+                                  {activityMember && (
+                                    <span className="text-xs text-muted-foreground">von {activityMember.memberName}</span>
+                                  )}
+                                  {occ.memberNames && occ.memberNames.length > 0 && (
+                                    <span className="text-xs text-muted-foreground">
+                                      Verantwortlich: {occ.memberNames.join(", ")}
+                                    </span>
+                                  )}
+                                </div>
+                                {activity.comment && (
+                                  <p className="text-xs text-muted-foreground mt-1 italic">"{activity.comment}"</p>
+                                )}
+                                {activity.photoUrls && activity.photoUrls.length > 0 && (
+                                  <div className="flex gap-1 mt-2">
+                                    {activity.photoUrls.slice(0, 3).map((photo: {url: string, filename: string}, idx: number) => (
+                                      <div key={idx} className="w-10 h-10 rounded overflow-hidden border cursor-pointer" onClick={() => { setViewerPhotos(activity.photoUrls); setViewerPhotoIndex(idx); setShowPhotoViewer(true); }}>
+                                        <img src={photo.url} alt={photo.filename} className="w-full h-full object-cover" />
+                                      </div>
+                                    ))}
+                                    {activity.photoUrls.length > 3 && <span className="text-xs text-muted-foreground self-center">+{activity.photoUrls.length - 3}</span>}
+                                  </div>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => {
+                                  if (confirm("Diesen vergangenen Termin aus dem Verlauf löschen?")) {
+                                    deleteActivityMutation.mutate({ activityId: activity.id, householdId: household?.householdId ?? 0 });
+                                  }
+                                }}
+                                className="shrink-0 p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                                title="Löschen"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
                 )}
               </TabsContent>
             </Tabs>

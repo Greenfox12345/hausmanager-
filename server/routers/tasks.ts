@@ -744,7 +744,8 @@ export const tasksRouter = router({
       console.log('[completeTask] Task found:', { id: task.id, name: task.name, frequency: task.frequency, repeatInterval: task.repeatInterval, repeatUnit: task.repeatUnit, isRecurring });
 
       // Save original due date before updating (for activity history)
-      const originalDueDate = task.dueDate;
+      // Will be updated to specialDate if the current occurrence is a special one
+      let originalDueDate: Date | null | undefined = task.dueDate;
 
       // ===== 1. Load current occurrence details (Termin 1) for activity log =====
       let occurrenceDetails: {
@@ -825,6 +826,11 @@ export const tasksRouter = router({
           }
         } catch (e) {
           console.error('[completeTask] Error loading occurrence details:', e);
+        }
+        // If the current occurrence is a special one, use its specialDate as the originalDueDate
+        // so the activity history correctly records the special appointment date
+        if (occurrenceDetails?.isSpecial && occurrenceDetails?.specialDate) {
+          originalDueDate = new Date(occurrenceDetails.specialDate);
         }
       }
 
