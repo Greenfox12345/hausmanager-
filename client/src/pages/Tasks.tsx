@@ -829,7 +829,7 @@ export default function Tasks() {
                     }}
                   />
                   <Label htmlFor="shareWithNeighbors" className="cursor-pointer font-medium">
-                    {t("tasks:sharing.shareWithNeighbors", "Mit Nachbarn teilen")}
+                    {t("tasks:sharing.shareWithOtherHouseholds", t("tasks:sharing.shareWithNeighbors", "Mit anderen Haushalten teilen"))}
                   </Label>
                 </div>
                 {shareWithNeighbors && (

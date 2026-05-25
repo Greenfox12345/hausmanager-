@@ -212,6 +212,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
+  const [isDurationExpanded, setIsDurationExpanded] = useState(false); // Default: collapsed
+  const [isRepeatExpanded, setIsRepeatExpanded] = useState(false); // Default: collapsed
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
   const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(false); // Default: collapsed
   const [isExemptExpanded, setIsExemptExpanded] = useState(false); // Default: collapsed
@@ -1276,62 +1278,83 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 </div>
               </div>
 
-              {/* Duration fields */}
-              <div className="grid grid-cols-2 gap-4 items-end">
-                <div className="flex flex-col">
-                  <Label htmlFor="task-duration-days" className="flex items-end" style={{minHeight: '2.5rem'}}>{t("fields.durationDaysLabel", "Dauer (Tage)")}</Label>
-                  <Input
-                    id="task-duration-days"
-                    type="number"
-                    min="0"
-                    value={durationDays}
-                    onChange={(e) => setDurationDays(e.target.value)}
-                    placeholder="0"
-                    className="mt-2"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <Label htmlFor="task-duration-time" className="flex items-end" style={{minHeight: '2.5rem'}}>{t("fields.durationTime")}</Label>
-                  <Input
-                    id="task-duration-time"
-                    type="time"
-                    value={durationTime}
-                    onChange={(e) => setDurationTime(e.target.value)}
-                    placeholder="00:00"
-                    className="mt-2"
-                  />
-                </div>
+              {/* Duration fields - collapsible */}
+              <div className="space-y-0">
+                <button
+                  type="button"
+                  onClick={() => setIsDurationExpanded(!isDurationExpanded)}
+                  className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity py-1"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isDurationExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                  <Label className="cursor-pointer font-medium">{t("fields.duration", "Dauer")}</Label>
+                </button>
+                {isDurationExpanded && (
+                  <div className="space-y-3 mt-2">
+                    <div className="grid grid-cols-2 gap-4 items-end">
+                      <div className="flex flex-col">
+                        <Label htmlFor="task-duration-days" className="flex items-end" style={{minHeight: '2.5rem'}}>{t("fields.durationDaysLabel", "Dauer (Tage)")}</Label>
+                        <Input
+                          id="task-duration-days"
+                          type="number"
+                          min="0"
+                          value={durationDays}
+                          onChange={(e) => setDurationDays(e.target.value)}
+                          placeholder="0"
+                          className="mt-2"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <Label htmlFor="task-duration-time" className="flex items-end" style={{minHeight: '2.5rem'}}>{t("fields.durationTime")}</Label>
+                        <Input
+                          id="task-duration-time"
+                          type="time"
+                          value={durationTime}
+                          onChange={(e) => setDurationTime(e.target.value)}
+                          placeholder="00:00"
+                          className="mt-2"
+                        />
+                      </div>
+                    </div>
+                    {(dueDate && (parseInt(durationDays) > 0 || durationTime !== "00:00")) && (
+                      <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                        <p className="text-sm text-muted-foreground">
+                          <strong>{t("fields.taskEnd", "Terminende")}:</strong>{" "}
+                          {(() => {
+                            const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
+                            const daysInMs = (parseInt(durationDays) || 0) * 24 * 60 * 60 * 1000;
+                            const [hours, minutes] = durationTime.split(':').map(Number);
+                            const timeInMs = ((hours || 0) * 60 + (minutes || 0)) * 60 * 1000;
+                            const end = new Date(start.getTime() + daysInMs + timeInMs);
+                            return end.toLocaleDateString("de-DE", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            });
+                          })()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-
-              {/* End date/time display */}
-              {(dueDate && (parseInt(durationDays) > 0 || durationTime !== "00:00")) && (
-                <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>{t("fields.taskEnd", "Terminende")}:</strong>{" "}
-                    {(() => {
-                      const start = new Date(dueDate + (dueTime ? `T${dueTime}` : 'T00:00'));
-                      const daysInMs = (parseInt(durationDays) || 0) * 24 * 60 * 60 * 1000;
-                      const [hours, minutes] = durationTime.split(':').map(Number);
-                      const timeInMs = ((hours || 0) * 60 + (minutes || 0)) * 60 * 1000;
-                      const end = new Date(start.getTime() + daysInMs + timeInMs);
-                      return end.toLocaleDateString("de-DE", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      });
-                    })()}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-4 border-t pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="repeatMode" className="flex items-center gap-2">
+              {/* Repeat section - collapsible */}
+              <div className="space-y-0 border-t pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsRepeatExpanded(!isRepeatExpanded)}
+                  className="flex items-center gap-2 w-full text-left hover:opacity-70 transition-opacity py-1"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isRepeatExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                  <Label className="cursor-pointer font-medium flex items-center gap-2">
                     <Repeat className="h-4 w-4" />
                     {t("repeat.repeatMode")}
                   </Label>
+                </button>
+                {isRepeatExpanded && (
+                <div className="space-y-4 mt-2">
+                <div className="space-y-2">
                   <Select value={repeatMode} onValueChange={(v) => {
                     setRepeatMode(v as any);
                     if (v === "irregular") {
@@ -1935,8 +1958,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     </div>
                   );
                 })()}
+                </div>
+                )}
               </div>
-
               {/* Project Task Section */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50">
