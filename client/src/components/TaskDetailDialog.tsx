@@ -1489,8 +1489,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              if (openSpecialDialogFnRef.current) {
-                                openSpecialDialogFnRef.current();
+                              // Ensure the section is expanded so RotationScheduleTable is mounted
+                              if (!isTerminePlanenExpanded) {
+                                setIsTerminePlanenExpanded(true);
+                                // Wait for next render cycle so RotationScheduleTable mounts and registers its openFn
+                                setTimeout(() => {
+                                  openSpecialDialogFnRef.current?.();
+                                }, 100);
+                              } else {
+                                openSpecialDialogFnRef.current?.();
                               }
                             }}
                             className="gap-2 shrink-0"

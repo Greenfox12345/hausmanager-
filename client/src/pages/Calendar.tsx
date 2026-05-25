@@ -926,11 +926,18 @@ export default function Calendar() {
                           <Button size="sm" variant="outline" className="col-span-2" onClick={() => { setSelectedTask(task); setTaskDialogOpen(true); onClose(); }}>
                             {t("common:actions.details", "Details")}
                           </Button>
-                          {task.isCompletedOccurrence && task.activityId && (
-                            <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                              onClick={(e) => { e.stopPropagation(); if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen?")) { undoCompletionMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, activityId: task.activityId! }); onClose(); } }}>
-                              <ArrowLeft className="h-4 w-4 mr-1" />{t("common:actions.undo", "Rückgängig machen")}
-                            </Button>
+                          {task.isCompletedOccurrence && (
+                            <>
+                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
+                                <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
+                              </Button>
+                              {task.activityId && (
+                                <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                                  onClick={(e) => { e.stopPropagation(); if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen?")) { undoCompletionMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, activityId: task.activityId! }); onClose(); } }}>
+                                  <ArrowLeft className="h-4 w-4 mr-1" />{t("common:actions.undo", "Rückgängig machen")}
+                                </Button>
+                              )}
+                            </>
                           )}
                           {task.isFutureOccurrence && (
                             <>
