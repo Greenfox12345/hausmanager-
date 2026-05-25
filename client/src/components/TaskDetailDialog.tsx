@@ -220,9 +220,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Ref to hold the function that opens the special occurrence dialog in RotationScheduleTable
   const openSpecialDialogFnRef = useRef<(() => void) | null>(null);
+  const [pendingOpenSpecialDialog, setPendingOpenSpecialDialog] = useState(false);
   const handleOpenSpecialDialogCallback = useCallback((openFn: () => void) => {
     openSpecialDialogFnRef.current = openFn;
   }, []);
+
+  // When pendingOpenSpecialDialog is true and the openFn is registered, call it
+  useEffect(() => {
+    if (pendingOpenSpecialDialog && openSpecialDialogFnRef.current) {
+      openSpecialDialogFnRef.current();
+      setPendingOpenSpecialDialog(false);
+    }
+  }, [pendingOpenSpecialDialog, isTerminePlanenExpanded]);
 
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
@@ -1489,13 +1498,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              // Ensure the section is expanded so RotationScheduleTable is mounted
                               if (!isTerminePlanenExpanded) {
+                                // Expand section first, then open dialog via useEffect once RotationScheduleTable is mounted
                                 setIsTerminePlanenExpanded(true);
-                                // Wait for next render cycle so RotationScheduleTable mounts and registers its openFn
-                                setTimeout(() => {
-                                  openSpecialDialogFnRef.current?.();
-                                }, 100);
+                                setPendingOpenSpecialDialog(true);
                               } else {
                                 openSpecialDialogFnRef.current?.();
                               }
