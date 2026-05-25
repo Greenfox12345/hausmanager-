@@ -204,6 +204,17 @@ export default function Calendar() {
     },
   });
 
+  const unskipOccurrenceMutation = trpc.tasks.restoreSkippedDate.useMutation({
+    onSuccess: async (_data, variables) => {
+      await utils.tasks.list.invalidate();
+      utils.tasks.getRotationSchedule.invalidate();
+      toast.success(t("calendar:messages.occurrenceRestored", "Termin wiederhergestellt!"));
+    },
+    onError: (error) => {
+      toast.error(t("common:errors.generic", "Fehler: ") + error.message);
+    },
+  });
+
   const markReturnedMutation = trpc.borrow.markReturned.useMutation({
     onSuccess: () => {
       utils.calendar.getEvents.invalidate();
@@ -363,19 +374,39 @@ export default function Calendar() {
         const occ1IsSpecial = occ1Note?.isSpecial === true && occ1Note?.specialDate;
         const displayDate = occ1IsSpecial ? new Date(occ1Note.specialDate) : new Date(task.dueDate);
         const taskDueDateKey = format(displayDate, "yyyy-MM-dd");
-        if (!isOcc1Skipped) {
-          if (!grouped[taskDueDateKey]) {
-            grouped[taskDueDateKey] = [];
+        if (!grouped[taskDueDateKey]) grouped[taskDueDateKey] = [];
+        const currentNote = occ1Note?.notes || null;
+        // Always show occurrence 1 (even if skipped) – skipped ones get isSkippedOccurrence flag
+        grouped[taskDueDateKey].push({
+          ...task,
+          dueDate: displayDate,
+          occurrenceNote: currentNote,
+          isSpecialOccurrence: !!occ1IsSpecial,
+          specialOccurrenceName: occ1IsSpecial ? occ1Note.specialName : undefined,
+          isSkippedOccurrence: isOcc1Skipped,
+        } as any);
+
+        // If occurrence 1 is skipped, find the next non-skipped occurrence and show it as the current one
+        if (isOcc1Skipped && task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
+          const nextDate = findNextOpenOccurrence(task);
+          const nextKey = format(nextDate, "yyyy-MM-dd");
+          const isInMonth = nextDate >= wideMonthStart && nextDate <= wideMonthEnd;
+          if (isInMonth && nextKey !== taskDueDateKey) {
+            if (!grouped[nextKey]) grouped[nextKey] = [];
+            // Find the occurrenceNote for this next date
+            const nextOccNote = occurrenceNotesList.find((n: any) => {
+              if (n.isSpecial && n.specialDate) return format(new Date(n.specialDate), "yyyy-MM-dd") === nextKey;
+              return false;
+            });
+            grouped[nextKey].push({
+              ...task,
+              dueDate: nextDate,
+              occurrenceNote: nextOccNote?.notes || null,
+              isSpecialOccurrence: !!(nextOccNote?.isSpecial),
+              specialOccurrenceName: nextOccNote?.specialName,
+              isFutureOccurrence: false, // treat as current appointment
+            } as any);
           }
-          // Attach note for occurrence number 1 (current appointment)
-          const currentNote = occ1Note?.notes || null;
-          grouped[taskDueDateKey].push({
-            ...task,
-            dueDate: displayDate,
-            occurrenceNote: currentNote,
-            isSpecialOccurrence: !!occ1IsSpecial,
-            specialOccurrenceName: occ1IsSpecial ? occ1Note.specialName : undefined,
-          } as any);
         }
       }
 
@@ -391,7 +422,6 @@ export default function Calendar() {
           taskOccNotes.forEach((noteEntry: any) => {
             const occNum = noteEntry.occurrenceNumber;
             if (occNum <= 1) return; // Occurrence 1 = dueDate, already added
-            if (noteEntry.isSkipped) return;
             // Special occurrences have their own date (specialDate) and are handled separately below
             if (noteEntry.isSpecial && noteEntry.specialDate) return;
             const calcDate = new Date(task.dueDate!);
@@ -403,7 +433,8 @@ export default function Calendar() {
             if (!isInMonth) return;
             const dateKey = format(calcDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) grouped[dateKey] = [];
-            grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: calcDate, occurrenceNote: noteEntry.notes || null } as any);
+            // Show skipped occurrences with isSkippedOccurrence flag (different color in calendar)
+            grouped[dateKey].push({ ...task, isFutureOccurrence: !noteEntry.isSkipped, isSkippedOccurrence: !!noteEntry.isSkipped, occurrenceDate: calcDate, occurrenceNote: noteEntry.notes || null } as any);
           });
         } else {
           const futureOccurrences = calculateFutureOccurrences(task);
@@ -427,7 +458,7 @@ export default function Calendar() {
         if (isNaN(occDate.getTime())) return;
         const isInMonth = occDate >= wideMonthStart && occDate <= wideMonthEnd;
         if (!isInMonth) return; // only show in wide range
-        if (occ.isSkipped) return; // skip skipped occurrences
+        // Show skipped special occurrences with isSkippedOccurrence flag
         const dateKey = format(occDate, "yyyy-MM-dd");
         if (!grouped[dateKey]) grouped[dateKey] = [];
         // Determine if this special occurrence is the CURRENT appointment:
@@ -438,7 +469,8 @@ export default function Calendar() {
         grouped[dateKey].push({
           ...task,
           dueDate: occDate,
-          isFutureOccurrence: !isCurrentAppointment,
+          isFutureOccurrence: !isCurrentAppointment && !occ.isSkipped,
+          isSkippedOccurrence: !!occ.isSkipped,
           isSpecialOccurrence: occ.isSpecial || false,
           specialOccurrenceName: occ.specialName,
           occurrenceDate: occDate,
@@ -534,7 +566,7 @@ export default function Calendar() {
           taskName: item.isCalendarEvent ? item.title : item.name,
           date,
           isCompleted: !!item.isCompleted,
-          isSkipped: false,
+          isSkipped: !!item.isSkippedOccurrence,
           isSpecial: !!item.isSpecialOccurrence,
           specialName: item.specialOccurrenceName,
           isFutureOccurrence: !!item.isFutureOccurrence,
@@ -968,6 +1000,7 @@ export default function Calendar() {
                               {task.isCompleted && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle2 className="h-3 w-3 mr-1" />{t("tasks:status.completed", "Erledigt")}</Badge>}
                               {task.isCompletedOccurrence && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle2 className="h-3 w-3 mr-1" />{t("calendar:completedOccurrence", "Erledigter Termin")}</Badge>}
                               {task.isFutureOccurrence && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{t("calendar:futureOccurrence", "Folgetermin")}</Badge>}
+                              {(task as any).isSkippedOccurrence && <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200"><X className="h-3 w-3 mr-1" />{t("calendar:skippedOccurrence", "Ausgelassen")}</Badge>}
                               {task.isSpecialOccurrence && <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200"><Star className="h-3 w-3 mr-1" />{t("calendar:specialOccurrence", "Sondertermin")}</Badge>}
                               {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && <Badge variant="destructive" className="text-xs">{t("tasks:overdue", "Überfällig")}</Badge>}
                             </div>
@@ -991,6 +1024,16 @@ export default function Calendar() {
                           <Button size="sm" variant="outline" className="col-span-2" onClick={() => { const realTask = task.isCompletedOccurrence ? (tasks.find((t: any) => t.id === task.id) || task) : task; setSelectedTask(realTask); setTaskDialogOpen(true); onClose(); }}>
                             {t("common:actions.details", "Details")}
                           </Button>
+                          {(task as any).isSkippedOccurrence && (
+                            <>
+                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); setSelectedDate(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
+                                <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100" onClick={(e) => { e.stopPropagation(); const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!); unskipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToRestore: format(targetDate, "yyyy-MM-dd") }); onClose(); }}>
+                                <ArrowLeft className="h-4 w-4 mr-1" />{t("calendar:unskip", "Auslassen r\u00fckg\u00e4ngig")}
+                              </Button>
+                            </>
+                          )}
                           {task.isCompletedOccurrence && (
                             <>
                               <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
@@ -1017,7 +1060,7 @@ export default function Calendar() {
                               </Button>
                             </>
                           )}
-                          {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
+                          {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && !(task as any).isSkippedOccurrence && (
                             <>
                               <Button size="sm" variant="outline" onClick={async (e) => { e.stopPropagation(); setActionTask(task); pendingPopupCloseRef.current = onClose; const isRecurring = Boolean(task.repeatInterval && task.repeatUnit); if (isRecurring && household) { try { const check = await utils.tasks.checkNextOccurrence.fetch({ taskId: task.id, householdId: household.householdId }); if (check.skippedCount > 0) { setSkipConfirmData({ skippedCount: check.skippedCount, skippedOccurrenceDates: check.skippedOccurrenceDates, nextDate: check.nextDate, pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] } }); setSkipConfirmOpen(true); return; } } catch {} } setCompleteDialogOpen(true); }}>
                                 <Check className="h-4 w-4 mr-1" />{t("tasks:actions.complete", "Abschließen")}
@@ -1283,7 +1326,7 @@ export default function Calendar() {
                                         </Button>
                                       </>
                                     )}
-                                    {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
+                                    {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && !(task as any).isSkippedOccurrence && (
                                       <>
                                         <Button
                                           size="sm"
