@@ -248,10 +248,9 @@ export default function Calendar() {
       // Check if this occurrence has a note
       const hasNote = !!(noteEntry?.notes);
 
-      // Include if: within current month view AND not skipped
-      // OR: has a note AND not skipped (always show, regardless of month)
-      const inMonthView = nextDate >= monthStart && nextDate <= monthEnd;
-      if (!isSkipped && (inMonthView || hasNote)) {
+      // Include if: within wide range (±12 months) AND not skipped
+      const inMonthView = nextDate >= wideMonthStart && nextDate <= wideMonthEnd;
+      if (!isSkipped && inMonthView) {
         occurrences.push({ date: nextDate, isOriginal: false, occurrenceNote: noteEntry?.notes });
       }
 
