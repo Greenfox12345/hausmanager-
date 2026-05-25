@@ -75,7 +75,7 @@ export interface TaskForCompletion {
  * We use local methods (getFullYear, getMonth, getDate, getHours, getMinutes)
  * and new Date(y, mo, day, h, min) so the calendar date is preserved.
  */
-async function advanceByInterval(d: Date, task: TaskForCompletion): Promise<Date> {
+export async function advanceByInterval(d: Date, task: TaskForCompletion): Promise<Date> {
   // Use LOCAL components — wall-clock time strategy
   const y = d.getFullYear();
   const mo = d.getMonth();   // 0-based

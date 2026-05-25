@@ -50,7 +50,7 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
   return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
-import { handleRecurringCompletion } from "./taskCompletion";
+import { handleRecurringCompletion, advanceByInterval, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 
 // ─── German label helpers ───────────────────────────────────────────────────
@@ -1388,6 +1388,36 @@ export const tasksRouter = router({
       const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
       if (occNum !== null) {
         await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
+      }
+
+      // Advance task.dueDate past the skipped occurrence (and any further skipped ones)
+      // Only do this if the skipped date matches task.dueDate (i.e., it's the current occurrence)
+      const taskDueDateStr = taskForCalc.dueDate
+        ? (taskForCalc.dueDate instanceof Date
+            ? taskForCalc.dueDate.toISOString().slice(0, 10)
+            : String(taskForCalc.dueDate).slice(0, 10))
+        : null;
+      const skipDateStr = input.dateToSkip.slice(0, 10);
+      if (taskDueDateStr === skipDateStr && taskForCalc.repeatInterval && taskForCalc.repeatUnit) {
+        // Advance to next occurrence
+        let nextDueDate = await advanceByInterval(
+          taskForCalc.dueDate instanceof Date ? taskForCalc.dueDate : new Date(taskForCalc.dueDate!),
+          taskForCalc as TaskForCompletion
+        );
+        // Skip-chain: keep advancing if the next date is also skipped
+        const skippedOccNums = await getSkippedOccurrenceNumbers(input.taskId);
+        let maxIter = 500;
+        while (maxIter-- > 0) {
+          const nextOccNum = calcOccurrenceNumber(taskForCalc, nextDueDate);
+          if (nextOccNum !== null && skippedOccNums.has(nextOccNum)) {
+            nextDueDate = await advanceByInterval(nextDueDate, taskForCalc as TaskForCompletion);
+          } else {
+            break;
+          }
+        }
+        // Update task.dueDate in DB
+        const nextDueDateStr = `${nextDueDate.getFullYear()}-${String(nextDueDate.getMonth()+1).padStart(2,'0')}-${String(nextDueDate.getDate()).padStart(2,'0')} ${String(nextDueDate.getHours()).padStart(2,'0')}:${String(nextDueDate.getMinutes()).padStart(2,'0')}:00`;
+        await updateTask(input.taskId, { dueDateRaw: nextDueDateStr });
       }
 
       const skipLang = await getHouseholdLang(input.householdId);

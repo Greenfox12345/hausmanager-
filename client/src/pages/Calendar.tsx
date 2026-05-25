@@ -521,6 +521,39 @@ export default function Calendar() {
       }
     });
 
+    // Show skipped occurrences from activityHistory (past skipped dates)
+    activities.forEach((activity: any) => {
+      if (activity.action === "skipped" && activity.relatedItemId) {
+        const task = tasks.find(t => t.id === activity.relatedItemId);
+        if (task) {
+          const meta = (activity as any).metadata;
+          const rawDate = meta?.skippedDate || activity.createdAt;
+          if (!rawDate) return;
+          const skippedDate = new Date(rawDate);
+          if (skippedDate >= wideMonthStart && skippedDate <= wideMonthEnd) {
+            const dateKey = format(skippedDate, "yyyy-MM-dd");
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+            // Only add if not already present as skipped for this activity
+            const alreadyAdded = grouped[dateKey].some(
+              (e: any) => e.id === task.id && (e as any).isSkippedOccurrence && (e as any).activityId === activity.id
+            );
+            if (!alreadyAdded) {
+              // Remove any open (non-completed, non-skipped) entry for this task on this date
+              grouped[dateKey] = grouped[dateKey].filter(
+                (e: any) => !(e.id === task.id && !e.isCompletedOccurrence && !(e as any).isSkippedOccurrence && !e.isFutureOccurrence)
+              );
+              grouped[dateKey].push({
+                ...task,
+                isSkippedOccurrence: true,
+                activityId: activity.id,
+                dueDate: skippedDate,
+              } as any);
+            }
+          }
+        }
+      }
+    });
+
     // Also show completed single (non-recurring) tasks at their dueDate
     tasks.forEach(task => {
       if (task.isCompleted && task.dueDate && !task.repeatInterval) {
@@ -1029,16 +1062,35 @@ export default function Calendar() {
                           <Button size="sm" variant="outline" className="col-span-2" onClick={() => { const realTask = task.isCompletedOccurrence ? (tasks.find((t: any) => t.id === task.id) || task) : task; setSelectedTask(realTask); setTaskDialogOpen(true); onClose(); }}>
                             {t("common:actions.details", "Details")}
                           </Button>
-                          {(task as any).isSkippedOccurrence && (
-                            <>
-                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); setSelectedDate(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
-                                <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
-                              </Button>
-                              <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100" onClick={(e) => { e.stopPropagation(); const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!); unskipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToRestore: format(targetDate, "yyyy-MM-dd") }); onClose(); }}>
-                                <ArrowLeft className="h-4 w-4 mr-1" />{t("calendar:unskip", "Auslassen r\u00fckg\u00e4ngig")}
-                              </Button>
-                            </>
-                          )}
+                          {(task as any).isSkippedOccurrence && (() => {
+                            const realTask = tasks.find((t: any) => t.id === task.id) || task;
+                            const currentDueDate = realTask.dueDate ? new Date(realTask.dueDate) : null;
+                            const skippedDate = new Date(task.dueDate!);
+                            // Allow unskip if: skipped date is after current dueDate (future skip)
+                            // OR skipped date is the one directly before current dueDate (last skipped before current)
+                            const canUnskip = currentDueDate ? (
+                              skippedDate >= currentDueDate || // after or equal to current → future skip
+                              (() => { // check if it's directly before current
+                                const advancedFromSkipped = new Date(skippedDate);
+                                if (realTask.repeatUnit === 'days') advancedFromSkipped.setDate(advancedFromSkipped.getDate() + (realTask.repeatInterval || 1));
+                                else if (realTask.repeatUnit === 'weeks') advancedFromSkipped.setDate(advancedFromSkipped.getDate() + (realTask.repeatInterval || 1) * 7);
+                                else if (realTask.repeatUnit === 'months') advancedFromSkipped.setMonth(advancedFromSkipped.getMonth() + (realTask.repeatInterval || 1));
+                                return format(advancedFromSkipped, 'yyyy-MM-dd') === format(currentDueDate, 'yyyy-MM-dd');
+                              })()
+                            ) : true;
+                            return (
+                              <>
+                                <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); setSelectedDate(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
+                                  <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
+                                </Button>
+                                {canUnskip && (
+                                  <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100" onClick={(e) => { e.stopPropagation(); const targetDate = new Date(task.dueDate!); unskipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToRestore: format(targetDate, "yyyy-MM-dd") }); onClose(); }}>
+                                    <ArrowLeft className="h-4 w-4 mr-1" />{t("calendar:unskip", "Auslassen r\u00fckg\u00e4ngig")}
+                                  </Button>
+                                )}
+                              </>
+                            );
+                          })()}
                           {task.isCompletedOccurrence && (
                             <>
                               <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
