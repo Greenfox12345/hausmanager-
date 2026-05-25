@@ -37,7 +37,8 @@
     "taskPlaceholder": "p.ej. Hacer la compra",
     "neededBy": "Necesario antes del",
     "neededByShort": "Antes del",
-    "overdue": "(vencido)"
+    "overdue": "(vencido)",
+    "more": "Más"
   },
   "actions": {
     "check": "Marcar",

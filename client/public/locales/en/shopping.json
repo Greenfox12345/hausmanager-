@@ -33,7 +33,8 @@
     "taskPlaceholder": "e.g. Go grocery shopping",
     "neededBy": "Needed by",
     "neededByShort": "By",
-    "overdue": "(overdue)"
+    "overdue": "(overdue)",
+    "more": "More"
   },
   "status": {
     "open": "Open",

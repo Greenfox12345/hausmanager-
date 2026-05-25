@@ -33,7 +33,8 @@
     "taskPlaceholder": "على سبيل المثال: إنجاز التسوق",
     "neededBy": "مطلوب بحلول",
     "neededByShort": "بحلول",
-    "overdue": "(منتهي)"
+    "overdue": "(منتهي)",
+    "more": "المزيد"
   },
   "status": {
     "open": "مفتوح",

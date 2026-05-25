@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus, ImageIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus, ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
@@ -49,6 +49,7 @@ export default function Shopping() {
   const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [newItemNeededBy, setNewItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
+  const [showAddMore, setShowAddMore] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   
@@ -133,6 +134,8 @@ export default function Shopping() {
       setNewItemDetails("");
       setNewItemPhotoUrls([]);
       setNewItemNeededBy("");
+      setNewItemCategoryId(null);
+      setShowAddMore(false);
       toast.success(t("shopping:messages.itemAdded", "Artikel hinzugefügt"));
     },
     onError: () => {
@@ -710,103 +713,124 @@ export default function Shopping() {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="itemDetails">{t("shopping:fields.details", "Details")} ({t("common:labels.optional")})</Label>
-                <Input
-                  id="itemDetails"
-                  placeholder={t("shopping:fields.detailsPlaceholder", "z.B. 2x, 500g, Bio...")}
-                  value={newItemDetails}
-                  onChange={(e) => setNewItemDetails(e.target.value)}
-                  disabled={!newItemName.trim()}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="itemCategory">{t("shopping:fields.category", "Kategorie")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
-                <div className="flex items-center gap-2">
-                  <Select 
-                    value={newItemCategoryId?.toString() || "none"} 
-                    onValueChange={(value) => setNewItemCategoryId(value === "none" ? null : Number(value))}
-                  >
-                    <SelectTrigger id="itemCategory">
-                      <SelectValue placeholder={t("shopping:fields.noCategory", "Keine Kategorie")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("shopping:fields.noCategory", "Keine Kategorie")}</SelectItem>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id.toString()}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    onClick={() => {
-                      setPendingCategoryCallback(() => (id: number) => setNewItemCategoryId(id));
-                      handleOpenCreateCategory();
-                    }}
-                    title={t("shopping:actions.createCategory")}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+              {/* Details – direkt sichtbar wenn Name eingegeben */}
+              {newItemName.trim() && (
+                <div className="space-y-2">
+                  <Label htmlFor="itemDetails">{t("shopping:fields.details", "Details")}</Label>
+                  <Input
+                    id="itemDetails"
+                    placeholder={t("shopping:fields.detailsPlaceholder", "z.B. 2x, 500g, Bio...")}
+                    value={newItemDetails}
+                    onChange={(e) => setNewItemDetails(e.target.value)}
+                  />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
-                <div className="flex items-center gap-3">
-                  <label
-                    className={`inline-flex items-center gap-2 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors
-                      ${isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5
-                        ? "opacity-50 pointer-events-none bg-muted text-muted-foreground border-muted"
-                        : "bg-background hover:bg-accent hover:text-accent-foreground border-input"}`}
+              )}
+              {/* Mehr-Bereich: Kategorie, Fotos, Gebraucht bis – nur wenn Name eingegeben */}
+              {newItemName.trim() && (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground py-1"
+                    onClick={() => setShowAddMore((v) => !v)}
                   >
-                    <ImageIcon className="h-4 w-4" />
-                    {t("shopping:fields.fileSelect", "Dateien auswählen")}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="sr-only"
-                      onChange={handleNewItemPhotoUpload}
-                      disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
-                    />
-                  </label>
-                  {newItemPhotoUrls.length === 0 && !isUploadingNewItemPhoto && (
-                    <span className="text-sm text-muted-foreground">{t("shopping:fields.noFileSelected", "Keine Dateien ausgewählt")}</span>
+                    <span>{t("shopping:fields.more", "Mehr")}</span>
+                    {showAddMore ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                  {showAddMore && (
+                    <div className="space-y-4 pt-1">
+                      {/* Kategorie */}
+                      <div className="space-y-2">
+                        <Label htmlFor="itemCategory">{t("shopping:fields.category", "Kategorie")}</Label>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={newItemCategoryId?.toString() || "none"}
+                            onValueChange={(value) => setNewItemCategoryId(value === "none" ? null : Number(value))}
+                          >
+                            <SelectTrigger id="itemCategory">
+                              <SelectValue placeholder={t("shopping:fields.noCategory", "Keine Kategorie")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">{t("shopping:fields.noCategory", "Keine Kategorie")}</SelectItem>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.id.toString()}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0"
+                            onClick={() => {
+                              setPendingCategoryCallback(() => (id: number) => setNewItemCategoryId(id));
+                              handleOpenCreateCategory();
+                            }}
+                            title={t("shopping:actions.createCategory")}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {/* Fotos */}
+                      <div className="space-y-2">
+                        <Label>{t("shopping:fields.photos", "Fotos")} (max. 5)</Label>
+                        <div className="flex items-center gap-3">
+                          <label
+                            className={`inline-flex items-center gap-2 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors
+                              ${isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5
+                                ? "opacity-50 pointer-events-none bg-muted text-muted-foreground border-muted"
+                                : "bg-background hover:bg-accent hover:text-accent-foreground border-input"}`}
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                            {t("shopping:fields.fileSelect", "Dateien auswählen")}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="sr-only"
+                              onChange={handleNewItemPhotoUpload}
+                              disabled={isUploadingNewItemPhoto || newItemPhotoUrls.length >= 5}
+                            />
+                          </label>
+                          {newItemPhotoUrls.length === 0 && !isUploadingNewItemPhoto && (
+                            <span className="text-sm text-muted-foreground">{t("shopping:fields.noFileSelected", "Keine Dateien ausgewählt")}</span>
+                          )}
+                        </div>
+                        {isUploadingNewItemPhoto && (
+                          <p className="text-sm text-muted-foreground">{t("shopping:messages.uploadingPhotos", "Fotos werden hochgeladen...")}</p>
+                        )}
+                        {newItemPhotoUrls.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {newItemPhotoUrls.map((photo, index) => (
+                              <div key={index} className="relative">
+                                <img src={photo.url} alt={photo.filename} className="w-20 h-20 object-cover rounded" />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveNewItemPhoto(index)}
+                                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {/* Gebraucht bis */}
+                      <div className="space-y-2">
+                        <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")}</Label>
+                        <DatePickerInput
+                          id="itemNeededBy"
+                          value={newItemNeededBy}
+                          onChange={setNewItemNeededBy}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
-                {isUploadingNewItemPhoto && (
-                  <p className="text-sm text-muted-foreground">{t("shopping:messages.uploadingPhotos", "Fotos werden hochgeladen...")}</p>
-                )}
-                {newItemPhotoUrls.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {newItemPhotoUrls.map((photo, index) => (
-                      <div key={index} className="relative">
-                        <img src={photo.url} alt={photo.filename} className="w-20 h-20 object-cover rounded" />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveNewItemPhoto(index)}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
-                <DatePickerInput
-                  id="itemNeededBy"
-                  value={newItemNeededBy}
-                  onChange={setNewItemNeededBy}
-                  disabled={!newItemName.trim()}
-                />
-              </div>
+              )}
               <Button type="submit" className="w-full" disabled={addMutation.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
                 {addMutation.isPending ? t("common:actions.loading", "Wird geladen...") : t("shopping:actions.addItem", "Artikel hinzufügen")}

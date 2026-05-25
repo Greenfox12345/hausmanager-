@@ -33,7 +33,8 @@
     "taskPlaceholder": "z.B. Einkauf erledigen",
     "neededBy": "Gebraucht bis",
     "neededByShort": "Bis",
-    "overdue": "(abgelaufen)"
+    "overdue": "(abgelaufen)",
+    "more": "Mehr"
   },
   "status": {
     "open": "Offen",

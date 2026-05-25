@@ -33,7 +33,8 @@
     "taskPlaceholder": "例如：完成购物",
     "neededBy": "需要日期",
     "neededByShort": "截止",
-    "overdue": "(已过期)"
+    "overdue": "(已过期)",
+    "more": "更多"
   },
   "status": {
     "open": "开放",

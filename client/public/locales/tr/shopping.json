@@ -33,7 +33,8 @@
     "taskPlaceholder": "örn. Alışverişi yap",
     "neededBy": "Gerekli tarih",
     "neededByShort": "Tarih",
-    "overdue": "(süresi geçti)"
+    "overdue": "(süresi geçti)",
+    "more": "Daha fazla"
   },
   "status": {
     "open": "Açık",

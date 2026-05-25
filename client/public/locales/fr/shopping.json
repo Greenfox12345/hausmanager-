@@ -33,7 +33,8 @@
     "taskPlaceholder": "ex : Faire les courses",
     "neededBy": "Nécessaire avant le",
     "neededByShort": "Avant",
-    "overdue": "(expiré)"
+    "overdue": "(expiré)",
+    "more": "Plus"
   },
   "status": {
     "open": "Ouvert",
