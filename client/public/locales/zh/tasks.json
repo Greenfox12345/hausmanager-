@@ -90,7 +90,7 @@
     "rotationHint": "任务将在成员之间轮换",
     "rotationPlan": "轮换计划",
     "exempt": "豁免",
-    "repeatMode": "重复模式",
+    "repeatMode": "重复",
     "daysN_one": "{{count}} 天",
     "daysN_other": "{{count}} 天",
     "weeksN_one": "{{count}} 周",

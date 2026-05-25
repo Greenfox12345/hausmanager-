@@ -90,7 +90,7 @@
     "rotationHint": "Task is rotated among members",
     "rotationPlan": "Rotation plan",
     "exempt": "Exempt",
-    "repeatMode": "Repeat mode",
+    "repeatMode": "Repetitions",
     "daysN_one": "{{count}} day",
     "daysN_other": "{{count}} days",
     "weeksN_one": "{{count}} week",

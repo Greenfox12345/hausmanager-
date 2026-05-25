@@ -397,10 +397,15 @@ export default function Calendar() {
     // Add completed occurrences from activity history (recurring tasks)
     const activities = Array.isArray(activityHistory) ? activityHistory : activityHistory?.activities || [];
     activities.forEach((activity: any) => {
-      if (activity.action === "completed" && activity.relatedItemId && activity.completedDate) {
+      if (activity.action === "completed" && activity.relatedItemId) {
         const task = tasks.find(t => t.id === activity.relatedItemId);
         if (task) {
-          const completedDate = new Date(activity.completedDate);
+          // completedDate is stored in metadata.originalDueDate (for recurring tasks)
+          // or falls back to createdAt (the timestamp when the action was logged)
+          const meta = (activity as any).metadata;
+          const rawDate = meta?.originalDueDate || activity.createdAt;
+          if (!rawDate) return;
+          const completedDate = new Date(rawDate);
           if (completedDate >= wideMonthStart && completedDate <= wideMonthEnd) {
             const dateKey = format(completedDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) grouped[dateKey] = [];

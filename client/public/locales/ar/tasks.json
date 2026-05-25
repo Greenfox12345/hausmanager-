@@ -90,7 +90,7 @@
     "rotationHint": "يتم تدوير المهمة بين الأعضاء",
     "rotationPlan": "خطة التناوب",
     "exempt": "القص",
-    "repeatMode": "وضع التكرار",
+    "repeatMode": "التكرارات",
     "daysN_one": "{{count}} يوم",
     "daysN_other": "{{count}} أيام",
     "weeksN_one": "{{count}} أسبوع",
