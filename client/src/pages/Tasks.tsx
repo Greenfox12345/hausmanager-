@@ -1470,7 +1470,31 @@ export default function Tasks() {
                                     ? t("tasks:repeat.daily", "Täglich")
                                     : task.repeatUnit === "weeks"
                                       ? t("tasks:repeat.weekly", "Wöchentlich")
-                                      : t("tasks:repeat.monthly", "Monatlich")
+                                      : (() => {
+                                          const base = t("tasks:repeat.monthly", "Monatlich");
+                                          if ((task as any).monthlyRecurrenceMode === "same_weekday") {
+                                            const occurrenceLabels: Record<number, string> = {
+                                              1: t("tasks:repeat.first", "1."),
+                                              2: t("tasks:repeat.second", "2."),
+                                              3: t("tasks:repeat.third", "3."),
+                                              4: t("tasks:repeat.fourth", "4."),
+                                              5: t("tasks:weekdays.last", "Letzter"),
+                                            };
+                                            const weekdayLabels: Record<number, string> = {
+                                              0: t("tasks:weekdays.sunday", "Sonntag"),
+                                              1: t("tasks:weekdays.monday", "Montag"),
+                                              2: t("tasks:weekdays.tuesday", "Dienstag"),
+                                              3: t("tasks:weekdays.wednesday", "Mittwoch"),
+                                              4: t("tasks:weekdays.thursday", "Donnerstag"),
+                                              5: t("tasks:weekdays.friday", "Freitag"),
+                                              6: t("tasks:weekdays.saturday", "Samstag"),
+                                            };
+                                            const occLabel = occurrenceLabels[(task as any).monthlyOccurrence ?? 1] ?? "";
+                                            const dayLabel = weekdayLabels[(task as any).monthlyWeekday ?? 1] ?? "";
+                                            return `${base} (${occLabel} ${dayLabel})`;
+                                          }
+                                          return base;
+                                        })()
                                   : t("tasks:frequency.every", "Alle {{interval}} {{unit}}", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("tasks:frequency.days", "Tage") : task.repeatUnit === "weeks" ? t("tasks:frequency.weeks", "Wochen") : t("tasks:frequency.months", "Monate") })
                                 : task.frequency === "daily"
                                   ? t("tasks:repeat.daily", "Täglich")

@@ -495,15 +495,36 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
   });
 
   // Load occurrence notes for all tasks that have repeatInterval (for calendar display)
+  // For rotation-plan tasks (enableRotation=true): load ALL occurrenceNotes entries (they are the
+  // authoritative list of which occurrences exist after deletions/renumbering).
+  // For other recurring tasks: only load entries with actual content (notes, skipped, special, specialDate).
   const recurringTaskIds = tasksWithNames
     .filter((t: any) => (t.repeatInterval && t.repeatUnit) || t.repeatUnit === 'irregular')
+    .map((t: any) => t.id as number);
+  const rotationTaskIds = tasksWithNames
+    .filter((t: any) => t.enableRotation === true)
     .map((t: any) => t.id as number);
 
   let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date }[]> = {};
   if (recurringTaskIds.length > 0) {
-    const [notesResult] = await db.execute(
-      sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(recurringTaskIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1 OR isSpecial = 1 OR specialDate IS NOT NULL)`
-    );
+    // For rotation tasks: load all entries (no content filter)
+    // For non-rotation tasks: load only entries with content
+    const rotationIdSet = new Set(rotationTaskIds);
+    const nonRotationIds = recurringTaskIds.filter(id => !rotationIdSet.has(id));
+    const allNotesRows: any[] = [];
+    if (rotationTaskIds.length > 0) {
+      const [rotNotes] = await db.execute(
+        sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(rotationTaskIds.join(','))})`
+      );
+      allNotesRows.push(...(rotNotes as unknown as any[]));
+    }
+    if (nonRotationIds.length > 0) {
+      const [nonRotNotes] = await db.execute(
+        sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(nonRotationIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1 OR isSpecial = 1 OR specialDate IS NOT NULL)`
+      );
+      allNotesRows.push(...(nonRotNotes as unknown as any[]));
+    }
+    const notesResult = allNotesRows;
     const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number; isSpecial?: number; specialName?: string; specialDate?: string | Date }[];
     for (const row of notesRows) {
       if (!occurrenceNotesMap[row.taskId]) occurrenceNotesMap[row.taskId] = [];
