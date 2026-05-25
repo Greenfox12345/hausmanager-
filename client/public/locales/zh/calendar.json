@@ -38,7 +38,8 @@
     "confirmUndo": "您想撤消此日程的完成吗？任务将重置为该日期。",
     "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
     "jumpedToCurrent": "已跳转到当前日程",
-    "occurrenceSkipped": "日程已跳过！"
+    "occurrenceSkipped": "日程已跳过！",
+    "noteAdded": "备注已保存！"
   },
   "labels": {
     "occurrence": "日程"
@@ -62,7 +63,7 @@
     "markReturned": "标记为已归还",
     "viewItem": "查看项目"
   },
-  "allTasksChronological": "所有任务（按时间顺序）",
+  "allTasksChronological": "即将到来的约会",
   "calendarView": "日历视图",
   "completedOn": "日程于：",
   "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
@@ -86,16 +87,5 @@
   "addNote": "添加备注",
   "notePlaceholder": "此日程的备注...",
   "specialOccurrence": "特殊日程",
-  "messages": {
-    "created": "日程已创建",
-    "updated": "日程已更新",
-    "deleted": "日程已删除",
-    "deleteConfirm": "您确定要删除此日程吗？",
-    "overview": "日历和所有日程概览",
-    "confirmUndo": "您想撤消此日程的完成吗？任务将重置为该日期。",
-    "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
-    "jumpedToCurrent": "已跳转到当前日程",
-    "occurrenceSkipped": "日程已跳过！",
-    "noteAdded": "备注已保存！"
-  }
+  "upcomingAppointments": "即将到来的约会"
 }

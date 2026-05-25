@@ -38,7 +38,8 @@
     "confirmUndo": "Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.",
     "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
     "jumpedToCurrent": "Zu aktuellem Termin gesprungen",
-    "occurrenceSkipped": "Termin ausgelassen!"
+    "occurrenceSkipped": "Termin ausgelassen!",
+    "noteAdded": "Notiz gespeichert!"
   },
   "labels": {
     "occurrence": "Termin"
@@ -62,7 +63,7 @@
     "markReturned": "Als zurückgegeben markieren",
     "viewItem": "Item ansehen"
   },
-  "allTasksChronological": "Alle Aufgaben (chronologisch)",
+  "allTasksChronological": "Kommende Termine",
   "calendarView": "Kalenderansicht",
   "completedOn": "Termin am:",
   "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
@@ -86,16 +87,5 @@
   "addNote": "Notiz hinzufügen",
   "notePlaceholder": "Notiz für diesen Termin...",
   "specialOccurrence": "Sondertermin",
-  "messages": {
-    "created": "Termin erstellt",
-    "updated": "Termin aktualisiert",
-    "deleted": "Termin gelöscht",
-    "deleteConfirm": "Möchtest du diesen Termin wirklich löschen?",
-    "overview": "Kalender und alle Termine im Überblick",
-    "confirmUndo": "Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.",
-    "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
-    "jumpedToCurrent": "Zu aktuellem Termin gesprungen",
-    "occurrenceSkipped": "Termin ausgelassen!",
-    "noteAdded": "Notiz gespeichert!"
-  }
+  "upcomingAppointments": "Kommende Termine"
 }

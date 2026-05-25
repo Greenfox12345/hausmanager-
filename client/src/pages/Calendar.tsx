@@ -415,10 +415,11 @@ export default function Calendar() {
         const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
         const isOcc1Skipped = occ1Note?.isSkipped === true;
         
-        // Include if: within range (past OR future up to endDate), AND not skipped
-        // Past tasks are always shown (regardless of completion status)
-        // Future tasks only within the selected range
-        if (!isOcc1Skipped && taskDate <= endDate) {
+        // Include if: within range AND not skipped
+        // Exclude: completed single-occurrence tasks (isCompleted=true, no repeatInterval)
+        // Exclude: completed recurring tasks (isCompleted=true with repeatInterval) – they are shown as completedOccurrence via activity history
+        const isSingleTask = !task.repeatInterval || !task.repeatUnit;
+        if (!isOcc1Skipped && taskDate <= endDate && !(task.isCompleted && isSingleTask)) {
           // Attach note for occurrence number 1 (current appointment)
           const currentNote = occ1Note?.notes || null;
           allTasks.push({
@@ -690,7 +691,7 @@ export default function Calendar() {
             </TabsTrigger>
             <TabsTrigger value="all" className="flex items-center gap-2">
               <List className="h-4 w-4" />
-              {t("tasks:allTasks", "Alle Aufgaben")}
+              {t("calendar:upcomingAppointments", "Kommende Termine")}
             </TabsTrigger>
           </TabsList>
 
@@ -1211,19 +1212,19 @@ export default function Calendar() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <List className="h-5 w-5" />
-                    {t("calendar:allTasksChronological", "Alle Aufgaben (chronologisch)")}
+                    {t("calendar:upcomingAppointments", "Kommende Termine")}
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm text-muted-foreground">{t("calendar:period")}:</label>
+                    <span className="text-sm font-medium text-muted-foreground">{t("calendar:period", "Zeitraum")}:</span>
                     <select 
-                      className="border rounded px-2 py-1 text-sm"
+                      className="border-2 border-primary rounded-md px-3 py-1.5 text-sm font-semibold bg-primary/5 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
                       value={chronologicalRange}
                       onChange={(e) => setChronologicalRange(Number(e.target.value))}
                     >
-                      <option value={1}>1 {t("calendar:months")}</option>
-                      <option value={3}>3 {t("calendar:months")}</option>
-                      <option value={6}>6 {t("calendar:months")}</option>
-                      <option value={12}>12 {t("calendar:months")}</option>
+                      <option value={1}>1 {t("calendar:months", "Monate")}</option>
+                      <option value={3}>3 {t("calendar:months", "Monate")}</option>
+                      <option value={6}>6 {t("calendar:months", "Monate")}</option>
+                      <option value={12}>12 {t("calendar:months", "Monate")}</option>
                     </select>
                   </div>
                 </div>

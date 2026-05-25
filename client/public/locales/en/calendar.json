@@ -38,7 +38,8 @@
     "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
     "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
     "jumpedToCurrent": "Jumped to current appointment",
-    "occurrenceSkipped": "Appointment skipped!"
+    "occurrenceSkipped": "Appointment skipped!",
+    "noteAdded": "Note saved!"
   },
   "labels": {
     "occurrence": "Occurrence"
@@ -62,7 +63,7 @@
     "markReturned": "Mark as returned",
     "viewItem": "View item"
   },
-  "allTasksChronological": "All tasks (chronological)",
+  "allTasksChronological": "Upcoming Appointments",
   "calendarView": "Calendar view",
   "completedOn": "Completed on:",
   "confirmSkip": "Do you want to skip this appointment? It will no longer be shown in the calendar.",
@@ -86,16 +87,5 @@
   "addNote": "Add note",
   "notePlaceholder": "Note for this appointment...",
   "specialOccurrence": "Special appointment",
-  "messages": {
-    "created": "Event created successfully.",
-    "updated": "Event updated successfully.",
-    "deleted": "Event deleted successfully.",
-    "deleteConfirm": "Are you sure you want to delete this event?",
-    "overview": "Calendar and all appointments at a glance",
-    "confirmUndo": "Would you like to undo the completion of this event? The task will be reset to this date.",
-    "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
-    "jumpedToCurrent": "Jumped to current appointment",
-    "occurrenceSkipped": "Appointment skipped!",
-    "noteAdded": "Note saved!"
-  }
+  "upcomingAppointments": "Upcoming Appointments"
 }

@@ -38,7 +38,8 @@
     "confirmUndo": "هل ترغب في التراجع عن إكمال هذا الموعد؟ ستتم إعادة المهمة إلى هذا التاريخ.",
     "confirmSkip": "هل ترغب في تخطي هذا الموعد؟ لن يظهر في التقويم بعد الآن.",
     "jumpedToCurrent": "تم الانتقال إلى الموعد الحالي",
-    "occurrenceSkipped": "تم تخطي الموعد!"
+    "occurrenceSkipped": "تم تخطي الموعد!",
+    "noteAdded": "تم حفظ الملاحظة!"
   },
   "labels": {
     "occurrence": "موعد"
@@ -62,7 +63,7 @@
     "markReturned": "وضع علامة تم الإرجاع",
     "viewItem": "عرض العنصر"
   },
-  "allTasksChronological": "جميع المهام (ترتيب زمني)",
+  "allTasksChronological": "المواعيد القادمة",
   "calendarView": "عرض التقويم",
   "completedOn": "الموعد في:",
   "confirmSkip": "هل ترغب في تخطي هذا الموعد؟ لن يظهر في التقويم بعد الآن.",
@@ -86,16 +87,5 @@
   "addNote": "إضافة ملاحظة",
   "notePlaceholder": "ملاحظة لهذا الموعد...",
   "specialOccurrence": "موعد خاص",
-  "messages": {
-    "created": "تم إنشاء الموعد",
-    "updated": "تم تحديث الموعد",
-    "deleted": "تم حذف الموعد",
-    "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الموعد؟",
-    "overview": "نظرة عامة على التقويم وجميع المواعيد",
-    "confirmUndo": "هل ترغب في التراجع عن إكمال هذا الموعد؟ ستتم إعادة المهمة إلى هذا التاريخ.",
-    "confirmSkip": "هل ترغب في تخطي هذا الموعد؟ لن يظهر في التقويم بعد الآن.",
-    "jumpedToCurrent": "تم الانتقال إلى الموعد الحالي",
-    "occurrenceSkipped": "تم تخطي الموعد!",
-    "noteAdded": "تم حفظ الملاحظة!"
-  }
+  "upcomingAppointments": "المواعيد القادمة"
 }

@@ -38,7 +38,8 @@
     "confirmUndo": "Voulez-vous annuler la complétion de ce rendez-vous ? La tâche sera réinitialisée à cette date.",
     "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
     "jumpedToCurrent": "Saut au rendez-vous actuel",
-    "occurrenceSkipped": "Rendez-vous ignoré !"
+    "occurrenceSkipped": "Rendez-vous ignoré !",
+    "noteAdded": "Note enregistrée !"
   },
   "labels": {
     "occurrence": "Rendez-vous"
@@ -62,7 +63,7 @@
     "markReturned": "Marquer comme retourné",
     "viewItem": "Voir l'objet"
   },
-  "allTasksChronological": "Toutes les tâches (chronologique)",
+  "allTasksChronological": "Prochains rendez-vous",
   "calendarView": "Vue calendrier",
   "completedOn": "Terminé le :",
   "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
@@ -86,16 +87,5 @@
   "addNote": "Ajouter une note",
   "notePlaceholder": "Note pour ce rendez-vous...",
   "specialOccurrence": "Rendez-vous spécial",
-  "messages": {
-    "created": "Rendez-vous créé",
-    "updated": "Rendez-vous mis à jour",
-    "deleted": "Rendez-vous supprimé",
-    "deleteConfirm": "Voulez-vous vraiment supprimer ce rendez-vous ?",
-    "overview": "Calendrier et aperçu de tous les rendez-vous",
-    "confirmUndo": "Voulez-vous annuler la complétion de ce rendez-vous ? La tâche sera réinitialisée à cette date.",
-    "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
-    "jumpedToCurrent": "Saut au rendez-vous actuel",
-    "occurrenceSkipped": "Rendez-vous ignoré !",
-    "noteAdded": "Note enregistrée !"
-  }
+  "upcomingAppointments": "Prochains rendez-vous"
 }

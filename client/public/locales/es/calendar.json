@@ -52,7 +52,8 @@
     "confirmUndo": "¿Desea deshacer la finalización de esta cita? La tarea se restablecerá a esta fecha.",
     "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
     "jumpedToCurrent": "Saltado a la cita actual",
-    "occurrenceSkipped": "¡Cita omitida!"
+    "occurrenceSkipped": "¡Cita omitida!",
+    "noteAdded": "¡Nota guardada!"
   },
   "month": "Mes",
   "week": "Semana",
@@ -115,7 +116,7 @@
     "markReturned": "Marcar como devuelto",
     "viewItem": "Ver artículo"
   },
-  "allTasksChronological": "Todas las tareas (cronológico)",
+  "allTasksChronological": "Próximas citas",
   "completedOn": "Cita el:",
   "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
   "jumpToCurrent": "A la cita actual",
@@ -130,19 +131,5 @@
   "addNote": "Añadir nota",
   "notePlaceholder": "Nota para esta cita...",
   "specialOccurrence": "Cita especial",
-  "messages": {
-    "deleteConfirm": "¿Realmente quieres eliminar este evento?",
-    "deleteSuccess": "Evento eliminado.",
-    "saveSuccess": "Evento guardado.",
-    "loadError": "Error al cargar el calendario.",
-    "created": "Cita creada",
-    "updated": "Cita actualizada",
-    "deleted": "Cita eliminada",
-    "overview": "Calendario y todas las citas de un vistazo",
-    "confirmUndo": "¿Desea deshacer la finalización de esta cita? La tarea se restablecerá a esta fecha.",
-    "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
-    "jumpedToCurrent": "Saltado a la cita actual",
-    "occurrenceSkipped": "¡Cita omitida!",
-    "noteAdded": "¡Nota guardada!"
-  }
+  "upcomingAppointments": "Próximas citas"
 }
