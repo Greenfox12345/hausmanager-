@@ -36,6 +36,7 @@ interface RotationScheduleTableProps {
   initialSchedule?: ScheduleOccurrence[];
   excludedMemberIds?: number[];
   onSkipOccurrence?: (occurrenceNumber: number, isSkipped: boolean) => Promise<void>;
+  onOpenSpecialDialog?: (openFn: () => void) => void;
 }
 
 export interface ScheduleOccurrence {
@@ -66,6 +67,7 @@ export function RotationScheduleTable({
   initialSchedule,
   excludedMemberIds = [],
   onSkipOccurrence,
+  onOpenSpecialDialog,
 }: RotationScheduleTableProps) {
   const { t, i18n } = useTranslation();
   const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
@@ -90,14 +92,12 @@ export function RotationScheduleTable({
     onChangeRef.current = onChange;
   }, [onChange]);
   
-  // Listen for custom event to open special appointment dialog
+  // Expose open function to parent via callback prop
   useEffect(() => {
-    const handleOpenDialog = () => {
-      setIsAddingSpecialOccurrence(true);
-    };
-    window.addEventListener('openSpecialAppointmentDialog', handleOpenDialog);
-    return () => window.removeEventListener('openSpecialAppointmentDialog', handleOpenDialog);
-  }, []);
+    if (onOpenSpecialDialog) {
+      onOpenSpecialDialog(() => setIsAddingSpecialOccurrence(true));
+    }
+  }, [onOpenSpecialDialog]);
   
   // Filter out excluded members
   const eligibleMembers = availableMembers.filter(m => !excludedMemberIds.includes(m.memberId));

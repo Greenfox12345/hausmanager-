@@ -218,6 +218,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [isTerminePlanenExpanded, setIsTerminePlanenExpanded] = useState(false); // Default: collapsed
   const [isExemptExpanded, setIsExemptExpanded] = useState(false); // Default: collapsed
   
+  // Ref to hold the function that opens the special occurrence dialog in RotationScheduleTable
+  const openSpecialDialogFnRef = useRef<(() => void) | null>(null);
+  const handleOpenSpecialDialogCallback = useCallback((openFn: () => void) => {
+    openSpecialDialogFnRef.current = openFn;
+  }, []);
+
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
@@ -1483,10 +1489,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              // Trigger the special appointment dialog in RotationScheduleTable
-                              // We'll pass a callback to open it
-                              const event = new CustomEvent('openSpecialAppointmentDialog');
-                              window.dispatchEvent(event);
+                              if (openSpecialDialogFnRef.current) {
+                                openSpecialDialogFnRef.current();
+                              }
                             }}
                             className="gap-2 shrink-0"
                           >
@@ -1852,6 +1857,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             onChange={handleRotationScheduleChange}
                             initialSchedule={rotationSchedule}
                             excludedMemberIds={excludedMembers}
+                            onOpenSpecialDialog={handleOpenSpecialDialogCallback}
                             onSkipOccurrence={async (occurrenceNumber: number, isSkipped: boolean) => {
                               if (!task?.id) return;
                               // Unified skip: calculate the date for this occurrence and use
