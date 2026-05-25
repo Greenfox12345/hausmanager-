@@ -36,7 +36,8 @@
     "namePlaceholder": "ör. Çöpü dışarı çıkar",
     "recurring": "Tekrarlanan",
     "unassigned": "Atanmamış",
-    "unknown": "Bilinmiyor"
+    "unknown": "Bilinmiyor",
+    "durationDaysLabel": "Süre (gün)"
   },
   "skippedDates": "Atlanan Tarihler",
   "linkedShoppingList": "Bağlantılı Alışveriş Listesi",
@@ -573,7 +574,8 @@
     "otherHousehold": "diğer hane",
     "shareWithNeighbors": "Komşularla Paylaş",
     "sharedWith": "İle paylaşıldı",
-    "specialAppointment": "Özel Randevu"
+    "specialAppointment": "Özel Randevu",
+    "shareWithOtherHouseholds": "Diğer hanelerle paylaş"
   },
   "dueDate": "Bitiş:",
   "labels": {

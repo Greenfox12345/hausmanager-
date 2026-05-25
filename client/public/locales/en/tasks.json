@@ -36,7 +36,8 @@
     "namePlaceholder": "e.g. Take out the trash",
     "recurring": "Recurring",
     "unassigned": "Unassigned",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "durationDaysLabel": "Duration (days)"
   },
   "skippedDates": "Skipped occurrences",
   "linkedShoppingList": "Linked shopping list",
@@ -573,7 +574,8 @@
     "otherHousehold": "another household",
     "shareWithNeighbors": "Share with neighbors",
     "sharedWith": "Shared with",
-    "specialAppointment": "Special appointment"
+    "specialAppointment": "Special appointment",
+    "shareWithOtherHouseholds": "Share with other households"
   },
   "dueDate": "Due:",
   "labels": {

@@ -36,7 +36,8 @@
     "namePlaceholder": "z.B. Müll rausbringen",
     "recurring": "Wiederkehrend",
     "unassigned": "Nicht zugewiesen",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "durationDaysLabel": "Dauer (Tage)"
   },
   "skippedDates": "Ausgelassene Termine",
   "linkedShoppingList": "Verknüpfte Einkaufsliste",
@@ -573,7 +574,8 @@
     "otherHousehold": "anderem Haushalt",
     "shareWithNeighbors": "Mit Nachbarn teilen",
     "sharedWith": "Geteilt mit",
-    "specialAppointment": "Sondertermin"
+    "specialAppointment": "Sondertermin",
+    "shareWithOtherHouseholds": "Mit anderen Haushalten teilen"
   },
   "dueDate": "Fällig:",
   "labels": {

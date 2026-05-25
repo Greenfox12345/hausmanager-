@@ -36,7 +36,8 @@
     "namePlaceholder": "على سبيل المثال، إخراج القمامة",
     "recurring": "متكرر",
     "unassigned": "غير مخصص",
-    "unknown": "مجهول"
+    "unknown": "مجهول",
+    "durationDaysLabel": "المدة (أيام)"
   },
   "skippedDates": "مواعيد ملغاة",
   "linkedShoppingList": "قائمة التسوق المرتبطة",
@@ -365,5 +366,8 @@
     "colorLabel": "اللون",
     "createSuccess": "تم إنشاء الفئة",
     "createError": "تعذر إنشاء الفئة"
+  },
+  "detail": {
+    "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"
   }
 }

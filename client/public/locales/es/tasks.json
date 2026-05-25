@@ -67,7 +67,8 @@
     "namePlaceholder": "p.ej. Sacar la basura",
     "recurring": "Recurrente",
     "unassigned": "Sin asignar",
-    "unknown": "Desconocido"
+    "unknown": "Desconocido",
+    "durationDaysLabel": "Duración (días)"
   },
   "repeat": {
     "none": "Sin repetición",
@@ -270,7 +271,8 @@
     "otherHousehold": "Otro hogar",
     "shareWithNeighbors": "Compartir con vecinos",
     "sharedWith": "Compartido con",
-    "specialAppointment": "Cita especial"
+    "specialAppointment": "Cita especial",
+    "shareWithOtherHouseholds": "Compartir con otros hogares"
   },
   "permissions": {
     "full": "Editar todo",

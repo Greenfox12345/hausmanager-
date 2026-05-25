@@ -36,7 +36,8 @@
     "namePlaceholder": "例如：倒垃圾",
     "recurring": "重复",
     "unassigned": "未分配",
-    "unknown": "未知"
+    "unknown": "未知",
+    "durationDaysLabel": "持续时间（天）"
   },
   "skippedDates": "跳过的日期",
   "linkedShoppingList": "关联购物清单",
@@ -573,7 +574,8 @@
     "otherHousehold": "其他家庭",
     "shareWithNeighbors": "与邻居共享",
     "sharedWith": "共享给",
-    "specialAppointment": "特殊任务"
+    "specialAppointment": "特殊任务",
+    "shareWithOtherHouseholds": "与其他家庭共享"
   },
   "dueDate": "截止日期:",
   "labels": {

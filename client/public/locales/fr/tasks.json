@@ -36,7 +36,8 @@
     "namePlaceholder": "ex. Sortir la poubelle",
     "recurring": "Récurrente",
     "unassigned": "Non assigné",
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "durationDaysLabel": "Durée (jours)"
   },
   "skippedDates": "Occurrences sautées",
   "linkedShoppingList": "Liste de courses liée",
@@ -573,7 +574,8 @@
     "otherHousehold": "autre foyer",
     "shareWithNeighbors": "Partager avec le voisinage",
     "sharedWith": "Partagé avec",
-    "specialAppointment": "Rendez-vous spécial"
+    "specialAppointment": "Rendez-vous spécial",
+    "shareWithOtherHouseholds": "Partager avec d'autres foyers"
   },
   "dueDate": "À faire pour :",
   "labels": {
