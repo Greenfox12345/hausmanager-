@@ -394,26 +394,50 @@ export default function Calendar() {
       });
     });
 
-    // Add completed occurrences from activity history
+    // Add completed occurrences from activity history (recurring tasks)
     const activities = Array.isArray(activityHistory) ? activityHistory : activityHistory?.activities || [];
     activities.forEach((activity: any) => {
       if (activity.action === "completed" && activity.relatedItemId && activity.completedDate) {
         const task = tasks.find(t => t.id === activity.relatedItemId);
-        if (task && task.repeatInterval && task.repeatUnit) {
+        if (task) {
           const completedDate = new Date(activity.completedDate);
-          // Only show if within current month view
           if (completedDate >= wideMonthStart && completedDate <= wideMonthEnd) {
             const dateKey = format(completedDate, "yyyy-MM-dd");
-            if (!grouped[dateKey]) {
-              grouped[dateKey] = [];
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+            // Avoid duplicate: remove any open entry for the same task on the same date
+            grouped[dateKey] = grouped[dateKey].filter(
+              (e: any) => !(e.id === task.id && !e.isCompletedOccurrence && !e.isFutureOccurrence)
+            );
+            // Only add if not already present as completed
+            const alreadyAdded = grouped[dateKey].some(
+              (e: any) => e.id === task.id && e.isCompletedOccurrence && e.activityId === activity.id
+            );
+            if (!alreadyAdded) {
+              grouped[dateKey].push({
+                ...task,
+                isCompletedOccurrence: true,
+                activityId: activity.id,
+                dueDate: completedDate,
+              });
             }
-            grouped[dateKey].push({ 
-              ...task, 
-              isCompletedOccurrence: true, 
-              activityId: activity.id,
-              dueDate: completedDate 
-            });
           }
+        }
+      }
+    });
+
+    // Also show completed single (non-recurring) tasks at their dueDate
+    tasks.forEach(task => {
+      if (task.isCompleted && task.dueDate && !task.repeatInterval) {
+        const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
+        // Only add if not already covered by activityHistory above
+        const alreadyCovered = grouped[dateKey]?.some(
+          (e: any) => e.id === task.id && e.isCompletedOccurrence
+        );
+        if (!alreadyCovered) {
+          if (!grouped[dateKey]) grouped[dateKey] = [];
+          // Replace any open entry for this task with the completed version
+          grouped[dateKey] = grouped[dateKey].filter((e: any) => e.id !== task.id);
+          grouped[dateKey].push({ ...task });
         }
       }
     });
