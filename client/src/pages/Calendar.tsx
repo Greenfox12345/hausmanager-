@@ -969,7 +969,7 @@ export default function Calendar() {
                           </Button>
                           {task.isCompletedOccurrence && (
                             <>
-                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
+                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
                                 <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
                               </Button>
                               {task.activityId && (
@@ -1163,26 +1163,46 @@ export default function Calendar() {
 
                                 {/* Action Buttons */}
                                 <div className="grid grid-cols-2 gap-2 mt-3">
-                                    {task.isCompletedOccurrence && task.activityId && (
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (confirm(t("calendar:messages.confirmUndo", "Möchten Sie den Abschluss dieses Termins rükgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt."))) {
-                                            undoCompletionMutation.mutate({
-                                              taskId: task.id,
-                                              householdId: household?.householdId ?? 0,
-                                              memberId: member?.memberId ?? 0,
-                                              activityId: task.activityId!,
-                                            });
-                                          }
-                                        }}
-                                      >
-                                        <ArrowLeft className="h-4 w-4 mr-1" />
-                                        {t("calendar:actions.undo", "Rükgängig machen")}
-                                      </Button>
+                                    {task.isCompletedOccurrence && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="w-full col-span-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const realTask = tasks.find((t: any) => t.id === task.id) || task;
+                                            const nextDate = findNextOpenOccurrence(realTask as any);
+                                            setCurrentMonth(nextDate);
+                                            setSelectedDate(nextDate);
+                                            toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
+                                          }}
+                                        >
+                                          <ArrowRight className="h-4 w-4 mr-1" />
+                                          {t("calendar:actions.jumpToCurrent", "Zu aktuellem Termin")}
+                                        </Button>
+                                        {task.activityId && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (confirm(t("calendar:messages.confirmUndo", "Möchten Sie den Abschluss dieses Termins rükgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt."))) {
+                                                undoCompletionMutation.mutate({
+                                                  taskId: task.id,
+                                                  householdId: household?.householdId ?? 0,
+                                                  memberId: member?.memberId ?? 0,
+                                                  activityId: task.activityId!,
+                                                });
+                                              }
+                                            }}
+                                          >
+                                            <ArrowLeft className="h-4 w-4 mr-1" />
+                                            {t("calendar:actions.undo", "Rükgängig machen")}
+                                          </Button>
+                                        )}
+                                      </>
                                     )}
                                     {task.isFutureOccurrence && (
                                       <>
@@ -1192,7 +1212,8 @@ export default function Calendar() {
                                           className="w-full col-span-2"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            const nextDate = findNextOpenOccurrence(task);
+                                            const realTask = tasks.find((t: any) => t.id === task.id) || task;
+                                            const nextDate = findNextOpenOccurrence(realTask as any);
                                             setCurrentMonth(nextDate);
                                             setSelectedDate(nextDate);
                                             toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
