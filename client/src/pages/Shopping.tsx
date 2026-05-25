@@ -730,11 +730,11 @@ export default function Shopping() {
                 <div className="space-y-2">
                   <button
                     type="button"
-                    className="flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground py-1"
+                    className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground py-1"
                     onClick={() => setShowAddMore((v) => !v)}
                   >
-                    <span>{t("shopping:fields.more", "Mehr")}</span>
                     {showAddMore ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <span>{t("shopping:fields.more", "Mehr")}</span>
                   </button>
                   {showAddMore && (
                     <div className="space-y-4 pt-1">
