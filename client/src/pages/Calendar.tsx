@@ -415,8 +415,10 @@ export default function Calendar() {
         const occ1Note = (task as any).occurrenceNotes?.find((n: any) => n.occurrenceNumber === 1);
         const isOcc1Skipped = occ1Note?.isSkipped === true;
         
-        // Include if within range OR overdue (and not completed) AND not skipped
-        if (!isOcc1Skipped && ((taskDate <= endDate) || (taskDate < today && !task.isCompleted))) {
+        // Include if: within range (past OR future up to endDate), AND not skipped
+        // Past tasks are always shown (regardless of completion status)
+        // Future tasks only within the selected range
+        if (!isOcc1Skipped && taskDate <= endDate) {
           // Attach note for occurrence number 1 (current appointment)
           const currentNote = occ1Note?.notes || null;
           allTasks.push({
