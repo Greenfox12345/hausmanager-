@@ -1,0 +1,50 @@
+{
+  "query": "SELECT taskId, occurrenceNumber, isSkipped, notes, isSpecial, specialDate FROM task_rotation_occurrence_notes WHERE isSkipped = 1 LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT taskId, occurrenceNumber, isSkipped, notes, isSpecial, specialDate FROM task_rotation_occurrence_notes WHERE isSkipped = 1 LIMIT 20;",
+  "rows": [
+    {
+      "taskId": "2100001",
+      "occurrenceNumber": "1",
+      "isSkipped": "1",
+      "notes": "",
+      "isSpecial": "0",
+      "specialDate": "NULL"
+    },
+    {
+      "taskId": "2310086",
+      "occurrenceNumber": "2",
+      "isSkipped": "1",
+      "notes": "",
+      "isSpecial": "0",
+      "specialDate": "NULL"
+    },
+    {
+      "taskId": "2310087",
+      "occurrenceNumber": "1",
+      "isSkipped": "1",
+      "notes": "",
+      "isSpecial": "0",
+      "specialDate": "NULL"
+    },
+    {
+      "taskId": "2310084",
+      "occurrenceNumber": "1",
+      "isSkipped": "1",
+      "notes": "",
+      "isSpecial": "0",
+      "specialDate": "NULL"
+    },
+    {
+      "taskId": "2310084",
+      "occurrenceNumber": "2",
+      "isSkipped": "1",
+      "notes": "",
+      "isSpecial": "0",
+      "specialDate": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "taskId\toccurrenceNumber\tisSkipped\tnotes\tisSpecial\tspecialDate\n2100001\t1\t1\t\t0\tNULL\n2310086\t2\t1\t\t0\tNULL\n2310087\t1\t1\t\t0\tNULL\n2310084\t1\t1\t\t0\tNULL\n2310084\t2\t1\t\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 307
+}

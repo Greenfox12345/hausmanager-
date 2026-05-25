@@ -1,0 +1,42 @@
+{
+  "query": "SELECT t.id, t.name, t.dueDate, t.repeatInterval, t.repeatUnit, t.enableRotation FROM tasks t WHERE t.id IN (2100001, 2310086, 2310087, 2310084) LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT t.id, t.name, t.dueDate, t.repeatInterval, t.repeatUnit, t.enableRotation FROM tasks t WHERE t.id IN (2100001, 2310086, 2310087, 2310084) LIMIT 10;",
+  "rows": [
+    {
+      "id": "2100001",
+      "name": "1 Artikel einkaufen",
+      "dueDate": "2026-03-26 03:26:00",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "enableRotation": "1"
+    },
+    {
+      "id": "2310084",
+      "name": "Bad reinigen",
+      "dueDate": "2026-05-12 07:49:00",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "enableRotation": "1"
+    },
+    {
+      "id": "2310086",
+      "name": "Staubsaugen",
+      "dueDate": "2026-04-09 15:49:46",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "enableRotation": "1"
+    },
+    {
+      "id": "2310087",
+      "name": "Fenster putzen",
+      "dueDate": "2026-04-27 19:49:00",
+      "repeatInterval": "1",
+      "repeatUnit": "weeks",
+      "enableRotation": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdueDate\trepeatInterval\trepeatUnit\tenableRotation\n2100001\t1 Artikel einkaufen\t2026-03-26 03:26:00\t1\tweeks\t1\n2310084\tBad reinigen\t2026-05-12 07:49:00\t1\tweeks\t1\n2310086\tStaubsaugen\t2026-04-09 15:49:46\t1\tweeks\t1\n2310087\tFenster putzen\t2026-04-27 19:49:00\t1\tweeks\t0\n",
+  "stderr": "",
+  "execution_time_ms": 270
+}

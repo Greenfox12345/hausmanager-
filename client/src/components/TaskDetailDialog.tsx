@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, SkipForward, Trash2, Star } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ArrowLeft, SkipForward, Trash2, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -115,6 +115,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Sub-tab state for history tab
   const [historySubTab, setHistorySubTab] = useState<"activities" | "past_appointments">("activities");
+  // Expanded entries in past_appointments tab
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState<Set<number>>(new Set());
+  const toggleHistoryExpand = (id: number) => setExpandedHistoryIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+
+  // Restore skipped date mutation
+  const restoreSkippedMutation = trpc.tasks.restoreSkippedDate.useMutation({
+    onSuccess: () => {
+      utils.activities.getByTaskId.invalidate({ taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 });
+      utils.tasks.list.invalidate();
+      toast.success("Termin wiederhergestellt");
+    },
+    onError: () => toast.error("Fehler beim Wiederherstellen"),
+  });
   
   // Delete activity mutation
   const deleteActivityMutation = trpc.activities.deleteById.useMutation({
@@ -2694,7 +2707,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     }`}
                   >
                     <Calendar className="h-3.5 w-3.5 inline mr-1.5" />
-                    Vergangene Termine ({taskHistory.filter((a: any) => a.action === 'completed').length})
+                    Vergangene Termine ({taskHistory.filter((a: any) => a.action === 'completed' || a.action === 'skipped').length})
                   </button>
                 </div>
 
@@ -2761,66 +2774,98 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Past appointments sub-tab */}
                 {historySubTab === "past_appointments" && (
                   <>
-                    {taskHistory.filter((a: any) => a.action === 'completed').length === 0 ? (
+                    {taskHistory.filter((a: any) => a.action === 'completed' || a.action === 'skipped').length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p>Noch keine vergangenen Termine</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {taskHistory.filter((a: any) => a.action === 'completed').map((activity: any) => {
+                        {taskHistory
+                          .filter((a: any) => a.action === 'completed' || a.action === 'skipped')
+                          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                          .map((activity: any) => {
                           const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
                           const meta = activity.metadata || {};
                           const occ = meta.occurrence || {};
+                          const isSkipped = activity.action === 'skipped';
                           const isSpecial = occ.isSpecial || false;
                           const specialName = occ.specialName;
-                          const originalDate = meta.originalDueDate ? new Date(meta.originalDueDate) : new Date(activity.createdAt);
+                          const originalDate = isSkipped
+                            ? (meta.skippedDate ? new Date(meta.skippedDate) : new Date(activity.createdAt))
+                            : (meta.originalDueDate ? new Date(meta.originalDueDate) : new Date(activity.createdAt));
+                          const isExpanded = expandedHistoryIds.has(activity.id);
+                          const hasDetails = !!(activity.comment || (activity.photoUrls && activity.photoUrls.length > 0) || (occ.memberNames && occ.memberNames.length > 0) || activityMember || isSpecial);
                           return (
-                            <div key={activity.id} className="border rounded-lg p-3 flex items-start justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                            <div key={activity.id} className={`border rounded-lg overflow-hidden ${isSkipped ? 'border-gray-200 bg-gray-50' : 'border-border'}`}>
+                              {/* Header row – always visible */}
+                              <div
+                                className="flex items-center gap-2 p-3 cursor-pointer select-none"
+                                onClick={() => hasDetails && toggleHistoryExpand(activity.id)}
+                              >
+                                <div className="flex-1 flex items-center gap-2 flex-wrap min-w-0">
+                                  {isSkipped ? (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-200 rounded px-1.5 py-0.5">
+                                      <X className="h-3 w-3" /> Ausgelassen
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 rounded px-1.5 py-0.5">
+                                      <Check className="h-3 w-3" /> Erledigt
+                                    </span>
+                                  )}
                                   <span className="text-sm font-medium">
                                     {format(originalDate, i18n.language === "de" ? "dd.MM.yyyy" : "MM/dd/yyyy")}
                                   </span>
                                   {isSpecial && specialName && (
-                                    <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300">
-                                      ⭐ {specialName}
-                                    </Badge>
-                                  )}
-                                  {activityMember && (
-                                    <span className="text-xs text-muted-foreground">von {activityMember.memberName}</span>
-                                  )}
-                                  {occ.memberNames && occ.memberNames.length > 0 && (
-                                    <span className="text-xs text-muted-foreground">
-                                      Verantwortlich: {occ.memberNames.join(", ")}
-                                    </span>
+                                    <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300">⭐ {specialName}</Badge>
                                   )}
                                 </div>
-                                {activity.comment && (
-                                  <p className="text-xs text-muted-foreground mt-1 italic">"{activity.comment}"</p>
-                                )}
-                                {activity.photoUrls && activity.photoUrls.length > 0 && (
-                                  <div className="flex gap-1 mt-2">
-                                    {activity.photoUrls.slice(0, 3).map((photo: {url: string, filename: string}, idx: number) => (
-                                      <div key={idx} className="w-10 h-10 rounded overflow-hidden border cursor-pointer" onClick={() => { setViewerPhotos(activity.photoUrls); setViewerPhotoIndex(idx); setShowPhotoViewer(true); }}>
-                                        <img src={photo.url} alt={photo.filename} className="w-full h-full object-cover" />
-                                      </div>
-                                    ))}
-                                    {activity.photoUrls.length > 3 && <span className="text-xs text-muted-foreground self-center">+{activity.photoUrls.length - 3}</span>}
-                                  </div>
-                                )}
+                                <div className="flex items-center gap-1 shrink-0">
+                                  {isSkipped ? (
+                                    <button
+                                      onClick={e => { e.stopPropagation(); if (task && household && member) { restoreSkippedMutation.mutate({ taskId: task.id, householdId: household.householdId, memberId: member.memberId, dateToRestore: format(originalDate, 'yyyy-MM-dd') }); } }}
+                                      className="p-1.5 rounded hover:bg-green-100 text-muted-foreground hover:text-green-700 text-xs"
+                                      title="Auslassen rückgängig"
+                                    >
+                                      <ArrowLeft className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                  <button
+                                    onClick={e => { e.stopPropagation(); if (confirm("Diesen Eintrag aus dem Verlauf löschen?")) { deleteActivityMutation.mutate({ activityId: activity.id, householdId: household?.householdId ?? 0 }); } }}
+                                    className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                                    title="Löschen"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                  {hasDetails && (
+                                    <span className="text-muted-foreground">{isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}</span>
+                                  )}
+                                </div>
                               </div>
-                              <button
-                                onClick={() => {
-                                  if (confirm("Diesen vergangenen Termin aus dem Verlauf löschen?")) {
-                                    deleteActivityMutation.mutate({ activityId: activity.id, householdId: household?.householdId ?? 0 });
-                                  }
-                                }}
-                                className="shrink-0 p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                                title="Löschen"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+                              {/* Expandable details */}
+                              {isExpanded && hasDetails && (
+                                <div className="px-3 pb-3 pt-0 border-t text-sm space-y-1.5">
+                                  {activityMember && (
+                                    <p className="text-xs text-muted-foreground">Abgeschlossen von: <span className="font-medium">{activityMember.memberName}</span></p>
+                                  )}
+                                  {occ.memberNames && occ.memberNames.length > 0 && (
+                                    <p className="text-xs text-muted-foreground">Verantwortlich: <span className="font-medium">{occ.memberNames.join(", ")}</span></p>
+                                  )}
+                                  {activity.comment && (
+                                    <p className="text-xs text-muted-foreground italic">"{activity.comment}"</p>
+                                  )}
+                                  {activity.photoUrls && activity.photoUrls.length > 0 && (
+                                    <div className="flex gap-1 mt-1 flex-wrap">
+                                      {activity.photoUrls.slice(0, 5).map((photo: {url: string, filename: string}, idx: number) => (
+                                        <div key={idx} className="w-12 h-12 rounded overflow-hidden border cursor-pointer" onClick={() => { setViewerPhotos(activity.photoUrls); setViewerPhotoIndex(idx); setShowPhotoViewer(true); }}>
+                                          <img src={photo.url} alt={photo.filename} className="w-full h-full object-cover" />
+                                        </div>
+                                      ))}
+                                      {activity.photoUrls.length > 5 && <span className="text-xs text-muted-foreground self-center">+{activity.photoUrls.length - 5}</span>}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           );
                         })}

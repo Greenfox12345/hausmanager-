@@ -387,17 +387,21 @@ export default function Calendar() {
         } as any);
 
         // If occurrence 1 is skipped, find the next non-skipped occurrence and show it as the current one
+        // Always add it regardless of month range (it's the current appointment)
         if (isOcc1Skipped && task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
           const nextDate = findNextOpenOccurrence(task);
           const nextKey = format(nextDate, "yyyy-MM-dd");
-          const isInMonth = nextDate >= wideMonthStart && nextDate <= wideMonthEnd;
-          if (isInMonth && nextKey !== taskDueDateKey) {
+          if (nextKey !== taskDueDateKey) {
             if (!grouped[nextKey]) grouped[nextKey] = [];
             // Find the occurrenceNote for this next date
             const nextOccNote = occurrenceNotesList.find((n: any) => {
               if (n.isSpecial && n.specialDate) return format(new Date(n.specialDate), "yyyy-MM-dd") === nextKey;
               return false;
             });
+            // Remove any existing entry for this task at this date (e.g. added as isFutureOccurrence)
+            if (grouped[nextKey]) {
+              grouped[nextKey] = grouped[nextKey].filter((e: any) => e.id !== task.id);
+            }
             grouped[nextKey].push({
               ...task,
               dueDate: nextDate,
@@ -405,6 +409,7 @@ export default function Calendar() {
               isSpecialOccurrence: !!(nextOccNote?.isSpecial),
               specialOccurrenceName: nextOccNote?.specialName,
               isFutureOccurrence: false, // treat as current appointment
+              isSkippedOccurrence: false,
             } as any);
           }
         }

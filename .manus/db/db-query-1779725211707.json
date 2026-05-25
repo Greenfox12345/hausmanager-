@@ -1,0 +1,35 @@
+{
+  "query": "SELECT action, metadata, createdAt FROM activity_history WHERE action = 'skipped' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT action, metadata, createdAt FROM activity_history WHERE action = 'skipped' LIMIT 5;",
+  "rows": [
+    {
+      "action": "skipped",
+      "metadata": "{\"skippedDate\": \"2026-04-21\", \"taskName\": \"Einkaufen\"}",
+      "createdAt": "2026-04-06 15:33:31"
+    },
+    {
+      "action": "skipped",
+      "metadata": "{\"skippedDate\": \"2026-04-16\", \"taskName\": \"Wäsche waschen\"}",
+      "createdAt": "2026-04-06 16:01:08"
+    },
+    {
+      "action": "skipped",
+      "metadata": "{\"skippedDate\": \"2026-04-28\", \"taskName\": \"Einkaufen\"}",
+      "createdAt": "2026-04-06 16:05:53"
+    },
+    {
+      "action": "skipped",
+      "metadata": "{\"skippedDate\": \"2026-04-14\", \"taskName\": \"Müll rausbringen\"}",
+      "createdAt": "2026-04-06 16:06:41"
+    },
+    {
+      "action": "skipped",
+      "metadata": "{\"skippedDate\": \"2026-04-21\", \"taskName\": \"Müll rausbringen\"}",
+      "createdAt": "2026-04-06 16:17:23"
+    }
+  ],
+  "messages": [],
+  "stdout": "action\tmetadata\tcreatedAt\nskipped\t{\"skippedDate\": \"2026-04-21\", \"taskName\": \"Einkaufen\"}\t2026-04-06 15:33:31\nskipped\t{\"skippedDate\": \"2026-04-16\", \"taskName\": \"Wäsche waschen\"}\t2026-04-06 16:01:08\nskipped\t{\"skippedDate\": \"2026-04-28\", \"taskName\": \"Einkaufen\"}\t2026-04-06 16:05:53\nskipped\t{\"skippedDate\": \"2026-04-14\", \"taskName\": \"Müll rausbringen\"}\t2026-04-06 16:06:41\nskipped\t{\"skippedDate\": \"2026-04-21\", \"taskName\": \"Müll rausbringen\"}\t2026-04-06 16:17:23\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}
