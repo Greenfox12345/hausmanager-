@@ -127,28 +127,45 @@ export async function handleRecurringCompletion(
 ): Promise<{ nextDueDate: Date }> {
   const currentDueDate = task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate!);
 
-  // ── 1. Calculate raw next due date ──────────────────────────────────────────
-  let nextDueDate = await advanceByInterval(currentDueDate, task);
+  // ── 0. Check if occurrence 1 is a special occurrence ────────────────────────
+  // Special occurrences have their own date (specialDate) and are NOT part of the
+  // regular interval sequence. When a special occurrence is completed:
+  //   - nextDueDate stays at task.dueDate (the regular interval date is unchanged)
+  //   - Only the special occurrence entry is removed from the rotation schedule
+  const schedule = await getRotationSchedule(task.id);
+  const occNumToDelete = completedOccurrenceNumber ?? 1;
+  const completedOcc = schedule.find(occ => occ.occurrenceNumber === occNumToDelete);
+  const isCompletingSpecialOcc = completedOcc?.isSpecial === true && completedOcc?.specialDate != null;
 
-  // ── 2. Skip-chain ───────────────────────────────────────────────────────────
-  const skippedOccNums = await getSkippedOccurrenceNumbers(task.id);
-  let highestConsumedOccNum = 0;
-  let maxSkipIter = 500;
-  while (maxSkipIter-- > 0) {
-    const occNum = calcOccurrenceNumber(task, nextDueDate);
-    if (occNum !== null && skippedOccNums.has(occNum)) {
-      highestConsumedOccNum = Math.max(highestConsumedOccNum, occNum);
-      nextDueDate = await advanceByInterval(nextDueDate, task);
-    } else {
-      break;
+  // ── 1. Calculate raw next due date ──────────────────────────────────────────
+  // For special occurrences: keep task.dueDate as the next due date (regular schedule unchanged)
+  // For regular occurrences: advance by interval
+  let nextDueDate: Date;
+  if (isCompletingSpecialOcc) {
+    // The regular due date stays the same – only the special entry is removed
+    nextDueDate = new Date(currentDueDate);
+  } else {
+    nextDueDate = await advanceByInterval(currentDueDate, task);
+
+    // ── 2. Skip-chain ─────────────────────────────────────────────────────────
+    const skippedOccNums = await getSkippedOccurrenceNumbers(task.id);
+    let highestConsumedOccNum = 0;
+    let maxSkipIter = 500;
+    while (maxSkipIter-- > 0) {
+      const occNum = calcOccurrenceNumber(task, nextDueDate);
+      if (occNum !== null && skippedOccNums.has(occNum)) {
+        highestConsumedOccNum = Math.max(highestConsumedOccNum, occNum);
+        nextDueDate = await advanceByInterval(nextDueDate, task);
+      } else {
+        break;
+      }
     }
-  }
-  if (highestConsumedOccNum > 0) {
-    await clearSkippedOccurrencesUpTo(task.id, highestConsumedOccNum);
+    if (highestConsumedOccNum > 0) {
+      await clearSkippedOccurrencesUpTo(task.id, highestConsumedOccNum);
+    }
   }
 
   // ── 3. Remove completed occurrence & renumber ────────────────────────────────
-  const occNumToDelete = completedOccurrenceNumber ?? 1;
   await deleteRotationOccurrence(task.id, occNumToDelete);
 
   // Renumber taskOccurrenceItems

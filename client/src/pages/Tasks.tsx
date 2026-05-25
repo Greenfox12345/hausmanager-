@@ -1607,11 +1607,18 @@ export default function Tasks() {
         <CompleteTaskDialog
           open={completeDialogOpen}
           onOpenChange={setCompleteDialogOpen}
-          task={{ 
-            ...selectedTask, 
-            isRecurring: Boolean(selectedTask.enableRepeat || selectedTask.repeatUnit || selectedTask.repeatInterval),
-            dueDate: selectedTask.dueDate ? new Date(selectedTask.dueDate) : undefined,
-          }}
+          task={(() => {
+            const occNotes: any[] = (selectedTask as any).occurrenceNotes || [];
+            const currentOcc = occNotes.find((n: any) => !n.isSkipped) || occNotes[0];
+            const isSpecial = currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
+            return {
+              ...selectedTask,
+              isRecurring: Boolean(selectedTask.enableRepeat || selectedTask.repeatUnit || selectedTask.repeatInterval),
+              dueDate: isSpecial ? new Date(currentOcc.specialDate) : (selectedTask.dueDate ? new Date(selectedTask.dueDate) : undefined),
+              isSpecialOccurrence: isSpecial,
+              specialName: isSpecial ? currentOcc.specialName : undefined,
+            };
+          })()}
           onComplete={handleCompleteTask}
         />
       )}

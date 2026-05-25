@@ -1570,7 +1570,19 @@ export default function Calendar() {
           <CompleteTaskDialog
             open={completeDialogOpen}
             onOpenChange={setCompleteDialogOpen}
-            task={{ ...actionTask, isRecurring: Boolean(actionTask.enableRepeat || actionTask.repeatUnit || actionTask.repeatInterval) }}
+            task={(() => {
+              // Determine if the current occurrence (occ 1) is a special occurrence
+              const occNotes: any[] = (actionTask as any).occurrenceNotes || [];
+              const currentOcc = occNotes.find((n: any) => !n.isSkipped) || occNotes[0];
+              const isSpecial = currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
+              return {
+                ...actionTask,
+                isRecurring: Boolean(actionTask.enableRepeat || actionTask.repeatUnit || actionTask.repeatInterval),
+                dueDate: isSpecial ? new Date(currentOcc.specialDate) : (actionTask.dueDate ? new Date(actionTask.dueDate) : undefined),
+                isSpecialOccurrence: isSpecial,
+                specialName: isSpecial ? currentOcc.specialName : undefined,
+              };
+            })()}
             onComplete={handleCompleteTask}
           />
           <MilestoneDialog

@@ -2773,22 +2773,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
              isRecurring: Boolean(task.repeatUnit),
              dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
              isSpecialOccurrence: (() => {
-               if (!rotationSchedule || !task.dueDate) return false;
-               const dueDateStr = format(new Date(task.dueDate), "yyyy-MM-dd");
-               const matchingOcc = rotationSchedule.find((occ: any) => {
-                 const occDate = occ.specialDate || occ.date;
-                 return occDate && format(new Date(occDate), "yyyy-MM-dd") === dueDateStr;
-               });
-               return matchingOcc?.isSpecial || false;
+               // The current occurrence is always the first non-skipped entry in the rotation schedule
+               // (occurrenceNumber=1). Check if it is a special occurrence.
+               if (!rotationSchedule) return false;
+               const currentOcc = rotationSchedule.find((occ: any) => !occ.isSkipped) || rotationSchedule[0];
+               return currentOcc?.isSpecial === true && currentOcc?.specialDate != null;
              })(),
              specialName: (() => {
-               if (!rotationSchedule || !task.dueDate) return undefined;
-               const dueDateStr = format(new Date(task.dueDate), "yyyy-MM-dd");
-               const matchingOcc = rotationSchedule.find((occ: any) => {
-                 const occDate = occ.specialDate || occ.date;
-                 return occDate && format(new Date(occDate), "yyyy-MM-dd") === dueDateStr;
-               });
-               return matchingOcc?.specialName || undefined;
+               if (!rotationSchedule) return undefined;
+               const currentOcc = rotationSchedule.find((occ: any) => !occ.isSkipped) || rotationSchedule[0];
+               if (currentOcc?.isSpecial === true) return currentOcc?.specialName || undefined;
+               return undefined;
              })(),
            }}
           taskId={task.id}
