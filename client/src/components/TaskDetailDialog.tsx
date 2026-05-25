@@ -1277,8 +1277,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               </div>
 
               {/* Duration fields */}
-              <div className="flex flex-wrap gap-4 items-end">
-                <div className="space-y-2" style={{minWidth: '90px'}}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="task-duration-days">{t("fields.durationDaysLabel", "Dauer (Tage)")}</Label>
                   <Input
                     id="task-duration-days"
@@ -1289,7 +1289,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     placeholder="0"
                   />
                 </div>
-                <div className="space-y-2" style={{minWidth: '130px'}}>
+                <div className="space-y-2">
                   <Label htmlFor="task-duration-time">{t("fields.durationTime")}</Label>
                   <Input
                     id="task-duration-time"

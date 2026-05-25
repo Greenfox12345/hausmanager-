@@ -722,17 +722,7 @@ export default function Tasks() {
               {/* Duration fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="durationTime">{t("tasks:fields.durationTime", "Dauer (Stunden:Minuten)")}</Label>
-                  <Input
-                    id="durationTime"
-                    type="time"
-                    value={durationTime}
-                    onChange={(e) => setDurationTime(e.target.value)}
-                    placeholder="00:00"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="durationDays">{t("tasks:fields.durationDays", "Dauer (Tage)")}</Label>
+                  <Label htmlFor="durationDays">{t("tasks:fields.durationDaysLabel", "Dauer (Tage)")}</Label>
                   <Input
                     id="durationDays"
                     type="number"
@@ -740,6 +730,16 @@ export default function Tasks() {
                     value={durationDays}
                     onChange={(e) => setDurationDays(e.target.value)}
                     placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="durationTime">{t("tasks:fields.durationTime", "Dauer (Stunden:Minuten)")}</Label>
+                  <Input
+                    id="durationTime"
+                    type="time"
+                    value={durationTime}
+                    onChange={(e) => setDurationTime(e.target.value)}
+                    placeholder="00:00"
                   />
                 </div>
               </div>
