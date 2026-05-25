@@ -323,14 +323,38 @@ export default function Calendar() {
 
       // Add future occurrences for recurring tasks (regular intervals)
       if (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
-        const futureOccurrences = calculateFutureOccurrences(task);
-        futureOccurrences.forEach(occurrence => {
-          const dateKey = format(occurrence.date, "yyyy-MM-dd");
-          if (!grouped[dateKey]) {
-            grouped[dateKey] = [];
-          }
-          grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date, occurrenceNote: occurrence.occurrenceNote } as any);
-        });
+        const taskOccNotes: any[] = (task as any).occurrenceNotes || [];
+        const hasRotationPlan = task.enableRotation && taskOccNotes.length > 0;
+
+        if (hasRotationPlan) {
+          // For rotation-plan tasks: only show occurrences that exist in occurrenceNotes
+          const interval = task.repeatInterval;
+          const unit = task.repeatUnit;
+          taskOccNotes.forEach((noteEntry: any) => {
+            const occNum = noteEntry.occurrenceNumber;
+            if (occNum <= 1) return; // Occurrence 1 = dueDate, already added
+            if (noteEntry.isSkipped) return;
+            const calcDate = new Date(task.dueDate!);
+            const steps = occNum - 1;
+            if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
+            else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
+            else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            const isInMonth = calcDate >= monthStart && calcDate <= monthEnd;
+            if (!isInMonth) return;
+            const dateKey = format(calcDate, "yyyy-MM-dd");
+            if (!grouped[dateKey]) grouped[dateKey] = [];
+            grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: calcDate, occurrenceNote: noteEntry.notes || null } as any);
+          });
+        } else {
+          const futureOccurrences = calculateFutureOccurrences(task);
+          futureOccurrences.forEach(occurrence => {
+            const dateKey = format(occurrence.date, "yyyy-MM-dd");
+            if (!grouped[dateKey]) {
+              grouped[dateKey] = [];
+            }
+            grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date, occurrenceNote: occurrence.occurrenceNote } as any);
+          });
+        }
       }
 
       // Add irregular occurrences and special occurrences from rotation schedule
@@ -432,23 +456,56 @@ export default function Calendar() {
       
       // Add future occurrences for recurring tasks (regular intervals)
       if (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
-        const futureOccurrences = calculateFutureOccurrences(task, chronologicalRange);
-        futureOccurrences.forEach(occurrence => {
-          const occurrenceDate = new Date(occurrence.date);
-          occurrenceDate.setHours(0, 0, 0, 0);
-          
-          // Always include if within range, OR if it has a note (even if in the future beyond range)
-          if (occurrenceDate <= endDate || occurrence.occurrenceNote) {
-            allTasks.push({ 
-              ...task, 
-              dueDate: occurrence.date, 
+        const taskOccurrenceNotes: any[] = (task as any).occurrenceNotes || [];
+        const hasRotationPlan = task.enableRotation && taskOccurrenceNotes.length > 0;
+
+        if (hasRotationPlan) {
+          // For tasks with a rotation plan: only show occurrences that exist in occurrenceNotes
+          // (occurrenceNotes is the authoritative list after deletions/renumbering)
+          // Calculate the date for each known occurrence number from dueDate
+          const interval = task.repeatInterval;
+          const unit = task.repeatUnit;
+          taskOccurrenceNotes.forEach((noteEntry: any) => {
+            const occNum = noteEntry.occurrenceNumber;
+            if (occNum <= 1) return; // Occurrence 1 = dueDate, already added above
+            if (noteEntry.isSkipped) return;
+            // Calculate date: dueDate + (occNum - 1) * interval
+            const calcDate = new Date(task.dueDate!);
+            const steps = occNum - 1;
+            if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
+            else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
+            else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            const calcDateNorm = new Date(calcDate);
+            calcDateNorm.setHours(0, 0, 0, 0);
+            if (calcDateNorm > endDate && !noteEntry.notes) return;
+            allTasks.push({
+              ...task,
+              dueDate: calcDate,
               isFutureOccurrence: true,
-              occurrenceDate: occurrence.date,
-              occurrenceNote: occurrence.occurrenceNote,
-              isOverdue: false
+              occurrenceDate: calcDate,
+              occurrenceNote: noteEntry.notes || null,
+              isOverdue: false,
             } as any);
-          }
-        });
+          });
+        } else {
+          // For tasks without a rotation plan: calculate occurrences sequentially
+          const futureOccurrences = calculateFutureOccurrences(task, chronologicalRange);
+          futureOccurrences.forEach(occurrence => {
+            const occurrenceDate = new Date(occurrence.date);
+            occurrenceDate.setHours(0, 0, 0, 0);
+            // Always include if within range, OR if it has a note (even if in the future beyond range)
+            if (occurrenceDate <= endDate || occurrence.occurrenceNote) {
+              allTasks.push({
+                ...task,
+                dueDate: occurrence.date,
+                isFutureOccurrence: true,
+                occurrenceDate: occurrence.date,
+                occurrenceNote: occurrence.occurrenceNote,
+                isOverdue: false
+              } as any);
+            }
+          });
+        }
       }
 
       // Add irregular occurrences and special occurrences from rotation schedule

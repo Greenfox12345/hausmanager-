@@ -1683,13 +1683,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                           type="button"
                                           variant="ghost"
                                           size="sm"
+                                          disabled={!occ.isSpecial && occ.occurrenceNumber <= 3}
                                           onClick={() => {
                                             const updated = rotationSchedule.filter(o => o.occurrenceNumber !== occ.occurrenceNumber);
                                             const renumbered = updated.map((o, i) => ({ ...o, occurrenceNumber: i + 1 }));
                                             handleRotationScheduleChange(renumbered);
                                           }}
-                                          title={t("dialog.delete")}
-                                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                          title={!occ.isSpecial && occ.occurrenceNumber <= 3 ? t("dialog.cannotDeleteFirstOccurrences", "Termin 1–3 kann nicht gelöscht werden (Überspringen möglich)") : t("dialog.delete")}
+                                          className="h-7 w-7 p-0 text-destructive hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed"
                                         >
                                           <Trash2 className="h-3.5 w-3.5" />
                                         </Button>

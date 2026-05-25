@@ -1459,17 +1459,28 @@ export default function Tasks() {
                             })}
                           </span>
                         )}
-                        {task.frequency && task.frequency !== "once" && (
+                        {(task.frequency && task.frequency !== "once") || task.repeatUnit ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
                             <RefreshCw className="h-3 w-3" />
-                            {task.frequency === "daily" && t("tasks:frequency.daily", "Täglich")}
-                            {task.frequency === "weekly" && t("tasks:frequency.weekly", "Wöchentlich")}
-                            {task.frequency === "monthly" && t("tasks:frequency.monthly", "Monatlich")}
-                            {task.frequency === "custom" && task.repeatInterval && task.repeatUnit
-                              ? t("tasks:frequency.every", "Alle {{interval}} {{unit}}", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("tasks:frequency.days", "Tage") : task.repeatUnit === "weeks" ? t("tasks:frequency.weeks", "Wochen") : t("tasks:frequency.months", "Monate") })
-                              : t("tasks:frequency.custom", "Benutzerdefiniert")}
+                            {task.repeatUnit === "irregular"
+                              ? t("tasks:repeat.irregular", "Unregelmäßig")
+                              : task.repeatInterval && task.repeatUnit
+                                ? task.repeatInterval === 1
+                                  ? task.repeatUnit === "days"
+                                    ? t("tasks:repeat.daily", "Täglich")
+                                    : task.repeatUnit === "weeks"
+                                      ? t("tasks:repeat.weekly", "Wöchentlich")
+                                      : t("tasks:repeat.monthly", "Monatlich")
+                                  : t("tasks:frequency.every", "Alle {{interval}} {{unit}}", { interval: task.repeatInterval, unit: task.repeatUnit === "days" ? t("tasks:frequency.days", "Tage") : task.repeatUnit === "weeks" ? t("tasks:frequency.weeks", "Wochen") : t("tasks:frequency.months", "Monate") })
+                                : task.frequency === "daily"
+                                  ? t("tasks:repeat.daily", "Täglich")
+                                  : task.frequency === "weekly"
+                                    ? t("tasks:repeat.weekly", "Wöchentlich")
+                                    : task.frequency === "monthly"
+                                      ? t("tasks:repeat.monthly", "Monatlich")
+                                      : null}
                           </span>
-                        )}
+                        ) : null}
                         {task.enableRotation && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             <RefreshCw className="h-3 w-3" />
