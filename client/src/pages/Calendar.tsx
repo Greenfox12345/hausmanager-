@@ -171,15 +171,32 @@ export default function Calendar() {
   });
 
   const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
-    onSuccess: (_data, variables) => {
-      utils.tasks.list.invalidate();
+    onSuccess: async (_data, variables) => {
+      // Invalidate and wait for fresh data so findNextOpenOccurrence uses updated occurrenceNotes
+      await utils.tasks.list.invalidate();
       utils.tasks.getRotationSchedule.invalidate();
       // Update selectedTask in-place so TaskDetailDialog reflects the new skip status immediately
-      // occurrenceNotes is the single source of truth - invalidate will refresh from server
       setSelectedTask((prev: any) => {
         if (!prev || prev.id !== variables.taskId) return prev;
-        return { ...prev }; // trigger re-render; list invalidation will update occurrenceNotes
+        return { ...prev };
       });
+      // Close popup if it was triggered from popup
+      if (pendingPopupCloseRef.current) {
+        pendingPopupCloseRef.current();
+        pendingPopupCloseRef.current = null;
+      }
+      // Jump to the next open occurrence using fresh task data
+      const freshTasks = utils.tasks.list.getData({ householdId: household?.householdId ?? 0 }) as any[] | undefined;
+      const freshTask = freshTasks?.find((t: any) => t.id === variables.taskId);
+      if (freshTask) {
+        const nextDate = findNextOpenOccurrence(freshTask);
+        if (taskCalendarRef.current) {
+          taskCalendarRef.current.jumpToOccurrence(nextDate, variables.taskId);
+        } else {
+          setCurrentMonth(nextDate);
+          setSelectedDate(nextDate);
+        }
+      }
       toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
     onError: (error) => {
@@ -995,7 +1012,7 @@ export default function Calendar() {
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
                                 <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                               </Button>
-                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); onClose(); } }}>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { pendingPopupCloseRef.current = onClose; const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); } }}>
                                 <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
                               </Button>
                             </>
@@ -1014,7 +1031,7 @@ export default function Calendar() {
                               <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setActionTask(task); setReminderDialogOpen(true); }}>
                                 <Bell className="h-4 w-4 mr-1" />{t("tasks:actions.remind", "Erinnern")}
                               </Button>
-                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); onClose(); } }}>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { pendingPopupCloseRef.current = onClose; const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); } }}>
                                 <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
                               </Button>
                               <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={(e) => handleDelete(task, e)}>
