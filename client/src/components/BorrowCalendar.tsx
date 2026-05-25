@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, setMonth, setYear } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BorrowCard, type BorrowCardData } from "@/components/BorrowCard";
 import { useTranslation } from "react-i18next";
 
@@ -49,6 +51,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
   const { t, i18n } = useTranslation(["borrows", "common"]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selected, setSelected] = useState<SelectedInfo | null>(null);
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -153,9 +156,64 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
           <Button variant="outline" size="icon" onClick={goToPrevMonth}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <h2 className="text-lg font-semibold min-w-[160px] text-center">
-            {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
-          </h2>
+          <Popover open={monthPickerOpen} onOpenChange={setMonthPickerOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className="flex items-center gap-1 text-lg font-semibold min-w-[160px] justify-center hover:opacity-70 transition-opacity rounded px-2 py-1"
+                title={t("common:labels.selectMonthYear", "Monat und Jahr auswählen")}
+              >
+                {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4 space-y-3" align="center">
+              <p className="text-sm font-medium text-center">{t("common:labels.selectMonthYear", "Monat und Jahr auswählen")}</p>
+              <div className="flex gap-2">
+                <Select
+                  value={String(currentMonth.getMonth())}
+                  onValueChange={(val) => {
+                    setCurrentMonth(prev => setMonth(prev, parseInt(val)));
+                  }}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <SelectItem key={i} value={String(i)}>
+                        {format(setMonth(new Date(), i), "MMMM", { locale: dateFnsLocale })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={String(currentMonth.getFullYear())}
+                  onValueChange={(val) => {
+                    setCurrentMonth(prev => setYear(prev, parseInt(val)));
+                  }}
+                >
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => {
+                      const year = new Date().getFullYear() - 2 + i;
+                      return (
+                        <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={() => setMonthPickerOpen(false)}
+              >
+                {t("common:actions.apply", "Übernehmen")}
+              </Button>
+            </PopoverContent>
+          </Popover>
           <Button variant="outline" size="icon" onClick={goToNextMonth}>
             <ChevronRight className="w-4 h-4" />
           </Button>
