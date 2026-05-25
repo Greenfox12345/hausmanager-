@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users, Star } from "lucide-react";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
+import { TaskCalendar, type TaskOccurrence } from "@/components/TaskCalendar";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import TaskDependencies from "@/components/TaskDependencies";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
@@ -419,6 +420,42 @@ export default function Calendar() {
     
     return grouped;
   }, [tasks, activityHistory, calendarEvents, monthStart, monthEnd]);
+
+  // Convert tasksByDate to TaskOccurrence[] for TaskCalendar
+  const taskOccurrences = useMemo((): TaskOccurrence[] => {
+    const result: TaskOccurrence[] = [];
+    Object.entries(tasksByDate).forEach(([, items]) => {
+      (items as any[]).forEach((item, idx) => {
+        const date = item.occurrenceDate
+          ? new Date(item.occurrenceDate)
+          : item.dueDate
+          ? new Date(item.dueDate)
+          : item.startDate
+          ? new Date(item.startDate)
+          : null;
+        if (!date) return;
+        result.push({
+          key: `${item.isCalendarEvent ? 'event' : 'task'}-${item.id}-${idx}`,
+          taskId: item.id,
+          taskName: item.isCalendarEvent ? item.title : item.name,
+          date,
+          isCompleted: !!item.isCompleted,
+          isSkipped: false,
+          isSpecial: !!item.isSpecialOccurrence,
+          specialName: item.specialOccurrenceName,
+          isFutureOccurrence: !!item.isFutureOccurrence,
+          isCompletedOccurrence: !!item.isCompletedOccurrence,
+          isCalendarEvent: !!item.isCalendarEvent,
+          eventType: item.eventType,
+          repeatUnit: item.repeatUnit,
+          occurrenceNote: item.occurrenceNote,
+          raw: item,
+        });
+      });
+    });
+    return result;
+  }, [tasksByDate]);
+
   // Create chronological task list with future occurrences
   const chronologicalTasks = useMemo(() => {
     const allTasks: Array<typeof tasks[0] & { isFutureOccurrence?: boolean; isCompletedOccurrence?: boolean; activityId?: number; isOverdue?: boolean }> = [];
@@ -759,505 +796,141 @@ export default function Calendar() {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
-                    {format(currentMonth, "MMMM yyyy", { locale: dateFnsLocale })}
+                    {t("calendar:calendarView", "Kalenderansicht")}
                   </CardTitle>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Select value={eventTypeFilter} onValueChange={(value: any) => setEventTypeFilter(value)}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder={t("common:actions.filter")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t("calendar:filter.all", "Alle Einträge")}</SelectItem>
-                        <SelectItem value="tasks">{t("calendar:filter.tasksOnly", "Nur Aufgaben")}</SelectItem>
-                        <SelectItem value="borrow_events">{t("calendar:filter.borrowsOnly", "Nur Ausleihen")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToPreviousMonth}
-                    >
-                      ← {t("common:navigation.back", "Zurück")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToToday}
-                    >
-                      {t("calendar:today", "Heute")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToNextMonth}
-                    >
-                      {t("common:navigation.next", "Weiter")} →
-                    </Button>
-                  </div>
+                  <Select value={eventTypeFilter} onValueChange={(value: any) => setEventTypeFilter(value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder={t("common:actions.filter")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("calendar:filter.all", "Alle Einträge")}</SelectItem>
+                      <SelectItem value="tasks">{t("calendar:filter.tasksOnly", "Nur Aufgaben")}</SelectItem>
+                      <SelectItem value="borrow_events">{t("calendar:filter.borrowsOnly", "Nur Ausleihen")}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
               <CardContent>
-                {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-2 mb-4">
-                  {weekdayLabels.map(day => (
-                    <div key={day} className="text-center text-sm font-semibold text-muted-foreground p-2">
-                      {day}
-                    </div>
-                  ))}
-                  
-                  {/* Empty cells for days before month start */}
-                  {Array.from({ length: monthStart.getDay() }).map((_, i) => (
-                    <div key={`empty-${i}`} className="p-2" />
-                  ))}
-                  
-                  {/* Month days */}
-                  {monthDays.map(day => {
-                    const dateKey = format(day, "yyyy-MM-dd");
-                    let dayTasks = tasksByDate[dateKey] || [];
-                    
-                    // Apply event type filter
-                    if (eventTypeFilter === "tasks") {
-                      dayTasks = dayTasks.filter((item: any) => !item.isCalendarEvent);
-                    } else if (eventTypeFilter === "borrow_events") {
-                      dayTasks = dayTasks.filter((item: any) => item.isCalendarEvent);
-                    }
-                    
-                    const isSelected = selectedDate && isSameDay(day, selectedDate);
-                    const isCurrentDay = isToday(day);
-                    const hasTasks = dayTasks.length > 0;
-                    
-                    return (
-                      <button
-                        key={dateKey}
-                        onClick={() => setSelectedDate(day)}
-                        className={`
-                          p-2 rounded-lg border transition-all min-h-[60px] flex flex-col items-center justify-start
-                          ${isSelected ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted/50"}
-                          ${isCurrentDay && !isSelected ? "border-primary border-2" : ""}
-                        `}
-                      >
-                        <span className={`text-sm font-medium ${isCurrentDay && !isSelected ? "text-primary" : ""}`}>
-                          {format(day, "d")}
-                        </span>
-                        {hasTasks && (
-                          <div className="flex flex-wrap gap-0.5 mt-1">
-                            {dayTasks.slice(0, 3).map((item: any, i) => {
-                              const isCalendarEvent = item.isCalendarEvent;
-                              const eventType = isCalendarEvent ? item.eventType : null;
-                              
-                              // Sondertermine get a star symbol instead of a dot
-                              const isSpecial = item.isSpecialOccurrence;
-                              if (isSpecial) {
-                                return (
-                                  <span
-                                    key={i}
-                                    className="text-[10px] leading-none text-amber-500"
-                                    title={item.specialOccurrenceName || t("calendar:specialOccurrence", "Sondertermin")}
-                                  >★</span>
-                                );
-                              }
-                              return (
-                                <div
-                                  key={i}
-                                  className={`w-1.5 h-1.5 rounded-full ${
-                                    isCalendarEvent
-                                      ? eventType === "borrow_start"
-                                        ? "bg-orange-500"
-                                        : eventType === "borrow_return"
-                                        ? "bg-amber-500"
-                                        : "bg-gray-500"
-                                      : item.isCompletedOccurrence
-                                      ? "bg-green-500"
-                                      : item.isFutureOccurrence
-                                      ? "bg-purple-400 opacity-60"
-                                      : item.isCompleted
-                                      ? "bg-green-500"
-                                      : isPast(new Date(item.dueDate!))
-                                      ? "bg-red-500"
-                                      : "bg-blue-500"
-                                  }`}
-                                  title={
-                                    isCalendarEvent
-                                      ? item.icon + " " + item.title
-                                      : item.isCompletedOccurrence
-                                      ? t("calendar:completedOccurrence", "Erledigter Termin")
-                                      : item.isFutureOccurrence
-                                      ? t("calendar:futureOccurrence", "Folgetermin")
-                                      : ""
-                                }
-                              />
-                              );
-                            })}
-                            {dayTasks.length > 3 && (
-                              <span className="text-[10px] ml-0.5">+{dayTasks.length - 3}</span>
-                            )}
+                <TaskCalendar
+                  occurrences={(() => {
+                    let occs = taskOccurrences;
+                    if (eventTypeFilter === "tasks") occs = occs.filter(o => !o.isCalendarEvent);
+                    else if (eventTypeFilter === "borrow_events") occs = occs.filter(o => o.isCalendarEvent);
+                    return occs;
+                  })()}
+                  renderDetail={(occ, onClose) => {
+                    const item = occ.raw;
+                    const isCalendarEvent = occ.isCalendarEvent;
+                    if (isCalendarEvent) {
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-3">
+                            <div className="text-2xl">{item.icon}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium">{item.title}</span>
+                                <Badge variant="outline" className={
+                                  item.eventType === "borrow_start"
+                                    ? "bg-orange-50 text-orange-700 border-orange-200"
+                                    : item.eventType === "borrow_return"
+                                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                                    : "bg-gray-50 text-gray-700 border-gray-200"
+                                }>
+                                  {item.eventType === "borrow_start" ? t("borrows:borrowing", "Ausleihe") : item.eventType === "borrow_return" ? t("borrows:return", "Rückgabe") : "Event"}
+                                </Badge>
+                              </div>
+                              {item.description && <p className="text-sm text-muted-foreground mt-1">{item.description}</p>}
+                              {item.relatedData?.item && <p className="text-xs text-muted-foreground mt-1">Item: {item.relatedData.item.name}</p>}
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0 h-6 w-6"><X className="h-3 w-3" /></Button>
                           </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Selected Date Tasks */}
-                {selectedDate && (
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      {t("calendar:tasksOn", "Aufgaben am")} {format(selectedDate, "PPP", { locale: dateFnsLocale })}
-                    </h3>
-                    {selectedDateTasks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground py-4 text-center">
-                        {t("calendar:noTasksOnDay", "Keine Aufgaben an diesem Tag")}
-                      </p>
-                    ) : (
+                          <Button size="sm" variant="outline" className="w-full" onClick={() => { setSelectedEvent(item); setEventDetailDialogOpen(true); onClose(); }}>
+                            {t("common:actions.details", "Details")}
+                          </Button>
+                        </div>
+                      );
+                    }
+                    const task = item;
+                    const projectName = getProjectName(task.projectIds);
+                    const frequency = getFrequencyBadge(task);
+                    return (
                       <div className="space-y-2">
-                        {selectedDateTasks.map((item: any) => {
-                          // Check if this is a calendar event or task
-                          const isCalendarEvent = item.isCalendarEvent;
-                          
-                          if (isCalendarEvent) {
-                            // Render calendar event
-                            return (
-                              <Card 
-                                key={`event-${item.id}`} 
-                                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                                onClick={() => {
-                                  setSelectedEvent(item);
-                                  setEventDetailDialogOpen(true);
-                                }}
-                              >
-                                <CardContent className="p-3">
-                                  <div className="flex items-start gap-3">
-                                    <div className="text-2xl">{item.icon}</div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-medium">{item.title}</span>
-                                        <Badge 
-                                          variant="outline" 
-                                          className={
-                                            item.eventType === "borrow_start"
-                                              ? "bg-orange-50 text-orange-700 border-orange-200"
-                                              : item.eventType === "borrow_return"
-                                              ? "bg-amber-50 text-amber-700 border-amber-200"
-                                              : "bg-gray-50 text-gray-700 border-gray-200"
-                                          }
-                                        >
-                                          {item.eventType === "borrow_start" ? t("borrows:borrowing", "Ausleihe") : item.eventType === "borrow_return" ? t("borrows:return", "Rückgabe") : "Event"}
-                                        </Badge>
-                                        {item.isCompleted && (
-                                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            {t("tasks:status.completed", "Erledigt")}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      {item.description && (
-                                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                                      )}
-                                      {item.relatedData?.item && (
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                          Item: {item.relatedData.item.name}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            );
-                          }
-                          
-                          // Render task
-                          const task = item;
-                          const projectName = getProjectName(task.projectIds);
-                          const frequency = getFrequencyBadge(task);
-                          
-                          return (
-                            <Card 
-                              key={task.id} 
-                              className={`shadow-sm cursor-pointer hover:shadow-md transition-shadow ${task.isCompleted ? "opacity-60" : ""}`}
-                              onClick={() => {
-                                setSelectedTask(task);
-                                setTaskDialogOpen(true);
-                              }}
-                            >
-                              <CardContent className="p-3">
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                                        {task.name}
-                                      </span>
-                                      {task.isCompleted && (
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                                          {t("tasks:status.completed", "Erledigt")}
-                                        </Badge>
-                                      )}
-                                      {task.isCompletedOccurrence && (
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                                          {t("calendar:completedOccurrence", "Erledigter Termin")}
-                                        </Badge>
-                                      )}
-                                      {task.isFutureOccurrence && (
-                                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                                          {t("calendar:futureOccurrence", "Folgetermin")}
-                                        </Badge>
-                                      )}
-                                      {(task as any).isSpecialOccurrence && (
-                                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                          ★ {t("calendar:specialOccurrence", "Sondertermin")}
-                                        </Badge>
-                                      )}
-                                      {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
-                                        <Badge variant="destructive" className="text-xs">
-                                          {t("tasks:overdue", "Überfällig")}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    
-                                    {(task as any).occurrenceNote && (
-                                      <p className="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 mt-1 flex items-center gap-1">
-                                        <span>📝</span>
-                                        <span>{(task as any).occurrenceNote}</span>
-                                      </p>
-                                    )}
-                                    <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
-                                      <span>{getMemberNames(task.assignedTo)}</span>
-                                      {task.dueDate && (
-                                        <span>• {format(new Date(task.dueDate), "HH:mm")}{i18n.language === "de" ? " Uhr" : ""}</span>
-                                      )}
-                                      {projectName && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <FolderKanban className="h-3 w-3 mr-1" />
-                                          {projectName}
-                                        </Badge>
-                                      )}
-                                      <TaskDependencies
-                                        taskId={task.id}
-                                        allTasks={tasks}
-                                        compact
-                                      />
-                                      {frequency && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <Clock className="h-3 w-3 mr-1" />
-                                          {frequency}
-                                        </Badge>
-                                      )}
-                                      {task.enableRotation && (
-                                        <Badge variant="outline" className="text-xs">
-                                          <Target className="h-3 w-3 mr-1" />
-                                          {t("tasks:repeat.rotation", "Rotation")}
-                                        </Badge>
-                                      )}
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="grid grid-cols-2 gap-2 mt-3">
-                                      {task.isCompletedOccurrence && task.activityId && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="w-full col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen? Die Aufgabe wird auf dieses Datum zurückgesetzt.")) {
-                                              undoCompletionMutation.mutate({
-                                                taskId: task.id,
-                                                householdId: household?.householdId ?? 0,
-                                                memberId: member?.memberId ?? 0,
-                                                activityId: task.activityId!,
-                                              });
-                                            }
-                                          }}
-                                        >
-                                          <ArrowLeft className="h-4 w-4 mr-1" />
-                                          {t("common:actions.undo", "Rükgängig machen")}
-                                        </Button>
-                                      )}
-                                      {task.isFutureOccurrence && (
-                                        <>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full col-span-2"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const nextDate = findNextOpenOccurrence(task);
-                                              setCurrentMonth(nextDate);
-                                              setSelectedDate(nextDate);
-                                              toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen"));
-                                            }}
-                                          >
-                                            <ArrowRight className="h-4 w-4 mr-1" />
-                                            {t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full text-blue-600 hover:bg-blue-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                              setNoteTask({ ...task, targetDate });
-                                              setNoteText((task as any).occurrenceNote || "");
-                                              setNoteDialogOpen(true);
-                                            }}
-                                          >
-                                            <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                            {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full text-orange-600 hover:bg-orange-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
-                                                const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                                skipOccurrenceMutation.mutate({
-                                                  taskId: task.id,
-                                                  householdId: household?.householdId ?? 0,
-                                                  memberId: member?.memberId ?? 0,
-                                                  dateToSkip: format(targetDate, "yyyy-MM-dd"),
-                                                });
-                                              }
-                                            }}
-                                          >
-                                            <X className="h-4 w-4 mr-1" />
-                                            {t("calendar:skip", "Auslassen")}
-                                          </Button>
-                                        </>
-                                      )}
-                                      {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && (
-                                        <Badge variant="destructive" className="text-xs col-span-2">
-                                          {t("tasks:status.overdue", "Überfällig")}
-                                        </Badge>
-                                      )}
-                                      {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
-                                        <>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full"
-                                            onClick={async (e) => {
-                                              e.stopPropagation();
-                                              setActionTask(task);
-                                              // For recurring tasks: check skip-chain before opening complete dialog
-                                              const isRecurring = Boolean(task.repeatInterval && task.repeatUnit);
-                                              if (isRecurring && household) {
-                                                try {
-                                                  const check = await utils.tasks.checkNextOccurrence.fetch({
-                                                    taskId: task.id,
-                                                    householdId: household.householdId,
-                                                  });
-                                                  if (check.skippedCount > 0) {
-                                                    setSkipConfirmData({
-                                                      skippedCount: check.skippedCount,
-                                                      skippedOccurrenceDates: check.skippedOccurrenceDates,
-                                                      nextDate: check.nextDate,
-                                                      pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] },
-                                                    });
-                                                    setSkipConfirmOpen(true);
-                                                    return;
-                                                  }
-                                                } catch {
-                                                  // ignore, proceed normally
-                                                }
-                                              }
-                                              setCompleteDialogOpen(true);
-                                            }}
-                                          >
-                                            <Check className="h-4 w-4 mr-1" />
-                                            {t("tasks:actions.complete", "Abschließen")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full text-blue-600 hover:bg-blue-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                              setNoteTask({ ...task, targetDate });
-                                              setNoteText((task as any).occurrenceNote || "");
-                                              setNoteDialogOpen(true);
-                                            }}
-                                          >
-                                            <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>
-                                            {(task as any).occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setActionTask(task);
-                                              setMilestoneDialogOpen(true);
-                                            }}
-                                          >
-                                            <Target className="h-4 w-4 mr-1" />
-                                            {t("tasks:actions.milestone", "Zwischenziel")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setActionTask(task);
-                                              setReminderDialogOpen(true);
-                                            }}
-                                          >
-                                            <Bell className="h-4 w-4 mr-1" />
-                                            {t("tasks:actions.remind", "Erinnern")}
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full text-orange-600 hover:bg-orange-50"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
-                                                const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                                skipOccurrenceMutation.mutate({
-                                                  taskId: task.id,
-                                                  householdId: household?.householdId ?? 0,
-                                                  memberId: member?.memberId ?? 0,
-                                                  dateToSkip: format(targetDate, "yyyy-MM-dd"),
-                                                });
-                                              }
-                                            }}
-                                          >
-                                            <X className="h-4 w-4 mr-1" />
-                                            {t("calendar:skip", "Auslassen")}
-                                          </Button>
-                                        </>
-                                      )}
-                                      {!task.isFutureOccurrence && (
-                                        <>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                            onClick={(e) => handleDelete(task, e)}
-                                          >
-                                            <Trash2 className="h-4 w-4 mr-1" />
-                                            {t("common:actions.delete")}
-                                          </Button>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>{task.name}</span>
+                              {task.isCompleted && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle2 className="h-3 w-3 mr-1" />{t("tasks:status.completed", "Erledigt")}</Badge>}
+                              {task.isCompletedOccurrence && <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle2 className="h-3 w-3 mr-1" />{t("calendar:completedOccurrence", "Erledigter Termin")}</Badge>}
+                              {task.isFutureOccurrence && <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{t("calendar:futureOccurrence", "Folgetermin")}</Badge>}
+                              {task.isSpecialOccurrence && <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200"><Star className="h-3 w-3 mr-1" />{t("calendar:specialOccurrence", "Sondertermin")}</Badge>}
+                              {!task.isCompleted && task.dueDate && isPast(new Date(task.dueDate)) && <Badge variant="destructive" className="text-xs">{t("tasks:overdue", "Überfällig")}</Badge>}
+                            </div>
+                            {task.occurrenceNote && (
+                              <p className="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 mt-1 flex items-center gap-1">
+                                <span>📝</span><span>{task.occurrenceNote}</span>
+                              </p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-muted-foreground">
+                              <span>{getMemberNames(task.assignedTo)}</span>
+                              {task.dueDate && <span>• {format(new Date(task.dueDate), "HH:mm")}{i18n.language === "de" ? " Uhr" : ""}</span>}
+                              {projectName && <Badge variant="outline" className="text-xs"><FolderKanban className="h-3 w-3 mr-1" />{projectName}</Badge>}
+                              <TaskDependencies taskId={task.id} allTasks={tasks} compact />
+                              {frequency && <Badge variant="outline" className="text-xs"><Clock className="h-3 w-3 mr-1" />{frequency}</Badge>}
+                              {task.enableRotation && <Badge variant="outline" className="text-xs"><Target className="h-3 w-3 mr-1" />{t("tasks:repeat.rotation", "Rotation")}</Badge>}
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0 h-6 w-6"><X className="h-3 w-3" /></Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button size="sm" variant="outline" className="col-span-2" onClick={() => { setSelectedTask(task); setTaskDialogOpen(true); onClose(); }}>
+                            {t("common:actions.details", "Details")}
+                          </Button>
+                          {task.isCompletedOccurrence && task.activityId && (
+                            <Button size="sm" variant="outline" className="col-span-2 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                              onClick={(e) => { e.stopPropagation(); if (confirm("Möchten Sie den Abschluss dieses Termins rückgängig machen?")) { undoCompletionMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, activityId: task.activityId! }); onClose(); } }}>
+                              <ArrowLeft className="h-4 w-4 mr-1" />{t("common:actions.undo", "Rückgängig machen")}
+                            </Button>
+                          )}
+                          {task.isFutureOccurrence && (
+                            <>
+                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); }}>
+                                <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
+                                <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); onClose(); } }}>
+                                <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
+                              </Button>
+                            </>
+                          )}
+                          {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && (
+                            <>
+                              <Button size="sm" variant="outline" onClick={async (e) => { e.stopPropagation(); setActionTask(task); const isRecurring = Boolean(task.repeatInterval && task.repeatUnit); if (isRecurring && household) { try { const check = await utils.tasks.checkNextOccurrence.fetch({ taskId: task.id, householdId: household.householdId }); if (check.skippedCount > 0) { setSkipConfirmData({ skippedCount: check.skippedCount, skippedOccurrenceDates: check.skippedOccurrenceDates, nextDate: check.nextDate, pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] } }); setSkipConfirmOpen(true); return; } } catch {} } setCompleteDialogOpen(true); }}>
+                                <Check className="h-4 w-4 mr-1" />{t("tasks:actions.complete", "Abschließen")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
+                                <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setActionTask(task); setMilestoneDialogOpen(true); }}>
+                                <Target className="h-4 w-4 mr-1" />{t("tasks:actions.milestone", "Zwischenziel")}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setActionTask(task); setReminderDialogOpen(true); }}>
+                                <Bell className="h-4 w-4 mr-1" />{t("tasks:actions.remind", "Erinnern")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); onClose(); } }}>
+                                <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={(e) => handleDelete(task, e)}>
+                                <Trash2 className="h-4 w-4 mr-1" />{t("common:actions.delete")}
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                )}
+                    );
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
