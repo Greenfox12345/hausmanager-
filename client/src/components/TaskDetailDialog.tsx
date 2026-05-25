@@ -91,6 +91,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Action dialog states
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  // Standalone special occurrence dialog (independent of enableRotation)
+  const [showSpecialOccurrenceDialog, setShowSpecialOccurrenceDialog] = useState(false);
+  const [specialOccurrenceName, setSpecialOccurrenceName] = useState("");
+  const [specialOccurrenceDate, setSpecialOccurrenceDate] = useState<Date | undefined>(undefined);
   const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
   const [showReminderDialog, setShowReminderDialog] = useState(false);
   const [showShoppingItemDetail, setShowShoppingItemDetail] = useState(false);
@@ -167,7 +171,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load rotation schedule
   const { data: rotationScheduleData } = trpc.tasks.getRotationSchedule.useQuery(
     { taskId: task?.id ?? 0 },
-    { enabled: !!task?.id && open && (!!task?.enableRotation || !!task?.repeatUnit) }
+    { enabled: !!task?.id && open }
   );
   
   // Load task occurrence items
@@ -1495,16 +1499,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              if (!isTerminePlanenExpanded) {
-                                // Set pending flag BEFORE expanding so RotationScheduleTable
-                                // picks it up immediately when it mounts via handleOpenSpecialDialogCallback
-                                pendingOpenSpecialDialogRef.current = true;
-                                setIsTerminePlanenExpanded(true);
-                              } else {
-                                openSpecialDialogFnRef.current?.();
-                              }
-                            }}
+                            onClick={() => setShowSpecialOccurrenceDialog(true)}
                             className="gap-2 shrink-0"
                           >
                             <Star className="h-4 w-4" />
@@ -3017,6 +3012,103 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    {/* Standalone Special Occurrence Dialog - independent of enableRotation */}
+    <Dialog open={showSpecialOccurrenceDialog} onOpenChange={(open) => {
+      setShowSpecialOccurrenceDialog(open);
+      if (!open) {
+        setSpecialOccurrenceName("");
+        setSpecialOccurrenceDate(undefined);
+      }
+    }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            {t("tasks:detail.specialAppointment", "Sondertermin")}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label>{t("tasks:repeat.specialName", "Name des Sondertermins")}</Label>
+            <Input
+              value={specialOccurrenceName}
+              onChange={(e) => setSpecialOccurrenceName(e.target.value)}
+              placeholder={t("tasks:repeat.specialNamePlaceholder", "z.B. Weihnachtsputz")}
+              autoFocus
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{t("tasks:fields.dueDate", "Datum")}</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start text-left font-normal">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {specialOccurrenceDate
+                    ? format(specialOccurrenceDate, "dd.MM.yyyy", { locale: dateFnsLocale })
+                    : t("tasks:fields.selectDate", "Datum auswählen")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={specialOccurrenceDate}
+                  onSelect={setSpecialOccurrenceDate}
+                  locale={dateFnsLocale}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowSpecialOccurrenceDialog(false)}>
+            {t("common:actions.cancel", "Abbrechen")}
+          </Button>
+          <Button
+            disabled={!specialOccurrenceName || !specialOccurrenceDate}
+            onClick={async () => {
+              if (!task?.id || !specialOccurrenceName || !specialOccurrenceDate || !household || !member) return;
+              // Build new special occurrence and merge with existing schedule
+              const newOcc = {
+                occurrenceNumber: 1000 + rotationSchedule.filter((o: any) => o.isSpecial).length,
+                members: [],
+                notes: "",
+                isSpecial: true,
+                specialName: specialOccurrenceName,
+                specialDate: specialOccurrenceDate,
+              };
+              const updatedSchedule = [...rotationSchedule, newOcc];
+              try {
+                await setRotationScheduleMutation.mutateAsync({
+                  taskId: task.id,
+                  householdId: household.householdId,
+                  memberId: member.memberId,
+                  schedule: updatedSchedule.map((o: any) => ({
+                    occurrenceNumber: o.occurrenceNumber,
+                    members: o.members || [],
+                    notes: o.notes || "",
+                    isSkipped: o.isSkipped || false,
+                    isSpecial: o.isSpecial || false,
+                    specialName: o.specialName || null,
+                    specialDate: o.specialDate ? new Date(o.specialDate) : undefined,
+                  })),
+                });
+                setShowSpecialOccurrenceDialog(false);
+                setSpecialOccurrenceName("");
+                setSpecialOccurrenceDate(undefined);
+                toast.success(t("tasks:messages.specialOccurrenceAdded", "Sondertermin hinzugefügt"));
+              } catch (error: any) {
+                toast.error(error.message || t("tasks:messages.saveError", "Fehler beim Speichern"));
+              }
+            }}
+            className="gap-2"
+          >
+            <Star className="h-4 w-4" />
+            {t("common:actions.add", "Hinzufügen")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <AlertDialog open={skippedDateWarnOpen} onOpenChange={setSkippedDateWarnOpen}>
       <AlertDialogContent>
