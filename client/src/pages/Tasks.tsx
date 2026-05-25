@@ -1607,7 +1607,11 @@ export default function Tasks() {
         <CompleteTaskDialog
           open={completeDialogOpen}
           onOpenChange={setCompleteDialogOpen}
-          task={{ ...selectedTask, isRecurring: Boolean(selectedTask.enableRepeat || selectedTask.repeatUnit || selectedTask.repeatInterval) }}
+          task={{ 
+            ...selectedTask, 
+            isRecurring: Boolean(selectedTask.enableRepeat || selectedTask.repeatUnit || selectedTask.repeatInterval),
+            dueDate: selectedTask.dueDate ? new Date(selectedTask.dueDate) : undefined,
+          }}
           onComplete={handleCompleteTask}
         />
       )}

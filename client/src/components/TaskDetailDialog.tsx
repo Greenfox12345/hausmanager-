@@ -2776,6 +2776,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
              name: task.name,
              description: task.description || undefined,
              isRecurring: Boolean(task.repeatUnit),
+             dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+             isSpecialOccurrence: (() => {
+               if (!rotationSchedule || !task.dueDate) return false;
+               const dueDateStr = format(new Date(task.dueDate), "yyyy-MM-dd");
+               const matchingOcc = rotationSchedule.find((occ: any) => {
+                 const occDate = occ.specialDate || occ.date;
+                 return occDate && format(new Date(occDate), "yyyy-MM-dd") === dueDateStr;
+               });
+               return matchingOcc?.isSpecial || false;
+             })(),
+             specialName: (() => {
+               if (!rotationSchedule || !task.dueDate) return undefined;
+               const dueDateStr = format(new Date(task.dueDate), "yyyy-MM-dd");
+               const matchingOcc = rotationSchedule.find((occ: any) => {
+                 const occDate = occ.specialDate || occ.date;
+                 return occDate && format(new Date(occDate), "yyyy-MM-dd") === dueDateStr;
+               });
+               return matchingOcc?.specialName || undefined;
+             })(),
            }}
           taskId={task.id}
           linkedShoppingItems={linkedShoppingItems}

@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
 import { QuickCategoryCreate } from "./QuickCategoryCreate";
-import { Loader2, CheckCircle2, ChevronDown, ChevronRight, ShoppingBag } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronDown, ChevronRight, ShoppingBag, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,9 @@ interface Task {
   name: string;
   description?: string;
   isRecurring?: boolean;
+  dueDate?: Date | string | null;
+  isSpecialOccurrence?: boolean;
+  specialName?: string;
 }
 
 interface CompleteTaskDialogProps {
@@ -206,10 +209,21 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
             <CheckCircle2 className="h-5 w-5 text-green-600" />
             {task.isRecurring ? t("tasks:dialog.completeOccurrence") : t("tasks:completeTask")}
           </DialogTitle>
-          <DialogDescription>
-            {task.isRecurring
-              ? t("tasks:completeDialog.descriptionRecurring", { name: task.name })
-              : t("tasks:completeDialog.description", { name: task.name })}
+          <DialogDescription className="flex flex-wrap items-center gap-2">
+            <span>
+              {task.isRecurring
+                ? t("tasks:completeDialog.descriptionRecurring", { name: task.name })
+                : t("tasks:completeDialog.description", { name: task.name })}
+              {task.dueDate && (
+                <> am <strong>{new Date(task.dueDate).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}</strong></>
+              )}
+            </span>
+            {task.isSpecialOccurrence && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium border border-yellow-300">
+                <Star className="h-3 w-3 fill-yellow-600 text-yellow-600" />
+                {task.specialName ? task.specialName : t("tasks:detail.specialAppointment", "Sondertermin")}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -218,7 +232,20 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div>
               <Label className="text-xs text-muted-foreground">{t("tasks:completeDialog.task")}</Label>
-              <p className="font-medium">{task.name}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium">{task.name}</p>
+                {task.dueDate && (
+                  <span className="text-sm text-muted-foreground">
+                    am {new Date(task.dueDate).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
+                  </span>
+                )}
+                {task.isSpecialOccurrence && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium border border-yellow-300">
+                    <Star className="h-3 w-3 fill-yellow-600 text-yellow-600" />
+                    {task.specialName || t("tasks:detail.specialAppointment", "Sondertermin")}
+                  </span>
+                )}
+              </div>
             </div>
             {task.description && (
               <div>
