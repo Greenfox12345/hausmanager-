@@ -198,6 +198,18 @@ export default function Calendar() {
   const monthEnd = endOfMonth(currentMonth);
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
+  // Wide range for tasksByDate: ±12 months so TaskCalendar can navigate freely
+  const wideMonthStart = useMemo(() => {
+    const d = new Date(monthStart);
+    d.setMonth(d.getMonth() - 12);
+    return d;
+  }, [monthStart]);
+  const wideMonthEnd = useMemo(() => {
+    const d = new Date(monthEnd);
+    d.setMonth(d.getMonth() + 12);
+    return d;
+  }, [monthEnd]);
+
   // Calculate future occurrences for recurring tasks
   const calculateFutureOccurrences = (task: typeof tasks[0], maxMonths: number = 12) => {
     if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) {
@@ -209,9 +221,8 @@ export default function Calendar() {
     // occurrenceNotes is the single source of truth for skip status
     const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
     
-    // Calculate max date (12 months from current month view)
-    const maxDate = new Date(monthEnd);
-    maxDate.setMonth(maxDate.getMonth() + maxMonths);
+    // Calculate max date: use wideMonthEnd so future occurrences in other months are included
+    const maxDate = new Date(wideMonthEnd);
     
     let iterations = 0;
     const maxIterations = 365; // Safety limit
@@ -340,7 +351,7 @@ export default function Calendar() {
             if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
             else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
             else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
-            const isInMonth = calcDate >= monthStart && calcDate <= monthEnd;
+            const isInMonth = calcDate >= wideMonthStart && calcDate <= wideMonthEnd;
             if (!isInMonth) return;
             const dateKey = format(calcDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) grouped[dateKey] = [];
@@ -366,8 +377,8 @@ export default function Calendar() {
         if (task.repeatUnit === 'irregular' && occ.occurrenceNumber === 1 && !occ.isSpecial) return;
         const occDate = new Date(occ.specialDate);
         if (isNaN(occDate.getTime())) return;
-        const isInMonth = occDate >= monthStart && occDate <= monthEnd;
-        if (!isInMonth) return; // only show in current month view
+        const isInMonth = occDate >= wideMonthStart && occDate <= wideMonthEnd;
+        if (!isInMonth) return; // only show in wide range
         if (occ.isSkipped) return; // skip skipped occurrences
         const dateKey = format(occDate, "yyyy-MM-dd");
         if (!grouped[dateKey]) grouped[dateKey] = [];
@@ -391,7 +402,7 @@ export default function Calendar() {
         if (task && task.repeatInterval && task.repeatUnit) {
           const completedDate = new Date(activity.completedDate);
           // Only show if within current month view
-          if (completedDate >= monthStart && completedDate <= monthEnd) {
+          if (completedDate >= wideMonthStart && completedDate <= wideMonthEnd) {
             const dateKey = format(completedDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) {
               grouped[dateKey] = [];
@@ -419,7 +430,7 @@ export default function Calendar() {
     });
     
     return grouped;
-  }, [tasks, activityHistory, calendarEvents, monthStart, monthEnd]);
+  }, [tasks, activityHistory, calendarEvents, wideMonthStart, wideMonthEnd]);
 
   // Convert tasksByDate to TaskOccurrence[] for TaskCalendar
   const taskOccurrences = useMemo((): TaskOccurrence[] => {
