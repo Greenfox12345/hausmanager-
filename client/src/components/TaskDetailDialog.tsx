@@ -220,18 +220,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   
   // Ref to hold the function that opens the special occurrence dialog in RotationScheduleTable
   const openSpecialDialogFnRef = useRef<(() => void) | null>(null);
-  const [pendingOpenSpecialDialog, setPendingOpenSpecialDialog] = useState(false);
+  const pendingOpenSpecialDialogRef = useRef(false);
+  // Called by RotationScheduleTable when it mounts and registers its open function.
+  // If a pending open request exists (button was clicked before mount), execute it immediately.
   const handleOpenSpecialDialogCallback = useCallback((openFn: () => void) => {
     openSpecialDialogFnRef.current = openFn;
-  }, []);
-
-  // When pendingOpenSpecialDialog is true and the openFn is registered, call it
-  useEffect(() => {
-    if (pendingOpenSpecialDialog && openSpecialDialogFnRef.current) {
-      openSpecialDialogFnRef.current();
-      setPendingOpenSpecialDialog(false);
+    if (pendingOpenSpecialDialogRef.current) {
+      pendingOpenSpecialDialogRef.current = false;
+      openFn();
     }
-  }, [pendingOpenSpecialDialog, isTerminePlanenExpanded]);
+  }, []);
 
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
@@ -1499,9 +1497,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             size="sm"
                             onClick={() => {
                               if (!isTerminePlanenExpanded) {
-                                // Expand section first, then open dialog via useEffect once RotationScheduleTable is mounted
+                                // Set pending flag BEFORE expanding so RotationScheduleTable
+                                // picks it up immediately when it mounts via handleOpenSpecialDialogCallback
+                                pendingOpenSpecialDialogRef.current = true;
                                 setIsTerminePlanenExpanded(true);
-                                setPendingOpenSpecialDialog(true);
                               } else {
                                 openSpecialDialogFnRef.current?.();
                               }
