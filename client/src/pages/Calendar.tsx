@@ -368,51 +368,32 @@ export default function Calendar() {
       // use specialDate as the display date instead of task.dueDate
       if (task.dueDate) {
         const occurrenceNotesList: any[] = (task as any).occurrenceNotes || [];
-        const occ1Note = occurrenceNotesList.find((n: any) => n.occurrenceNumber === 1);
-        const isOcc1Skipped = occ1Note?.isSkipped === true;
-        // If occurrence 1 is a special occurrence, use its specialDate as the display date
-        const occ1IsSpecial = occ1Note?.isSpecial === true && occ1Note?.specialDate;
-        const displayDate = occ1IsSpecial ? new Date(occ1Note.specialDate) : new Date(task.dueDate);
-        const taskDueDateKey = format(displayDate, "yyyy-MM-dd");
+        // task.dueDate is ALWAYS the current (non-skipped) appointment.
+        // After skipOccurrence, the server advances task.dueDate past the skipped date.
+        // So we never need to check if occ1 is skipped here.
+        //
+        // Find the occurrenceNote whose date matches task.dueDate:
+        // For special occurrences: occ.specialDate === task.dueDate
+        // For regular occurrences: occurrenceNumber === 1 AND not skipped
+        const taskDueDateStr = format(new Date(task.dueDate), "yyyy-MM-dd");
+        // Check if there's a special occurrence whose specialDate matches task.dueDate
+        const matchingSpecialNote = occurrenceNotesList.find((n: any) =>
+          n.isSpecial && n.specialDate && format(new Date(n.specialDate), "yyyy-MM-dd") === taskDueDateStr
+        );
+        const occ1Note = matchingSpecialNote || occurrenceNotesList.find((n: any) => n.occurrenceNumber === 1 && !n.isSkipped);
+        const occ1IsSpecial = !!matchingSpecialNote;
+        const displayDate = new Date(task.dueDate);
+        const taskDueDateKey = taskDueDateStr;
         if (!grouped[taskDueDateKey]) grouped[taskDueDateKey] = [];
         const currentNote = occ1Note?.notes || null;
-        // Always show occurrence 1 (even if skipped) – skipped ones get isSkippedOccurrence flag
         grouped[taskDueDateKey].push({
           ...task,
           dueDate: displayDate,
           occurrenceNote: currentNote,
-          isSpecialOccurrence: !!occ1IsSpecial,
-          specialOccurrenceName: occ1IsSpecial ? occ1Note.specialName : undefined,
-          isSkippedOccurrence: isOcc1Skipped,
+          isSpecialOccurrence: occ1IsSpecial,
+          specialOccurrenceName: occ1IsSpecial ? occ1Note?.specialName : undefined,
+          isSkippedOccurrence: false, // task.dueDate is never skipped (server ensures this)
         } as any);
-
-        // If occurrence 1 is skipped, find the next non-skipped occurrence and show it as the current one
-        // Always add it regardless of month range (it's the current appointment)
-        if (isOcc1Skipped && task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') {
-          const nextDate = findNextOpenOccurrence(task);
-          const nextKey = format(nextDate, "yyyy-MM-dd");
-          if (nextKey !== taskDueDateKey) {
-            if (!grouped[nextKey]) grouped[nextKey] = [];
-            // Find the occurrenceNote for this next date
-            const nextOccNote = occurrenceNotesList.find((n: any) => {
-              if (n.isSpecial && n.specialDate) return format(new Date(n.specialDate), "yyyy-MM-dd") === nextKey;
-              return false;
-            });
-            // Remove any existing entry for this task at this date (e.g. added as isFutureOccurrence)
-            if (grouped[nextKey]) {
-              grouped[nextKey] = grouped[nextKey].filter((e: any) => e.id !== task.id);
-            }
-            grouped[nextKey].push({
-              ...task,
-              dueDate: nextDate,
-              occurrenceNote: nextOccNote?.notes || null,
-              isSpecialOccurrence: !!(nextOccNote?.isSpecial),
-              specialOccurrenceName: nextOccNote?.specialName,
-              isFutureOccurrence: false, // treat as current appointment
-              isSkippedOccurrence: false,
-            } as any);
-          }
-        }
       }
 
       // Add future occurrences for recurring tasks (regular intervals)
