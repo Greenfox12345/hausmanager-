@@ -2683,7 +2683,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     }`}
                   >
                     <HistoryIcon className="h-3.5 w-3.5 inline mr-1.5" />
-                    Aktivitäten ({taskHistory.filter((a: any) => a.action !== 'completeTask').length})
+                    Aktivitäten ({taskHistory.filter((a: any) => a.action !== 'completed').length})
                   </button>
                   <button
                     onClick={() => setHistorySubTab("past_appointments")}
@@ -2694,21 +2694,21 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     }`}
                   >
                     <Calendar className="h-3.5 w-3.5 inline mr-1.5" />
-                    Vergangene Termine ({taskHistory.filter((a: any) => a.action === 'completeTask').length})
+                    Vergangene Termine ({taskHistory.filter((a: any) => a.action === 'completed').length})
                   </button>
                 </div>
 
                 {/* Activities sub-tab */}
                 {historySubTab === "activities" && (
                   <>
-                    {taskHistory.filter((a: any) => a.action !== 'completeTask').length === 0 ? (
+                    {taskHistory.filter((a: any) => a.action !== 'completed').length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <HistoryIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p>{t("dialog.noHistory")}</p>
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {taskHistory.filter((a: any) => a.action !== 'completeTask').map((activity: any) => {
+                        {taskHistory.filter((a: any) => a.action !== 'completed').map((activity: any) => {
                           const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
                           return (
                             <div key={activity.id} className="border rounded-lg p-4 space-y-2">
@@ -2761,14 +2761,14 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 {/* Past appointments sub-tab */}
                 {historySubTab === "past_appointments" && (
                   <>
-                    {taskHistory.filter((a: any) => a.action === 'completeTask').length === 0 ? (
+                    {taskHistory.filter((a: any) => a.action === 'completed').length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p>Noch keine vergangenen Termine</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {taskHistory.filter((a: any) => a.action === 'completeTask').map((activity: any) => {
+                        {taskHistory.filter((a: any) => a.action === 'completed').map((activity: any) => {
                           const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
                           const meta = activity.metadata || {};
                           const occ = meta.occurrence || {};

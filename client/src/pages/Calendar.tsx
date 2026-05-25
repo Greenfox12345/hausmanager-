@@ -964,7 +964,7 @@ export default function Calendar() {
                           <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0 h-6 w-6"><X className="h-3 w-3" /></Button>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                          <Button size="sm" variant="outline" className="col-span-2" onClick={() => { setSelectedTask(task); setTaskDialogOpen(true); onClose(); }}>
+                          <Button size="sm" variant="outline" className="col-span-2" onClick={() => { const realTask = task.isCompletedOccurrence ? (tasks.find((t: any) => t.id === task.id) || task) : task; setSelectedTask(realTask); setTaskDialogOpen(true); onClose(); }}>
                             {t("common:actions.details", "Details")}
                           </Button>
                           {task.isCompletedOccurrence && (
@@ -1070,7 +1070,8 @@ export default function Calendar() {
                             task.isCompleted ? "opacity-60" : ""
                           }`}
                           onClick={() => {
-                            setSelectedTask(task);
+                            const realTask = task.isCompletedOccurrence ? (tasks.find((t: any) => t.id === task.id) || task) : task;
+                            setSelectedTask(realTask);
                             setTaskDialogOpen(true);
                           }}
                         >
