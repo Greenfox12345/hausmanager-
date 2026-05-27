@@ -59,8 +59,16 @@ export default function Calendar() {
   // Event type filter for calendar view
   const [eventTypeFilter, setEventTypeFilter] = useState<"all" | "tasks" | "borrow_events">("all");
 
-  // Skip-confirmation dialog state
+  // Skip-confirmation dialog state (for completing a task with already-skipped next occurrences)
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
+  // Skip-current-occurrence confirmation dialog state
+  const [skipCurrentConfirmOpen, setSkipCurrentConfirmOpen] = useState(false);
+  const [skipCurrentConfirmData, setSkipCurrentConfirmData] = useState<{
+    taskId: number;
+    dateToSkip: string;       // yyyy-MM-dd of the occurrence being skipped
+    displayDate: string;      // formatted for display
+    nextDate: string | null;  // formatted next occurrence date
+  } | null>(null);
   const [skipConfirmData, setSkipConfirmData] = useState<{
     skippedCount: number;
     skippedOccurrenceDates: string[];
@@ -356,6 +364,24 @@ export default function Calendar() {
       return earliestSpecial.getTime() <= earliestRegular.getTime() ? earliestSpecial : earliestRegular;
     }
     return earliestSpecial || earliestRegular || new Date(task.dueDate);
+  };
+
+  // Opens the skip-current-occurrence confirmation dialog.
+  // Calculates the next occurrence date from the task data so the user sees it before confirming.
+  const openSkipCurrentConfirm = (task: any, targetDate: Date) => {
+    const dateToSkip = format(targetDate, "yyyy-MM-dd");
+    const displayDate = format(targetDate, "dd.MM.yyyy", { locale: dateFnsLocale });
+    // Build a temporary task with occ1 marked as skipped to calculate the next date
+    const occNotes: any[] = (task as any).occurrenceNotes || [];
+    const occ1Exists = occNotes.some((n: any) => n.occurrenceNumber === 1);
+    const simulatedNotes = occ1Exists
+      ? occNotes.map((n: any) => n.occurrenceNumber === 1 ? { ...n, isSkipped: true } : n)
+      : [...occNotes, { occurrenceNumber: 1, notes: "", isSkipped: true }];
+    const simulatedTask = { ...task, occurrenceNotes: simulatedNotes };
+    const nextDateObj = findNextOpenOccurrence(simulatedTask as any);
+    const nextDate = nextDateObj ? format(nextDateObj, "dd.MM.yyyy", { locale: dateFnsLocale }) : null;
+    setSkipCurrentConfirmData({ taskId: task.id, dateToSkip, displayDate, nextDate });
+    setSkipCurrentConfirmOpen(true);
   };
 
   // Group tasks and events by date (including future occurrences and completed history)
@@ -1447,15 +1473,8 @@ export default function Calendar() {
                                           className="w-full text-orange-600 hover:bg-orange-50"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            if (confirm(t("calendar:messages.confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
-                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                              skipOccurrenceMutation.mutate({
-                                                taskId: task.id,
-                                                householdId: household?.householdId ?? 0,
-                                                memberId: member?.memberId ?? 0,
-                                                dateToSkip: format(targetDate, "yyyy-MM-dd"),
-                                              });
-                                            }
+                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                            openSkipCurrentConfirm(task, targetDate);
                                           }}
                                         >
                                           <X className="h-4 w-4 mr-1" />
@@ -1817,6 +1836,57 @@ export default function Calendar() {
                 disabled={!noteText.trim() || addOccurrenceNoteMutation.isPending}
               >
                 {addOccurrenceNoteMutation.isPending ? t("common:loading", "...") : t("common:actions.save", "Speichern")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skip-current-occurrence confirmation dialog */}
+      {skipCurrentConfirmOpen && skipCurrentConfirmData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSkipCurrentConfirmOpen(false)}>
+          <div className="bg-background rounded-lg shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-orange-500">⚠️</span>
+              {t("calendar:skipCurrentConfirm.title", "Termin auslassen?")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              {t("calendar:skipCurrentConfirm.body",
+                "Der aktuelle Termin ({{date}}) wird übersprungen und nicht mehr als offen angezeigt.",
+                { date: skipCurrentConfirmData.displayDate }
+              )}
+            </p>
+            {skipCurrentConfirmData.nextDate && (
+              <p className="text-sm font-medium mb-4">
+                {t("calendar:skipCurrentConfirm.nextDate", "Nächster Termin:")}{" "}
+                <span className="text-primary">{skipCurrentConfirmData.nextDate}</span>
+              </p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSkipCurrentConfirmOpen(false);
+                  setSkipCurrentConfirmData(null);
+                }}
+              >
+                {t("common:actions.cancel", "Abbrechen")}
+              </Button>
+              <Button
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+                onClick={() => {
+                  const data = skipCurrentConfirmData;
+                  setSkipCurrentConfirmOpen(false);
+                  setSkipCurrentConfirmData(null);
+                  skipOccurrenceMutation.mutate({
+                    taskId: data.taskId,
+                    householdId: household?.householdId ?? 0,
+                    memberId: member?.memberId ?? 0,
+                    dateToSkip: data.dateToSkip,
+                  });
+                }}
+              >
+                {t("calendar:skipCurrentConfirm.confirm", "Auslassen")}
               </Button>
             </div>
           </div>
