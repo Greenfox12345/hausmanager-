@@ -175,11 +175,6 @@ export default function Calendar() {
       // Invalidate and wait for fresh data so findNextOpenOccurrence uses updated occurrenceNotes
       await utils.tasks.list.invalidate();
       utils.tasks.getRotationSchedule.invalidate();
-      // Update selectedTask in-place so TaskDetailDialog reflects the new skip status immediately
-      setSelectedTask((prev: any) => {
-        if (!prev || prev.id !== variables.taskId) return prev;
-        return { ...prev };
-      });
       // Close popup if it was triggered from popup
       if (pendingPopupCloseRef.current) {
         pendingPopupCloseRef.current();
@@ -189,6 +184,11 @@ export default function Calendar() {
       const freshTasks = utils.tasks.list.getData({ householdId: household?.householdId ?? 0 }) as any[] | undefined;
       const freshTask = freshTasks?.find((t: any) => t.id === variables.taskId);
       if (freshTask) {
+        // Update selectedTask with fresh data so TaskDetailDialog reflects new dueDate and occurrenceNotes
+        setSelectedTask((prev: any) => {
+          if (!prev || prev.id !== variables.taskId) return prev;
+          return { ...freshTask };
+        });
         const nextDate = findNextOpenOccurrence(freshTask);
         if (taskCalendarRef.current) {
           taskCalendarRef.current.jumpToOccurrence(nextDate, variables.taskId);

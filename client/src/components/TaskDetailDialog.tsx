@@ -263,6 +263,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
+  // Info shown in the skip-save warning dialog
+  const [skipSaveInfo, setSkipSaveInfo] = useState<{ skippedDate: string; nextDate: string | null } | null>(null);
   // Skip-chain warning before completing a recurring task
   const [skipCompleteWarnOpen, setSkipCompleteWarnOpen] = useState(false);
   const [skipCompleteInfo, setSkipCompleteInfo] = useState<{ skippedCount: number; nextDate: string | null; skippedOccurrenceDates: string[] } | null>(null);
@@ -796,12 +798,26 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       return;
     }
 
-    // Check if the new dueDate is a skipped occurrence → warn before saving
-    // occurrenceNotes is the single source of truth for skip status
+    // Check if occurrence 1 was marked as skipped in the rotation plan
+    // (Server already advanced task.dueDate when skipOccurrence was called)
+    // Show an informative confirmation before saving.
     const occNotes: any[] = (task as any).occurrenceNotes || [];
     if (dueDate) {
       const occ1 = occNotes.find((n: any) => n.occurrenceNumber === 1);
       if (occ1?.isSkipped) {
+        // Find the skipped date from rotationSchedule (occurrence 1)
+        const skippedOcc = rotationSchedule.find((o: any) => o.occurrenceNumber === 1);
+        const skippedDate = skippedOcc?.date
+          ? format(new Date(skippedOcc.date), "PPP", { locale: dateFnsLocale })
+          : dueDate;
+        // The new next date is the current task.dueDate (server already advanced it)
+        const freshTask = (await utils.tasks.list.getData({ householdId: household.householdId })
+          ?? []).find((t: any) => t.id === task.id);
+        const nextDateRaw = freshTask?.dueDate ? new Date(freshTask.dueDate) : null;
+        const nextDate = nextDateRaw
+          ? format(nextDateRaw, "PPP", { locale: dateFnsLocale })
+          : null;
+        setSkipSaveInfo({ skippedDate, nextDate });
         setPendingSaveData(() => () => doSave());
         setSkippedDateWarnOpen(true);
         return;
@@ -3268,64 +3284,50 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       </DialogContent>
     </Dialog>
 
-    <AlertDialog open={skippedDateWarnOpen} onOpenChange={setSkippedDateWarnOpen}>
+    <AlertDialog open={skippedDateWarnOpen} onOpenChange={(open) => { setSkippedDateWarnOpen(open); if (!open) { setPendingSaveData(null); setSkipSaveInfo(null); } }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <span className="text-orange-500">⚠️</span>
-            Termin ist ausgelassen
+            Termin wird übersprungen
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div>
-              <p className="mb-2">
-                Der gewählte Termin ({dueDate}) ist bereits als „Auslassen“ markiert.
-              </p>
-              <p>
-                Möchtest du den Termin trotzdem setzen? Der Auslassen-Eintrag wird dann automatisch entfernt.
-              </p>
+              {skipSaveInfo ? (
+                <>
+                  <p className="mb-2">
+                    Termin <strong>{skipSaveInfo.skippedDate}</strong> wird übersprungen.
+                  </p>
+                  {skipSaveInfo.nextDate && (
+                    <p className="text-sm text-muted-foreground">
+                      Nächster Termin: <strong>{skipSaveInfo.nextDate}</strong>
+                    </p>
+                  )}
+                  <p className="mt-2 text-sm">
+                    Möchtest du die Änderungen trotzdem speichern?
+                  </p>
+                </>
+              ) : (
+                <p>Möchtest du die Änderungen speichern?</p>
+              )}
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setPendingSaveData(null)}>
-            Abbrechen
+          <AlertDialogCancel onClick={() => { setPendingSaveData(null); setSkipSaveInfo(null); }}>
+            {t("common:actions.cancel", "Abbrechen")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={async () => {
-              if (!task || !household || !member) return;
-              // 1. Mark occurrence 1 as not skipped optimistically (occurrenceNotes is single source of truth)
-              if (onTaskUpdated) {
-                const occNotes: any[] = (task as any).occurrenceNotes || [];
-                const updatedNotes = occNotes.map((n: any) => n.occurrenceNumber === 1 ? { ...n, isSkipped: false } : n);
-                onTaskUpdated({ ...task, occurrenceNotes: updatedNotes } as any);
+              setSkippedDateWarnOpen(false);
+              if (pendingSaveData) {
+                await pendingSaveData();
               }
-              // 2. Complete the task → backend advances dueDate past skip-chain
-              try {
-                const result = await utils.client.tasks.completeTask.mutate({
-                  taskId: task.id,
-                  householdId: household.householdId,
-                  memberId: member.memberId,
-                });
-                await utils.tasks.list.invalidate();
-                await utils.activities.getByTaskId.invalidate();
-                if (result.isRecurring) {
-                  const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
-                  const updatedTask = refreshedTasks.find((t: any) => t.id === task.id);
-                  if (updatedTask && onTaskUpdated) onTaskUpdated(updatedTask);
-                  toast.success(t("messages.completedRecurring"));
-                } else {
-                  if (onTaskUpdated) onTaskUpdated({ ...task, isCompleted: true, completed: true });
-                  toast.success(t("messages.completed"));
-                }
-              } catch (error: any) {
-                toast.error(error.message || t("messages.completeError"));
-              }
-              // Switch back to detail view (close edit mode)
-              setIsEditing(false);
               setPendingSaveData(null);
+              setSkipSaveInfo(null);
             }}
           >
-            Trotzdem setzen
+            {t("common:actions.save", "Speichern")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
