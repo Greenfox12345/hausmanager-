@@ -1122,7 +1122,7 @@ export default function Calendar() {
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
                                 <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                               </Button>
-                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { pendingPopupCloseRef.current = onClose; const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); } }}>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); openSkipCurrentConfirm(task, targetDate); }}>
                                 <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
                               </Button>
                             </>
@@ -1141,7 +1141,7 @@ export default function Calendar() {
                               <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setActionTask(task); setReminderDialogOpen(true); }}>
                                 <Bell className="h-4 w-4 mr-1" />{t("tasks:actions.remind", "Erinnern")}
                               </Button>
-                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); if (confirm(t("calendar:confirmSkip", "Möchten Sie diesen Termin auslassen?"))) { pendingPopupCloseRef.current = onClose; const targetDate = task.occurrenceDate || new Date(task.dueDate!); skipOccurrenceMutation.mutate({ taskId: task.id, householdId: household?.householdId ?? 0, memberId: member?.memberId ?? 0, dateToSkip: format(targetDate, "yyyy-MM-dd") }); } }}>
+                              <Button size="sm" variant="outline" className="text-orange-600 hover:bg-orange-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); openSkipCurrentConfirm(task, targetDate); }}>
                                 <X className="h-4 w-4 mr-1" />{t("calendar:skip", "Auslassen")}
                               </Button>
                               <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={(e) => handleDelete(task, e)}>
@@ -1377,15 +1377,8 @@ export default function Calendar() {
                                           className="w-full text-orange-600 hover:bg-orange-50"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            if (confirm(t("calendar:messages.confirmSkip", "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt."))) {
-                                              const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
-                                              skipOccurrenceMutation.mutate({
-                                                taskId: task.id,
-                                                householdId: household?.householdId ?? 0,
-                                                memberId: member?.memberId ?? 0,
-                                                dateToSkip: format(targetDate, "yyyy-MM-dd"),
-                                              });
-                                            }
+                                            const targetDate = (task as any).occurrenceDate || new Date(task.dueDate!);
+                                            openSkipCurrentConfirm(task, targetDate);
                                           }}
                                         >
                                           <X className="h-4 w-4 mr-1" />
