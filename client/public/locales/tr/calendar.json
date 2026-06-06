@@ -87,5 +87,15 @@
   "addNote": "Not ekle",
   "notePlaceholder": "Bu etkinlik için not...",
   "specialOccurrence": "Özel etkinlik",
-  "upcomingAppointments": "Yaklaşan Randevular"
+  "upcomingAppointments": "Yaklaşan Randevular",
+  "skipCurrentConfirm": {
+    "title": "Randevu atlanacak mı?",
+    "skippedLabel": "Atlanacak:",
+    "nextLabel": "Sonraki randevu:",
+    "noNext": "Planlanmış başka randevu yok.",
+    "advanceHint": "Randevu sırası otomatik olarak bir adım ilerleyecek.",
+    "noteLabel": "Atlanan randevu için not (isteğe bağlı):",
+    "notePlaceholder": "ör. tatil, hasta, …",
+    "confirm": "Atla"
+  }
 }

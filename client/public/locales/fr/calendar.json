@@ -87,5 +87,15 @@
   "addNote": "Ajouter une note",
   "notePlaceholder": "Note pour ce rendez-vous...",
   "specialOccurrence": "Rendez-vous spécial",
-  "upcomingAppointments": "Prochains rendez-vous"
+  "upcomingAppointments": "Prochains rendez-vous",
+  "skipCurrentConfirm": {
+    "title": "Ignorer le rendez-vous ?",
+    "skippedLabel": "Sera ignoré :",
+    "nextLabel": "Prochain rendez-vous :",
+    "noNext": "Aucun autre rendez-vous prévu.",
+    "advanceHint": "La séquence de rendez-vous avancera automatiquement d'un pas.",
+    "noteLabel": "Note pour le rendez-vous ignoré (optionnel) :",
+    "notePlaceholder": "p. ex. vacances, maladie, …",
+    "confirm": "Ignorer"
+  }
 }

@@ -87,5 +87,15 @@
   "addNote": "Add note",
   "notePlaceholder": "Note for this appointment...",
   "specialOccurrence": "Special appointment",
-  "upcomingAppointments": "Upcoming Appointments"
+  "upcomingAppointments": "Upcoming Appointments",
+  "skipCurrentConfirm": {
+    "title": "Skip appointment?",
+    "skippedLabel": "Will be skipped:",
+    "nextLabel": "Next appointment:",
+    "noNext": "No further appointment planned.",
+    "advanceHint": "The appointment sequence will automatically advance by one step.",
+    "noteLabel": "Note for the skipped appointment (optional):",
+    "notePlaceholder": "e.g. holiday, sick, …",
+    "confirm": "Skip"
+  }
 }

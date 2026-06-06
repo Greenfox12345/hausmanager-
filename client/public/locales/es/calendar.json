@@ -131,5 +131,15 @@
   "addNote": "Añadir nota",
   "notePlaceholder": "Nota para esta cita...",
   "specialOccurrence": "Cita especial",
-  "upcomingAppointments": "Próximas citas"
+  "upcomingAppointments": "Próximas citas",
+  "skipCurrentConfirm": {
+    "title": "¿Omitir cita?",
+    "skippedLabel": "Se omitirá:",
+    "nextLabel": "Próxima cita:",
+    "noNext": "No hay más citas planificadas.",
+    "advanceHint": "La secuencia de citas avanzará automáticamente un paso.",
+    "noteLabel": "Nota para la cita omitida (opcional):",
+    "notePlaceholder": "p. ej. vacaciones, enfermo, …",
+    "confirm": "Omitir"
+  }
 }

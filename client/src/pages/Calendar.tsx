@@ -69,6 +69,7 @@ export default function Calendar() {
     dateToSkip: string;       // yyyy-MM-dd of the occurrence being skipped
     displayDate: string;      // formatted for display
     nextDate: string | null;  // formatted next occurrence date
+    isCurrentOccurrence: boolean; // true = aktueller Termin → dueDate wird vorgerückt
   } | null>(null);
   const [skipCurrentNote, setSkipCurrentNote] = useState("");
   const [skipConfirmData, setSkipConfirmData] = useState<{
@@ -373,6 +374,15 @@ export default function Calendar() {
   const openSkipCurrentConfirm = (task: any, targetDate: Date) => {
     const dateToSkip = format(targetDate, "yyyy-MM-dd");
     const displayDate = format(targetDate, "dd.MM.yyyy", { locale: dateFnsLocale });
+
+    // Determine if this is the current occurrence (dueDate matches targetDate)
+    const taskDueDateStr = task.dueDate
+      ? (task.dueDate instanceof Date
+          ? format(task.dueDate, "yyyy-MM-dd")
+          : String(task.dueDate).slice(0, 10))
+      : null;
+    const isCurrentOccurrence = !task.isFutureOccurrence && taskDueDateStr === dateToSkip;
+
     // Build a temporary task with occ1 marked as skipped to calculate the next date
     const occNotes: any[] = (task as any).occurrenceNotes || [];
     const occ1Exists = occNotes.some((n: any) => n.occurrenceNumber === 1);
@@ -383,7 +393,7 @@ export default function Calendar() {
     const nextDateObj = findNextOpenOccurrence(simulatedTask as any);
     const nextDate = nextDateObj ? format(nextDateObj, "dd.MM.yyyy", { locale: dateFnsLocale }) : null;
     setSkipCurrentNote("");
-    setSkipCurrentConfirmData({ taskId: task.id, taskName: task.name ?? "", dateToSkip, displayDate, nextDate });
+    setSkipCurrentConfirmData({ taskId: task.id, taskName: task.name ?? "", dateToSkip, displayDate, nextDate, isCurrentOccurrence });
     setSkipCurrentConfirmOpen(true);
   };
 
@@ -1862,6 +1872,13 @@ export default function Calendar() {
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">{t("calendar:skipCurrentConfirm.noNext", "Kein weiterer Termin geplant.")}</p>
+              )}
+              {skipCurrentConfirmData.isCurrentOccurrence && (
+                <p className="text-xs text-orange-600 pt-1 border-t border-orange-200">
+                  {t("calendar:skipCurrentConfirm.advanceHint",
+                    "Die Terminreihenfolge springt automatisch einen Schritt weiter."
+                  )}
+                </p>
               )}
             </div>
 

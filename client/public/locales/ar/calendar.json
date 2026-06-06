@@ -87,5 +87,15 @@
   "addNote": "إضافة ملاحظة",
   "notePlaceholder": "ملاحظة لهذا الموعد...",
   "specialOccurrence": "موعد خاص",
-  "upcomingAppointments": "المواعيد القادمة"
+  "upcomingAppointments": "المواعيد القادمة",
+  "skipCurrentConfirm": {
+    "title": "تخطي الموعد؟",
+    "skippedLabel": "سيتم تخطيه:",
+    "nextLabel": "الموعد التالي:",
+    "noNext": "لا يوجد موعد آخر مخطط.",
+    "advanceHint": "سيتقدم تسلسل المواعيد تلقائياً خطوة واحدة.",
+    "noteLabel": "ملاحظة للموعد المتخطى (اختياري):",
+    "notePlaceholder": "مثال: إجازة، مرض، …",
+    "confirm": "تخطي"
+  }
 }

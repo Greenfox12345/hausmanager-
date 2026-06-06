@@ -87,5 +87,15 @@
   "addNote": "Notiz hinzufügen",
   "notePlaceholder": "Notiz für diesen Termin...",
   "specialOccurrence": "Sondertermin",
-  "upcomingAppointments": "Kommende Termine"
+  "upcomingAppointments": "Kommende Termine",
+  "skipCurrentConfirm": {
+    "title": "Termin auslassen?",
+    "skippedLabel": "Wird übersprungen:",
+    "nextLabel": "Nächster Termin:",
+    "noNext": "Kein weiterer Termin geplant.",
+    "advanceHint": "Die Terminreihenfolge springt automatisch einen Schritt weiter.",
+    "noteLabel": "Notiz zum ausgelassenen Termin (optional):",
+    "notePlaceholder": "z. B. Urlaub, krank, …",
+    "confirm": "Auslassen"
+  }
 }

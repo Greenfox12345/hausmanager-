@@ -87,5 +87,15 @@
   "addNote": "添加备注",
   "notePlaceholder": "此日程的备注...",
   "specialOccurrence": "特殊日程",
-  "upcomingAppointments": "即将到来的约会"
+  "upcomingAppointments": "即将到来的约会",
+  "skipCurrentConfirm": {
+    "title": "跳过预约？",
+    "skippedLabel": "将被跳过：",
+    "nextLabel": "下次预约：",
+    "noNext": "没有更多计划预约。",
+    "advanceHint": "预约顺序将自动向前推进一步。",
+    "noteLabel": "跳过预约的备注（可选）：",
+    "notePlaceholder": "例如：假期、生病……",
+    "confirm": "跳过"
+  }
 }
