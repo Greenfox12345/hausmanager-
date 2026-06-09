@@ -1392,9 +1392,13 @@ export const tasksRouter = router({
 
       // Advance task.dueDate past the skipped occurrence (and any further skipped ones)
       // Only do this if the skipped date matches task.dueDate (i.e., it's the current occurrence)
+      // IMPORTANT: Extract the date part directly from the stored string to avoid timezone conversion issues.
+      // DB stores dates as "YYYY-MM-DD HH:MM:SS" or ISO strings – just take the first 10 chars.
       const taskDueDateStr = taskForCalc.dueDate
         ? (taskForCalc.dueDate instanceof Date
-            ? taskForCalc.dueDate.toISOString().slice(0, 10)
+            // For Date objects: format in local time (NOT toISOString which converts to UTC)
+            ? `${taskForCalc.dueDate.getFullYear()}-${String(taskForCalc.dueDate.getMonth()+1).padStart(2,'0')}-${String(taskForCalc.dueDate.getDate()).padStart(2,'0')}`
+            // For strings: take the first 10 chars directly ("YYYY-MM-DD ..." → "YYYY-MM-DD")
             : String(taskForCalc.dueDate).slice(0, 10))
         : null;
       const skipDateStr = input.dateToSkip.slice(0, 10);

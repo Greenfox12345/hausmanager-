@@ -1,0 +1,46 @@
+{
+  "query": "SELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001;",
+  "rows": [
+    {
+      "id": "990001",
+      "taskId": "2850001",
+      "occurrenceNumber": "1",
+      "notes": "Weil",
+      "createdAt": "2026-06-03 13:58:43",
+      "updatedAt": "2026-06-08 19:27:01",
+      "isSkipped": "1",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    },
+    {
+      "id": "990002",
+      "taskId": "2850001",
+      "occurrenceNumber": "2",
+      "notes": "",
+      "createdAt": "2026-06-03 13:58:43",
+      "updatedAt": "2026-06-03 13:58:43",
+      "isSkipped": "0",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    },
+    {
+      "id": "990003",
+      "taskId": "2850001",
+      "occurrenceNumber": "5",
+      "notes": "",
+      "createdAt": "2026-06-03 13:58:43",
+      "updatedAt": "2026-06-03 13:58:43",
+      "isSkipped": "0",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttaskId\toccurrenceNumber\tnotes\tcreatedAt\tupdatedAt\tisSkipped\tisSpecial\tspecialName\tspecialDate\n990001\t2850001\t1\tWeil\t2026-06-03 13:58:43\t2026-06-08 19:27:01\t1\t0\tNULL\tNULL\n990002\t2850001\t2\t\t2026-06-03 13:58:43\t2026-06-03 13:58:43\t0\t0\tNULL\tNULL\n990003\t2850001\t5\t\t2026-06-03 13:58:43\t2026-06-03 13:58:43\t0\t0\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 302
+}
