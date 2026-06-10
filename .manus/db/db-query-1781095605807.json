@@ -1,0 +1,25 @@
+{
+  "query": "SELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute SELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;",
+  "rows": [
+    {
+      "id": "1020014",
+      "taskId": "2850001",
+      "occurrenceNumber": "1",
+      "notes": "",
+      "createdAt": "2026-06-09 15:45:14",
+      "updatedAt": "2026-06-10 12:46:40",
+      "isSkipped": "0",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    }
+  ],
+  "messages": [
+    "id\tname\tdueDate",
+    "2850001\tGek\t2026-07-09 02:00:00"
+  ],
+  "stdout": "id\ttaskId\toccurrenceNumber\tnotes\tcreatedAt\tupdatedAt\tisSkipped\tisSpecial\tspecialName\tspecialDate\n1020014\t2850001\t1\t\t2026-06-09 15:45:14\t2026-06-10 12:46:40\t0\t0\tNULL\tNULL\nid\tname\tdueDate\n2850001\tGek\t2026-07-09 02:00:00\n",
+  "stderr": "",
+  "execution_time_ms": 264
+}

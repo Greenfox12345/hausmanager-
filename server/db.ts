@@ -2057,6 +2057,25 @@ export async function getSkippedOccurrenceNumbers(taskId: number): Promise<Set<n
 }
 
 /**
+ * After advancing task.dueDate past a skipped occurrence, shift all occurrenceNotes
+ * down by 1 so that occurrenceNumber stays relative to the new dueDate.
+ * - Deletes the old occurrenceNumber=1 entry (the one that was just skipped/advanced past)
+ * - Decrements all remaining entries by 1 (occurrenceNumber=2 → 1, 3 → 2, etc.)
+ */
+export async function shiftOccurrenceNotesDown(taskId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  // Delete the consumed entry (occurrenceNumber=1 – the one we just advanced past)
+  await db.execute(
+    sql`DELETE FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND occurrenceNumber = 1`
+  );
+  // Shift all remaining entries down by 1
+  await db.execute(
+    sql`UPDATE task_rotation_occurrence_notes SET occurrenceNumber = occurrenceNumber - 1 WHERE taskId = ${taskId} AND occurrenceNumber > 1`
+  );
+}
+
+/**
  * Clear all isSkipped=true entries up to and including a given occurrence number.
  * Called after completeTask to clean up consumed skip entries.
  */

@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND occurrenceNumber = 1;\nUPDATE task_rotation_occurrence_notes SET occurrenceNumber = occurrenceNumber - 1 WHERE taskId = 2850001 AND occurrenceNumber > 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute DELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND occurrenceNumber = 1;\nUPDATE task_rotation_occurrence_notes SET occurrenceNumber = occurrenceNumber - 1 WHERE taskId = 2850001 AND occurrenceNumber > 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 300
+}

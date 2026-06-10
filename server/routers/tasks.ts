@@ -26,6 +26,7 @@ import {
   upsertOccurrenceNote,
   getSkippedOccurrenceNumbers,
   clearSkippedOccurrencesUpTo,
+  shiftOccurrenceNotesDown,
   getRealRotationSchedule,
   dateToWallClockString,
 } from "../db";
@@ -1422,6 +1423,11 @@ export const tasksRouter = router({
         // Update task.dueDate in DB
         const nextDueDateStr = `${nextDueDate.getFullYear()}-${String(nextDueDate.getMonth()+1).padStart(2,'0')}-${String(nextDueDate.getDate()).padStart(2,'0')} ${String(nextDueDate.getHours()).padStart(2,'0')}:${String(nextDueDate.getMinutes()).padStart(2,'0')}:00`;
         await updateTask(input.taskId, { dueDateRaw: nextDueDateStr });
+
+        // CRITICAL: After advancing dueDate, shift all occurrenceNotes down by 1.
+        // occurrenceNumber is relative to dueDate (1 = dueDate, 2 = dueDate+interval, etc.).
+        // After dueDate advances by 1 step, old occurrenceNumber=2 becomes the new occurrenceNumber=1.
+        await shiftOccurrenceNotesDown(input.taskId);
       }
 
       const skipLang = await getHouseholdLang(input.householdId);
