@@ -1372,62 +1372,40 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Use getTaskById to find the task directly by ID (avoids householdId mismatch for shared tasks)
       const task = await getTaskById(input.taskId);
-
       if (!task) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Compute occurrence number for this date
-      // If the task has no dueDate yet, set it first so calcOccurrenceNumber works
-      let taskForCalc = task;
-      if (!task.dueDate) {
-        await updateTask(input.taskId, { dueDateRaw: input.dateToSkip.includes(' ') ? input.dateToSkip : input.dateToSkip + ' 00:00:00' });
-        taskForCalc = { ...task, dueDate: input.dateToSkip as any };
-      }
-      const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
-      if (occNum !== null) {
-        await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
-      }
-
-      // Advance task.dueDate past the skipped occurrence (and any further skipped ones)
-      // Only do this if the skipped date matches task.dueDate (i.e., it's the current occurrence)
-      // IMPORTANT: Extract the date part directly from the stored string to avoid timezone conversion issues.
-      // DB stores dates as "YYYY-MM-DD HH:MM:SS" or ISO strings – just take the first 10 chars.
-      const taskDueDateStr = taskForCalc.dueDate
-        ? (taskForCalc.dueDate instanceof Date
-            // For Date objects: format in local time (NOT toISOString which converts to UTC)
-            ? `${taskForCalc.dueDate.getFullYear()}-${String(taskForCalc.dueDate.getMonth()+1).padStart(2,'0')}-${String(taskForCalc.dueDate.getDate()).padStart(2,'0')}`
-            // For strings: take the first 10 chars directly ("YYYY-MM-DD ..." → "YYYY-MM-DD")
-            : String(taskForCalc.dueDate).slice(0, 10))
+      // Extract the date part from dueDate (handles both Date objects and "YYYY-MM-DD HH:MM:SS" strings)
+      const taskDueDateStr = task.dueDate
+        ? (task.dueDate instanceof Date
+            ? `${task.dueDate.getFullYear()}-${String(task.dueDate.getMonth()+1).padStart(2,'0')}-${String(task.dueDate.getDate()).padStart(2,'0')}`
+            : String(task.dueDate).slice(0, 10))
         : null;
       const skipDateStr = input.dateToSkip.slice(0, 10);
-      if (taskDueDateStr === skipDateStr && taskForCalc.repeatInterval && taskForCalc.repeatUnit) {
-        // Advance to next occurrence
-        let nextDueDate = await advanceByInterval(
-          taskForCalc.dueDate instanceof Date ? taskForCalc.dueDate : new Date(taskForCalc.dueDate!),
-          taskForCalc as TaskForCompletion
+      const isCurrentOccurrence = taskDueDateStr === skipDateStr;
+
+      if (isCurrentOccurrence && task.repeatInterval && task.repeatUnit) {
+        // SIMPLE PATH: The current occurrence is being skipped.
+        // Just advance dueDate to the next interval – no occurrenceNote needed.
+        const nextDueDate = await advanceByInterval(
+          task.dueDate instanceof Date ? task.dueDate : new Date(String(task.dueDate!).replace(' ', 'T')),
+          task as TaskForCompletion
         );
-        // Skip-chain: keep advancing if the next date is also skipped
-        const skippedOccNums = await getSkippedOccurrenceNumbers(input.taskId);
-        let maxIter = 500;
-        while (maxIter-- > 0) {
-          const nextOccNum = calcOccurrenceNumber(taskForCalc, nextDueDate);
-          if (nextOccNum !== null && skippedOccNums.has(nextOccNum)) {
-            nextDueDate = await advanceByInterval(nextDueDate, taskForCalc as TaskForCompletion);
-          } else {
-            break;
-          }
-        }
-        // Update task.dueDate in DB
         const nextDueDateStr = `${nextDueDate.getFullYear()}-${String(nextDueDate.getMonth()+1).padStart(2,'0')}-${String(nextDueDate.getDate()).padStart(2,'0')} ${String(nextDueDate.getHours()).padStart(2,'0')}:${String(nextDueDate.getMinutes()).padStart(2,'0')}:00`;
         await updateTask(input.taskId, { dueDateRaw: nextDueDateStr });
-
-        // CRITICAL: After advancing dueDate, shift all occurrenceNotes down by 1.
-        // occurrenceNumber is relative to dueDate (1 = dueDate, 2 = dueDate+interval, etc.).
-        // After dueDate advances by 1 step, old occurrenceNumber=2 becomes the new occurrenceNumber=1.
-        await shiftOccurrenceNotesDown(input.taskId);
+      } else {
+        // FUTURE OCCURRENCE PATH: Mark this specific occurrence as skipped via occurrenceNote.
+        let taskForCalc = task;
+        if (!task.dueDate) {
+          await updateTask(input.taskId, { dueDateRaw: input.dateToSkip.includes(' ') ? input.dateToSkip : input.dateToSkip + ' 00:00:00' });
+          taskForCalc = { ...task, dueDate: input.dateToSkip as any };
+        }
+        const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
+        if (occNum !== null) {
+          await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
+        }
       }
 
       const skipLang = await getHouseholdLang(input.householdId);
