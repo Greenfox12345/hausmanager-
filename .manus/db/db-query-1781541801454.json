@@ -1,0 +1,19 @@
+{
+  "query": "DELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND isSkipped = 1;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;\nSELECT occurrenceNumber, isSkipped FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute DELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND isSkipped = 1;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;\nSELECT occurrenceNumber, isSkipped FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;",
+  "rows": [
+    {
+      "id": "2850001",
+      "name": "Gek",
+      "dueDate": "2026-07-09 02:00:00"
+    }
+  ],
+  "messages": [
+    "occurrenceNumber\tisSkipped",
+    "2\t0",
+    "3\t0"
+  ],
+  "stdout": "id\tname\tdueDate\n2850001\tGek\t2026-07-09 02:00:00\noccurrenceNumber\tisSkipped\n2\t0\n3\t0\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -1377,14 +1377,19 @@ export const tasksRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Extract the date part from dueDate (handles both Date objects and "YYYY-MM-DD HH:MM:SS" strings)
-      const taskDueDateStr = task.dueDate
-        ? (task.dueDate instanceof Date
-            ? `${task.dueDate.getFullYear()}-${String(task.dueDate.getMonth()+1).padStart(2,'0')}-${String(task.dueDate.getDate()).padStart(2,'0')}`
-            : String(task.dueDate).slice(0, 10))
-        : null;
+      // Read dueDate as raw string directly from DB to avoid any timezone conversion.
+      // mysql2 returns datetime columns as Date objects (UTC-based), which dateToWallClockString
+      // then converts using local time – causing off-by-one errors in non-UTC environments.
+      // Using DATE_FORMAT gives us the stored value exactly as written.
+      const db = await getDb();
+      const [rawRows] = await db!.execute(
+        sql`SELECT DATE_FORMAT(dueDate, '%Y-%m-%d') AS dueDateStr FROM tasks WHERE id = ${input.taskId} LIMIT 1`
+      );
+      const rawTask = (rawRows as unknown as any[])[0];
+      const taskDueDateStr: string | null = rawTask?.dueDateStr ?? null;
+
       const skipDateStr = input.dateToSkip.slice(0, 10);
-      const isCurrentOccurrence = taskDueDateStr === skipDateStr;
+      const isCurrentOccurrence = taskDueDateStr !== null && taskDueDateStr === skipDateStr;
 
       if (isCurrentOccurrence && task.repeatInterval && task.repeatUnit) {
         // SIMPLE PATH: The current occurrence is being skipped.

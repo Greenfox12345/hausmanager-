@@ -1,0 +1,37 @@
+{
+  "query": "-- Lösche alle isSkipped-Einträge für Task 2850001 (sie sind falsch gesetzt)\nDELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND isSkipped = 1;\n-- Prüfe Ergebnis\nSELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YxFwjaS6n4EGE7.031ea3147ddd --database 5dPSLyh58e9tDjPvGLCuzX --execute -- Lösche alle isSkipped-Einträge für Task 2850001 (sie sind falsch gesetzt)\nDELETE FROM task_rotation_occurrence_notes WHERE taskId = 2850001 AND isSkipped = 1;\n-- Prüfe Ergebnis\nSELECT * FROM task_rotation_occurrence_notes WHERE taskId = 2850001 ORDER BY occurrenceNumber;\nSELECT id, name, dueDate FROM tasks WHERE id = 2850001;",
+  "rows": [
+    {
+      "id": "1080005",
+      "taskId": "2850001",
+      "occurrenceNumber": "2",
+      "notes": "",
+      "createdAt": "2026-06-12 12:51:54",
+      "updatedAt": "2026-06-12 12:51:54",
+      "isSkipped": "0",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    },
+    {
+      "id": "1080006",
+      "taskId": "2850001",
+      "occurrenceNumber": "3",
+      "notes": "",
+      "createdAt": "2026-06-12 12:51:54",
+      "updatedAt": "2026-06-12 12:51:54",
+      "isSkipped": "0",
+      "isSpecial": "0",
+      "specialName": "NULL",
+      "specialDate": "NULL"
+    }
+  ],
+  "messages": [
+    "id\tname\tdueDate",
+    "2850001\tGek\t2026-07-09 02:00:00"
+  ],
+  "stdout": "id\ttaskId\toccurrenceNumber\tnotes\tcreatedAt\tupdatedAt\tisSkipped\tisSpecial\tspecialName\tspecialDate\n1080005\t2850001\t2\t\t2026-06-12 12:51:54\t2026-06-12 12:51:54\t0\t0\tNULL\tNULL\n1080006\t2850001\t3\t\t2026-06-12 12:51:54\t2026-06-12 12:51:54\t0\t0\tNULL\tNULL\nid\tname\tdueDate\n2850001\tGek\t2026-07-09 02:00:00\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}
