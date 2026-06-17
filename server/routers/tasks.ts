@@ -1416,6 +1416,10 @@ export const tasksRouter = router({
       const skipLang = await getHouseholdLang(input.householdId);
       const skipLocale = skipLang === "en" ? "en-GB" : skipLang === "es" ? "es-ES" : "de-DE";
       const formattedDate = new Date(input.dateToSkip).toLocaleDateString(skipLocale);
+      // Store skippedDate with time component to avoid UTC midnight parsing issues in the frontend.
+      // "2026-07-09" parses as UTC midnight → wrong local date in UTC+X zones.
+      // "2026-07-09 12:00:00" is unambiguous regardless of timezone.
+      const skippedDateWithTime = input.dateToSkip.length === 10 ? input.dateToSkip + ' 12:00:00' : input.dateToSkip;
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.memberId,
@@ -1423,7 +1427,7 @@ export const tasksRouter = router({
         action: "skipped",
         description: taskSkipped(skipLang, task.name, formattedDate),
         relatedItemId: input.taskId,
-        metadata: { skippedDate: input.dateToSkip, taskName: task.name },
+        metadata: { skippedDate: skippedDateWithTime, taskName: task.name },
       });
 
       return { success: true };

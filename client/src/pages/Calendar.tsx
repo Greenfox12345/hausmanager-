@@ -263,7 +263,7 @@ export default function Calendar() {
       return [];
     }
 
-    const occurrences: Array<{ date: Date; isOriginal: boolean; occurrenceNote?: string }> = [];
+    const occurrences: Array<{ date: Date; isOriginal: boolean; occurrenceNote?: string; isSkipped?: boolean }> = [];
     let currentDate = new Date(task.dueDate);
     // occurrenceNotes is the single source of truth for skip status
     const occurrenceNotes: { occurrenceNumber: number; notes: string; isSkipped?: boolean }[] = (task as any).occurrenceNotes || [];
@@ -295,10 +295,10 @@ export default function Calendar() {
       // Check if this occurrence has a note
       const hasNote = !!(noteEntry?.notes);
 
-      // Include if: within wide range (±12 months) AND not skipped
+      // Include if within wide range (±12 months) – show skipped ones too (marked separately)
       const inMonthView = nextDate >= wideMonthStart && nextDate <= wideMonthEnd;
-      if (!isSkipped && inMonthView) {
-        occurrences.push({ date: nextDate, isOriginal: false, occurrenceNote: noteEntry?.notes });
+      if (inMonthView) {
+        occurrences.push({ date: nextDate, isOriginal: false, occurrenceNote: noteEntry?.notes, isSkipped });
       }
 
       currentDate = nextDate;
@@ -468,7 +468,13 @@ export default function Calendar() {
             if (!grouped[dateKey]) {
               grouped[dateKey] = [];
             }
-            grouped[dateKey].push({ ...task, isFutureOccurrence: true, occurrenceDate: occurrence.date, occurrenceNote: occurrence.occurrenceNote } as any);
+            grouped[dateKey].push({
+              ...task,
+              isFutureOccurrence: !occurrence.isSkipped,
+              isSkippedOccurrence: !!occurrence.isSkipped,
+              occurrenceDate: occurrence.date,
+              occurrenceNote: occurrence.occurrenceNote,
+            } as any);
           });
         }
       }
@@ -553,12 +559,12 @@ export default function Calendar() {
           if (skippedDate >= wideMonthStart && skippedDate <= wideMonthEnd) {
             const dateKey = format(skippedDate, "yyyy-MM-dd");
             if (!grouped[dateKey]) grouped[dateKey] = [];
-            // Only add if not already present as skipped for this activity
-            const alreadyAdded = grouped[dateKey].some(
-              (e: any) => e.id === task.id && (e as any).isSkippedOccurrence && (e as any).activityId === activity.id
+            // Skip if already present as skipped (from occurrenceNotes or another activity)
+            const alreadySkipped = grouped[dateKey].some(
+              (e: any) => e.id === task.id && (e as any).isSkippedOccurrence
             );
-            if (!alreadyAdded) {
-              // Remove any open (non-completed, non-skipped) entry for this task on this date
+            if (!alreadySkipped) {
+              // Remove any open (non-completed, non-skipped, non-future) entry for this task on this date
               grouped[dateKey] = grouped[dateKey].filter(
                 (e: any) => !(e.id === task.id && !e.isCompletedOccurrence && !(e as any).isSkippedOccurrence && !e.isFutureOccurrence)
               );
