@@ -72,6 +72,8 @@ export default function Calendar() {
     isCurrentOccurrence: boolean; // true = aktueller Termin → dueDate wird vorgerückt
   } | null>(null);
   const [skipCurrentNote, setSkipCurrentNote] = useState("");
+  // Optimistic state: tracks skipped dates before the activity-log refetch completes
+  const [pendingSkippedDates, setPendingSkippedDates] = useState<Array<{ taskId: number; dateKey: string }>>([]);
   const [skipConfirmData, setSkipConfirmData] = useState<{
     skippedCount: number;
     skippedOccurrenceDates: string[];
@@ -183,15 +185,25 @@ export default function Calendar() {
 
   const skipOccurrenceMutation = trpc.tasks.skipOccurrence.useMutation({
     onSuccess: async (_data, variables) => {
-      // Invalidate and wait for fresh data so findNextOpenOccurrence uses updated occurrenceNotes
-      await utils.tasks.list.invalidate();
+      // Optimistically show the skipped date immediately (before activity-log refetch)
+      const skippedDateKey = variables.dateToSkip.slice(0, 10);
+      setPendingSkippedDates(prev => [...prev, { taskId: variables.taskId, dateKey: skippedDateKey }]);
+
+      // Invalidate and wait for fresh data (tasks + activities so skipped date appears in calendar)
+      await Promise.all([
+        utils.tasks.list.invalidate(),
+        utils.activities.list.invalidate(),
+      ]);
       utils.tasks.getRotationSchedule.invalidate();
+      // Now that activity-log is fresh, remove the optimistic entry
+      setPendingSkippedDates(prev => prev.filter(e => !(e.taskId === variables.taskId && e.dateKey === skippedDateKey)));
+
       // Close popup if it was triggered from popup
       if (pendingPopupCloseRef.current) {
         pendingPopupCloseRef.current();
         pendingPopupCloseRef.current = null;
       }
-      // Jump to the next open occurrence using fresh task data
+      // Use fresh task data from the refetched cache
       const freshTasks = utils.tasks.list.getData({ householdId: household?.householdId ?? 0 }) as any[] | undefined;
       const freshTask = freshTasks?.find((t: any) => t.id === variables.taskId);
       if (freshTask) {
@@ -608,8 +620,28 @@ export default function Calendar() {
       }
     });
     
+    // Add optimistic skipped entries (before activity-log refetch completes)
+    pendingSkippedDates.forEach(({ taskId, dateKey }) => {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      if (!grouped[dateKey]) grouped[dateKey] = [];
+      // Only add if not already covered by activity-log path
+      const alreadySkipped = grouped[dateKey].some((e: any) => e.id === taskId && (e as any).isSkippedOccurrence);
+      if (!alreadySkipped) {
+        // Remove any open (non-skipped, non-completed) entry for this task on this date
+        grouped[dateKey] = grouped[dateKey].filter(
+          (e: any) => !(e.id === taskId && !e.isCompletedOccurrence && !(e as any).isSkippedOccurrence && !e.isFutureOccurrence)
+        );
+        grouped[dateKey].push({
+          ...task,
+          isSkippedOccurrence: true,
+          dueDate: new Date(dateKey + 'T12:00:00'),
+        } as any);
+      }
+    });
+
     return grouped;
-  }, [tasks, activityHistory, calendarEvents, wideMonthStart, wideMonthEnd]);
+  }, [tasks, activityHistory, calendarEvents, wideMonthStart, wideMonthEnd, pendingSkippedDates]);
 
   // Convert tasksByDate to TaskOccurrence[] for TaskCalendar
   const taskOccurrences = useMemo((): TaskOccurrence[] => {
