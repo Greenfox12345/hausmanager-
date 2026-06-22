@@ -83,7 +83,7 @@ export default function Calendar() {
 
   const utils = trpc.useUtils();
 
-  const { data: tasks = [], isLoading: tasksLoading } = trpc.tasks.list.useQuery(
+  const { data: tasks = [], isLoading: tasksLoading, refetch: refetchTasks } = trpc.tasks.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
@@ -190,8 +190,9 @@ export default function Calendar() {
       setPendingSkippedDates(prev => [...prev, { taskId: variables.taskId, dateKey: skippedDateKey }]);
 
       // Invalidate and wait for fresh data (tasks + activities so skipped date appears in calendar)
-      await Promise.all([
-        utils.tasks.list.invalidate(),
+      // Use refetchTasks() to get the actual fresh data back (invalidate alone doesn't guarantee getData() is fresh)
+      const [refetchResult] = await Promise.all([
+        refetchTasks(),
         utils.activities.list.invalidate(),
       ]);
       utils.tasks.getRotationSchedule.invalidate();
@@ -203,9 +204,9 @@ export default function Calendar() {
         pendingPopupCloseRef.current();
         pendingPopupCloseRef.current = null;
       }
-      // Use fresh task data from the refetched cache
-      const freshTasks = utils.tasks.list.getData({ householdId: household?.householdId ?? 0 }) as any[] | undefined;
-      const freshTask = freshTasks?.find((t: any) => t.id === variables.taskId);
+      // Use fresh task data directly from the refetch result
+      const freshTasks = (refetchResult.data ?? []) as any[];
+      const freshTask = freshTasks.find((t: any) => t.id === variables.taskId);
       if (freshTask) {
         // Update selectedTask with fresh data so TaskDetailDialog reflects new dueDate and occurrenceNotes
         setSelectedTask((prev: any) => {
