@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -73,7 +73,9 @@ export default function Calendar() {
   } | null>(null);
   const [skipCurrentNote, setSkipCurrentNote] = useState("");
   // Optimistic state: tracks skipped dates before the activity-log refetch completes
-  const [pendingSkippedDates, setPendingSkippedDates] = useState<Array<{ taskId: number; dateKey: string }>>([]);
+  const [pendingSkippedDates, setPendingSkippedDates] = useState<Array<{ taskId: number; dateKey: string }>>([]); 
+  // Pending jump: after tasks refetch, jump to this date (so tasksByDate is fresh when we navigate)
+  const pendingJumpRef = useRef<{ date: Date; taskId: number } | null>(null);
   const [skipConfirmData, setSkipConfirmData] = useState<{
     skippedCount: number;
     skippedOccurrenceDates: string[];
@@ -214,12 +216,11 @@ export default function Calendar() {
           return { ...freshTask };
         });
         const nextDate = findNextOpenOccurrence(freshTask);
-        if (taskCalendarRef.current) {
-          taskCalendarRef.current.jumpToOccurrence(nextDate, variables.taskId);
-        } else {
-          setCurrentMonth(nextDate);
-          setSelectedDate(nextDate);
-        }
+        // Set pending jump – will be executed by useEffect once tasksByDate is recomputed with fresh data
+        // This ensures the task at the new date is shown as current (not isFutureOccurrence)
+        pendingJumpRef.current = { date: nextDate, taskId: variables.taskId };
+        // Also update month so the calendar shows the right month while we wait
+        setCurrentMonth(nextDate);
       }
       toast.success(t("calendar:messages.occurrenceSkipped", "Termin ausgelassen!"));
     },
@@ -844,6 +845,24 @@ export default function Calendar() {
       return sortOrder === "asc" ? comparison : -comparison;
     });
   }, [tasks, filterAssignee, sortBy, sortOrder]);
+
+  // Execute pending jump after tasksByDate has been recomputed with fresh tasks data
+  useEffect(() => {
+    if (!pendingJumpRef.current) return;
+    const { date, taskId } = pendingJumpRef.current;
+    const dateKey = format(date, "yyyy-MM-dd");
+    // Check if tasksByDate now has the task at the new date without isFutureOccurrence
+    const entry = tasksByDate[dateKey]?.find((e: any) => e.id === taskId && !e.isFutureOccurrence);
+    if (entry) {
+      pendingJumpRef.current = null;
+      if (taskCalendarRef.current) {
+        taskCalendarRef.current.jumpToOccurrence(date, taskId);
+      } else {
+        setCurrentMonth(date);
+        setSelectedDate(date);
+      }
+    }
+  }, [tasksByDate]);
 
   // Navigation functions
   const goToPreviousMonth = () => {
