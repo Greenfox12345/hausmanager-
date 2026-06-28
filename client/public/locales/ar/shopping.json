@@ -34,7 +34,8 @@
     "neededBy": "مطلوب بحلول",
     "neededByShort": "بحلول",
     "overdue": "(منتهي)",
-    "more": "المزيد"
+    "more": "المزيد",
+    "noCategory": "بدون فئة"
   },
   "status": {
     "open": "مفتوح",

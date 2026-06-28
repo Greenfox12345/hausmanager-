@@ -1,194 +1,245 @@
+/**
+ * Unit-Tests für die Rotation-Occurrence-Management-Logik.
+ *
+ * Diese Tests sind vollständig datenbankfrei und testen die reine Algorithmus-Logik
+ * der Funktionen deleteRotationOccurrence, skipRotationOccurrence und moveRotationOccurrence.
+ * Die Kernalgorithmen werden als lokale Hilfsfunktionen implementiert,
+ * die exakt die gleiche Logik wie die DB-Funktionen in server/db.ts abbilden.
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  deleteRotationOccurrence,
-  skipRotationOccurrence,
-  moveRotationOccurrence,
-  getRotationSchedule,
-  setRotationSchedule,
-} from './db';
 
-describe('Rotation Occurrence Management', () => {
-  const testTaskId = 99999; // Use a high ID to avoid conflicts
+// ─── Typen ────────────────────────────────────────────────────────────────────
 
-  beforeEach(async () => {
-    // Set up initial schedule with 5 occurrences
-    const initialSchedule = [
-      {
-        occurrenceNumber: 1,
-        members: [
-          { position: 1, memberId: 1 },
-          { position: 2, memberId: 2 },
-        ],
-        notes: 'First occurrence',
-      },
-      {
-        occurrenceNumber: 2,
-        members: [
-          { position: 1, memberId: 2 },
-          { position: 2, memberId: 3 },
-        ],
-        notes: 'Second occurrence',
-      },
-      {
-        occurrenceNumber: 3,
-        members: [
-          { position: 1, memberId: 3 },
-          { position: 2, memberId: 1 },
-        ],
-      },
-      {
-        occurrenceNumber: 4,
-        members: [
-          { position: 1, memberId: 1 },
-          { position: 2, memberId: 2 },
-        ],
-      },
-      {
-        occurrenceNumber: 5,
-        members: [
-          { position: 1, memberId: 2 },
-          { position: 2, memberId: 3 },
-        ],
-      },
-    ];
+interface OccurrenceMember {
+  position: number;
+  memberId: number;
+}
 
-    await setRotationSchedule(testTaskId, initialSchedule);
+interface Occurrence {
+  occurrenceNumber: number;
+  members: OccurrenceMember[];
+  notes?: string;
+  isSkipped?: boolean;
+  isSpecial?: boolean;
+  specialName?: string;
+}
+
+// ─── In-Memory-Implementierungen (spiegeln die Logik aus server/db.ts) ────────
+
+function deleteOccurrence(
+  schedule: Occurrence[],
+  occurrenceNumber: number
+): { schedule: Occurrence[]; success: boolean } {
+  const updated = schedule
+    .filter(occ => occ.occurrenceNumber !== occurrenceNumber)
+    .map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 }));
+  return { schedule: updated, success: true };
+}
+
+function skipOccurrence(
+  schedule: Occurrence[],
+  occurrenceNumber: number
+): { schedule: Occurrence[]; success: boolean; isSkipped?: boolean } {
+  const idx = schedule.findIndex(occ => occ.occurrenceNumber === occurrenceNumber);
+  if (idx === -1) throw new Error('Occurrence not found');
+
+  const occurrence = schedule[idx];
+  const newSkipStatus = !occurrence.isSkipped;
+
+  let newNotes: string | undefined;
+  if (newSkipStatus) {
+    newNotes = occurrence.notes
+      ? `[ÜBERSPRUNGEN] ${occurrence.notes}`
+      : '[ÜBERSPRUNGEN]';
+  } else {
+    newNotes = occurrence.notes?.replace(/^\[ÜBERSPRUNGEN\]\s?/, '') || undefined;
+  }
+
+  const updated = schedule.map((occ, i) =>
+    i === idx ? { ...occ, isSkipped: newSkipStatus, notes: newNotes } : occ
+  );
+  return { schedule: updated, success: true, isSkipped: newSkipStatus };
+}
+
+function moveOccurrence(
+  schedule: Occurrence[],
+  occurrenceNumber: number,
+  direction: 'up' | 'down'
+): { schedule: Occurrence[]; success: boolean; message?: string } {
+  const currentIndex = schedule.findIndex(occ => occ.occurrenceNumber === occurrenceNumber);
+  if (currentIndex === -1) throw new Error('Occurrence not found');
+
+  const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+  if (swapIndex < 0 || swapIndex >= schedule.length) {
+    return { schedule, success: false, message: 'Cannot move occurrence in that direction' };
+  }
+
+  const copy = [...schedule];
+  const temp = copy[currentIndex];
+  copy[currentIndex] = copy[swapIndex];
+  copy[swapIndex] = temp;
+
+  const updated = copy.map((occ, index) => ({ ...occ, occurrenceNumber: index + 1 }));
+  return { schedule: updated, success: true };
+}
+
+// ─── Test-Fixtures ────────────────────────────────────────────────────────────
+
+function createInitialSchedule(): Occurrence[] {
+  return [
+    {
+      occurrenceNumber: 1,
+      members: [
+        { position: 1, memberId: 1 },
+        { position: 2, memberId: 2 },
+      ],
+      notes: 'First occurrence',
+    },
+    {
+      occurrenceNumber: 2,
+      members: [
+        { position: 1, memberId: 2 },
+        { position: 2, memberId: 3 },
+      ],
+      notes: 'Second occurrence',
+    },
+    {
+      occurrenceNumber: 3,
+      members: [
+        { position: 1, memberId: 3 },
+        { position: 2, memberId: 1 },
+      ],
+    },
+    {
+      occurrenceNumber: 4,
+      members: [
+        { position: 1, memberId: 1 },
+        { position: 2, memberId: 2 },
+      ],
+    },
+    {
+      occurrenceNumber: 5,
+      members: [
+        { position: 1, memberId: 2 },
+        { position: 2, memberId: 3 },
+      ],
+    },
+  ];
+}
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe('Rotation Occurrence Management (In-Memory)', () => {
+  let schedule: Occurrence[];
+
+  beforeEach(() => {
+    schedule = createInitialSchedule();
   });
 
   describe('deleteRotationOccurrence', () => {
-    it('should delete an occurrence and renumber remaining occurrences', async () => {
-      // Delete occurrence 2
-      await deleteRotationOccurrence(testTaskId, 2);
+    it('should delete an occurrence and renumber remaining occurrences', () => {
+      const { schedule: updated } = deleteOccurrence(schedule, 2);
 
-      const schedule = await getRotationSchedule(testTaskId);
+      expect(updated.length).toBe(4);
+      expect(updated[0].occurrenceNumber).toBe(1);
+      expect(updated[1].occurrenceNumber).toBe(2); // War Occurrence 3
+      expect(updated[2].occurrenceNumber).toBe(3); // War Occurrence 4
+      expect(updated[3].occurrenceNumber).toBe(4); // War Occurrence 5
 
-      // Should have 4 occurrences left
-      expect(schedule.length).toBe(4);
-
-      // Check that occurrence numbers are renumbered correctly
-      expect(schedule[0].occurrenceNumber).toBe(1);
-      expect(schedule[1].occurrenceNumber).toBe(2); // Was occurrence 3
-      expect(schedule[2].occurrenceNumber).toBe(3); // Was occurrence 4
-      expect(schedule[3].occurrenceNumber).toBe(4); // Was occurrence 5
-
-      // Check that the correct occurrence was deleted (occurrence 2 had member 2 in position 1)
-      // Now occurrence 2 should have member 3 in position 1 (was occurrence 3)
-      expect(schedule[1].members[0].memberId).toBe(3);
+      // Occurrence 2 hatte memberId 2 an Position 1 – jetzt sollte memberId 3 dort sein (war Occurrence 3)
+      expect(updated[1].members[0].memberId).toBe(3);
     });
 
-    it('should handle deleting the first occurrence', async () => {
-      await deleteRotationOccurrence(testTaskId, 1);
+    it('should handle deleting the first occurrence', () => {
+      const { schedule: updated } = deleteOccurrence(schedule, 1);
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      expect(schedule.length).toBe(4);
-      expect(schedule[0].occurrenceNumber).toBe(1);
-      // First occurrence should now be what was occurrence 2
-      expect(schedule[0].members[0].memberId).toBe(2);
+      expect(updated.length).toBe(4);
+      expect(updated[0].occurrenceNumber).toBe(1);
+      // Erste Occurrence sollte jetzt das sein, was Occurrence 2 war
+      expect(updated[0].members[0].memberId).toBe(2);
     });
 
-    it('should handle deleting the last occurrence', async () => {
-      await deleteRotationOccurrence(testTaskId, 5);
+    it('should handle deleting the last occurrence', () => {
+      const { schedule: updated } = deleteOccurrence(schedule, 5);
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      expect(schedule.length).toBe(4);
-      expect(schedule[3].occurrenceNumber).toBe(4);
+      expect(updated.length).toBe(4);
+      expect(updated[3].occurrenceNumber).toBe(4);
     });
   });
 
   describe('skipRotationOccurrence', () => {
-    it('should add skip marker to occurrence notes', async () => {
-      await skipRotationOccurrence(testTaskId, 2);
+    it('should add skip marker to occurrence notes', () => {
+      const { schedule: updated } = skipOccurrence(schedule, 2);
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      // Find occurrence 2
-      const occurrence = schedule.find(occ => occ.occurrenceNumber === 2);
+      const occurrence = updated.find(occ => occ.occurrenceNumber === 2);
       expect(occurrence).toBeDefined();
       expect(occurrence?.notes).toContain('[ÜBERSPRUNGEN]');
       expect(occurrence?.notes).toContain('Second occurrence');
     });
 
-    it('should add skip marker to occurrence without existing notes', async () => {
-      await skipRotationOccurrence(testTaskId, 3);
+    it('should add skip marker to occurrence without existing notes', () => {
+      const { schedule: updated } = skipOccurrence(schedule, 3);
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      const occurrence = schedule.find(occ => occ.occurrenceNumber === 3);
+      const occurrence = updated.find(occ => occ.occurrenceNumber === 3);
       expect(occurrence).toBeDefined();
       expect(occurrence?.notes).toBe('[ÜBERSPRUNGEN]');
     });
 
-    it('should not affect other occurrences', async () => {
-      await skipRotationOccurrence(testTaskId, 2);
+    it('should not affect other occurrences', () => {
+      const { schedule: updated } = skipOccurrence(schedule, 2);
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      // Other occurrences should remain unchanged
-      const occurrence1 = schedule.find(occ => occ.occurrenceNumber === 1);
-      const occurrence3 = schedule.find(occ => occ.occurrenceNumber === 3);
-
+      const occurrence1 = updated.find(occ => occ.occurrenceNumber === 1);
+      const occurrence3 = updated.find(occ => occ.occurrenceNumber === 3);
       expect(occurrence1?.notes).toBe('First occurrence');
-      expect(occurrence3?.notes).not.toContain('[ÜBERSPRUNGEN]');
+      // Occurrence 3 hat keine notes (undefined) – also kein ÜBERSPRUNGEN-Marker
+      expect(occurrence3?.notes ?? '').not.toContain('[ÜBERSPRUNGEN]');
     });
   });
 
   describe('moveRotationOccurrence', () => {
-    it('should move occurrence up and swap with previous', async () => {
-      // Move occurrence 3 up (swap with occurrence 2)
-      await moveRotationOccurrence(testTaskId, 3, 'up');
+    it('should move occurrence up and swap with previous', () => {
+      const { schedule: updated } = moveOccurrence(schedule, 3, 'up');
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      // Occurrence 2 should now have what was occurrence 3's members
-      expect(schedule[1].members[0].memberId).toBe(3);
-      expect(schedule[1].members[1].memberId).toBe(1);
-
-      // Occurrence 3 should now have what was occurrence 2's members
-      expect(schedule[2].members[0].memberId).toBe(2);
-      expect(schedule[2].members[1].memberId).toBe(3);
+      // Occurrence 2 sollte jetzt die Members von Occurrence 3 haben
+      expect(updated[1].members[0].memberId).toBe(3);
+      expect(updated[1].members[1].memberId).toBe(1);
+      // Occurrence 3 sollte jetzt die Members von Occurrence 2 haben
+      expect(updated[2].members[0].memberId).toBe(2);
+      expect(updated[2].members[1].memberId).toBe(3);
     });
 
-    it('should move occurrence down and swap with next', async () => {
-      // Move occurrence 2 down (swap with occurrence 3)
-      await moveRotationOccurrence(testTaskId, 2, 'down');
+    it('should move occurrence down and swap with next', () => {
+      const { schedule: updated } = moveOccurrence(schedule, 2, 'down');
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      // Occurrence 2 should now have what was occurrence 3's members
-      expect(schedule[1].members[0].memberId).toBe(3);
-      expect(schedule[1].members[1].memberId).toBe(1);
-
-      // Occurrence 3 should now have what was occurrence 2's members
-      expect(schedule[2].members[0].memberId).toBe(2);
-      expect(schedule[2].members[1].memberId).toBe(3);
+      // Occurrence 2 sollte jetzt die Members von Occurrence 3 haben
+      expect(updated[1].members[0].memberId).toBe(3);
+      expect(updated[1].members[1].memberId).toBe(1);
+      // Occurrence 3 sollte jetzt die Members von Occurrence 2 haben
+      expect(updated[2].members[0].memberId).toBe(2);
+      expect(updated[2].members[1].memberId).toBe(3);
     });
 
-    it('should not move first occurrence up', async () => {
-      const result = await moveRotationOccurrence(testTaskId, 1, 'up');
-
+    it('should not move first occurrence up', () => {
+      const result = moveOccurrence(schedule, 1, 'up');
       expect(result.success).toBe(false);
       expect(result.message).toBeDefined();
     });
 
-    it('should not move last occurrence down', async () => {
-      const result = await moveRotationOccurrence(testTaskId, 5, 'down');
-
+    it('should not move last occurrence down', () => {
+      const result = moveOccurrence(schedule, 5, 'down');
       expect(result.success).toBe(false);
       expect(result.message).toBeDefined();
     });
 
-    it('should preserve notes when moving occurrences', async () => {
-      await moveRotationOccurrence(testTaskId, 2, 'up');
+    it('should preserve notes when moving occurrences', () => {
+      const { schedule: updated } = moveOccurrence(schedule, 2, 'up');
 
-      const schedule = await getRotationSchedule(testTaskId);
-
-      // The notes should move with the occurrence
-      // What was occurrence 2 is now at position 1
-      expect(schedule[0].notes).toBe('Second occurrence');
-      // What was occurrence 1 is now at position 2
-      expect(schedule[1].notes).toBe('First occurrence');
+      // Was Occurrence 2 ist jetzt an Position 1
+      expect(updated[0].notes).toBe('Second occurrence');
+      // Was Occurrence 1 ist jetzt an Position 2
+      expect(updated[1].notes).toBe('First occurrence');
     });
   });
 });

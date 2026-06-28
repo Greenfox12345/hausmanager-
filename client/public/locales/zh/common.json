@@ -61,7 +61,8 @@
     "showLess": "显示更少",
     "undo": "撤销",
     "logout": "退出",
-    "confirmDelete": "是的，删除"
+    "confirmDelete": "是的，删除",
+    "details": "详情"
   },
   "status": {
     "active": "活跃",
@@ -77,7 +78,8 @@
     "inProgress": "进行中",
     "creating": "正在创建...",
     "loading": "正在加载库存...",
-    "uploading": "正在上传..."
+    "uploading": "正在上传...",
+    "saving": "保存中..."
   },
   "labels": {
     "name": "名称",
@@ -130,7 +132,8 @@
     "time": "时间",
     "unassigned": "未分配",
     "selectDate": "选择日期",
-    "pageOf": "第 {{current}} 页，共 {{total}} 页"
+    "pageOf": "第 {{current}} 页，共 {{total}} 页",
+    "selectMonthYear": "选择月份和年份"
   },
   "priority": {
     "low": "低",
@@ -221,7 +224,8 @@
     "page": "页",
     "of": "共",
     "itemsPerPage": "每页条目",
-    "showingOf": "显示 {{from}}-{{to}} 条，共 {{total}} 条"
+    "showingOf": "显示 {{from}}-{{to}} 条，共 {{total}} 条",
+    "perPage": "每页："
   },
   "all": "全部",
   "open": "开放",

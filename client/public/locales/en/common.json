@@ -61,7 +61,8 @@
     "showLess": "Show less",
     "undo": "Undo",
     "logout": "Log out",
-    "confirmDelete": "Yes, delete"
+    "confirmDelete": "Yes, delete",
+    "details": "Details"
   },
   "status": {
     "active": "Active",
@@ -77,7 +78,8 @@
     "inProgress": "In Progress",
     "creating": "Creating...",
     "loading": "Loading inventory...",
-    "uploading": "Uploading..."
+    "uploading": "Uploading...",
+    "saving": "Saving..."
   },
   "labels": {
     "name": "Name",
@@ -130,7 +132,8 @@
     "time": "Time",
     "unassigned": "Unassigned",
     "selectDate": "Select date",
-    "pageOf": "Page {{current}} of {{total}}"
+    "pageOf": "Page {{current}} of {{total}}",
+    "selectMonthYear": "Select month and year"
   },
   "priority": {
     "low": "Low",
@@ -221,7 +224,8 @@
     "page": "Page",
     "of": "of",
     "itemsPerPage": "Items per page",
-    "showingOf": "{{from}}-{{to}} of {{total}}"
+    "showingOf": "{{from}}-{{to}} of {{total}}",
+    "perPage": "per page:"
   },
   "all": "All",
   "open": "Open",

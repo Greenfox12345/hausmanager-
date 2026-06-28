@@ -53,7 +53,8 @@
     "confirmSkip": "¿Desea omitir esta cita? Ya no se mostrará en el calendario.",
     "jumpedToCurrent": "Saltado a la cita actual",
     "occurrenceSkipped": "¡Cita omitida!",
-    "noteAdded": "¡Nota guardada!"
+    "noteAdded": "¡Nota guardada!",
+    "occurrenceRestored": "¡Ocurrencia restaurada!"
   },
   "month": "Mes",
   "week": "Semana",
@@ -141,5 +142,29 @@
     "noteLabel": "Nota para la cita omitida (opcional):",
     "notePlaceholder": "p. ej. vacaciones, enfermo, …",
     "confirm": "Omitir"
+  },
+  "legend": {
+    "open": "Abierto",
+    "overdue": "Vencido",
+    "completed": "Completado",
+    "future": "Próxima ocurrencia",
+    "special": "Cita especial",
+    "skipped": "Omitido"
+  },
+  "skipChainWarning": {
+    "title": "Las siguientes ocurrencias serán omitidas",
+    "body": "Al completar, se omitirán {{count}} ocurrencia(s):",
+    "nextDate": "Próxima ocurrencia abierta: {{date}}",
+    "confirm": "Completar de todos modos"
+  },
+  "skippedOccurrence": "Omitido",
+  "unskip": "Deshacer omisión",
+  "skipConfirm": {
+    "title": "Ocurrencias omitidas",
+    "singleSkip": "La próxima ocurrencia ({{date}}) ya está marcada como omitida. La tarea avanzará a la siguiente ocurrencia abierta.",
+    "multiSkip": "Las próximas {{count}} ocurrencias ya están marcadas como omitidas. La tarea avanzará a la siguiente ocurrencia abierta.",
+    "skippedDates": "Fechas omitidas:",
+    "nextOpen": "Próxima ocurrencia abierta:",
+    "confirm": "Completar de todos modos"
   }
 }

@@ -37,7 +37,8 @@
     "recurring": "Recurring",
     "unassigned": "Unassigned",
     "unknown": "Unknown",
-    "durationDaysLabel": "Duration (days)"
+    "durationDaysLabel": "Duration (days)",
+    "selectDate": "Select date"
   },
   "skippedDates": "Skipped occurrences",
   "linkedShoppingList": "Linked shopping list",
@@ -121,7 +122,9 @@
     "repeats": "Task repeats",
     "requiredPersons": "Required persons",
     "week": "week",
-    "weekly": "Weekly"
+    "weekly": "Weekly",
+    "specialName": "Special occurrence name",
+    "specialNamePlaceholder": "e.g. Christmas cleaning"
   },
   "weekdays": {
     "monday": "Monday",
@@ -197,7 +200,10 @@
     "milestone": "Milestone",
     "sendReminder": "Send reminder",
     "fullAccess": "Full access (edit everything)",
-    "milestonesReminders": "Milestones & Reminders"
+    "milestonesReminders": "Milestones & Reminders",
+    "noPastOccurrences": "No past occurrences yet",
+    "completedByLabel": "Completed by:",
+    "saveChangesConfirm": "Do you want to save the changes?"
   },
   "occurrences": {
     "title": "Upcoming appointments",
@@ -328,7 +334,9 @@
     "fileUploadError": "Error uploading file",
     "fileDeleteError": "Error deleting file",
     "linkAddError": "Error adding link",
-    "linkDeleteError": "Error deleting link"
+    "linkDeleteError": "Error deleting link",
+    "specialOccurrenceAdded": "Special occurrence added",
+    "saveError": "Error saving"
   },
   "gantt": {
     "title": "Gantt chart",
@@ -362,7 +370,8 @@
   "sharing": {
     "shareWithNeighbors": "Share with neighbors",
     "selectHouseholds": "Select households",
-    "permissionsLabel": "Permissions for non-responsible members"
+    "permissionsLabel": "Permissions for non-responsible members",
+    "shareWithOtherHouseholds": "Share with other households"
   },
   "filterSort": {
     "title": "Filter & Sort",
@@ -579,7 +588,8 @@
   },
   "dueDate": "Due:",
   "labels": {
-    "assignedTo": "Responsible"
+    "assignedTo": "Responsible",
+    "occurrence": "Occurrence"
   },
   "linkedWith": "Linked with",
   "otherHousehold": "another household",

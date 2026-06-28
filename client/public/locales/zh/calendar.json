@@ -39,7 +39,8 @@
     "confirmSkip": "您想跳过此日程吗？它将不再显示在日历中。",
     "jumpedToCurrent": "已跳转到当前日程",
     "occurrenceSkipped": "日程已跳过！",
-    "noteAdded": "备注已保存！"
+    "noteAdded": "备注已保存！",
+    "occurrenceRestored": "日程已恢复！"
   },
   "labels": {
     "occurrence": "日程"
@@ -97,5 +98,29 @@
     "noteLabel": "跳过预约的备注（可选）：",
     "notePlaceholder": "例如：假期、生病……",
     "confirm": "跳过"
+  },
+  "legend": {
+    "open": "待办",
+    "overdue": "已逾期",
+    "completed": "已完成",
+    "future": "未来日程",
+    "special": "特殊日程",
+    "skipped": "已跳过"
+  },
+  "skipChainWarning": {
+    "title": "后续日程将被跳过",
+    "body": "完成时，将跳过 {{count}} 个日程：",
+    "nextDate": "下一个待办日程：{{date}}",
+    "confirm": "仍然完成"
+  },
+  "skippedOccurrence": "已跳过",
+  "unskip": "撤销跳过",
+  "skipConfirm": {
+    "title": "已跳过的日程",
+    "singleSkip": "下一个日程（{{date}}）已被标记为跳过。任务将前进到下一个待办日程。",
+    "multiSkip": "接下来的 {{count}} 个日程已被标记为跳过。任务将前进到下一个待办日程。",
+    "skippedDates": "已跳过的日期：",
+    "nextOpen": "下一个待办日程：",
+    "confirm": "仍然完成"
   }
 }

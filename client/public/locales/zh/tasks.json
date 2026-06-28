@@ -37,7 +37,8 @@
     "recurring": "重复",
     "unassigned": "未分配",
     "unknown": "未知",
-    "durationDaysLabel": "持续时间（天）"
+    "durationDaysLabel": "持续时间（天）",
+    "selectDate": "选择日期"
   },
   "skippedDates": "跳过的日期",
   "linkedShoppingList": "关联购物清单",
@@ -121,7 +122,9 @@
     "repeats": "任务重复",
     "requiredPersons": "所需人数",
     "week": "周",
-    "weekly": "每周"
+    "weekly": "每周",
+    "specialName": "特殊日程名称",
+    "specialNamePlaceholder": "例如：圣诞大扫除"
   },
   "weekdays": {
     "monday": "星期一",
@@ -197,7 +200,10 @@
     "milestone": "里程碑",
     "sendReminder": "发送提醒",
     "fullAccess": "完全访问 (编辑所有)",
-    "milestonesReminders": "里程碑和提醒"
+    "milestonesReminders": "里程碑和提醒",
+    "noPastOccurrences": "暂无历史日程",
+    "completedByLabel": "完成者：",
+    "saveChangesConfirm": "是否保存更改？"
   },
   "occurrences": {
     "title": "即将到来的任务",
@@ -328,7 +334,9 @@
     "fileUploadError": "上传文件时出错",
     "fileDeleteError": "删除文件时出错",
     "linkAddError": "添加链接时出错",
-    "linkDeleteError": "删除链接时出错"
+    "linkDeleteError": "删除链接时出错",
+    "specialOccurrenceAdded": "已添加特殊日程",
+    "saveError": "保存失败"
   },
   "gantt": {
     "title": "甘特图",
@@ -362,7 +370,8 @@
   "sharing": {
     "shareWithNeighbors": "与邻居共享",
     "selectHouseholds": "选择家庭",
-    "permissionsLabel": "非负责成员的权限"
+    "permissionsLabel": "非负责成员的权限",
+    "shareWithOtherHouseholds": "与其他家庭共享"
   },
   "filterSort": {
     "title": "筛选和排序",
@@ -579,7 +588,8 @@
   },
   "dueDate": "截止日期:",
   "labels": {
-    "assignedTo": "负责人"
+    "assignedTo": "负责人",
+    "occurrence": "日程"
   },
   "linkedWith": "关联到",
   "otherHousehold": "其他家庭",

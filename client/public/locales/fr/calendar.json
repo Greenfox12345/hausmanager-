@@ -39,7 +39,8 @@
     "confirmSkip": "Voulez-vous ignorer ce rendez-vous ? Il ne sera plus affiché dans le calendrier.",
     "jumpedToCurrent": "Saut au rendez-vous actuel",
     "occurrenceSkipped": "Rendez-vous ignoré !",
-    "noteAdded": "Note enregistrée !"
+    "noteAdded": "Note enregistrée !",
+    "occurrenceRestored": "Occurrence restaurée !"
   },
   "labels": {
     "occurrence": "Rendez-vous"
@@ -97,5 +98,29 @@
     "noteLabel": "Note pour le rendez-vous ignoré (optionnel) :",
     "notePlaceholder": "p. ex. vacances, maladie, …",
     "confirm": "Ignorer"
+  },
+  "legend": {
+    "open": "Ouvert",
+    "overdue": "En retard",
+    "completed": "Terminé",
+    "future": "Prochaine occurrence",
+    "special": "Rendez-vous spécial",
+    "skipped": "Ignoré"
+  },
+  "skipChainWarning": {
+    "title": "Les occurrences suivantes seront ignorées",
+    "body": "À la complétion, {{count}} occurrence(s) seront ignorées :",
+    "nextDate": "Prochaine occurrence ouverte : {{date}}",
+    "confirm": "Compléter quand même"
+  },
+  "skippedOccurrence": "Ignoré",
+  "unskip": "Annuler l'ignorance",
+  "skipConfirm": {
+    "title": "Occurrences ignorées",
+    "singleSkip": "La prochaine occurrence ({{date}}) est déjà marquée comme ignorée. La tâche avancera à la prochaine occurrence ouverte.",
+    "multiSkip": "Les {{count}} prochaines occurrences sont déjà marquées comme ignorées. La tâche avancera à la prochaine occurrence ouverte.",
+    "skippedDates": "Dates ignorées :",
+    "nextOpen": "Prochaine occurrence ouverte :",
+    "confirm": "Compléter quand même"
   }
 }

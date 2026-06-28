@@ -119,7 +119,9 @@
     "sharingError": "Fehler beim Ändern der Freigabe",
     "approveError": "Fehler beim Genehmigen der Anfrage",
     "rejectError": "Fehler beim Ablehnen der Anfrage",
-    "revokeError": "Fehler beim Widerrufen der Genehmigung"
+    "revokeError": "Fehler beim Widerrufen der Genehmigung",
+    "categoryCreateError": "Fehler beim Erstellen der Kategorie",
+    "borrowError": "Fehler beim Ausleihen"
   },
   "labels": {
     "item": "Gegenstand"

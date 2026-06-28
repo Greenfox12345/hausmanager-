@@ -38,7 +38,8 @@
     "neededBy": "Necesario antes del",
     "neededByShort": "Antes del",
     "overdue": "(vencido)",
-    "more": "Más"
+    "more": "Más",
+    "noCategory": "Sin categoría"
   },
   "actions": {
     "check": "Marcar",

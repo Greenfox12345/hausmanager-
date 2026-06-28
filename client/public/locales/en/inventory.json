@@ -119,7 +119,9 @@
     "sharingError": "Error changing sharing",
     "approveError": "Error approving request",
     "rejectError": "Error rejecting request",
-    "revokeError": "Error revoking approval"
+    "revokeError": "Error revoking approval",
+    "categoryCreateError": "Error creating category",
+    "borrowError": "Error borrowing item"
   },
   "labels": {
     "item": "Item"

@@ -37,7 +37,8 @@
     "recurring": "متكرر",
     "unassigned": "غير مخصص",
     "unknown": "مجهول",
-    "durationDaysLabel": "المدة (أيام)"
+    "durationDaysLabel": "المدة (أيام)",
+    "selectDate": "اختر التاريخ"
   },
   "skippedDates": "مواعيد ملغاة",
   "linkedShoppingList": "قائمة التسوق المرتبطة",
@@ -121,7 +122,9 @@
     "repeats": "المهمة تتكرر",
     "requiredPersons": "الأشخاص المطلوبون",
     "week": "أسبوع",
-    "weekly": "أسبوعيًا"
+    "weekly": "أسبوعيًا",
+    "specialName": "اسم الموعد الخاص",
+    "specialNamePlaceholder": "مثال: تنظيف عيد الميلاد"
   },
   "weekdays": {
     "monday": "الاثنين",
@@ -197,7 +200,10 @@
     "milestone": "هدف وسيط",
     "sendReminder": "إرسال تذكير",
     "fullAccess": "وصول كامل (تعديل كل شيء)",
-    "milestonesReminders": "الأهداف المرحلية والتذكيرات"
+    "milestonesReminders": "الأهداف المرحلية والتذكيرات",
+    "noPastOccurrences": "لا توجد مواعيد سابقة بعد",
+    "completedByLabel": "أُكمل بواسطة:",
+    "saveChangesConfirm": "هل تريد حفظ التغييرات؟"
   },
   "occurrences": {
     "title": "المواعيد القادمة",
@@ -326,7 +332,9 @@
     "fileUploadError": "خطأ في رفع الملف",
     "fileDeleteError": "خطأ في حذف الملف",
     "linkAddError": "خطأ في إضافة الرابط",
-    "linkDeleteError": "خطأ في حذف الرابط"
+    "linkDeleteError": "خطأ في حذف الرابط",
+    "specialOccurrenceAdded": "تمت إضافة الموعد الخاص",
+    "saveError": "خطأ في الحفظ"
   },
   "priority": {
     "low": "منخفض",
@@ -368,6 +376,12 @@
     "createError": "تعذر إنشاء الفئة"
   },
   "detail": {
+    "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"
+  },
+  "labels": {
+    "occurrence": "موعد"
+  },
+  "sharing": {
     "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"
   }
 }

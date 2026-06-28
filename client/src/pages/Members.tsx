@@ -1083,7 +1083,7 @@ export default function Members() {
               </p>
             </div>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setInviteLinkData(null)}>Schließen</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => setInviteLinkData(null)}>{t("common:actions.close", "Schließen")}</AlertDialogCancel>
               <Button
                 variant="outline"
                 className="gap-1.5"

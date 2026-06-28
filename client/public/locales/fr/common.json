@@ -61,7 +61,8 @@
     "showLess": "Afficher moins",
     "undo": "Annuler",
     "logout": "Se déconnecter",
-    "confirmDelete": "Oui, supprimer"
+    "confirmDelete": "Oui, supprimer",
+    "details": "Détails"
   },
   "status": {
     "active": "Actif",
@@ -81,7 +82,8 @@
     "legal": {
       "privacy": "Confidentialité",
       "imprint": "Mentions légales"
-    }
+    },
+    "saving": "Enregistrement..."
   },
   "labels": {
     "name": "Nom",
@@ -134,7 +136,8 @@
     "time": "Heure",
     "unassigned": "Non assigné",
     "selectDate": "Sélectionner une date",
-    "pageOf": "Page {{current}} sur {{total}}"
+    "pageOf": "Page {{current}} sur {{total}}",
+    "selectMonthYear": "Sélectionner le mois et l'année"
   },
   "priority": {
     "low": "Faible",
@@ -225,7 +228,8 @@
     "page": "Page",
     "of": "de",
     "itemsPerPage": "Éléments par page",
-    "showingOf": "{{from}}-{{to}} sur {{total}}"
+    "showingOf": "{{from}}-{{to}} sur {{total}}",
+    "perPage": "par page :"
   },
   "all": "Tous",
   "open": "Ouvert",

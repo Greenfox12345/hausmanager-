@@ -119,7 +119,9 @@
     "sharingError": "Erreur lors du changement de partage",
     "approveError": "Erreur lors de l'approbation de la demande",
     "rejectError": "Erreur lors du refus de la demande",
-    "revokeError": "Erreur lors de la révocation de l'approbation"
+    "revokeError": "Erreur lors de la révocation de l'approbation",
+    "categoryCreateError": "Erreur lors de la création de la catégorie",
+    "borrowError": "Erreur lors de l'emprunt"
   },
   "labels": {
     "item": "Article"

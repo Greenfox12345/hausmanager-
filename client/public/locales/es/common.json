@@ -95,7 +95,8 @@
     "editDetails": "Editar detalles",
     "showLess": "Mostrar menos",
     "undo": "Deshacer",
-    "confirmDelete": "Sí, eliminar"
+    "confirmDelete": "Sí, eliminar",
+    "details": "Detalles"
   },
   "status": {
     "active": "Activo",
@@ -111,7 +112,8 @@
     "inProgress": "En progreso",
     "creating": "Creando",
     "loading": "Cargando",
-    "uploading": "Subiendo"
+    "uploading": "Subiendo",
+    "saving": "Guardando..."
   },
   "messages": {
     "success": "Éxito",
@@ -205,7 +207,8 @@
     "photos": "Fotos",
     "unassigned": "Sin asignar",
     "selectDate": "Seleccionar fecha",
-    "pageOf": "Página {{current}} de {{total}}"
+    "pageOf": "Página {{current}} de {{total}}",
+    "selectMonthYear": "Seleccionar mes y año"
   },
   "household": {
     "select": "Seleccionar hogar",
@@ -303,7 +306,8 @@
     "page": "Página",
     "of": "de",
     "itemsPerPage": "Entradas por página",
-    "showingOf": "{{from}}-{{to}} de {{total}}"
+    "showingOf": "{{from}}-{{to}} de {{total}}",
+    "perPage": "por página:"
   },
   "all": "Todos",
   "open": "Abiertos",

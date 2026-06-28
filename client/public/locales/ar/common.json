@@ -61,7 +61,8 @@
     "showLess": "عرض أقل",
     "undo": "تراجع",
     "logout": "تسجيل الخروج",
-    "confirmDelete": "نعم، احذف"
+    "confirmDelete": "نعم، احذف",
+    "details": "التفاصيل"
   },
   "status": {
     "active": "نشط",
@@ -81,7 +82,8 @@
     "legal": {
       "privacy": "الخصوصية",
       "imprint": "بيانات قانونية"
-    }
+    },
+    "saving": "جارٍ الحفظ..."
   },
   "labels": {
     "name": "الاسم",
@@ -134,7 +136,8 @@
     "time": "الوقت",
     "unassigned": "غير معين",
     "selectDate": "اختر التاريخ",
-    "pageOf": "صفحة {{current}} من {{total}}"
+    "pageOf": "صفحة {{current}} من {{total}}",
+    "selectMonthYear": "اختر الشهر والسنة"
   },
   "priority": {
     "low": "منخفض",
@@ -225,7 +228,8 @@
     "page": "صفحة",
     "of": "من",
     "itemsPerPage": "عناصر في الصفحة",
-    "showingOf": "عرض {{from}}-{{to}} من {{total}}"
+    "showingOf": "عرض {{from}}-{{to}} من {{total}}",
+    "perPage": "لكل صفحة:"
   },
   "all": "الكل",
   "open": "مفتوح",

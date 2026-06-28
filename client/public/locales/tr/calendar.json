@@ -39,7 +39,8 @@
     "confirmSkip": "Bu etkinliği atlamak istiyor musunuz? Artık takvimde görünmeyecek.",
     "jumpedToCurrent": "Mevcut etkinliğe atlandı",
     "occurrenceSkipped": "Etkinlik atlandı!",
-    "noteAdded": "Not kaydedildi!"
+    "noteAdded": "Not kaydedildi!",
+    "occurrenceRestored": "Tekrar geri yüklendi!"
   },
   "labels": {
     "occurrence": "Etkinlik"
@@ -97,5 +98,29 @@
     "noteLabel": "Atlanan randevu için not (isteğe bağlı):",
     "notePlaceholder": "ör. tatil, hasta, …",
     "confirm": "Atla"
+  },
+  "legend": {
+    "open": "Açık",
+    "overdue": "Gecikmiş",
+    "completed": "Tamamlandı",
+    "future": "Gelecek tekrar",
+    "special": "Özel randevu",
+    "skipped": "Atlandı"
+  },
+  "skipChainWarning": {
+    "title": "Sonraki tekrarlar atlanacak",
+    "body": "Tamamlandığında {{count}} tekrar atlanacak:",
+    "nextDate": "Sonraki açık tekrar: {{date}}",
+    "confirm": "Yine de tamamla"
+  },
+  "skippedOccurrence": "Atlandı",
+  "unskip": "Atlamayı geri al",
+  "skipConfirm": {
+    "title": "Atlanan tekrarlar",
+    "singleSkip": "Sonraki tekrar ({{date}}) zaten atlandı olarak işaretlendi. Görev bir sonraki açık tekrara ilerleyecek.",
+    "multiSkip": "Sonraki {{count}} tekrar zaten atlandı olarak işaretlendi. Görev bir sonraki açık tekrara ilerleyecek.",
+    "skippedDates": "Atlanan tarihler:",
+    "nextOpen": "Sonraki açık tekrar:",
+    "confirm": "Yine de tamamla"
   }
 }

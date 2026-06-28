@@ -117,7 +117,9 @@
     "sharingError": "Error al cambiar el uso compartido",
     "approveError": "Error al aprobar la solicitud",
     "rejectError": "Error al rechazar la solicitud",
-    "revokeError": "Error al revocar la aprobación"
+    "revokeError": "Error al revocar la aprobación",
+    "categoryCreateError": "Error al crear la categoría",
+    "borrowError": "Error al tomar prestado"
   },
   "filter": {
     "all": "Todo",

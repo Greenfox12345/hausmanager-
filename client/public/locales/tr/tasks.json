@@ -37,7 +37,8 @@
     "recurring": "Tekrarlanan",
     "unassigned": "Atanmamış",
     "unknown": "Bilinmiyor",
-    "durationDaysLabel": "Süre (gün)"
+    "durationDaysLabel": "Süre (gün)",
+    "selectDate": "Tarih seçin"
   },
   "skippedDates": "Atlanan Tarihler",
   "linkedShoppingList": "Bağlantılı Alışveriş Listesi",
@@ -121,7 +122,9 @@
     "repeats": "Görev tekrarlanıyor",
     "requiredPersons": "Gerekli Kişi Sayısı",
     "week": "Hafta",
-    "weekly": "Haftalık"
+    "weekly": "Haftalık",
+    "specialName": "Özel tekrar adı",
+    "specialNamePlaceholder": "örn. Yılbaşı temizliği"
   },
   "weekdays": {
     "monday": "Pazartesi",
@@ -197,7 +200,10 @@
     "milestone": "Ara Hedef",
     "sendReminder": "Hatırlatıcı Gönder",
     "fullAccess": "Tam Erişim (her şeyi düzenle)",
-    "milestonesReminders": "Ara Hedefler ve Hatırlatıcılar"
+    "milestonesReminders": "Ara Hedefler ve Hatırlatıcılar",
+    "noPastOccurrences": "Henüz geçmiş tekrar yok",
+    "completedByLabel": "Tamamlayan:",
+    "saveChangesConfirm": "Değişiklikleri kaydetmek istiyor musunuz?"
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",
@@ -328,7 +334,9 @@
     "fileUploadError": "Dosya yüklenirken hata oluştu",
     "fileDeleteError": "Dosya silinirken hata oluştu",
     "linkAddError": "Bağlantı eklenirken hata oluştu",
-    "linkDeleteError": "Bağlantı silinirken hata oluştu"
+    "linkDeleteError": "Bağlantı silinirken hata oluştu",
+    "specialOccurrenceAdded": "Özel tekrar eklendi",
+    "saveError": "Kaydetme hatası"
   },
   "gantt": {
     "title": "Gantt Şeması",
@@ -362,7 +370,8 @@
   "sharing": {
     "shareWithNeighbors": "Komşularla Paylaş",
     "selectHouseholds": "Haneleri Seç",
-    "permissionsLabel": "Sorumlu olmayan üyeler için izinler"
+    "permissionsLabel": "Sorumlu olmayan üyeler için izinler",
+    "shareWithOtherHouseholds": "Diğer hanelerle paylaş"
   },
   "filterSort": {
     "title": "Filtrele ve Sırala",
@@ -579,7 +588,8 @@
   },
   "dueDate": "Bitiş:",
   "labels": {
-    "assignedTo": "Sorumlu"
+    "assignedTo": "Sorumlu",
+    "occurrence": "Tekrar"
   },
   "linkedWith": "İle bağlantılı",
   "otherHousehold": "diğer hane",

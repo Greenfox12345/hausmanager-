@@ -39,7 +39,8 @@
     "confirmSkip": "Möchten Sie diesen Termin auslassen? Er wird nicht mehr im Kalender angezeigt.",
     "jumpedToCurrent": "Zu aktuellem Termin gesprungen",
     "occurrenceSkipped": "Termin ausgelassen!",
-    "noteAdded": "Notiz gespeichert!"
+    "noteAdded": "Notiz gespeichert!",
+    "occurrenceRestored": "Termin wiederhergestellt!"
   },
   "labels": {
     "occurrence": "Termin"
@@ -97,5 +98,29 @@
     "noteLabel": "Notiz zum ausgelassenen Termin (optional):",
     "notePlaceholder": "z. B. Urlaub, krank, …",
     "confirm": "Auslassen"
+  },
+  "legend": {
+    "open": "Offen",
+    "overdue": "Überfällig",
+    "completed": "Erledigt",
+    "future": "Folgetermin",
+    "special": "Sondertermin",
+    "skipped": "Übersprungen"
+  },
+  "skipChainWarning": {
+    "title": "Folgetermine werden übersprungen",
+    "body": "Beim Abschluss werden {{count}} Termin(e) übersprungen:",
+    "nextDate": "Nächster offener Termin: {{date}}",
+    "confirm": "Trotzdem abschließen"
+  },
+  "skippedOccurrence": "Ausgelassen",
+  "unskip": "Auslassen rückgängig",
+  "skipConfirm": {
+    "title": "Übersprungene Termine",
+    "singleSkip": "Der nächste Termin ({{date}}) ist bereits als \"Auslassen\" markiert. Die Aufgabe wird zum übernächsten offenen Termin weitergeleitet.",
+    "multiSkip": "Die nächsten {{count}} Termine sind bereits als \"Auslassen\" markiert. Die Aufgabe wird zum nächsten offenen Termin weitergeleitet.",
+    "skippedDates": "Übersprungene Termine:",
+    "nextOpen": "Nächster offener Termin:",
+    "confirm": "Trotzdem abschließen"
   }
 }

@@ -34,7 +34,8 @@
     "neededBy": "Nécessaire avant le",
     "neededByShort": "Avant",
     "overdue": "(expiré)",
-    "more": "Plus"
+    "more": "Plus",
+    "noCategory": "Aucune catégorie"
   },
   "status": {
     "open": "Ouvert",

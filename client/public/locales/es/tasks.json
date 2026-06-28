@@ -68,7 +68,8 @@
     "recurring": "Recurrente",
     "unassigned": "Sin asignar",
     "unknown": "Desconocido",
-    "durationDaysLabel": "Duración (días)"
+    "durationDaysLabel": "Duración (días)",
+    "selectDate": "Seleccionar fecha"
   },
   "repeat": {
     "none": "Sin repetición",
@@ -127,7 +128,9 @@
     "excludeFromRotation": "Eximir de la rotación",
     "excludedMembers": "Miembros excluidos",
     "repeats": "La tarea se repite",
-    "requiredPersons": "Personas requeridas"
+    "requiredPersons": "Personas requeridas",
+    "specialName": "Nombre de la ocurrencia especial",
+    "specialNamePlaceholder": "p.ej. Limpieza de Navidad"
   },
   "filter": {
     "all": "Todo",
@@ -243,7 +246,9 @@
     "fileUploadError": "Error al subir el archivo",
     "fileDeleteError": "Error al eliminar el archivo",
     "linkAddError": "Error al agregar el enlace",
-    "linkDeleteError": "Error al eliminar el enlace"
+    "linkDeleteError": "Error al eliminar el enlace",
+    "specialOccurrenceAdded": "Ocurrencia especial añadida",
+    "saveError": "Error al guardar"
   },
   "overdue": "Vencidas",
   "completed": "Completadas",
@@ -264,7 +269,8 @@
   "followup": "Tarea de seguimiento",
   "followupPluralSuffix": "s",
   "labels": {
-    "assignedTo": "Asignado a"
+    "assignedTo": "Asignado a",
+    "occurrence": "Ocurrencia"
   },
   "detail": {
     "linkedWith": "Vinculado con",
@@ -289,7 +295,8 @@
   "sharing": {
     "shareWithNeighbors": "Compartir con vecinos",
     "selectHouseholds": "Seleccionar hogares",
-    "permissionsLabel": "Permisos"
+    "permissionsLabel": "Permisos",
+    "shareWithOtherHouseholds": "Compartir con otros hogares"
   },
   "filterSort": {
     "title": "Filtrar y ordenar",
@@ -594,7 +601,10 @@
     "milestone": "Hito intermedio",
     "sendReminder": "Enviar recordatorio",
     "fullAccess": "Acceso completo (editar todo)",
-    "milestonesReminders": "Hitos intermedios y recordatorios"
+    "milestonesReminders": "Hitos intermedios y recordatorios",
+    "noPastOccurrences": "Aún no hay ocurrencias pasadas",
+    "completedByLabel": "Completado por:",
+    "saveChangesConfirm": "¿Deseas guardar los cambios?"
   },
   "occurrences": {
     "title": "Próximas citas",

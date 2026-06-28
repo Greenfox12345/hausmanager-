@@ -61,7 +61,8 @@
     "showLess": "Weniger anzeigen",
     "undo": "Rükgängig machen",
     "logout": "Abmelden",
-    "confirmDelete": "Ja, löschen"
+    "confirmDelete": "Ja, löschen",
+    "details": "Details"
   },
   "status": {
     "active": "Aktiv",
@@ -77,7 +78,8 @@
     "inProgress": "In Bearbeitung",
     "creating": "Wird erstellt...",
     "loading": "Lade Inventar...",
-    "uploading": "Lädt hoch..."
+    "uploading": "Lädt hoch...",
+    "saving": "Wird gespeichert..."
   },
   "labels": {
     "name": "Name",
@@ -130,7 +132,8 @@
     "time": "Uhrzeit",
     "unassigned": "Nicht zugewiesen",
     "selectDate": "Datum auswählen",
-    "pageOf": "Seite {{current}} von {{total}}"
+    "pageOf": "Seite {{current}} von {{total}}",
+    "selectMonthYear": "Monat und Jahr auswählen"
   },
   "priority": {
     "low": "Niedrig",
@@ -221,7 +224,8 @@
     "page": "Seite",
     "of": "von",
     "itemsPerPage": "Einträge pro Seite",
-    "showingOf": "{{from}}-{{to}} von {{total}}"
+    "showingOf": "{{from}}-{{to}} von {{total}}",
+    "perPage": "pro Seite:"
   },
   "all": "Alle",
   "open": "Offen",

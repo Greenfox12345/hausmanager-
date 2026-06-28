@@ -119,7 +119,9 @@
     "sharingError": "更改共享出错",
     "approveError": "批准请求出错",
     "rejectError": "拒绝请求出错",
-    "revokeError": "撤销批准出错"
+    "revokeError": "撤销批准出错",
+    "categoryCreateError": "创建分类失败",
+    "borrowError": "借用失败"
   },
   "labels": {
     "item": "物品"

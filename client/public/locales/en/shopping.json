@@ -34,7 +34,8 @@
     "neededBy": "Needed by",
     "neededByShort": "By",
     "overdue": "(overdue)",
-    "more": "More"
+    "more": "More",
+    "noCategory": "No category"
   },
   "status": {
     "open": "Open",

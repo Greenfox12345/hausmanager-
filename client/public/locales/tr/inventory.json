@@ -119,7 +119,9 @@
     "sharingError": "Paylaşım değiştirilirken hata oluştu",
     "approveError": "İstek onaylanırken hata oluştu",
     "rejectError": "İstek reddedilirken hata oluştu",
-    "revokeError": "Onay iptal edilirken hata oluştu"
+    "revokeError": "Onay iptal edilirken hata oluştu",
+    "categoryCreateError": "Kategori oluşturma hatası",
+    "borrowError": "Ödünç alma hatası"
   },
   "labels": {
     "item": "Öğe"

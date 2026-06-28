@@ -61,7 +61,8 @@
     "showLess": "Daha Az Göster",
     "undo": "Geri Al",
     "logout": "Çıkış Yap",
-    "confirmDelete": "Evet, sil"
+    "confirmDelete": "Evet, sil",
+    "details": "Detaylar"
   },
   "status": {
     "active": "Aktif",
@@ -81,7 +82,8 @@
     "legal": {
       "privacy": "Gizlilik",
       "imprint": "Künye"
-    }
+    },
+    "saving": "Kaydediliyor..."
   },
   "labels": {
     "name": "Ad",
@@ -134,7 +136,8 @@
     "time": "Saat",
     "unassigned": "Atanmamış",
     "selectDate": "Tarih seç",
-    "pageOf": "{{current}} / {{total}} sayfa"
+    "pageOf": "{{current}} / {{total}} sayfa",
+    "selectMonthYear": "Ay ve yıl seçin"
   },
   "priority": {
     "low": "Düşük",
@@ -225,7 +228,8 @@
     "page": "Sayfa",
     "of": "nın",
     "itemsPerPage": "Sayfa başına öğe",
-    "showingOf": "{{from}}-{{to}} / {{total}} gösteriliyor"
+    "showingOf": "{{from}}-{{to}} / {{total}} gösteriliyor",
+    "perPage": "sayfa başına:"
   },
   "all": "Tümü",
   "open": "Açık",

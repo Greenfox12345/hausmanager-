@@ -2793,7 +2793,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     {taskHistory.filter((a: any) => a.action === 'completed' || a.action === 'skipped').length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p>Noch keine vergangenen Termine</p>
+                        <p>{t("tasks:dialog.noPastOccurrences", "Noch keine vergangenen Termine")}</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -2862,10 +2862,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               {isExpanded && hasDetails && (
                                 <div className="px-3 pb-3 pt-0 border-t text-sm space-y-1.5">
                                   {activityMember && (
-                                    <p className="text-xs text-muted-foreground">Abgeschlossen von: <span className="font-medium">{activityMember.memberName}</span></p>
+                                    <p className="text-xs text-muted-foreground">{t("tasks:dialog.completedByLabel", "Abgeschlossen von:")} <span className="font-medium">{activityMember.memberName}</span></p>
                                   )}
                                   {occ.memberNames && occ.memberNames.length > 0 && (
-                                    <p className="text-xs text-muted-foreground">Verantwortlich: <span className="font-medium">{occ.memberNames.join(", ")}</span></p>
+                                    <p className="text-xs text-muted-foreground">{t("tasks:dialog.responsible", "Verantwortlich:")}: <span className="font-medium">{occ.memberNames.join(", ")}</span></p>
                                   )}
                                   {activity.comment && (
                                     <p className="text-xs text-muted-foreground italic">"{activity.comment}"</p>
@@ -3308,7 +3308,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </p>
                 </>
               ) : (
-                <p>Möchtest du die Änderungen speichern?</p>
+                <p>{t("tasks:dialog.saveChangesConfirm", "Möchtest du die Änderungen speichern?")}</p>
               )}
             </div>
           </AlertDialogDescription>

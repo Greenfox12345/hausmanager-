@@ -34,7 +34,8 @@
     "neededBy": "Gebraucht bis",
     "neededByShort": "Bis",
     "overdue": "(abgelaufen)",
-    "more": "Mehr"
+    "more": "Mehr",
+    "noCategory": "Keine Kategorie"
   },
   "status": {
     "open": "Offen",

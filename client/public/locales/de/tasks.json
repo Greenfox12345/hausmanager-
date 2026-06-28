@@ -37,7 +37,8 @@
     "recurring": "Wiederkehrend",
     "unassigned": "Nicht zugewiesen",
     "unknown": "Unbekannt",
-    "durationDaysLabel": "Dauer (Tage)"
+    "durationDaysLabel": "Dauer (Tage)",
+    "selectDate": "Datum auswählen"
   },
   "skippedDates": "Ausgelassene Termine",
   "linkedShoppingList": "Verknüpfte Einkaufsliste",
@@ -121,7 +122,9 @@
     "repeats": "Aufgabe wiederholt sich",
     "requiredPersons": "Benötigte Personen",
     "week": "Woche",
-    "weekly": "Wöchentlich"
+    "weekly": "Wöchentlich",
+    "specialName": "Name des Sondertermins",
+    "specialNamePlaceholder": "z.B. Weihnachtsputz"
   },
   "weekdays": {
     "monday": "Montag",
@@ -197,7 +200,10 @@
     "milestone": "Zwischenziel",
     "sendReminder": "Erinnerung senden",
     "fullAccess": "Vollzugriff (alles bearbeiten)",
-    "milestonesReminders": "Zwischenziele & Erinnerungen"
+    "milestonesReminders": "Zwischenziele & Erinnerungen",
+    "noPastOccurrences": "Noch keine vergangenen Termine",
+    "completedByLabel": "Abgeschlossen von:",
+    "saveChangesConfirm": "Möchtest du die Änderungen speichern?"
   },
   "occurrences": {
     "title": "Kommende Termine",
@@ -328,7 +334,9 @@
     "fileUploadError": "Fehler beim Hochladen der Datei",
     "fileDeleteError": "Fehler beim Löschen der Datei",
     "linkAddError": "Fehler beim Hinzufügen des Links",
-    "linkDeleteError": "Fehler beim Löschen des Links"
+    "linkDeleteError": "Fehler beim Löschen des Links",
+    "specialOccurrenceAdded": "Sondertermin hinzugefügt",
+    "saveError": "Fehler beim Speichern"
   },
   "gantt": {
     "title": "Gantt-Diagramm",
@@ -362,7 +370,8 @@
   "sharing": {
     "shareWithNeighbors": "Mit Nachbarn teilen",
     "selectHouseholds": "Haushalte auswählen",
-    "permissionsLabel": "Berechtigungen für nicht-verantwortliche Mitglieder"
+    "permissionsLabel": "Berechtigungen für nicht-verantwortliche Mitglieder",
+    "shareWithOtherHouseholds": "Mit anderen Haushalten teilen"
   },
   "filterSort": {
     "title": "Filter & Sortierung",
@@ -579,7 +588,8 @@
   },
   "dueDate": "Fällig:",
   "labels": {
-    "assignedTo": "Verantwortlich"
+    "assignedTo": "Verantwortlich",
+    "occurrence": "Termin"
   },
   "linkedWith": "Verknüpft mit",
   "otherHousehold": "anderem Haushalt",

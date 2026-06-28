@@ -104,7 +104,7 @@ describe("tasks.add with new fields", () => {
       enableRotation: true,
       requiredPersons: 3,
       excludedMembers: [5],
-      assignedTo: 2,
+      assignedTo: [2], // Schema erwartet number[] (Array von Member-IDs)
     };
 
     // Should not throw and return taskId

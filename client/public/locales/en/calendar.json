@@ -39,7 +39,8 @@
     "confirmSkip": "Would you like to skip this event? It will no longer appear in the calendar.",
     "jumpedToCurrent": "Jumped to current appointment",
     "occurrenceSkipped": "Appointment skipped!",
-    "noteAdded": "Note saved!"
+    "noteAdded": "Note saved!",
+    "occurrenceRestored": "Occurrence restored!"
   },
   "labels": {
     "occurrence": "Occurrence"
@@ -97,5 +98,29 @@
     "noteLabel": "Note for the skipped appointment (optional):",
     "notePlaceholder": "e.g. holiday, sick, …",
     "confirm": "Skip"
+  },
+  "legend": {
+    "open": "Open",
+    "overdue": "Overdue",
+    "completed": "Completed",
+    "future": "Future occurrence",
+    "special": "Special appointment",
+    "skipped": "Skipped"
+  },
+  "skipChainWarning": {
+    "title": "Following occurrences will be skipped",
+    "body": "On completion, {{count}} occurrence(s) will be skipped:",
+    "nextDate": "Next open occurrence: {{date}}",
+    "confirm": "Complete anyway"
+  },
+  "skippedOccurrence": "Skipped",
+  "unskip": "Undo skip",
+  "skipConfirm": {
+    "title": "Skipped occurrences",
+    "singleSkip": "The next occurrence ({{date}}) is already marked as skipped. The task will advance to the next open occurrence.",
+    "multiSkip": "The next {{count}} occurrences are already marked as skipped. The task will advance to the next open occurrence.",
+    "skippedDates": "Skipped dates:",
+    "nextOpen": "Next open occurrence:",
+    "confirm": "Complete anyway"
   }
 }

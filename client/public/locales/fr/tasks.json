@@ -37,7 +37,8 @@
     "recurring": "Récurrente",
     "unassigned": "Non assigné",
     "unknown": "Inconnu",
-    "durationDaysLabel": "Durée (jours)"
+    "durationDaysLabel": "Durée (jours)",
+    "selectDate": "Sélectionner une date"
   },
   "skippedDates": "Occurrences sautées",
   "linkedShoppingList": "Liste de courses liée",
@@ -121,7 +122,9 @@
     "repeats": "La tâche se répète",
     "requiredPersons": "Personnes requises",
     "week": "semaine",
-    "weekly": "Hebdomadaire"
+    "weekly": "Hebdomadaire",
+    "specialName": "Nom de l'occurrence spéciale",
+    "specialNamePlaceholder": "ex. Nettoyage de Noël"
   },
   "weekdays": {
     "monday": "Lundi",
@@ -197,7 +200,10 @@
     "milestone": "Étape clé",
     "sendReminder": "Envoyer un rappel",
     "fullAccess": "Accès complet (tout modifier)",
-    "milestonesReminders": "Étapes clés & rappels"
+    "milestonesReminders": "Étapes clés & rappels",
+    "noPastOccurrences": "Aucune occurrence passée pour l'instant",
+    "completedByLabel": "Complété par :",
+    "saveChangesConfirm": "Voulez-vous enregistrer les modifications ?"
   },
   "occurrences": {
     "title": "Rendez-vous à venir",
@@ -328,7 +334,9 @@
     "fileUploadError": "Erreur lors du téléchargement du fichier",
     "fileDeleteError": "Erreur lors de la suppression du fichier",
     "linkAddError": "Erreur lors de l'ajout du lien",
-    "linkDeleteError": "Erreur lors de la suppression du lien"
+    "linkDeleteError": "Erreur lors de la suppression du lien",
+    "specialOccurrenceAdded": "Occurrence spéciale ajoutée",
+    "saveError": "Erreur lors de l'enregistrement"
   },
   "gantt": {
     "title": "Diagramme de Gantt",
@@ -362,7 +370,8 @@
   "sharing": {
     "shareWithNeighbors": "Partager avec le voisinage",
     "selectHouseholds": "Sélectionner les foyers",
-    "permissionsLabel": "Autorisations pour les membres non responsables"
+    "permissionsLabel": "Autorisations pour les membres non responsables",
+    "shareWithOtherHouseholds": "Partager avec d'autres foyers"
   },
   "filterSort": {
     "title": "Filtrer & Trier",
@@ -579,7 +588,8 @@
   },
   "dueDate": "À faire pour :",
   "labels": {
-    "assignedTo": "Responsable"
+    "assignedTo": "Responsable",
+    "occurrence": "Occurrence"
   },
   "linkedWith": "Lié avec",
   "otherHousehold": "autre foyer",

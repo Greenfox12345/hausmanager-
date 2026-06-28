@@ -34,7 +34,8 @@
     "neededBy": "Gerekli tarih",
     "neededByShort": "Tarih",
     "overdue": "(süresi geçti)",
-    "more": "Daha fazla"
+    "more": "Daha fazla",
+    "noCategory": "Kategori yok"
   },
   "status": {
     "open": "Açık",

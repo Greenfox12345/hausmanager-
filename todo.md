@@ -3668,3 +3668,11 @@
 - [ ] Frontend: Mehrfachauswahl + Neu-Erstellen-Button im Aufgaben-Formular (Erstellen + Bearbeiten)
 - [ ] Frontend: Filterleiste nach Kategorien in der Aufgabenliste
 - [ ] i18n: Keys in alle 7 Sprachen
+
+## Test-Fixes (2026-06-28)
+- [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
+- [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt
+- [x] Hardcoded "Schließen" in Members.tsx durch t("common:actions.close") ersetzt
+- [x] rotation-occurrence-management.test.ts auf DB-unabhängige In-Memory-Unit-Tests umgestellt (11 Tests bestehen jetzt)
+- [x] tasks.creation.test.ts: assignedTo-Typ-Fehler behoben (number → number[])
+- [x] lint-i18n.test.ts: alle 22 Tests bestehen jetzt

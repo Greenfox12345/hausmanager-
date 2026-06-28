@@ -119,7 +119,9 @@
     "sharingError": "خطأ في تغيير المشاركة",
     "approveError": "خطأ في الموافقة على الطلب",
     "rejectError": "خطأ في رفض الطلب",
-    "revokeError": "خطأ في إلغاء الموافقة"
+    "revokeError": "خطأ في إلغاء الموافقة",
+    "categoryCreateError": "خطأ في إنشاء الفئة",
+    "borrowError": "خطأ في الاستعارة"
   },
   "labels": {
     "item": "عنصر"
