@@ -88,6 +88,7 @@ export default function Borrows() {
     onSuccess: () => {
       toast.success(t("borrows:messages.approved", "Ausleihe genehmigt"));
       utils.borrow.getPendingForMember.invalidate();
+      utils.borrow.getMyBorrows.invalidate();
     },
     onError: () => toast.error(t("borrows:messages.approveError")),
   });
@@ -98,6 +99,7 @@ export default function Borrows() {
       setRejectDialogOpen(false);
       setRejectReason("");
       utils.borrow.getPendingForMember.invalidate();
+      utils.borrow.getMyBorrows.invalidate();
     },
     onError: () => toast.error(t("borrows:messages.rejectError")),
   });
@@ -108,6 +110,7 @@ export default function Borrows() {
       setRevokeDialogOpen(false);
       setRevokeTarget(null);
       utils.borrow.getPendingForMember.invalidate();
+      utils.borrow.getMyBorrows.invalidate();
     },
     onError: () => toast.error(t("borrows:messages.revokeError")),
   });
@@ -118,6 +121,7 @@ export default function Borrows() {
       setCancelDialogOpen(false);
       setCancelBorrow(null);
       utils.borrow.getMyBorrows.invalidate();
+      utils.borrow.getPendingForMember.invalidate();
     },
     onError: () => toast.error(t("borrows:messages.cancelError")),
   });
@@ -128,6 +132,8 @@ export default function Borrows() {
       setBorrowDialogOpen(false);
       setSelectedItem(null);
       utils.borrow.getMyBorrows.invalidate();
+      // Anfragen-Liste oben aktualisieren (Eigentümer sieht neue Anfrage sofort)
+      utils.borrow.getPendingForMember.invalidate();
     },
     onError: () => toast.error(t("borrows:messages.requestError")),
   });
@@ -806,6 +812,7 @@ export default function Borrows() {
           memberId={member.memberId}
           onSuccess={() => {
             utils.borrow.getMyBorrows.invalidate();
+            utils.borrow.getPendingForMember.invalidate();
             setSelectedBorrowDetail(null);
           }}
         />
@@ -819,6 +826,7 @@ export default function Borrows() {
           memberId={member.memberId}
           onSuccess={() => {
             utils.borrow.getMyBorrows.invalidate();
+            utils.borrow.getPendingForMember.invalidate();
             setSelectedBorrowDetail(null);
           }}
         />
