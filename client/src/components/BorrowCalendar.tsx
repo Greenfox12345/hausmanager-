@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, setMonth, setYear } from "date-fns";
 import { parseLocalDate } from "@/lib/utils";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
@@ -70,6 +70,17 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
     startDate: parseLocalDate(b.startDate as string) ?? new Date(b.startDate),
     endDate: parseLocalDate(b.endDate as string) ?? new Date(b.endDate),
   })), [borrows]);
+
+  // Wenn borrows von außen aktualisiert werden (nach Mutation), den selected-Snapshot
+  // mit dem frischen Datensatz synchronisieren, damit das Fenster korrekt neu lädt.
+  useEffect(() => {
+    if (!selected) return;
+    const fresh = normalizedBorrows.find(b => b.id === selected.borrow.id);
+    if (fresh) {
+      setSelected(prev => prev ? { ...prev, borrow: fresh } : null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [normalizedBorrows]);
 
   const weekBars = useMemo(() => {
     return weeks.map(week => {
@@ -333,7 +344,7 @@ export function BorrowCalendar({ borrows, onPickup, onReturn, onCancel, isCancel
               {isSelectedWeek && selected && (
                 <div className="border-b border-x rounded-b-lg mx-0 p-3 bg-card shadow-md animate-in slide-in-from-top-2 duration-150">
                   <BorrowCard
-                    borrow={selected.borrow}
+                    borrow={normalizedBorrows.find(b => b.id === selected.borrow.id) ?? selected.borrow}
                     onClose={() => setSelected(null)}
                     onPickup={onPickup}
                     onReturn={onReturn}
