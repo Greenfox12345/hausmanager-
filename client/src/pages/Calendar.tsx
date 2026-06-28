@@ -173,12 +173,22 @@ export default function Calendar() {
   const [noteText, setNoteText] = useState("");
 
   const addOccurrenceNoteMutation = trpc.tasks.addOccurrenceNote.useMutation({
-    onSuccess: () => {
-      utils.tasks.list.invalidate();
+    onSuccess: async (_data, variables) => {
       setNoteDialogOpen(false);
       setNoteTask(null);
       setNoteText("");
       toast.success(t("calendar:messages.noteAdded", "Notiz gespeichert!"));
+      // Refetch tasks and update selectedTask so TaskDetailDialog shows fresh occurrenceNotes immediately
+      const refetchResult = await refetchTasks();
+      const freshTasks = (refetchResult.data ?? []) as any[];
+      const freshTask = freshTasks.find((t: any) => t.id === variables.taskId);
+      if (freshTask) {
+        setSelectedTask((prev: any) => {
+          if (!prev || prev.id !== variables.taskId) return prev;
+          return { ...freshTask };
+        });
+      }
+      utils.tasks.getRotationSchedule.invalidate();
     },
     onError: (error) => {
       toast.error(t("common:errors.generic", "Fehler: ") + error.message);
