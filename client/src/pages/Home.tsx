@@ -133,38 +133,36 @@ export default function Home() {
           <h1 className="text-4xl font-bold mb-2">
             {t("messages.welcome")}, {currentHousehold.memberName}!
           </h1>
-          <div className="flex items-center justify-between gap-2 mt-1">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-lg">{t("household.name")}:</span>
-              <span className="text-lg font-medium">{displayHousehold}</span>
-            </div>
-            {/* Mobile view toggle – only visible on small screens */}
-            <div className="flex md:hidden items-center gap-1 rounded-lg border bg-muted/40 p-0.5">
-              <button
-                onClick={() => handleSetMobileView('list')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  mobileView === 'list'
-                    ? 'bg-background shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                aria-label={t("common:actions.listView", "Listen")}
-              >
-                <LayoutList className="h-4 w-4" />
-                <span>{t("common:actions.listView", "Listen")}</span>
-              </button>
-              <button
-                onClick={() => handleSetMobileView('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  mobileView === 'grid'
-                    ? 'bg-background shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                aria-label={t("common:actions.gridView", "Kacheln")}
-              >
-                <LayoutGrid className="h-4 w-4" />
-                <span>{t("common:actions.gridView", "Kacheln")}</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-muted-foreground text-lg">{t("household.name")}:</span>
+            <span className="text-lg font-medium">{displayHousehold}</span>
+          </div>
+          {/* Mobile view toggle – only visible on small screens, placed below household name */}
+          <div className="flex md:hidden items-center gap-1 rounded-lg border bg-muted/40 p-0.5 mt-3 w-fit">
+            <button
+              onClick={() => handleSetMobileView('list')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                mobileView === 'list'
+                  ? 'bg-background shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label={t("common:actions.listView", "Listen")}
+            >
+              <LayoutList className="h-4 w-4" />
+              <span>{t("common:actions.listView", "Listen")}</span>
+            </button>
+            <button
+              onClick={() => handleSetMobileView('grid')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                mobileView === 'grid'
+                  ? 'bg-background shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label={t("common:actions.gridView", "Kacheln")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+              <span>{t("common:actions.gridView", "Kacheln")}</span>
+            </button>
           </div>
         </div>
 
