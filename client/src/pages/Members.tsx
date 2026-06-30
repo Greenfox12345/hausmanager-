@@ -323,12 +323,13 @@ export default function Members() {
           iconColor="text-accent"
           iconBg="bg-accent/10"
           title={t("members:householdTitle")}
-        >
+        />
+        <div className="flex items-center gap-2 -mt-4 mb-2">
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
             {t("common:actions.logout")}
           </Button>
-        </PageHeader>
+        </div>
 
         {/* Members Card */}
         <Card className="mb-6 shadow-md">

@@ -302,12 +302,13 @@ export default function Inventory() {
           iconColor="text-orange-600"
           iconBg="bg-orange-50"
           title={t('inventory:title')}
-        >
+        />
+        <div className="flex items-center gap-2 -mt-4 mb-2">
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             {t('inventory:newItem')}
           </Button>
-        </PageHeader>
+        </div>
 
         {/* Filter */}
         <Card className="mb-6">

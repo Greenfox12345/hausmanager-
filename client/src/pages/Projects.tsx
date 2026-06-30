@@ -548,7 +548,8 @@ export default function Projects() {
           iconColor="text-purple-600"
           iconBg="bg-purple-50"
           title={t("projects:title")}
-        >
+        />
+        <div className="flex items-center gap-2 -mt-4 mb-2">
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -626,8 +627,8 @@ export default function Projects() {
                 </Button>
               </DialogFooter>
             </DialogContent>
-                    </Dialog>
-        </PageHeader>
+          </Dialog>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Project List */}
           <div className="lg:col-span-1 space-y-3">
