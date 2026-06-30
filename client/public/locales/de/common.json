@@ -62,7 +62,9 @@
     "undo": "Rükgängig machen",
     "logout": "Abmelden",
     "confirmDelete": "Ja, löschen",
-    "details": "Details"
+    "details": "Details",
+    "listView": "Listen",
+    "gridView": "Kacheln"
   },
   "status": {
     "active": "Aktiv",

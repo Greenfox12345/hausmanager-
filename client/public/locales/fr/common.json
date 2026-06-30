@@ -62,7 +62,9 @@
     "undo": "Annuler",
     "logout": "Se déconnecter",
     "confirmDelete": "Oui, supprimer",
-    "details": "Détails"
+    "details": "Détails",
+    "listView": "Liste",
+    "gridView": "Grille"
   },
   "status": {
     "active": "Actif",

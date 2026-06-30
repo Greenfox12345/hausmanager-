@@ -62,7 +62,9 @@
     "undo": "Geri Al",
     "logout": "Çıkış Yap",
     "confirmDelete": "Evet, sil",
-    "details": "Detaylar"
+    "details": "Detaylar",
+    "listView": "Liste",
+    "gridView": "Izgara"
   },
   "status": {
     "active": "Aktif",

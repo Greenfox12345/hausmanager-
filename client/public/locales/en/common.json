@@ -62,7 +62,9 @@
     "undo": "Undo",
     "logout": "Log out",
     "confirmDelete": "Yes, delete",
-    "details": "Details"
+    "details": "Details",
+    "listView": "List",
+    "gridView": "Grid"
   },
   "status": {
     "active": "Active",

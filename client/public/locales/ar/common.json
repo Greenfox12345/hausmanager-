@@ -62,7 +62,9 @@
     "undo": "تراجع",
     "logout": "تسجيل الخروج",
     "confirmDelete": "نعم، احذف",
-    "details": "التفاصيل"
+    "details": "التفاصيل",
+    "listView": "قائمة",
+    "gridView": "شبكة"
   },
   "status": {
     "active": "نشط",

@@ -96,7 +96,9 @@
     "showLess": "Mostrar menos",
     "undo": "Deshacer",
     "confirmDelete": "Sí, eliminar",
-    "details": "Detalles"
+    "details": "Detalles",
+    "listView": "Lista",
+    "gridView": "Cuadrícula"
   },
   "status": {
     "active": "Activo",

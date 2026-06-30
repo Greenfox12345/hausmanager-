@@ -62,7 +62,9 @@
     "undo": "撤销",
     "logout": "退出",
     "confirmDelete": "是的，删除",
-    "details": "详情"
+    "details": "详情",
+    "listView": "列表",
+    "gridView": "网格"
   },
   "status": {
     "active": "活跃",
