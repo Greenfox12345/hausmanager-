@@ -756,7 +756,7 @@ export default function Calendar() {
             else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
             const calcDateNorm = new Date(calcDate);
             calcDateNorm.setHours(0, 0, 0, 0);
-            if (calcDateNorm > endDate && !noteEntry.notes) return;
+            if (calcDateNorm > endDate) return;
             allTasks.push({
               ...task,
               dueDate: calcDate,
@@ -772,8 +772,8 @@ export default function Calendar() {
           futureOccurrences.forEach(occurrence => {
             const occurrenceDate = new Date(occurrence.date);
             occurrenceDate.setHours(0, 0, 0, 0);
-            // Always include if within range, OR if it has a note (even if in the future beyond range)
-            if (occurrenceDate <= endDate || occurrence.occurrenceNote) {
+            // Only include if within range
+            if (occurrenceDate <= endDate) {
               allTasks.push({
                 ...task,
                 dueDate: occurrence.date,
@@ -798,7 +798,7 @@ export default function Calendar() {
         const occDateNorm = new Date(occDate);
         occDateNorm.setHours(0, 0, 0, 0);
         if (occ.isSkipped) return;
-        if (occDateNorm > endDate && !occ.notes) return; // skip if beyond range and no note
+        if (occDateNorm > endDate) return; // skip if beyond range
         // Determine if this special occurrence is the CURRENT appointment:
         // A special occurrence is the current appointment if its specialDate is <= task.dueDate
         const taskDueDate = task.dueDate ? new Date(task.dueDate) : null;
