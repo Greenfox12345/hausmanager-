@@ -510,7 +510,8 @@
   "loading": "Cargando...",
   "navigation": {
     "back": "Atrás",
-    "next": "Continuar"
+    "next": "Continuar",
+    "home": "Inicio"
   },
   "uploading": "Subiendo...",
   "legal": {

@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, Edit2, FolderPlus, ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, ShoppingBag, Edit2, FolderPlus, ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
@@ -682,20 +683,12 @@ export default function Shopping() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-36">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{t("shopping:title")}</h1>
-            <p className="text-muted-foreground">{household?.householdName || 'Laden...'}</p>
-          </div>
-        </div>
+        <PageHeader
+          icon={ShoppingBag}
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
+          title={t("shopping:title")}
+        />
 
         <Card className="mb-6 shadow-md">
           <CardHeader>

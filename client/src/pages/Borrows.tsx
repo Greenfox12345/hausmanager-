@@ -26,6 +26,7 @@ import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 import { BorrowCalendar } from "@/components/BorrowCalendar";
 import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
+import PageHeader from "@/components/PageHeader";
 
 type BorrowStatus = "all" | "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
 
@@ -281,21 +282,12 @@ export default function Borrows() {
       <div className="container mx-auto py-6 pb-24 space-y-6">
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <HandCoins className="w-8 h-8 text-yellow-600" />
-            <h1 className="text-3xl font-bold">{t("borrows:title", "Ausleihen")}</h1>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLocation("/")}
-            className="flex items-center gap-1.5 shrink-0"
-          >
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("common:navigation.home", "Startseite")}</span>
-          </Button>
-        </div>
+        <PageHeader
+          icon={HandCoins}
+          iconColor="text-yellow-600"
+          iconBg="bg-yellow-50"
+          title={t("borrows:title", "Ausleihen")}
+        />
 
         {/* ── Anfragen-Sektion (immer sichtbar, oben) ── */}
         <div>

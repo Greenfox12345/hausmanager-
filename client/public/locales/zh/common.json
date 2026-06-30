@@ -344,5 +344,8 @@
   "legal": {
     "privacy": "隐私政策",
     "imprint": "法律声明"
+  },
+  "navigation": {
+    "home": "首页"
   }
 }

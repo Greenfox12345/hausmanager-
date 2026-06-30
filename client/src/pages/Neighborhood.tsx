@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Users, UserPlus, Check, X, Trash2, Bell, Package, Globe, Calendar } from "lucide-react";
+import { Users, UserPlus, Check, X, Trash2, Bell, Package, Globe, Calendar, Building2 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
@@ -174,18 +175,12 @@ export default function Neighborhood() {
   return (
     <AppLayout>
       <div className="container mx-auto py-6 space-y-6 pb-24">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Users className="h-8 w-8" />
-              {t("neighborhood:title", "Nachbarschaft")}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {t("neighborhood:description", "Vernetzen Sie sich mit anderen Haushalten für gemeinsame Aufgaben und Projekte")}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          icon={Building2}
+          iconColor="text-secondary"
+          iconBg="bg-secondary/10"
+          title={t("neighborhood:title", "Nachbarschaft")}
+        />
 
         {/* Tab Navigation */}
         <div className="flex border-b">

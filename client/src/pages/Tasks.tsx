@@ -13,7 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, CheckSquare, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
 import { ReminderDialog } from "@/components/ReminderDialog";
@@ -640,20 +641,12 @@ export default function Tasks() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-24">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{t("tasks:title")}</h1>
-            <p className="text-muted-foreground">{household.householdName}</p>
-          </div>
-        </div>
+        <PageHeader
+          icon={CheckSquare}
+          iconColor="text-secondary"
+          iconBg="bg-secondary/10"
+          title={t("tasks:title")}
+        />
 
         <Card className="mb-6 shadow-md">
           <CardHeader>

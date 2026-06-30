@@ -19,8 +19,10 @@ import {
   Image as ImageIcon,
   Filter,
   Search,
-  FileText
+  FileText,
+  History as HistoryIcon
 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { BottomNav } from "@/components/BottomNav";
@@ -157,20 +159,12 @@ export default function History() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-24">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{t("history:title", "Aktivitätsverlauf")}</h1>
-            <p className="text-muted-foreground">{household?.householdName || t("common:labels.noHousehold", "Kein Haushalt ausgewählt")}</p>
-          </div>
-        </div>
+        <PageHeader
+          icon={HistoryIcon}
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
+          title={t("history:title", "Aktivitätsverlauf")}
+        />
 
         {/* Filters */}
         <div className="mb-6 space-y-3">

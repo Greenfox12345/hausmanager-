@@ -27,6 +27,7 @@ import {
   DoorOpen, Trash2, Vote, Undo2, Crown, Link2, UserX, ExternalLink,
   Pencil, X,
 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { useState, useRef, useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
@@ -317,28 +318,17 @@ export default function Members() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-24">
-        {/* Header */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Home className="h-7 w-7 text-primary" />
-              {t("members:householdTitle")}
-            </h1>
-            <p className="text-muted-foreground">{household?.householdName}</p>
-          </div>
+        <PageHeader
+          icon={Users}
+          iconColor="text-accent"
+          iconBg="bg-accent/10"
+          title={t("members:householdTitle")}
+        >
           <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
             {t("common:actions.logout")}
           </Button>
-        </div>
+        </PageHeader>
 
         {/* Members Card */}
         <Card className="mb-6 shadow-md">

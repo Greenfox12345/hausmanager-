@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Trash2, Filter, Edit2, FolderPlus, Package } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -296,16 +297,17 @@ export default function Inventory() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-4xl pb-24">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">{t('inventory:title')}</h1>
-            <p className="text-muted-foreground">{t('inventory:description', 'Verwalte dein Haushaltsinventar')}</p>
-          </div>
+        <PageHeader
+          icon={Package}
+          iconColor="text-orange-600"
+          iconBg="bg-orange-50"
+          title={t('inventory:title')}
+        >
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             {t('inventory:newItem')}
           </Button>
-        </div>
+        </PageHeader>
 
         {/* Filter */}
         <Card className="mb-6">

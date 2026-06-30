@@ -432,7 +432,8 @@
   "loading": "Yükleniyor...",
   "navigation": {
     "back": "Geri",
-    "next": "İleri"
+    "next": "İleri",
+    "home": "Ana Sayfa"
   },
   "pleaseLogin": "Lütfen giriş yapın",
   "uploading": "Yükleniyor...",

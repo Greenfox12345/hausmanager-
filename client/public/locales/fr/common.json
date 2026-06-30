@@ -432,7 +432,8 @@
   "loading": "Chargement...",
   "navigation": {
     "back": "Retour",
-    "next": "Suivant"
+    "next": "Suivant",
+    "home": "Accueil"
   },
   "pleaseLogin": "Veuillez vous connecter",
   "uploading": "Téléchargement...",

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users, Star } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { TaskCalendar, type TaskOccurrence, type TaskCalendarHandle } from "@/components/TaskCalendar";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
@@ -1025,20 +1026,12 @@ export default function Calendar() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-6xl pb-24">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{t("calendar:title")}</h1>
-            {household && <p className="text-muted-foreground">{household.householdName}</p>}
-          </div>
-        </div>
+        <PageHeader
+          icon={CalendarIcon}
+          iconColor="text-orange-600"
+          iconBg="bg-orange-50"
+          title={t("calendar:title")}
+        />
 
         <Tabs defaultValue="calendar" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">

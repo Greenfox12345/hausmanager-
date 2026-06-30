@@ -30,6 +30,7 @@ import {
   Users,
   Globe
 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { format, isPast } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -542,22 +543,12 @@ export default function Projects() {
   return (
     <AppLayout>
       <div className="container py-6 max-w-6xl pb-24">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setLocation("/")}
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">{t("projects:title")}</h1>
-              <p className="text-muted-foreground">{household.householdName}</p>
-            </div>
-          </div>
-
+                <PageHeader
+          icon={FolderKanban}
+          iconColor="text-purple-600"
+          iconBg="bg-purple-50"
+          title={t("projects:title")}
+        >
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -635,9 +626,8 @@ export default function Projects() {
                 </Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
-        </div>
-
+                    </Dialog>
+        </PageHeader>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Project List */}
           <div className="lg:col-span-1 space-y-3">

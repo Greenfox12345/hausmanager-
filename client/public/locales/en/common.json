@@ -428,7 +428,8 @@
   "loading": "Loading...",
   "navigation": {
     "back": "Back",
-    "next": "Next"
+    "next": "Next",
+    "home": "Home"
   },
   "pleaseLogin": "Please log in",
   "uploading": "Uploading...",
