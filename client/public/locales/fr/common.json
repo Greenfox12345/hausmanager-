@@ -178,7 +178,22 @@
     "join": "Rejoindre un foyer",
     "settings": {
       "saved": "Paramètres enregistrés",
-      "saveError": "Erreur lors de l'enregistrement des paramètres"
+      "saveError": "Erreur lors de l'enregistrement des paramètres",
+      "title": "Paramètres",
+      "general": "Foyer",
+      "languageHint": "Seuls les administrateurs peuvent changer la langue du foyer.",
+      "onlyAdminCanChange": "Seul le créateur du foyer peut changer la langue du foyer.",
+      "categories": "Catégories",
+      "categoriesHint": "Gérer les catégories pour la liste de courses et l'inventaire",
+      "noCategories": "Pas encore de catégories.",
+      "newCategory": "Nouvelle catégorie",
+      "categoryNamePlaceholder": "ex. Boissons",
+      "categoryAdded": "Catégorie ajoutée",
+      "categoryUpdated": "Catégorie mise à jour",
+      "categoryDeleted": "Catégorie supprimée",
+      "deleteCategoryTitle": "Supprimer la catégorie ?",
+      "deleteCategoryDesc": "La catégorie sera supprimée de toutes les entrées associées.",
+      "unitsHint": "Gérer les unités de quantité à l'échelle du foyer"
     },
     "language": "Langue du foyer",
     "languageHint": "Cette langue est utilisée pour les entrées d'historique et les notifications visibles par tous les membres du foyer.",

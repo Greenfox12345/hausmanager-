@@ -219,7 +219,21 @@
     "settings": {
       "saved": "Configuración guardada",
       "title": "Configuración del hogar",
-      "saveError": "Error al guardar la configuración"
+      "saveError": "Error al guardar la configuración",
+      "general": "Hogar",
+      "languageHint": "Solo los administradores pueden cambiar el idioma del hogar.",
+      "onlyAdminCanChange": "Solo el creador del hogar puede cambiar el idioma del hogar.",
+      "categories": "Categorías",
+      "categoriesHint": "Gestionar categorías para la lista de compras e inventario",
+      "noCategories": "Aún no hay categorías.",
+      "newCategory": "Nueva categoría",
+      "categoryNamePlaceholder": "p. ej. Bebidas",
+      "categoryAdded": "Categoría añadida",
+      "categoryUpdated": "Categoría actualizada",
+      "categoryDeleted": "Categoría eliminada",
+      "deleteCategoryTitle": "¿Eliminar categoría?",
+      "deleteCategoryDesc": "La categoría se eliminará de todas las entradas asociadas.",
+      "unitsHint": "Gestionar unidades de cantidad en todo el hogar"
     },
     "language": "Idioma del hogar",
     "languageHint": "Este idioma se usa para las entradas del historial y notificaciones visibles para todos los miembros.",

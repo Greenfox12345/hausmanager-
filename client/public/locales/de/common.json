@@ -174,7 +174,22 @@
     "join": "Haushalt beitreten",
     "settings": {
       "saved": "Einstellungen gespeichert",
-      "saveError": "Fehler beim Speichern der Einstellungen"
+      "saveError": "Fehler beim Speichern der Einstellungen",
+      "title": "Einstellungen",
+      "general": "Haushalt",
+      "languageHint": "Nur Admins können die Haushaltssprache ändern.",
+      "onlyAdminCanChange": "Nur der Haushaltsersteller kann die Haushaltssprache ändern.",
+      "categories": "Kategorien",
+      "categoriesHint": "Kategorien für Einkaufsliste und Inventar verwalten",
+      "noCategories": "Noch keine Kategorien vorhanden.",
+      "newCategory": "Neue Kategorie",
+      "categoryNamePlaceholder": "z. B. Getränke",
+      "categoryAdded": "Kategorie hinzugefügt",
+      "categoryUpdated": "Kategorie aktualisiert",
+      "categoryDeleted": "Kategorie gelöscht",
+      "deleteCategoryTitle": "Kategorie löschen?",
+      "deleteCategoryDesc": "Die Kategorie wird von allen zugehörigen Einträgen entfernt.",
+      "unitsHint": "Einheiten für Mengenangaben haushaltsweit verwalten"
     },
     "language": "Haushaltssprache",
     "languageHint": "Diese Sprache wird für Verlaufseinträge und Benachrichtigungen verwendet, die alle Haushaltsmitglieder sehen.",

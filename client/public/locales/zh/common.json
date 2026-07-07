@@ -174,7 +174,22 @@
     "join": "加入家庭",
     "settings": {
       "saved": "设置已保存",
-      "saveError": "保存设置出错"
+      "saveError": "保存设置出错",
+      "title": "设置",
+      "general": "家庭",
+      "languageHint": "只有管理员可以更改家庭语言。",
+      "onlyAdminCanChange": "只有家庭创建者可以更改家庭语言。",
+      "categories": "分类",
+      "categoriesHint": "管理购物清单和库存的分类",
+      "noCategories": "暂无分类。",
+      "newCategory": "新建分类",
+      "categoryNamePlaceholder": "例如：饮料",
+      "categoryAdded": "分类已添加",
+      "categoryUpdated": "分类已更新",
+      "categoryDeleted": "分类已删除",
+      "deleteCategoryTitle": "删除分类？",
+      "deleteCategoryDesc": "该分类将从所有相关条目中移除。",
+      "unitsHint": "管理全家庭的数量单位"
     },
     "language": "家庭语言",
     "languageHint": "此语言用于所有家庭成员可见的历史记录和通知。",

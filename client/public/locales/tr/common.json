@@ -178,7 +178,22 @@
     "join": "Eve katıl",
     "settings": {
       "saved": "Ayarlar kaydedildi",
-      "saveError": "Ayarlar kaydedilemedi"
+      "saveError": "Ayarlar kaydedilemedi",
+      "title": "Ayarlar",
+      "general": "Hane",
+      "languageHint": "Yalnızca yöneticiler hane dilini değiştirebilir.",
+      "onlyAdminCanChange": "Yalnızca hane kurucusu hane dilini değiştirebilir.",
+      "categories": "Kategoriler",
+      "categoriesHint": "Alışveriş listesi ve envanter için kategorileri yönetin",
+      "noCategories": "Henüz kategori yok.",
+      "newCategory": "Yeni Kategori",
+      "categoryNamePlaceholder": "örn. İçecekler",
+      "categoryAdded": "Kategori eklendi",
+      "categoryUpdated": "Kategori güncellendi",
+      "categoryDeleted": "Kategori silindi",
+      "deleteCategoryTitle": "Kategori silinsin mi?",
+      "deleteCategoryDesc": "Kategori ilgili tüm girişlerden kaldırılacak.",
+      "unitsHint": "Hane genelinde miktar birimlerini yönetin"
     },
     "language": "Ev dili",
     "languageHint": "Bu dil, tüm ev üyelerinin gördüğü geçmiş girişleri ve bildirimler için kullanılacaktır.",

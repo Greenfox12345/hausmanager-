@@ -178,7 +178,22 @@
     "join": "انضم إلى المنزل",
     "settings": {
       "saved": "تم حفظ الإعدادات",
-      "saveError": "خطأ في حفظ الإعدادات"
+      "saveError": "خطأ في حفظ الإعدادات",
+      "title": "الإعدادات",
+      "general": "المنزل",
+      "languageHint": "يمكن للمسؤولين فقط تغيير لغة المنزل.",
+      "onlyAdminCanChange": "يمكن لمنشئ المنزل فقط تغيير لغة المنزل.",
+      "categories": "الفئات",
+      "categoriesHint": "إدارة فئات قائمة التسوق والمخزون",
+      "noCategories": "لا توجد فئات بعد.",
+      "newCategory": "فئة جديدة",
+      "categoryNamePlaceholder": "مثال: المشروبات",
+      "categoryAdded": "تمت إضافة الفئة",
+      "categoryUpdated": "تم تحديث الفئة",
+      "categoryDeleted": "تم حذف الفئة",
+      "deleteCategoryTitle": "حذف الفئة؟",
+      "deleteCategoryDesc": "سيتم إزالة الفئة من جميع الإدخالات المرتبطة بها.",
+      "unitsHint": "إدارة وحدات الكميات على مستوى المنزل"
     },
     "language": "لغة المنزل",
     "languageHint": "تُستخدم هذه اللغة في سجلات السجل والإشعارات التي يراها جميع أعضاء المنزل.",

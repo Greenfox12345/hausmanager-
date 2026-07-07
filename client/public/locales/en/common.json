@@ -174,7 +174,22 @@
     "join": "Join household",
     "settings": {
       "saved": "Settings saved",
-      "saveError": "Error saving settings"
+      "saveError": "Error saving settings",
+      "title": "Settings",
+      "general": "Household",
+      "languageHint": "Only admins can change the household language.",
+      "onlyAdminCanChange": "Only the household creator can change the household language.",
+      "categories": "Categories",
+      "categoriesHint": "Manage categories for shopping list and inventory",
+      "noCategories": "No categories yet.",
+      "newCategory": "New Category",
+      "categoryNamePlaceholder": "e.g. Beverages",
+      "categoryAdded": "Category added",
+      "categoryUpdated": "Category updated",
+      "categoryDeleted": "Category deleted",
+      "deleteCategoryTitle": "Delete category?",
+      "deleteCategoryDesc": "The category will be removed from all associated entries.",
+      "unitsHint": "Manage units for quantities household-wide"
     },
     "language": "Household language",
     "languageHint": "This language is used for history entries and notifications visible to all household members.",
