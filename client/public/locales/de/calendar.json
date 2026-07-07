@@ -122,5 +122,8 @@
     "skippedDates": "Übersprungene Termine:",
     "nextOpen": "Nächster offener Termin:",
     "confirm": "Trotzdem abschließen"
-  }
+  },
+  "searchPlaceholder": "Termine oder Notizen suchen...",
+  "searchNoResults": "Keine Ergebnisse für \"{query}\"",
+  "searchClear": "Suche löschen"
 }

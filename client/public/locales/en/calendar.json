@@ -122,5 +122,8 @@
     "skippedDates": "Skipped dates:",
     "nextOpen": "Next open occurrence:",
     "confirm": "Complete anyway"
-  }
+  },
+  "searchPlaceholder": "Search appointments or notes...",
+  "searchNoResults": "No results for \"{query}\"",
+  "searchClear": "Clear search"
 }

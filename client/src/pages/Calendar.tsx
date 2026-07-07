@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users, Star } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, FolderKanban, Target, CheckCircle2, Clock, ArrowRight, Check, Bell, Trash2, Filter, ArrowUpDown, X, Users, Star, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isPast } from "date-fns";
 import { TaskCalendar, type TaskOccurrence, type TaskCalendarHandle } from "@/components/TaskCalendar";
@@ -59,6 +60,9 @@ export default function Calendar() {
   
   // Event type filter for calendar view
   const [eventTypeFilter, setEventTypeFilter] = useState<"all" | "tasks" | "borrow_events">("all");
+
+  // Search query for filtering appointments and notes
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Skip-confirmation dialog state (for completing a task with already-skipped next occurrences)
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
@@ -829,6 +833,36 @@ export default function Calendar() {
     });
   }, [tasks, chronologicalRange]);
 
+  // Filtered task occurrences for calendar view (search)
+  const filteredTaskOccurrences = useMemo((): TaskOccurrence[] => {
+    if (!searchQuery.trim()) return taskOccurrences;
+    const q = searchQuery.toLowerCase();
+    return taskOccurrences.filter(occ => {
+      const raw = occ.raw as any;
+      return (
+        (occ.taskName || "").toLowerCase().includes(q) ||
+        (raw?.description || "").toLowerCase().includes(q) ||
+        (occ.occurrenceNote || "").toLowerCase().includes(q) ||
+        (occ.specialName || "").toLowerCase().includes(q) ||
+        (raw?.title || "").toLowerCase().includes(q)
+      );
+    });
+  }, [taskOccurrences, searchQuery]);
+
+  // Filtered chronological tasks (search)
+  const filteredChronologicalTasks = useMemo(() => {
+    if (!searchQuery.trim()) return chronologicalTasks;
+    const q = searchQuery.toLowerCase();
+    return chronologicalTasks.filter((task: any) => {
+      return (
+        (task.name || "").toLowerCase().includes(q) ||
+        (task.description || "").toLowerCase().includes(q) ||
+        (task.occurrenceNote || "").toLowerCase().includes(q) ||
+        (task.specialOccurrenceName || "").toLowerCase().includes(q)
+      );
+    });
+  }, [chronologicalTasks, searchQuery]);
+
   // Tasks without due dates - filtered and sorted
   const tasksWithoutDates = useMemo(() => {
     let filtered = tasks.filter(task => !task.dueDate);
@@ -1033,6 +1067,27 @@ export default function Calendar() {
           title={t("calendar:title")}
         />
 
+        {/* Search bar */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder={t("calendar:searchPlaceholder", "Termine oder Notizen suchen...")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              title={t("calendar:searchClear", "Suche löschen")}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
         <Tabs defaultValue="calendar" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
@@ -1070,7 +1125,7 @@ export default function Calendar() {
                 <TaskCalendar
                   ref={taskCalendarRef}
                   occurrences={(() => {
-                    let occs = taskOccurrences;
+                    let occs = filteredTaskOccurrences;
                     if (eventTypeFilter === "tasks") occs = occs.filter(o => !o.isCalendarEvent);
                     else if (eventTypeFilter === "borrow_events") occs = occs.filter(o => o.isCalendarEvent);
                     return occs;
@@ -1254,14 +1309,18 @@ export default function Calendar() {
                 </div>
               </CardHeader>
               <CardContent>
-                {chronologicalTasks.length === 0 ? (
+                {filteredChronologicalTasks.length === 0 ? (
                   <div className="py-16 text-center">
                     <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">{t("tasks:noTasks", "Keine Aufgaben vorhanden")}</p>
+                    <p className="text-muted-foreground">
+                      {searchQuery.trim()
+                        ? t("calendar:searchNoResults", "Keine Ergebnisse für \"{{query}}\"", { query: searchQuery })
+                        : t("tasks:noTasks", "Keine Aufgaben vorhanden")}
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {chronologicalTasks.map((task, index) => {
+                    {filteredChronologicalTasks.map((task, index) => {
                       const frequency = getFrequencyBadge(task);
                       const projectName = getProjectName(task.projectIds);
                       

@@ -122,5 +122,8 @@
     "skippedDates": "Dates ignorées :",
     "nextOpen": "Prochaine occurrence ouverte :",
     "confirm": "Compléter quand même"
-  }
+  },
+  "searchPlaceholder": "Rechercher des rendez-vous ou des notes...",
+  "searchNoResults": "Aucun résultat pour \"{query}\"",
+  "searchClear": "Effacer la recherche"
 }

@@ -122,5 +122,8 @@
     "skippedDates": "التواريخ المتخطاة:",
     "nextOpen": "الموعد المفتوح التالي:",
     "confirm": "إكمال على أي حال"
-  }
+  },
+  "searchPlaceholder": "البحث في المواعيد أو الملاحظات...",
+  "searchNoResults": "لا توجد نتائج لـ \"{query}\"",
+  "searchClear": "مسح البحث"
 }

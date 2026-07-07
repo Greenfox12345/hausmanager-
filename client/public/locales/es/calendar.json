@@ -166,5 +166,8 @@
     "skippedDates": "Fechas omitidas:",
     "nextOpen": "Próxima ocurrencia abierta:",
     "confirm": "Completar de todos modos"
-  }
+  },
+  "searchPlaceholder": "Buscar citas o notas...",
+  "searchNoResults": "Sin resultados para \"{query}\"",
+  "searchClear": "Borrar búsqueda"
 }

@@ -122,5 +122,8 @@
     "skippedDates": "已跳过的日期：",
     "nextOpen": "下一个待办日程：",
     "confirm": "仍然完成"
-  }
+  },
+  "searchPlaceholder": "搜索约会或笔记...",
+  "searchNoResults": "没有找到\"{query}\"的结果",
+  "searchClear": "清除搜索"
 }
