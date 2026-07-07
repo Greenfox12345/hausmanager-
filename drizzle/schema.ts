@@ -1,4 +1,4 @@
-import { int, bigint, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json } from "drizzle-orm/mysql-core";
+import { int, bigint, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json, decimal } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -93,6 +93,23 @@ export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
 
 /**
+ * Item units - household-wide units for quantity tracking (e.g. Stück, Kilo, Gramm)
+ */
+export const itemUnits = mysqlTable("item_units", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 50 }).notNull(),   // e.g. "Kilogramm"
+  symbol: varchar("symbol", { length: 10 }),          // e.g. "kg" (optional short form)
+  sortOrder: int("sortOrder").default(0).notNull(),
+  isDefault: boolean("isDefault").default(false).notNull(), // pre-seeded defaults
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ItemUnit = typeof itemUnits.$inferSelect;
+export type InsertItemUnit = typeof itemUnits.$inferInsert;
+
+/**
  * Shopping categories - customizable categories for shopping items
  */
 export const shoppingCategories = mysqlTable("shopping_categories", {
@@ -120,6 +137,8 @@ export const shoppingItems = mysqlTable("shopping_items", {
   notes: text("notes"),
   isCompleted: boolean("isCompleted").default(false).notNull(),
   neededBy: bigint("neededBy", { mode: "number" }), // Optional: Unix-Timestamp (ms) – "Gebraucht bis"-Datum
+  quantity: decimal("quantity", { precision: 10, scale: 3 }), // Optional quantity (e.g. 2.5)
+  unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }), // Optional unit
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
   addedBy: int("addedBy").references(() => householdMembers.id, { onDelete: "set null" }),
   completedBy: int("completedBy").references(() => householdMembers.id),
@@ -286,6 +305,8 @@ export const inventoryItems = mysqlTable("inventory_items", {
    * - selected: only specific households listed in inventory_item_allowed_households
    */
   visibility: mysqlEnum("visibility", ["private", "connected", "selected"]).default("private").notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 3 }), // Optional quantity
+  unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }), // Optional unit
   createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

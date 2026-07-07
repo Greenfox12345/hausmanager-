@@ -1,0 +1,31 @@
+{
+  "title": "Units",
+  "manage": "Manage units",
+  "addNew": "New unit",
+  "empty": "No units available",
+  "name": "Name",
+  "symbol": "Symbol",
+  "namePlaceholder": "e.g. Liter",
+  "symbolPlaceholder": "e.g. l",
+  "addedSuccess": "Unit added",
+  "updatedSuccess": "Unit updated",
+  "deletedSuccess": "Unit deleted",
+  "deleteTitle": "Delete unit?",
+  "deleteDesc": "This unit will be removed from all related entries.",
+  "quantity": "Quantity",
+  "quantityPlaceholder": "Quantity",
+  "unitPlaceholder": "Unit",
+  "noUnit": "No unit",
+  "decrement": "Decrease quantity",
+  "increment": "Increase quantity",
+  "defaults": {
+    "piece": "Piece",
+    "kg": "Kilogram",
+    "g": "Gram",
+    "m": "Meter",
+    "cm": "Centimeter",
+    "l": "Liter",
+    "ml": "Milliliter",
+    "pack": "Pack"
+  }
+}

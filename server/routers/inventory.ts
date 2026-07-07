@@ -55,6 +55,8 @@ export const inventoryRouter = router({
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         ownershipType: z.enum(["personal", "household"]),
         ownerIds: z.array(z.number()).optional(),
+        quantity: z.number().nullable().optional(),
+        unitId: z.number().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -97,6 +99,8 @@ export const inventoryRouter = router({
         ownerIds: z.array(z.number()).optional(),
         visibility: z.enum(["private", "connected", "selected"]).optional(),
         allowedHouseholdIds: z.array(z.number()).optional(),
+        quantity: z.number().nullable().optional(),
+        unitId: z.number().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {

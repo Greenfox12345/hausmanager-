@@ -13,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Filter, ShoppingCart, ShoppingBag, Edit2, FolderPlus, ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/components/QuantityInput";
+import { ManageUnitsDialog } from "@/components/ManageUnitsDialog";
 import PageHeader from "@/components/PageHeader";
 import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDialog";
 import { BottomNav } from "@/components/BottomNav";
@@ -49,6 +51,8 @@ export default function Shopping() {
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [newItemNeededBy, setNewItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
+  const [newItemQuantity, setNewItemQuantity] = useState<number | null>(null);
+  const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
   const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
   const [showAddMore, setShowAddMore] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
@@ -62,6 +66,8 @@ export default function Shopping() {
   const [editItemQuantity, setEditItemQuantity] = useState("");
   const [editItemPhotoUrls, setEditItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [editItemNeededBy, setEditItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
+  const [editItemNumQuantity, setEditItemNumQuantity] = useState<number | null>(null);
+  const [editItemUnitId, setEditItemUnitId] = useState<number | null>(null);
   const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
   // Category management state
@@ -122,6 +128,20 @@ export default function Shopping() {
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
+
+  const { data: units = [] } = trpc.units.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const seedUnitsMutation = trpc.units.seedDefaults.useMutation();
+
+  // Seed default units once when household is available
+  const [unitsSeedAttempted, setUnitsSeedAttempted] = useState(false);
+  if (household && !unitsSeedAttempted && units.length === 0) {
+    setUnitsSeedAttempted(true);
+    seedUnitsMutation.mutate({ householdId: household.householdId });
+  }
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
   const createProjectMutation = trpc.projects.create.useMutation();
@@ -136,6 +156,8 @@ export default function Shopping() {
       setNewItemPhotoUrls([]);
       setNewItemNeededBy("");
       setNewItemCategoryId(null);
+      setNewItemQuantity(null);
+      setNewItemUnitId(null);
       setShowAddMore(false);
       toast.success(t("shopping:messages.itemAdded", "Artikel hinzugefügt"));
     },
@@ -347,6 +369,8 @@ export default function Shopping() {
       details: newItemDetails.trim() || undefined,
       photoUrls: newItemPhotoUrls.length > 0 ? newItemPhotoUrls : undefined,
       neededBy: newItemNeededBy ? new Date(newItemNeededBy).getTime() : null,
+      quantity: newItemQuantity,
+      unitId: newItemUnitId,
     });
   };
 
@@ -398,6 +422,9 @@ export default function Shopping() {
     setEditItemPhotoUrls(normalizePhotoUrls(item.photoUrls));
     // neededBy: Unix-Timestamp (ms) → ISO-Datum-String für <input type="date">
     setEditItemNeededBy(item.neededBy ? new Date(item.neededBy).toISOString().split("T")[0] : "");
+    // quantity: decimal string from DB → number
+    setEditItemNumQuantity(item.quantity ? parseFloat(item.quantity) : null);
+    setEditItemUnitId(item.unitId ?? null);
     setShowEditDialog(true);
   };
 
@@ -454,6 +481,8 @@ export default function Shopping() {
       details: editItemQuantity.trim() || undefined,
       photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
       neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,
+      quantity: editItemNumQuantity,
+      unitId: editItemUnitId,
     });
   };
 
@@ -516,6 +545,8 @@ export default function Shopping() {
       photoUrls?: {url: string, filename: string}[];
       ownershipType: "personal" | "household";
       ownerIds?: number[];
+      quantity?: number | null;
+      unitId?: number | null;
     }[];
   }) => {
     if (selectedItemIds.size === 0) {
@@ -811,6 +842,17 @@ export default function Shopping() {
                           </div>
                         )}
                       </div>
+                      {/* Menge */}
+                      <div className="space-y-2">
+                        <Label>{t("shopping:fields.quantity", "Menge")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                        <QuantityInput
+                          value={newItemQuantity}
+                          onChange={setNewItemQuantity}
+                          unitId={newItemUnitId}
+                          onUnitChange={setNewItemUnitId}
+                          units={units}
+                        />
+                      </div>
                       {/* Gebraucht bis */}
                       <div className="space-y-2">
                         <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")}</Label>
@@ -908,6 +950,14 @@ export default function Shopping() {
                         {item.details && (
                           <span className="text-xs text-muted-foreground">{item.details}</span>
                         )}
+                        {item.quantity != null && (() => {
+                          const unit = units.find((u: UnitOption) => u.id === item.unitId);
+                          return (
+                            <span className="inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0 rounded bg-muted text-muted-foreground leading-5">
+                              {formatQuantityWithUnit(item.quantity, unit)}
+                            </span>
+                          );
+                        })()}
                       </div>
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
                         const photos = normalizePhotoUrls(item.photoUrls);
@@ -951,14 +1001,17 @@ export default function Shopping() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">{t("shopping:manageCategories", "Kategorien verwalten")}</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOpenCreateCategory}
-              >
-                <FolderPlus className="mr-2 h-4 w-4" />
-                {t("shopping:actions.createCategory", "Neue Kategorie")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <ManageUnitsDialog householdId={household.householdId} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleOpenCreateCategory}
+                >
+                  <FolderPlus className="mr-2 h-4 w-4" />
+                  {t("shopping:actions.createCategory", "Neue Kategorie")}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -1068,9 +1121,19 @@ export default function Shopping() {
                 <Label htmlFor="editItemQuantity">{t("shopping:fields.details", "Details")} ({t("common:labels.optional")})</Label>
                 <Input
                   id="editItemQuantity"
-                  placeholder="z.B. 2x, 500g..."
+                  placeholder="z.B. Bio, frisch..."
                   value={editItemQuantity}
                   onChange={(e) => setEditItemQuantity(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("shopping:fields.quantity", "Menge")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                <QuantityInput
+                  value={editItemNumQuantity}
+                  onChange={setEditItemNumQuantity}
+                  unitId={editItemUnitId}
+                  onUnitChange={setEditItemUnitId}
+                  units={units}
                 />
               </div>
               <div className="space-y-2">

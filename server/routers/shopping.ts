@@ -55,6 +55,8 @@ export const shoppingRouter = router({
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
         neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
+        quantity: z.number().nullable().optional(),
+        unitId: z.number().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -66,6 +68,8 @@ export const shoppingRouter = router({
         photoUrls: input.photoUrls,
         notes: input.notes,
         neededBy: input.neededBy,
+        quantity: input.quantity,
+        unitId: input.unitId,
         addedBy: input.memberId,
       });
 
@@ -95,6 +99,8 @@ export const shoppingRouter = router({
         photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
         notes: z.string().optional(),
         neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
+        quantity: z.number().nullable().optional(),
+        unitId: z.number().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -190,6 +196,8 @@ export const shoppingRouter = router({
           photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
           ownershipType: z.enum(["personal", "household"]),
           ownerIds: z.array(z.number()).optional(),
+          quantity: z.number().nullable().optional(),
+          unitId: z.number().nullable().optional(),
         })).optional(),
       })
     )
@@ -212,6 +220,8 @@ export const shoppingRouter = router({
             photoUrls: invItem.photoUrls,
             ownershipType: invItem.ownershipType,
             ownerIds: invItem.ownerIds,
+            quantity: invItem.quantity,
+            unitId: invItem.unitId,
           });
         }
       }

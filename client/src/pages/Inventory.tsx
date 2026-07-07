@@ -15,6 +15,8 @@ import { Plus, Trash2, Filter, Edit2, FolderPlus, Package } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
+import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/components/QuantityInput";
+import { ManageUnitsDialog } from "@/components/ManageUnitsDialog";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -59,8 +61,23 @@ export default function Inventory() {
   const [newItemOwnerIds, setNewItemOwnerIds] = useState<number[]>([]);
   const [newItemPhotos, setNewItemPhotos] = useState<{url: string, filename: string}[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [newItemQuantity, setNewItemQuantity] = useState<number | null>(null);
+  const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
+
+  const { data: units = [] } = trpc.units.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
+  );
+
+  const seedUnitsMutation = trpc.units.seedDefaults.useMutation();
+  const [unitsSeedAttempted, setUnitsSeedAttempted] = useState(false);
+  if (household && !unitsSeedAttempted && units.length === 0) {
+    setUnitsSeedAttempted(true);
+    seedUnitsMutation.mutate({ householdId: household.householdId });
+  }
+
   const { data: items = [], isLoading } = trpc.inventory.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
@@ -148,6 +165,8 @@ export default function Inventory() {
       setNewItemOwnershipType("household");
       setNewItemOwnerIds([]);
       setNewItemPhotos([]);
+      setNewItemQuantity(null);
+      setNewItemUnitId(null);
       toast.success(t("inventory:messages.itemAdded", "Artikel hinzugefügt"));
     },
     onError: () => {
@@ -274,6 +293,8 @@ export default function Inventory() {
       photoUrls: newItemPhotos,
       ownershipType: newItemOwnershipType,
       ownerIds: newItemOwnershipType === 'personal' ? newItemOwnerIds : undefined,
+      quantity: newItemQuantity,
+      unitId: newItemUnitId,
     });
   };
 
@@ -358,7 +379,8 @@ export default function Inventory() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end gap-2">
+              {household && <ManageUnitsDialog householdId={household.householdId} />}
               <Button variant="ghost" onClick={() => setShowCategoryDialog(true)} title={t('inventory:categories.manage', 'Kategorien verwalten')}>
                 <FolderPlus className="h-4 w-4" />
               </Button>
@@ -424,6 +446,14 @@ export default function Inventory() {
                   ) : (
                     <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
                   )}
+                  {item.quantity != null && (() => {
+                    const unit = units.find((u: UnitOption) => u.id === item.unitId);
+                    return (
+                      <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                        {formatQuantityWithUnit(item.quantity, unit)}
+                      </span>
+                    );
+                  })()}
                   <div className="flex gap-2 pt-2">
                     <Button size="sm" onClick={() => setLocation(`/inventory/${item.id}`)}>
                       {t('inventory:actions.borrow', 'Ausleihen')}

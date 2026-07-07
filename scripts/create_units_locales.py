@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+"""Create units.json locale files for all 7 languages."""
+import json, os
+
+LOCALES_DIR = "/home/ubuntu/haushaltsmanager/client/public/locales"
+
+TRANSLATIONS = {
+    "de": {
+        "title": "Einheiten",
+        "manage": "Einheiten verwalten",
+        "addNew": "Neue Einheit",
+        "empty": "Keine Einheiten vorhanden",
+        "name": "Name",
+        "symbol": "Kürzel",
+        "namePlaceholder": "z. B. Liter",
+        "symbolPlaceholder": "z. B. l",
+        "addedSuccess": "Einheit hinzugefügt",
+        "updatedSuccess": "Einheit aktualisiert",
+        "deletedSuccess": "Einheit gelöscht",
+        "deleteTitle": "Einheit löschen?",
+        "deleteDesc": "Diese Einheit wird von allen zugehörigen Einträgen entfernt.",
+        "quantity": "Menge",
+        "quantityPlaceholder": "Menge",
+        "unitPlaceholder": "Einheit",
+        "noUnit": "Keine Einheit",
+        "decrement": "Menge verringern",
+        "increment": "Menge erhöhen",
+        "defaults": {
+            "piece": "Stück",
+            "kg": "Kilogramm",
+            "g": "Gramm",
+            "m": "Meter",
+            "cm": "Zentimeter",
+            "l": "Liter",
+            "ml": "Milliliter",
+            "pack": "Packung"
+        }
+    },
+    "en": {
+        "title": "Units",
+        "manage": "Manage units",
+        "addNew": "New unit",
+        "empty": "No units available",
+        "name": "Name",
+        "symbol": "Symbol",
+        "namePlaceholder": "e.g. Liter",
+        "symbolPlaceholder": "e.g. l",
+        "addedSuccess": "Unit added",
+        "updatedSuccess": "Unit updated",
+        "deletedSuccess": "Unit deleted",
+        "deleteTitle": "Delete unit?",
+        "deleteDesc": "This unit will be removed from all related entries.",
+        "quantity": "Quantity",
+        "quantityPlaceholder": "Quantity",
+        "unitPlaceholder": "Unit",
+        "noUnit": "No unit",
+        "decrement": "Decrease quantity",
+        "increment": "Increase quantity",
+        "defaults": {
+            "piece": "Piece",
+            "kg": "Kilogram",
+            "g": "Gram",
+            "m": "Meter",
+            "cm": "Centimeter",
+            "l": "Liter",
+            "ml": "Milliliter",
+            "pack": "Pack"
+        }
+    },
+    "ar": {
+        "title": "الوحدات",
+        "manage": "إدارة الوحدات",
+        "addNew": "وحدة جديدة",
+        "empty": "لا توجد وحدات",
+        "name": "الاسم",
+        "symbol": "الرمز",
+        "namePlaceholder": "مثال: لتر",
+        "symbolPlaceholder": "مثال: ل",
+        "addedSuccess": "تمت إضافة الوحدة",
+        "updatedSuccess": "تم تحديث الوحدة",
+        "deletedSuccess": "تم حذف الوحدة",
+        "deleteTitle": "حذف الوحدة؟",
+        "deleteDesc": "سيتم إزالة هذه الوحدة من جميع الإدخالات المرتبطة.",
+        "quantity": "الكمية",
+        "quantityPlaceholder": "الكمية",
+        "unitPlaceholder": "الوحدة",
+        "noUnit": "بدون وحدة",
+        "decrement": "تقليل الكمية",
+        "increment": "زيادة الكمية",
+        "defaults": {
+            "piece": "قطعة",
+            "kg": "كيلوغرام",
+            "g": "غرام",
+            "m": "متر",
+            "cm": "سنتيمتر",
+            "l": "لتر",
+            "ml": "ملليلتر",
+            "pack": "عبوة"
+        }
+    },
+    "es": {
+        "title": "Unidades",
+        "manage": "Gestionar unidades",
+        "addNew": "Nueva unidad",
+        "empty": "No hay unidades disponibles",
+        "name": "Nombre",
+        "symbol": "Símbolo",
+        "namePlaceholder": "p. ej. Litro",
+        "symbolPlaceholder": "p. ej. l",
+        "addedSuccess": "Unidad añadida",
+        "updatedSuccess": "Unidad actualizada",
+        "deletedSuccess": "Unidad eliminada",
+        "deleteTitle": "¿Eliminar unidad?",
+        "deleteDesc": "Esta unidad se eliminará de todas las entradas relacionadas.",
+        "quantity": "Cantidad",
+        "quantityPlaceholder": "Cantidad",
+        "unitPlaceholder": "Unidad",
+        "noUnit": "Sin unidad",
+        "decrement": "Disminuir cantidad",
+        "increment": "Aumentar cantidad",
+        "defaults": {
+            "piece": "Pieza",
+            "kg": "Kilogramo",
+            "g": "Gramo",
+            "m": "Metro",
+            "cm": "Centímetro",
+            "l": "Litro",
+            "ml": "Mililitro",
+            "pack": "Paquete"
+        }
+    },
+    "fr": {
+        "title": "Unités",
+        "manage": "Gérer les unités",
+        "addNew": "Nouvelle unité",
+        "empty": "Aucune unité disponible",
+        "name": "Nom",
+        "symbol": "Symbole",
+        "namePlaceholder": "ex. Litre",
+        "symbolPlaceholder": "ex. l",
+        "addedSuccess": "Unité ajoutée",
+        "updatedSuccess": "Unité mise à jour",
+        "deletedSuccess": "Unité supprimée",
+        "deleteTitle": "Supprimer l'unité ?",
+        "deleteDesc": "Cette unité sera supprimée de toutes les entrées associées.",
+        "quantity": "Quantité",
+        "quantityPlaceholder": "Quantité",
+        "unitPlaceholder": "Unité",
+        "noUnit": "Sans unité",
+        "decrement": "Diminuer la quantité",
+        "increment": "Augmenter la quantité",
+        "defaults": {
+            "piece": "Pièce",
+            "kg": "Kilogramme",
+            "g": "Gramme",
+            "m": "Mètre",
+            "cm": "Centimètre",
+            "l": "Litre",
+            "ml": "Millilitre",
+            "pack": "Paquet"
+        }
+    },
+    "tr": {
+        "title": "Birimler",
+        "manage": "Birimleri yönet",
+        "addNew": "Yeni birim",
+        "empty": "Birim yok",
+        "name": "Ad",
+        "symbol": "Sembol",
+        "namePlaceholder": "örn. Litre",
+        "symbolPlaceholder": "örn. l",
+        "addedSuccess": "Birim eklendi",
+        "updatedSuccess": "Birim güncellendi",
+        "deletedSuccess": "Birim silindi",
+        "deleteTitle": "Birim silinsin mi?",
+        "deleteDesc": "Bu birim ilgili tüm girişlerden kaldırılacak.",
+        "quantity": "Miktar",
+        "quantityPlaceholder": "Miktar",
+        "unitPlaceholder": "Birim",
+        "noUnit": "Birim yok",
+        "decrement": "Miktarı azalt",
+        "increment": "Miktarı artır",
+        "defaults": {
+            "piece": "Adet",
+            "kg": "Kilogram",
+            "g": "Gram",
+            "m": "Metre",
+            "cm": "Santimetre",
+            "l": "Litre",
+            "ml": "Mililitre",
+            "pack": "Paket"
+        }
+    },
+    "zh": {
+        "title": "单位",
+        "manage": "管理单位",
+        "addNew": "新建单位",
+        "empty": "暂无单位",
+        "name": "名称",
+        "symbol": "符号",
+        "namePlaceholder": "例如：升",
+        "symbolPlaceholder": "例如：L",
+        "addedSuccess": "单位已添加",
+        "updatedSuccess": "单位已更新",
+        "deletedSuccess": "单位已删除",
+        "deleteTitle": "删除单位？",
+        "deleteDesc": "该单位将从所有相关条目中移除。",
+        "quantity": "数量",
+        "quantityPlaceholder": "数量",
+        "unitPlaceholder": "单位",
+        "noUnit": "无单位",
+        "decrement": "减少数量",
+        "increment": "增加数量",
+        "defaults": {
+            "piece": "件",
+            "kg": "千克",
+            "g": "克",
+            "m": "米",
+            "cm": "厘米",
+            "l": "升",
+            "ml": "毫升",
+            "pack": "包"
+        }
+    }
+}
+
+for lang, data in TRANSLATIONS.items():
+    path = os.path.join(LOCALES_DIR, lang, "units.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print(f"Created {path}")
+
+print("Done!")

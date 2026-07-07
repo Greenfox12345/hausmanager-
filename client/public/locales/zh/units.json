@@ -1,0 +1,31 @@
+{
+  "title": "单位",
+  "manage": "管理单位",
+  "addNew": "新建单位",
+  "empty": "暂无单位",
+  "name": "名称",
+  "symbol": "符号",
+  "namePlaceholder": "例如：升",
+  "symbolPlaceholder": "例如：L",
+  "addedSuccess": "单位已添加",
+  "updatedSuccess": "单位已更新",
+  "deletedSuccess": "单位已删除",
+  "deleteTitle": "删除单位？",
+  "deleteDesc": "该单位将从所有相关条目中移除。",
+  "quantity": "数量",
+  "quantityPlaceholder": "数量",
+  "unitPlaceholder": "单位",
+  "noUnit": "无单位",
+  "decrement": "减少数量",
+  "increment": "增加数量",
+  "defaults": {
+    "piece": "件",
+    "kg": "千克",
+    "g": "克",
+    "m": "米",
+    "cm": "厘米",
+    "l": "升",
+    "ml": "毫升",
+    "pack": "包"
+  }
+}

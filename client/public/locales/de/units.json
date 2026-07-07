@@ -1,0 +1,31 @@
+{
+  "title": "Einheiten",
+  "manage": "Einheiten verwalten",
+  "addNew": "Neue Einheit",
+  "empty": "Keine Einheiten vorhanden",
+  "name": "Name",
+  "symbol": "Kürzel",
+  "namePlaceholder": "z. B. Liter",
+  "symbolPlaceholder": "z. B. l",
+  "addedSuccess": "Einheit hinzugefügt",
+  "updatedSuccess": "Einheit aktualisiert",
+  "deletedSuccess": "Einheit gelöscht",
+  "deleteTitle": "Einheit löschen?",
+  "deleteDesc": "Diese Einheit wird von allen zugehörigen Einträgen entfernt.",
+  "quantity": "Menge",
+  "quantityPlaceholder": "Menge",
+  "unitPlaceholder": "Einheit",
+  "noUnit": "Keine Einheit",
+  "decrement": "Menge verringern",
+  "increment": "Menge erhöhen",
+  "defaults": {
+    "piece": "Stück",
+    "kg": "Kilogramm",
+    "g": "Gramm",
+    "m": "Meter",
+    "cm": "Zentimeter",
+    "l": "Liter",
+    "ml": "Milliliter",
+    "pack": "Packung"
+  }
+}

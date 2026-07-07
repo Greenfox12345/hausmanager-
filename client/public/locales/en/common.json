@@ -436,5 +436,8 @@
   "legal": {
     "privacy": "Privacy Policy",
     "imprint": "Legal Notice"
-  }
+  },
+  "error": "Error",
+  "save": "Save",
+  "delete": "Delete"
 }

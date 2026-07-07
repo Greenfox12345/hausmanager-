@@ -517,5 +517,8 @@
   "legal": {
     "privacy": "Privacidad",
     "imprint": "Aviso legal"
-  }
+  },
+  "error": "Error",
+  "save": "Guardar",
+  "delete": "Eliminar"
 }

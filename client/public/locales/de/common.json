@@ -436,5 +436,8 @@
   "legal": {
     "privacy": "Datenschutz",
     "imprint": "Impressum"
-  }
+  },
+  "error": "Fehler",
+  "save": "Speichern",
+  "delete": "Löschen"
 }

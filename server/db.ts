@@ -312,6 +312,8 @@ export async function createShoppingItem(data: {
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
   neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
+  quantity?: number | null;
+  unitId?: number | null;
   addedBy: number;
 }) {
   const db = await getDb();
@@ -333,6 +335,8 @@ export async function updateShoppingItem(id: number, data: {
   photoUrls?: string[] | {url: string, filename: string}[];
   notes?: string;
   neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
+  quantity?: number | null;
+  unitId?: number | null;
   isCompleted?: boolean;
   completedBy?: number | null;
   completedAt?: Date | null;
@@ -922,6 +926,8 @@ export async function getInventoryItems(householdId: number) {
     creatorName: householdMembers.memberName,
     createdAt: inventoryItems.createdAt,
     updatedAt: inventoryItems.updatedAt,
+    quantity: inventoryItems.quantity,
+    unitId: inventoryItems.unitId,
   })
     .from(inventoryItems)
     .leftJoin(shoppingCategories, eq(inventoryItems.categoryId, shoppingCategories.id))
@@ -999,6 +1005,8 @@ export async function addInventoryItem(data: {
   photoUrls?: string[] | {url: string, filename: string}[];
   ownershipType: 'personal' | 'household';
   ownerIds?: number[];
+  quantity?: number | null;
+  unitId?: number | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1015,6 +1023,8 @@ export async function addInventoryItem(data: {
   if (data.details) {
     insertData.details = data.details;
   }
+  if (data.quantity !== undefined) insertData.quantity = data.quantity;
+  if (data.unitId !== undefined) insertData.unitId = data.unitId;
 
   const [newItem] = await db.insert(inventoryItems).values(insertData);
 
@@ -1041,6 +1051,8 @@ export async function updateInventoryItem(data: {
   photoUrls?: string[] | {url: string, filename: string}[];
   ownershipType?: 'personal' | 'household';
   ownerIds?: number[];
+  quantity?: number | null;
+  unitId?: number | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1051,6 +1063,8 @@ export async function updateInventoryItem(data: {
   if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
   if (data.photoUrls !== undefined) updateData.photoUrls = data.photoUrls;
   if (data.ownershipType !== undefined) updateData.ownershipType = data.ownershipType;
+  if (data.quantity !== undefined) updateData.quantity = data.quantity;
+  if (data.unitId !== undefined) updateData.unitId = data.unitId;
 
   await db.update(inventoryItems)
     .set(updateData)

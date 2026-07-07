@@ -440,5 +440,8 @@
   "legal": {
     "privacy": "Confidentialité",
     "imprint": "Mentions légales"
-  }
+  },
+  "error": "Erreur",
+  "save": "Enregistrer",
+  "delete": "Supprimer"
 }

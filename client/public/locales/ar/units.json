@@ -1,0 +1,31 @@
+{
+  "title": "الوحدات",
+  "manage": "إدارة الوحدات",
+  "addNew": "وحدة جديدة",
+  "empty": "لا توجد وحدات",
+  "name": "الاسم",
+  "symbol": "الرمز",
+  "namePlaceholder": "مثال: لتر",
+  "symbolPlaceholder": "مثال: ل",
+  "addedSuccess": "تمت إضافة الوحدة",
+  "updatedSuccess": "تم تحديث الوحدة",
+  "deletedSuccess": "تم حذف الوحدة",
+  "deleteTitle": "حذف الوحدة؟",
+  "deleteDesc": "سيتم إزالة هذه الوحدة من جميع الإدخالات المرتبطة.",
+  "quantity": "الكمية",
+  "quantityPlaceholder": "الكمية",
+  "unitPlaceholder": "الوحدة",
+  "noUnit": "بدون وحدة",
+  "decrement": "تقليل الكمية",
+  "increment": "زيادة الكمية",
+  "defaults": {
+    "piece": "قطعة",
+    "kg": "كيلوغرام",
+    "g": "غرام",
+    "m": "متر",
+    "cm": "سنتيمتر",
+    "l": "لتر",
+    "ml": "ملليلتر",
+    "pack": "عبوة"
+  }
+}

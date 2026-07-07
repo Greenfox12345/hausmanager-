@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PhotoUpload } from "./PhotoUpload";
 import { QuickCategoryCreate } from "./QuickCategoryCreate";
 import { Loader2, ChevronDown, ChevronRight, Package } from "lucide-react";
+import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/components/QuantityInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -43,6 +44,8 @@ interface ShoppingItem {
   details?: string | null;
   categoryId: number | null;
   photoUrls?: any;
+  quantity?: string | null;
+  unitId?: number | null;
 }
 
 interface CompleteShoppingItemDialogProps {
@@ -59,6 +62,8 @@ interface CompleteShoppingItemDialogProps {
       photoUrls?: {url: string, filename: string}[];
       ownershipType: "personal" | "household";
       ownerIds?: number[];
+      quantity?: number | null;
+      unitId?: number | null;
     }[];
   }) => Promise<void>;
 }
@@ -98,7 +103,15 @@ export function CompleteShoppingItemDialog({
     photoUrls: {url: string, filename: string}[];
     ownershipType: "personal" | "household";
     ownerIds: number[];
-  }>>({});
+    quantity: number | null;
+    unitId: number | null;
+  }>>({})
+
+  // Load units for quantity display
+  const { data: units = [] } = trpc.units.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && items.length > 0 }
+  );
 
   // Reset form when dialog closes
   useEffect(() => {
@@ -131,6 +144,8 @@ export function CompleteShoppingItemDialog({
         photoUrls: inventoryData[itemId].photoUrls.length > 0 ? inventoryData[itemId].photoUrls : undefined,
         ownershipType: inventoryData[itemId].ownershipType,
         ownerIds: inventoryData[itemId].ownershipType === "personal" ? inventoryData[itemId].ownerIds : undefined,
+        quantity: inventoryData[itemId].quantity,
+        unitId: inventoryData[itemId].unitId,
       }));
 
       await onComplete({
@@ -211,6 +226,8 @@ export function CompleteShoppingItemDialog({
                             photoUrls: normalizePhotoUrls(item.photoUrls),
                             ownershipType: "household",
                             ownerIds: [],
+                            quantity: item.quantity ? parseFloat(item.quantity) : null,
+                            unitId: item.unitId ?? null,
                           };
                         });
                         setInventoryData(newInventoryData);
@@ -235,6 +252,8 @@ export function CompleteShoppingItemDialog({
                           photoUrls: normalizePhotoUrls(item.photoUrls),
                           ownershipType: "household",
                           ownerIds: [],
+                          quantity: item.quantity ? parseFloat(item.quantity) : null,
+                          unitId: item.unitId ?? null,
                         };
                       });
                       setInventoryData(newInventoryData);
@@ -268,6 +287,8 @@ export function CompleteShoppingItemDialog({
                                 photoUrls: normalizePhotoUrls(item.photoUrls),
                                 ownershipType: "household",
                                 ownerIds: [],
+                                quantity: item.quantity ? parseFloat(item.quantity) : null,
+                                unitId: item.unitId ?? null,
                               }
                             }));
                           } else {
@@ -389,6 +410,28 @@ export function CompleteShoppingItemDialog({
                               />
                             )}
                           </div>
+                        </div>
+
+                        {/* Menge */}
+                        <div>
+                          <Label>{t("shopping:fields.quantity", "Menge")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                          <QuantityInput
+                            value={inventoryData[item.id]?.quantity ?? null}
+                            onChange={(val) => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: { ...prev[item.id], quantity: val }
+                              }));
+                            }}
+                            unitId={inventoryData[item.id]?.unitId ?? null}
+                            onUnitChange={(uid) => {
+                              setInventoryData(prev => ({
+                                ...prev,
+                                [item.id]: { ...prev[item.id], unitId: uid }
+                              }));
+                            }}
+                            units={units as UnitOption[]}
+                          />
                         </div>
 
                         {/* Details */}

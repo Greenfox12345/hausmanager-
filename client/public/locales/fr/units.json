@@ -1,0 +1,31 @@
+{
+  "title": "Unités",
+  "manage": "Gérer les unités",
+  "addNew": "Nouvelle unité",
+  "empty": "Aucune unité disponible",
+  "name": "Nom",
+  "symbol": "Symbole",
+  "namePlaceholder": "ex. Litre",
+  "symbolPlaceholder": "ex. l",
+  "addedSuccess": "Unité ajoutée",
+  "updatedSuccess": "Unité mise à jour",
+  "deletedSuccess": "Unité supprimée",
+  "deleteTitle": "Supprimer l'unité ?",
+  "deleteDesc": "Cette unité sera supprimée de toutes les entrées associées.",
+  "quantity": "Quantité",
+  "quantityPlaceholder": "Quantité",
+  "unitPlaceholder": "Unité",
+  "noUnit": "Sans unité",
+  "decrement": "Diminuer la quantité",
+  "increment": "Augmenter la quantité",
+  "defaults": {
+    "piece": "Pièce",
+    "kg": "Kilogramme",
+    "g": "Gramme",
+    "m": "Mètre",
+    "cm": "Centimètre",
+    "l": "Litre",
+    "ml": "Millilitre",
+    "pack": "Paquet"
+  }
+}

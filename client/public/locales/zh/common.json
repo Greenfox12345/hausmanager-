@@ -347,5 +347,8 @@
   },
   "navigation": {
     "home": "首页"
-  }
+  },
+  "error": "错误",
+  "save": "保存",
+  "delete": "删除"
 }

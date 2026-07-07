@@ -1,0 +1,31 @@
+{
+  "title": "Birimler",
+  "manage": "Birimleri yönet",
+  "addNew": "Yeni birim",
+  "empty": "Birim yok",
+  "name": "Ad",
+  "symbol": "Sembol",
+  "namePlaceholder": "örn. Litre",
+  "symbolPlaceholder": "örn. l",
+  "addedSuccess": "Birim eklendi",
+  "updatedSuccess": "Birim güncellendi",
+  "deletedSuccess": "Birim silindi",
+  "deleteTitle": "Birim silinsin mi?",
+  "deleteDesc": "Bu birim ilgili tüm girişlerden kaldırılacak.",
+  "quantity": "Miktar",
+  "quantityPlaceholder": "Miktar",
+  "unitPlaceholder": "Birim",
+  "noUnit": "Birim yok",
+  "decrement": "Miktarı azalt",
+  "increment": "Miktarı artır",
+  "defaults": {
+    "piece": "Adet",
+    "kg": "Kilogram",
+    "g": "Gram",
+    "m": "Metre",
+    "cm": "Santimetre",
+    "l": "Litre",
+    "ml": "Mililitre",
+    "pack": "Paket"
+  }
+}

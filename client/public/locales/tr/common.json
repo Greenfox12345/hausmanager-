@@ -440,5 +440,8 @@
   "legal": {
     "privacy": "Gizlilik",
     "imprint": "Künye"
-  }
+  },
+  "error": "Hata",
+  "save": "Kaydet",
+  "delete": "Sil"
 }
