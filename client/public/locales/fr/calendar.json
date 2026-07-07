@@ -124,6 +124,11 @@
     "confirm": "Compléter quand même"
   },
   "searchPlaceholder": "Rechercher des rendez-vous ou des notes...",
-  "searchNoResults": "Aucun résultat pour \"{query}\"",
-  "searchClear": "Effacer la recherche"
+  "searchNoResults": "Aucun résultat pour \"{{query}}\"",
+  "searchClear": "Effacer la recherche",
+  "searchFilterCalendar": "Filtrer le calendrier",
+  "searchFilterCalendarActive": "Calendrier filtré",
+  "searchFilterCalendarActivate": "Filtrer le calendrier par recherche",
+  "searchFilterCalendarDeactivate": "Désactiver le filtre du calendrier",
+  "searchJump": "Aller"
 }

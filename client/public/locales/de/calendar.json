@@ -124,6 +124,11 @@
     "confirm": "Trotzdem abschließen"
   },
   "searchPlaceholder": "Termine oder Notizen suchen...",
-  "searchNoResults": "Keine Ergebnisse für \"{query}\"",
-  "searchClear": "Suche löschen"
+  "searchNoResults": "Keine Ergebnisse für \"{{query}}\"",
+  "searchClear": "Suche löschen",
+  "searchFilterCalendar": "Kalender filtern",
+  "searchFilterCalendarActive": "Kalender gefiltert",
+  "searchFilterCalendarActivate": "Kalender nach Suche filtern",
+  "searchFilterCalendarDeactivate": "Kalenderfilter deaktivieren",
+  "searchJump": "Springen"
 }

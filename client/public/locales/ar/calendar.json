@@ -124,6 +124,11 @@
     "confirm": "إكمال على أي حال"
   },
   "searchPlaceholder": "البحث في المواعيد أو الملاحظات...",
-  "searchNoResults": "لا توجد نتائج لـ \"{query}\"",
-  "searchClear": "مسح البحث"
+  "searchNoResults": "لا توجد نتائج لـ \"{{query}}\"",
+  "searchClear": "مسح البحث",
+  "searchFilterCalendar": "تصفية التقويم",
+  "searchFilterCalendarActive": "التقويم مُصفَّى",
+  "searchFilterCalendarActivate": "تصفية التقويم بالبحث",
+  "searchFilterCalendarDeactivate": "إلغاء تصفية التقويم",
+  "searchJump": "انتقل"
 }

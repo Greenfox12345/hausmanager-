@@ -64,6 +64,12 @@ export default function Calendar() {
   // Search query for filtering appointments and notes
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Whether the calendar view should be filtered by the search query (toggled by button)
+  const [calendarFilterActive, setCalendarFilterActive] = useState(false);
+
+  // Controlled tab state (for programmatic tab switching from search results)
+  const [activeTab, setActiveTab] = useState<"calendar" | "all">("calendar");
+
   // Skip-confirmation dialog state (for completing a task with already-skipped next occurrences)
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
   // Skip-current-occurrence confirmation dialog state
@@ -835,7 +841,8 @@ export default function Calendar() {
 
   // Filtered task occurrences for calendar view (search)
   const filteredTaskOccurrences = useMemo((): TaskOccurrence[] => {
-    if (!searchQuery.trim()) return taskOccurrences;
+    // Only filter the calendar view when calendarFilterActive is explicitly enabled
+    if (!calendarFilterActive || !searchQuery.trim()) return taskOccurrences;
     const q = searchQuery.toLowerCase();
     return taskOccurrences.filter(occ => {
       const raw = occ.raw as any;
@@ -847,7 +854,7 @@ export default function Calendar() {
         (raw?.title || "").toLowerCase().includes(q)
       );
     });
-  }, [taskOccurrences, searchQuery]);
+  }, [taskOccurrences, searchQuery, calendarFilterActive]);
 
   // Filtered chronological tasks (search)
   const filteredChronologicalTasks = useMemo(() => {
@@ -862,6 +869,68 @@ export default function Calendar() {
       );
     });
   }, [chronologicalTasks, searchQuery]);
+
+  // Search results: only open (non-past, non-future, non-completed) occurrences
+  // OR completed tasks (only the last/most-recent occurrence per task)
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Filter matching occurrences
+    const matching = taskOccurrences.filter(occ => {
+      if (occ.isCalendarEvent) return false; // only tasks, no borrow events
+      const raw = occ.raw as any;
+      return (
+        (occ.taskName || "").toLowerCase().includes(q) ||
+        (raw?.description || "").toLowerCase().includes(q) ||
+        (occ.occurrenceNote || "").toLowerCase().includes(q) ||
+        (occ.specialName || "").toLowerCase().includes(q) ||
+        (raw?.title || "").toLowerCase().includes(q)
+      );
+    });
+
+    // Separate into open and completed
+    const openOccs = matching.filter(occ => {
+      const occDate = new Date(occ.date);
+      occDate.setHours(0, 0, 0, 0);
+      return (
+        !occ.isFutureOccurrence &&
+        !occ.isCompleted &&
+        !occ.isCompletedOccurrence &&
+        !occ.isSkipped &&
+        occDate >= today
+      );
+    });
+
+    // For completed tasks: only keep the most recent occurrence per task
+    const completedOccs = matching.filter(occ => occ.isCompleted || occ.isCompletedOccurrence);
+    const completedByTask = new Map<number, typeof completedOccs[0]>();
+    completedOccs.forEach(occ => {
+      const existing = completedByTask.get(occ.taskId);
+      if (!existing || new Date(occ.date) > new Date(existing.date)) {
+        completedByTask.set(occ.taskId, occ);
+      }
+    });
+
+    const results = [
+      ...openOccs,
+      ...Array.from(completedByTask.values()),
+    ];
+
+    // Sort: open first (by date asc), then completed (by date desc)
+    results.sort((a, b) => {
+      const aIsOpen = !a.isCompleted && !a.isCompletedOccurrence;
+      const bIsOpen = !b.isCompleted && !b.isCompletedOccurrence;
+      if (aIsOpen && !bIsOpen) return -1;
+      if (!aIsOpen && bIsOpen) return 1;
+      if (aIsOpen && bIsOpen) return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+
+    return results;
+  }, [taskOccurrences, searchQuery]);
 
   // Tasks without due dates - filtered and sorted
   const tasksWithoutDates = useMemo(() => {
@@ -1068,27 +1137,109 @@ export default function Calendar() {
         />
 
         {/* Search bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder={t("calendar:searchPlaceholder", "Termine oder Notizen suchen...")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-9"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              title={t("calendar:searchClear", "Suche löschen")}
-            >
-              <X className="h-4 w-4" />
-            </button>
+        <div className="mb-4 space-y-2">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t("calendar:searchPlaceholder", "Termine oder Notizen suchen...")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => { setSearchQuery(""); setCalendarFilterActive(false); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  title={t("calendar:searchClear", "Suche löschen")}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <Button
+                variant={calendarFilterActive ? "default" : "outline"}
+                size="sm"
+                className="shrink-0 gap-1.5"
+                onClick={() => setCalendarFilterActive(prev => !prev)}
+                title={calendarFilterActive
+                  ? t("calendar:searchFilterCalendarDeactivate", "Kalenderfilter deaktivieren")
+                  : t("calendar:searchFilterCalendarActivate", "Kalender filtern")
+                }
+              >
+                <Filter className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {calendarFilterActive
+                    ? t("calendar:searchFilterCalendarActive", "Kalender gefiltert")
+                    : t("calendar:searchFilterCalendar", "Kalender filtern")
+                  }
+                </span>
+              </Button>
+            )}
+          </div>
+
+          {/* Search results list */}
+          {searchQuery.trim() && (
+            <div className="border rounded-lg bg-background shadow-sm overflow-hidden">
+              {searchResults.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-muted-foreground">
+                  {t("calendar:searchNoResults", "Keine Ergebnisse für \"{{query}}\"", { query: searchQuery })}
+                </div>
+              ) : (
+                <div className="divide-y max-h-64 overflow-y-auto">
+                  {searchResults.map((occ, idx) => {
+                    const isCompleted = occ.isCompleted || occ.isCompletedOccurrence;
+                    return (
+                      <div key={`sr-${occ.taskId}-${idx}`} className="flex items-center gap-3 px-3 py-2 hover:bg-muted/50">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-sm font-medium truncate ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
+                              {occ.taskName}
+                            </span>
+                            {isCompleted && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs shrink-0">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                {t("tasks:status.completed", "Erledigt")}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {format(new Date(occ.date), "dd.MM.yyyy", { locale: dateFnsLocale })}
+                            {occ.occurrenceNote && (
+                              <span className="ml-2 text-blue-600">📝 {occ.occurrenceNote.slice(0, 40)}{occ.occurrenceNote.length > 40 ? "…" : ""}</span>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="shrink-0 h-7 px-2 text-xs"
+                          onClick={() => {
+                            if (taskCalendarRef.current) {
+                              setActiveTab("calendar");
+                              taskCalendarRef.current.jumpToOccurrence(new Date(occ.date), occ.taskId);
+                            } else {
+                              setActiveTab("calendar");
+                              setCurrentMonth(new Date(occ.date));
+                              setSelectedDate(new Date(occ.date));
+                            }
+                          }}
+                        >
+                          <ArrowRight className="h-3 w-3 mr-1" />
+                          {t("calendar:searchJump", "Springen")}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        <Tabs defaultValue="calendar" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "calendar" | "all")} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4" />

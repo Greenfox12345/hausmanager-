@@ -124,6 +124,11 @@
     "confirm": "Complete anyway"
   },
   "searchPlaceholder": "Search appointments or notes...",
-  "searchNoResults": "No results for \"{query}\"",
-  "searchClear": "Clear search"
+  "searchNoResults": "No results for \"{{query}}\"",
+  "searchClear": "Clear search",
+  "searchFilterCalendar": "Filter calendar",
+  "searchFilterCalendarActive": "Calendar filtered",
+  "searchFilterCalendarActivate": "Filter calendar by search",
+  "searchFilterCalendarDeactivate": "Deactivate calendar filter",
+  "searchJump": "Jump"
 }

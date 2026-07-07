@@ -168,6 +168,11 @@
     "confirm": "Completar de todos modos"
   },
   "searchPlaceholder": "Buscar citas o notas...",
-  "searchNoResults": "Sin resultados para \"{query}\"",
-  "searchClear": "Borrar búsqueda"
+  "searchNoResults": "Sin resultados para \"{{query}}\"",
+  "searchClear": "Borrar búsqueda",
+  "searchFilterCalendar": "Filtrar calendario",
+  "searchFilterCalendarActive": "Calendario filtrado",
+  "searchFilterCalendarActivate": "Filtrar calendario por búsqueda",
+  "searchFilterCalendarDeactivate": "Desactivar filtro del calendario",
+  "searchJump": "Saltar"
 }

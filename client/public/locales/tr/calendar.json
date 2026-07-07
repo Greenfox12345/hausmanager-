@@ -124,6 +124,11 @@
     "confirm": "Yine de tamamla"
   },
   "searchPlaceholder": "Randevu veya notları ara...",
-  "searchNoResults": "\"{query}\" için sonuç bulunamadı",
-  "searchClear": "Aramayı temizle"
+  "searchNoResults": "\"{{query}}\" için sonuç bulunamadı",
+  "searchClear": "Aramayı temizle",
+  "searchFilterCalendar": "Takvimi filtrele",
+  "searchFilterCalendarActive": "Takvim filtrelendi",
+  "searchFilterCalendarActivate": "Takvimi aramaya göre filtrele",
+  "searchFilterCalendarDeactivate": "Takvim filtresini kaldır",
+  "searchJump": "Atla"
 }
