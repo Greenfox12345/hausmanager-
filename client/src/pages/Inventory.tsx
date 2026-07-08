@@ -16,6 +16,7 @@ import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/components/QuantityInput";
+import { getCurrentLanguage } from "@/lib/i18n";
 import { ManageUnitsDialog } from "@/components/ManageUnitsDialog";
 
 // Helper function to normalize photoUrls to object format
@@ -90,7 +91,7 @@ export default function Inventory() {
   const [unitsSeedAttempted, setUnitsSeedAttempted] = useState(false);
   if (household && !unitsSeedAttempted && units.length === 0) {
     setUnitsSeedAttempted(true);
-    seedUnitsMutation.mutate({ householdId: household.householdId });
+    seedUnitsMutation.mutate({ householdId: household.householdId, language: getCurrentLanguage() });
   }
 
   const { data: items = [], isLoading } = trpc.inventory.list.useQuery(

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pencil, Trash2, Plus, Ruler } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { getCurrentLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import {
   Dialog,
@@ -81,7 +82,7 @@ export function ManageUnitsDialog({ householdId, trigger }: ManageUnitsDialogPro
     setOpen(isOpen);
     if (isOpen && units.length === 0) {
       // Auto-seed defaults if none exist yet
-      seedMutation.mutate({ householdId });
+      seedMutation.mutate({ householdId, language: getCurrentLanguage() });
     }
   };
 

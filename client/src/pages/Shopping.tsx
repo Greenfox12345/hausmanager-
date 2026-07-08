@@ -20,6 +20,7 @@ import { CompleteShoppingItemDialog } from "@/components/CompleteShoppingItemDia
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
+import { getCurrentLanguage } from "@/lib/i18n";
 import { DatePickerInput } from "@/components/DatePickerInput";
 
 // Helper function to normalize photoUrls to object format
@@ -140,7 +141,7 @@ export default function Shopping() {
   const [unitsSeedAttempted, setUnitsSeedAttempted] = useState(false);
   if (household && !unitsSeedAttempted && units.length === 0) {
     setUnitsSeedAttempted(true);
-    seedUnitsMutation.mutate({ householdId: household.householdId });
+    seedUnitsMutation.mutate({ householdId: household.householdId, language: getCurrentLanguage() });
   }
   
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();

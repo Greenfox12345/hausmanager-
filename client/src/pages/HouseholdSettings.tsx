@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { SUPPORTED_LANGUAGES, type SupportedLanguageCode } from "@/lib/i18n";
+import { SUPPORTED_LANGUAGES, type SupportedLanguageCode, getCurrentLanguage } from "@/lib/i18n";
 import { useLocation } from "wouter";
 
 // ─── Preset colors for categories ────────────────────────────────────────────
@@ -213,7 +213,7 @@ export default function HouseholdSettings() {
   const [unitsSeedAttempted, setUnitsSeedAttempted] = useState(false);
   if (householdId && !unitsLoading && !unitsSeedAttempted && units.length === 0) {
     setUnitsSeedAttempted(true);
-    seedUnitsMutation.mutate({ householdId });
+    seedUnitsMutation.mutate({ householdId, language: getCurrentLanguage() });
   }
 
   // ── Guard ──────────────────────────────────────────────────────────────────
