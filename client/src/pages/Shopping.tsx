@@ -939,6 +939,14 @@ export default function Shopping() {
                             </span>
                           );
                         })()}
+                        {item.quantity != null && (() => {
+                          const unit = units.find((u: UnitOption) => u.id === item.unitId);
+                          return (
+                            <span className="inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0 rounded bg-muted text-muted-foreground leading-5">
+                              {formatQuantityWithUnit(item.quantity, unit)}
+                            </span>
+                          );
+                        })()}
                         {item.categoryId != null && (
                           <span 
                             className="inline-block px-1.5 py-0 rounded-full text-xs font-medium border leading-5"
@@ -950,14 +958,6 @@ export default function Shopping() {
                         {item.details && (
                           <span className="text-xs text-muted-foreground">{item.details}</span>
                         )}
-                        {item.quantity != null && (() => {
-                          const unit = units.find((u: UnitOption) => u.id === item.unitId);
-                          return (
-                            <span className="inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0 rounded bg-muted text-muted-foreground leading-5">
-                              {formatQuantityWithUnit(item.quantity, unit)}
-                            </span>
-                          );
-                        })()}
                       </div>
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
                         const photos = normalizePhotoUrls(item.photoUrls);

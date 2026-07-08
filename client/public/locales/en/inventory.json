@@ -83,7 +83,12 @@
     "available": "Available",
     "allCategories": "All categories",
     "allOwners": "All owners",
-    "onlyHousehold": "Household only"
+    "onlyHousehold": "Household only",
+    "unit": "Unit",
+    "allUnits": "All units",
+    "noUnit": "No unit",
+    "hideImages": "Without images",
+    "showImages": "With images"
   },
   "messages": {
     "created": "Item created successfully.",

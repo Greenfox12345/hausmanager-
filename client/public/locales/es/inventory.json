@@ -131,7 +131,12 @@
     "borrowable": "Prestable",
     "allCategories": "Todas las categorías",
     "allOwners": "Todos los propietarios",
-    "onlyHousehold": "Solo hogar"
+    "onlyHousehold": "Solo hogar",
+    "unit": "Unidad",
+    "allUnits": "Todas las unidades",
+    "noUnit": "Sin unidad",
+    "hideImages": "Sin imágenes",
+    "showImages": "Con imágenes"
   },
   "addItem": "Agregar artículo",
   "loading": "Cargando inventario...",

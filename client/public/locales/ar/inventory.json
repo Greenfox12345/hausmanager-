@@ -83,7 +83,12 @@
     "available": "متاح",
     "allCategories": "جميع الفئات",
     "allOwners": "جميع المالكين",
-    "onlyHousehold": "المنزل فقط"
+    "onlyHousehold": "المنزل فقط",
+    "unit": "الوحدة",
+    "allUnits": "جميع الوحدات",
+    "noUnit": "بدون وحدة",
+    "hideImages": "بدون صور",
+    "showImages": "مع الصور"
   },
   "messages": {
     "created": "تمت إضافة العنصر",

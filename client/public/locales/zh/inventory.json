@@ -83,7 +83,12 @@
     "available": "可用",
     "allCategories": "所有类别",
     "allOwners": "所有拥有者",
-    "onlyHousehold": "仅限家庭"
+    "onlyHousehold": "仅限家庭",
+    "unit": "单位",
+    "allUnits": "所有单位",
+    "noUnit": "无单位",
+    "hideImages": "不显示图片",
+    "showImages": "显示图片"
   },
   "messages": {
     "created": "物品已添加",

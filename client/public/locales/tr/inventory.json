@@ -83,7 +83,12 @@
     "available": "Mevcut",
     "allCategories": "Tüm Kategoriler",
     "allOwners": "Tüm Sahipler",
-    "onlyHousehold": "Sadece Hane"
+    "onlyHousehold": "Sadece Hane",
+    "unit": "Birim",
+    "allUnits": "Tüm birimler",
+    "noUnit": "Birim yok",
+    "hideImages": "Görselsiz",
+    "showImages": "Görsellerle"
   },
   "messages": {
     "created": "Öğe eklendi",

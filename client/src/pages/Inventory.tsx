@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Filter, Edit2, FolderPlus, Package } from "lucide-react";
+import { Plus, Trash2, Filter, Edit2, FolderPlus, Package, Image, ImageOff, Minus } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
@@ -63,6 +63,15 @@ export default function Inventory() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [newItemQuantity, setNewItemQuantity] = useState<number | null>(null);
   const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
+
+  // View options
+  const [showImages, setShowImages] = useState(true);
+
+  // Unit filter
+  const [filterUnit, setFilterUnit] = useState<number | null>(null);
+
+  // Quick-edit quantity state: maps itemId → pending quantity
+  const [quickEditQty, setQuickEditQty] = useState<Record<number, number>>({});
 
   const utils = trpc.useUtils();
 
@@ -171,6 +180,15 @@ export default function Inventory() {
     },
     onError: () => {
       toast.error(t("inventory:messages.createError"));
+    },
+  });
+
+  const updateItemMutation = trpc.inventory.update.useMutation({
+    onSuccess: () => {
+      utils.inventory.list.invalidate();
+    },
+    onError: () => {
+      toast.error(t("inventory:messages.updateError"));
     },
   });
 
@@ -304,8 +322,37 @@ export default function Inventory() {
       if (item.ownershipType === 'household') return false;
       if (!item.owners.some((o: any) => o.memberId === filterOwner)) return false;
     }
+    if (filterUnit !== null) {
+      if (filterUnit === -1) {
+        // Only items without a unit
+        if (item.unitId != null) return false;
+      } else {
+        if (item.unitId !== filterUnit) return false;
+      }
+    }
     return true;
   });
+
+  /** Adaptive step size matching QuantityInput behavior */
+  function getStep(value: number): number {
+    if (value >= 1000) return 500;
+    if (value >= 100) return 50;
+    return 1;
+  }
+
+  /** Adjust quantity of an inventory item directly from the card */
+  const quickAdjustQty = (item: any, delta: number) => {
+    const currentQty = quickEditQty[item.id] ?? (item.quantity ?? 0);
+    const step = getStep(Math.abs(currentQty));
+    const newQty = Math.max(0, currentQty + delta * step);
+    setQuickEditQty((prev) => ({ ...prev, [item.id]: newQty }));
+    updateItemMutation.mutate({
+      itemId: item.id,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
+      quantity: newQty,
+    });
+  };
 
   const getCategoryStyle = (color: string) => {
     return {
@@ -334,10 +381,25 @@ export default function Inventory() {
         {/* Filter */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <Filter className="h-4 w-4 mr-2" />
-              {t('common:actions.filter')}
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center text-lg">
+                <Filter className="h-4 w-4 mr-2" />
+                {t('common:actions.filter')}
+              </CardTitle>
+              {/* View toggle: images on/off */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImages((v) => !v)}
+                title={showImages ? t('inventory:filter.hideImages', 'Bilder ausblenden') : t('inventory:filter.showImages', 'Bilder anzeigen')}
+                className="gap-1.5"
+              >
+                {showImages ? <ImageOff className="h-4 w-4" /> : <Image className="h-4 w-4" />}
+                <span className="hidden sm:inline">
+                  {showImages ? t('inventory:filter.hideImages', 'Ohne Bilder') : t('inventory:filter.showImages', 'Mit Bildern')}
+                </span>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -379,13 +441,44 @@ export default function Inventory() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-end gap-2">
-              {household && <ManageUnitsDialog householdId={household.householdId} />}
-              <Button variant="ghost" onClick={() => setShowCategoryDialog(true)} title={t('inventory:categories.manage', 'Kategorien verwalten')}>
-                <FolderPlus className="h-4 w-4" />
-              </Button>
+            <div>
+              <Label>{t('inventory:filter.unit', 'Einheit')}</Label>
+              <Select
+                value={filterUnit === null ? 'all' : filterUnit === -1 ? 'none' : filterUnit.toString()}
+                onValueChange={(value) => {
+                  if (value === 'all') setFilterUnit(null);
+                  else if (value === 'none') setFilterUnit(-1);
+                  else setFilterUnit(Number(value));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('inventory:filter.allUnits', 'Alle Einheiten')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('inventory:filter.allUnits', 'Alle Einheiten')}</SelectItem>
+                  <SelectItem value="none">{t('inventory:filter.noUnit', 'Ohne Einheit')}</SelectItem>
+                  {units.map((u) => (
+                    <SelectItem key={u.id} value={u.id.toString()}>
+                      {u.name}{u.symbol ? ` (${u.symbol})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
+          {/* Management buttons row */}
+          <div className="px-6 pb-4 flex items-center gap-2">
+            {household && <ManageUnitsDialog householdId={household.householdId} />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCategoryDialog(true)}
+              className="gap-1.5"
+            >
+              <FolderPlus className="h-4 w-4" />
+              {t('inventory:categories.manage', 'Kategorien verwalten')}
+            </Button>
+          </div>
         </Card>
 
         {/* Item List */}
@@ -397,76 +490,105 @@ export default function Inventory() {
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map((item) => (
-              <Card key={item.id}>
-                <CardHeader className="p-0 relative">
-                  {normalizePhotoUrls(item.photoUrls)[0] ? (
-                    <img
-                      src={normalizePhotoUrls(item.photoUrls)[0].url}
-                      alt={item.name}
-                      className="w-full h-40 object-cover rounded-t-lg cursor-pointer"
-                      onClick={() => setLocation(`/inventory/${item.id}`)}
-                    />
-                  ) : (
-                    <div className="w-full h-40 bg-muted rounded-t-lg flex items-center justify-center cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>
-                      <Package className="h-12 w-12 text-muted-foreground" />
+            {filteredItems.map((item) => {
+              const unit = units.find((u: UnitOption) => u.id === item.unitId);
+              const displayQty = quickEditQty[item.id] ?? item.quantity;
+              const hasPhoto = normalizePhotoUrls(item.photoUrls).length > 0;
+              return (
+                <Card key={item.id}>
+                  {/* Image area – only shown when showImages=true */}
+                  {showImages && (
+                    <CardHeader className="p-0 relative">
+                      {hasPhoto ? (
+                        <img
+                          src={normalizePhotoUrls(item.photoUrls)[0].url}
+                          alt={item.name}
+                          className="w-full h-40 object-cover rounded-t-lg cursor-pointer"
+                          onClick={() => setLocation(`/inventory/${item.id}`)}
+                        />
+                      ) : (
+                        <div className="w-full h-40 bg-muted rounded-t-lg flex items-center justify-center cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>
+                          <Package className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <Button variant="ghost" size="icon" className="bg-background/80 hover:bg-background" onClick={() => setLocation(`/inventory/${item.id}?edit=true`)}>
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="bg-background/80 hover:bg-background" onClick={() => handleDeleteItem(item.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                  )}
+                  <CardContent className="p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-bold truncate cursor-pointer flex-1" onClick={() => setLocation(`/inventory/${item.id}`)}>{item.name}</h3>
+                      {/* Edit/delete buttons when images are hidden */}
+                      {!showImages && (
+                        <div className="flex gap-1 shrink-0">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setLocation(`/inventory/${item.id}?edit=true`)}>
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDeleteItem(item.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-background/80 hover:bg-background"
-                      onClick={() => setLocation(`/inventory/${item.id}?edit=true`)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-background/80 hover:bg-background"
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 space-y-2">
-                  <h3 className="font-bold truncate cursor-pointer" onClick={() => setLocation(`/inventory/${item.id}`)}>{item.name}</h3>
-                  {item.categoryId && categories.find(c => c.id === item.categoryId) && (
-                    <span 
-                      className="text-xs font-semibold px-2 py-1 rounded-full border"
-                      style={getCategoryStyle(categories.find(c => c.id === item.categoryId)?.color || '#ccc')}
-                    >
-                      {categories.find(c => c.id === item.categoryId)?.name}
-                    </span>
-                  )}
-                  {item.ownershipType === 'household' ? (
-                    <p className="text-xs text-muted-foreground">{t('inventory:fields.ownershipHousehold', 'Eigentum: Haushalt')}</p>
-                  ) : (
-                    <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
-                  )}
-                  {item.quantity != null && (() => {
-                    const unit = units.find((u: UnitOption) => u.id === item.unitId);
-                    return (
-                      <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                        {formatQuantityWithUnit(item.quantity, unit)}
+                    {item.categoryId && categories.find(c => c.id === item.categoryId) && (
+                      <span
+                        className="text-xs font-semibold px-2 py-1 rounded-full border"
+                        style={getCategoryStyle(categories.find(c => c.id === item.categoryId)?.color || '#ccc')}
+                      >
+                        {categories.find(c => c.id === item.categoryId)?.name}
                       </span>
-                    );
-                  })()}
-                  <div className="flex gap-2 pt-2">
-                    <Button size="sm" onClick={() => setLocation(`/inventory/${item.id}`)}>
-                      {t('inventory:actions.borrow', 'Ausleihen')}
-                    </Button>
-                    {pendingCountMap.has(item.id) && (
-                      <Button size="sm" variant="outline" onClick={() => setLocation(`/inventory/${item.id}`)}>
-                        {pendingCountMap.get(item.id) || 0} {t('inventory:actions.requests', 'Anfragen')}
-                      </Button>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    {item.ownershipType === 'household' ? (
+                      <p className="text-xs text-muted-foreground">{t('inventory:fields.ownershipHousehold', 'Eigentum: Haushalt')}</p>
+                    ) : (
+                      <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
+                    )}
+                    {/* Quantity row with inline +/- */}
+                    {(displayQty != null || item.unitId != null) && (
+                      <div className="flex items-center gap-1 pt-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => quickAdjustQty(item, -1)}
+                          disabled={updateItemMutation.isPending || (displayQty ?? 0) <= 0}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground min-w-[3rem] justify-center">
+                          {formatQuantityWithUnit(displayQty, unit)}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => quickAdjustQty(item, 1)}
+                          disabled={updateItemMutation.isPending}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                    <div className="flex gap-2 pt-2">
+                      <Button size="sm" onClick={() => setLocation(`/inventory/${item.id}`)}>
+                        {t('inventory:actions.borrow', 'Ausleihen')}
+                      </Button>
+                      {pendingCountMap.has(item.id) && (
+                        <Button size="sm" variant="outline" onClick={() => setLocation(`/inventory/${item.id}`)}>
+                          {pendingCountMap.get(item.id) || 0} {t('inventory:actions.requests', 'Anfragen')}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

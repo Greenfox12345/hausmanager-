@@ -83,7 +83,12 @@
     "available": "Disponible",
     "allCategories": "Toutes les catégories",
     "allOwners": "Tous les propriétaires",
-    "onlyHousehold": "Seulement le foyer"
+    "onlyHousehold": "Seulement le foyer",
+    "unit": "Unité",
+    "allUnits": "Toutes les unités",
+    "noUnit": "Sans unité",
+    "hideImages": "Sans images",
+    "showImages": "Avec images"
   },
   "messages": {
     "created": "Article ajouté",
