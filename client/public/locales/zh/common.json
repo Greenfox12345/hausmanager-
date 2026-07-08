@@ -296,12 +296,8 @@
     "passwordTooShort": "密码必须至少 8 个字符",
     "passwordMismatch": "密码不匹配"
   },
-  "cancel": {
-    "label": "取消"
-  },
-  "add": {
-    "label": "添加"
-  },
+  "cancel": "取消",
+  "add": "添加",
   "toast": {
     "settingsSaved": "设置已保存",
     "permissionDenied": "未允许通知",

@@ -377,12 +377,8 @@
     "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
     "passwordMismatch": "Las contraseñas no coinciden"
   },
-  "cancel": {
-    "label": "Cancelar"
-  },
-  "add": {
-    "label": "Agregar"
-  },
+  "cancel": "Cancelar",
+  "add": "Agregar",
   "toast": {
     "settingsSaved": "Configuración guardada",
     "permissionDenied": "Las notificaciones no fueron permitidas",

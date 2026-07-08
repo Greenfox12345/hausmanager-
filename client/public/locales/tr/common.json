@@ -300,12 +300,8 @@
     "passwordTooShort": "Şifre en az 8 karakter uzunluğunda olmalıdır",
     "passwordMismatch": "Şifreler eşleşmiyor"
   },
-  "cancel": {
-    "label": "İptal Et"
-  },
-  "add": {
-    "label": "Ekle"
-  },
+  "cancel": "İptal Et",
+  "add": "Ekle",
   "toast": {
     "settingsSaved": "Ayarlar kaydedildi",
     "permissionDenied": "Bildirimlere izin verilmedi",

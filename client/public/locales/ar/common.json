@@ -300,12 +300,8 @@
     "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
     "passwordMismatch": "كلمات المرور غير متطابقة"
   },
-  "cancel": {
-    "label": "إلغاء"
-  },
-  "add": {
-    "label": "إضافة"
-  },
+  "cancel": "إلغاء",
+  "add": "إضافة",
   "toast": {
     "settingsSaved": "تم حفظ الإعدادات",
     "permissionDenied": "لم يتم السماح بالإشعارات",

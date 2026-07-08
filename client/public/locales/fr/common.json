@@ -300,12 +300,8 @@
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
     "passwordMismatch": "Les mots de passe ne correspondent pas"
   },
-  "cancel": {
-    "label": "Annuler"
-  },
-  "add": {
-    "label": "Ajouter"
-  },
+  "cancel": "Annuler",
+  "add": "Ajouter",
   "toast": {
     "settingsSaved": "Paramètres enregistrés",
     "permissionDenied": "Les notifications n'ont pas été autorisées",

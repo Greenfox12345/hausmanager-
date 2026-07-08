@@ -296,12 +296,8 @@
     "passwordTooShort": "Password must be at least 8 characters long",
     "passwordMismatch": "Passwords do not match"
   },
-  "cancel": {
-    "label": "Cancel"
-  },
-  "add": {
-    "label": "Add"
-  },
+  "cancel": "Cancel",
+  "add": "Add",
   "toast": {
     "settingsSaved": "Settings saved",
     "permissionDenied": "Notifications were not allowed",
