@@ -126,7 +126,8 @@
     "rejectError": "خطأ في رفض الطلب",
     "revokeError": "خطأ في إلغاء الموافقة",
     "categoryCreateError": "خطأ في إنشاء الفئة",
-    "borrowError": "خطأ في الاستعارة"
+    "borrowError": "خطأ في الاستعارة",
+    "itemCount": "عناصر"
   },
   "labels": {
     "item": "عنصر"
@@ -143,7 +144,8 @@
   "externalRequest": "طلب من منزل خارجي",
   "actions": {
     "borrow": "استعارة",
-    "requests": "الطلبات"
+    "requests": "الطلبات",
+    "editQuantity": "تعديل الكمية مباشرة"
   },
   "description": "إدارة مخزون منزلك"
 }

@@ -126,7 +126,8 @@
     "rejectError": "İstek reddedilirken hata oluştu",
     "revokeError": "Onay iptal edilirken hata oluştu",
     "categoryCreateError": "Kategori oluşturma hatası",
-    "borrowError": "Ödünç alma hatası"
+    "borrowError": "Ödünç alma hatası",
+    "itemCount": "öğe"
   },
   "labels": {
     "item": "Öğe"
@@ -143,7 +144,8 @@
   "externalRequest": "Harici hane talebi",
   "actions": {
     "borrow": "Ödünç Al",
-    "requests": "Talepler"
+    "requests": "Talepler",
+    "editQuantity": "Miktarı doğrudan düzenle"
   },
   "description": "Ev envanterini yönetin"
 }

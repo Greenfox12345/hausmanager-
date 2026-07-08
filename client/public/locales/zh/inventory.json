@@ -126,7 +126,8 @@
     "rejectError": "拒绝请求出错",
     "revokeError": "撤销批准出错",
     "categoryCreateError": "创建分类失败",
-    "borrowError": "借用失败"
+    "borrowError": "借用失败",
+    "itemCount": "件"
   },
   "labels": {
     "item": "物品"
@@ -143,7 +144,8 @@
   "externalRequest": "来自外部家庭的请求",
   "actions": {
     "borrow": "借出",
-    "requests": "请求"
+    "requests": "请求",
+    "editQuantity": "直接编辑数量"
   },
   "description": "管理你的家庭库存"
 }

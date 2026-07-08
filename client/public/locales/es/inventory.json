@@ -74,7 +74,8 @@
     "return": "Devolver",
     "approve": "Aprobar",
     "reject": "Rechazar",
-    "requests": "Solicitudes"
+    "requests": "Solicitudes",
+    "editQuantity": "Editar cantidad directamente"
   },
   "messages": {
     "deleteConfirm": "¿Realmente quieres eliminar este objeto?",
@@ -119,7 +120,8 @@
     "rejectError": "Error al rechazar la solicitud",
     "revokeError": "Error al revocar la aprobación",
     "categoryCreateError": "Error al crear la categoría",
-    "borrowError": "Error al tomar prestado"
+    "borrowError": "Error al tomar prestado",
+    "itemCount": "artículos"
   },
   "filter": {
     "all": "Todo",

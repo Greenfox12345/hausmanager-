@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Filter, Edit2, FolderPlus, Package, Image, ImageOff, Minus } from "lucide-react";
+import { Plus, Trash2, Filter, Edit2, FolderPlus, Package, Image, ImageOff, Minus, ChevronDown, ChevronUp } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { compressImage } from "@/lib/imageCompression";
@@ -72,6 +72,12 @@ export default function Inventory() {
 
   // Quick-edit quantity state: maps itemId → pending quantity
   const [quickEditQty, setQuickEditQty] = useState<Record<number, number>>({});
+
+  // Inline direct-input state: itemId → raw string being typed
+  const [inlineEditQty, setInlineEditQty] = useState<Record<number, string | null>>({});
+
+  // Filter panel open/closed
+  const [showFilter, setShowFilter] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -342,9 +348,30 @@ export default function Inventory() {
 
   /** Adjust quantity of an inventory item directly from the card */
   const quickAdjustQty = (item: any, delta: number) => {
-    const currentQty = quickEditQty[item.id] ?? (item.quantity ?? 0);
-    const step = getStep(Math.abs(currentQty));
-    const newQty = Math.max(0, currentQty + delta * step);
+    // Commit any pending inline edit first
+    const pendingStr = inlineEditQty[item.id];
+    const base = pendingStr != null
+      ? (parseFloat(pendingStr) || 0)
+      : (quickEditQty[item.id] ?? (item.quantity ?? 0));
+    setInlineEditQty((prev) => { const n = { ...prev }; delete n[item.id]; return n; });
+    const step = getStep(Math.abs(base));
+    const newQty = Math.max(0, base + delta * step);
+    setQuickEditQty((prev) => ({ ...prev, [item.id]: newQty }));
+    updateItemMutation.mutate({
+      itemId: item.id,
+      householdId: household!.householdId,
+      memberId: member!.memberId,
+      quantity: newQty,
+    });
+  };
+
+  /** Commit the inline text input for a quantity */
+  const commitInlineQty = (item: any) => {
+    const raw = inlineEditQty[item.id];
+    if (raw == null) return;
+    const parsed = parseFloat(raw);
+    const newQty = isNaN(parsed) ? (item.quantity ?? 0) : Math.max(0, parsed);
+    setInlineEditQty((prev) => { const n = { ...prev }; delete n[item.id]; return n; });
     setQuickEditQty((prev) => ({ ...prev, [item.id]: newQty }));
     updateItemMutation.mutate({
       itemId: item.id,
@@ -378,108 +405,133 @@ export default function Inventory() {
           </Button>
         </div>
 
-        {/* Filter */}
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center text-lg">
-                <Filter className="h-4 w-4 mr-2" />
-                {t('common:actions.filter')}
-              </CardTitle>
-              {/* View toggle: images on/off */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowImages((v) => !v)}
-                title={showImages ? t('inventory:filter.hideImages', 'Bilder ausblenden') : t('inventory:filter.showImages', 'Bilder anzeigen')}
-                className="gap-1.5"
-              >
-                {showImages ? <ImageOff className="h-4 w-4" /> : <Image className="h-4 w-4" />}
-                <span className="hidden sm:inline">
-                  {showImages ? t('inventory:filter.hideImages', 'Ohne Bilder') : t('inventory:filter.showImages', 'Mit Bildern')}
+        {/* Filter + Management – collapsible */}
+        <Card className="mb-4">
+          {/* Clickable header to toggle */}
+          <button
+            type="button"
+            className="w-full flex items-center justify-between px-6 py-4 text-left"
+            onClick={() => setShowFilter((v) => !v)}
+          >
+            <span className="flex items-center gap-2 font-semibold text-base">
+              <Filter className="h-4 w-4" />
+              {t('common:actions.filter')}
+              {(filterCategory || filterOwner || filterUnit !== null) && (
+                <span className="ml-1 text-xs font-medium px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground">
+                  {[filterCategory, filterOwner, filterUnit !== null ? 1 : null].filter(Boolean).length}
                 </span>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <Label>{t('inventory:fields.category')}</Label>
-              <Select
-                value={filterCategory?.toString() || 'all'}
-                onValueChange={(value) => setFilterCategory(value === 'all' ? null : Number(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('inventory:filter.allCategories', 'Alle Kategorien')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('inventory:filter.allCategories', 'Alle Kategorien')}</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id.toString()}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t('inventory:fields.owner')}</Label>
-              <Select
-                value={filterOwner?.toString() || 'all'}
-                onValueChange={(value) => setFilterOwner(value === 'all' ? null : value === 'household' ? 0 : Number(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('inventory:filter.allOwners', 'Alle Eigentümer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('inventory:filter.allOwners', 'Alle Eigentümer')}</SelectItem>
-                  <SelectItem value="household">{t('inventory:filter.onlyHousehold', 'Nur Haushalt')}</SelectItem>
-                  {members.map((m) => (
-                    <SelectItem key={m.id} value={m.id.toString()}>
-                      {m.memberName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t('inventory:filter.unit', 'Einheit')}</Label>
-              <Select
-                value={filterUnit === null ? 'all' : filterUnit === -1 ? 'none' : filterUnit.toString()}
-                onValueChange={(value) => {
-                  if (value === 'all') setFilterUnit(null);
-                  else if (value === 'none') setFilterUnit(-1);
-                  else setFilterUnit(Number(value));
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('inventory:filter.allUnits', 'Alle Einheiten')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('inventory:filter.allUnits', 'Alle Einheiten')}</SelectItem>
-                  <SelectItem value="none">{t('inventory:filter.noUnit', 'Ohne Einheit')}</SelectItem>
-                  {units.map((u) => (
-                    <SelectItem key={u.id} value={u.id.toString()}>
-                      {u.name}{u.symbol ? ` (${u.symbol})` : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-          {/* Management buttons row */}
-          <div className="px-6 pb-4 flex items-center gap-2">
-            {household && <ManageUnitsDialog householdId={household.householdId} />}
+              )}
+            </span>
+            {showFilter ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          </button>
+
+          {showFilter && (
+            <>
+              <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-0">
+                <div>
+                  <Label>{t('inventory:fields.category')}</Label>
+                  <Select
+                    value={filterCategory?.toString() || 'all'}
+                    onValueChange={(value) => setFilterCategory(value === 'all' ? null : Number(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('inventory:filter.allCategories', 'Alle Kategorien')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('inventory:filter.allCategories', 'Alle Kategorien')}</SelectItem>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t('inventory:fields.owner')}</Label>
+                  <Select
+                    value={filterOwner?.toString() || 'all'}
+                    onValueChange={(value) => setFilterOwner(value === 'all' ? null : value === 'household' ? 0 : Number(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('inventory:filter.allOwners', 'Alle Eigentümer')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('inventory:filter.allOwners', 'Alle Eigentümer')}</SelectItem>
+                      <SelectItem value="household">{t('inventory:filter.onlyHousehold', 'Nur Haushalt')}</SelectItem>
+                      {members.map((m) => (
+                        <SelectItem key={m.id} value={m.id.toString()}>
+                          {m.memberName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t('inventory:filter.unit', 'Einheit')}</Label>
+                  <Select
+                    value={filterUnit === null ? 'all' : filterUnit === -1 ? 'none' : filterUnit.toString()}
+                    onValueChange={(value) => {
+                      if (value === 'all') setFilterUnit(null);
+                      else if (value === 'none') setFilterUnit(-1);
+                      else setFilterUnit(Number(value));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('inventory:filter.allUnits', 'Alle Einheiten')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('inventory:filter.allUnits', 'Alle Einheiten')}</SelectItem>
+                      <SelectItem value="none">{t('inventory:filter.noUnit', 'Ohne Einheit')}</SelectItem>
+                      {units.map((u) => (
+                        <SelectItem key={u.id} value={u.id.toString()}>
+                          {u.name}{u.symbol ? ` (${u.symbol})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+              {/* Management buttons – stacked */}
+              <div className="px-6 pb-4 flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCategoryDialog(true)}
+                  className="gap-1.5 w-full sm:w-auto"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  {t('inventory:categories.manage', 'Kategorien verwalten')}
+                </Button>
+                {household && (
+                  <div className="w-full sm:w-auto">
+                    <ManageUnitsDialog householdId={household.householdId} />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </Card>
+
+        {/* Toolbar above item list: count + image toggle */}
+        {!isLoading && filteredItems.length > 0 && (
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-muted-foreground">
+              {filteredItems.length} {t('inventory:messages.itemCount', 'Artikel')}
+            </span>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowCategoryDialog(true)}
+              onClick={() => setShowImages((v) => !v)}
               className="gap-1.5"
             >
-              <FolderPlus className="h-4 w-4" />
-              {t('inventory:categories.manage', 'Kategorien verwalten')}
+              {showImages ? <ImageOff className="h-4 w-4" /> : <Image className="h-4 w-4" />}
+              <span className="hidden sm:inline">
+                {showImages ? t('inventory:filter.hideImages', 'Ohne Bilder') : t('inventory:filter.showImages', 'Mit Bildern')}
+              </span>
             </Button>
           </div>
-        </Card>
+        )}
 
         {/* Item List */}
         {isLoading ? (
@@ -549,7 +601,7 @@ export default function Inventory() {
                     ) : (
                       <p className="text-xs font-semibold">{t('inventory:fields.owners', 'Eigentümer:')} <span className="font-normal">{item.owners.map((o: any) => o.memberName).join(', ')}</span></p>
                     )}
-                    {/* Quantity row with inline +/- */}
+                    {/* Quantity row with inline +/- and click-to-edit */}
                     {(displayQty != null || item.unitId != null) && (
                       <div className="flex items-center gap-1 pt-1">
                         <Button
@@ -561,9 +613,33 @@ export default function Inventory() {
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground min-w-[3rem] justify-center">
-                          {formatQuantityWithUnit(displayQty, unit)}
-                        </span>
+                        {/* Click on the badge to switch to text input */}
+                        {inlineEditQty[item.id] != null ? (
+                          <input
+                            type="number"
+                            autoFocus
+                            className="w-16 h-6 text-xs text-center rounded border border-input bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
+                            value={inlineEditQty[item.id] ?? ''}
+                            onChange={(e) => setInlineEditQty((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                            onBlur={() => commitInlineQty(item)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') commitInlineQty(item);
+                              if (e.key === 'Escape') setInlineEditQty((prev) => { const n = { ...prev }; delete n[item.id]; return n; });
+                            }}
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground min-w-[3rem] justify-center cursor-text hover:bg-muted/80"
+                            title={t('inventory:actions.editQuantity', 'Menge direkt eingeben')}
+                            onClick={() => setInlineEditQty((prev) => ({
+                              ...prev,
+                              [item.id]: String(displayQty ?? ''),
+                            }))}
+                          >
+                            {formatQuantityWithUnit(displayQty, unit)}
+                          </button>
+                        )}
                         <Button
                           variant="outline"
                           size="icon"

@@ -126,7 +126,8 @@
     "rejectError": "Erreur lors du refus de la demande",
     "revokeError": "Erreur lors de la révocation de l'approbation",
     "categoryCreateError": "Erreur lors de la création de la catégorie",
-    "borrowError": "Erreur lors de l'emprunt"
+    "borrowError": "Erreur lors de l'emprunt",
+    "itemCount": "articles"
   },
   "labels": {
     "item": "Article"
@@ -143,7 +144,8 @@
   "externalRequest": "Demande d'un foyer externe",
   "actions": {
     "borrow": "Emprunter",
-    "requests": "Demandes"
+    "requests": "Demandes",
+    "editQuantity": "Modifier la quantité directement"
   },
   "description": "Gérez l'inventaire de votre foyer"
 }

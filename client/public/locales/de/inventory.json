@@ -126,7 +126,8 @@
     "rejectError": "Fehler beim Ablehnen der Anfrage",
     "revokeError": "Fehler beim Widerrufen der Genehmigung",
     "categoryCreateError": "Fehler beim Erstellen der Kategorie",
-    "borrowError": "Fehler beim Ausleihen"
+    "borrowError": "Fehler beim Ausleihen",
+    "itemCount": "Artikel"
   },
   "labels": {
     "item": "Gegenstand"
@@ -143,7 +144,8 @@
   "externalRequest": "Anfrage von externem Haushalt",
   "actions": {
     "borrow": "Ausleihen",
-    "requests": "Anfragen"
+    "requests": "Anfragen",
+    "editQuantity": "Menge direkt eingeben"
   },
   "description": "Verwalte dein Haushaltsinventar"
 }

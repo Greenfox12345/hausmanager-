@@ -126,7 +126,8 @@
     "rejectError": "Error rejecting request",
     "revokeError": "Error revoking approval",
     "categoryCreateError": "Error creating category",
-    "borrowError": "Error borrowing item"
+    "borrowError": "Error borrowing item",
+    "itemCount": "items"
   },
   "labels": {
     "item": "Item"
@@ -143,7 +144,8 @@
   "externalRequest": "Request from external household",
   "actions": {
     "borrow": "Borrow",
-    "requests": "Requests"
+    "requests": "Requests",
+    "editQuantity": "Edit quantity directly"
   },
   "description": "Manage your household inventory"
 }
