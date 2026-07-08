@@ -89,7 +89,9 @@
     "conflict": "تم استعارة {{count}} بالفعل ({{period}})",
     "conflictBy": "بواسطة {{name}}",
     "unavailable": "غير متاح",
-    "partiallyAvailable": "{{count}} متاح"
+    "partiallyAvailable": "{{count}} متاح",
+    "ofAvailable": "{{available}} من {{total}} متاح",
+    "totalStock": "{{total}} في المخزون"
   },
   "partiallyAvailable": "متاح جزئياً",
   "available": "متاح"

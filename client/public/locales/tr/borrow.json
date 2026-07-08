@@ -89,7 +89,9 @@
     "conflict": "{{count}} zaten ödünç alındı ({{period}})",
     "conflictBy": "{{name}} tarafından",
     "unavailable": "Mevcut değil",
-    "partiallyAvailable": "{{count}} mevcut"
+    "partiallyAvailable": "{{count}} mevcut",
+    "ofAvailable": "{{total}} adet içinden {{available}} mevcut",
+    "totalStock": "{{total}} stokta"
   },
   "partiallyAvailable": "Kısmen mevcut",
   "available": "Mevcut"

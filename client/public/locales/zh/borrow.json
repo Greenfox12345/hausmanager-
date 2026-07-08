@@ -89,7 +89,9 @@
     "conflict": "已借出 {{count}}（{{period}}）",
     "conflictBy": "由 {{name}}",
     "unavailable": "不可用",
-    "partiallyAvailable": "{{count}} 可用"
+    "partiallyAvailable": "{{count}} 可用",
+    "ofAvailable": "{{total}} 件中 {{available}} 件可用",
+    "totalStock": "库存 {{total}} 件"
   },
   "partiallyAvailable": "部分可用",
   "available": "可用"

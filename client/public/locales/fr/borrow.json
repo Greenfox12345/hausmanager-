@@ -89,7 +89,9 @@
     "conflict": "{{count}} déjà emprunté ({{period}})",
     "conflictBy": "par {{name}}",
     "unavailable": "Indisponible",
-    "partiallyAvailable": "{{count}} disponible"
+    "partiallyAvailable": "{{count}} disponible",
+    "ofAvailable": "{{available}} sur {{total}} disponibles",
+    "totalStock": "{{total}} en stock"
   },
   "partiallyAvailable": "Partiellement disponible",
   "available": "Disponible"

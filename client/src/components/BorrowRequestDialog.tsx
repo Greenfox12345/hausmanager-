@@ -59,7 +59,7 @@ export function BorrowRequestDialog({
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");
-  const [loanQuantity, setLoanQuantity] = useState<number | null>(null);
+  const [loanQuantity, setLoanQuantity] = useState<number>(1);
 
   // Pre-fill form when dialog opens
   useEffect(() => {
@@ -120,15 +120,19 @@ export function BorrowRequestDialog({
   // Derive available quantity and set default loanQuantity
   const availableQty = availability?.availableQuantity ?? null;
   const totalQty = availability?.totalQuantity ?? null;
-  const hasQuantity = totalQty !== null && totalQty > 0;
 
   useEffect(() => {
-    if (open && hasQuantity && availableQty !== null) {
-      setLoanQuantity(Math.max(1, availableQty));
-    } else if (open && !hasQuantity) {
-      setLoanQuantity(null);
+    if (open) {
+      // Pre-fill with available qty if known, otherwise default to 1
+      if (availableQty !== null) {
+        setLoanQuantity(Math.max(1, availableQty));
+      } else if (totalQty !== null) {
+        setLoanQuantity(Math.max(1, totalQty));
+      } else {
+        setLoanQuantity(1);
+      }
     }
-  }, [open, hasQuantity, availableQty]);
+  }, [open, availableQty, totalQty]);
 
   // Get unit symbol for the item
   const itemUnit = useMemo(() => {
@@ -143,17 +147,17 @@ export function BorrowRequestDialog({
       startDate,
       endDate,
       message: message.trim() || undefined,
-      loanQuantity: hasQuantity && loanQuantity !== null ? loanQuantity : undefined,
+      loanQuantity: loanQuantity > 0 ? loanQuantity : undefined,
     });
 
     setStartDate(undefined);
     setEndDate(undefined);
     setMessage("");
-    setLoanQuantity(null);
+    setLoanQuantity(1);
   };
 
   const isValid = startDate && endDate && startDate <= endDate &&
-    (!hasQuantity || (loanQuantity !== null && loanQuantity >= 1 && (availableQty === null || loanQuantity <= availableQty)));
+    (loanQuantity >= 1) && (availableQty === null || loanQuantity <= availableQty);
 
   // Availability badge
   const renderAvailabilityBadge = () => {
@@ -367,48 +371,54 @@ export function BorrowRequestDialog({
             </div>
           )}
 
-          {/* Quantity selector – only shown when item has a quantity */}
-          {hasQuantity && (
-            <div className="space-y-2">
-              <Label>{t("borrow:quantity.label")}</Label>
-              <QuantityInput
-                value={loanQuantity}
-                onChange={setLoanQuantity}
-                units={units ?? []}
-                unitId={null}
-                onUnitChange={() => {}}
-                showUnitSelector={false}
-                max={availableQty ?? undefined}
-              />
-              {/* Conflict info */}
-              {availability && availability.conflictingBorrows.length > 0 && (
-                <div className="space-y-1 pt-1">
-                  {availability.conflictingBorrows.map((conflict) => (
-                    <div key={conflict.id} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded p-2">
-                      <Info className="h-3 w-3 mt-0.5 shrink-0 text-yellow-600" />
-                      <span>
-                        {t("borrow:quantity.conflict", {
-                          count: conflict.remainingQuantity,
-                          start: format(new Date(conflict.startDate), "dd.MM.yy", { locale: dateFnsLocale }),
-                          end: format(new Date(conflict.endDate), "dd.MM.yy", { locale: dateFnsLocale }),
-                        })}
-                        {conflict.borrowerName && (
-                          <span className="ml-1 font-medium">
-                            {t("borrow:quantity.conflictBy", { name: conflict.borrowerName })}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {availableQty !== null && loanQuantity !== null && loanQuantity > availableQty && (
-                <div className="text-xs text-destructive">
-                  {t("borrow:quantity.exceedsAvailable", { max: availableQty })}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Quantity selector – always shown */}
+          <div className="space-y-2">
+            <Label>{t("borrow:quantity.label")}</Label>
+            <QuantityInput
+              value={loanQuantity}
+              onChange={(v) => setLoanQuantity(v ?? 1)}
+              units={units ?? []}
+              unitId={null}
+              onUnitChange={() => {}}
+              showUnitSelector={false}
+              max={availableQty ?? undefined}
+            />
+            {/* Availability hint */}
+            {totalQty !== null && (
+              <p className="text-xs text-muted-foreground">
+                {availableQty !== null
+                  ? t("borrow:quantity.ofAvailable", { available: availableQty, total: totalQty })
+                  : t("borrow:quantity.totalStock", { total: totalQty })}
+              </p>
+            )}
+            {/* Conflict info */}
+            {availability && availability.conflictingBorrows.length > 0 && (
+              <div className="space-y-1 pt-1">
+                {availability.conflictingBorrows.map((conflict) => (
+                  <div key={conflict.id} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                    <Info className="h-3 w-3 mt-0.5 shrink-0 text-yellow-600" />
+                    <span>
+                      {t("borrow:quantity.conflict", {
+                        count: conflict.remainingQuantity,
+                        start: format(new Date(conflict.startDate), "dd.MM.yy", { locale: dateFnsLocale }),
+                        end: format(new Date(conflict.endDate), "dd.MM.yy", { locale: dateFnsLocale }),
+                      })}
+                      {conflict.borrowerName && (
+                        <span className="ml-1 font-medium">
+                          {t("borrow:quantity.conflictBy", { name: conflict.borrowerName })}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {availableQty !== null && loanQuantity > availableQty && (
+              <div className="text-xs text-destructive">
+                {t("borrow:quantity.exceedsAvailable", { max: availableQty })}
+              </div>
+            )}
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="message">{t("borrow:requestDialog.message")}</Label>

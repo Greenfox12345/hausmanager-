@@ -122,7 +122,9 @@
     "conflict": "{{count}} ya prestado ({{period}})",
     "conflictBy": "por {{name}}",
     "unavailable": "No disponible",
-    "partiallyAvailable": "{{count}} disponible"
+    "partiallyAvailable": "{{count}} disponible",
+    "ofAvailable": "{{available}} de {{total}} disponibles",
+    "totalStock": "{{total}} en stock"
   },
   "partiallyAvailable": "Parcialmente disponible",
   "available": "Disponible"
