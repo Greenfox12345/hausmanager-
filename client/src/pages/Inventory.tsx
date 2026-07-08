@@ -492,21 +492,19 @@ export default function Inventory() {
                   </Select>
                 </div>
               </CardContent>
-              {/* Management buttons – stacked */}
-              <div className="px-6 pb-4 flex flex-col gap-2">
+              {/* Management buttons – stacked, both left-aligned, auto-width */}
+              <div className="px-6 pb-4 flex flex-col items-start gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowCategoryDialog(true)}
-                  className="gap-1.5 w-full sm:w-auto"
+                  className="gap-1.5"
                 >
                   <FolderPlus className="h-4 w-4" />
                   {t('inventory:categories.manage', 'Kategorien verwalten')}
                 </Button>
                 {household && (
-                  <div className="w-full sm:w-auto">
-                    <ManageUnitsDialog householdId={household.householdId} />
-                  </div>
+                  <ManageUnitsDialog householdId={household.householdId} />
                 )}
               </div>
             </>
