@@ -135,30 +135,35 @@ export function ManageUnitsDialog({ householdId, trigger }: ManageUnitsDialogPro
                 <p className="text-sm text-muted-foreground">{t("units:empty", "Keine Einheiten vorhanden")}</p>
               ) : (
                 units.map((unit) => (
-                  <div key={unit.id} className="flex items-center gap-2">
+                  <div key={unit.id} className="rounded-md">
                     {editingId === unit.id ? (
-                      <>
-                        <Input
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          placeholder={t("units:name", "Name")}
-                          className="flex-1 h-8 text-sm"
-                          onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
-                        />
-                        <Input
-                          value={editSymbol}
-                          onChange={(e) => setEditSymbol(e.target.value)}
-                          placeholder={t("units:symbol", "Kürzel")}
-                          className="w-20 h-8 text-sm"
-                          onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
-                        />
-                        <Button size="sm" className="h-8 px-2" onClick={handleUpdate} disabled={updateMutation.isPending}>
-                          {t("common:save", "Speichern")}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => setEditingId(null)}>
-                          {t("common:cancel", "Abbrechen")}
-                        </Button>
-                      </>
+                      <div className="space-y-2 py-1">
+                        <div className="flex gap-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder={t("units:name", "Name")}
+                            className="flex-1"
+                            autoFocus
+                            onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
+                          />
+                          <Input
+                            value={editSymbol}
+                            onChange={(e) => setEditSymbol(e.target.value)}
+                            placeholder={t("units:symbol", "Kürzel")}
+                            className="w-24"
+                            onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" className="gap-1" onClick={handleUpdate} disabled={updateMutation.isPending}>
+                            {t("common:save", "Speichern")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                            {t("common:cancel", "Abbrechen")}
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <span className="flex-1 text-sm font-medium">{unit.name}</span>
@@ -198,26 +203,26 @@ export function ManageUnitsDialog({ householdId, trigger }: ManageUnitsDialogPro
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder={t("units:namePlaceholder", "z. B. Liter")}
-                  className="flex-1 h-9"
+                  className="flex-1"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
                 <Input
                   value={newSymbol}
                   onChange={(e) => setNewSymbol(e.target.value)}
                   placeholder={t("units:symbolPlaceholder", "z. B. l")}
-                  className="w-20 h-9"
+                  className="w-24"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
-                <Button
-                  size="sm"
-                  className="h-9 gap-1"
-                  onClick={handleAdd}
-                  disabled={!newName.trim() || addMutation.isPending}
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("common:add", "Hinzufügen")}
-                </Button>
               </div>
+              <Button
+                size="sm"
+                className="gap-1"
+                onClick={handleAdd}
+                disabled={!newName.trim() || addMutation.isPending}
+              >
+                <Plus className="h-4 w-4" />
+                {t("common:add", "Hinzufügen")}
+              </Button>
             </div>
           </div>
         </DialogContent>
