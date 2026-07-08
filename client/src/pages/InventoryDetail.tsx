@@ -187,7 +187,7 @@ export default function InventoryDetail() {
     },
   });
 
-  const handleBorrowRequest = (data: { startDate: Date; endDate: Date; message?: string }) => {
+  const handleBorrowRequest = (data: { startDate: Date; endDate: Date; message?: string; loanQuantity?: number }) => {
     if (!household || !member) return;
     borrowRequestMutation.mutate({
       inventoryItemId: itemId,
@@ -196,6 +196,7 @@ export default function InventoryDetail() {
       startDate: toLocalDateString(data.startDate),
       endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
+      loanQuantity: data.loanQuantity,
     });
   };
 

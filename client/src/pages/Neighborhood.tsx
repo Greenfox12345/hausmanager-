@@ -154,7 +154,7 @@ export default function Neighborhood() {
     }
   };
 
-  const handleBorrowRequest = (data: { startDate: Date; endDate: Date; message?: string }) => {
+  const handleBorrowRequest = (data: { startDate: Date; endDate: Date; message?: string; loanQuantity?: number }) => {
     if (!household || !member || !selectedItemForBorrow) return;
     borrowRequestMutation.mutate({
       inventoryItemId: selectedItemForBorrow.id,
@@ -163,6 +163,7 @@ export default function Neighborhood() {
       startDate: toLocalDateString(data.startDate),
       endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
+      loanQuantity: data.loanQuantity,
     });
   };
 

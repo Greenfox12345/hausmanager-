@@ -229,7 +229,7 @@ export default function Borrows() {
     setBorrowDialogOpen(true);
   };
 
-  const handleBorrowSubmit = (data: { startDate: Date; endDate: Date; message?: string }) => {
+  const handleBorrowSubmit = (data: { startDate: Date; endDate: Date; message?: string; loanQuantity?: number }) => {
     if (!selectedItem || !member || !household) return;
     createBorrowMutation.mutate({
       inventoryItemId: selectedItem.id,
@@ -238,6 +238,7 @@ export default function Borrows() {
       startDate: toLocalDateString(data.startDate),
       endDate: toLocalDateString(data.endDate),
       requestMessage: data.message,
+      loanQuantity: data.loanQuantity,
     });
   };
 

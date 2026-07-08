@@ -439,6 +439,7 @@ export function RequiredItemsSection({
               taskId,
               taskName,
               occurrenceNumber: selectedItem.occurrenceNumber,
+              loanQuantity: data.loanQuantity,
             });
             
             // Update item with borrow request ID, borrow status, and dates
