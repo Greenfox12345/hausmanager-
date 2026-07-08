@@ -200,5 +200,13 @@
   "selectHouseholds": "Seleccionar hogares:",
   "noConnectedHouseholds": "No hay hogares vinculados. Primero conecte hogares en \"Hogar\".",
   "externalRequest": "Solicitud de hogar externo",
-  "description": "Gestiona el inventario de tu hogar"
+  "description": "Gestiona el inventario de tu hogar",
+  "availability": {
+    "borrowed": "prestado",
+    "reserved": "reservado",
+    "available": "disponible"
+  },
+  "quantity": {
+    "units": "uds."
+  }
 }

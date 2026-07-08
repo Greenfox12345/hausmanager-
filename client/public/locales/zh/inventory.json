@@ -147,5 +147,13 @@
     "requests": "请求",
     "editQuantity": "直接编辑数量"
   },
-  "description": "管理你的家庭库存"
+  "description": "管理你的家庭库存",
+  "availability": {
+    "borrowed": "已借出",
+    "reserved": "已预约",
+    "available": "可用"
+  },
+  "quantity": {
+    "units": "件"
+  }
 }

@@ -46,7 +46,14 @@
     "returning": "جارٍ الإرجاع...",
     "success": "تم الإرجاع بنجاح",
     "title": "إرجاع العنصر",
-    "uploadPhoto": "تحميل صورة"
+    "uploadPhoto": "تحميل صورة",
+    "quantitySummary": "{{loan}} {{unit}} مستعار · {{returned}} مُعاد · {{remaining}} معلق",
+    "partialReturn": "إعادة جزئية",
+    "partialNote": "ملاحظة الإعادة الجزئية",
+    "partialNotePlaceholder": "اختياري: ملاحظة حول الإعادة الجزئية",
+    "confirmPartial": "تأكيد الإعادة الجزئية",
+    "partialSuccess": "تم إعادة {{returned}} {{unit}}، لا يزال {{remaining}} معلقاً",
+    "partialFullyReturned": "تمت إعادة جميع العناصر – اكتملت الاستعارة"
   },
   "revokeDialog": {
     "borrower": "المستعير",
@@ -70,5 +77,20 @@
   },
   "task": "المهمة",
   "showPast": "عرض السابقة",
-  "hidePast": "إخفاء السابقة"
+  "hidePast": "إخفاء السابقة",
+  "quantity": {
+    "label": "الكمية",
+    "units": "قطعة",
+    "exceedsAvailable": "الحد الأقصى {{max}} متاح",
+    "conflictInfo": "تم استعارة {{count}} بالفعل ({{period}})",
+    "conflictInfoNamed": "استعار {{name}} بالفعل {{count}} ({{period}})",
+    "available": "{{count}} متاح",
+    "totalAvailable": "{{available}} من {{total}} متاح",
+    "conflict": "تم استعارة {{count}} بالفعل ({{period}})",
+    "conflictBy": "بواسطة {{name}}",
+    "unavailable": "غير متاح",
+    "partiallyAvailable": "{{count}} متاح"
+  },
+  "partiallyAvailable": "متاح جزئياً",
+  "available": "متاح"
 }

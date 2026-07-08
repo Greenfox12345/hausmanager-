@@ -46,7 +46,14 @@
     "returning": "Wird zurückgegeben...",
     "success": "Erfolgreich zurückgegeben",
     "title": "Gegenstand zurückgeben",
-    "uploadPhoto": "Foto hochladen"
+    "uploadPhoto": "Foto hochladen",
+    "quantitySummary": "{{loan}} {{unit}} ausgeliehen · {{returned}} zurückgegeben · {{remaining}} ausstehend",
+    "partialReturn": "Teilrückgabe",
+    "partialNote": "Notiz zur Teilrückgabe",
+    "partialNotePlaceholder": "Optional: Hinweis zur Teilrückgabe",
+    "confirmPartial": "Teilrückgabe bestätigen",
+    "partialSuccess": "{{returned}} {{unit}} zurückgegeben, noch {{remaining}} ausstehend",
+    "partialFullyReturned": "Alle Teile zurückgegeben – Ausleihe abgeschlossen"
   },
   "revokeDialog": {
     "borrower": "Ausleiher",
@@ -70,5 +77,20 @@
   },
   "task": "Aufgabe",
   "showPast": "Vergangene anzeigen",
-  "hidePast": "Vergangene ausblenden"
+  "hidePast": "Vergangene ausblenden",
+  "quantity": {
+    "label": "Anzahl",
+    "units": "Stk.",
+    "exceedsAvailable": "Maximal {{max}} verfügbar",
+    "conflictInfo": "Bereits {{count}} ausgeliehen ({{period}})",
+    "conflictInfoNamed": "{{name}} hat bereits {{count}} ausgeliehen ({{period}})",
+    "available": "{{count}} verfügbar",
+    "totalAvailable": "{{available}} von {{total}} verfügbar",
+    "conflict": "{{count}} bereits ausgeliehen ({{period}})",
+    "conflictBy": "von {{name}}",
+    "unavailable": "Nicht verfügbar",
+    "partiallyAvailable": "{{count}} verfügbar"
+  },
+  "partiallyAvailable": "Teilweise verfügbar",
+  "available": "Verfügbar"
 }

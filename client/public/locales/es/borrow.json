@@ -87,7 +87,14 @@
     "returning": "Devolviendo...",
     "success": "Devuelto correctamente",
     "title": "Devolver artículo",
-    "uploadPhoto": "Subir foto"
+    "uploadPhoto": "Subir foto",
+    "quantitySummary": "{{loan}} {{unit}} prestado · {{returned}} devuelto · {{remaining}} pendiente",
+    "partialReturn": "Devolución parcial",
+    "partialNote": "Nota de devolución parcial",
+    "partialNotePlaceholder": "Opcional: nota sobre la devolución parcial",
+    "confirmPartial": "Confirmar devolución parcial",
+    "partialSuccess": "{{returned}} {{unit}} devuelto, {{remaining}} pendiente",
+    "partialFullyReturned": "Todos los artículos devueltos – préstamo completado"
   },
   "revokeDialog": {
     "borrower": "Prestatario",
@@ -103,5 +110,20 @@
   },
   "task": "Tarea",
   "showPast": "Mostrar pasadas",
-  "hidePast": "Ocultar pasadas"
+  "hidePast": "Ocultar pasadas",
+  "quantity": {
+    "label": "Cantidad",
+    "units": "uds.",
+    "exceedsAvailable": "Máximo {{max}} disponible",
+    "conflictInfo": "Ya {{count}} prestado ({{period}})",
+    "conflictInfoNamed": "{{name}} ya tiene {{count}} prestado ({{period}})",
+    "available": "{{count}} disponible",
+    "totalAvailable": "{{available}} de {{total}} disponible",
+    "conflict": "{{count}} ya prestado ({{period}})",
+    "conflictBy": "por {{name}}",
+    "unavailable": "No disponible",
+    "partiallyAvailable": "{{count}} disponible"
+  },
+  "partiallyAvailable": "Parcialmente disponible",
+  "available": "Disponible"
 }

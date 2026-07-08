@@ -147,5 +147,13 @@
     "requests": "Demandes",
     "editQuantity": "Modifier la quantité directement"
   },
-  "description": "Gérez l'inventaire de votre foyer"
+  "description": "Gérez l'inventaire de votre foyer",
+  "availability": {
+    "borrowed": "emprunté",
+    "reserved": "réservé",
+    "available": "disponible"
+  },
+  "quantity": {
+    "units": "pcs."
+  }
 }

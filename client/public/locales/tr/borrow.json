@@ -46,7 +46,14 @@
     "returning": "İade ediliyor...",
     "success": "Başarıyla iade edildi",
     "title": "Öğeyi İade Et",
-    "uploadPhoto": "Fotoğraf yükle"
+    "uploadPhoto": "Fotoğraf yükle",
+    "quantitySummary": "{{loan}} {{unit}} ödünç alındı · {{returned}} iade edildi · {{remaining}} bekliyor",
+    "partialReturn": "Kısmi iade",
+    "partialNote": "Kısmi iade notu",
+    "partialNotePlaceholder": "İsteğe bağlı: kısmi iade hakkında not",
+    "confirmPartial": "Kısmi iadeyi onayla",
+    "partialSuccess": "{{returned}} {{unit}} iade edildi, {{remaining}} hâlâ bekliyor",
+    "partialFullyReturned": "Tüm parçalar iade edildi – ödünç tamamlandı"
   },
   "revokeDialog": {
     "borrower": "Ödünç Alan",
@@ -70,5 +77,20 @@
   },
   "task": "Görev",
   "showPast": "Geçmişleri göster",
-  "hidePast": "Geçmişleri gizle"
+  "hidePast": "Geçmişleri gizle",
+  "quantity": {
+    "label": "Miktar",
+    "units": "adet",
+    "exceedsAvailable": "Maksimum {{max}} mevcut",
+    "conflictInfo": "Zaten {{count}} ödünç alındı ({{period}})",
+    "conflictInfoNamed": "{{name}} zaten {{count}} ödünç aldı ({{period}})",
+    "available": "{{count}} mevcut",
+    "totalAvailable": "{{total}} adet içinden {{available}} mevcut",
+    "conflict": "{{count}} zaten ödünç alındı ({{period}})",
+    "conflictBy": "{{name}} tarafından",
+    "unavailable": "Mevcut değil",
+    "partiallyAvailable": "{{count}} mevcut"
+  },
+  "partiallyAvailable": "Kısmen mevcut",
+  "available": "Mevcut"
 }

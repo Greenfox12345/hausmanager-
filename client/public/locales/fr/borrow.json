@@ -46,7 +46,14 @@
     "returning": "Retour en cours...",
     "success": "Retourné avec succès",
     "title": "Retourner l'article",
-    "uploadPhoto": "Télécharger une photo"
+    "uploadPhoto": "Télécharger une photo",
+    "quantitySummary": "{{loan}} {{unit}} emprunté · {{returned}} rendu · {{remaining}} en attente",
+    "partialReturn": "Retour partiel",
+    "partialNote": "Note de retour partiel",
+    "partialNotePlaceholder": "Optionnel : note sur le retour partiel",
+    "confirmPartial": "Confirmer le retour partiel",
+    "partialSuccess": "{{returned}} {{unit}} rendu, {{remaining}} encore en attente",
+    "partialFullyReturned": "Tous les articles rendus – emprunt terminé"
   },
   "revokeDialog": {
     "borrower": "Emprunteur",
@@ -70,5 +77,20 @@
   },
   "task": "Tâche",
   "showPast": "Afficher les passées",
-  "hidePast": "Masquer les passées"
+  "hidePast": "Masquer les passées",
+  "quantity": {
+    "label": "Quantité",
+    "units": "pcs.",
+    "exceedsAvailable": "Maximum {{max}} disponible",
+    "conflictInfo": "Déjà {{count}} emprunté ({{period}})",
+    "conflictInfoNamed": "{{name}} a déjà emprunté {{count}} ({{period}})",
+    "available": "{{count}} disponible",
+    "totalAvailable": "{{available}} sur {{total}} disponible",
+    "conflict": "{{count}} déjà emprunté ({{period}})",
+    "conflictBy": "par {{name}}",
+    "unavailable": "Indisponible",
+    "partiallyAvailable": "{{count}} disponible"
+  },
+  "partiallyAvailable": "Partiellement disponible",
+  "available": "Disponible"
 }

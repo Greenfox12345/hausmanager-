@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Calendar as CalendarIcon, AlertCircle, Image as ImageIcon, Info } from "lucide-react";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { QuantityInput } from "@/components/QuantityInput";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 
 interface BorrowRequestDialogProps {
   open: boolean;
@@ -24,6 +26,7 @@ interface BorrowRequestDialogProps {
     startDate: Date;
     endDate: Date;
     message?: string;
+    loanQuantity?: number;
   }) => void;
   isSubmitting?: boolean;
   // Task and occurrence context
@@ -52,14 +55,15 @@ export function BorrowRequestDialog({
 }: BorrowRequestDialogProps) {
   const { t, i18n } = useTranslation(["borrow", "common"]);
   const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
+  const { currentHousehold } = useUserAuth();
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [message, setMessage] = useState("");
+  const [loanQuantity, setLoanQuantity] = useState<number | null>(null);
 
   // Pre-fill form when dialog opens
   useEffect(() => {
     if (open) {
-      // Set dates from initial values
       if (initialStartDate) {
         const date = typeof initialStartDate === 'string' ? new Date(initialStartDate) : initialStartDate;
         setStartDate(date);
@@ -74,11 +78,9 @@ export function BorrowRequestDialog({
         setEndDate(occurrenceDate);
       }
 
-      // Generate pre-filled message with task context
       if (taskName && occurrenceNumber) {
         const dateStr = occurrenceDate ? format(occurrenceDate, "dd.MM.yyyy", { locale: dateFnsLocale }) : `${t("borrow:occurrence")} ${occurrenceNumber}`;
         const membersStr = assignedMembers.length > 0 ? `\n${t("borrow:responsible")}: ${assignedMembers.join(", ")}` : "";
-        
         setMessage(
           `${t("borrow:requestMessagePrefix", { itemName })}\n\n` +
           `${t("borrow:task")}: ${taskName}\n` +
@@ -95,24 +97,89 @@ export function BorrowRequestDialog({
     { enabled: open && !!itemId }
   );
 
-  const handleSubmit = () => {
-    if (!startDate || !endDate) {
-      return;
+  // Check availability for the selected period
+  const checkStart = startDate ?? new Date();
+  const checkEnd = endDate ?? startDate ?? new Date();
+  const { data: availability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
+    {
+      inventoryItemId: itemId,
+      startDate: checkStart,
+      endDate: checkEnd,
+      currentMemberId: currentHousehold?.memberId,
+      currentHouseholdId: currentHousehold?.householdId,
+    },
+    { enabled: open && !!itemId }
+  );
+
+  // Units query for the item
+  const { data: units } = trpc.units.list.useQuery(
+    { householdId: currentHousehold?.householdId ?? 0 },
+    { enabled: open && !!currentHousehold }
+  );
+
+  // Derive available quantity and set default loanQuantity
+  const availableQty = availability?.availableQuantity ?? null;
+  const totalQty = availability?.totalQuantity ?? null;
+  const hasQuantity = totalQty !== null && totalQty > 0;
+
+  useEffect(() => {
+    if (open && hasQuantity && availableQty !== null) {
+      setLoanQuantity(Math.max(1, availableQty));
+    } else if (open && !hasQuantity) {
+      setLoanQuantity(null);
     }
+  }, [open, hasQuantity, availableQty]);
+
+  // Get unit symbol for the item
+  const itemUnit = useMemo(() => {
+    if (!units) return null;
+    return null; // unit is on the item, not fetched here – shown via availability
+  }, [units]);
+
+  const handleSubmit = () => {
+    if (!startDate || !endDate) return;
 
     onSubmit({
       startDate,
       endDate,
       message: message.trim() || undefined,
+      loanQuantity: hasQuantity && loanQuantity !== null ? loanQuantity : undefined,
     });
 
-    // Reset form
     setStartDate(undefined);
     setEndDate(undefined);
     setMessage("");
+    setLoanQuantity(null);
   };
 
-  const isValid = startDate && endDate && startDate <= endDate;
+  const isValid = startDate && endDate && startDate <= endDate &&
+    (!hasQuantity || (loanQuantity !== null && loanQuantity >= 1 && (availableQty === null || loanQuantity <= availableQty)));
+
+  // Availability badge
+  const renderAvailabilityBadge = () => {
+    if (!availability) return null;
+    if (availability.status === "available") {
+      return (
+        <Badge variant="outline" className="border-green-500 text-green-700 text-xs">
+          {totalQty !== null ? t("borrow:quantity.available", { count: availableQty ?? totalQty }) : t("borrow:available")}
+        </Badge>
+      );
+    }
+    if (availability.status === "unavailable") {
+      return (
+        <Badge variant="outline" className="border-red-500 text-red-700 text-xs">
+          {t("borrow:quantity.unavailable")}
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="border-yellow-500 text-yellow-700 text-xs">
+        {availableQty !== null
+          ? t("borrow:quantity.partiallyAvailable", { count: availableQty })
+          : t("borrow:partiallyAvailable")}
+      </Badge>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,7 +191,10 @@ export function BorrowRequestDialog({
         <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1">
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t("borrow:requestDialog.item")}</Label>
-            <div className="text-sm text-muted-foreground">{itemName}</div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{itemName}</span>
+              {renderAvailabilityBadge()}
+            </div>
           </div>
 
           {/* Task and Occurrence Context */}
@@ -294,6 +364,49 @@ export function BorrowRequestDialog({
           {startDate && endDate && startDate > endDate && (
             <div className="text-sm text-destructive">
               {t("borrow:requestDialog.endAfterStart")}
+            </div>
+          )}
+
+          {/* Quantity selector – only shown when item has a quantity */}
+          {hasQuantity && (
+            <div className="space-y-2">
+              <Label>{t("borrow:quantity.label")}</Label>
+              <QuantityInput
+                value={loanQuantity}
+                onChange={setLoanQuantity}
+                units={units ?? []}
+                unitId={null}
+                onUnitChange={() => {}}
+                showUnitSelector={false}
+                max={availableQty ?? undefined}
+              />
+              {/* Conflict info */}
+              {availability && availability.conflictingBorrows.length > 0 && (
+                <div className="space-y-1 pt-1">
+                  {availability.conflictingBorrows.map((conflict) => (
+                    <div key={conflict.id} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                      <Info className="h-3 w-3 mt-0.5 shrink-0 text-yellow-600" />
+                      <span>
+                        {t("borrow:quantity.conflict", {
+                          count: conflict.remainingQuantity,
+                          start: format(new Date(conflict.startDate), "dd.MM.yy", { locale: dateFnsLocale }),
+                          end: format(new Date(conflict.endDate), "dd.MM.yy", { locale: dateFnsLocale }),
+                        })}
+                        {conflict.borrowerName && (
+                          <span className="ml-1 font-medium">
+                            {t("borrow:quantity.conflictBy", { name: conflict.borrowerName })}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {availableQty !== null && loanQuantity !== null && loanQuantity > availableQty && (
+                <div className="text-xs text-destructive">
+                  {t("borrow:quantity.exceedsAvailable", { max: availableQty })}
+                </div>
+              )}
             </div>
           )}
 

@@ -28,6 +28,10 @@ interface QuantityInputProps {
   disabled?: boolean;
   /** If true, the quantity field is shown even when value is null (e.g. in forms) */
   alwaysShow?: boolean;
+  /** Hide the unit selector dropdown */
+  showUnitSelector?: boolean;
+  /** Maximum allowed value */
+  max?: number;
 }
 
 /**
@@ -76,6 +80,8 @@ export function QuantityInput({
   units,
   disabled = false,
   alwaysShow = true,
+  showUnitSelector = true,
+  max,
 }: QuantityInputProps) {
   const { t } = useTranslation("units");
 
@@ -88,7 +94,8 @@ export function QuantityInput({
   };
 
   const handleIncrement = () => {
-    onChange(currentValue + step);
+    const next = currentValue + step;
+    onChange(max !== undefined ? Math.min(next, max) : next);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +106,7 @@ export function QuantityInput({
     }
     const num = parseFloat(raw);
     if (!isNaN(num) && num >= 0) {
-      onChange(num);
+      onChange(max !== undefined ? Math.min(num, max) : num);
     }
   };
 
@@ -145,7 +152,7 @@ export function QuantityInput({
       </Button>
 
       {/* Unit selector */}
-      <Select
+      {showUnitSelector && <Select
         value={unitId !== null ? String(unitId) : "__none__"}
         onValueChange={(v) => onUnitChange(v === "__none__" ? null : Number(v))}
         disabled={disabled}
@@ -161,7 +168,7 @@ export function QuantityInput({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select>}
     </div>
   );
 }

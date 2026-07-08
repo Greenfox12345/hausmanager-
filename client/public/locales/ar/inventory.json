@@ -147,5 +147,13 @@
     "requests": "الطلبات",
     "editQuantity": "تعديل الكمية مباشرة"
   },
-  "description": "إدارة مخزون منزلك"
+  "description": "إدارة مخزون منزلك",
+  "availability": {
+    "borrowed": "مستعار",
+    "reserved": "محجوز",
+    "available": "متاح"
+  },
+  "quantity": {
+    "units": "قطعة"
+  }
 }

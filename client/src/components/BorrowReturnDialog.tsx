@@ -5,11 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Upload, X } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { AlertCircle, Upload, X, ChevronDown, ChevronUp, RotateCcw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
+import { QuantityInput } from "@/components/QuantityInput";
+import { useUserAuth } from "@/contexts/UserAuthContext";
+import { formatQuantity } from "@/components/QuantityInput";
 
 interface BorrowReturnDialogProps {
   open: boolean;
@@ -17,6 +21,12 @@ interface BorrowReturnDialogProps {
   borrowRequestId: number;
   itemId: number;
   itemName: string;
+  /** Total quantity that was borrowed */
+  loanQuantity?: number | null;
+  /** How much has already been returned */
+  returnedQuantity?: number;
+  /** Unit symbol/name for display */
+  unitLabel?: string | null;
   onSuccess?: () => void;
 }
 
@@ -38,13 +48,33 @@ export function BorrowReturnDialog({
   borrowRequestId,
   itemId,
   itemName,
+  loanQuantity,
+  returnedQuantity = 0,
+  unitLabel,
   onSuccess,
 }: BorrowReturnDialogProps) {
   const { t } = useTranslation(["borrow", "common"]);
+  const { currentHousehold } = useUserAuth();
   const [checklistState, setChecklistState] = useState<ChecklistState>({});
   const [photoState, setPhotoState] = useState<PhotoState>({});
   const [conditionReport, setConditionReport] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+
+  // Partial return state
+  const [partialOpen, setPartialOpen] = useState(false);
+  const [partialQty, setPartialQty] = useState<number | null>(null);
+  const [partialNote, setPartialNote] = useState("");
+
+  const remaining = loanQuantity !== null && loanQuantity !== undefined
+    ? loanQuantity - returnedQuantity
+    : null;
+
+  // Reset partial qty when dialog opens
+  useEffect(() => {
+    if (open && remaining !== null) {
+      setPartialQty(remaining);
+    }
+  }, [open, remaining]);
 
   // Load guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery(
@@ -53,7 +83,9 @@ export function BorrowReturnDialog({
   );
 
   const returnMutation = trpc.borrow.markReturned.useMutation();
+  const partialReturnMutation = trpc.borrow.partialReturn.useMutation();
   const uploadMutation = trpc.storage.upload.useMutation();
+  const utils = trpc.useUtils();
 
   // Initialize checklist state
   useEffect(() => {
@@ -94,8 +126,6 @@ export function BorrowReturnDialog({
 
   const validateForm = (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
-
-    // Check required checklist items
     if (guidelines?.checklistItems) {
       (guidelines.checklistItems as any[]).forEach((item: any) => {
         if (item.required && !checklistState[item.id]) {
@@ -103,8 +133,6 @@ export function BorrowReturnDialog({
         }
       });
     }
-
-    // Check required photos
     if (guidelines?.photoRequirements) {
       (guidelines.photoRequirements as any[]).forEach((req: any) => {
         if (req.required && !photoState[req.id]?.file) {
@@ -112,11 +140,48 @@ export function BorrowReturnDialog({
         }
       });
     }
+    return { valid: errors.length === 0, errors };
+  };
 
-    return {
-      valid: errors.length === 0,
-      errors,
-    };
+  /** Handle partial return (does NOT close the dialog) */
+  const handlePartialReturn = async () => {
+    if (!partialQty || partialQty < 1) return;
+    if (remaining !== null && partialQty > remaining) {
+      toast.error(t("borrow:quantity.exceedsAvailable", { max: remaining }));
+      return;
+    }
+    try {
+      const result = await partialReturnMutation.mutateAsync({
+        requestId: borrowRequestId,
+        returnQty: partialQty,
+        memberId: currentHousehold?.memberId,
+        note: partialNote.trim() || undefined,
+      });
+
+      if (result.isFullyReturned) {
+        toast.success(t("borrow:returnDialog.partialFullyReturned"));
+        utils.borrow.getMyBorrows.invalidate();
+        utils.borrow.getLentItems.invalidate();
+        onSuccess?.();
+        onOpenChange(false);
+      } else {
+        toast.success(
+          t("borrow:returnDialog.partialSuccess", {
+            returned: partialQty,
+            remaining: result.remainingQuantity,
+            unit: unitLabel ?? t("borrow:quantity.units"),
+          })
+        );
+        setPartialQty(result.remainingQuantity);
+        setPartialNote("");
+        setPartialOpen(false);
+        utils.borrow.getMyBorrows.invalidate();
+        utils.borrow.getLentItems.invalidate();
+        onSuccess?.();
+      }
+    } catch (error: any) {
+      toast.error(error.message || t("borrow:returnDialog.error"));
+    }
   };
 
   const handleSubmit = async () => {
@@ -129,32 +194,22 @@ export function BorrowReturnDialog({
     try {
       setIsUploading(true);
 
-      // Upload photos to S3 first
       const uploadedPhotos: Array<{ requirementId: string; photoUrl: string }> = [];
-      
       for (const [reqId, photo] of Object.entries(photoState)) {
         if (photo.file) {
-          // Compress image
           const compressedFile = await compressImage(photo.file);
-          
           const arrayBuffer = await compressedFile.arrayBuffer();
           const buffer = new Uint8Array(arrayBuffer);
           const base64 = btoa(String.fromCharCode(...Array.from(buffer)));
-
           const result = await uploadMutation.mutateAsync({
             key: `borrow-returns/${borrowRequestId}/${reqId}-${compressedFile.name}`,
             data: base64,
             contentType: compressedFile.type,
           });
-
-          uploadedPhotos.push({
-            requirementId: reqId,
-            photoUrl: result.url,
-          });
+          uploadedPhotos.push({ requirementId: reqId, photoUrl: result.url });
         }
       }
 
-      // Submit return
       await returnMutation.mutateAsync({
         requestId: borrowRequestId,
         returnPhotos: uploadedPhotos.length > 0 ? uploadedPhotos : undefined,
@@ -165,7 +220,6 @@ export function BorrowReturnDialog({
       onSuccess?.();
       onOpenChange(false);
 
-      // Reset form
       setChecklistState({});
       setPhotoState({});
       setConditionReport("");
@@ -180,6 +234,7 @@ export function BorrowReturnDialog({
   const checklistItems = (guidelines?.checklistItems as any[]) || [];
   const photoRequirements = (guidelines?.photoRequirements as any[]) || [];
   const hasGuidelines = checklistItems.length > 0 || photoRequirements.length > 0;
+  const hasQuantity = loanQuantity !== null && loanQuantity !== undefined && loanQuantity > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -193,6 +248,70 @@ export function BorrowReturnDialog({
             <Label className="text-sm font-medium">{t("borrow:returnDialog.item")}</Label>
             <div className="text-sm text-muted-foreground">{itemName}</div>
           </div>
+
+          {/* Quantity summary */}
+          {hasQuantity && (
+            <div className="flex items-center gap-3 text-sm bg-muted/50 rounded p-3">
+              <RotateCcw className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span>
+                {t("borrow:returnDialog.quantitySummary", {
+                  loan: formatQuantity(loanQuantity),
+                  returned: formatQuantity(returnedQuantity),
+                  remaining: formatQuantity(remaining),
+                  unit: unitLabel ?? "",
+                })}
+              </span>
+            </div>
+          )}
+
+          {/* Partial return collapsible */}
+          {hasQuantity && remaining !== null && remaining > 0 && (
+            <Collapsible open={partialOpen} onOpenChange={setPartialOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full justify-between">
+                  <span>{t("borrow:returnDialog.partialReturn")}</span>
+                  {partialOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-3">
+                <div className="space-y-2">
+                  <Label className="text-sm">{t("borrow:quantity.label")}</Label>
+                  <QuantityInput
+                    value={partialQty}
+                    onChange={setPartialQty}
+                    units={[]}
+                    unitId={null}
+                    onUnitChange={() => {}}
+                    showUnitSelector={false}
+                    max={remaining}
+                    alwaysShow
+                  />
+                  {unitLabel && (
+                    <span className="text-xs text-muted-foreground">{unitLabel}</span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="partial-note" className="text-sm">{t("borrow:returnDialog.partialNote")}</Label>
+                  <Textarea
+                    id="partial-note"
+                    placeholder={t("borrow:returnDialog.partialNotePlaceholder")}
+                    value={partialNote}
+                    onChange={(e) => setPartialNote(e.target.value)}
+                    rows={2}
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handlePartialReturn}
+                  disabled={partialReturnMutation.isPending || !partialQty || partialQty < 1}
+                >
+                  {partialReturnMutation.isPending
+                    ? t("borrow:returnDialog.returning")
+                    : t("borrow:returnDialog.confirmPartial")}
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {!hasGuidelines && (
             <div className="text-sm text-muted-foreground">
@@ -281,9 +400,7 @@ export function BorrowReturnDialog({
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
-                                if (file) {
-                                  handlePhotoSelect(req.id, file);
-                                }
+                                if (file) handlePhotoSelect(req.id, file);
                               }}
                             />
                             <Button

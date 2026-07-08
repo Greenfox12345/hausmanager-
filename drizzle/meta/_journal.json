@@ -246,6 +246,13 @@
       "when": 1783431487939,
       "tag": "0046_smiling_gertrude_yorkes",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "5",
+      "when": 1783524596917,
+      "tag": "0047_cultured_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

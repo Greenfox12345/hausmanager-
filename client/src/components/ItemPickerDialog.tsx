@@ -13,11 +13,13 @@ type ConflictWarning = {
   itemName: string;
   conflicts: Array<{
     id: number;
-    borrowerName: string;
+    borrowerName: string | null;
     borrowerMemberId: number | null;
     startDate: Date;
     endDate: Date;
     status: string;
+    loanQuantity?: number;
+    remainingQuantity?: number;
   }>;
 };
 
@@ -49,7 +51,7 @@ function AvailabilityBadge({ itemId, occurrenceDate }: { itemId: number; occurre
           {t("itemPicker.available", "Verfügbar")}
         </Badge>
       );
-    case "borrowed":
+    case "unavailable":
       return (
         <Badge variant="outline" className="shrink-0 border-red-500 text-red-700">
           <XCircle className="h-3 w-3 mr-1" />

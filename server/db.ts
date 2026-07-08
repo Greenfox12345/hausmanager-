@@ -1129,6 +1129,7 @@ export async function createBorrowRequest(data: {
   endDate: Date;
   requestMessage?: string;
   status?: "pending" | "approved" | "active" | "completed" | "rejected" | "cancelled";
+  loanQuantity?: number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1145,6 +1146,7 @@ export async function createBorrowRequest(data: {
 
   const startDateFormatted = formatDateForMySQL(data.startDate);
   const endDateFormatted = formatDateForMySQL(data.endDate);
+  const loanQty = data.loanQuantity ?? 1;
 
   // Use sql template tag from drizzle-orm to properly construct query
   let query;
@@ -1153,20 +1155,20 @@ export async function createBorrowRequest(data: {
     query = sql`
       INSERT INTO borrow_requests (
         inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
-        status, startDate, endDate, requestMessage
+        status, startDate, endDate, requestMessage, loanQuantity
       ) VALUES (
         ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
-        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}, ${data.requestMessage}
+        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}, ${data.requestMessage}, ${loanQty}
       )
     `;
   } else {
     query = sql`
       INSERT INTO borrow_requests (
         inventoryItemId, borrowerHouseholdId, borrowerMemberId, ownerHouseholdId,
-        status, startDate, endDate
+        status, startDate, endDate, loanQuantity
       ) VALUES (
         ${data.inventoryItemId}, ${data.borrowerHouseholdId}, ${data.borrowerMemberId}, ${data.ownerHouseholdId},
-        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}
+        ${data.status || "pending"}, ${startDateFormatted}, ${endDateFormatted}, ${loanQty}
       )
     `;
   }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
-import { borrowRequests, inventoryItems } from "../../drizzle/schema";
+import { borrowRequests, inventoryItems, borrowQuantityReturns } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import {
   getDb,
@@ -56,6 +56,7 @@ export const borrowRouter = router({
         startDate: z.string(), // ISO date string
         endDate: z.string(), // ISO date string
         requestMessage: z.string().optional(),
+        loanQuantity: z.number().min(1).optional(), // Number of units to borrow
         // Optional task context for activity log
         taskId: z.number().optional(),
         taskName: z.string().optional(),
@@ -80,6 +81,7 @@ export const borrowRouter = router({
         startDate: new Date(input.startDate),
         endDate: new Date(input.endDate),
         requestMessage: input.requestMessage,
+        loanQuantity: input.loanQuantity ?? 1,
         // Auto-approve for household items, pending for personal items
         status: autoApproved ? "approved" : "pending",
       });
@@ -940,6 +942,8 @@ export const borrowRouter = router({
             pickupPhotoUrl: req.pickupPhotoUrl ?? null,
             returnComment: req.returnComment ?? null,
             returnPhotoUrl: req.returnPhotoUrl ?? null,
+            loanQuantity: (req as any).loanQuantity ?? null,
+            returnedQuantity: (req as any).returnedQuantity ?? 0,
             guideline: guideline ? {
               instructionsText: guideline.instructionsText ?? null,
               checklistItems: (guideline.checklistItems as any) ?? null,
@@ -975,6 +979,8 @@ export const borrowRouter = router({
             status: req.status,
             startDate: req.startDate,
             endDate: req.endDate,
+            loanQuantity: (req as any).loanQuantity ?? null,
+            returnedQuantity: (req as any).returnedQuantity ?? 0,
           };
         })
       );
@@ -1349,6 +1355,74 @@ export const borrowRouter = router({
         itemDescription: (item as any)?.description ?? null,
         borrowerName: borrower?.memberName ?? "Unbekannt",
         guideline: guideline ?? null,
+      };
+    }),
+
+  /**
+   * Partial (or full) return of borrowed quantity.
+   * Creates a borrow_quantity_returns entry and updates returnedQuantity.
+   * If returnedQuantity >= loanQuantity, marks the request as completed.
+   */
+  partialReturn: publicProcedure
+    .input(z.object({
+      requestId: z.number(),
+      returnQty: z.number().min(1),
+      memberId: z.number().optional(),
+      note: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      // Fetch current request
+      const [req] = await db
+        .select({
+          id: borrowRequests.id,
+          loanQuantity: borrowRequests.loanQuantity,
+          returnedQuantity: borrowRequests.returnedQuantity,
+          status: borrowRequests.status,
+          inventoryItemId: borrowRequests.inventoryItemId,
+          borrowerMemberId: borrowRequests.borrowerMemberId,
+        })
+        .from(borrowRequests)
+        .where(eq(borrowRequests.id, input.requestId))
+        .limit(1);
+
+      if (!req) throw new Error("Borrow request not found");
+
+      const alreadyReturned = req.returnedQuantity ?? 0;
+      const loanQty = req.loanQuantity ?? 1;
+      const maxReturn = loanQty - alreadyReturned;
+      if (input.returnQty > maxReturn) {
+        throw new Error(`Cannot return more than ${maxReturn} units`);
+      }
+
+      const newReturned = alreadyReturned + input.returnQty;
+      const isFullyReturned = newReturned >= loanQty;
+
+      // Insert partial return record
+      await db.insert(borrowQuantityReturns).values({
+        borrowRequestId: input.requestId,
+        returnedQty: input.returnQty,
+        memberId: input.memberId ?? null,
+        note: input.note ?? null,
+        returnedAt: new Date(),
+      });
+
+      // Update returnedQuantity (and status if fully returned)
+      await db
+        .update(borrowRequests)
+        .set({
+          returnedQuantity: newReturned,
+          ...(isFullyReturned ? { status: "completed", returnedAt: new Date() } : {}),
+        })
+        .where(eq(borrowRequests.id, input.requestId));
+
+      return {
+        success: true,
+        newReturnedQuantity: newReturned,
+        isFullyReturned,
+        remainingQuantity: loanQty - newReturned,
       };
     }),
 });

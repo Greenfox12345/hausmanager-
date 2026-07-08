@@ -109,6 +109,16 @@ export default function Inventory() {
     { enabled: !!household }
   );
 
+  // Availability summaries for all items (quantity-aware) – single batch query
+  const { data: allAvailability = {} } = trpc.inventoryAvailability.getAllItemsAvailability.useQuery(
+    {
+      householdId: household?.householdId ?? 0,
+      currentMemberId: member?.memberId,
+      currentHouseholdId: household?.householdId,
+    },
+    { enabled: !!household, refetchInterval: 30000 }
+  );
+
   // Get pending borrow requests per item
   const { data: pendingRequestsByItem = [] } = trpc.borrow.getPendingRequestsByItem.useQuery(
     {
@@ -544,6 +554,7 @@ export default function Inventory() {
             {filteredItems.map((item) => {
               const unit = units.find((u: UnitOption) => u.id === item.unitId);
               const displayQty = quickEditQty[item.id] ?? item.quantity;
+              const avail = (allAvailability as Record<number, any>)[item.id] ?? null;
               const hasPhoto = normalizePhotoUrls(item.photoUrls).length > 0;
               return (
                 <Card key={item.id}>
@@ -650,6 +661,33 @@ export default function Inventory() {
                         </Button>
                       </div>
                     )}
+                    {/* Availability badges (only when item has quantity and active borrows) */}
+                    {avail && (avail.currentlyBorrowed > 0 || avail.currentlyReserved > 0) && (
+                      <div className="flex flex-wrap gap-1 pt-1 text-xs">
+                        {avail.currentlyBorrowed > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-medium">
+                            {avail.currentlyBorrowed} {unit?.symbol ?? t('inventory:quantity.units', 'Stk.')} {t('inventory:availability.borrowed', 'ausgeliehen')}
+                          </span>
+                        )}
+                        {avail.currentlyReserved > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 font-medium">
+                            {avail.currentlyReserved} {unit?.symbol ?? t('inventory:quantity.units', 'Stk.')} {t('inventory:availability.reserved', 'reserviert')}
+                          </span>
+                        )}
+                        {avail.availableQuantity !== null && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400 font-medium">
+                            {avail.availableQuantity} {unit?.symbol ?? t('inventory:quantity.units', 'Stk.')} {t('inventory:availability.available', 'verfügbar')}
+                          </span>
+                        )}
+                        {/* Borrower names (only if visible) */}
+                        {avail.borrowers?.filter((b: any) => b.borrowerName).map((b: any) => (
+                          <span key={b.id} className="text-muted-foreground">
+                            {b.borrowerName} ({b.status === 'active' ? t('inventory:availability.borrowed', 'ausgeliehen') : t('inventory:availability.reserved', 'reserviert')})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex gap-2 pt-2">
                       <Button size="sm" onClick={() => setLocation(`/inventory/${item.id}`)}>
                         {t('inventory:actions.borrow', 'Ausleihen')}

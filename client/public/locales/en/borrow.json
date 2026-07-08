@@ -46,7 +46,14 @@
     "returning": "Returning...",
     "success": "Successfully returned",
     "title": "Return item",
-    "uploadPhoto": "Upload photo"
+    "uploadPhoto": "Upload photo",
+    "quantitySummary": "{{loan}} {{unit}} borrowed · {{returned}} returned · {{remaining}} outstanding",
+    "partialReturn": "Partial return",
+    "partialNote": "Note for partial return",
+    "partialNotePlaceholder": "Optional: note about partial return",
+    "confirmPartial": "Confirm partial return",
+    "partialSuccess": "{{returned}} {{unit}} returned, {{remaining}} still outstanding",
+    "partialFullyReturned": "All items returned – loan completed"
   },
   "revokeDialog": {
     "borrower": "Borrower",
@@ -70,5 +77,20 @@
   },
   "task": "Task",
   "showPast": "Show past",
-  "hidePast": "Hide past"
+  "hidePast": "Hide past",
+  "quantity": {
+    "label": "Quantity",
+    "units": "pcs.",
+    "exceedsAvailable": "Maximum {{max}} available",
+    "conflictInfo": "Already {{count}} borrowed ({{period}})",
+    "conflictInfoNamed": "{{name}} has already borrowed {{count}} ({{period}})",
+    "available": "{{count}} available",
+    "totalAvailable": "{{available}} of {{total}} available",
+    "conflict": "{{count}} already borrowed ({{period}})",
+    "conflictBy": "by {{name}}",
+    "unavailable": "Unavailable",
+    "partiallyAvailable": "{{count}} available"
+  },
+  "partiallyAvailable": "Partially available",
+  "available": "Available"
 }

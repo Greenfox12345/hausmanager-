@@ -388,12 +388,30 @@ export const borrowRequests = mysqlTable("borrow_requests", {
   returnComment: text("returnComment"), // Comment at return
   returnPhotoUrl: text("returnPhotoUrl"), // Photo taken at return
   calendarEventId: int("calendarEventId"), // Link to calendar event (future)
+  loanQuantity: int("loanQuantity").default(1).notNull(), // Number of units borrowed
+  returnedQuantity: int("returnedQuantity").default(0).notNull(), // Number of units already returned
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type BorrowRequest = typeof borrowRequests.$inferSelect;
 export type InsertBorrowRequest = typeof borrowRequests.$inferInsert;
+
+/**
+ * Partial return events for borrow requests with quantity tracking
+ * Each row represents one partial (or full) return action
+ */
+export const borrowQuantityReturns = mysqlTable("borrow_quantity_returns", {
+  id: int("id").autoincrement().primaryKey(),
+  borrowRequestId: int("borrowRequestId").notNull().references(() => borrowRequests.id, { onDelete: "cascade" }),
+  returnedQty: int("returnedQty").notNull(), // How many units were returned in this action
+  memberId: int("memberId").references(() => householdMembers.id, { onDelete: "set null" }),
+  note: text("note"),
+  returnedAt: timestamp("returnedAt").defaultNow().notNull(),
+});
+
+export type BorrowQuantityReturn = typeof borrowQuantityReturns.$inferSelect;
+export type InsertBorrowQuantityReturn = typeof borrowQuantityReturns.$inferInsert;
 
 /**
  * Calendar events - for tasks, borrows, and other scheduled activities

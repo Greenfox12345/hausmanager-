@@ -147,5 +147,13 @@
     "requests": "Talepler",
     "editQuantity": "Miktarı doğrudan düzenle"
   },
-  "description": "Ev envanterini yönetin"
+  "description": "Ev envanterini yönetin",
+  "availability": {
+    "borrowed": "ödünç alındı",
+    "reserved": "rezerve edildi",
+    "available": "mevcut"
+  },
+  "quantity": {
+    "units": "adet"
+  }
 }

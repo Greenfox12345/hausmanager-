@@ -147,5 +147,13 @@
     "requests": "Anfragen",
     "editQuantity": "Menge direkt eingeben"
   },
-  "description": "Verwalte dein Haushaltsinventar"
+  "description": "Verwalte dein Haushaltsinventar",
+  "availability": {
+    "borrowed": "ausgeliehen",
+    "reserved": "reserviert",
+    "available": "verfügbar"
+  },
+  "quantity": {
+    "units": "Stk."
+  }
 }

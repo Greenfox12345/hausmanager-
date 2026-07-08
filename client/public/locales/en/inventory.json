@@ -147,5 +147,13 @@
     "requests": "Requests",
     "editQuantity": "Edit quantity directly"
   },
-  "description": "Manage your household inventory"
+  "description": "Manage your household inventory",
+  "availability": {
+    "borrowed": "borrowed",
+    "reserved": "reserved",
+    "available": "available"
+  },
+  "quantity": {
+    "units": "pcs."
+  }
 }
