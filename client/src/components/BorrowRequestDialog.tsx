@@ -134,11 +134,8 @@ export function BorrowRequestDialog({
     }
   }, [open, availableQty, totalQty]);
 
-  // Get unit symbol for the item
-  const itemUnit = useMemo(() => {
-    if (!units) return null;
-    return null; // unit is on the item, not fetched here – shown via availability
-  }, [units]);
+  // Get unit symbol from availability response (unit is stored on the inventory item)
+  const itemUnit = availability?.unitSymbol ?? availability?.unitName ?? null;
 
   const handleSubmit = () => {
     if (!startDate || !endDate) return;
@@ -374,15 +371,20 @@ export function BorrowRequestDialog({
           {/* Quantity selector – always shown */}
           <div className="space-y-2">
             <Label>{t("borrow:quantity.label")}</Label>
-            <QuantityInput
-              value={loanQuantity}
-              onChange={(v) => setLoanQuantity(v ?? 1)}
-              units={units ?? []}
-              unitId={null}
-              onUnitChange={() => {}}
-              showUnitSelector={false}
-              max={availableQty ?? undefined}
-            />
+            <div className="flex items-center gap-2">
+              <QuantityInput
+                value={loanQuantity}
+                onChange={(v) => setLoanQuantity(v ?? 1)}
+                units={units ?? []}
+                unitId={null}
+                onUnitChange={() => {}}
+                showUnitSelector={false}
+                max={availableQty ?? undefined}
+              />
+              {itemUnit && (
+                <span className="text-sm text-muted-foreground shrink-0">{itemUnit}</span>
+              )}
+            </div>
             {/* Availability hint */}
             {totalQty !== null && (
               <p className="text-xs text-muted-foreground">

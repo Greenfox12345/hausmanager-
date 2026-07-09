@@ -172,12 +172,13 @@ export function BorrowReturnDialog({
             unit: unitLabel ?? t("borrow:quantity.units"),
           })
         );
+        // Update remaining, keep collapsible open for next partial return
         setPartialQty(result.remainingQuantity);
         setPartialNote("");
-        setPartialOpen(false);
+        // Keep partialOpen = true – do NOT close dialog
         utils.borrow.getMyBorrows.invalidate();
         utils.borrow.getLentItems.invalidate();
-        onSuccess?.();
+        // Do NOT call onSuccess or close dialog
       }
     } catch (error: any) {
       toast.error(error.message || t("borrow:returnDialog.error"));

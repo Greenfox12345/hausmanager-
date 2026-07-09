@@ -554,16 +554,18 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
         onSuccess();
         onOpenChange(false);
       } else {
+        // Partial return: keep dialog open so user can return the rest
         toast.success(t("borrow:returnDialog.partialSuccess", {
           returned: partialQty,
           remaining: result.remainingQuantity,
           unit: unitLabel ?? t("borrow:quantity.units"),
         }));
+        // Update remaining quantity, keep collapsible open for next partial return
         setPartialQty(result.remainingQuantity);
         setPartialNote("");
-        setPartialOpen(false);
+        // Keep partialOpen = true so user can immediately return the rest
         utils.borrow.invalidate();
-        onSuccess();
+        // Do NOT close dialog or call onSuccess – user needs to return the rest
       }
     } catch (error: any) {
       toast.error(error.message || t("borrow:returnDialog.error"));

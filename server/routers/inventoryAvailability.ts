@@ -1,6 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { borrowRequests, householdMembers, inventoryItems, householdConnections } from "../../drizzle/schema";
+import { borrowRequests, householdMembers, inventoryItems, householdConnections, itemUnits } from "../../drizzle/schema";
 import { and, eq, or, lte, gte } from "drizzle-orm";
 import { getDb } from "../db";
 
@@ -44,6 +44,19 @@ export const inventoryAvailabilityRouter = router({
         .limit(1);
 
       const totalQty: number | null = item?.quantity != null ? Number(item.quantity) : null;
+
+      // Fetch unit info for display
+      let unitSymbol: string | null = null;
+      let unitName: string | null = null;
+      if (item?.unitId) {
+        const [unitRow] = await db
+          .select({ symbol: itemUnits.symbol, name: itemUnits.name })
+          .from(itemUnits)
+          .where(eq(itemUnits.id, item.unitId))
+          .limit(1);
+        unitSymbol = unitRow?.symbol ?? null;
+        unitName = unitRow?.name ?? null;
+      }
 
       // Find overlapping active/approved borrow requests
       const conflictRows = await db
@@ -126,6 +139,8 @@ export const inventoryAvailabilityRouter = router({
         status,
         availableQuantity: availableQty,
         totalQuantity: totalQty,
+        unitSymbol,
+        unitName,
         currentlyBorrowed,
         currentlyReserved,
         conflictingBorrows: conflictRows.map((borrow) => {
