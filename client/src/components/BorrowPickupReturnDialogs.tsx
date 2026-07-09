@@ -7,7 +7,7 @@
  *  - ReturnDialog: shown when borrower returns the item
  *    → shows pickup photo/comment prominently for comparison, then guidelines + return photo + comment
  */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -22,8 +22,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Camera, CheckCircle2, ImageIcon, Loader2, PackageCheck, Undo2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Camera, CheckCircle2, ChevronDown, ChevronUp, ImageIcon, Loader2, PackageCheck, RotateCcw, Undo2 } from "lucide-react";
 import { cn, formatBorrowDate } from "@/lib/utils";
+import { QuantityInput, formatQuantity } from "@/components/QuantityInput";
 
 // ─── shared photo capture helper ────────────────────────────────────────────
 
@@ -115,6 +117,9 @@ export interface BorrowRequestDetail {
   pickupPhotoUrl?: string | null;
   returnComment?: string | null;
   returnPhotoUrl?: string | null;
+  loanQuantity?: number | null;
+  returnedQuantity?: number;
+  unitLabel?: string | null;
   guideline?: {
     instructionsText?: string | null;
     checklistItems?: Array<{ id: string; label: string; required: boolean }> | null;
@@ -455,14 +460,29 @@ interface ReturnDialogProps {
 }
 
 export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess }: ReturnDialogProps) {
-  const { t } = useTranslation("borrows");
+  const { t } = useTranslation(["borrows", "borrow", "common"]);
   const [comment, setComment] = useState("");
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [photoFilename, setPhotoFilename] = useState<string>("");
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [reqUploads, setReqUploads] = useState<Record<string, { base64: string; filename: string }>>({});
+  const [reqUploads, setReqUploads] = useState<Record<string, { base64: string; filename: string }>>({}); 
+
+  // Partial return state
+  const [partialOpen, setPartialOpen] = useState(false);
+  const [partialQty, setPartialQty] = useState<number | null>(null);
+  const [partialNote, setPartialNote] = useState("");
+
+  const loanQty = request.loanQuantity ?? null;
+  const returnedQty = request.returnedQuantity ?? 0;
+  const remaining = loanQty !== null ? loanQty - returnedQty : null;
+  const unitLabel = request.unitLabel ?? null;
+
+  useEffect(() => {
+    if (open && remaining !== null) setPartialQty(remaining);
+  }, [open, remaining]);
 
   const utils = trpc.useUtils();
+  const partialReturnMutation = trpc.borrow.partialReturn.useMutation();
   const confirmReturn = trpc.borrow.confirmReturn.useMutation({
     onSuccess: () => {
       toast.success(t("return.success", "Rückgabe bestätigt!"));
@@ -513,6 +533,42 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
   };
 
   const hasPickupData = !!(request.pickupPhotoUrl || request.pickupComment);
+  const hasQuantity = loanQty !== null && loanQty > 0;
+
+  const handlePartialReturn = async () => {
+    if (!partialQty || partialQty < 1) return;
+    if (remaining !== null && partialQty > remaining) {
+      toast.error(t("borrow:quantity.exceedsAvailable", { max: remaining }));
+      return;
+    }
+    try {
+      const result = await partialReturnMutation.mutateAsync({
+        requestId: request.id,
+        returnQty: partialQty,
+        memberId,
+        note: partialNote.trim() || undefined,
+      });
+      if (result.isFullyReturned) {
+        toast.success(t("borrow:returnDialog.partialFullyReturned"));
+        utils.borrow.invalidate();
+        onSuccess();
+        onOpenChange(false);
+      } else {
+        toast.success(t("borrow:returnDialog.partialSuccess", {
+          returned: partialQty,
+          remaining: result.remainingQuantity,
+          unit: unitLabel ?? t("borrow:quantity.units"),
+        }));
+        setPartialQty(result.remainingQuantity);
+        setPartialNote("");
+        setPartialOpen(false);
+        utils.borrow.invalidate();
+        onSuccess();
+      }
+    } catch (error: any) {
+      toast.error(error.message || t("borrow:returnDialog.error"));
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -544,8 +600,60 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
                 {formatBorrowDate(request.startDate)} –{" "}
                 {formatBorrowDate(request.endDate)}
               </p>
+              {/* Quantity summary */}
+              {hasQuantity && (
+                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <RotateCcw className="h-3 w-3" />
+                  {t("borrow:returnDialog.quantitySummary", {
+                    loan: formatQuantity(loanQty),
+                    returned: formatQuantity(returnedQty),
+                    remaining: formatQuantity(remaining),
+                    unit: unitLabel ?? "",
+                  })}
+                </p>
+              )}
             </div>
           </div>
+
+          {/* Partial return collapsible */}
+          {hasQuantity && remaining !== null && remaining > 0 && (
+            <Collapsible open={partialOpen} onOpenChange={setPartialOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full justify-between">
+                  <span>{t("borrow:returnDialog.partialReturn")}</span>
+                  {partialOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-3">
+                <QuantityInput
+                  value={partialQty}
+                  onChange={setPartialQty}
+                  units={[]}
+                  unitId={null}
+                  onUnitChange={() => {}}
+                  showUnitSelector={false}
+                  max={remaining}
+                  alwaysShow
+                />
+                {unitLabel && <span className="text-xs text-muted-foreground">{unitLabel}</span>}
+                <Textarea
+                  placeholder={t("borrow:returnDialog.partialNotePlaceholder")}
+                  value={partialNote}
+                  onChange={(e) => setPartialNote(e.target.value)}
+                  rows={2}
+                />
+                <Button
+                  size="sm"
+                  onClick={handlePartialReturn}
+                  disabled={partialReturnMutation.isPending || !partialQty || partialQty < 1}
+                >
+                  {partialReturnMutation.isPending
+                    ? t("borrow:returnDialog.returning")
+                    : t("borrow:returnDialog.confirmPartial")}
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* ── Zustand bei Abholung (Vergleichsbereich) ── */}
           <div className="space-y-2">

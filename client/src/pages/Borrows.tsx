@@ -273,6 +273,9 @@ export default function Borrows() {
       requestMessage: borrow.requestMessage ?? null,
       pickupComment: borrow.pickupComment ?? null,
       pickupPhotoUrl: borrow.pickupPhotoUrl ?? null,
+      loanQuantity: borrow.loanQuantity ?? null,
+      returnedQuantity: borrow.returnedQuantity ?? 0,
+      unitLabel: borrow.unitLabel ?? null,
       guideline: borrow.guideline ?? null,
     });
     setReturnDialogOpen(true);
@@ -633,6 +636,21 @@ export default function Borrows() {
                           <span>{t("borrows:fields.endDate", "Bis")}: {formatDate(borrow.endDate)}</span>
                         </div>
                       </div>
+
+                      {/* Mengenanzeige */}
+                      {(borrow as any).loanQuantity != null && (borrow as any).loanQuantity > 0 && (
+                        <div className="flex items-center gap-2 text-sm mb-3">
+                          <Package className="w-4 h-4 text-muted-foreground" />
+                          <span>
+                            {t("borrow:returnDialog.quantitySummary", {
+                              loan: (borrow as any).loanQuantity,
+                              returned: (borrow as any).returnedQuantity ?? 0,
+                              remaining: ((borrow as any).loanQuantity ?? 0) - ((borrow as any).returnedQuantity ?? 0),
+                              unit: (borrow as any).unitLabel ?? "",
+                            })}
+                          </span>
+                        </div>
+                      )}
 
                       {(borrow.status === "active" || borrow.status === "completed") && ((borrow as any).pickupPhotoUrl || (borrow as any).pickupComment) && (
                         <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-md border border-green-200 dark:border-green-800 text-sm">

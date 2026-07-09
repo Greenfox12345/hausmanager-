@@ -45,7 +45,7 @@ export default function InventoryDetail() {
 
   const [showBorrowDialog, setShowBorrowDialog] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
-  const [selectedReturnRequest, setSelectedReturnRequest] = useState<number | null>(null);
+  const [selectedReturnRequest, setSelectedReturnRequest] = useState<{ id: number; loanQuantity?: number | null; returnedQuantity?: number; unitLabel?: string | null } | null>(null);
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
   const [revokeRequest, setRevokeRequest] = useState<{ id: number; borrowerName: string; startDate: string; endDate: string } | null>(null);
   const [detailTab, setDetailTab] = useState<"requests" | "guidelines">("requests");
@@ -724,6 +724,16 @@ export default function InventoryDetail() {
                               <div className="text-sm text-muted-foreground">
                                 {formatBorrowDate(request.startDate)} – {formatBorrowDate(request.endDate)}
                               </div>
+                              {(request as any).loanQuantity != null && (request as any).loanQuantity > 0 && (
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  {t("borrow:returnDialog.quantitySummary", {
+                                    loan: (request as any).loanQuantity,
+                                    returned: (request as any).returnedQuantity ?? 0,
+                                    remaining: ((request as any).loanQuantity ?? 0) - ((request as any).returnedQuantity ?? 0),
+                                    unit: (request as any).unitLabel ?? "",
+                                  })}
+                                </div>
+                              )}
                             </div>
                             <div>
                               {isPending && (
@@ -807,7 +817,12 @@ export default function InventoryDetail() {
                                   size="sm"
                                   variant="default"
                                   onClick={() => {
-                                    setSelectedReturnRequest(request.id);
+                                    setSelectedReturnRequest({
+                                      id: request.id,
+                                      loanQuantity: (request as any).loanQuantity ?? null,
+                                      returnedQuantity: (request as any).returnedQuantity ?? 0,
+                                      unitLabel: (request as any).unitLabel ?? null,
+                                    });
                                     setShowReturnDialog(true);
                                   }}
                                 >
@@ -873,9 +888,12 @@ export default function InventoryDetail() {
         <BorrowReturnDialog
           open={showReturnDialog}
           onOpenChange={setShowReturnDialog}
-          borrowRequestId={selectedReturnRequest}
+          borrowRequestId={selectedReturnRequest.id}
           itemId={itemId}
           itemName={item.name}
+          loanQuantity={selectedReturnRequest.loanQuantity}
+          returnedQuantity={selectedReturnRequest.returnedQuantity}
+          unitLabel={selectedReturnRequest.unitLabel}
           onSuccess={() => {
             utils.borrow.listByItem.invalidate({ itemId });
             setShowReturnDialog(false);

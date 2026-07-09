@@ -1418,6 +1418,49 @@ export const borrowRouter = router({
         })
         .where(eq(borrowRequests.id, input.requestId));
 
+      // Create activity log with quantity info
+      const partialReturnItem = await getInventoryItemById(req.inventoryItemId);
+      const partialReturnMemberObj = await getHouseholdMemberById(
+        input.memberId ?? req.borrowerMemberId!
+      );
+      const partialReturnMemberName = partialReturnMemberObj?.memberName ?? `#${req.borrowerMemberId}`;
+      const partialHouseholdId = (partialReturnMemberObj as any)?.householdId ?? 0;
+      const partialReturnLang = await getBorrowLang(partialHouseholdId);
+      let partialReturnDesc: string;
+      if (isFullyReturned) {
+        partialReturnDesc = partialReturnLang === "en"
+          ? `${partialReturnMemberName} returned all ${loanQty} of "${partialReturnItem?.name ?? "?"}"`
+          : partialReturnLang === "es"
+          ? `${partialReturnMemberName} devolvió todas las ${loanQty} de "${partialReturnItem?.name ?? "?"}"`
+          : partialReturnLang === "fr"
+          ? `${partialReturnMemberName} a rendu les ${loanQty} de « ${partialReturnItem?.name ?? "?"} »`
+          : `${partialReturnMemberName} hat alle ${loanQty} von "${partialReturnItem?.name ?? "?"}" zurückgegeben`;
+      } else {
+        partialReturnDesc = partialReturnLang === "en"
+          ? `${partialReturnMemberName} returned ${input.returnQty} of "${partialReturnItem?.name ?? "?"}" (${newReturned}/${loanQty} returned, ${loanQty - newReturned} still outstanding)`
+          : partialReturnLang === "es"
+          ? `${partialReturnMemberName} devolvió ${input.returnQty} de "${partialReturnItem?.name ?? "?"}" (${newReturned}/${loanQty} devueltas, ${loanQty - newReturned} pendientes)`
+          : partialReturnLang === "fr"
+          ? `${partialReturnMemberName} a rendu ${input.returnQty} de « ${partialReturnItem?.name ?? "?"} » (${newReturned}/${loanQty} rendus, ${loanQty - newReturned} restants)`
+          : `${partialReturnMemberName} hat ${input.returnQty} von "${partialReturnItem?.name ?? "?"}" zurückgegeben (${newReturned}/${loanQty} zurück, noch ${loanQty - newReturned} ausstehend)`;
+      }
+      await createActivityLog({
+        householdId: partialHouseholdId,
+        memberId: input.memberId ?? req.borrowerMemberId!,
+        activityType: "borrow",
+        action: isFullyReturned ? "borrow_returned" : "borrow_partial_return",
+        description: partialReturnDesc,
+        metadata: {
+          itemId: req.inventoryItemId,
+          requestId: input.requestId,
+          returnQty: input.returnQty,
+          newReturnedQuantity: newReturned,
+          loanQuantity: loanQty,
+          remainingQuantity: loanQty - newReturned,
+          note: input.note ?? null,
+        },
+      });
+
       return {
         success: true,
         newReturnedQuantity: newReturned,
