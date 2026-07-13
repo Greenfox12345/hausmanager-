@@ -846,6 +846,18 @@ export default function Inventory() {
             </div>
 
             <div>
+              <Label>{t('inventory:fields.quantity', 'Menge (optional)')}</Label>
+              <QuantityInput
+                value={newItemQuantity}
+                onChange={setNewItemQuantity}
+                units={units ?? []}
+                unitId={newItemUnitId}
+                onUnitChange={setNewItemUnitId}
+                showUnitSelector={true}
+              />
+            </div>
+
+            <div>
               <Label>{t('inventory:fields.photos', 'Fotos (max. 5)')}</Label>
               <div className="space-y-2">
                 {newItemPhotos.map((photo, index) => (

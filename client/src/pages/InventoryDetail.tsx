@@ -22,6 +22,8 @@ import { BorrowProtocol } from "@/components/BorrowProtocol";
 import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
+import { QuantityInput, type UnitOption } from "@/components/QuantityInput";
+import { getCurrentLanguage } from "@/lib/i18n";
 
 type Visibility = "private" | "connected" | "selected";
 interface LightboxState { photos: { url: string; label?: string }[]; index: number; }
@@ -42,6 +44,8 @@ export default function InventoryDetail() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [editVisibility, setEditVisibility] = useState<Visibility>("private");
   const [editAllowedHouseholdIds, setEditAllowedHouseholdIds] = useState<number[]>([]);
+  const [editQuantity, setEditQuantity] = useState<number | null>(null);
+  const [editUnitId, setEditUnitId] = useState<number | null>(null);
 
   const [showBorrowDialog, setShowBorrowDialog] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
@@ -92,6 +96,11 @@ export default function InventoryDetail() {
   const { data: allowedHouseholdIds = [] } = trpc.inventory.getAllowedHouseholds.useQuery(
     { itemId },
     { enabled: !!itemId }
+  );
+
+  const { data: units = [] } = trpc.units.list.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household }
   );
 
   const uploadMutation = trpc.upload.uploadPhoto.useMutation({
@@ -231,6 +240,8 @@ export default function InventoryDetail() {
         typeof p === 'string' ? { url: p, filename: 'Foto' } : p
       );
       setEditPhotos(convertedPhotos);
+      setEditQuantity((item as any).quantity ?? null);
+      setEditUnitId((item as any).unitId ?? null);
     }
   }, [item]);
 
@@ -327,6 +338,8 @@ export default function InventoryDetail() {
       ownerIds: editOwnershipType === 'personal' ? editOwnerIds : [],
       visibility: editVisibility,
       allowedHouseholdIds: editVisibility === 'selected' ? editAllowedHouseholdIds : [],
+      quantity: editQuantity,
+      unitId: editUnitId,
     });
   };
 
@@ -434,6 +447,18 @@ export default function InventoryDetail() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <Label>{t('inventory:fields.quantity', 'Menge (optional)')}</Label>
+                <QuantityInput
+                  value={editQuantity}
+                  onChange={setEditQuantity}
+                  units={units ?? []}
+                  unitId={editUnitId}
+                  onUnitChange={setEditUnitId}
+                  showUnitSelector={true}
+                />
               </div>
 
               <div>
