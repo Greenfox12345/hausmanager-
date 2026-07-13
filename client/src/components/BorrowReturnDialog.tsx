@@ -64,17 +64,26 @@ export function BorrowReturnDialog({
   const [partialOpen, setPartialOpen] = useState(false);
   const [partialQty, setPartialQty] = useState<number | null>(null);
   const [partialNote, setPartialNote] = useState("");
+  // Local state tracks returned qty after partial returns (prop won't update until dialog closes)
+  const [localReturnedQty, setLocalReturnedQty] = useState<number>(returnedQuantity);
 
   const remaining = loanQuantity !== null && loanQuantity !== undefined
-    ? loanQuantity - returnedQuantity
+    ? loanQuantity - localReturnedQty
     : null;
+
+  // Sync localReturnedQty when dialog opens (fresh data)
+  useEffect(() => {
+    if (open) {
+      setLocalReturnedQty(returnedQuantity);
+    }
+  }, [open, returnedQuantity]);
 
   // Reset partial qty when dialog opens
   useEffect(() => {
     if (open && remaining !== null) {
       setPartialQty(remaining);
     }
-  }, [open, remaining]);
+  }, [open]);
 
   // Load guidelines
   const { data: guidelines } = trpc.borrow.getGuidelines.useQuery(
@@ -172,7 +181,8 @@ export function BorrowReturnDialog({
             unit: unitLabel ?? t("borrow:quantity.units"),
           })
         );
-        // Update remaining, keep collapsible open for next partial return
+        // Update local state so remaining recalculates correctly without closing dialog
+        setLocalReturnedQty(prev => prev + partialQty!);
         setPartialQty(result.remainingQuantity);
         setPartialNote("");
         // Keep partialOpen = true – do NOT close dialog
@@ -257,7 +267,7 @@ export function BorrowReturnDialog({
               <span>
                 {t("borrow:returnDialog.quantitySummary", {
                   loan: formatQuantity(loanQuantity),
-                  returned: formatQuantity(returnedQuantity),
+                    returned: formatQuantity(localReturnedQty),
                   remaining: formatQuantity(remaining),
                   unit: unitLabel ?? "",
                 })}

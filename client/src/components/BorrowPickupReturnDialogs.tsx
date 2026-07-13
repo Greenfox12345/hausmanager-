@@ -471,15 +471,23 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
   const [partialOpen, setPartialOpen] = useState(false);
   const [partialQty, setPartialQty] = useState<number | null>(null);
   const [partialNote, setPartialNote] = useState("");
+  // Local state tracks returned qty after partial returns (prop won't update until dialog closes)
+  const [localReturnedQty, setLocalReturnedQty] = useState<number>(request.returnedQuantity ?? 0);
 
   const loanQty = request.loanQuantity ?? null;
-  const returnedQty = request.returnedQuantity ?? 0;
-  const remaining = loanQty !== null ? loanQty - returnedQty : null;
+  const remaining = loanQty !== null ? loanQty - localReturnedQty : null;
   const unitLabel = request.unitLabel ?? null;
+
+  // Sync localReturnedQty when dialog opens (fresh data)
+  useEffect(() => {
+    if (open) {
+      setLocalReturnedQty(request.returnedQuantity ?? 0);
+    }
+  }, [open, request.returnedQuantity]);
 
   useEffect(() => {
     if (open && remaining !== null) setPartialQty(remaining);
-  }, [open, remaining]);
+  }, [open]);
 
   const utils = trpc.useUtils();
   const partialReturnMutation = trpc.borrow.partialReturn.useMutation();
@@ -560,7 +568,9 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
           remaining: result.remainingQuantity,
           unit: unitLabel ?? t("borrow:quantity.units"),
         }));
-        // Update remaining quantity, keep collapsible open for next partial return
+        // Update local state so remaining recalculates correctly without closing dialog
+        const newLocalReturned = localReturnedQty + partialQty;
+        setLocalReturnedQty(newLocalReturned);
         setPartialQty(result.remainingQuantity);
         setPartialNote("");
         // Keep partialOpen = true so user can immediately return the rest
@@ -608,7 +618,7 @@ export function ReturnDialog({ open, onOpenChange, request, memberId, onSuccess 
                   <RotateCcw className="h-3 w-3" />
                   {t("borrow:returnDialog.quantitySummary", {
                     loan: formatQuantity(loanQty),
-                    returned: formatQuantity(returnedQty),
+                    returned: formatQuantity(localReturnedQty),
                     remaining: formatQuantity(remaining),
                     unit: unitLabel ?? "",
                   })}
