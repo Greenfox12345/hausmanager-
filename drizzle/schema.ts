@@ -405,7 +405,7 @@ export const borrowQuantityReturns = mysqlTable("borrow_quantity_returns", {
   id: int("id").autoincrement().primaryKey(),
   borrowRequestId: int("borrowRequestId").notNull().references(() => borrowRequests.id, { onDelete: "cascade" }),
   returnedQty: int("returnedQty").notNull(), // How many units were returned in this action
-  memberId: int("memberId").references(() => householdMembers.id, { onDelete: "set null" }),
+  returnedByMemberId: int("returnedByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
   note: text("note"),
   returnedAt: timestamp("returnedAt").defaultNow().notNull(),
 });

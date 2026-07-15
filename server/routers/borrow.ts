@@ -1404,7 +1404,7 @@ export const borrowRouter = router({
       await db.insert(borrowQuantityReturns).values({
         borrowRequestId: input.requestId,
         returnedQty: input.returnQty,
-        memberId: input.memberId ?? null,
+        returnedByMemberId: input.memberId ?? null,
         note: input.note ?? null,
         returnedAt: new Date(),
       });
