@@ -119,6 +119,14 @@ function InstanceRow({
     onError: () => toast.error("Fehler beim Übertragen"),
   });
 
+  const completeMutation = trpc.planTemplates.completeInstance.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listInstances.invalidate({ householdId });
+      toast.success("Plan abgeschlossen");
+    },
+    onError: () => toast.error("Fehler beim Abschließen"),
+  });
+
   return (
     <div>
       <button
@@ -134,20 +142,29 @@ function InstanceRow({
             {pending > 0 && ` · ${pending} ausstehend`}
           </p>
         </div>
-        {pending > 0 && (
+        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+          {pending > 0 && (
+            <Button
+              size="sm"
+              className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => transferAllMutation.mutate({ instanceId: instance.id, householdId, memberId })}
+              disabled={transferAllMutation.isPending}
+            >
+              <ShoppingCart className="w-3 h-3 mr-1" />
+              Alle übertragen
+            </Button>
+          )}
           <Button
             size="sm"
-            className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white flex-shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              transferAllMutation.mutate({ instanceId: instance.id, householdId, memberId });
-            }}
-            disabled={transferAllMutation.isPending}
+            variant="outline"
+            className="h-7 px-2 text-xs border-amber-300 text-amber-700 hover:bg-amber-100"
+            onClick={() => completeMutation.mutate({ instanceId: instance.id, householdId, memberId })}
+            disabled={completeMutation.isPending}
           >
-            <ShoppingCart className="w-3 h-3 mr-1" />
-            Alle übertragen
+            <Check className="w-3 h-3 mr-1" />
+            Abschließen
           </Button>
-        )}
+        </div>
         {isExpanded ? (
           <ChevronUp className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
         ) : (
