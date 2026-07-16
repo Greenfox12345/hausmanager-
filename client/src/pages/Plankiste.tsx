@@ -277,6 +277,14 @@ function TemplateItemsPreview({
   const [newItemQty, setNewItemQty] = useState<number | null>(null);
   const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
+  const [newItemNotes, setNewItemNotes] = useState("");
+  // Inline-Bearbeitung
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editQty, setEditQty] = useState<number | null>(null);
+  const [editUnitId, setEditUnitId] = useState<number | null>(null);
+  const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
+  const [editNotes, setEditNotes] = useState("");
 
   const { data: template } = trpc.planTemplates.getTemplate.useQuery(
     { templateId },
@@ -309,6 +317,24 @@ function TemplateItemsPreview({
     onError: () => toast.error("Fehler beim Entfernen"),
   });
 
+  const updateItemMutation = trpc.planTemplates.updateTemplateItem.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.getTemplate.invalidate({ templateId });
+      setEditingItemId(null);
+      toast.success("Artikel aktualisiert");
+    },
+    onError: () => toast.error("Fehler beim Aktualisieren"),
+  });
+
+  const startEditItem = (item: any) => {
+    setEditingItemId(item.id);
+    setEditName(item.name);
+    setEditQty(item.quantity ?? null);
+    setEditUnitId(item.unitId ?? null);
+    setEditCategoryId(item.categoryId ?? null);
+    setEditNotes(item.notes ?? "");
+  };
+
   const unitOptions: UnitOption[] = (units as any[]).map((u: any) => ({
     id: u.id, name: u.name, symbol: u.symbol
   }));
@@ -340,6 +366,13 @@ function TemplateItemsPreview({
             value={newItemName}
             onChange={e => setNewItemName(e.target.value)}
             className="h-8 text-sm"
+          />
+          <Textarea
+            placeholder="Notiz (optional)"
+            value={newItemNotes}
+            onChange={e => setNewItemNotes(e.target.value)}
+            className="text-sm resize-none"
+            rows={2}
           />
           <div className="flex gap-2">
             <div className="flex-1">
@@ -385,6 +418,7 @@ function TemplateItemsPreview({
                 categoryId: newItemCategoryId,
                 quantity: newItemQty,
                 unitId: newItemUnitId,
+                notes: newItemNotes.trim() || undefined,
               })}
             >
               Hinzufügen
@@ -405,28 +439,121 @@ function TemplateItemsPreview({
       <div className="space-y-1.5">
         {items.map((item: any) => {
           const unit = item.unitId ? { id: item.unitId, name: item.unitName, symbol: item.unitSymbol } : null;
+          const isEditing = editingItemId === item.id;
           return (
-            <div key={item.id} className="flex items-center gap-2 py-1">
-              {item.categoryColor && (
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: item.categoryColor }}
-                />
+            <div key={item.id}>
+              {isEditing ? (
+                /* Inline-Edit-Modus */
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <Input
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    className="h-8 text-sm"
+                    placeholder="Artikelname"
+                  />
+                  <Textarea
+                    placeholder="Notiz (optional)"
+                    value={editNotes}
+                    onChange={e => setEditNotes(e.target.value)}
+                    className="text-sm resize-none"
+                    rows={2}
+                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <QuantityInput
+                        value={editQty}
+                        onChange={setEditQty}
+                        unitId={editUnitId}
+                        onUnitChange={setEditUnitId}
+                        units={unitOptions}
+                      />
+                    </div>
+                    <Select
+                      value={editCategoryId?.toString() ?? "none"}
+                      onValueChange={v => setEditCategoryId(v === "none" ? null : Number(v))}
+                    >
+                      <SelectTrigger className="h-8 text-sm flex-1">
+                        <SelectValue placeholder="Kategorie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Keine Kategorie</SelectItem>
+                        {(categories as any[]).map((c: any) => (
+                          <SelectItem key={c.id} value={c.id.toString()}>
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: c.color }} />
+                              {c.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1 h-7 text-xs"
+                      disabled={!editName.trim() || updateItemMutation.isPending}
+                      onClick={() => updateItemMutation.mutate({
+                        itemId: item.id,
+                        name: editName.trim(),
+                        categoryId: editCategoryId,
+                        quantity: editQty,
+                        unitId: editUnitId,
+                        notes: editNotes.trim() || null,
+                      })}
+                    >
+                      <Check className="w-3 h-3 mr-1" />
+                      Speichern
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs"
+                      onClick={() => setEditingItemId(null)}
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Abbrechen
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* Normale Anzeige */
+                <div className="flex items-start gap-2 py-1">
+                  {item.categoryColor && (
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                      style={{ backgroundColor: item.categoryColor }}
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm">{item.name}</span>
+                    {item.notes && (
+                      <p className="text-xs text-muted-foreground italic mt-0.5">{item.notes}</p>
+                    )}
+                  </div>
+                  {item.quantity && (
+                    <span className="text-xs text-muted-foreground mt-0.5">
+                      {formatQuantityWithUnit(item.quantity, unit)}
+                    </span>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                    onClick={() => startEditItem(item)}
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => deleteItemMutation.mutate({ itemId: item.id })}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
               )}
-              <span className="flex-1 text-sm">{item.name}</span>
-              {item.quantity && (
-                <span className="text-xs text-muted-foreground">
-                  {formatQuantityWithUnit(item.quantity, unit)}
-                </span>
-              )}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                onClick={() => deleteItemMutation.mutate({ itemId: item.id })}
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
             </div>
           );
         })}
@@ -813,7 +940,7 @@ function InstanceItemsList({
                         categoryId: item.categoryId,
                         quantity: item.quantity ? parseFloat(item.quantity) : null,
                         unitId: item.unitId,
-                        notes: item.notes,
+                        notes: item.notes ?? null,
                       }],
                     })}
                     disabled={transferItemMutation.isPending}
