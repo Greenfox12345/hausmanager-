@@ -145,11 +145,11 @@ function InstanceRow({
             {pending > 0 && ` · ${pending} ausstehend`}
           </p>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+        <div className="flex flex-col gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
           {pending > 0 && (
             <Button
               size="sm"
-              className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+              className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white w-full"
               onClick={() => transferAllMutation.mutate({ instanceId: instance.id, householdId, memberId })}
               disabled={transferAllMutation.isPending}
             >
@@ -160,7 +160,7 @@ function InstanceRow({
           <Button
             size="sm"
             variant="outline"
-            className="h-7 px-2 text-xs border-amber-300 text-amber-700 hover:bg-amber-100"
+            className="h-7 px-2 text-xs border-amber-300 text-amber-700 hover:bg-amber-100 w-full"
             onClick={() => completeMutation.mutate({ instanceId: instance.id, householdId, memberId })}
             disabled={completeMutation.isPending}
           >
