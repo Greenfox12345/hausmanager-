@@ -175,6 +175,12 @@ export function BorrowProtocol({
     { enabled: isExpanded }
   );
 
+  // Teilrückgabe-Einträge (mit Notizen)
+  const { data: returnEntries = [] } = trpc.borrow.getReturnEntries.useQuery(
+    { requestId: request.id },
+    { enabled: isExpanded && !!request.loanQuantity }
+  );
+
   const pickupReqPhotos = returnPhotos.filter(
     (p: any) => p.photoRequirementId && p.uploadedAt && request.borrowedAt &&
       new Date(p.uploadedAt).getTime() <= new Date(request.borrowedAt).getTime() + 60_000
@@ -187,7 +193,8 @@ export function BorrowProtocol({
 
   const hasAnyData =
     request.pickupPhotoUrl || request.pickupComment || pickupReqPhotos.length > 0 ||
-    request.returnPhotoUrl || request.returnComment || returnReqPhotos.length > 0;
+    request.returnPhotoUrl || request.returnComment || returnReqPhotos.length > 0 ||
+    request.loanQuantity > 0;
 
   if (!hasAnyData) return null;
 
@@ -253,6 +260,39 @@ export function BorrowProtocol({
             guideline={guideline}
             phase="return"
           />
+
+          {/* Teilrückgabe-Verlauf */}
+          {returnEntries.length > 0 && (
+            <div className="p-3 rounded-md border bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                {t("borrows:partialReturns.title", "Teilrückgaben")}
+              </p>
+              <div className="space-y-2">
+                {returnEntries.map((entry: any, idx: number) => (
+                  <div key={entry.id} className="text-xs border-l-2 border-amber-300 dark:border-amber-600 pl-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground">
+                        {t("borrows:partialReturns.entry", { index: idx + 1, qty: entry.returnedQty })}
+                        {entry.memberName && (
+                          <span className="text-muted-foreground font-normal"> – {entry.memberName}</span>
+                        )}
+                      </span>
+                      <span className="text-muted-foreground shrink-0">
+                        {new Date(entry.returnedAt).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}
+                      </span>
+                    </div>
+                    {entry.note && (
+                      <p className="text-muted-foreground italic mt-0.5 flex items-start gap-1">
+                        <MessageSquare className="w-3 h-3 mt-0.5 shrink-0" />
+                        <span>„{entry.note}"</span>
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

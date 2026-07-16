@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
-import { borrowRequests, inventoryItems, borrowQuantityReturns } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { borrowRequests, inventoryItems, borrowQuantityReturns, householdMembers } from "../../drizzle/schema";
+import { eq, asc } from "drizzle-orm";
 import {
   getDb,
   createBorrowRequest,
@@ -1527,5 +1527,29 @@ export const borrowRouter = router({
         isFullyReturned,
         remainingQuantity: loanQty - newReturned,
       };
+    }),
+
+  /**
+   * Gibt alle Teilrückgabe-Einträge für eine Anfrage zurück (mit Notizen und Mitgliedsnamen).
+   */
+  getReturnEntries: publicProcedure
+    .input(z.object({ requestId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const entries = await db
+        .select({
+          id: borrowQuantityReturns.id,
+          returnedQty: borrowQuantityReturns.returnedQty,
+          note: borrowQuantityReturns.note,
+          returnedAt: borrowQuantityReturns.returnedAt,
+          returnedByMemberId: borrowQuantityReturns.returnedByMemberId,
+          memberName: householdMembers.memberName,
+        })
+        .from(borrowQuantityReturns)
+        .leftJoin(householdMembers, eq(borrowQuantityReturns.returnedByMemberId, householdMembers.id))
+        .where(eq(borrowQuantityReturns.borrowRequestId, input.requestId))
+        .orderBy(asc(borrowQuantityReturns.returnedAt));
+      return entries;
     }),
 });

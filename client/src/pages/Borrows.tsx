@@ -23,6 +23,7 @@ import { PhotoLightbox, ClickablePhoto } from "@/components/PhotoLightbox";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { BorrowRequestDialog } from "@/components/BorrowRequestDialog";
+import { BorrowPartialReturnHistory } from "@/components/BorrowPartialReturnHistory";
 import { PickupDialog, ReturnDialog, type BorrowRequestDetail } from "@/components/BorrowPickupReturnDialogs";
 import { BorrowCalendar } from "@/components/BorrowCalendar";
 import { RevokeApprovalDialog } from "@/components/RevokeApprovalDialog";
@@ -696,7 +697,7 @@ export default function Borrows() {
                         </div>
                       )}
 
-                      {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
+                                            {borrow.status === "completed" && ((borrow as any).returnPhotoUrl || (borrow as any).returnComment) && (
                         <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-200 dark:border-blue-800 text-sm">
                           <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
                             {t("borrows:returnRecord", "Bei Rückgabe festgehalten")}
@@ -714,7 +715,13 @@ export default function Borrows() {
                           )}
                         </div>
                       )}
-
+                      {/* Teilrückgabe-Verlauf */}
+                      {(borrow.status === "active" || borrow.status === "completed") && (borrow as any).loanQuantity > 0 && (
+                        <BorrowPartialReturnHistory
+                          requestId={borrow.id}
+                          loanQuantity={(borrow as any).loanQuantity}
+                        />
+                      )}
                       {borrow.status === "pending" && (
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           <p className="text-sm text-muted-foreground">
