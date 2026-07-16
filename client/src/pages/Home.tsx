@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, HandCoins, LayoutList, LayoutGrid } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, HandCoins, LayoutList, LayoutGrid, BookOpen } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
@@ -99,6 +99,14 @@ export default function Home() {
       href: "/borrows",
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
+    },
+    {
+      title: "Plankiste",
+      description: "Vorlagen für wiederkehrende Einkäufe und Aufgaben",
+      icon: BookOpen,
+      href: "/plankiste",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
     {
       title: tHistory("title"),

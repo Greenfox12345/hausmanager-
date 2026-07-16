@@ -1,5 +1,5 @@
 import { int, bigint, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, datetime, json, decimal } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 /**
  * Core user table backing auth flow.
@@ -661,11 +661,11 @@ export const planTemplates = mysqlTable("plan_templates", {
   description: text("description"),
   type: mysqlEnum("type", ["shopping", "tasks", "project", "mixed"]).default("shopping").notNull(),
   tags: json("tags").$type<string[]>().default([]),
-  usageCount: int("usageCount").default(0).notNull(), // Wie oft wurde die Vorlage gestartet
-  lastUsedAt: timestamp("lastUsedAt"),
+  usageCount: int("usageCount").default(0).notNull(),
+  lastUsedAt: datetime("lastUsedAt"),
   isArchived: boolean("isArchived").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
+  updatedAt: datetime("updatedAt").$defaultFn(() => new Date()).notNull(),
 });
 export type PlanTemplate = typeof planTemplates.$inferSelect;
 export type InsertPlanTemplate = typeof planTemplates.$inferInsert;
@@ -682,8 +682,8 @@ export const planTemplateShoppingItems = mysqlTable("plan_template_shopping_item
   quantity: decimal("quantity", { precision: 10, scale: 3 }),
   unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }),
   notes: text("notes"),
-  sortOrder: int("sortOrder").default(0).notNull(), // Reihenfolge innerhalb der Vorlage
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
 });
 export type PlanTemplateShoppingItem = typeof planTemplateShoppingItems.$inferSelect;
 export type InsertPlanTemplateShoppingItem = typeof planTemplateShoppingItems.$inferInsert;
@@ -698,10 +698,10 @@ export const planTemplateInstances = mysqlTable("plan_template_instances", {
   templateId: int("templateId").notNull().references(() => planTemplates.id, { onDelete: "cascade" }),
   householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
   startedByMemberId: int("startedByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
-  label: varchar("label", { length: 255 }), // Optionaler Name der Instanz, z.B. "Einkauf 14.07."
+  label: varchar("label", { length: 255 }),
   status: mysqlEnum("status", ["active", "completed", "cancelled"]).default("active").notNull(),
-  startedAt: timestamp("startedAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"),
+  startedAt: datetime("startedAt").$defaultFn(() => new Date()).notNull(),
+  completedAt: datetime("completedAt"),
 });
 export type PlanTemplateInstance = typeof planTemplateInstances.$inferSelect;
 export type InsertPlanTemplateInstance = typeof planTemplateInstances.$inferInsert;
