@@ -256,5 +256,9 @@
   "tabCalendar": "Calendrier",
   "pickup": {
     "error": "Erreur lors de la confirmation du retrait"
+  },
+  "partialReturns": {
+    "title": "Retours partiels",
+    "entry": "Retour partiel {{index}} : {{qty}} rendu(s)"
   }
 }

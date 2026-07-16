@@ -256,5 +256,9 @@
   "tabCalendar": "日历",
   "pickup": {
     "error": "确认取货出错"
+  },
+  "partialReturns": {
+    "title": "部分归还",
+    "entry": "第{{index}}次部分归还：{{qty}}件"
   }
 }

@@ -309,5 +309,9 @@
   "tabCalendar": "Calendario",
   "pickup": {
     "error": "Error al confirmar la recogida"
+  },
+  "partialReturns": {
+    "title": "Devoluciones parciales",
+    "entry": "Devolución parcial {{index}}: {{qty}} devuelto"
   }
 }

@@ -256,5 +256,9 @@
   "tabCalendar": "التقويم",
   "pickup": {
     "error": "خطأ في تأكيد الاستلام"
+  },
+  "partialReturns": {
+    "title": "الإرجاع الجزئي",
+    "entry": "إرجاع جزئي {{index}}: تم إرجاع {{qty}}"
   }
 }

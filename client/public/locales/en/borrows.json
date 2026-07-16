@@ -256,5 +256,9 @@
   "tabCalendar": "Calendar",
   "pickup": {
     "error": "Error confirming pickup"
+  },
+  "partialReturns": {
+    "title": "Partial Returns",
+    "entry": "Partial return {{index}}: {{qty}} returned"
   }
 }

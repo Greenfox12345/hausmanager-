@@ -256,5 +256,9 @@
   "tabCalendar": "Takvim",
   "pickup": {
     "error": "Teslim alma onaylanırken hata oluştu"
+  },
+  "partialReturns": {
+    "title": "Kısmi İadeler",
+    "entry": "Kısmi iade {{index}}: {{qty}} iade edildi"
   }
 }

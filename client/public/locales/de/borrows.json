@@ -256,5 +256,9 @@
   "tabCalendar": "Kalender",
   "pickup": {
     "error": "Fehler beim Bestätigen der Abholung"
+  },
+  "partialReturns": {
+    "title": "Teilrückgaben",
+    "entry": "Teilrückgabe {{index}}: {{qty}} zurückgegeben"
   }
 }
