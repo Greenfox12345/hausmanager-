@@ -654,6 +654,14 @@ export default function Borrows() {
                         </div>
                       </div>
 
+                      {/* Anfrage-Notiz */}
+                      {(borrow as any).requestMessage && (
+                        <div className="mb-3 p-2 bg-muted/40 rounded text-sm text-muted-foreground italic flex items-start gap-1.5">
+                          <span className="shrink-0">&#x1F4AC;</span>
+                          <span>„{(borrow as any).requestMessage}“</span>
+                        </div>
+                      )}
+
                       {/* Mengenanzeige */}
                       {(borrow as any).loanQuantity != null && (borrow as any).loanQuantity > 0 && (
                         <div className="flex items-center gap-2 text-sm mb-3">
@@ -767,6 +775,16 @@ export default function Borrows() {
                       {borrow.status === "rejected" && borrow.responseMessage && (
                         <p className="text-sm text-red-600 dark:text-red-400">
                           {t("borrows:rejectedReason", "Abgelehnt")}: {borrow.responseMessage}
+                        </p>
+                      )}
+                      {(borrow.status === "approved" || borrow.status === "active" || borrow.status === "completed") && (borrow as any).responseMessage && (
+                        <p className="text-sm text-muted-foreground italic mt-1">
+                          {t("borrows:approvalNote", "Notiz")}: {(borrow as any).responseMessage}
+                        </p>
+                      )}
+                      {borrow.status === "cancelled" && (borrow as any).responseMessage && (
+                        <p className="text-sm text-muted-foreground italic mt-1">
+                          {(borrow as any).responseMessage}
                         </p>
                       )}
                     </CardContent>

@@ -984,6 +984,12 @@ export const borrowRouter = router({
             endDate: req.endDate,
             loanQuantity: (req as any).loanQuantity ?? null,
             returnedQuantity: (req as any).returnedQuantity ?? 0,
+            requestMessage: req.requestMessage ?? null,
+            responseMessage: req.responseMessage ?? null,
+            pickupComment: (req as any).pickupComment ?? null,
+            pickupPhotoUrl: (req as any).pickupPhotoUrl ?? null,
+            returnComment: (req as any).returnComment ?? null,
+            returnPhotoUrl: (req as any).returnPhotoUrl ?? null,
           };
         })
       );
@@ -1099,6 +1105,10 @@ export const borrowRouter = router({
             endDate: req.endDate,
             message: req.requestMessage,
             responseMessage: req.responseMessage,
+            pickupComment: (req as any).pickupComment ?? null,
+            pickupPhotoUrl: (req as any).pickupPhotoUrl ?? null,
+            returnComment: (req as any).returnComment ?? null,
+            returnPhotoUrl: (req as any).returnPhotoUrl ?? null,
           };
         })
       );
