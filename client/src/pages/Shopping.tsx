@@ -50,6 +50,7 @@ export default function Shopping() {
   // Tutorial wird über DemoBanner gesteuert (kein lokaler State mehr nötig)
   const [newItemName, setNewItemName] = useState("");
   const [newItemDetails, setNewItemDetails] = useState("");
+  const [newItemNotes, setNewItemNotes] = useState("");
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [newItemPhotoUrls, setNewItemPhotoUrls] = useState<{url: string, filename: string}[]>([]);
   const [newItemNeededBy, setNewItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
@@ -70,6 +71,7 @@ export default function Shopping() {
   const [editItemNeededBy, setEditItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [editItemNumQuantity, setEditItemNumQuantity] = useState<number | null>(null);
   const [editItemUnitId, setEditItemUnitId] = useState<number | null>(null);
+  const [editItemNotes, setEditItemNotes] = useState("");
   const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
   // Category management state
@@ -155,6 +157,7 @@ export default function Shopping() {
       utils.shopping.list.invalidate();
       setNewItemName("");
       setNewItemDetails("");
+      setNewItemNotes("");
       setNewItemPhotoUrls([]);
       setNewItemNeededBy("");
       setNewItemCategoryId(null);
@@ -369,6 +372,7 @@ export default function Shopping() {
       name: newItemName.trim(),
       categoryId: newItemCategoryId,
       details: newItemDetails.trim() || undefined,
+      notes: newItemNotes.trim() || undefined,
       photoUrls: newItemPhotoUrls.length > 0 ? newItemPhotoUrls : undefined,
       neededBy: newItemNeededBy ? new Date(newItemNeededBy).getTime() : null,
       quantity: newItemQuantity,
@@ -427,6 +431,7 @@ export default function Shopping() {
     // quantity: decimal string from DB → number
     setEditItemNumQuantity(item.quantity ? parseFloat(item.quantity) : null);
     setEditItemUnitId(item.unitId ?? null);
+    setEditItemNotes(item.notes || "");
     setShowEditDialog(true);
   };
 
@@ -481,6 +486,7 @@ export default function Shopping() {
       name: editItemName.trim(),
       categoryId: editItemCategoryId,  // null = Kategorie entfernen, undefined = nicht geändert
       details: editItemQuantity.trim() || undefined,
+      notes: editItemNotes.trim() || undefined,
       photoUrls: editItemPhotoUrls.length > 0 ? editItemPhotoUrls : undefined,
       neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,
       quantity: editItemNumQuantity,
@@ -865,6 +871,17 @@ export default function Shopping() {
                           onChange={setNewItemNeededBy}
                         />
                       </div>
+                      {/* Notiz */}
+                      <div className="space-y-2">
+                        <Label htmlFor="itemNotes">{t("shopping:fields.notes", "Notiz")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                        <Textarea
+                          id="itemNotes"
+                          placeholder={t("shopping:fields.notesPlaceholder", "Zusätzliche Hinweise zum Artikel...")}
+                          value={newItemNotes}
+                          onChange={(e) => setNewItemNotes(e.target.value)}
+                          rows={2}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -960,6 +977,9 @@ export default function Shopping() {
                         )}
                         {item.details && (
                           <span className="text-xs text-muted-foreground">{item.details}</span>
+                        )}
+                        {item.notes && (
+                          <span className="text-xs text-muted-foreground italic">{item.notes}</span>
                         )}
                       </div>
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
@@ -1175,6 +1195,16 @@ export default function Shopping() {
                   id="editItemNeededBy"
                   value={editItemNeededBy}
                   onChange={setEditItemNeededBy}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editItemNotes">{t("shopping:fields.notes", "Notiz")} <span className="text-muted-foreground text-xs">({t("common:labels.optional", "optional")})</span></Label>
+                <Textarea
+                  id="editItemNotes"
+                  placeholder={t("shopping:fields.notesPlaceholder", "Zusätzliche Hinweise zum Artikel...")}
+                  value={editItemNotes}
+                  onChange={(e) => setEditItemNotes(e.target.value)}
+                  rows={2}
                 />
               </div>
             </div>
