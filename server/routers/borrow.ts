@@ -35,6 +35,7 @@ import {
   borrowReturned,
   borrowRevoked,
   borrowCancelled,
+  borrowPickedUp,
 } from "../activityTexts";
 import { getHouseholdById } from "../db";
 
@@ -107,7 +108,9 @@ export const borrowRouter = router({
           : reqLang === "es" ? ` (tarea: ${input.taskName}${input.occurrenceNumber ? `, cita ${input.occurrenceNumber}` : ""})`
           : ` (Aufgabe: ${input.taskName}${input.occurrenceNumber ? `, Termin ${input.occurrenceNumber}` : ""})`)
         : undefined;
-      const requestDescription = borrowRequested(reqLang, item.name, borrowerMemberName, taskSuffix ?? "");
+      // ownerName: für persönliche Gegenstände der erste Eigentümer, sonst Haushaltsname
+      const ownerNameForLog = (item as any).owners?.[0]?.memberName ?? item.name;
+      const requestDescription = borrowRequested(reqLang, borrowerMemberName, item.name, ownerNameForLog);
 
       await createActivityLog({
         householdId: input.borrowerHouseholdId,
@@ -278,7 +281,7 @@ export const borrowRouter = router({
         memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_approved",
-        description: borrowApproved(approveLang, item.name, borrowerMemberName2, approverMemberName),
+        description: borrowApproved(approveLang, approverMemberName, item.name, borrowerMemberName2),
         relatedItemId: linkedOccurrence?.taskId,
         metadata,
       });
@@ -389,7 +392,7 @@ export const borrowRouter = router({
         memberId: request.borrowerMemberId!,
         activityType: "borrow",
         action: "borrow_rejected",
-        description: borrowRejected(rejectLang, item?.name ?? "?", rejectBorrowerName, input.responseMessage ?? ""),
+        description: borrowRejected(rejectLang, rejecterName, item?.name ?? "?", rejectBorrowerName, input.responseMessage),
         metadata: {
           itemId: request.inventoryItemId,
           itemName: item?.name,
@@ -1217,6 +1220,29 @@ export const borrowRouter = router({
         }
       }
 
+      // Activity-Log: Abholung bestätigt
+      try {
+        const pickupItem = await getInventoryItemById(request.inventoryItemId);
+        const pickupMember = await getHouseholdMemberById(input.memberId);
+        const pickupMemberName = pickupMember?.memberName ?? `#${input.memberId}`;
+        const pickupLang = await getBorrowLang(request.borrowerHouseholdId);
+        await createActivityLog({
+          householdId: request.borrowerHouseholdId,
+          memberId: input.memberId,
+          activityType: "borrow",
+          action: "borrow_picked_up",
+          description: borrowPickedUp(pickupLang, pickupMemberName, pickupItem?.name ?? "?"),
+          metadata: {
+            itemId: request.inventoryItemId,
+            itemName: pickupItem?.name,
+            requestId: input.requestId,
+            comment: input.comment,
+          },
+        });
+      } catch (_logErr) {
+        // Non-critical – don't fail the mutation if logging fails
+      }
+
       return { success: true };
     }),
 
@@ -1289,6 +1315,30 @@ export const borrowRouter = router({
             } as any);
           }
         }
+      }
+
+      // Activity-Log: Rückgabe bestätigt
+      try {
+        const retItem = await getInventoryItemById(request.inventoryItemId);
+        const retMember = await getHouseholdMemberById(input.memberId);
+        const retMemberName = retMember?.memberName ?? `#${input.memberId}`;
+        const retLang = await getBorrowLang(request.borrowerHouseholdId);
+        await createActivityLog({
+          householdId: request.borrowerHouseholdId,
+          memberId: input.memberId,
+          activityType: "borrow",
+          action: "borrow_returned",
+          description: borrowReturned(retLang, retItem?.name ?? "?", retMemberName),
+          metadata: {
+            itemId: request.inventoryItemId,
+            itemName: retItem?.name,
+            requestId: input.requestId,
+            comment: input.comment,
+            conditionReport: input.comment,
+          },
+        });
+      } catch (_logErr) {
+        // Non-critical – don't fail the mutation if logging fails
       }
 
       // Notify item owner about the return

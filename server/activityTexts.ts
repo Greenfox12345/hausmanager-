@@ -469,6 +469,18 @@ export function borrowReturned(lang: Lang, itemName: string, memberName: string,
   );
 }
 
+export function borrowPickedUp(lang: Lang, memberName: string, itemName: string): string {
+  return t(lang,
+    `${memberName} hat „${itemName}“ abgeholt`,
+    `${memberName} picked up "${itemName}"`,
+    `${memberName} recogió "${itemName}"`,
+    `${memberName} a récupéré « ${itemName} »`,
+    `${memberName}已取走"${itemName}"`,
+    `${memberName} "${itemName}"ı teslim aldı`,
+    `استلم ${memberName} "${itemName}"`
+  );
+}
+
 export function borrowRevoked(lang: Lang, itemName: string, revokerName: string, reason?: string): string {
   const reasonPart = reason ? t(lang,
     ` – Grund: ${reason}`,
