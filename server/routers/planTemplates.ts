@@ -14,10 +14,13 @@ import {
   planTemplateShoppingItems,
   planTemplateInstances,
   planInstanceShoppingItems,
+  planTemplateTaskItems,
+  planInstanceTaskItems,
   shoppingItems,
   shoppingCategories,
   itemUnits,
   householdMembers,
+  tasks,
 } from "../../drizzle/schema";
 import { eq, and, asc, desc } from "drizzle-orm";
 import { getDb, createActivityLog, getHouseholdById } from "../db";
@@ -397,6 +400,33 @@ export const planTemplatesRouter = router({
         );
       }
 
+      // Aufgaben-Items kopieren (falls vorhanden)
+      const templateTaskItems = await db
+        .select()
+        .from(planTemplateTaskItems)
+        .where(eq(planTemplateTaskItems.templateId, input.templateId))
+        .orderBy(asc(planTemplateTaskItems.sortOrder));
+      if (templateTaskItems.length > 0) {
+        await db.insert(planInstanceTaskItems).values(
+          templateTaskItems.map((item) => ({
+            instanceId,
+            templateItemId: item.id,
+            name: item.name,
+            description: item.description,
+            assignedToMemberIds: item.assignedToMemberIds,
+            dueDaysFromStart: item.dueDaysFromStart,
+            frequency: item.frequency,
+            customFrequencyDays: item.customFrequencyDays,
+            repeatInterval: item.repeatInterval,
+            repeatUnit: item.repeatUnit,
+            durationDays: item.durationDays,
+            durationMinutes: item.durationMinutes,
+            enableRotation: item.enableRotation,
+            requiredPersons: item.requiredPersons,
+            sortOrder: item.sortOrder,
+          }))
+        );
+      }
       // usageCount und lastUsedAt aktualisieren
       await db.update(planTemplates)
         .set({ usageCount: (template.usageCount ?? 0) + 1, lastUsedAt: now })
@@ -578,6 +608,220 @@ export const planTemplatesRouter = router({
           .where(eq(planInstanceShoppingItems.id, item.id));
       }
 
+      return { createdIds, count: createdIds.length };
+    }),
+
+  /** Aufgaben-Template-Items einer Vorlage abrufen */
+  listTemplateTaskItems: publicProcedure
+    .input(z.object({ templateId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(planTemplateTaskItems)
+        .where(eq(planTemplateTaskItems.templateId, input.templateId))
+        .orderBy(asc(planTemplateTaskItems.sortOrder));
+    }),
+
+  /** Aufgaben-Template-Item hinzufügen */
+  addTemplateTaskItem: publicProcedure
+    .input(z.object({
+      templateId: z.number(),
+      name: z.string().min(1),
+      description: z.string().nullable().optional(),
+      assignedToMemberIds: z.array(z.number()).optional(),
+      dueDaysFromStart: z.number().nullable().optional(),
+      frequency: z.enum(["once","daily","weekly","monthly","custom"]).default("once"),
+      customFrequencyDays: z.number().nullable().optional(),
+      repeatInterval: z.number().nullable().optional(),
+      repeatUnit: z.enum(["days","weeks","months","irregular"]).nullable().optional(),
+      durationDays: z.number().default(0),
+      durationMinutes: z.number().default(0),
+      enableRotation: z.boolean().default(false),
+      requiredPersons: z.number().nullable().optional(),
+      sortOrder: z.number().default(0),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      const [res] = await db.insert(planTemplateTaskItems).values({
+        templateId: input.templateId,
+        name: input.name,
+        description: input.description ?? null,
+        assignedToMemberIds: input.assignedToMemberIds ?? [],
+        dueDaysFromStart: input.dueDaysFromStart ?? null,
+        frequency: input.frequency,
+        customFrequencyDays: input.customFrequencyDays ?? null,
+        repeatInterval: input.repeatInterval ?? null,
+        repeatUnit: input.repeatUnit ?? null,
+        durationDays: input.durationDays,
+        durationMinutes: input.durationMinutes,
+        enableRotation: input.enableRotation,
+        requiredPersons: input.requiredPersons ?? null,
+        sortOrder: input.sortOrder,
+      });
+      return { id: res.insertId };
+    }),
+
+  /** Aufgaben-Template-Item aktualisieren */
+  updateTemplateTaskItem: publicProcedure
+    .input(z.object({
+      itemId: z.number(),
+      name: z.string().min(1).optional(),
+      description: z.string().nullable().optional(),
+      assignedToMemberIds: z.array(z.number()).optional(),
+      dueDaysFromStart: z.number().nullable().optional(),
+      frequency: z.enum(["once","daily","weekly","monthly","custom"]).optional(),
+      customFrequencyDays: z.number().nullable().optional(),
+      repeatInterval: z.number().nullable().optional(),
+      repeatUnit: z.enum(["days","weeks","months","irregular"]).nullable().optional(),
+      durationDays: z.number().optional(),
+      durationMinutes: z.number().optional(),
+      enableRotation: z.boolean().optional(),
+      requiredPersons: z.number().nullable().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      const { itemId, ...fields } = input;
+      const update: Record<string, unknown> = {};
+      if (fields.name !== undefined) update.name = fields.name;
+      if (fields.description !== undefined) update.description = fields.description;
+      if (fields.assignedToMemberIds !== undefined) update.assignedToMemberIds = fields.assignedToMemberIds;
+      if (fields.dueDaysFromStart !== undefined) update.dueDaysFromStart = fields.dueDaysFromStart;
+      if (fields.frequency !== undefined) update.frequency = fields.frequency;
+      if (fields.customFrequencyDays !== undefined) update.customFrequencyDays = fields.customFrequencyDays;
+      if (fields.repeatInterval !== undefined) update.repeatInterval = fields.repeatInterval;
+      if (fields.repeatUnit !== undefined) update.repeatUnit = fields.repeatUnit;
+      if (fields.durationDays !== undefined) update.durationDays = fields.durationDays;
+      if (fields.durationMinutes !== undefined) update.durationMinutes = fields.durationMinutes;
+      if (fields.enableRotation !== undefined) update.enableRotation = fields.enableRotation;
+      if (fields.requiredPersons !== undefined) update.requiredPersons = fields.requiredPersons;
+      if (Object.keys(update).length > 0) {
+        await db.update(planTemplateTaskItems).set(update).where(eq(planTemplateTaskItems.id, itemId));
+      }
+      return { ok: true };
+    }),
+
+  /** Aufgaben-Template-Item löschen */
+  deleteTemplateTaskItem: publicProcedure
+    .input(z.object({ itemId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      await db.delete(planTemplateTaskItems).where(eq(planTemplateTaskItems.id, input.itemId));
+      return { ok: true };
+    }),
+
+  /** Aufgaben einer Instanz abrufen */
+  listInstanceTaskItems: publicProcedure
+    .input(z.object({ instanceId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(planInstanceTaskItems)
+        .where(eq(planInstanceTaskItems.instanceId, input.instanceId))
+        .orderBy(asc(planInstanceTaskItems.sortOrder));
+    }),
+
+  /**
+   * Aufgaben einer Instanz in die Aufgaben-Seite übertragen.
+   * Legt für jede ausgewählte Aufgabe einen echten tasks-Eintrag an.
+   */
+  transferTaskItems: publicProcedure
+    .input(z.object({
+      instanceId: z.number(),
+      householdId: z.number(),
+      memberId: z.number(),
+      itemIds: z.array(z.number()),
+      startDate: z.date().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      const startDate = input.startDate ?? new Date();
+      const createdIds: number[] = [];
+      for (const itemId of input.itemIds) {
+        const [item] = await db.select().from(planInstanceTaskItems)
+          .where(and(eq(planInstanceTaskItems.id, itemId), eq(planInstanceTaskItems.instanceId, input.instanceId)));
+        if (!item || item.isTransferred) continue;
+        let dueDate: Date | null = null;
+        if (item.dueDaysFromStart != null) {
+          dueDate = new Date(startDate);
+          dueDate.setDate(dueDate.getDate() + item.dueDaysFromStart);
+        }
+        const [res] = await db.insert(tasks).values({
+          householdId: input.householdId,
+          name: item.name,
+          description: item.description ?? null,
+          assignedTo: (item.assignedToMemberIds as number[]) ?? [],
+          frequency: item.frequency,
+          customFrequencyDays: item.customFrequencyDays ?? null,
+          repeatInterval: item.repeatInterval ?? null,
+          repeatUnit: item.repeatUnit ?? null,
+          durationDays: item.durationDays ?? 0,
+          durationMinutes: item.durationMinutes ?? 0,
+          enableRotation: item.enableRotation ?? false,
+          requiredPersons: item.requiredPersons ?? null,
+          dueDate: dueDate ?? undefined,
+          isCompleted: false,
+          createdBy: input.memberId,
+        });
+        const taskId = res.insertId;
+        createdIds.push(taskId);
+        await db.update(planInstanceTaskItems)
+          .set({ isTransferred: true, taskId })
+          .where(eq(planInstanceTaskItems.id, itemId));
+      }
+      return { createdIds, count: createdIds.length };
+    }),
+
+  /** Alle noch nicht übertragenen Aufgaben einer Instanz übertragen */
+  transferAllTaskItems: publicProcedure
+    .input(z.object({
+      instanceId: z.number(),
+      householdId: z.number(),
+      memberId: z.number(),
+      startDate: z.date().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      const pending = await db.select().from(planInstanceTaskItems)
+        .where(and(
+          eq(planInstanceTaskItems.instanceId, input.instanceId),
+          eq(planInstanceTaskItems.isTransferred, false)
+        ));
+      const startDate = input.startDate ?? new Date();
+      const createdIds: number[] = [];
+      for (const item of pending) {
+        let dueDate: Date | null = null;
+        if (item.dueDaysFromStart != null) {
+          dueDate = new Date(startDate);
+          dueDate.setDate(dueDate.getDate() + item.dueDaysFromStart);
+        }
+        const [res] = await db.insert(tasks).values({
+          householdId: input.householdId,
+          name: item.name,
+          description: item.description ?? null,
+          assignedTo: (item.assignedToMemberIds as number[]) ?? [],
+          frequency: item.frequency,
+          customFrequencyDays: item.customFrequencyDays ?? null,
+          repeatInterval: item.repeatInterval ?? null,
+          repeatUnit: item.repeatUnit ?? null,
+          durationDays: item.durationDays ?? 0,
+          durationMinutes: item.durationMinutes ?? 0,
+          enableRotation: item.enableRotation ?? false,
+          requiredPersons: item.requiredPersons ?? null,
+          dueDate: dueDate ?? undefined,
+          isCompleted: false,
+          createdBy: input.memberId,
+        });
+        const taskId = res.insertId;
+        createdIds.push(taskId);
+        await db.update(planInstanceTaskItems)
+          .set({ isTransferred: true, taskId })
+          .where(eq(planInstanceTaskItems.id, item.id));
+      }
       return { createdIds, count: createdIds.length };
     }),
 });

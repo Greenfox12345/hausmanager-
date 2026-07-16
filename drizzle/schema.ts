@@ -727,3 +727,62 @@ export const planInstanceShoppingItems = mysqlTable("plan_instance_shopping_item
 });
 export type PlanInstanceShoppingItem = typeof planInstanceShoppingItems.$inferSelect;
 export type InsertPlanInstanceShoppingItem = typeof planInstanceShoppingItems.$inferInsert;
+
+/**
+ * planTemplateTaskItems – Aufgaben innerhalb einer Vorlage
+ * Spiegelt die wichtigsten Felder von tasks wider (ohne haushaltId, isCompleted etc.)
+ */
+export const planTemplateTaskItems = mysqlTable("plan_template_task_items", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull().references(() => planTemplates.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  // Zuweisung: Array von householdMember-IDs (wird beim Transfer aufgelöst)
+  assignedToMemberIds: json("assignedToMemberIds").$type<number[]>(),
+  // Fälligkeit relativ zum Start (in Tagen, null = kein Fälligkeitsdatum)
+  dueDaysFromStart: int("dueDaysFromStart"),
+  // Häufigkeit
+  frequency: mysqlEnum("frequency", ["once", "daily", "weekly", "monthly", "custom"]).default("once").notNull(),
+  customFrequencyDays: int("customFrequencyDays"),
+  repeatInterval: int("repeatInterval"),
+  repeatUnit: mysqlEnum("repeatUnit", ["days", "weeks", "months", "irregular"]),
+  // Dauer
+  durationDays: int("durationDays").default(0),
+  durationMinutes: int("durationMinutes").default(0),
+  // Rotation
+  enableRotation: boolean("enableRotation").default(false).notNull(),
+  requiredPersons: int("requiredPersons"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
+});
+export type PlanTemplateTaskItem = typeof planTemplateTaskItems.$inferSelect;
+export type InsertPlanTemplateTaskItem = typeof planTemplateTaskItems.$inferInsert;
+
+/**
+ * planInstanceTaskItems – die konkreten Aufgaben einer gestarteten Instanz
+ * Kopie der Vorlagen-Aufgaben zum Zeitpunkt des Starts.
+ * Verknüpft mit taskId sobald die Aufgabe auf der Aufgaben-Seite angelegt wurde.
+ */
+export const planInstanceTaskItems = mysqlTable("plan_instance_task_items", {
+  id: int("id").autoincrement().primaryKey(),
+  instanceId: int("instanceId").notNull().references(() => planTemplateInstances.id, { onDelete: "cascade" }),
+  templateItemId: int("templateItemId").references(() => planTemplateTaskItems.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  assignedToMemberIds: json("assignedToMemberIds").$type<number[]>(),
+  dueDaysFromStart: int("dueDaysFromStart"),
+  frequency: mysqlEnum("frequency", ["once", "daily", "weekly", "monthly", "custom"]).default("once").notNull(),
+  customFrequencyDays: int("customFrequencyDays"),
+  repeatInterval: int("repeatInterval"),
+  repeatUnit: mysqlEnum("repeatUnit", ["days", "weeks", "months", "irregular"]),
+  durationDays: int("durationDays").default(0),
+  durationMinutes: int("durationMinutes").default(0),
+  enableRotation: boolean("enableRotation").default(false).notNull(),
+  requiredPersons: int("requiredPersons"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  isTransferred: boolean("isTransferred").default(false).notNull(),
+  taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
+});
+export type PlanInstanceTaskItem = typeof planInstanceTaskItems.$inferSelect;
+export type InsertPlanInstanceTaskItem = typeof planInstanceTaskItems.$inferInsert;

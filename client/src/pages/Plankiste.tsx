@@ -272,6 +272,7 @@ function TemplateItemsPreview({
   templateId, householdId, memberId
 }: { templateId: number; householdId: number; memberId: number }) {
   const utils = trpc.useUtils();
+  const [itemTab, setItemTab] = useState<"shopping" | "tasks">("shopping");
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState<number | null>(null);
@@ -340,9 +341,38 @@ function TemplateItemsPreview({
   }));
 
   const items = template?.items ?? [];
+  const templateType = template?.type as TemplateType | undefined;
+  const showTaskTab = templateType === 'tasks' || templateType === 'mixed';
+  const showShoppingTab = templateType !== 'tasks';
 
   return (
     <div className="mt-4 pt-4 border-t border-border" onClick={e => e.stopPropagation()}>
+      {/* Tab-Switch für gemischte/Aufgaben-Vorlagen */}
+      {showTaskTab && showShoppingTab && (
+        <div className="flex gap-1 bg-muted rounded-md p-0.5 mb-3">
+          <button
+            className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${itemTab === 'shopping' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setItemTab('shopping')}
+          >
+            <ShoppingCart className="w-3 h-3 inline mr-1" />
+            Einkaufsartikel
+          </button>
+          <button
+            className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${itemTab === 'tasks' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setItemTab('tasks')}
+          >
+            <CheckSquare className="w-3 h-3 inline mr-1" />
+            Aufgaben
+          </button>
+        </div>
+      )}
+      {/* Aufgaben-Section */}
+      {showTaskTab && (itemTab === 'tasks' || !showShoppingTab) && (
+        <TemplateTaskItemsSection templateId={templateId} householdId={householdId} memberId={memberId} />
+      )}
+      {/* Einkaufsartikel-Section */}
+      {showShoppingTab && (itemTab === 'shopping' || !showTaskTab) && (
+      <div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-muted-foreground">
           {items.length === 0 ? "Noch keine Artikel" : `${items.length} Artikel`}
@@ -558,10 +588,306 @@ function TemplateItemsPreview({
           );
         })}
       </div>
+      </div>
+      )}
     </div>
   );
 }
 
+// ─── Aufgaben-Template-Items Section ─────────────────────────────────────────
+function TemplateTaskItemsSection({
+  templateId, householdId, memberId
+}: { templateId: number; householdId: number; memberId: number }) {
+  const utils = trpc.useUtils();
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [newTaskName, setNewTaskName] = useState("");
+  const [newTaskDesc, setNewTaskDesc] = useState("");
+  const [newTaskDueDays, setNewTaskDueDays] = useState<string>("");
+  const [newTaskFreq, setNewTaskFreq] = useState<"once"|"daily"|"weekly"|"monthly"|"custom">("once");
+  const [newTaskRepeatInterval, setNewTaskRepeatInterval] = useState("1");
+  const [newTaskRepeatUnit, setNewTaskRepeatUnit] = useState<"days"|"weeks"|"months">("weeks");
+  const [newTaskDurationDays, setNewTaskDurationDays] = useState("");
+  const [newTaskDurationMinutes, setNewTaskDurationMinutes] = useState("");
+  const [newTaskEnableRotation, setNewTaskEnableRotation] = useState(false);
+  const [newTaskRequiredPersons, setNewTaskRequiredPersons] = useState("1");
+  const [newTaskAssigned, setNewTaskAssigned] = useState<number[]>([]);
+  const [editTaskName, setEditTaskName] = useState("");
+  const [editTaskDesc, setEditTaskDesc] = useState("");
+  const [editTaskDueDays, setEditTaskDueDays] = useState<string>("");
+  const [editTaskFreq, setEditTaskFreq] = useState<"once"|"daily"|"weekly"|"monthly"|"custom">("once");
+  const [editTaskRepeatInterval, setEditTaskRepeatInterval] = useState("1");
+  const [editTaskRepeatUnit, setEditTaskRepeatUnit] = useState<"days"|"weeks"|"months">("weeks");
+  const [editTaskDurationDays, setEditTaskDurationDays] = useState("");
+  const [editTaskDurationMinutes, setEditTaskDurationMinutes] = useState("");
+  const [editTaskEnableRotation, setEditTaskEnableRotation] = useState(false);
+  const [editTaskRequiredPersons, setEditTaskRequiredPersons] = useState("1");
+  const [editTaskAssigned, setEditTaskAssigned] = useState<number[]>([]);
+
+  const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
+    { templateId }, { enabled: templateId > 0 }
+  );
+  const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
+    { householdId }, { enabled: householdId > 0 }
+  );
+  const addMutation = trpc.planTemplates.addTemplateTaskItem.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
+      setShowAddTask(false);
+      setNewTaskName(""); setNewTaskDesc(""); setNewTaskDueDays(""); setNewTaskFreq("once");
+      setNewTaskDurationDays(""); setNewTaskDurationMinutes(""); setNewTaskEnableRotation(false); setNewTaskAssigned([]);
+      toast.success("Aufgabe hinzugefügt");
+    },
+    onError: () => toast.error("Fehler beim Hinzufügen"),
+  });
+  const updateMutation = trpc.planTemplates.updateTemplateTaskItem.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
+      setEditingTaskId(null);
+      toast.success("Aufgabe aktualisiert");
+    },
+    onError: () => toast.error("Fehler beim Aktualisieren"),
+  });
+  const deleteMutation = trpc.planTemplates.deleteTemplateTaskItem.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
+      toast.success("Aufgabe entfernt");
+    },
+    onError: () => toast.error("Fehler beim Entfernen"),
+  });
+
+  const startEditTask = (item: any) => {
+    setEditingTaskId(item.id);
+    setEditTaskName(item.name);
+    setEditTaskDesc(item.description ?? "");
+    setEditTaskDueDays(item.dueDaysFromStart != null ? String(item.dueDaysFromStart) : "");
+    setEditTaskFreq(item.frequency ?? "once");
+    setEditTaskRepeatInterval(String(item.repeatInterval ?? 1));
+    setEditTaskRepeatUnit(item.repeatUnit ?? "weeks");
+    setEditTaskDurationDays(String(item.durationDays ?? ""));
+    setEditTaskDurationMinutes(String(item.durationMinutes ?? ""));
+    setEditTaskEnableRotation(item.enableRotation ?? false);
+    setEditTaskRequiredPersons(String(item.requiredPersons ?? 1));
+    setEditTaskAssigned((item.assignedToMemberIds as number[]) ?? []);
+  };
+
+  const buildFreq = (freq: string, interval: string, unit: string) => {
+    if (freq === "once") return { frequency: "once" as const, repeatInterval: null as number|null, repeatUnit: null as string|null };
+    const iv = parseInt(interval) || 1;
+    let f: "once"|"daily"|"weekly"|"monthly"|"custom" = "custom";
+    if (unit === "days" && iv === 1) f = "daily";
+    else if (unit === "weeks" && iv === 1) f = "weekly";
+    else if (unit === "months" && iv === 1) f = "monthly";
+    return { frequency: f, repeatInterval: iv, repeatUnit: unit };
+  };
+
+  const FREQ_LABELS: Record<string, string> = {
+    once: "Einmalig", daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich", custom: "Benutzerdefiniert"
+  };
+
+  const renderTaskForm = (
+    mode: "add"|"edit", itemId: number|undefined,
+    name: string, setName: (v:string)=>void,
+    desc: string, setDesc: (v:string)=>void,
+    dueDays: string, setDueDays: (v:string)=>void,
+    freq: string, setFreq: (v:any)=>void,
+    repeatInterval: string, setRepeatInterval: (v:string)=>void,
+    repeatUnit: string, setRepeatUnit: (v:any)=>void,
+    durationDays: string, setDurationDays: (v:string)=>void,
+    durationMinutes: string, setDurationMinutes: (v:string)=>void,
+    enableRotation: boolean, setEnableRotation: (v:boolean)=>void,
+    requiredPersons: string, setRequiredPersons: (v:string)=>void,
+    assigned: number[], setAssigned: (v:number[])=>void,
+    onSave: ()=>void, onCancel: ()=>void, isPending: boolean
+  ) => (
+    <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+      <Input placeholder="Aufgabenname *" value={name} onChange={e => setName(e.target.value)} className="h-8 text-sm" />
+      <Textarea placeholder="Beschreibung (optional)" value={desc} onChange={e => setDesc(e.target.value)} className="text-sm resize-none" rows={2} />
+      <div className="flex items-center gap-2">
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Fällig nach (Tage)</Label>
+        <Input type="number" min="0" placeholder="z.B. 3" value={dueDays} onChange={e => setDueDays(e.target.value)} className="h-7 text-sm flex-1" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Häufigkeit</Label>
+        <Select value={freq} onValueChange={setFreq}>
+          <SelectTrigger className="h-7 text-sm flex-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="once">Einmalig</SelectItem>
+            <SelectItem value="daily">Täglich</SelectItem>
+            <SelectItem value="weekly">Wöchentlich</SelectItem>
+            <SelectItem value="monthly">Monatlich</SelectItem>
+            <SelectItem value="custom">Benutzerdefiniert</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {freq === "custom" && (
+        <div className="flex items-center gap-2">
+          <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Alle</Label>
+          <Input type="number" min="1" value={repeatInterval} onChange={e => setRepeatInterval(e.target.value)} className="h-7 text-sm w-16" />
+          <Select value={repeatUnit} onValueChange={setRepeatUnit}>
+            <SelectTrigger className="h-7 text-sm flex-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="days">Tage</SelectItem>
+              <SelectItem value="weeks">Wochen</SelectItem>
+              <SelectItem value="months">Monate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Dauer (Tage)</Label>
+        <Input type="number" min="0" placeholder="0" value={durationDays} onChange={e => setDurationDays(e.target.value)} className="h-7 text-sm flex-1" />
+      </div>
+      <div className="flex items-center gap-2">
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Dauer (Min.)</Label>
+        <Input type="number" min="0" max="1439" placeholder="0" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} className="h-7 text-sm flex-1" />
+      </div>
+      {(members as any[]).length > 0 && (
+        <div>
+          <Label className="text-xs text-muted-foreground block mb-1">Zugewiesen an</Label>
+          <div className="flex flex-wrap gap-1.5">
+            {(members as any[]).map((m: any) => (
+              <button key={m.id} type="button"
+                className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${assigned.includes(m.id) ? "bg-blue-100 border-blue-300 text-blue-700" : "bg-background border-border text-muted-foreground"}`}
+                onClick={() => setAssigned(assigned.includes(m.id) ? assigned.filter((id: number) => id !== m.id) : [...assigned, m.id])}
+              >
+                {m.memberName}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {freq !== "once" && (
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id={`rot-${mode}-${itemId ?? "new"}`} checked={enableRotation} onChange={e => setEnableRotation(e.target.checked)} className="rounded" />
+          <Label htmlFor={`rot-${mode}-${itemId ?? "new"}`} className="text-xs cursor-pointer">Rotation aktivieren</Label>
+          {enableRotation && (
+            <>
+              <Label className="text-xs text-muted-foreground ml-2">Personen:</Label>
+              <Input type="number" min="1" value={requiredPersons} onChange={e => setRequiredPersons(e.target.value)} className="h-7 text-sm w-16" />
+            </>
+          )}
+        </div>
+      )}
+      <div className="flex gap-2 pt-1">
+        <Button size="sm" className="flex-1 h-7 text-xs" disabled={!name.trim() || isPending} onClick={onSave}>
+          <Check className="w-3 h-3 mr-1" />Speichern
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCancel}>
+          <X className="w-3 h-3 mr-1" />Abbrechen
+        </Button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium text-muted-foreground">
+          {(taskItems as any[]).length === 0 ? "Noch keine Aufgaben" : `${(taskItems as any[]).length} Aufgabe${(taskItems as any[]).length !== 1 ? "n" : ""}`}
+        </span>
+        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowAddTask(!showAddTask)}>
+          <Plus className="w-3 h-3 mr-1" />Aufgabe hinzufügen
+        </Button>
+      </div>
+      {showAddTask && renderTaskForm(
+        "add", undefined,
+        newTaskName, setNewTaskName, newTaskDesc, setNewTaskDesc,
+        newTaskDueDays, setNewTaskDueDays, newTaskFreq, setNewTaskFreq,
+        newTaskRepeatInterval, setNewTaskRepeatInterval, newTaskRepeatUnit, setNewTaskRepeatUnit,
+        newTaskDurationDays, setNewTaskDurationDays, newTaskDurationMinutes, setNewTaskDurationMinutes,
+        newTaskEnableRotation, setNewTaskEnableRotation, newTaskRequiredPersons, setNewTaskRequiredPersons,
+        newTaskAssigned, setNewTaskAssigned,
+        () => {
+          const { frequency, repeatInterval: ri, repeatUnit: ru } = buildFreq(newTaskFreq, newTaskRepeatInterval, newTaskRepeatUnit);
+          addMutation.mutate({
+            templateId, name: newTaskName.trim(),
+            description: newTaskDesc.trim() || null,
+            assignedToMemberIds: newTaskAssigned,
+            dueDaysFromStart: newTaskDueDays ? parseInt(newTaskDueDays) : null,
+            frequency, repeatInterval: ri as number|null, repeatUnit: ru as "days"|"weeks"|"months"|null,
+            durationDays: parseInt(newTaskDurationDays) || 0,
+            durationMinutes: parseInt(newTaskDurationMinutes) || 0,
+            enableRotation: newTaskEnableRotation,
+            requiredPersons: newTaskEnableRotation ? parseInt(newTaskRequiredPersons) || 1 : null,
+          });
+        },
+        () => setShowAddTask(false),
+        addMutation.isPending
+      )}
+      {(taskItems as any[]).map((item: any) => (
+        <div key={item.id} className="rounded-lg border border-border bg-card p-2">
+          {editingTaskId === item.id ? renderTaskForm(
+            "edit", item.id,
+            editTaskName, setEditTaskName, editTaskDesc, setEditTaskDesc,
+            editTaskDueDays, setEditTaskDueDays, editTaskFreq, setEditTaskFreq,
+            editTaskRepeatInterval, setEditTaskRepeatInterval, editTaskRepeatUnit, setEditTaskRepeatUnit,
+            editTaskDurationDays, setEditTaskDurationDays, editTaskDurationMinutes, setEditTaskDurationMinutes,
+            editTaskEnableRotation, setEditTaskEnableRotation, editTaskRequiredPersons, setEditTaskRequiredPersons,
+            editTaskAssigned, setEditTaskAssigned,
+            () => {
+              const { frequency, repeatInterval: ri, repeatUnit: ru } = buildFreq(editTaskFreq, editTaskRepeatInterval, editTaskRepeatUnit);
+              updateMutation.mutate({
+                itemId: item.id, name: editTaskName.trim(),
+                description: editTaskDesc.trim() || null,
+                assignedToMemberIds: editTaskAssigned,
+                dueDaysFromStart: editTaskDueDays ? parseInt(editTaskDueDays) : null,
+                frequency, repeatInterval: ri as number|null, repeatUnit: ru as "days"|"weeks"|"months"|null,
+                durationDays: parseInt(editTaskDurationDays) || 0,
+                durationMinutes: parseInt(editTaskDurationMinutes) || 0,
+                enableRotation: editTaskEnableRotation,
+                requiredPersons: editTaskEnableRotation ? parseInt(editTaskRequiredPersons) || 1 : null,
+              });
+            },
+            () => setEditingTaskId(null),
+            updateMutation.isPending
+          ) : (
+            <div className="flex items-start gap-2">
+              <CheckSquare className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{item.name}</p>
+                {item.description && <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>}
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {item.frequency && item.frequency !== "once" && (
+                    <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                      {FREQ_LABELS[item.frequency] ?? item.frequency}
+                      {item.repeatInterval > 1 && ` (alle ${item.repeatInterval} ${item.repeatUnit === "days" ? "Tage" : item.repeatUnit === "weeks" ? "Wochen" : "Monate"})`}
+                    </span>
+                  )}
+                  {item.dueDaysFromStart != null && (
+                    <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                      Fällig nach {item.dueDaysFromStart} Tag{item.dueDaysFromStart !== 1 ? "en" : ""}
+                    </span>
+                  )}
+                  {(item.durationDays > 0 || item.durationMinutes > 0) && (
+                    <span className="text-xs text-muted-foreground">
+                      {item.durationDays > 0 && `${item.durationDays}T `}{item.durationMinutes > 0 && `${item.durationMinutes}min`}
+                    </span>
+                  )}
+                  {item.enableRotation && <span className="text-xs text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">Rotation</span>}
+                  {(item.assignedToMemberIds as number[]|null)?.length ? (
+                    <span className="text-xs text-muted-foreground">
+                      → {(item.assignedToMemberIds as number[]).map((id: number) => {
+                        const m = (members as any[]).find((x: any) => x.id === id);
+                        return m?.memberName ?? `#${id}`;
+                      }).join(", ")}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={() => startEditTask(item)}>
+                <Edit2 className="w-3 h-3" />
+              </Button>
+              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ itemId: item.id })}>
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 // ─── Vorlage erstellen/bearbeiten Dialog ─────────────────────────────────────
 function TemplateFormDialog({
   open, onClose, householdId, memberId, template
