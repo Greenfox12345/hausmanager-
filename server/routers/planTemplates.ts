@@ -278,19 +278,25 @@ export const planTemplatesRouter = router({
         .where(eq(planTemplateInstances.householdId, input.householdId))
         .orderBy(desc(planTemplateInstances.startedAt));
 
-      // Für jede Instanz: Anzahl Artikel und übertragene Artikel
+      // Für jede Instanz: Anzahl Artikel + Aufgaben und übertragene
       const result = await Promise.all(instances.map(async (inst) => {
-        const items = await db
-          .select({
-            id: planInstanceShoppingItems.id,
-            isTransferred: planInstanceShoppingItems.isTransferred,
-          })
+        const shoppingItems2 = await db
+          .select({ id: planInstanceShoppingItems.id, isTransferred: planInstanceShoppingItems.isTransferred })
           .from(planInstanceShoppingItems)
           .where(eq(planInstanceShoppingItems.instanceId, inst.id));
+        const taskItems2 = await db
+          .select({ id: planInstanceTaskItems.id, isTransferred: planInstanceTaskItems.isTransferred })
+          .from(planInstanceTaskItems)
+          .where(eq(planInstanceTaskItems.instanceId, inst.id));
+        const allItems = [...shoppingItems2, ...taskItems2];
         return {
           ...inst,
-          totalItems: items.length,
-          transferredItems: items.filter(i => i.isTransferred).length,
+          totalItems: allItems.length,
+          transferredItems: allItems.filter(i => i.isTransferred).length,
+          totalShoppingItems: shoppingItems2.length,
+          transferredShoppingItems: shoppingItems2.filter(i => i.isTransferred).length,
+          totalTaskItems: taskItems2.length,
+          transferredTaskItems: taskItems2.filter(i => i.isTransferred).length,
         };
       }));
       return result;
@@ -345,7 +351,14 @@ export const planTemplatesRouter = router({
         .where(eq(planInstanceShoppingItems.instanceId, input.instanceId))
         .orderBy(asc(planInstanceShoppingItems.sortOrder), asc(planInstanceShoppingItems.createdAt));
 
-      return { ...instance, items };
+      // Aufgaben-Items laden
+      const taskItemsData = await db
+        .select()
+        .from(planInstanceTaskItems)
+        .where(eq(planInstanceTaskItems.instanceId, input.instanceId))
+        .orderBy(asc(planInstanceTaskItems.sortOrder));
+
+      return { ...instance, items, taskItems: taskItemsData };
     }),
 
   /** Vorlage starten – erstellt eine neue Instanz mit kopierten Artikeln */
@@ -407,8 +420,10 @@ export const planTemplatesRouter = router({
         .where(eq(planTemplateTaskItems.templateId, input.templateId))
         .orderBy(asc(planTemplateTaskItems.sortOrder));
       if (templateTaskItems.length > 0) {
-        await db.insert(planInstanceTaskItems).values(
-          templateTaskItems.map((item) => ({
+        // Erst alle Items einfügen, dann Dependency-IDs remappen
+        const templateToInstanceIdMap = new Map<number, number>();
+        for (const item of templateTaskItems) {
+          const [r] = await db.insert(planInstanceTaskItems).values({
             instanceId,
             templateItemId: item.id,
             name: item.name,
@@ -423,9 +438,23 @@ export const planTemplatesRouter = router({
             durationMinutes: item.durationMinutes,
             enableRotation: item.enableRotation,
             requiredPersons: item.requiredPersons,
+            prerequisiteItemIds: [],
+            followupItemIds: [],
             sortOrder: item.sortOrder,
-          }))
-        );
+          });
+          templateToInstanceIdMap.set(item.id, r.insertId);
+        }
+        // Dependency-IDs von Template-IDs auf Instanz-IDs remappen
+        for (const item of templateTaskItems) {
+          const instanceItemId = templateToInstanceIdMap.get(item.id)!;
+          const prereqIds = ((item.prerequisiteItemIds as number[]) ?? []).map((tid) => templateToInstanceIdMap.get(tid)).filter(Boolean) as number[];
+          const followIds = ((item.followupItemIds as number[]) ?? []).map((tid) => templateToInstanceIdMap.get(tid)).filter(Boolean) as number[];
+          if (prereqIds.length > 0 || followIds.length > 0) {
+            await db.update(planInstanceTaskItems)
+              .set({ prerequisiteItemIds: prereqIds, followupItemIds: followIds })
+              .where(eq(planInstanceTaskItems.id, instanceItemId));
+          }
+        }
       }
       // usageCount und lastUsedAt aktualisieren
       await db.update(planTemplates)
@@ -638,6 +667,8 @@ export const planTemplatesRouter = router({
       durationMinutes: z.number().default(0),
       enableRotation: z.boolean().default(false),
       requiredPersons: z.number().nullable().optional(),
+      prerequisiteItemIds: z.array(z.number()).optional(),
+      followupItemIds: z.array(z.number()).optional(),
       sortOrder: z.number().default(0),
     }))
     .mutation(async ({ input }) => {
@@ -657,6 +688,8 @@ export const planTemplatesRouter = router({
         durationMinutes: input.durationMinutes,
         enableRotation: input.enableRotation,
         requiredPersons: input.requiredPersons ?? null,
+        prerequisiteItemIds: input.prerequisiteItemIds ?? [],
+        followupItemIds: input.followupItemIds ?? [],
         sortOrder: input.sortOrder,
       });
       return { id: res.insertId };
@@ -678,6 +711,8 @@ export const planTemplatesRouter = router({
       durationMinutes: z.number().optional(),
       enableRotation: z.boolean().optional(),
       requiredPersons: z.number().nullable().optional(),
+      prerequisiteItemIds: z.array(z.number()).optional(),
+      followupItemIds: z.array(z.number()).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -696,6 +731,8 @@ export const planTemplatesRouter = router({
       if (fields.durationMinutes !== undefined) update.durationMinutes = fields.durationMinutes;
       if (fields.enableRotation !== undefined) update.enableRotation = fields.enableRotation;
       if (fields.requiredPersons !== undefined) update.requiredPersons = fields.requiredPersons;
+      if (fields.prerequisiteItemIds !== undefined) update.prerequisiteItemIds = fields.prerequisiteItemIds;
+      if (fields.followupItemIds !== undefined) update.followupItemIds = fields.followupItemIds;
       if (Object.keys(update).length > 0) {
         await db.update(planTemplateTaskItems).set(update).where(eq(planTemplateTaskItems.id, itemId));
       }
@@ -823,5 +860,23 @@ export const planTemplatesRouter = router({
           .where(eq(planInstanceTaskItems.id, item.id));
       }
       return { createdIds, count: createdIds.length };
+    }),
+
+  /** Aufgaben-Transfer rückgängig machen */
+  untransferTaskItem: publicProcedure
+    .input(z.object({
+      instanceItemId: z.number(),
+      taskId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      // Task löschen
+      await db.delete(tasks).where(eq(tasks.id, input.taskId));
+      // Instanz-Item zurücksetzen
+      await db.update(planInstanceTaskItems)
+        .set({ isTransferred: false, taskId: null })
+        .where(eq(planInstanceTaskItems.id, input.instanceItemId));
+      return { ok: true };
     }),
 });

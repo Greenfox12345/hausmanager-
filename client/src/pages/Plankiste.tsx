@@ -601,6 +601,7 @@ function TemplateTaskItemsSection({
   const utils = trpc.useUtils();
   const [showAddTask, setShowAddTask] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  // Neu-Formular State
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [newTaskDueDays, setNewTaskDueDays] = useState<string>("");
@@ -612,6 +613,9 @@ function TemplateTaskItemsSection({
   const [newTaskEnableRotation, setNewTaskEnableRotation] = useState(false);
   const [newTaskRequiredPersons, setNewTaskRequiredPersons] = useState("1");
   const [newTaskAssigned, setNewTaskAssigned] = useState<number[]>([]);
+  const [newTaskPrereqs, setNewTaskPrereqs] = useState<number[]>([]);
+  const [newTaskFollowups, setNewTaskFollowups] = useState<number[]>([]);
+  // Bearbeiten-Formular State
   const [editTaskName, setEditTaskName] = useState("");
   const [editTaskDesc, setEditTaskDesc] = useState("");
   const [editTaskDueDays, setEditTaskDueDays] = useState<string>("");
@@ -623,6 +627,8 @@ function TemplateTaskItemsSection({
   const [editTaskEnableRotation, setEditTaskEnableRotation] = useState(false);
   const [editTaskRequiredPersons, setEditTaskRequiredPersons] = useState("1");
   const [editTaskAssigned, setEditTaskAssigned] = useState<number[]>([]);
+  const [editTaskPrereqs, setEditTaskPrereqs] = useState<number[]>([]);
+  const [editTaskFollowups, setEditTaskFollowups] = useState<number[]>([]);
 
   const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
     { templateId }, { enabled: templateId > 0 }
@@ -669,16 +675,21 @@ function TemplateTaskItemsSection({
     setEditTaskEnableRotation(item.enableRotation ?? false);
     setEditTaskRequiredPersons(String(item.requiredPersons ?? 1));
     setEditTaskAssigned((item.assignedToMemberIds as number[]) ?? []);
+    setEditTaskPrereqs((item.prerequisiteItemIds as number[]) ?? []);
+    setEditTaskFollowups((item.followupItemIds as number[]) ?? []);
   };
 
-  const buildFreq = (freq: string, interval: string, unit: string) => {
+  // Wiederholungsparameter aus Formular-State ableiten
+  // Direkte Übernahme des frequency-Werts (daily/weekly/monthly/custom/once)
+  // repeatInterval und repeatUnit nur bei "custom" relevant
+  const buildRepeatParams = (freq: string, interval: string, unit: string) => {
     if (freq === "once") return { frequency: "once" as const, repeatInterval: null as number|null, repeatUnit: null as string|null };
+    if (freq === "daily") return { frequency: "daily" as const, repeatInterval: 1, repeatUnit: "days" as const };
+    if (freq === "weekly") return { frequency: "weekly" as const, repeatInterval: 1, repeatUnit: "weeks" as const };
+    if (freq === "monthly") return { frequency: "monthly" as const, repeatInterval: 1, repeatUnit: "months" as const };
+    // custom
     const iv = parseInt(interval) || 1;
-    let f: "once"|"daily"|"weekly"|"monthly"|"custom" = "custom";
-    if (unit === "days" && iv === 1) f = "daily";
-    else if (unit === "weeks" && iv === 1) f = "weekly";
-    else if (unit === "months" && iv === 1) f = "monthly";
-    return { frequency: f, repeatInterval: iv, repeatUnit: unit };
+    return { frequency: "custom" as const, repeatInterval: iv, repeatUnit: unit as "days"|"weeks"|"months" };
   };
 
   const FREQ_LABELS: Record<string, string> = {
@@ -698,8 +709,13 @@ function TemplateTaskItemsSection({
     enableRotation: boolean, setEnableRotation: (v:boolean)=>void,
     requiredPersons: string, setRequiredPersons: (v:string)=>void,
     assigned: number[], setAssigned: (v:number[])=>void,
+    prereqs: number[], setPrereqs: (v:number[])=>void,
+    followups: number[], setFollowups: (v:number[])=>void,
     onSave: ()=>void, onCancel: ()=>void, isPending: boolean
-  ) => (
+  ) => {
+    // Andere Aufgaben für Vor-/Folgeaufgaben-Auswahl (alle außer der aktuell bearbeiteten)
+    const otherTasks = (taskItems as any[]).filter((t: any) => t.id !== itemId);
+    return (
     <div className="bg-muted/50 rounded-lg p-3 space-y-2">
       <Input placeholder="Aufgabenname *" value={name} onChange={e => setName(e.target.value)} className="h-8 text-sm" />
       <Textarea placeholder="Beschreibung (optional)" value={desc} onChange={e => setDesc(e.target.value)} className="text-sm resize-none" rows={2} />
@@ -769,6 +785,49 @@ function TemplateTaskItemsSection({
           )}
         </div>
       )}
+      {/* Voraufgaben */}
+      {otherTasks.length > 0 && (
+        <div>
+          <Label className="text-xs text-muted-foreground block mb-1">Voraufgaben (müssen vorher erledigt sein)</Label>
+          <div className="flex flex-wrap gap-1.5">
+            {otherTasks.map((t: any) => (
+              <button key={t.id} type="button"
+                className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                  prereqs.includes(t.id) ? "bg-orange-100 border-orange-300 text-orange-700" : "bg-background border-border text-muted-foreground"
+                }`}
+                onClick={() => {
+                  const next = prereqs.includes(t.id) ? prereqs.filter(id => id !== t.id) : [...prereqs, t.id];
+                  setPrereqs(next);
+                  // Bidirektional: Folgeaufgabe beim anderen setzen
+                }}
+              >
+                {t.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* Folgeaufgaben */}
+      {otherTasks.length > 0 && (
+        <div>
+          <Label className="text-xs text-muted-foreground block mb-1">Folgeaufgaben (werden danach fällig)</Label>
+          <div className="flex flex-wrap gap-1.5">
+            {otherTasks.map((t: any) => (
+              <button key={t.id} type="button"
+                className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                  followups.includes(t.id) ? "bg-green-100 border-green-300 text-green-700" : "bg-background border-border text-muted-foreground"
+                }`}
+                onClick={() => {
+                  const next = followups.includes(t.id) ? followups.filter(id => id !== t.id) : [...followups, t.id];
+                  setFollowups(next);
+                }}
+              >
+                {t.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex gap-2 pt-1">
         <Button size="sm" className="flex-1 h-7 text-xs" disabled={!name.trim() || isPending} onClick={onSave}>
           <Check className="w-3 h-3 mr-1" />Speichern
@@ -778,7 +837,8 @@ function TemplateTaskItemsSection({
         </Button>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -798,8 +858,10 @@ function TemplateTaskItemsSection({
         newTaskDurationDays, setNewTaskDurationDays, newTaskDurationMinutes, setNewTaskDurationMinutes,
         newTaskEnableRotation, setNewTaskEnableRotation, newTaskRequiredPersons, setNewTaskRequiredPersons,
         newTaskAssigned, setNewTaskAssigned,
+        newTaskPrereqs, setNewTaskPrereqs,
+        newTaskFollowups, setNewTaskFollowups,
         () => {
-          const { frequency, repeatInterval: ri, repeatUnit: ru } = buildFreq(newTaskFreq, newTaskRepeatInterval, newTaskRepeatUnit);
+          const { frequency, repeatInterval: ri, repeatUnit: ru } = buildRepeatParams(newTaskFreq, newTaskRepeatInterval, newTaskRepeatUnit);
           addMutation.mutate({
             templateId, name: newTaskName.trim(),
             description: newTaskDesc.trim() || null,
@@ -810,6 +872,8 @@ function TemplateTaskItemsSection({
             durationMinutes: parseInt(newTaskDurationMinutes) || 0,
             enableRotation: newTaskEnableRotation,
             requiredPersons: newTaskEnableRotation ? parseInt(newTaskRequiredPersons) || 1 : null,
+            prerequisiteItemIds: newTaskPrereqs,
+            followupItemIds: newTaskFollowups,
           });
         },
         () => setShowAddTask(false),
@@ -825,8 +889,10 @@ function TemplateTaskItemsSection({
             editTaskDurationDays, setEditTaskDurationDays, editTaskDurationMinutes, setEditTaskDurationMinutes,
             editTaskEnableRotation, setEditTaskEnableRotation, editTaskRequiredPersons, setEditTaskRequiredPersons,
             editTaskAssigned, setEditTaskAssigned,
+            editTaskPrereqs, setEditTaskPrereqs,
+            editTaskFollowups, setEditTaskFollowups,
             () => {
-              const { frequency, repeatInterval: ri, repeatUnit: ru } = buildFreq(editTaskFreq, editTaskRepeatInterval, editTaskRepeatUnit);
+              const { frequency, repeatInterval: ri, repeatUnit: ru } = buildRepeatParams(editTaskFreq, editTaskRepeatInterval, editTaskRepeatUnit);
               updateMutation.mutate({
                 itemId: item.id, name: editTaskName.trim(),
                 description: editTaskDesc.trim() || null,
@@ -837,6 +903,8 @@ function TemplateTaskItemsSection({
                 durationMinutes: parseInt(editTaskDurationMinutes) || 0,
                 enableRotation: editTaskEnableRotation,
                 requiredPersons: editTaskEnableRotation ? parseInt(editTaskRequiredPersons) || 1 : null,
+                prerequisiteItemIds: editTaskPrereqs,
+                followupItemIds: editTaskFollowups,
               });
             },
             () => setEditingTaskId(null),
@@ -870,6 +938,24 @@ function TemplateTaskItemsSection({
                       → {(item.assignedToMemberIds as number[]).map((id: number) => {
                         const m = (members as any[]).find((x: any) => x.id === id);
                         return m?.memberName ?? `#${id}`;
+                      }).join(", ")}
+                    </span>
+                  ) : null}
+                  {/* Voraufgaben anzeigen */}
+                  {(item.prerequisiteItemIds as number[]|null)?.length ? (
+                    <span className="text-xs text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
+                      ⏮ {(item.prerequisiteItemIds as number[]).map((id: number) => {
+                        const t = (taskItems as any[]).find((x: any) => x.id === id);
+                        return t?.name ?? `#${id}`;
+                      }).join(", ")}
+                    </span>
+                  ) : null}
+                  {/* Folgeaufgaben anzeigen */}
+                  {(item.followupItemIds as number[]|null)?.length ? (
+                    <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+                      ⏭ {(item.followupItemIds as number[]).map((id: number) => {
+                        const t = (taskItems as any[]).find((x: any) => x.id === id);
+                        return t?.name ?? `#${id}`;
                       }).join(", ")}
                     </span>
                   ) : null}
@@ -1113,6 +1199,11 @@ function InstanceCard({
   const progress = instance.totalItems > 0
     ? Math.round((instance.transferredItems / instance.totalItems) * 100)
     : 0;
+  // Tab-State für gemischte Pläne
+  const [activeTab, setActiveTab] = useState<"shopping"|"tasks">("shopping");
+  const hasShoppingItems = (instance.totalShoppingItems ?? 0) > 0;
+  const hasTaskItems = (instance.totalTaskItems ?? 0) > 0;
+  const isMixed = hasShoppingItems && hasTaskItems;
 
   const transferAllMutation = trpc.planTemplates.transferAllItems.useMutation({
     onSuccess: (data) => {
@@ -1124,14 +1215,35 @@ function InstanceCard({
     onError: () => toast.error("Fehler beim Übertragen"),
   });
 
+  const transferAllTasksMutation = trpc.planTemplates.transferAllTaskItems.useMutation({
+    onSuccess: (data) => {
+      utils.planTemplates.listInstances.invalidate({ householdId });
+      utils.planTemplates.getInstance.invalidate({ instanceId: instance.id });
+      utils.tasks.list.invalidate({ householdId });
+      toast.success(`${data.count} Aufgabe${data.count !== 1 ? "n" : ""} übertragen`);
+    },
+    onError: () => toast.error("Fehler beim Übertragen"),
+  });
+
+  // Icon je nach Typ
+  const TypeIcon = hasTaskItems && !hasShoppingItems ? CheckSquare
+    : hasShoppingItems && !hasTaskItems ? ShoppingCart
+    : Layers;
+  const iconColor = hasTaskItems && !hasShoppingItems ? "text-blue-600"
+    : hasShoppingItems && !hasTaskItems ? "text-amber-600"
+    : "text-orange-600";
+  const iconBg = hasTaskItems && !hasShoppingItems ? "bg-blue-50"
+    : hasShoppingItems && !hasTaskItems ? "bg-amber-50"
+    : "bg-orange-50";
+
   return (
     <Card className={`transition-shadow ${isActive ? "hover:shadow-md" : "opacity-70"}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3 cursor-pointer" onClick={onToggle}>
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            isActive ? "bg-amber-50" : "bg-muted"
+            isActive ? iconBg : "bg-muted"
           }`}>
-            <ShoppingCart className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-muted-foreground"}`} />
+            <TypeIcon className={`w-5 h-5 ${isActive ? iconColor : "text-muted-foreground"}`} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -1144,7 +1256,12 @@ function InstanceCard({
               )}
             </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              <span>{instance.transferredItems} / {instance.totalItems} übertragen</span>
+              {hasShoppingItems && (
+                <span><ShoppingCart className="w-3 h-3 inline mr-0.5" />{instance.transferredShoppingItems ?? 0}/{instance.totalShoppingItems ?? 0}</span>
+              )}
+              {hasTaskItems && (
+                <span><CheckSquare className="w-3 h-3 inline mr-0.5" />{instance.transferredTaskItems ?? 0}/{instance.totalTaskItems ?? 0}</span>
+              )}
               <span>{new Date(instance.startedAt).toLocaleDateString("de-DE")}</span>
             </div>
             {instance.totalItems > 0 && (
@@ -1159,18 +1276,102 @@ function InstanceCard({
           <ChevronRight className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
         </div>
 
-        {/* Aufgeklappte Artikelliste */}
+        {/* Aufgeklappter Bereich */}
         {isExpanded && (
-          <InstanceItemsList
-            instanceId={instance.id}
-            householdId={householdId}
-            memberId={memberId}
-            isActive={isActive}
-            onTransferAll={() => transferAllMutation.mutate({ instanceId: instance.id, householdId, memberId })}
-            transferAllPending={transferAllMutation.isPending}
-            onComplete={onComplete}
-            onCancel={onCancel}
-          />
+          <div className="mt-4 pt-4 border-t border-border" onClick={e => e.stopPropagation()}>
+            {/* Tab-Switch für gemischte Pläne */}
+            {isMixed && (
+              <div className="flex gap-1 mb-3 bg-muted rounded-lg p-1">
+                <button
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+                    activeTab === "shopping" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+                  }`}
+                  onClick={() => setActiveTab("shopping")}
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  Einkauf ({instance.totalShoppingItems})
+                </button>
+                <button
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+                    activeTab === "tasks" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+                  }`}
+                  onClick={() => setActiveTab("tasks")}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  Aufgaben ({instance.totalTaskItems})
+                </button>
+              </div>
+            )}
+
+            {/* Shopping-Items */}
+            {(!isMixed || activeTab === "shopping") && hasShoppingItems && (
+              <InstanceItemsList
+                instanceId={instance.id}
+                householdId={householdId}
+                memberId={memberId}
+                isActive={isActive}
+                onTransferAll={() => transferAllMutation.mutate({ instanceId: instance.id, householdId, memberId })}
+                transferAllPending={transferAllMutation.isPending}
+                onComplete={isMixed ? () => {} : onComplete}
+                onCancel={isMixed ? () => {} : onCancel}
+                hidePlanButtons={isMixed}
+              />
+            )}
+
+            {/* Aufgaben-Items */}
+            {(!isMixed || activeTab === "tasks") && hasTaskItems && (
+              <InstanceTaskItemsList
+                instanceId={instance.id}
+                householdId={householdId}
+                memberId={memberId}
+                isActive={isActive}
+                onTransferAll={() => transferAllTasksMutation.mutate({ instanceId: instance.id, householdId, memberId })}
+                transferAllPending={transferAllTasksMutation.isPending}
+                onComplete={isMixed ? () => {} : onComplete}
+                onCancel={isMixed ? () => {} : onCancel}
+                hidePlanButtons={isMixed}
+              />
+            )}
+
+            {/* Plan abschließen / stornieren (nur bei gemischten Plänen hier anzeigen) */}
+            {isMixed && isActive && (
+              <div className="flex gap-2 pt-2 border-t border-border mt-3">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs border-green-300 text-green-700 hover:bg-green-50"
+                  onClick={onComplete}
+                >
+                  <Check className="w-3.5 h-3.5 mr-1" />
+                  Plan abschließen
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs text-muted-foreground"
+                  onClick={onCancel}
+                >
+                  <X className="w-3.5 h-3.5 mr-1" />
+                  Stornieren
+                </Button>
+              </div>
+            )}
+
+            {/* Nur Aufgaben (kein Shopping) */}
+            {!isMixed && !hasShoppingItems && hasTaskItems && (
+              <InstanceTaskItemsList
+                instanceId={instance.id}
+                householdId={householdId}
+                memberId={memberId}
+                isActive={isActive}
+                onTransferAll={() => transferAllTasksMutation.mutate({ instanceId: instance.id, householdId, memberId })}
+                transferAllPending={transferAllTasksMutation.isPending}
+                onComplete={onComplete}
+                onCancel={onCancel}
+                hidePlanButtons={false}
+              />
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -1180,7 +1381,7 @@ function InstanceCard({
 // ─── Instanz-Artikelliste ─────────────────────────────────────────────────────
 function InstanceItemsList({
   instanceId, householdId, memberId, isActive,
-  onTransferAll, transferAllPending, onComplete, onCancel
+  onTransferAll, transferAllPending, onComplete, onCancel, hidePlanButtons
 }: {
   instanceId: number;
   householdId: number;
@@ -1190,6 +1391,7 @@ function InstanceItemsList({
   transferAllPending: boolean;
   onComplete: () => void;
   onCancel: () => void;
+  hidePlanButtons?: boolean;
 }) {
   const utils = trpc.useUtils();
   const { data: instance } = trpc.planTemplates.getInstance.useQuery(
@@ -1314,7 +1516,166 @@ function InstanceItemsList({
       )}
 
       {/* Plan abschließen / stornieren */}
-      {isActive && (
+      {isActive && !hidePlanButtons && (
+        <div className="flex gap-2 pt-2 border-t border-border">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 text-xs border-green-300 text-green-700 hover:bg-green-50"
+            onClick={onComplete}
+          >
+            <Check className="w-3.5 h-3.5 mr-1" />
+            Plan abschließen
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-xs text-muted-foreground"
+            onClick={onCancel}
+          >
+            <X className="w-3.5 h-3.5 mr-1" />
+            Stornieren
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Instanz-Aufgabenliste ────────────────────────────────────────────────────
+function InstanceTaskItemsList({
+  instanceId, householdId, memberId, isActive,
+  onTransferAll, transferAllPending, onComplete, onCancel, hidePlanButtons
+}: {
+  instanceId: number;
+  householdId: number;
+  memberId: number;
+  isActive: boolean;
+  onTransferAll: () => void;
+  transferAllPending: boolean;
+  onComplete: () => void;
+  onCancel: () => void;
+  hidePlanButtons?: boolean;
+}) {
+  const utils = trpc.useUtils();
+  const { data: instance } = trpc.planTemplates.getInstance.useQuery(
+    { instanceId },
+    { enabled: instanceId > 0 }
+  );
+
+  const transferTaskMutation = trpc.planTemplates.transferTaskItems.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.getInstance.invalidate({ instanceId });
+      utils.planTemplates.listInstances.invalidate({ householdId });
+      utils.tasks.list.invalidate({ householdId });
+      toast.success("Aufgabe übertragen");
+    },
+    onError: () => toast.error("Fehler beim Übertragen"),
+  });
+
+  const untransferTaskMutation = trpc.planTemplates.untransferTaskItem.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.getInstance.invalidate({ instanceId });
+      utils.planTemplates.listInstances.invalidate({ householdId });
+      utils.tasks.list.invalidate({ householdId });
+      toast.success("Übertragung rückgängig gemacht");
+    },
+    onError: () => toast.error("Fehler"),
+  });
+
+  const taskItems = instance?.taskItems ?? [];
+  const pendingTasks = taskItems.filter((t: any) => !t.isTransferred);
+  const transferredTasks = taskItems.filter((t: any) => t.isTransferred);
+
+  const FREQ_LABELS: Record<string, string> = {
+    once: "Einmalig", daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich", custom: "Benutzerdefiniert"
+  };
+
+  return (
+    <div className="space-y-3" onClick={e => e.stopPropagation()}>
+      {/* Alle übertragen Button */}
+      {isActive && pendingTasks.length > 0 && (
+        <Button
+          size="sm"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={onTransferAll}
+          disabled={transferAllPending}
+        >
+          <CheckSquare className="w-4 h-4 mr-2" />
+          Alle {pendingTasks.length} Aufgabe{pendingTasks.length !== 1 ? "n" : ""} übertragen
+        </Button>
+      )}
+
+      {/* Ausstehende Aufgaben */}
+      {pendingTasks.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">Noch nicht übertragen</p>
+          {pendingTasks.map((task: any) => (
+            <div key={task.id} className="flex items-start gap-2 py-1">
+              <CheckSquare className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm">{task.name}</span>
+                {task.frequency && task.frequency !== "once" && (
+                  <span className="ml-1.5 text-xs text-blue-600 bg-blue-50 px-1 py-0.5 rounded">
+                    {FREQ_LABELS[task.frequency] ?? task.frequency}
+                  </span>
+                )}
+                {task.dueDaysFromStart != null && (
+                  <span className="ml-1.5 text-xs text-amber-600">
+                    (fällig nach {task.dueDaysFromStart}T)
+                  </span>
+                )}
+              </div>
+              {isActive && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs flex-shrink-0"
+                  onClick={() => transferTaskMutation.mutate({
+                    instanceId,
+                    householdId,
+                    memberId,
+                    itemIds: [task.id],
+                  })}
+                  disabled={transferTaskMutation.isPending}
+                >
+                  <ArrowRight className="w-3 h-3 mr-1" />
+                  Übertragen
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Übertragene Aufgaben */}
+      {transferredTasks.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">Bereits übertragen</p>
+          {transferredTasks.map((task: any) => (
+            <div key={task.id} className="flex items-center gap-2 py-1 opacity-60">
+              <Check className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+              <span className="flex-1 text-sm line-through">{task.name}</span>
+              {isActive && task.taskId && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs text-muted-foreground flex-shrink-0"
+                  onClick={() => untransferTaskMutation.mutate({
+                    instanceItemId: task.id,
+                    taskId: task.taskId,
+                  })}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Plan abschließen / stornieren */}
+      {isActive && !hidePlanButtons && (
         <div className="flex gap-2 pt-2 border-t border-border">
           <Button
             size="sm"
