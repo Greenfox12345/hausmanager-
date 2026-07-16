@@ -253,6 +253,13 @@
       "when": 1783524596917,
       "tag": "0047_cultured_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "5",
+      "when": 1784204399089,
+      "tag": "0048_flowery_the_santerians",
+      "breakpoints": true
     }
   ]
 }

@@ -643,3 +643,87 @@ export const taskCategoryAssignments = mysqlTable("task_category_assignments", {
 
 export type TaskCategoryAssignment = typeof taskCategoryAssignments.$inferSelect;
 export type InsertTaskCategoryAssignment = typeof taskCategoryAssignments.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLANKISTE – Vorlagen für wiederkehrende Einkäufe, Aufgaben und Projekte
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * planTemplates – eine Vorlage (z.B. „Wocheneinkauf", „Grillabend")
+ * Typ: "shopping" | "tasks" | "project" | "mixed"
+ * Wird haushaltsweit gespeichert; createdByMemberId für spätere Mitglieder-Kartei.
+ */
+export const planTemplates = mysqlTable("plan_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  createdByMemberId: int("createdByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["shopping", "tasks", "project", "mixed"]).default("shopping").notNull(),
+  tags: json("tags").$type<string[]>().default([]),
+  usageCount: int("usageCount").default(0).notNull(), // Wie oft wurde die Vorlage gestartet
+  lastUsedAt: timestamp("lastUsedAt"),
+  isArchived: boolean("isArchived").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type PlanTemplate = typeof planTemplates.$inferSelect;
+export type InsertPlanTemplate = typeof planTemplates.$inferInsert;
+
+/**
+ * planTemplateShoppingItems – Einkaufsartikel innerhalb einer Vorlage
+ * Spiegelt die Felder von shoppingItems wider (ohne haushaltId, isCompleted, etc.)
+ */
+export const planTemplateShoppingItems = mysqlTable("plan_template_shopping_items", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull().references(() => planTemplates.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  categoryId: int("categoryId").references(() => shoppingCategories.id, { onDelete: "set null" }),
+  quantity: decimal("quantity", { precision: 10, scale: 3 }),
+  unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }),
+  notes: text("notes"),
+  sortOrder: int("sortOrder").default(0).notNull(), // Reihenfolge innerhalb der Vorlage
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PlanTemplateShoppingItem = typeof planTemplateShoppingItems.$inferSelect;
+export type InsertPlanTemplateShoppingItem = typeof planTemplateShoppingItems.$inferInsert;
+
+/**
+ * planTemplateInstances – jede gestartete Instanz einer Vorlage
+ * Verknüpft eine Vorlage mit der resultierenden Einkaufsliste (shoppingItems-Gruppe)
+ * oder zukünftig mit Aufgaben/Projekten.
+ */
+export const planTemplateInstances = mysqlTable("plan_template_instances", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull().references(() => planTemplates.id, { onDelete: "cascade" }),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  startedByMemberId: int("startedByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
+  label: varchar("label", { length: 255 }), // Optionaler Name der Instanz, z.B. "Einkauf 14.07."
+  status: mysqlEnum("status", ["active", "completed", "cancelled"]).default("active").notNull(),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+export type PlanTemplateInstance = typeof planTemplateInstances.$inferSelect;
+export type InsertPlanTemplateInstance = typeof planTemplateInstances.$inferInsert;
+
+/**
+ * planInstanceShoppingItems – die konkreten Einkaufsartikel einer gestarteten Instanz
+ * Kopie der Vorlagenartikel zum Zeitpunkt des Starts (entkoppelt von Vorlagenänderungen).
+ * Verknüpft mit shoppingItemId sobald der Artikel in die Einkaufsliste übertragen wurde.
+ */
+export const planInstanceShoppingItems = mysqlTable("plan_instance_shopping_items", {
+  id: int("id").autoincrement().primaryKey(),
+  instanceId: int("instanceId").notNull().references(() => planTemplateInstances.id, { onDelete: "cascade" }),
+  templateItemId: int("templateItemId").references(() => planTemplateShoppingItems.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  categoryId: int("categoryId").references(() => shoppingCategories.id, { onDelete: "set null" }),
+  quantity: decimal("quantity", { precision: 10, scale: 3 }),
+  unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }),
+  notes: text("notes"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  isTransferred: boolean("isTransferred").default(false).notNull(), // Wurde in Einkaufsliste übertragen?
+  shoppingItemId: int("shoppingItemId").references(() => shoppingItems.id, { onDelete: "set null" }), // Verknüpfter Einkaufslisteneintrag
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PlanInstanceShoppingItem = typeof planInstanceShoppingItems.$inferSelect;
+export type InsertPlanInstanceShoppingItem = typeof planInstanceShoppingItems.$inferInsert;

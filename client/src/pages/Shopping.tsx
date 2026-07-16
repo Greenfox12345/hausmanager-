@@ -22,6 +22,7 @@ import { compressImage } from "@/lib/imageCompression";
 import { useTranslation } from "react-i18next";
 import { getCurrentLanguage } from "@/lib/i18n";
 import { DatePickerInput } from "@/components/DatePickerInput";
+import { PlanActiveBanner } from "@/components/PlanActiveBanner";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -722,6 +723,7 @@ export default function Shopping() {
           title={t("shopping:title")}
         />
 
+        <PlanActiveBanner householdId={household.householdId} memberId={member.memberId} />
         <Card className="mb-6 shadow-md">
           <CardHeader>
             <CardTitle className="text-lg">{t("shopping:addItem")}</CardTitle>

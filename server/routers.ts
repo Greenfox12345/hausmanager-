@@ -17,6 +17,7 @@ import { borrowRouter } from "./routers/borrow";
 import { storageRouter } from "./routers/storage";
 import { calendarRouter } from "./routers/calendar";
 import { neighborhoodRouter } from "./routers/neighborhood";
+import { planTemplatesRouter } from "./routers/planTemplates";
 import { taskOccurrenceItemsRouter } from "./routers/taskOccurrenceItems";
 import { inventoryAvailabilityRouter } from "./routers/inventoryAvailability";
 import { demoRouter } from "./routers/demo";
@@ -55,6 +56,7 @@ export const appRouter = router({
   calendar: calendarRouter,
   taskOccurrenceItems: taskOccurrenceItemsRouter,
    neighborhood: neighborhoodRouter,
+  planTemplates: planTemplatesRouter,
   demo: demoRouter,
   units: unitsRouter,
   // Admin router

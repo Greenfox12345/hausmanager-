@@ -22,6 +22,7 @@ import Members from "./pages/Members";
 import Inventory from "./pages/Inventory";
 import InventoryDetail from "./pages/InventoryDetail";
 import Borrows from "./pages/Borrows";
+import Plankiste from "./pages/Plankiste";
 import { Privacy } from "./pages/Privacy";
 import Imprint from "./pages/Imprint";
 import HouseholdSettings from "./pages/HouseholdSettings";
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/inventory" component={Inventory} />
       <Route path="/inventory/:id" component={InventoryDetail} />
       <Route path="/borrows" component={Borrows} />
+      <Route path="/plankiste" component={Plankiste} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/imprint" component={Imprint} />
       <Route path="/settings" component={HouseholdSettings} />

@@ -136,6 +136,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       badge: pendingCount,
     },
     {
+      title: "Plankiste",
+      icon: BookOpen,
+      href: "/plankiste",
+      color: "text-amber-600",
+    },
+    {
       title: t("nav.history"),
       icon: History,
       href: "/history",
