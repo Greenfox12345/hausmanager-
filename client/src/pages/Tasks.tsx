@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
+import { PlanTaskBanner } from "@/components/PlanTaskBanner";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -647,6 +648,8 @@ export default function Tasks() {
           iconBg="bg-secondary/10"
           title={t("tasks:title")}
         />
+
+        <PlanTaskBanner householdId={household.householdId} memberId={member.memberId} />
 
         <Card className="mb-6 shadow-md">
           <CardHeader>
