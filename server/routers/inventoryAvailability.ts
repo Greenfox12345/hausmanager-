@@ -23,6 +23,9 @@ export const inventoryAvailabilityRouter = router({
     .query(async ({ input }) => {
       const { inventoryItemId, startDate, endDate, currentMemberId, currentHouseholdId } = input;
 
+      // Wenn kein Zeitraum angegeben: Gesamtbestand ohne Konfliktprüfung zurückgeben
+      const noDatesProvided = !startDate && !endDate;
+
       const checkStart = startDate || new Date();
       const checkEnd = endDate || new Date();
 
@@ -56,6 +59,20 @@ export const inventoryAvailabilityRouter = router({
           .limit(1);
         unitSymbol = unitRow?.symbol ?? null;
         unitName = unitRow?.name ?? null;
+      }
+
+      // Wenn kein Zeitraum angegeben: Gesamtbestand direkt zurückgeben (keine Konfliktprüfung)
+      if (noDatesProvided) {
+        return {
+          status: "available" as const,
+          availableQuantity: totalQty,
+          totalQuantity: totalQty,
+          unitSymbol,
+          unitName,
+          currentlyBorrowed: 0,
+          currentlyReserved: 0,
+          conflictingBorrows: [],
+        };
       }
 
       // Find overlapping active/approved borrow requests

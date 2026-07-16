@@ -97,19 +97,32 @@ export function BorrowRequestDialog({
     { enabled: open && !!itemId }
   );
 
-  // Check availability for the selected period
-  const checkStart = startDate ?? new Date();
-  const checkEnd = endDate ?? startDate ?? new Date();
-  const { data: availability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
+  // Gesamtbestand-Abfrage (ohne Zeitraum) – wird sofort beim Öffnen geladen
+  const { data: totalAvailability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
     {
       inventoryItemId: itemId,
-      startDate: checkStart,
-      endDate: checkEnd,
       currentMemberId: currentHousehold?.memberId,
       currentHouseholdId: currentHousehold?.householdId,
+      // Kein startDate/endDate → Server gibt Gesamtbestand zurück
     },
     { enabled: open && !!itemId }
   );
+
+  // Zeitraumspezifische Verfügbarkeit – nur wenn Zeitraum gewählt
+  const hasDates = !!(startDate && endDate);
+  const { data: periodAvailability } = trpc.inventoryAvailability.checkItemAvailability.useQuery(
+    {
+      inventoryItemId: itemId,
+      startDate: startDate!,
+      endDate: endDate!,
+      currentMemberId: currentHousehold?.memberId,
+      currentHouseholdId: currentHousehold?.householdId,
+    },
+    { enabled: open && !!itemId && hasDates }
+  );
+
+  // Aktive Verfügbarkeit: zeitraumspezifisch wenn Zeitraum gewählt, sonst Gesamtbestand
+  const availability = hasDates ? periodAvailability : totalAvailability;
 
   // Units query for the item
   const { data: units } = trpc.units.list.useQuery(
@@ -120,19 +133,29 @@ export function BorrowRequestDialog({
   // Derive available quantity and set default loanQuantity
   const availableQty = availability?.availableQuantity ?? null;
   const totalQty = availability?.totalQuantity ?? null;
+  // Gesamtbestand aus der zeitraumlosen Abfrage (immer verfügbar)
+  const totalStockQty = totalAvailability?.totalQuantity ?? null;
+
+  // Max-Menge für QuantityInput: bei gewähltem Zeitraum die verfügbare Menge, sonst Gesamtbestand
+  const maxQty = hasDates ? (availableQty ?? totalStockQty ?? undefined) : (totalStockQty ?? undefined);
 
   useEffect(() => {
     if (open) {
-      // Pre-fill with available qty if known, otherwise default to 1
-      if (availableQty !== null) {
-        setLoanQuantity(Math.max(1, availableQty));
-      } else if (totalQty !== null) {
-        setLoanQuantity(Math.max(1, totalQty));
+      // Vorausgefüllt mit Gesamtbestand (wird später durch Zeitraum-Verfügbarkeit überschrieben)
+      if (totalStockQty !== null) {
+        setLoanQuantity(Math.max(1, totalStockQty));
       } else {
         setLoanQuantity(1);
       }
     }
-  }, [open, availableQty, totalQty]);
+  }, [open, totalStockQty]);
+
+  // Wenn Zeitraum gewählt: Menge auf verfügbare Menge anpassen (falls kleiner)
+  useEffect(() => {
+    if (hasDates && availableQty !== null) {
+      setLoanQuantity(prev => Math.min(prev, Math.max(1, availableQty)));
+    }
+  }, [hasDates, availableQty]);
 
   // Get unit symbol from availability response (unit is stored on the inventory item)
   const itemUnit = availability?.unitSymbol ?? availability?.unitName ?? null;
@@ -154,7 +177,7 @@ export function BorrowRequestDialog({
   };
 
   const isValid = startDate && endDate && startDate <= endDate &&
-    (loanQuantity >= 1) && (availableQty === null || loanQuantity <= availableQty);
+    (loanQuantity >= 1) && (maxQty === undefined || loanQuantity <= maxQty);
 
   // Availability badge
   const renderAvailabilityBadge = () => {
@@ -379,18 +402,18 @@ export function BorrowRequestDialog({
                 unitId={null}
                 onUnitChange={() => {}}
                 showUnitSelector={false}
-                max={availableQty ?? undefined}
+                max={maxQty}
               />
               {itemUnit && (
                 <span className="text-sm text-muted-foreground shrink-0">{itemUnit}</span>
               )}
             </div>
             {/* Availability hint */}
-            {totalQty !== null && (
+            {totalStockQty !== null && (
               <p className="text-xs text-muted-foreground">
-                {availableQty !== null
-                  ? t("borrow:quantity.ofAvailable", { available: availableQty, total: totalQty })
-                  : t("borrow:quantity.totalStock", { total: totalQty })}
+                {hasDates && availableQty !== null && availableQty < totalStockQty
+                  ? t("borrow:quantity.ofAvailable", { available: availableQty, total: totalStockQty })
+                  : t("borrow:quantity.totalStock", { total: totalStockQty })}
               </p>
             )}
             {/* Conflict info */}
@@ -415,9 +438,9 @@ export function BorrowRequestDialog({
                 ))}
               </div>
             )}
-            {availableQty !== null && loanQuantity > availableQty && (
+            {maxQty !== undefined && loanQuantity > maxQty && (
               <div className="text-xs text-destructive">
-                {t("borrow:quantity.exceedsAvailable", { max: availableQty })}
+                {t("borrow:quantity.exceedsAvailable", { max: maxQty })}
               </div>
             )}
           </div>

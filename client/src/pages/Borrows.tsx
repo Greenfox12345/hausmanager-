@@ -159,7 +159,24 @@ export default function Borrows() {
         return !isPast;
       });
     }
-    return [...filtered].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    // Sortierung: 1. Status-Priorität, 2. Datum aufsteigend
+    const statusPriority = (b: any): number => {
+      // 1. Aktiv (Zurückgeben)
+      if (b.status === 'active') return 0;
+      // 2. Genehmigt (Abholung bestätigen)
+      if (b.status === 'approved') return 1;
+      // 3. Ausstehend (Genehmigung ausstehend)
+      if (b.status === 'pending') return 2;
+      // 4. Abgeschlossen / Abgelehnt / Storniert
+      return 3;
+    };
+    return [...filtered].sort((a, b) => {
+      const pA = statusPriority(a);
+      const pB = statusPriority(b);
+      if (pA !== pB) return pA - pB;
+      // Gleiche Priorität: nach Startdatum aufsteigend sortieren
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    });
   }, [myBorrows, myBorrowsStatus, showPastBorrows]);
 
   const ownItems = useMemo(() => {

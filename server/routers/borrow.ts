@@ -1405,7 +1405,7 @@ export const borrowRouter = router({
         borrowRequestId: input.requestId,
         returnedQty: input.returnQty,
         returnedByMemberId: input.memberId ?? null,
-        note: input.note ?? null,
+        note: input.note ?? "",  // leerer String statt null für DB-Kompatibilität
         returnedAt: new Date(),
       });
 
