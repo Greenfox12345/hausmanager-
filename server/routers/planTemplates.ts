@@ -470,7 +470,7 @@ export const planTemplatesRouter = router({
         categoryId: z.number().nullable().optional(),
         quantity: z.number().nullable().optional(),
         unitId: z.number().nullable().optional(),
-        notes: z.string().optional(),
+        notes: z.string().nullable().optional(),
       })),
     }))
     .mutation(async ({ input }) => {
