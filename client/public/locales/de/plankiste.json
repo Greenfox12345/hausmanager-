@@ -1,0 +1,102 @@
+{
+  "title": "Plankiste",
+  "noHousehold": "Kein Haushalt ausgewählt",
+  "tabs": {
+    "templates": "Vorlagen",
+    "instances": "Aktive Pläne"
+  },
+  "types": {
+    "shopping": "Einkaufsliste",
+    "tasks": "Aufgaben",
+    "project": "Projekt",
+    "mixed": "Gemischt"
+  },
+  "templates": {
+    "empty": "Noch keine Vorlagen vorhanden",
+    "emptyHint": "Erstelle deine erste Vorlage für wiederkehrende Einkäufe oder Aufgaben.",
+    "createFirst": "Erste Vorlage erstellen",
+    "newTemplate": "Neue Vorlage",
+    "items": "{{count}} Artikel",
+    "tasks_count": "{{count}} Aufgaben",
+    "noItems": "Keine Artikel",
+    "startPlan": "Plan starten",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "deleteConfirm": "Vorlage \"{{name}}\" wirklich löschen?",
+    "deleted": "Vorlage gelöscht",
+    "deleteError": "Fehler beim Löschen"
+  },
+  "templateForm": {
+    "createTitle": "Neue Vorlage erstellen",
+    "editTitle": "Vorlage bearbeiten",
+    "namePlaceholder": "z.B. Wocheneinkauf, Grillabend...",
+    "descriptionPlaceholder": "Optionale Beschreibung...",
+    "nameLabel": "Name",
+    "descriptionLabel": "Beschreibung",
+    "typeLabel": "Typ",
+    "typeShopping": "🛒 Einkaufsliste",
+    "typeTasks": "✅ Aufgaben",
+    "typeMixed": "🔀 Gemischt (Einkauf + Aufgaben)",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "created": "Vorlage erstellt",
+    "saved": "Vorlage gespeichert",
+    "createError": "Fehler beim Erstellen",
+    "saveError": "Fehler beim Speichern"
+  },
+  "items": {
+    "addItem": "Artikel hinzufügen",
+    "addTask": "Aufgabe hinzufügen",
+    "itemNamePlaceholder": "Artikelname...",
+    "taskNamePlaceholder": "Aufgabenname...",
+    "noItems": "Noch keine Artikel",
+    "noTasks": "Noch keine Aufgaben",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "addError": "Fehler beim Hinzufügen",
+    "deleteError": "Fehler beim Löschen",
+    "updateError": "Fehler beim Aktualisieren"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "Einmalig",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "custom": "Benutzerdefiniert"
+    },
+    "dueDays": "+{{days}}T",
+    "prerequisites": "Voraufgaben",
+    "followups": "Folgeaufgaben"
+  },
+  "instances": {
+    "empty": "Keine aktiven Pläne",
+    "emptyHint": "Starte eine Vorlage, um einen aktiven Plan zu erstellen.",
+    "label": "Bezeichnung (optional)",
+    "labelPlaceholder": "z.B. Einkauf KW 42...",
+    "startedAt": "Gestartet: {{date}}",
+    "progress": "{{done}}/{{total}} übertragen",
+    "taskProgress": "{{done}}/{{total}} Aufgaben",
+    "complete": "Abschließen",
+    "cancel": "Abbrechen",
+    "completed": "Plan abgeschlossen",
+    "cancelled": "Plan abgebrochen",
+    "transferAll": "Alle {{count}} übertragen",
+    "transferAllTasks": "Alle {{count}} Aufgaben übertragen",
+    "transferred": "{{count}} übertragen",
+    "tabShopping": "Einkauf",
+    "tabTasks": "Aufgaben"
+  },
+  "startDialog": {
+    "title": "Plan starten",
+    "labelLabel": "Bezeichnung (optional)",
+    "labelPlaceholder": "z.B. Einkauf KW 42...",
+    "cancel": "Abbrechen",
+    "start": "Starten",
+    "started": "Plan gestartet",
+    "startError": "Fehler beim Starten"
+  }
+}

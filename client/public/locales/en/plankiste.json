@@ -1,0 +1,102 @@
+{
+  "title": "Plan Box",
+  "noHousehold": "No household selected",
+  "tabs": {
+    "templates": "Templates",
+    "instances": "Active Plans"
+  },
+  "types": {
+    "shopping": "Shopping List",
+    "tasks": "Tasks",
+    "project": "Project",
+    "mixed": "Mixed"
+  },
+  "templates": {
+    "empty": "No templates yet",
+    "emptyHint": "Create your first template for recurring shopping or tasks.",
+    "createFirst": "Create first template",
+    "newTemplate": "New Template",
+    "items": "{{count}} items",
+    "tasks_count": "{{count}} tasks",
+    "noItems": "No items",
+    "startPlan": "Start plan",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Really delete template \"{{name}}\"?",
+    "deleted": "Template deleted",
+    "deleteError": "Error deleting"
+  },
+  "templateForm": {
+    "createTitle": "Create New Template",
+    "editTitle": "Edit Template",
+    "namePlaceholder": "e.g. Weekly shopping, BBQ evening...",
+    "descriptionPlaceholder": "Optional description...",
+    "nameLabel": "Name",
+    "descriptionLabel": "Description",
+    "typeLabel": "Type",
+    "typeShopping": "🛒 Shopping List",
+    "typeTasks": "✅ Tasks",
+    "typeMixed": "🔀 Mixed (Shopping + Tasks)",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "created": "Template created",
+    "saved": "Template saved",
+    "createError": "Error creating",
+    "saveError": "Error saving"
+  },
+  "items": {
+    "addItem": "Add item",
+    "addTask": "Add task",
+    "itemNamePlaceholder": "Item name...",
+    "taskNamePlaceholder": "Task name...",
+    "noItems": "No items yet",
+    "noTasks": "No tasks yet",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "addError": "Error adding",
+    "deleteError": "Error deleting",
+    "updateError": "Error updating"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "Once",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "custom": "Custom"
+    },
+    "dueDays": "+{{days}}d",
+    "prerequisites": "Prerequisites",
+    "followups": "Follow-ups"
+  },
+  "instances": {
+    "empty": "No active plans",
+    "emptyHint": "Start a template to create an active plan.",
+    "label": "Label (optional)",
+    "labelPlaceholder": "e.g. Shopping week 42...",
+    "startedAt": "Started: {{date}}",
+    "progress": "{{done}}/{{total}} transferred",
+    "taskProgress": "{{done}}/{{total}} tasks",
+    "complete": "Complete",
+    "cancel": "Cancel",
+    "completed": "Plan completed",
+    "cancelled": "Plan cancelled",
+    "transferAll": "Transfer all {{count}}",
+    "transferAllTasks": "Transfer all {{count}} tasks",
+    "transferred": "{{count}} transferred",
+    "tabShopping": "Shopping",
+    "tabTasks": "Tasks"
+  },
+  "startDialog": {
+    "title": "Start Plan",
+    "labelLabel": "Label (optional)",
+    "labelPlaceholder": "e.g. Shopping week 42...",
+    "cancel": "Cancel",
+    "start": "Start",
+    "started": "Plan started",
+    "startError": "Error starting"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Caja de planes",
+  "noHousehold": "Ningún hogar seleccionado",
+  "tabs": {
+    "templates": "Plantillas",
+    "instances": "Planes activos"
+  },
+  "types": {
+    "shopping": "Lista de compras",
+    "tasks": "Tareas",
+    "project": "Proyecto",
+    "mixed": "Mixto"
+  },
+  "templates": {
+    "empty": "Aún no hay plantillas",
+    "emptyHint": "Crea tu primera plantilla para compras o tareas recurrentes.",
+    "createFirst": "Crear primera plantilla",
+    "newTemplate": "Nueva plantilla",
+    "items": "{{count}} artículos",
+    "tasks_count": "{{count}} tareas",
+    "noItems": "Sin artículos",
+    "startPlan": "Iniciar plan",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Eliminar plantilla \"{{name}}\"?",
+    "deleted": "Plantilla eliminada",
+    "deleteError": "Error al eliminar"
+  },
+  "templateForm": {
+    "createTitle": "Crear nueva plantilla",
+    "editTitle": "Editar plantilla",
+    "namePlaceholder": "ej. Compras semanales...",
+    "descriptionPlaceholder": "Descripción opcional...",
+    "nameLabel": "Nombre",
+    "descriptionLabel": "Descripción",
+    "typeLabel": "Tipo",
+    "typeShopping": "🛒 Lista de compras",
+    "typeTasks": "✅ Tareas",
+    "typeMixed": "🔀 Mixto (Compras + Tareas)",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "save": "Guardar",
+    "created": "Plantilla creada",
+    "saved": "Plantilla guardada",
+    "createError": "Error al crear",
+    "saveError": "Error al guardar"
+  },
+  "items": {
+    "addItem": "Añadir artículo",
+    "addTask": "Añadir tarea",
+    "itemNamePlaceholder": "Nombre del artículo...",
+    "taskNamePlaceholder": "Nombre de la tarea...",
+    "noItems": "Sin artículos",
+    "noTasks": "Sin tareas",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "addError": "Error al añadir",
+    "deleteError": "Error al eliminar",
+    "updateError": "Error al actualizar"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "Una vez",
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual",
+      "custom": "Personalizado"
+    },
+    "dueDays": "+{{days}}d",
+    "prerequisites": "Prerrequisitos",
+    "followups": "Seguimientos"
+  },
+  "instances": {
+    "empty": "Sin planes activos",
+    "emptyHint": "Inicia una plantilla para crear un plan activo.",
+    "label": "Etiqueta (opcional)",
+    "labelPlaceholder": "ej. Compras semana 42...",
+    "startedAt": "Iniciado: {{date}}",
+    "progress": "{{done}}/{{total}} transferidos",
+    "taskProgress": "{{done}}/{{total}} tareas",
+    "complete": "Completar",
+    "cancel": "Cancelar",
+    "completed": "Plan completado",
+    "cancelled": "Plan cancelado",
+    "transferAll": "Transferir todos ({{count}})",
+    "transferAllTasks": "Transferir todas las tareas ({{count}})",
+    "transferred": "{{count}} transferidos",
+    "tabShopping": "Compras",
+    "tabTasks": "Tareas"
+  },
+  "startDialog": {
+    "title": "Iniciar plan",
+    "labelLabel": "Etiqueta (opcional)",
+    "labelPlaceholder": "ej. Compras semana 42...",
+    "cancel": "Cancelar",
+    "start": "Iniciar",
+    "started": "Plan iniciado",
+    "startError": "Error al iniciar"
+  }
+}

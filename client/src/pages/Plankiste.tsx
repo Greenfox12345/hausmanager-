@@ -5,7 +5,7 @@
  * - Tab "Vorlagen": Alle Vorlagen anzeigen, neue erstellen, bearbeiten, starten
  * - Tab "Aktive Pläne": Gestartete Instanzen mit Übertragungsfunktion
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -58,7 +58,7 @@ const TYPE_COLORS: Record<TemplateType, string> = {
 
 // ─── Hauptkomponente ──────────────────────────────────────────────────────────
 export default function Plankiste() {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["plankiste", "common"]);
   const [, setLocation] = useLocation();
   const { household, member } = useCompatAuth();
   const householdId = household?.householdId ?? 0;
@@ -70,7 +70,7 @@ export default function Plankiste() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64 text-muted-foreground">
-          Kein Haushalt ausgewählt
+          {t("plankiste:noHousehold")}
         </div>
       </AppLayout>
     );
@@ -83,7 +83,7 @@ export default function Plankiste() {
           icon={BookOpen}
           iconColor="text-amber-600"
           iconBg="bg-amber-50"
-          title="Plankiste"
+          title={t("plankiste:title")}
         />
 
         {/* Tabs */}
@@ -96,7 +96,7 @@ export default function Plankiste() {
             }`}
             onClick={() => setActiveTab("templates")}
           >
-            Vorlagen
+            {t("plankiste:tabs.templates")}
           </button>
           <button
             className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
@@ -106,7 +106,7 @@ export default function Plankiste() {
             }`}
             onClick={() => setActiveTab("instances")}
           >
-            Aktive Pläne
+            {t("plankiste:tabs.instances")}
           </button>
         </div>
 
@@ -123,6 +123,7 @@ export default function Plankiste() {
 
 // ─── Vorlagen-Tab ─────────────────────────────────────────────────────────────
 function TemplatesTab({ householdId, memberId }: { householdId: number; memberId: number }) {
+  const { t } = useTranslation(["plankiste"]);
   const utils = trpc.useUtils();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
@@ -136,17 +137,17 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
   const archiveMutation = trpc.planTemplates.archiveTemplate.useMutation({
     onSuccess: () => {
       utils.planTemplates.listTemplates.invalidate({ householdId });
-      toast.success("Vorlage archiviert");
+      toast.success(t("plankiste:templates.deleted"));
     },
-    onError: () => toast.error("Fehler beim Archivieren"),
+    onError: () => toast.error(t("plankiste:templates.deleteError")),
   });
 
   const startMutation = trpc.planTemplates.startTemplate.useMutation({
     onSuccess: (data) => {
       utils.planTemplates.listInstances.invalidate({ householdId });
-      toast.success(`Plan „${data.label}" gestartet`);
+            toast.success(t("plankiste:startDialog.started"));
     },
-    onError: () => toast.error("Fehler beim Starten"),
+    onError: () => toast.error(t("plankiste:startDialog.startError")),
   });
 
   if (isLoading) {
@@ -167,14 +168,14 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
         onClick={() => setShowCreateDialog(true)}
       >
         <Plus className="w-4 h-4 mr-2" />
-        Neue Vorlage erstellen
+        {t("plankiste:templates.newTemplate")}
       </Button>
 
       {templates.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Noch keine Vorlagen</p>
-          <p className="text-sm mt-1">Erstelle eine Vorlage für wiederkehrende Einkäufe oder Aufgaben</p>
+          <p className="font-medium">{t("plankiste:templates.empty")}</p>
+          <p className="text-sm mt-1">{t("plankiste:templates.emptyHint")}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -204,7 +205,7 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                         <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{template.description}</p>
                       )}
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-                        <span>{template.itemCount} Artikel</span>
+                        <span>{t("plankiste:templates.items", { count: template.itemCount })}</span>
                         {template.usageCount > 0 && (
                           <span>{template.usageCount}× gestartet</span>
                         )}
@@ -218,8 +219,8 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                         onClick={() => startMutation.mutate({ templateId: template.id, householdId, memberId })}
                         disabled={startMutation.isPending}
                       >
-                        <Play className="w-3.5 h-3.5 mr-1" />
-                        Starten
+                          <Play className="w-3.5 h-3.5 mr-1" />
+                        {t("plankiste:templates.startPlan")}
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -230,14 +231,14 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => setEditingTemplate(template)}>
                             <Edit2 className="w-4 h-4 mr-2" />
-                            Bearbeiten
+                            {t("plankiste:templates.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => archiveMutation.mutate({ templateId: template.id, householdId, memberId })}
                           >
                             <Archive className="w-4 h-4 mr-2" />
-                            Archivieren
+                            {t("plankiste:templates.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -984,34 +985,37 @@ function TemplateFormDialog({
   memberId: number;
   template?: any;
 }) {
+  const { t } = useTranslation(["plankiste"]);
   const utils = trpc.useUtils();
-  const [name, setName] = useState(template?.name ?? "");
-  const [description, setDescription] = useState(template?.description ?? "");
-  const [type, setType] = useState<TemplateType>(template?.type ?? "shopping");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState<TemplateType>("shopping");
 
-  // State zurücksetzen wenn Dialog öffnet
-  const handleOpen = () => {
-    setName(template?.name ?? "");
-    setDescription(template?.description ?? "");
-    setType(template?.type ?? "shopping");
-  };
+  // State korrekt vorausfüllen wenn Dialog öffnet oder template wechselt
+  useEffect(() => {
+    if (open) {
+      setName(template?.name ?? "");
+      setDescription(template?.description ?? "");
+      setType(template?.type ?? "shopping");
+    }
+  }, [open, template?.id, template?.name, template?.description, template?.type]);
 
   const createMutation = trpc.planTemplates.createTemplate.useMutation({
     onSuccess: () => {
       utils.planTemplates.listTemplates.invalidate({ householdId });
-      toast.success("Vorlage erstellt");
+      toast.success(t("plankiste:templateForm.created"));
       onClose();
     },
-    onError: () => toast.error("Fehler beim Erstellen"),
+    onError: () => toast.error(t("plankiste:templateForm.createError")),
   });
 
   const updateMutation = trpc.planTemplates.updateTemplate.useMutation({
     onSuccess: () => {
       utils.planTemplates.listTemplates.invalidate({ householdId });
-      toast.success("Vorlage gespeichert");
+      toast.success(t("plankiste:templateForm.saved"));
       onClose();
     },
-    onError: () => toast.error("Fehler beim Speichern"),
+    onError: () => toast.error(t("plankiste:templateForm.saveError")),
   });
 
   const handleSubmit = () => {
@@ -1037,52 +1041,51 @@ function TemplateFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); else handleOpen(); }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{template ? "Vorlage bearbeiten" : "Neue Vorlage erstellen"}</DialogTitle>
+          <DialogTitle>{template ? t("plankiste:templateForm.editTitle") : t("plankiste:templateForm.createTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label>Name *</Label>
+            <Label>{t("plankiste:templateForm.nameLabel")} *</Label>
             <Input
-              placeholder="z.B. Wocheneinkauf, Grillabend..."
+              placeholder={t("plankiste:templateForm.namePlaceholder")}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Beschreibung</Label>
+            <Label>{t("plankiste:templateForm.descriptionLabel")}</Label>
             <Textarea
-              placeholder="Optionale Beschreibung..."
+              placeholder={t("plankiste:templateForm.descriptionPlaceholder")}
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={2}
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Typ</Label>
+            <Label>{t("plankiste:templateForm.typeLabel")}</Label>
             <Select value={type} onValueChange={v => setType(v as TemplateType)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="shopping">🛒 Einkaufsliste</SelectItem>
-                <SelectItem value="tasks">✅ Aufgaben</SelectItem>
-                <SelectItem value="project">📁 Projekt</SelectItem>
-                <SelectItem value="mixed">🔀 Gemischt</SelectItem>
+                <SelectItem value="shopping">{t("plankiste:templateForm.typeShopping")}</SelectItem>
+                <SelectItem value="tasks">{t("plankiste:templateForm.typeTasks")}</SelectItem>
+                <SelectItem value="mixed">{t("plankiste:templateForm.typeMixed")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Abbrechen</Button>
+          <Button variant="outline" onClick={onClose}>{t("plankiste:templateForm.cancel")}</Button>
           <Button
             onClick={handleSubmit}
             disabled={!name.trim() || createMutation.isPending || updateMutation.isPending}
           >
-            {template ? "Speichern" : "Erstellen"}
+            {template ? t("plankiste:templateForm.save") : t("plankiste:templateForm.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

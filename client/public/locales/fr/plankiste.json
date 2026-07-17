@@ -1,0 +1,102 @@
+{
+  "title": "Boîte de plans",
+  "noHousehold": "Aucun foyer sélectionné",
+  "tabs": {
+    "templates": "Modèles",
+    "instances": "Plans actifs"
+  },
+  "types": {
+    "shopping": "Liste de courses",
+    "tasks": "Tâches",
+    "project": "Projet",
+    "mixed": "Mixte"
+  },
+  "templates": {
+    "empty": "Aucun modèle pour l'instant",
+    "emptyHint": "Créez votre premier modèle pour les courses ou tâches récurrentes.",
+    "createFirst": "Créer le premier modèle",
+    "newTemplate": "Nouveau modèle",
+    "items": "{{count}} articles",
+    "tasks_count": "{{count}} tâches",
+    "noItems": "Aucun article",
+    "startPlan": "Démarrer le plan",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer le modèle \"{{name}}\" ?",
+    "deleted": "Modèle supprimé",
+    "deleteError": "Erreur lors de la suppression"
+  },
+  "templateForm": {
+    "createTitle": "Créer un nouveau modèle",
+    "editTitle": "Modifier le modèle",
+    "namePlaceholder": "ex. Courses hebdomadaires...",
+    "descriptionPlaceholder": "Description optionnelle...",
+    "nameLabel": "Nom",
+    "descriptionLabel": "Description",
+    "typeLabel": "Type",
+    "typeShopping": "🛒 Liste de courses",
+    "typeTasks": "✅ Tâches",
+    "typeMixed": "🔀 Mixte (Courses + Tâches)",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "save": "Enregistrer",
+    "created": "Modèle créé",
+    "saved": "Modèle enregistré",
+    "createError": "Erreur lors de la création",
+    "saveError": "Erreur lors de l'enregistrement"
+  },
+  "items": {
+    "addItem": "Ajouter un article",
+    "addTask": "Ajouter une tâche",
+    "itemNamePlaceholder": "Nom de l'article...",
+    "taskNamePlaceholder": "Nom de la tâche...",
+    "noItems": "Aucun article",
+    "noTasks": "Aucune tâche",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "addError": "Erreur lors de l'ajout",
+    "deleteError": "Erreur lors de la suppression",
+    "updateError": "Erreur lors de la mise à jour"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "Une fois",
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "custom": "Personnalisé"
+    },
+    "dueDays": "+{{days}}j",
+    "prerequisites": "Prérequis",
+    "followups": "Suites"
+  },
+  "instances": {
+    "empty": "Aucun plan actif",
+    "emptyHint": "Démarrez un modèle pour créer un plan actif.",
+    "label": "Étiquette (optionnel)",
+    "labelPlaceholder": "ex. Courses semaine 42...",
+    "startedAt": "Démarré : {{date}}",
+    "progress": "{{done}}/{{total}} transférés",
+    "taskProgress": "{{done}}/{{total}} tâches",
+    "complete": "Terminer",
+    "cancel": "Annuler",
+    "completed": "Plan terminé",
+    "cancelled": "Plan annulé",
+    "transferAll": "Tout transférer ({{count}})",
+    "transferAllTasks": "Transférer toutes les tâches ({{count}})",
+    "transferred": "{{count}} transférés",
+    "tabShopping": "Courses",
+    "tabTasks": "Tâches"
+  },
+  "startDialog": {
+    "title": "Démarrer le plan",
+    "labelLabel": "Étiquette (optionnel)",
+    "labelPlaceholder": "ex. Courses semaine 42...",
+    "cancel": "Annuler",
+    "start": "Démarrer",
+    "started": "Plan démarré",
+    "startError": "Erreur lors du démarrage"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "صندوق الخطط",
+  "noHousehold": "لم يتم اختيار منزل",
+  "tabs": {
+    "templates": "القوالب",
+    "instances": "الخطط النشطة"
+  },
+  "types": {
+    "shopping": "قائمة التسوق",
+    "tasks": "المهام",
+    "project": "مشروع",
+    "mixed": "مختلط"
+  },
+  "templates": {
+    "empty": "لا توجد قوالب بعد",
+    "emptyHint": "أنشئ قالبك الأول للتسوق أو المهام المتكررة.",
+    "createFirst": "إنشاء أول قالب",
+    "newTemplate": "قالب جديد",
+    "items": "{{count}} عناصر",
+    "tasks_count": "{{count}} مهام",
+    "noItems": "لا توجد عناصر",
+    "startPlan": "بدء الخطة",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteConfirm": "هل تريد حذف القالب \"{{name}}\"؟",
+    "deleted": "تم حذف القالب",
+    "deleteError": "خطأ في الحذف"
+  },
+  "templateForm": {
+    "createTitle": "إنشاء قالب جديد",
+    "editTitle": "تعديل القالب",
+    "namePlaceholder": "مثال: تسوق أسبوعي...",
+    "descriptionPlaceholder": "وصف اختياري...",
+    "nameLabel": "الاسم",
+    "descriptionLabel": "الوصف",
+    "typeLabel": "النوع",
+    "typeShopping": "🛒 قائمة التسوق",
+    "typeTasks": "✅ المهام",
+    "typeMixed": "🔀 مختلط (تسوق + مهام)",
+    "cancel": "إلغاء",
+    "create": "إنشاء",
+    "save": "حفظ",
+    "created": "تم إنشاء القالب",
+    "saved": "تم حفظ القالب",
+    "createError": "خطأ في الإنشاء",
+    "saveError": "خطأ في الحفظ"
+  },
+  "items": {
+    "addItem": "إضافة عنصر",
+    "addTask": "إضافة مهمة",
+    "itemNamePlaceholder": "اسم العنصر...",
+    "taskNamePlaceholder": "اسم المهمة...",
+    "noItems": "لا توجد عناصر",
+    "noTasks": "لا توجد مهام",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "addError": "خطأ في الإضافة",
+    "deleteError": "خطأ في الحذف",
+    "updateError": "خطأ في التحديث"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "مرة واحدة",
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "monthly": "شهري",
+      "custom": "مخصص"
+    },
+    "dueDays": "+{{days}}ي",
+    "prerequisites": "المتطلبات المسبقة",
+    "followups": "المتابعات"
+  },
+  "instances": {
+    "empty": "لا توجد خطط نشطة",
+    "emptyHint": "ابدأ قالباً لإنشاء خطة نشطة.",
+    "label": "التسمية (اختياري)",
+    "labelPlaceholder": "مثال: تسوق الأسبوع 42...",
+    "startedAt": "بدأت: {{date}}",
+    "progress": "{{done}}/{{total}} منقول",
+    "taskProgress": "{{done}}/{{total}} مهام",
+    "complete": "إكمال",
+    "cancel": "إلغاء",
+    "completed": "تم إكمال الخطة",
+    "cancelled": "تم إلغاء الخطة",
+    "transferAll": "نقل الكل ({{count}})",
+    "transferAllTasks": "نقل جميع المهام ({{count}})",
+    "transferred": "{{count}} منقول",
+    "tabShopping": "التسوق",
+    "tabTasks": "المهام"
+  },
+  "startDialog": {
+    "title": "بدء الخطة",
+    "labelLabel": "التسمية (اختياري)",
+    "labelPlaceholder": "مثال: تسوق الأسبوع 42...",
+    "cancel": "إلغاء",
+    "start": "بدء",
+    "started": "تم بدء الخطة",
+    "startError": "خطأ في البدء"
+  }
+}

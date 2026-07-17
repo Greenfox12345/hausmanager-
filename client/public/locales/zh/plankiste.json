@@ -1,0 +1,102 @@
+{
+  "title": "计划箱",
+  "noHousehold": "未选择家庭",
+  "tabs": {
+    "templates": "模板",
+    "instances": "活跃计划"
+  },
+  "types": {
+    "shopping": "购物清单",
+    "tasks": "任务",
+    "project": "项目",
+    "mixed": "混合"
+  },
+  "templates": {
+    "empty": "暂无模板",
+    "emptyHint": "为重复购物或任务创建您的第一个模板。",
+    "createFirst": "创建第一个模板",
+    "newTemplate": "新模板",
+    "items": "{{count}} 件商品",
+    "tasks_count": "{{count}} 个任务",
+    "noItems": "无商品",
+    "startPlan": "启动计划",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定删除模板"{{name}}"？",
+    "deleted": "模板已删除",
+    "deleteError": "删除失败"
+  },
+  "templateForm": {
+    "createTitle": "创建新模板",
+    "editTitle": "编辑模板",
+    "namePlaceholder": "例如：每周购物、烧烤晚会...",
+    "descriptionPlaceholder": "可选描述...",
+    "nameLabel": "名称",
+    "descriptionLabel": "描述",
+    "typeLabel": "类型",
+    "typeShopping": "🛒 购物清单",
+    "typeTasks": "✅ 任务",
+    "typeMixed": "🔀 混合（购物+任务）",
+    "cancel": "取消",
+    "create": "创建",
+    "save": "保存",
+    "created": "模板已创建",
+    "saved": "模板已保存",
+    "createError": "创建失败",
+    "saveError": "保存失败"
+  },
+  "items": {
+    "addItem": "添加商品",
+    "addTask": "添加任务",
+    "itemNamePlaceholder": "商品名称...",
+    "taskNamePlaceholder": "任务名称...",
+    "noItems": "暂无商品",
+    "noTasks": "暂无任务",
+    "delete": "删除",
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消",
+    "addError": "添加失败",
+    "deleteError": "删除失败",
+    "updateError": "更新失败"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "一次",
+      "daily": "每天",
+      "weekly": "每周",
+      "monthly": "每月",
+      "custom": "自定义"
+    },
+    "dueDays": "+{{days}}天",
+    "prerequisites": "前置任务",
+    "followups": "后续任务"
+  },
+  "instances": {
+    "empty": "无活跃计划",
+    "emptyHint": "启动模板以创建活跃计划。",
+    "label": "标签（可选）",
+    "labelPlaceholder": "例如：第42周购物...",
+    "startedAt": "开始：{{date}}",
+    "progress": "已转移 {{done}}/{{total}}",
+    "taskProgress": "{{done}}/{{total}} 任务",
+    "complete": "完成",
+    "cancel": "取消",
+    "completed": "计划已完成",
+    "cancelled": "计划已取消",
+    "transferAll": "全部转移 ({{count}})",
+    "transferAllTasks": "转移所有任务 ({{count}})",
+    "transferred": "已转移 {{count}}",
+    "tabShopping": "购物",
+    "tabTasks": "任务"
+  },
+  "startDialog": {
+    "title": "启动计划",
+    "labelLabel": "标签（可选）",
+    "labelPlaceholder": "例如：第42周购物...",
+    "cancel": "取消",
+    "start": "启动",
+    "started": "计划已启动",
+    "startError": "启动失败"
+  }
+}

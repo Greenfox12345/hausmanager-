@@ -1,0 +1,102 @@
+{
+  "title": "Plan Kutusu",
+  "noHousehold": "Hane seçilmedi",
+  "tabs": {
+    "templates": "Şablonlar",
+    "instances": "Aktif Planlar"
+  },
+  "types": {
+    "shopping": "Alışveriş Listesi",
+    "tasks": "Görevler",
+    "project": "Proje",
+    "mixed": "Karma"
+  },
+  "templates": {
+    "empty": "Henüz şablon yok",
+    "emptyHint": "Tekrarlayan alışveriş veya görevler için ilk şablonunuzu oluşturun.",
+    "createFirst": "İlk şablonu oluştur",
+    "newTemplate": "Yeni Şablon",
+    "items": "{{count}} ürün",
+    "tasks_count": "{{count}} görev",
+    "noItems": "Ürün yok",
+    "startPlan": "Planı başlat",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "deleteConfirm": "\"{{name}}\" şablonu silinsin mi?",
+    "deleted": "Şablon silindi",
+    "deleteError": "Silme hatası"
+  },
+  "templateForm": {
+    "createTitle": "Yeni Şablon Oluştur",
+    "editTitle": "Şablonu Düzenle",
+    "namePlaceholder": "ör. Haftalık alışveriş...",
+    "descriptionPlaceholder": "İsteğe bağlı açıklama...",
+    "nameLabel": "Ad",
+    "descriptionLabel": "Açıklama",
+    "typeLabel": "Tür",
+    "typeShopping": "🛒 Alışveriş Listesi",
+    "typeTasks": "✅ Görevler",
+    "typeMixed": "🔀 Karma (Alışveriş + Görevler)",
+    "cancel": "İptal",
+    "create": "Oluştur",
+    "save": "Kaydet",
+    "created": "Şablon oluşturuldu",
+    "saved": "Şablon kaydedildi",
+    "createError": "Oluşturma hatası",
+    "saveError": "Kaydetme hatası"
+  },
+  "items": {
+    "addItem": "Ürün ekle",
+    "addTask": "Görev ekle",
+    "itemNamePlaceholder": "Ürün adı...",
+    "taskNamePlaceholder": "Görev adı...",
+    "noItems": "Ürün yok",
+    "noTasks": "Görev yok",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "addError": "Ekleme hatası",
+    "deleteError": "Silme hatası",
+    "updateError": "Güncelleme hatası"
+  },
+  "taskItems": {
+    "frequency": {
+      "once": "Bir kez",
+      "daily": "Günlük",
+      "weekly": "Haftalık",
+      "monthly": "Aylık",
+      "custom": "Özel"
+    },
+    "dueDays": "+{{days}}g",
+    "prerequisites": "Ön koşullar",
+    "followups": "Takip görevleri"
+  },
+  "instances": {
+    "empty": "Aktif plan yok",
+    "emptyHint": "Aktif plan oluşturmak için bir şablon başlatın.",
+    "label": "Etiket (isteğe bağlı)",
+    "labelPlaceholder": "ör. 42. hafta alışverişi...",
+    "startedAt": "Başlandı: {{date}}",
+    "progress": "{{done}}/{{total}} aktarıldı",
+    "taskProgress": "{{done}}/{{total}} görev",
+    "complete": "Tamamla",
+    "cancel": "İptal",
+    "completed": "Plan tamamlandı",
+    "cancelled": "Plan iptal edildi",
+    "transferAll": "Tümünü aktar ({{count}})",
+    "transferAllTasks": "Tüm görevleri aktar ({{count}})",
+    "transferred": "{{count}} aktarıldı",
+    "tabShopping": "Alışveriş",
+    "tabTasks": "Görevler"
+  },
+  "startDialog": {
+    "title": "Planı Başlat",
+    "labelLabel": "Etiket (isteğe bağlı)",
+    "labelPlaceholder": "ör. 42. hafta alışverişi...",
+    "cancel": "İptal",
+    "start": "Başlat",
+    "started": "Plan başlatıldı",
+    "startError": "Başlatma hatası"
+  }
+}
