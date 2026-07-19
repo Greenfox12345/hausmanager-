@@ -122,12 +122,48 @@ export default function Plankiste() {
 }
 
 // ─── Vorlagen-Tab ─────────────────────────────────────────────────────────────
+type SortOption = "name_asc" | "name_desc" | "date_asc" | "date_desc";
+
+function SortBar({ sort, onChange }: { sort: SortOption; onChange: (s: SortOption) => void }) {
+  const options: { value: SortOption; label: string }[] = [
+    { value: "date_desc", label: "Neueste zuerst" },
+    { value: "date_asc",  label: "Älteste zuerst" },
+    { value: "name_asc",  label: "A → Z" },
+    { value: "name_desc", label: "Z → A" },
+  ];
+  return (
+    <div className="flex items-center gap-2">
+      <Select value={sort} onValueChange={v => onChange(v as SortOption)}>
+        <SelectTrigger className="h-8 text-xs w-40">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(o => (
+            <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function sortItems<T extends { name: string; createdAt?: string | number | null }>(items: T[], sort: SortOption): T[] {
+  return [...items].sort((a, b) => {
+    if (sort === "name_asc") return a.name.localeCompare(b.name, "de");
+    if (sort === "name_desc") return b.name.localeCompare(a.name, "de");
+    const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return sort === "date_asc" ? da - db : db - da;
+  });
+}
+
 function TemplatesTab({ householdId, memberId }: { householdId: number; memberId: number }) {
   const { t } = useTranslation(["plankiste"]);
   const utils = trpc.useUtils();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [sort, setSort] = useState<SortOption>("date_desc");
 
   const { data: templates = [], isLoading } = trpc.planTemplates.listTemplates.useQuery(
     { householdId },
@@ -160,16 +196,21 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
     );
   }
 
+  const sortedTemplates = sortItems(templates as any[], sort);
+
   return (
     <div className="space-y-4">
-      {/* Neue Vorlage erstellen */}
-      <Button
-        className="w-full"
-        onClick={() => setShowCreateDialog(true)}
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        {t("plankiste:templates.newTemplate")}
-      </Button>
+      {/* Neue Vorlage erstellen + Sortierung */}
+      <div className="flex gap-2">
+        <Button
+          className="flex-1"
+          onClick={() => setShowCreateDialog(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          {t("plankiste:templates.newTemplate")}
+        </Button>
+        {templates.length > 1 && <SortBar sort={sort} onChange={setSort} />}
+      </div>
 
       {templates.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
@@ -179,7 +220,7 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
         </div>
       ) : (
         <div className="space-y-3">
-          {templates.map((template) => {
+          {sortedTemplates.map((template) => {
             const TypeIcon = TYPE_ICONS[template.type as TemplateType] ?? ShoppingCart;
             return (
               <Card
@@ -1097,6 +1138,7 @@ function TemplateFormDialog({
 function InstancesTab({ householdId, memberId }: { householdId: number; memberId: number }) {
   const utils = trpc.useUtils();
   const [selectedInstanceId, setSelectedInstanceId] = useState<number | null>(null);
+  const [sort, setSort] = useState<SortOption>("date_desc");
 
   const { data: instances = [], isLoading } = trpc.planTemplates.listInstances.useQuery(
     { householdId },
@@ -1117,8 +1159,12 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
     },
   });
 
-  const activeInstances = instances.filter((i: any) => i.status === "active");
-  const doneInstances = instances.filter((i: any) => i.status !== "active");
+  const allSorted = sortItems(
+    (instances as any[]).map((i: any) => ({ ...i, name: i.label ?? i.templateName ?? "" })),
+    sort
+  );
+  const activeInstances = allSorted.filter((i: any) => i.status === "active");
+  const doneInstances = allSorted.filter((i: any) => i.status !== "active");
 
   if (isLoading) {
     return (
@@ -1142,6 +1188,11 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
 
   return (
     <div className="space-y-6">
+      {instances.length > 1 && (
+        <div className="flex justify-end">
+          <SortBar sort={sort} onChange={setSort} />
+        </div>
+      )}
       {activeInstances.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Aktiv</h3>
