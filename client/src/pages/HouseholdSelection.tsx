@@ -231,7 +231,7 @@ export default function HouseholdSelection() {
                   {t("householdSelection.createNew", "Neuen Haushalt erstellen")}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{t("householdSelection.createNew", "Neuen Haushalt erstellen")}</DialogTitle>
                   <DialogDescription>
@@ -251,7 +251,7 @@ export default function HouseholdSelection() {
                   <div className="space-y-2">
                     <Label>{t("common:household.language", "Haushaltssprache")}</Label>
                     <p className="text-xs text-muted-foreground">{t("common:household.languageHint")}</p>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {SUPPORTED_LANGUAGES.map((lang) => (
                         <button
                           key={lang.code}
