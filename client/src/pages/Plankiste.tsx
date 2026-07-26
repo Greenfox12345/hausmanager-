@@ -125,11 +125,12 @@ export default function Plankiste() {
 type SortOption = "name_asc" | "name_desc" | "date_asc" | "date_desc";
 
 function SortBar({ sort, onChange }: { sort: SortOption; onChange: (s: SortOption) => void }) {
+  const { t } = useTranslation("plankiste");
   const options: { value: SortOption; label: string }[] = [
-    { value: "date_desc", label: "Neueste zuerst" },
-    { value: "date_asc",  label: "Älteste zuerst" },
-    { value: "name_asc",  label: "A → Z" },
-    { value: "name_desc", label: "Z → A" },
+    { value: "date_desc", label: t("sort.dateDesc") },
+    { value: "date_asc",  label: t("sort.dateAsc") },
+    { value: "name_asc",  label: t("sort.nameAsc") },
+    { value: "name_desc", label: t("sort.nameDesc") },
   ];
   return (
     <div className="flex items-center gap-2">
@@ -640,6 +641,7 @@ function TemplateItemsPreview({
 function TemplateTaskItemsSection({
   templateId, householdId, memberId
 }: { templateId: number; householdId: number; memberId: number }) {
+  const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
   const [showAddTask, setShowAddTask] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -735,7 +737,11 @@ function TemplateTaskItemsSection({
   };
 
   const FREQ_LABELS: Record<string, string> = {
-    once: "Einmalig", daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich", custom: "Benutzerdefiniert"
+    once: t("taskItems.frequency.once"),
+    daily: t("taskItems.frequency.daily"),
+    weekly: t("taskItems.frequency.weekly"),
+    monthly: t("taskItems.frequency.monthly"),
+    custom: t("taskItems.frequency.custom"),
   };
 
   const renderTaskForm = (
@@ -1136,6 +1142,7 @@ function TemplateFormDialog({
 
 // ─── Aktive Pläne Tab ─────────────────────────────────────────────────────────
 function InstancesTab({ householdId, memberId }: { householdId: number; memberId: number }) {
+  const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
   const [selectedInstanceId, setSelectedInstanceId] = useState<number | null>(null);
   const [sort, setSort] = useState<SortOption>("date_desc");
@@ -1148,14 +1155,14 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
   const completeMutation = trpc.planTemplates.completeInstance.useMutation({
     onSuccess: () => {
       utils.planTemplates.listInstances.invalidate({ householdId });
-      toast.success("Plan abgeschlossen");
+      toast.success(t("instances.completed"));
     },
   });
 
   const cancelMutation = trpc.planTemplates.cancelInstance.useMutation({
     onSuccess: () => {
       utils.planTemplates.listInstances.invalidate({ householdId });
-      toast.success("Plan storniert");
+      toast.success(t("instances.cancelled"));
     },
   });
 
@@ -1195,7 +1202,7 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
       )}
       {activeInstances.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Aktiv</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t("instances.sectionActive")}</h3>
           {activeInstances.map((instance: any) => (
             <InstanceCard
               key={instance.id}
@@ -1215,7 +1222,7 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
 
       {doneInstances.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Abgeschlossen / Storniert</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t("instances.sectionDone")}</h3>
           {doneInstances.slice(0, 5).map((instance: any) => (
             <InstanceCard
               key={instance.id}
@@ -1248,6 +1255,7 @@ function InstanceCard({
   onComplete: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
   const isActive = instance.status === "active";
   const progress = instance.totalItems > 0
@@ -1303,10 +1311,10 @@ function InstanceCard({
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-foreground truncate">{instance.label ?? instance.templateName}</h3>
               {instance.status === "completed" && (
-                <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">Abgeschlossen</Badge>
+                <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">{t("instances.statusCompleted")}</Badge>
               )}
               {instance.status === "cancelled" && (
-                <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">Storniert</Badge>
+                <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">{t("instances.statusCancelled")}</Badge>
               )}
             </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
@@ -1343,7 +1351,7 @@ function InstanceCard({
                   onClick={() => setActiveTab("shopping")}
                 >
                   <ShoppingCart className="w-3.5 h-3.5" />
-                  Einkauf ({instance.totalShoppingItems})
+                  {t("instances.tabShopping", { count: instance.totalShoppingItems })}
                 </button>
                 <button
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
@@ -1352,7 +1360,7 @@ function InstanceCard({
                   onClick={() => setActiveTab("tasks")}
                 >
                   <CheckSquare className="w-3.5 h-3.5" />
-                  Aufgaben ({instance.totalTaskItems})
+                  {t("instances.tabTasks", { count: instance.totalTaskItems })}
                 </button>
               </div>
             )}
@@ -1397,7 +1405,7 @@ function InstanceCard({
                   onClick={onComplete}
                 >
                   <Check className="w-3.5 h-3.5 mr-1" />
-                  Plan abschließen
+                  {t("instances.completePlan")}
                 </Button>
                 <Button
                   size="sm"
@@ -1406,7 +1414,7 @@ function InstanceCard({
                   onClick={onCancel}
                 >
                   <X className="w-3.5 h-3.5 mr-1" />
-                  Stornieren
+                  {t("instances.cancelPlan")}
                 </Button>
               </div>
             )}
@@ -1447,6 +1455,7 @@ function InstanceItemsList({
   onCancel: () => void;
   hidePlanButtons?: boolean;
 }) {
+  const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
   const { data: instance } = trpc.planTemplates.getInstance.useQuery(
     { instanceId },
@@ -1458,9 +1467,9 @@ function InstanceItemsList({
       utils.planTemplates.getInstance.invalidate({ instanceId });
       utils.planTemplates.listInstances.invalidate({ householdId });
       utils.shopping.list.invalidate({ householdId });
-      toast.success("Artikel zur Einkaufsliste hinzugefügt");
+      toast.success(t("instances.itemTransferred"));
     },
-    onError: () => toast.error("Fehler beim Übertragen"),
+    onError: () => toast.error(t("instances.transferError")),
   });
 
   const untransferMutation = trpc.planTemplates.untransferItem.useMutation({
@@ -1468,9 +1477,9 @@ function InstanceItemsList({
       utils.planTemplates.getInstance.invalidate({ instanceId });
       utils.planTemplates.listInstances.invalidate({ householdId });
       utils.shopping.list.invalidate({ householdId });
-      toast.success("Übertragung rückgängig gemacht");
+      toast.success(t("instances.undone"));
     },
-    onError: () => toast.error("Fehler"),
+    onError: () => toast.error(t("instances.transferError")),
   });
 
   const items = instance?.items ?? [];
@@ -1488,14 +1497,14 @@ function InstanceItemsList({
           disabled={transferAllPending}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
-          Alle {pendingItems.length} Artikel zur Einkaufsliste hinzufügen
+          {t("instances.addToShoppingList", { count: pendingItems.length })}
         </Button>
       )}
 
       {/* Ausstehende Artikel */}
       {pendingItems.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Noch nicht übertragen</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("instances.pendingItems")}</p>
           {pendingItems.map((item: any) => {
             const unit = item.unitId ? { id: item.unitId, name: item.unitName, symbol: item.unitSymbol } : null;
             return (
@@ -1528,7 +1537,7 @@ function InstanceItemsList({
                     disabled={transferItemMutation.isPending}
                   >
                     <ArrowRight className="w-3 h-3 mr-1" />
-                    Übertragen
+                    {t("instances.transferItem")}
                   </Button>
                 )}
               </div>
@@ -1540,7 +1549,7 @@ function InstanceItemsList({
       {/* Übertragene Artikel */}
       {transferredItems.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Bereits in Einkaufsliste</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("instances.transferredItems")}</p>
           {transferredItems.map((item: any) => {
             const unit = item.unitId ? { id: item.unitId, name: item.unitName, symbol: item.unitSymbol } : null;
             return (
@@ -1579,7 +1588,7 @@ function InstanceItemsList({
             onClick={onComplete}
           >
             <Check className="w-3.5 h-3.5 mr-1" />
-            Plan abschließen
+            {t("instances.completePlan")}
           </Button>
           <Button
             size="sm"
@@ -1588,7 +1597,7 @@ function InstanceItemsList({
             onClick={onCancel}
           >
             <X className="w-3.5 h-3.5 mr-1" />
-            Stornieren
+            {t("instances.cancelPlan")}
           </Button>
         </div>
       )}
@@ -1611,6 +1620,7 @@ function InstanceTaskItemsList({
   onCancel: () => void;
   hidePlanButtons?: boolean;
 }) {
+  const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
   const { data: instance } = trpc.planTemplates.getInstance.useQuery(
     { instanceId },
@@ -1622,9 +1632,9 @@ function InstanceTaskItemsList({
       utils.planTemplates.getInstance.invalidate({ instanceId });
       utils.planTemplates.listInstances.invalidate({ householdId });
       utils.tasks.list.invalidate({ householdId });
-      toast.success("Aufgabe übertragen");
+      toast.success(t("instances.taskTransferred"));
     },
-    onError: () => toast.error("Fehler beim Übertragen"),
+    onError: () => toast.error(t("instances.transferError")),
   });
 
   const untransferTaskMutation = trpc.planTemplates.untransferTaskItem.useMutation({
@@ -1632,17 +1642,21 @@ function InstanceTaskItemsList({
       utils.planTemplates.getInstance.invalidate({ instanceId });
       utils.planTemplates.listInstances.invalidate({ householdId });
       utils.tasks.list.invalidate({ householdId });
-      toast.success("Übertragung rückgängig gemacht");
+      toast.success(t("instances.undone"));
     },
-    onError: () => toast.error("Fehler"),
+    onError: () => toast.error(t("instances.transferError")),
   });
 
   const taskItems = instance?.taskItems ?? [];
-  const pendingTasks = taskItems.filter((t: any) => !t.isTransferred);
-  const transferredTasks = taskItems.filter((t: any) => t.isTransferred);
+  const pendingTasks = taskItems.filter((item: any) => !item.isTransferred);
+  const transferredTasks = taskItems.filter((item: any) => item.isTransferred);
 
   const FREQ_LABELS: Record<string, string> = {
-    once: "Einmalig", daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich", custom: "Benutzerdefiniert"
+    once: t("taskItems.frequency.once"),
+    daily: t("taskItems.frequency.daily"),
+    weekly: t("taskItems.frequency.weekly"),
+    monthly: t("taskItems.frequency.monthly"),
+    custom: t("taskItems.frequency.custom"),
   };
 
   return (
@@ -1656,14 +1670,16 @@ function InstanceTaskItemsList({
           disabled={transferAllPending}
         >
           <CheckSquare className="w-4 h-4 mr-2" />
-          Alle {pendingTasks.length} Aufgabe{pendingTasks.length !== 1 ? "n" : ""} übertragen
+          {pendingTasks.length === 1
+            ? t("instances.transferAllTasksBtn", { count: 1 })
+            : t("instances.transferAllTasksBtnPlural", { count: pendingTasks.length })}
         </Button>
       )}
 
       {/* Ausstehende Aufgaben */}
       {pendingTasks.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Noch nicht übertragen</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("instances.pendingTasks")}</p>
           {pendingTasks.map((task: any) => (
             <div key={task.id} className="flex items-start gap-2 py-1">
               <CheckSquare className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
@@ -1676,7 +1692,7 @@ function InstanceTaskItemsList({
                 )}
                 {task.dueDaysFromStart != null && (
                   <span className="ml-1.5 text-xs text-amber-600">
-                    (fällig nach {task.dueDaysFromStart}T)
+                    {t("instances.dueDaysLabel", { days: task.dueDaysFromStart })}
                   </span>
                 )}
               </div>
@@ -1693,8 +1709,8 @@ function InstanceTaskItemsList({
                   })}
                   disabled={transferTaskMutation.isPending}
                 >
-                  <ArrowRight className="w-3 h-3 mr-1" />
-                  Übertragen
+                    <ArrowRight className="w-3 h-3 mr-1" />
+                  {t("instances.transferItem")}
                 </Button>
               )}
             </div>
@@ -1705,7 +1721,7 @@ function InstanceTaskItemsList({
       {/* Übertragene Aufgaben */}
       {transferredTasks.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Bereits übertragen</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("instances.transferredTasks")}</p>
           {transferredTasks.map((task: any) => (
             <div key={task.id} className="flex items-center gap-2 py-1 opacity-60">
               <Check className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
@@ -1738,7 +1754,7 @@ function InstanceTaskItemsList({
             onClick={onComplete}
           >
             <Check className="w-3.5 h-3.5 mr-1" />
-            Plan abschließen
+            {t("instances.completePlan")}
           </Button>
           <Button
             size="sm"
@@ -1747,7 +1763,7 @@ function InstanceTaskItemsList({
             onClick={onCancel}
           >
             <X className="w-3.5 h-3.5 mr-1" />
-            Stornieren
+            {t("instances.cancelPlan")}
           </Button>
         </div>
       )}

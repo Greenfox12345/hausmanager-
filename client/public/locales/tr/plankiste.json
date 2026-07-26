@@ -5,6 +5,12 @@
     "templates": "Şablonlar",
     "instances": "Aktif Planlar"
   },
+  "sort": {
+    "dateDesc": "En yeni",
+    "dateAsc": "En eski",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "types": {
     "shopping": "Alışveriş Listesi",
     "tasks": "Görevler",
@@ -87,8 +93,27 @@
     "transferAll": "Tümünü aktar ({{count}})",
     "transferAllTasks": "Tüm görevleri aktar ({{count}})",
     "transferred": "{{count}} aktarıldı",
-    "tabShopping": "Alışveriş",
-    "tabTasks": "Görevler"
+    "tabShopping": "Alışveriş ({{count}})",
+    "tabTasks": "Görevler ({{count}})",
+    "sectionActive": "Aktif",
+    "sectionDone": "Tamamlandı / İptal Edildi",
+    "statusCompleted": "Tamamlandı",
+    "statusCancelled": "İptal Edildi",
+    "completePlan": "Planı tamamla",
+    "cancelPlan": "İptal et",
+    "transferItem": "Aktar",
+    "pendingItems": "Henüz aktarılmadı",
+    "transferredItems": "Zaten listede",
+    "pendingTasks": "Henüz aktarılmadı",
+    "transferredTasks": "Zaten aktarıldı",
+    "addToShoppingList": "{{count}} ürünü listeye ekle",
+    "transferAllTasksBtn": "{{count}} görevi aktar",
+    "transferAllTasksBtnPlural": "Tüm {{count}} görevi aktar",
+    "itemTransferred": "Ürün listeye eklendi",
+    "taskTransferred": "Görev aktarıldı",
+    "undone": "Aktarım geri alındı",
+    "transferError": "Aktarım hatası",
+    "dueDaysLabel": "({{days}} gün sonra)"
   },
   "startDialog": {
     "title": "Planı Başlat",

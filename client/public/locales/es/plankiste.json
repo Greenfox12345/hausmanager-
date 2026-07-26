@@ -5,6 +5,12 @@
     "templates": "Plantillas",
     "instances": "Planes activos"
   },
+  "sort": {
+    "dateDesc": "Más reciente",
+    "dateAsc": "Más antiguo",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "types": {
     "shopping": "Lista de compras",
     "tasks": "Tareas",
@@ -87,8 +93,27 @@
     "transferAll": "Transferir todos ({{count}})",
     "transferAllTasks": "Transferir todas las tareas ({{count}})",
     "transferred": "{{count}} transferidos",
-    "tabShopping": "Compras",
-    "tabTasks": "Tareas"
+    "tabShopping": "Compras ({{count}})",
+    "tabTasks": "Tareas ({{count}})",
+    "sectionActive": "Activo",
+    "sectionDone": "Completado / Cancelado",
+    "statusCompleted": "Completado",
+    "statusCancelled": "Cancelado",
+    "completePlan": "Completar plan",
+    "cancelPlan": "Cancelar",
+    "transferItem": "Transferir",
+    "pendingItems": "Aún no transferido",
+    "transferredItems": "Ya en la lista",
+    "pendingTasks": "Aún no transferido",
+    "transferredTasks": "Ya transferido",
+    "addToShoppingList": "Añadir {{count}} artículos a la lista",
+    "transferAllTasksBtn": "Transferir {{count}} tarea",
+    "transferAllTasksBtnPlural": "Transferir {{count}} tareas",
+    "itemTransferred": "Artículo añadido a la lista",
+    "taskTransferred": "Tarea transferida",
+    "undone": "Transferencia deshecha",
+    "transferError": "Error al transferir",
+    "dueDaysLabel": "(vence en {{days}}d)"
   },
   "startDialog": {
     "title": "Iniciar plan",

@@ -5,6 +5,12 @@
     "templates": "Templates",
     "instances": "Active Plans"
   },
+  "sort": {
+    "dateDesc": "Newest first",
+    "dateAsc": "Oldest first",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "types": {
     "shopping": "Shopping List",
     "tasks": "Tasks",
@@ -87,8 +93,27 @@
     "transferAll": "Transfer all {{count}}",
     "transferAllTasks": "Transfer all {{count}} tasks",
     "transferred": "{{count}} transferred",
-    "tabShopping": "Shopping",
-    "tabTasks": "Tasks"
+    "tabShopping": "Shopping ({{count}})",
+    "tabTasks": "Tasks ({{count}})",
+    "sectionActive": "Active",
+    "sectionDone": "Completed / Cancelled",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "completePlan": "Complete plan",
+    "cancelPlan": "Cancel",
+    "transferItem": "Transfer",
+    "pendingItems": "Not yet transferred",
+    "transferredItems": "Already in shopping list",
+    "pendingTasks": "Not yet transferred",
+    "transferredTasks": "Already transferred",
+    "addToShoppingList": "Add all {{count}} items to shopping list",
+    "transferAllTasksBtn": "Transfer {{count}} task",
+    "transferAllTasksBtnPlural": "Transfer all {{count}} tasks",
+    "itemTransferred": "Item added to shopping list",
+    "taskTransferred": "Task transferred",
+    "undone": "Transfer undone",
+    "transferError": "Error transferring",
+    "dueDaysLabel": "(due after {{days}}d)"
   },
   "startDialog": {
     "title": "Start Plan",

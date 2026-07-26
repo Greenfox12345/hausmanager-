@@ -5,6 +5,12 @@
     "templates": "Modèles",
     "instances": "Plans actifs"
   },
+  "sort": {
+    "dateDesc": "Plus récent",
+    "dateAsc": "Plus ancien",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "types": {
     "shopping": "Liste de courses",
     "tasks": "Tâches",
@@ -87,8 +93,27 @@
     "transferAll": "Tout transférer ({{count}})",
     "transferAllTasks": "Transférer toutes les tâches ({{count}})",
     "transferred": "{{count}} transférés",
-    "tabShopping": "Courses",
-    "tabTasks": "Tâches"
+    "tabShopping": "Achats ({{count}})",
+    "tabTasks": "Tâches ({{count}})",
+    "sectionActive": "Actif",
+    "sectionDone": "Terminé / Annulé",
+    "statusCompleted": "Terminé",
+    "statusCancelled": "Annulé",
+    "completePlan": "Terminer le plan",
+    "cancelPlan": "Annuler",
+    "transferItem": "Transférer",
+    "pendingItems": "Pas encore transféré",
+    "transferredItems": "Déjà dans la liste",
+    "pendingTasks": "Pas encore transféré",
+    "transferredTasks": "Déjà transféré",
+    "addToShoppingList": "Ajouter {{count}} articles à la liste",
+    "transferAllTasksBtn": "Transférer {{count}} tâche",
+    "transferAllTasksBtnPlural": "Transférer {{count}} tâches",
+    "itemTransferred": "Article ajouté à la liste",
+    "taskTransferred": "Tâche transférée",
+    "undone": "Transfert annulé",
+    "transferError": "Erreur de transfert",
+    "dueDaysLabel": "(dû après {{days}}j)"
   },
   "startDialog": {
     "title": "Démarrer le plan",

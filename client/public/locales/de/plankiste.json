@@ -11,6 +11,12 @@
     "project": "Projekt",
     "mixed": "Gemischt"
   },
+  "sort": {
+    "dateDesc": "Neueste zuerst",
+    "dateAsc": "Älteste zuerst",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "templates": {
     "empty": "Noch keine Vorlagen vorhanden",
     "emptyHint": "Erstelle deine erste Vorlage für wiederkehrende Einkäufe oder Aufgaben.",
@@ -87,8 +93,27 @@
     "transferAll": "Alle {{count}} übertragen",
     "transferAllTasks": "Alle {{count}} Aufgaben übertragen",
     "transferred": "{{count}} übertragen",
-    "tabShopping": "Einkauf",
-    "tabTasks": "Aufgaben"
+    "tabShopping": "Einkauf ({{count}})",
+    "tabTasks": "Aufgaben ({{count}})",
+    "sectionActive": "Aktiv",
+    "sectionDone": "Abgeschlossen / Storniert",
+    "statusCompleted": "Abgeschlossen",
+    "statusCancelled": "Storniert",
+    "completePlan": "Plan abschließen",
+    "cancelPlan": "Stornieren",
+    "transferItem": "Übertragen",
+    "pendingItems": "Noch nicht übertragen",
+    "transferredItems": "Bereits in Einkaufsliste",
+    "pendingTasks": "Noch nicht übertragen",
+    "transferredTasks": "Bereits übertragen",
+    "addToShoppingList": "Alle {{count}} Artikel zur Einkaufsliste hinzufügen",
+    "transferAllTasksBtn": "Alle {{count}} Aufgabe übertragen",
+    "transferAllTasksBtnPlural": "Alle {{count}} Aufgaben übertragen",
+    "itemTransferred": "Artikel zur Einkaufsliste hinzugefügt",
+    "taskTransferred": "Aufgabe übertragen",
+    "undone": "Übertragung rückgängig gemacht",
+    "transferError": "Fehler beim Übertragen",
+    "dueDaysLabel": "(fällig nach {{days}}T)"
   },
   "startDialog": {
     "title": "Plan starten",

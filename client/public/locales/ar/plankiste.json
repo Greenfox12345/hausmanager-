@@ -5,6 +5,12 @@
     "templates": "القوالب",
     "instances": "الخطط النشطة"
   },
+  "sort": {
+    "dateDesc": "الأحدث أولاً",
+    "dateAsc": "الأقدم أولاً",
+    "nameAsc": "أ → ي",
+    "nameDesc": "ي → أ"
+  },
   "types": {
     "shopping": "قائمة التسوق",
     "tasks": "المهام",
@@ -87,8 +93,27 @@
     "transferAll": "نقل الكل ({{count}})",
     "transferAllTasks": "نقل جميع المهام ({{count}})",
     "transferred": "{{count}} منقول",
-    "tabShopping": "التسوق",
-    "tabTasks": "المهام"
+    "tabShopping": "التسوق ({{count}})",
+    "tabTasks": "المهام ({{count}})",
+    "sectionActive": "نشط",
+    "sectionDone": "مكتمل / ملغى",
+    "statusCompleted": "مكتمل",
+    "statusCancelled": "ملغى",
+    "completePlan": "إكمال الخطة",
+    "cancelPlan": "إلغاء",
+    "transferItem": "نقل",
+    "pendingItems": "لم يتم النقل بعد",
+    "transferredItems": "موجود بالفعل في القائمة",
+    "pendingTasks": "لم يتم النقل بعد",
+    "transferredTasks": "تم النقل بالفعل",
+    "addToShoppingList": "إضافة {{count}} عناصر إلى القائمة",
+    "transferAllTasksBtn": "نقل {{count}} مهمة",
+    "transferAllTasksBtnPlural": "نقل جميع {{count}} مهام",
+    "itemTransferred": "تمت إضافة العنصر إلى القائمة",
+    "taskTransferred": "تم نقل المهمة",
+    "undone": "تم التراجع عن النقل",
+    "transferError": "خطأ في النقل",
+    "dueDaysLabel": "(مستحق بعد {{days}} أيام)"
   },
   "startDialog": {
     "title": "بدء الخطة",

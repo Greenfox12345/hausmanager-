@@ -5,6 +5,12 @@
     "templates": "模板",
     "instances": "活跃计划"
   },
+  "sort": {
+    "dateDesc": "最新优先",
+    "dateAsc": "最旧优先",
+    "nameAsc": "A → Z",
+    "nameDesc": "Z → A"
+  },
   "types": {
     "shopping": "购物清单",
     "tasks": "任务",
@@ -87,8 +93,27 @@
     "transferAll": "全部转移 ({{count}})",
     "transferAllTasks": "转移所有任务 ({{count}})",
     "transferred": "已转移 {{count}}",
-    "tabShopping": "购物",
-    "tabTasks": "任务"
+    "tabShopping": "购物 ({{count}})",
+    "tabTasks": "任务 ({{count}})",
+    "sectionActive": "进行中",
+    "sectionDone": "已完成 / 已取消",
+    "statusCompleted": "已完成",
+    "statusCancelled": "已取消",
+    "completePlan": "完成计划",
+    "cancelPlan": "取消",
+    "transferItem": "转移",
+    "pendingItems": "尚未转移",
+    "transferredItems": "已在购物清单中",
+    "pendingTasks": "尚未转移",
+    "transferredTasks": "已转移",
+    "addToShoppingList": "将{{count}}件商品添加到购物清单",
+    "transferAllTasksBtn": "转移{{count}}个任务",
+    "transferAllTasksBtnPlural": "转移全部{{count}}个任务",
+    "itemTransferred": "商品已添加到购物清单",
+    "taskTransferred": "任务已转移",
+    "undone": "转移已撤销",
+    "transferError": "转移出错",
+    "dueDaysLabel": "({{days}}天后到期)"
   },
   "startDialog": {
     "title": "启动计划",
