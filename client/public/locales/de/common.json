@@ -24,7 +24,8 @@
     "more": "Weiteres",
     "shopping_label": "Einkaufen",
     "calendar_label": "Termine",
-    "tutorial": "Tutorial"
+    "tutorial": "Tutorial",
+    "plankiste": "Plankiste"
   },
   "actions": {
     "save": "Speichern",
@@ -450,5 +451,12 @@
   },
   "error": "Fehler",
   "save": "Speichern",
-  "delete": "Löschen"
+  "delete": "Löschen",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "Einkaufsliste",
+      "tasks": "Aufgaben",
+      "mixed": "Gemischt"
+    }
+  }
 }

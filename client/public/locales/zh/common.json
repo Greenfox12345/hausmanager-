@@ -24,7 +24,8 @@
       "createAccount": "创建账户",
       "exitDemo": "退出演示"
     },
-    "tutorial": "教程"
+    "tutorial": "教程",
+    "plankiste": "计划箱"
   },
   "actions": {
     "save": "保存",
@@ -361,5 +362,12 @@
   },
   "error": "错误",
   "save": "保存",
-  "delete": "删除"
+  "delete": "删除",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "购物清单",
+      "tasks": "任务",
+      "mixed": "混合"
+    }
+  }
 }

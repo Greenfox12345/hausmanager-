@@ -24,7 +24,8 @@
       "createAccount": "Créer un compte",
       "exitDemo": "Quitter la démo"
     },
-    "tutorial": "Tutoriel"
+    "tutorial": "Tutoriel",
+    "plankiste": "Boîte à plans"
   },
   "actions": {
     "save": "Enregistrer",
@@ -454,5 +455,12 @@
   },
   "error": "Erreur",
   "save": "Enregistrer",
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "Liste de courses",
+      "tasks": "Tâches",
+      "mixed": "Mixte"
+    }
+  }
 }

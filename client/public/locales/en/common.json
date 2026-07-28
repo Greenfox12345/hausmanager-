@@ -24,7 +24,8 @@
       "createAccount": "Create account",
       "exitDemo": "Exit demo"
     },
-    "tutorial": "Tutorial"
+    "tutorial": "Tutorial",
+    "plankiste": "Plan Chest"
   },
   "actions": {
     "save": "Save",
@@ -450,5 +451,12 @@
   },
   "error": "Error",
   "save": "Save",
-  "delete": "Delete"
+  "delete": "Delete",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "Shopping list",
+      "tasks": "Tasks",
+      "mixed": "Mixed"
+    }
+  }
 }

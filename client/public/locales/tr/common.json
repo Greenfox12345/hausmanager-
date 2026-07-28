@@ -24,7 +24,8 @@
       "createAccount": "Hesap oluştur",
       "exitDemo": "Demodan çık"
     },
-    "tutorial": "Eğitim"
+    "tutorial": "Eğitim",
+    "plankiste": "Plan Kutusu"
   },
   "actions": {
     "save": "Kaydet",
@@ -454,5 +455,12 @@
   },
   "error": "Hata",
   "save": "Kaydet",
-  "delete": "Sil"
+  "delete": "Sil",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "Alışveriş listesi",
+      "tasks": "Görevler",
+      "mixed": "Karışık"
+    }
+  }
 }

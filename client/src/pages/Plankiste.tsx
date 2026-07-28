@@ -35,12 +35,7 @@ import { useTranslation } from "react-i18next";
 // ─── Typen ────────────────────────────────────────────────────────────────────
 type TemplateType = "shopping" | "tasks" | "project" | "mixed";
 
-const TYPE_LABELS: Record<TemplateType, string> = {
-  shopping: "Einkaufsliste",
-  tasks: "Aufgaben",
-  project: "Projekt",
-  mixed: "Gemischt",
-};
+// TYPE_LABELS wird jetzt dynamisch via useTranslation erzeugt – siehe getTypeLabels() in der Hauptkomponente
 
 const TYPE_ICONS: Record<TemplateType, React.ElementType> = {
   shopping: ShoppingCart,
@@ -59,6 +54,12 @@ const TYPE_COLORS: Record<TemplateType, string> = {
 // ─── Hauptkomponente ──────────────────────────────────────────────────────────
 export default function Plankiste() {
   const { t } = useTranslation(["plankiste", "common"]);
+  const TYPE_LABELS: Record<TemplateType, string> = {
+    shopping: t("common:plankiste.typeLabels.shopping"),
+    tasks: t("common:plankiste.typeLabels.tasks"),
+    project: t("common:plankiste.typeLabels.tasks"), // Projekt fällt weg, Fallback auf Tasks
+    mixed: t("common:plankiste.typeLabels.mixed"),
+  };
   const [, setLocation] = useLocation();
   const { household, member } = useCompatAuth();
   const householdId = household?.householdId ?? 0;
@@ -159,7 +160,13 @@ function sortItems<T extends { name: string; createdAt?: string | number | null 
 }
 
 function TemplatesTab({ householdId, memberId }: { householdId: number; memberId: number }) {
-  const { t } = useTranslation(["plankiste"]);
+  const { t } = useTranslation(["plankiste", "common"]);
+  const TYPE_LABELS: Record<TemplateType, string> = {
+    shopping: t("common:plankiste.typeLabels.shopping"),
+    tasks: t("common:plankiste.typeLabels.tasks"),
+    project: t("common:plankiste.typeLabels.tasks"),
+    mixed: t("common:plankiste.typeLabels.mixed"),
+  };
   const utils = trpc.useUtils();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any | null>(null);

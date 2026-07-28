@@ -24,7 +24,8 @@
       "createAccount": "إنشاء حساب",
       "exitDemo": "الخروج من العرض التوضيحي"
     },
-    "tutorial": "الدليل التعليمي"
+    "tutorial": "الدليل التعليمي",
+    "plankiste": "صندوق الخطط"
   },
   "actions": {
     "save": "حفظ",
@@ -454,5 +455,12 @@
   },
   "error": "خطأ",
   "save": "حفظ",
-  "delete": "حذف"
+  "delete": "حذف",
+  "plankiste": {
+    "typeLabels": {
+      "shopping": "قائمة التسوق",
+      "tasks": "المهام",
+      "mixed": "مختلط"
+    }
+  }
 }
