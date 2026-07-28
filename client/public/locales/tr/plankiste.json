@@ -123,5 +123,7 @@
     "start": "Başlat",
     "started": "Plan başlatıldı",
     "startError": "Başlatma hatası"
-  }
+  },
+  "homeTitle": "Plan Kutusu",
+  "homeDescription": "Tekrarlayan alışveriş ve görevler için şablonlar"
 }

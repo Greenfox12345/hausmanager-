@@ -123,5 +123,7 @@
     "start": "Démarrer",
     "started": "Plan démarré",
     "startError": "Erreur lors du démarrage"
-  }
+  },
+  "homeTitle": "Boîte à plans",
+  "homeDescription": "Modèles pour achats et tâches récurrents"
 }

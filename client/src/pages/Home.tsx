@@ -30,6 +30,7 @@ export default function Home() {
   const { t: tBorrows } = useTranslation("borrows");
   const { t: tHistory } = useTranslation("history");
   const { t: tNeighborhood } = useTranslation("neighborhood");
+  const { t: tPlankiste } = useTranslation("plankiste");
 
   useEffect(() => {
     // Wait for auth check to complete before redirecting
@@ -101,8 +102,8 @@ export default function Home() {
       bgColor: "bg-yellow-50",
     },
     {
-      title: "Plankiste",
-      description: "Vorlagen für wiederkehrende Einkäufe und Aufgaben",
+      title: tPlankiste("homeTitle"),
+      description: tPlankiste("homeDescription"),
       icon: BookOpen,
       href: "/plankiste",
       color: "text-amber-600",

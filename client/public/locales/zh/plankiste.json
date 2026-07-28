@@ -28,7 +28,7 @@
     "startPlan": "启动计划",
     "edit": "编辑",
     "delete": "删除",
-    "deleteConfirm": "确定删除模板"{{name}}"？",
+    "deleteConfirm": "确定删除模板\"{{name}}\"？",
     "deleted": "模板已删除",
     "deleteError": "删除失败"
   },
@@ -123,5 +123,7 @@
     "start": "启动",
     "started": "计划已启动",
     "startError": "启动失败"
-  }
+  },
+  "homeTitle": "计划箱",
+  "homeDescription": "重复购物和任务的模板"
 }

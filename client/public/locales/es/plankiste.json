@@ -123,5 +123,7 @@
     "start": "Iniciar",
     "started": "Plan iniciado",
     "startError": "Error al iniciar"
-  }
+  },
+  "homeTitle": "Caja de planes",
+  "homeDescription": "Plantillas para compras y tareas recurrentes"
 }

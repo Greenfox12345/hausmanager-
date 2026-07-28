@@ -123,5 +123,7 @@
     "start": "Start",
     "started": "Plan started",
     "startError": "Error starting"
-  }
+  },
+  "homeTitle": "Plan Chest",
+  "homeDescription": "Templates for recurring shopping and tasks"
 }

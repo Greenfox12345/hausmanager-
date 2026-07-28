@@ -123,5 +123,7 @@
     "start": "Starten",
     "started": "Plan gestartet",
     "startError": "Fehler beim Starten"
-  }
+  },
+  "homeTitle": "Plankiste",
+  "homeDescription": "Vorlagen für wiederkehrende Einkäufe und Aufgaben"
 }
