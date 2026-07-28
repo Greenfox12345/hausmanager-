@@ -24,13 +24,16 @@
     "newTemplate": "قالب جديد",
     "items": "{{count}} عناصر",
     "tasks_count": "{{count}} مهام",
-    "noItems": "لا توجد عناصر",
+    "noItems": "لا توجد عناصر بعد",
     "startPlan": "بدء الخطة",
     "edit": "تعديل",
     "delete": "حذف",
     "deleteConfirm": "هل تريد حذف القالب \"{{name}}\"؟",
     "deleted": "تم حذف القالب",
-    "deleteError": "خطأ في الحذف"
+    "deleteError": "خطأ في الحذف",
+    "usageCount": "بدأ {{count}} مرة",
+    "itemsCount": "{{count}} عنصر",
+    "addItem": "إضافة عنصر"
   },
   "templateForm": {
     "createTitle": "إنشاء قالب جديد",

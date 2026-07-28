@@ -24,13 +24,16 @@
     "newTemplate": "新模板",
     "items": "{{count}} 件商品",
     "tasks_count": "{{count}} 个任务",
-    "noItems": "无商品",
+    "noItems": "暂无商品",
     "startPlan": "启动计划",
     "edit": "编辑",
     "delete": "删除",
     "deleteConfirm": "确定删除模板\"{{name}}\"？",
     "deleted": "模板已删除",
-    "deleteError": "删除失败"
+    "deleteError": "删除失败",
+    "usageCount": "已启动{{count}}次",
+    "itemsCount": "{{count}} 件商品",
+    "addItem": "添加商品"
   },
   "templateForm": {
     "createTitle": "创建新模板",

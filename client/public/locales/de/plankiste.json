@@ -24,13 +24,16 @@
     "newTemplate": "Neue Vorlage",
     "items": "{{count}} Artikel",
     "tasks_count": "{{count}} Aufgaben",
-    "noItems": "Keine Artikel",
+    "noItems": "Noch keine Artikel",
     "startPlan": "Plan starten",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "deleteConfirm": "Vorlage \"{{name}}\" wirklich löschen?",
     "deleted": "Vorlage gelöscht",
-    "deleteError": "Fehler beim Löschen"
+    "deleteError": "Fehler beim Löschen",
+    "usageCount": "{{count}}× gestartet",
+    "itemsCount": "{{count}} Artikel",
+    "addItem": "Artikel hinzufügen"
   },
   "templateForm": {
     "createTitle": "Neue Vorlage erstellen",

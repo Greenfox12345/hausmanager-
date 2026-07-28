@@ -30,7 +30,10 @@
     "delete": "Eliminar",
     "deleteConfirm": "¿Eliminar plantilla \"{{name}}\"?",
     "deleted": "Plantilla eliminada",
-    "deleteError": "Error al eliminar"
+    "deleteError": "Error al eliminar",
+    "usageCount": "{{count}}× iniciado",
+    "itemsCount": "{{count}} artículos",
+    "addItem": "Añadir artículo"
   },
   "templateForm": {
     "createTitle": "Crear nueva plantilla",

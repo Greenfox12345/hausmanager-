@@ -30,7 +30,10 @@
     "delete": "Supprimer",
     "deleteConfirm": "Supprimer le modèle \"{{name}}\" ?",
     "deleted": "Modèle supprimé",
-    "deleteError": "Erreur lors de la suppression"
+    "deleteError": "Erreur lors de la suppression",
+    "usageCount": "{{count}}× démarré",
+    "itemsCount": "{{count}} articles",
+    "addItem": "Ajouter un article"
   },
   "templateForm": {
     "createTitle": "Créer un nouveau modèle",

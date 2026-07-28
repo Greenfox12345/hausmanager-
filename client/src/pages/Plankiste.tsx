@@ -256,7 +256,7 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
                         <span>{t("plankiste:templates.items", { count: template.itemCount })}</span>
                         {template.usageCount > 0 && (
-                          <span>{template.usageCount}× gestartet</span>
+                          <span>{t("plankiste:templates.usageCount", { count: template.usageCount })}</span>
                         )}
                       </div>
                     </div>
@@ -321,6 +321,7 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
 function TemplateItemsPreview({
   templateId, householdId, memberId
 }: { templateId: number; householdId: number; memberId: number }) {
+  const { t } = useTranslation(["plankiste", "common"]);
   const utils = trpc.useUtils();
   const [itemTab, setItemTab] = useState<"shopping" | "tasks">("shopping");
   const [showAddItem, setShowAddItem] = useState(false);
@@ -425,7 +426,9 @@ function TemplateItemsPreview({
       <div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-muted-foreground">
-          {items.length === 0 ? "Noch keine Artikel" : `${items.length} Artikel`}
+          {items.length === 0
+            ? t("plankiste:templates.noItems")
+            : t("plankiste:templates.itemsCount", { count: items.length })}
         </span>
         <Button
           size="sm"
@@ -434,7 +437,7 @@ function TemplateItemsPreview({
           onClick={() => setShowAddItem(!showAddItem)}
         >
           <Plus className="w-3 h-3 mr-1" />
-          Artikel hinzufügen
+          {t("plankiste:templates.addItem")}
         </Button>
       </div>
 

@@ -24,13 +24,16 @@
     "newTemplate": "New Template",
     "items": "{{count}} items",
     "tasks_count": "{{count}} tasks",
-    "noItems": "No items",
+    "noItems": "No items yet",
     "startPlan": "Start plan",
     "edit": "Edit",
     "delete": "Delete",
     "deleteConfirm": "Really delete template \"{{name}}\"?",
     "deleted": "Template deleted",
-    "deleteError": "Error deleting"
+    "deleteError": "Error deleting",
+    "usageCount": "{{count}}× started",
+    "itemsCount": "{{count}} items",
+    "addItem": "Add item"
   },
   "templateForm": {
     "createTitle": "Create New Template",
