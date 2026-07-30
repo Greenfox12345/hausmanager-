@@ -79,7 +79,11 @@
     },
     "dueDays": "+{{days}}d",
     "prerequisites": "Prerrequisitos",
-    "followups": "Seguimientos"
+    "followups": "Seguimientos",
+    "noTasks": "Sin tareas",
+    "tasksCount": "{{count}} tarea",
+    "tasksCountPlural": "{{count}} tareas",
+    "addTask": "Añadir tarea"
   },
   "instances": {
     "empty": "Sin planes activos",

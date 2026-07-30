@@ -79,7 +79,11 @@
     },
     "dueDays": "+{{days}}ي",
     "prerequisites": "المتطلبات المسبقة",
-    "followups": "المتابعات"
+    "followups": "المتابعات",
+    "noTasks": "لا توجد مهام بعد",
+    "tasksCount": "{{count}} مهمة",
+    "tasksCountPlural": "{{count}} مهام",
+    "addTask": "إضافة مهمة"
   },
   "instances": {
     "empty": "لا توجد خطط نشطة",

@@ -79,7 +79,11 @@
     },
     "dueDays": "+{{days}}g",
     "prerequisites": "Ön koşullar",
-    "followups": "Takip görevleri"
+    "followups": "Takip görevleri",
+    "noTasks": "Henüz görev yok",
+    "tasksCount": "{{count}} görev",
+    "tasksCountPlural": "{{count}} görev",
+    "addTask": "Görev ekle"
   },
   "instances": {
     "empty": "Aktif plan yok",

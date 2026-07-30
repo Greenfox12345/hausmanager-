@@ -902,10 +902,14 @@ function TemplateTaskItemsSection({
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-muted-foreground">
-          {(taskItems as any[]).length === 0 ? "Noch keine Aufgaben" : `${(taskItems as any[]).length} Aufgabe${(taskItems as any[]).length !== 1 ? "n" : ""}`}
+          {(taskItems as any[]).length === 0
+            ? t("plankiste:taskItems.noTasks")
+            : (taskItems as any[]).length === 1
+              ? t("plankiste:taskItems.tasksCount", { count: 1 })
+              : t("plankiste:taskItems.tasksCountPlural", { count: (taskItems as any[]).length })}
         </span>
         <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowAddTask(!showAddTask)}>
-          <Plus className="w-3 h-3 mr-1" />Aufgabe hinzufügen
+          <Plus className="w-3 h-3 mr-1" />{t("plankiste:taskItems.addTask")}
         </Button>
       </div>
       {showAddTask && renderTaskForm(

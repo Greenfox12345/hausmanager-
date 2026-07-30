@@ -79,7 +79,11 @@
     },
     "dueDays": "+{{days}}j",
     "prerequisites": "Prérequis",
-    "followups": "Suites"
+    "followups": "Suites",
+    "noTasks": "Aucune tâche",
+    "tasksCount": "{{count}} tâche",
+    "tasksCountPlural": "{{count}} tâches",
+    "addTask": "Ajouter une tâche"
   },
   "instances": {
     "empty": "Aucun plan actif",

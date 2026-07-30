@@ -79,7 +79,11 @@
     },
     "dueDays": "+{{days}}T",
     "prerequisites": "Voraufgaben",
-    "followups": "Folgeaufgaben"
+    "followups": "Folgeaufgaben",
+    "noTasks": "Noch keine Aufgaben",
+    "tasksCount": "{{count}} Aufgabe",
+    "tasksCountPlural": "{{count}} Aufgaben",
+    "addTask": "Aufgabe hinzufügen"
   },
   "instances": {
     "empty": "Keine aktiven Pläne",
