@@ -132,5 +132,26 @@
     "startError": "Error starting"
   },
   "homeTitle": "Plan Chest",
-  "homeDescription": "Templates for recurring shopping and tasks"
+  "homeDescription": "Templates for recurring shopping and tasks",
+  "taskForm": {
+    "namePlaceholder": "Task name *",
+    "descPlaceholder": "Description (optional)",
+    "dueDays": "Due after (days)",
+    "dueDaysPlaceholder": "e.g. 3",
+    "frequency": "Frequency",
+    "every": "Every",
+    "days": "Days",
+    "weeks": "Weeks",
+    "months": "Months",
+    "durationDays": "Duration (days)",
+    "durationMinutes": "Duration (min.)",
+    "assignedTo": "Assigned to",
+    "enableRotation": "Enable rotation",
+    "persons": "Persons",
+    "prerequisites": "Prerequisites (must be done first)",
+    "followups": "Follow-up tasks (due after this)",
+    "gapDays": "days gap",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
 }

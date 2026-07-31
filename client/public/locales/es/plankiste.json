@@ -132,5 +132,26 @@
     "startError": "Error al iniciar"
   },
   "homeTitle": "Caja de planes",
-  "homeDescription": "Plantillas para compras y tareas recurrentes"
+  "homeDescription": "Plantillas para compras y tareas recurrentes",
+  "taskForm": {
+    "namePlaceholder": "Nombre de la tarea *",
+    "descPlaceholder": "Descripción (opcional)",
+    "dueDays": "Vence después (días)",
+    "dueDaysPlaceholder": "ej. 3",
+    "frequency": "Frecuencia",
+    "every": "Cada",
+    "days": "Días",
+    "weeks": "Semanas",
+    "months": "Meses",
+    "durationDays": "Duración (días)",
+    "durationMinutes": "Duración (min.)",
+    "assignedTo": "Asignado a",
+    "enableRotation": "Activar rotación",
+    "persons": "Personas",
+    "prerequisites": "Prerrequisitos (deben hacerse primero)",
+    "followups": "Tareas siguientes (vencen después)",
+    "gapDays": "días de intervalo",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  }
 }

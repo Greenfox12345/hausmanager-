@@ -132,5 +132,26 @@
     "startError": "Başlatma hatası"
   },
   "homeTitle": "Plan Kutusu",
-  "homeDescription": "Tekrarlayan alışveriş ve görevler için şablonlar"
+  "homeDescription": "Tekrarlayan alışveriş ve görevler için şablonlar",
+  "taskForm": {
+    "namePlaceholder": "Görev adı *",
+    "descPlaceholder": "Açıklama (isteğe bağlı)",
+    "dueDays": "Bitiş süresi (gün)",
+    "dueDaysPlaceholder": "örn. 3",
+    "frequency": "Sıklık",
+    "every": "Her",
+    "days": "Gün",
+    "weeks": "Hafta",
+    "months": "Ay",
+    "durationDays": "Süre (gün)",
+    "durationMinutes": "Süre (dak.)",
+    "assignedTo": "Atanan",
+    "enableRotation": "Rotasyonu etkinleştir",
+    "persons": "Kişi",
+    "prerequisites": "Ön koşullar (önce yapılmalı)",
+    "followups": "Takip görevleri (sonra yapılacak)",
+    "gapDays": "gün aralık",
+    "save": "Kaydet",
+    "cancel": "İptal"
+  }
 }

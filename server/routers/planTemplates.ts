@@ -447,11 +447,17 @@ export const planTemplatesRouter = router({
         // Dependency-IDs von Template-IDs auf Instanz-IDs remappen
         for (const item of templateTaskItems) {
           const instanceItemId = templateToInstanceIdMap.get(item.id)!;
-          const prereqIds = ((item.prerequisiteItemIds as number[]) ?? []).map((tid) => templateToInstanceIdMap.get(tid)).filter(Boolean) as number[];
-          const followIds = ((item.followupItemIds as number[]) ?? []).map((tid) => templateToInstanceIdMap.get(tid)).filter(Boolean) as number[];
-          if (prereqIds.length > 0 || followIds.length > 0) {
+          const prereqs = ((item.prerequisiteItemIds as {id:number;gapDays?:number}[]) ?? []).map((dep) => {
+            const newId = templateToInstanceIdMap.get(dep.id);
+            return newId ? { id: newId, gapDays: dep.gapDays } : null;
+          }).filter(Boolean) as {id:number;gapDays?:number}[];
+          const followups = ((item.followupItemIds as {id:number;gapDays?:number}[]) ?? []).map((dep) => {
+            const newId = templateToInstanceIdMap.get(dep.id);
+            return newId ? { id: newId, gapDays: dep.gapDays } : null;
+          }).filter(Boolean) as {id:number;gapDays?:number}[];
+          if (prereqs.length > 0 || followups.length > 0) {
             await db.update(planInstanceTaskItems)
-              .set({ prerequisiteItemIds: prereqIds, followupItemIds: followIds })
+              .set({ prerequisiteItemIds: prereqs, followupItemIds: followups })
               .where(eq(planInstanceTaskItems.id, instanceItemId));
           }
         }
@@ -667,8 +673,8 @@ export const planTemplatesRouter = router({
       durationMinutes: z.number().default(0),
       enableRotation: z.boolean().default(false),
       requiredPersons: z.number().nullable().optional(),
-      prerequisiteItemIds: z.array(z.number()).optional(),
-      followupItemIds: z.array(z.number()).optional(),
+      prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
+      followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       sortOrder: z.number().default(0),
     }))
     .mutation(async ({ input }) => {
@@ -711,8 +717,8 @@ export const planTemplatesRouter = router({
       durationMinutes: z.number().optional(),
       enableRotation: z.boolean().optional(),
       requiredPersons: z.number().nullable().optional(),
-      prerequisiteItemIds: z.array(z.number()).optional(),
-      followupItemIds: z.array(z.number()).optional(),
+      prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
+      followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();

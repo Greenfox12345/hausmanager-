@@ -132,5 +132,26 @@
     "startError": "启动失败"
   },
   "homeTitle": "计划箱",
-  "homeDescription": "重复购物和任务的模板"
+  "homeDescription": "重复购物和任务的模板",
+  "taskForm": {
+    "namePlaceholder": "任务名称 *",
+    "descPlaceholder": "描述（可选）",
+    "dueDays": "到期天数",
+    "dueDaysPlaceholder": "例如 3",
+    "frequency": "频率",
+    "every": "每",
+    "days": "天",
+    "weeks": "周",
+    "months": "月",
+    "durationDays": "持续时间（天）",
+    "durationMinutes": "持续时间（分钟）",
+    "assignedTo": "分配给",
+    "enableRotation": "启用轮换",
+    "persons": "人数",
+    "prerequisites": "前置任务（必须先完成）",
+    "followups": "后续任务（之后到期）",
+    "gapDays": "天间隔",
+    "save": "保存",
+    "cancel": "取消"
+  }
 }

@@ -132,5 +132,26 @@
     "startError": "Fehler beim Starten"
   },
   "homeTitle": "Plankiste",
-  "homeDescription": "Vorlagen für wiederkehrende Einkäufe und Aufgaben"
+  "homeDescription": "Vorlagen für wiederkehrende Einkäufe und Aufgaben",
+  "taskForm": {
+    "namePlaceholder": "Aufgabenname *",
+    "descPlaceholder": "Beschreibung (optional)",
+    "dueDays": "Fällig nach (Tage)",
+    "dueDaysPlaceholder": "z.B. 3",
+    "frequency": "Häufigkeit",
+    "every": "Alle",
+    "days": "Tage",
+    "weeks": "Wochen",
+    "months": "Monate",
+    "durationDays": "Dauer (Tage)",
+    "durationMinutes": "Dauer (Min.)",
+    "assignedTo": "Zugewiesen an",
+    "enableRotation": "Rotation aktivieren",
+    "persons": "Personen",
+    "prerequisites": "Voraufgaben (müssen vorher erledigt sein)",
+    "followups": "Folgeaufgaben (werden danach fällig)",
+    "gapDays": "Tage Abstand",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  }
 }

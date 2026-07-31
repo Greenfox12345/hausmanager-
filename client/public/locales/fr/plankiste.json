@@ -132,5 +132,26 @@
     "startError": "Erreur lors du démarrage"
   },
   "homeTitle": "Boîte à plans",
-  "homeDescription": "Modèles pour achats et tâches récurrents"
+  "homeDescription": "Modèles pour achats et tâches récurrents",
+  "taskForm": {
+    "namePlaceholder": "Nom de la tâche *",
+    "descPlaceholder": "Description (optionnel)",
+    "dueDays": "Échéance après (jours)",
+    "dueDaysPlaceholder": "ex. 3",
+    "frequency": "Fréquence",
+    "every": "Tous les",
+    "days": "Jours",
+    "weeks": "Semaines",
+    "months": "Mois",
+    "durationDays": "Durée (jours)",
+    "durationMinutes": "Durée (min.)",
+    "assignedTo": "Assigné à",
+    "enableRotation": "Activer la rotation",
+    "persons": "Personnes",
+    "prerequisites": "Prérequis (à faire en premier)",
+    "followups": "Tâches suivantes (dues après)",
+    "gapDays": "jours d'écart",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  }
 }

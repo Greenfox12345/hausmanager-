@@ -132,5 +132,26 @@
     "startError": "خطأ في البدء"
   },
   "homeTitle": "صندوق الخطط",
-  "homeDescription": "قوالب للتسوق والمهام المتكررة"
+  "homeDescription": "قوالب للتسوق والمهام المتكررة",
+  "taskForm": {
+    "namePlaceholder": "اسم المهمة *",
+    "descPlaceholder": "الوصف (اختياري)",
+    "dueDays": "الاستحقاق بعد (أيام)",
+    "dueDaysPlaceholder": "مثال: 3",
+    "frequency": "التكرار",
+    "every": "كل",
+    "days": "أيام",
+    "weeks": "أسابيع",
+    "months": "أشهر",
+    "durationDays": "المدة (أيام)",
+    "durationMinutes": "المدة (دقائق)",
+    "assignedTo": "مُسند إلى",
+    "enableRotation": "تفعيل التناوب",
+    "persons": "أشخاص",
+    "prerequisites": "المتطلبات السابقة (يجب إنجازها أولاً)",
+    "followups": "المهام التالية (تستحق بعد ذلك)",
+    "gapDays": "أيام فاصلة",
+    "save": "حفظ",
+    "cancel": "إلغاء"
+  }
 }

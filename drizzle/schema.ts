@@ -752,12 +752,14 @@ export const planTemplateTaskItems = mysqlTable("plan_template_task_items", {
   // Rotation
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
-  // Vor-/Folgeaufgaben (IDs anderer planTemplateTaskItems in derselben Vorlage)
-  prerequisiteItemIds: json("prerequisiteItemIds").$type<number[]>(),
-  followupItemIds: json("followupItemIds").$type<number[]>(),
+  // Vor-/Folgeaufgaben mit optionalem Zwischenabstand in Tagen
+  // Format: [{id: number, gapDays?: number}]
+  prerequisiteItemIds: json("prerequisiteItemIds").$type<{id: number; gapDays?: number}[]>(),
+  followupItemIds: json("followupItemIds").$type<{id: number; gapDays?: number}[]>(),
   sortOrder: int("sortOrder").default(0).notNull(),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
 });
+export type PlanTaskDependency = { id: number; gapDays?: number };
 export type PlanTemplateTaskItem = typeof planTemplateTaskItems.$inferSelect;
 export type InsertPlanTemplateTaskItem = typeof planTemplateTaskItems.$inferInsert;
 
@@ -782,9 +784,9 @@ export const planInstanceTaskItems = mysqlTable("plan_instance_task_items", {
   durationMinutes: int("durationMinutes").default(0),
   enableRotation: boolean("enableRotation").default(false).notNull(),
   requiredPersons: int("requiredPersons"),
-  // Vor-/Folgeaufgaben (IDs anderer planInstanceTaskItems in derselben Instanz)
-  prerequisiteItemIds: json("prerequisiteItemIds").$type<number[]>(),
-  followupItemIds: json("followupItemIds").$type<number[]>(),
+  // Vor-/Folgeaufgaben mit optionalem Zwischenabstand in Tagen
+  prerequisiteItemIds: json("prerequisiteItemIds").$type<{id: number; gapDays?: number}[]>(),
+  followupItemIds: json("followupItemIds").$type<{id: number; gapDays?: number}[]>(),
   sortOrder: int("sortOrder").default(0).notNull(),
   isTransferred: boolean("isTransferred").default(false).notNull(),
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),

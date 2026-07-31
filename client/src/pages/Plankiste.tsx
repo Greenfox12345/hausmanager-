@@ -667,8 +667,8 @@ function TemplateTaskItemsSection({
   const [newTaskEnableRotation, setNewTaskEnableRotation] = useState(false);
   const [newTaskRequiredPersons, setNewTaskRequiredPersons] = useState("1");
   const [newTaskAssigned, setNewTaskAssigned] = useState<number[]>([]);
-  const [newTaskPrereqs, setNewTaskPrereqs] = useState<number[]>([]);
-  const [newTaskFollowups, setNewTaskFollowups] = useState<number[]>([]);
+  const [newTaskPrereqs, setNewTaskPrereqs] = useState<{id:number;gapDays?:number}[]>([]);
+  const [newTaskFollowups, setNewTaskFollowups] = useState<{id:number;gapDays?:number}[]>([]);
   // Bearbeiten-Formular State
   const [editTaskName, setEditTaskName] = useState("");
   const [editTaskDesc, setEditTaskDesc] = useState("");
@@ -681,8 +681,8 @@ function TemplateTaskItemsSection({
   const [editTaskEnableRotation, setEditTaskEnableRotation] = useState(false);
   const [editTaskRequiredPersons, setEditTaskRequiredPersons] = useState("1");
   const [editTaskAssigned, setEditTaskAssigned] = useState<number[]>([]);
-  const [editTaskPrereqs, setEditTaskPrereqs] = useState<number[]>([]);
-  const [editTaskFollowups, setEditTaskFollowups] = useState<number[]>([]);
+  const [editTaskPrereqs, setEditTaskPrereqs] = useState<{id:number;gapDays?:number}[]>([]);
+  const [editTaskFollowups, setEditTaskFollowups] = useState<{id:number;gapDays?:number}[]>([]);
 
   const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
     { templateId }, { enabled: templateId > 0 }
@@ -729,8 +729,8 @@ function TemplateTaskItemsSection({
     setEditTaskEnableRotation(item.enableRotation ?? false);
     setEditTaskRequiredPersons(String(item.requiredPersons ?? 1));
     setEditTaskAssigned((item.assignedToMemberIds as number[]) ?? []);
-    setEditTaskPrereqs((item.prerequisiteItemIds as number[]) ?? []);
-    setEditTaskFollowups((item.followupItemIds as number[]) ?? []);
+    setEditTaskPrereqs((item.prerequisiteItemIds as {id:number;gapDays?:number}[]) ?? []);
+    setEditTaskFollowups((item.followupItemIds as {id:number;gapDays?:number}[]) ?? []);
   };
 
   // Wiederholungsparameter aus Formular-State ableiten
@@ -767,58 +767,95 @@ function TemplateTaskItemsSection({
     enableRotation: boolean, setEnableRotation: (v:boolean)=>void,
     requiredPersons: string, setRequiredPersons: (v:string)=>void,
     assigned: number[], setAssigned: (v:number[])=>void,
-    prereqs: number[], setPrereqs: (v:number[])=>void,
-    followups: number[], setFollowups: (v:number[])=>void,
+    prereqs: {id:number;gapDays?:number}[], setPrereqs: (v:{id:number;gapDays?:number}[])=>void,
+    followups: {id:number;gapDays?:number}[], setFollowups: (v:{id:number;gapDays?:number}[])=>void,
     onSave: ()=>void, onCancel: ()=>void, isPending: boolean
   ) => {
     // Andere Aufgaben für Vor-/Folgeaufgaben-Auswahl (alle außer der aktuell bearbeiteten)
-    const otherTasks = (taskItems as any[]).filter((t: any) => t.id !== itemId);
+    const otherTasks = (taskItems as any[]).filter((task: any) => task.id !== itemId);
+
+    // Hilfsfunktionen für das neue {id, gapDays} Format
+    const isPrereq = (tid: number) => prereqs.some(p => p.id === tid);
+    const isFollowup = (tid: number) => followups.some(f => f.id === tid);
+    const getPrereqGap = (tid: number) => prereqs.find(p => p.id === tid)?.gapDays ?? "";
+    const getFollowupGap = (tid: number) => followups.find(f => f.id === tid)?.gapDays ?? "";
+
+    const togglePrereq = (tid: number) => {
+      if (isPrereq(tid)) {
+        setPrereqs(prereqs.filter(p => p.id !== tid));
+        // Bidirektional: auch aus Folgeaufgaben entfernen
+        setFollowups(followups.filter(f => f.id !== tid));
+      } else {
+        setPrereqs([...prereqs, { id: tid }]);
+        // Bidirektional: wenn diese Aufgabe schon als Folgeaufgabe gesetzt war, entfernen
+        setFollowups(followups.filter(f => f.id !== tid));
+      }
+    };
+
+    const toggleFollowup = (tid: number) => {
+      if (isFollowup(tid)) {
+        setFollowups(followups.filter(f => f.id !== tid));
+        setPrereqs(prereqs.filter(p => p.id !== tid));
+      } else {
+        setFollowups([...followups, { id: tid }]);
+        setPrereqs(prereqs.filter(p => p.id !== tid));
+      }
+    };
+
+    const setPrereqGap = (tid: number, gap: string) => {
+      setPrereqs(prereqs.map(p => p.id === tid ? { ...p, gapDays: gap ? parseInt(gap) : undefined } : p));
+    };
+
+    const setFollowupGap = (tid: number, gap: string) => {
+      setFollowups(followups.map(f => f.id === tid ? { ...f, gapDays: gap ? parseInt(gap) : undefined } : f));
+    };
+
     return (
     <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-      <Input placeholder="Aufgabenname *" value={name} onChange={e => setName(e.target.value)} className="h-8 text-sm" />
-      <Textarea placeholder="Beschreibung (optional)" value={desc} onChange={e => setDesc(e.target.value)} className="text-sm resize-none" rows={2} />
+      <Input placeholder={t("plankiste:taskForm.namePlaceholder")} value={name} onChange={e => setName(e.target.value)} className="h-8 text-sm" />
+      <Textarea placeholder={t("plankiste:taskForm.descPlaceholder")} value={desc} onChange={e => setDesc(e.target.value)} className="text-sm resize-none" rows={2} />
       <div className="flex items-center gap-2">
-        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Fällig nach (Tage)</Label>
-        <Input type="number" min="0" placeholder="z.B. 3" value={dueDays} onChange={e => setDueDays(e.target.value)} className="h-7 text-sm flex-1" />
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">{t("plankiste:taskForm.dueDays")}</Label>
+        <Input type="number" min="0" placeholder={t("plankiste:taskForm.dueDaysPlaceholder")} value={dueDays} onChange={e => setDueDays(e.target.value)} className="h-7 text-sm flex-1" />
       </div>
       <div className="flex items-center gap-2">
-        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Häufigkeit</Label>
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">{t("plankiste:taskForm.frequency")}</Label>
         <Select value={freq} onValueChange={setFreq}>
           <SelectTrigger className="h-7 text-sm flex-1"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="once">Einmalig</SelectItem>
-            <SelectItem value="daily">Täglich</SelectItem>
-            <SelectItem value="weekly">Wöchentlich</SelectItem>
-            <SelectItem value="monthly">Monatlich</SelectItem>
-            <SelectItem value="custom">Benutzerdefiniert</SelectItem>
+            <SelectItem value="once">{t("plankiste:taskItems.frequency.once")}</SelectItem>
+            <SelectItem value="daily">{t("plankiste:taskItems.frequency.daily")}</SelectItem>
+            <SelectItem value="weekly">{t("plankiste:taskItems.frequency.weekly")}</SelectItem>
+            <SelectItem value="monthly">{t("plankiste:taskItems.frequency.monthly")}</SelectItem>
+            <SelectItem value="custom">{t("plankiste:taskItems.frequency.custom")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       {freq === "custom" && (
         <div className="flex items-center gap-2">
-          <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Alle</Label>
+          <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">{t("plankiste:taskForm.every")}</Label>
           <Input type="number" min="1" value={repeatInterval} onChange={e => setRepeatInterval(e.target.value)} className="h-7 text-sm w-16" />
           <Select value={repeatUnit} onValueChange={setRepeatUnit}>
             <SelectTrigger className="h-7 text-sm flex-1"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="days">Tage</SelectItem>
-              <SelectItem value="weeks">Wochen</SelectItem>
-              <SelectItem value="months">Monate</SelectItem>
+              <SelectItem value="days">{t("plankiste:taskForm.days")}</SelectItem>
+              <SelectItem value="weeks">{t("plankiste:taskForm.weeks")}</SelectItem>
+              <SelectItem value="months">{t("plankiste:taskForm.months")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       )}
       <div className="flex items-center gap-2">
-        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Dauer (Tage)</Label>
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">{t("plankiste:taskForm.durationDays")}</Label>
         <Input type="number" min="0" placeholder="0" value={durationDays} onChange={e => setDurationDays(e.target.value)} className="h-7 text-sm flex-1" />
       </div>
       <div className="flex items-center gap-2">
-        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">Dauer (Min.)</Label>
+        <Label className="text-xs text-muted-foreground w-32 flex-shrink-0">{t("plankiste:taskForm.durationMinutes")}</Label>
         <Input type="number" min="0" max="1439" placeholder="0" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} className="h-7 text-sm flex-1" />
       </div>
       {(members as any[]).length > 0 && (
         <div>
-          <Label className="text-xs text-muted-foreground block mb-1">Zugewiesen an</Label>
+          <Label className="text-xs text-muted-foreground block mb-1">{t("plankiste:taskForm.assignedTo")}</Label>
           <div className="flex flex-wrap gap-1.5">
             {(members as any[]).map((m: any) => (
               <button key={m.id} type="button"
@@ -834,10 +871,10 @@ function TemplateTaskItemsSection({
       {freq !== "once" && (
         <div className="flex items-center gap-2">
           <input type="checkbox" id={`rot-${mode}-${itemId ?? "new"}`} checked={enableRotation} onChange={e => setEnableRotation(e.target.checked)} className="rounded" />
-          <Label htmlFor={`rot-${mode}-${itemId ?? "new"}`} className="text-xs cursor-pointer">Rotation aktivieren</Label>
+          <Label htmlFor={`rot-${mode}-${itemId ?? "new"}`} className="text-xs cursor-pointer">{t("plankiste:taskForm.enableRotation")}</Label>
           {enableRotation && (
             <>
-              <Label className="text-xs text-muted-foreground ml-2">Personen:</Label>
+              <Label className="text-xs text-muted-foreground ml-2">{t("plankiste:taskForm.persons")}:</Label>
               <Input type="number" min="1" value={requiredPersons} onChange={e => setRequiredPersons(e.target.value)} className="h-7 text-sm w-16" />
             </>
           )}
@@ -846,21 +883,30 @@ function TemplateTaskItemsSection({
       {/* Voraufgaben */}
       {otherTasks.length > 0 && (
         <div>
-          <Label className="text-xs text-muted-foreground block mb-1">Voraufgaben (müssen vorher erledigt sein)</Label>
-          <div className="flex flex-wrap gap-1.5">
-            {otherTasks.map((t: any) => (
-              <button key={t.id} type="button"
-                className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
-                  prereqs.includes(t.id) ? "bg-orange-100 border-orange-300 text-orange-700" : "bg-background border-border text-muted-foreground"
-                }`}
-                onClick={() => {
-                  const next = prereqs.includes(t.id) ? prereqs.filter(id => id !== t.id) : [...prereqs, t.id];
-                  setPrereqs(next);
-                  // Bidirektional: Folgeaufgabe beim anderen setzen
-                }}
-              >
-                {t.name}
-              </button>
+          <Label className="text-xs text-muted-foreground block mb-1">{t("plankiste:taskForm.prerequisites")}</Label>
+          <div className="flex flex-col gap-1.5">
+            {otherTasks.map((task: any) => (
+              <div key={task.id} className="flex items-center gap-2">
+                <button type="button"
+                  className={`px-2 py-0.5 rounded-full text-xs border transition-colors flex-shrink-0 ${
+                    isPrereq(task.id) ? "bg-orange-100 border-orange-300 text-orange-700" : "bg-background border-border text-muted-foreground"
+                  }`}
+                  onClick={() => togglePrereq(task.id)}
+                >
+                  {task.name}
+                </button>
+                {isPrereq(task.id) && (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number" min="0" placeholder="0"
+                      value={getPrereqGap(task.id)}
+                      onChange={e => setPrereqGap(task.id, e.target.value)}
+                      className="h-6 text-xs w-14"
+                    />
+                    <span className="text-xs text-muted-foreground">{t("plankiste:taskForm.gapDays")}</span>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -868,30 +914,40 @@ function TemplateTaskItemsSection({
       {/* Folgeaufgaben */}
       {otherTasks.length > 0 && (
         <div>
-          <Label className="text-xs text-muted-foreground block mb-1">Folgeaufgaben (werden danach fällig)</Label>
-          <div className="flex flex-wrap gap-1.5">
-            {otherTasks.map((t: any) => (
-              <button key={t.id} type="button"
-                className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
-                  followups.includes(t.id) ? "bg-green-100 border-green-300 text-green-700" : "bg-background border-border text-muted-foreground"
-                }`}
-                onClick={() => {
-                  const next = followups.includes(t.id) ? followups.filter(id => id !== t.id) : [...followups, t.id];
-                  setFollowups(next);
-                }}
-              >
-                {t.name}
-              </button>
+          <Label className="text-xs text-muted-foreground block mb-1">{t("plankiste:taskForm.followups")}</Label>
+          <div className="flex flex-col gap-1.5">
+            {otherTasks.map((task: any) => (
+              <div key={task.id} className="flex items-center gap-2">
+                <button type="button"
+                  className={`px-2 py-0.5 rounded-full text-xs border transition-colors flex-shrink-0 ${
+                    isFollowup(task.id) ? "bg-green-100 border-green-300 text-green-700" : "bg-background border-border text-muted-foreground"
+                  }`}
+                  onClick={() => toggleFollowup(task.id)}
+                >
+                  {task.name}
+                </button>
+                {isFollowup(task.id) && (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number" min="0" placeholder="0"
+                      value={getFollowupGap(task.id)}
+                      onChange={e => setFollowupGap(task.id, e.target.value)}
+                      className="h-6 text-xs w-14"
+                    />
+                    <span className="text-xs text-muted-foreground">{t("plankiste:taskForm.gapDays")}</span>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
       )}
       <div className="flex gap-2 pt-1">
         <Button size="sm" className="flex-1 h-7 text-xs" disabled={!name.trim() || isPending} onClick={onSave}>
-          <Check className="w-3 h-3 mr-1" />Speichern
+          <Check className="w-3 h-3 mr-1" />{t("plankiste:taskForm.save")}
         </Button>
         <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCancel}>
-          <X className="w-3 h-3 mr-1" />Abbrechen
+          <X className="w-3 h-3 mr-1" />{t("plankiste:taskForm.cancel")}
         </Button>
       </div>
     </div>
