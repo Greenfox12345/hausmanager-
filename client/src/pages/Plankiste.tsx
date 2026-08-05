@@ -729,8 +729,15 @@ function TemplateTaskItemsSection({
     setEditTaskEnableRotation(item.enableRotation ?? false);
     setEditTaskRequiredPersons(String(item.requiredPersons ?? 1));
     setEditTaskAssigned((item.assignedToMemberIds as number[]) ?? []);
-    setEditTaskPrereqs((item.prerequisiteItemIds as {id:number;gapDays?:number}[]) ?? []);
-    setEditTaskFollowups((item.followupItemIds as {id:number;gapDays?:number}[]) ?? []);
+    // Abwärtskompatibilität: altes Format war number[], neues Format ist {id, gapDays}[]
+    const normalizeDeps = (raw: unknown): {id:number;gapDays?:number}[] => {
+      if (!Array.isArray(raw)) return [];
+      return raw.map((entry: unknown) =>
+        typeof entry === "number" ? { id: entry } : (entry as {id:number;gapDays?:number})
+      );
+    };
+    setEditTaskPrereqs(normalizeDeps(item.prerequisiteItemIds));
+    setEditTaskFollowups(normalizeDeps(item.followupItemIds));
   };
 
   // Wiederholungsparameter aus Formular-State ableiten
@@ -1059,21 +1066,27 @@ function TemplateTaskItemsSection({
                       }).join(", ")}
                     </span>
                   ) : null}
-                  {/* Voraufgaben anzeigen */}
-                  {(item.prerequisiteItemIds as number[]|null)?.length ? (
+                  {/* Voraufgaben anzeigen – abwärtskompatibel: altes Format number[], neues Format {id,gapDays}[] */}
+                  {(item.prerequisiteItemIds as (number|{id:number;gapDays?:number})[]|null)?.length ? (
                     <span className="text-xs text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">
-                      ⏮ {(item.prerequisiteItemIds as number[]).map((id: number) => {
-                        const t = (taskItems as any[]).find((x: any) => x.id === id);
-                        return t?.name ?? `#${id}`;
+                      ⏮ {(item.prerequisiteItemIds as (number|{id:number;gapDays?:number})[]).map((entry) => {
+                        const depId = typeof entry === "number" ? entry : entry.id;
+                        const depGap = typeof entry === "number" ? undefined : entry.gapDays;
+                        const task = (taskItems as any[]).find((x: any) => x.id === depId);
+                        const name = task?.name ?? `#${depId}`;
+                        return depGap ? `${name} (+${depGap}d)` : name;
                       }).join(", ")}
                     </span>
                   ) : null}
                   {/* Folgeaufgaben anzeigen */}
-                  {(item.followupItemIds as number[]|null)?.length ? (
+                  {(item.followupItemIds as (number|{id:number;gapDays?:number})[]|null)?.length ? (
                     <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
-                      ⏭ {(item.followupItemIds as number[]).map((id: number) => {
-                        const t = (taskItems as any[]).find((x: any) => x.id === id);
-                        return t?.name ?? `#${id}`;
+                      ⏭ {(item.followupItemIds as (number|{id:number;gapDays?:number})[]).map((entry) => {
+                        const depId = typeof entry === "number" ? entry : entry.id;
+                        const depGap = typeof entry === "number" ? undefined : entry.gapDays;
+                        const task = (taskItems as any[]).find((x: any) => x.id === depId);
+                        const name = task?.name ?? `#${depId}`;
+                        return depGap ? `${name} (+${depGap}d)` : name;
                       }).join(", ")}
                     </span>
                   ) : null}
