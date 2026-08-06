@@ -175,3 +175,284 @@ export function removeVarFromText(text: string, varName: string): string {
   const regex = exactVarRegex(varName);
   return text.replace(regex, "");
 }
+
+// ─── Formel-Engine ────────────────────────────────────────────────────────────
+
+/**
+ * Ergebnis einer Formel-Auswertung.
+ */
+export type FormulaResult =
+  | { ok: true; value: number; display: string }
+  | { ok: false; error: "missing_vars" | "cycle" | "parse_error" | "div_zero"; missing?: string[] };
+
+/**
+ * Parst einen Modifier am Ende einer Formel.
+ * Unterstützt: !Aufrunden, !Abrunden, !Runden
+ * Gibt {formula, modifier} zurück.
+ */
+function extractModifier(formula: string): { expr: string; modifier: "ceil" | "floor" | "round" | null } {
+  const m = formula.match(/^(.*?)\s*!(Aufrunden|Abrunden|Runden)\s*$/i);
+  if (!m) return { expr: formula.trim(), modifier: null };
+  const mod = m[2].toLowerCase();
+  return {
+    expr: m[1].trim(),
+    modifier: mod === "aufrunden" ? "ceil" : mod === "abrunden" ? "floor" : "round",
+  };
+}
+
+/**
+ * Ersetzt alle VAR-Token in einem Ausdruck durch ihre numerischen Werte.
+ * Gibt null zurück wenn eine Variable fehlt oder keinen numerischen Wert hat.
+ * Erkennt Zyklen über den `visiting`-Set.
+ */
+function resolveVars(
+  expr: string,
+  varMap: Record<string, string>,
+  visiting: Set<string>
+): { resolved: string; missing: string[] } {
+  const missing: string[] = [];
+  const regex = new RegExp(VAR_REGEX.source, "g");
+  const result = expr.replace(regex, (_, varName) => {
+    if (visiting.has(varName)) {
+      missing.push(`${varName}(Zyklus)`);
+      return "NaN";
+    }
+    const rawValue = varMap[varName];
+    if (rawValue === undefined || rawValue === "") {
+      missing.push(varName);
+      return "NaN";
+    }
+    // Wenn der Wert selbst eine Formel ist, rekursiv auswerten
+    const num = parseFloat(rawValue);
+    if (!isNaN(num)) return String(num);
+    // Wert enthält VAR-Referenzen → rekursiv auflösen
+    visiting.add(varName);
+    const sub = resolveVars(rawValue, varMap, visiting);
+    visiting.delete(varName);
+    if (sub.missing.length > 0) {
+      missing.push(...sub.missing);
+      return "NaN";
+    }
+    return sub.resolved;
+  });
+  return { resolved: result, missing };
+}
+
+/**
+ * Wertet einen mathematischen Ausdruck aus.
+ * Unterstützt: +, -, *, ×, /, (, )
+ * Gibt null bei Parse-Fehler zurück.
+ */
+function evalMathExpr(expr: string): number | null {
+  // × durch * ersetzen, dann sicher auswerten
+  const sanitized = expr
+    .replace(/×/g, "*")
+    .replace(/[^0-9+\-*/().\s]/g, ""); // nur erlaubte Zeichen
+  if (!sanitized.trim()) return null;
+  try {
+    // Sichere Auswertung ohne eval: rekursiver Descent-Parser
+    return parseMathExpr(sanitized.trim());
+  } catch {
+    return null;
+  }
+}
+
+/** Einfacher rekursiver Descent-Parser für +, -, *, / */
+function parseMathExpr(expr: string): number {
+  let pos = 0;
+
+  function skipWs() { while (pos < expr.length && expr[pos] === " ") pos++; }
+
+  function parseNumber(): number {
+    skipWs();
+    let neg = false;
+    if (expr[pos] === "-") { neg = true; pos++; }
+    if (expr[pos] === "(") {
+      pos++; // (
+      const val = parseAddSub();
+      skipWs();
+      if (expr[pos] === ")") pos++;
+      return neg ? -val : val;
+    }
+    let start = pos;
+    while (pos < expr.length && (expr[pos] >= "0" && expr[pos] <= "9" || expr[pos] === ".")) pos++;
+    if (pos === start) throw new Error("Expected number at " + pos);
+    return (neg ? -1 : 1) * parseFloat(expr.slice(start, pos));
+  }
+
+  function parseMulDiv(): number {
+    let left = parseNumber();
+    while (true) {
+      skipWs();
+      if (pos >= expr.length) break;
+      const op = expr[pos];
+      if (op !== "*" && op !== "/") break;
+      pos++;
+      const right = parseNumber();
+      if (op === "*") left *= right;
+      else {
+        if (right === 0) throw new Error("Division by zero");
+        left /= right;
+      }
+    }
+    return left;
+  }
+
+  function parseAddSub(): number {
+    let left = parseMulDiv();
+    while (true) {
+      skipWs();
+      if (pos >= expr.length) break;
+      const op = expr[pos];
+      if (op !== "+" && op !== "-") break;
+      pos++;
+      const right = parseMulDiv();
+      if (op === "+") left += right;
+      else left -= right;
+    }
+    return left;
+  }
+
+  const result = parseAddSub();
+  skipWs();
+  if (pos < expr.length) throw new Error("Unexpected char: " + expr[pos]);
+  return result;
+}
+
+/**
+ * Wertet eine Formel aus, die VAR-Referenzen enthalten kann.
+ *
+ * @param formula  Die Formel, z.B. "VARHöhe / VARBreite !Aufrunden"
+ * @param varMap   Map von Variablenname → Wert (als String, kann selbst Formeln enthalten)
+ * @param varName  Name der Variable die gerade ausgewertet wird (für Zyklenerkennung)
+ */
+export function evaluateFormula(
+  formula: string,
+  varMap: Record<string, string>,
+  varName?: string
+): FormulaResult {
+  if (!formula.trim()) return { ok: false, error: "parse_error" };
+
+  // Modifier extrahieren
+  const { expr, modifier } = extractModifier(formula);
+
+  // Direkte Zahl?
+  const directNum = parseFloat(expr);
+  if (!isNaN(directNum) && String(directNum) === expr.replace(/\s/g, "")) {
+    const val = applyModifier(directNum, modifier);
+    return { ok: true, value: val, display: formatNumber(val) };
+  }
+
+  // VAR-Referenzen auflösen
+  const visiting = new Set<string>(varName ? [varName] : []);
+  const { resolved, missing } = resolveVars(expr, varMap, visiting);
+
+  if (missing.length > 0) {
+    return { ok: false, error: missing.some(m => m.includes("Zyklus")) ? "cycle" : "missing_vars", missing };
+  }
+
+  // Mathematischen Ausdruck auswerten
+  let value: number | null;
+  try {
+    value = evalMathExpr(resolved);
+  } catch (e: any) {
+    if (e.message?.includes("zero")) return { ok: false, error: "div_zero" };
+    return { ok: false, error: "parse_error" };
+  }
+
+  if (value === null || isNaN(value)) return { ok: false, error: "parse_error" };
+
+  const final = applyModifier(value, modifier);
+  return { ok: true, value: final, display: formatNumber(final) };
+}
+
+function applyModifier(value: number, modifier: "ceil" | "floor" | "round" | null): number {
+  if (modifier === "ceil") return Math.ceil(value);
+  if (modifier === "floor") return Math.floor(value);
+  if (modifier === "round") return Math.round(value);
+  return value;
+}
+
+function formatNumber(n: number): string {
+  // Maximal 4 Nachkommastellen, trailing zeros entfernen
+  return parseFloat(n.toFixed(4)).toString();
+}
+
+/**
+ * Baut eine vollständige Wert-Map auf, in der alle Variablen mit ihren
+ * (ggf. berechneten) Werten stehen.
+ * Variablen ohne Wert werden nicht eingetragen.
+ */
+export function buildVarValueMap(variables: PlanVariable[]): Record<string, string> {
+  const rawMap: Record<string, string> = {};
+  for (const v of variables) {
+    if (v.value) rawMap[v.name] = v.value;
+  }
+  return rawMap;
+}
+
+/**
+ * Wertet alle Variablen einer Vorlage aus und gibt eine Map
+ * varName → { result, unit } zurück.
+ */
+export function evaluateAllVars(
+  variables: PlanVariable[]
+): Record<string, { result: FormulaResult; unit?: string }> {
+  const rawMap = buildVarValueMap(variables);
+  const out: Record<string, { result: FormulaResult; unit?: string }> = {};
+  for (const v of variables) {
+    if (!v.value) continue;
+    out[v.name] = {
+      result: evaluateFormula(v.value, rawMap, v.name),
+      unit: v.unit,
+    };
+  }
+  return out;
+}
+
+/**
+ * Extrahiert alle Variablen-Zuweisungen aus Aufgaben-Texten.
+ * Gibt eine Map varName → [{taskName, formula, result?}] zurück.
+ *
+ * Eine Zuweisung liegt vor wenn eine Zeile das Muster "VARName = ..." enthält.
+ */
+export interface VarAssignment {
+  taskId: number;
+  taskName: string;
+  formula: string;
+  result?: FormulaResult;
+}
+
+export function extractVarAssignmentsFromTasks(
+  tasks: Array<{ id: number; name: string; description?: string | null }>,
+  varMap: Record<string, string>
+): Record<string, VarAssignment[]> {
+  const out: Record<string, VarAssignment[]> = {};
+
+  for (const task of tasks) {
+    // Suche in Name und Beschreibung nach Zuweisungen
+    const texts = [task.name, task.description ?? ""];
+    for (const text of texts) {
+      // Jede Zeile prüfen
+      const lines = text.split(/[;\n]/);
+      for (const line of lines) {
+        const assignment = parseVarAssignment(line.trim());
+        if (!assignment) continue;
+        const { varName, formula } = assignment;
+        if (!out[varName]) out[varName] = [];
+        // Duplikate vermeiden (gleiche Aufgabe + gleiche Formel)
+        const exists = out[varName].some(a => a.taskId === task.id && a.formula === formula);
+        if (!exists) {
+          out[varName].push({
+            taskId: task.id,
+            taskName: task.name,
+            formula,
+            result: evaluateFormula(formula, varMap, varName),
+          });
+        }
+      }
+    }
+  }
+
+  return out;
+}

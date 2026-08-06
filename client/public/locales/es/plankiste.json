@@ -173,6 +173,11 @@
     "deleteDescWithMentions": "La variable VAR{{name}} se menciona en {{count}} lugar(es). ¿Eliminar de la lista?",
     "deleteAlsoFromTexts": "Eliminar también VAR{{name}} de todos los textos de tareas",
     "deleteCancel": "Cancelar",
-    "deleteConfirm": "Eliminar"
+    "deleteConfirm": "Eliminar",
+    "matrixHint": "Definiciones en diferentes tareas:",
+    "errorMissing": "Variables faltantes: {{vars}}",
+    "errorCycle": "Dependencia cíclica detectada",
+    "errorDivZero": "División por cero",
+    "errorParse": "Fórmula inválida"
   }
 }

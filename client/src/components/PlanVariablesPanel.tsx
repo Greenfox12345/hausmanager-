@@ -15,6 +15,7 @@ import {
   removeVarFromText,
   type PlanVariable,
 } from "@/lib/varParser";
+import { evaluateAllVars, extractVarAssignmentsFromTasks, buildVarValueMap } from "@/lib/varParser";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -164,6 +165,12 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   }, [(taskItems as any[]).length, enableVariables]);
 
   const mentionCount = deleteCandidate ? countMentions(deleteCandidate) : 0;
+  // Alle Variablen auswerten (Formel-Engine)
+  const evaluatedVars = evaluateAllVars(mergedVars);
+
+  // Variablen-Zuweisungen aus Aufgaben-Texten extrahieren (für Matrix)
+  const rawVarMap = buildVarValueMap(mergedVars);
+  const varAssignments = extractVarAssignmentsFromTasks(taskItems as any[], rawVarMap);
 
   return (
     <div className="mt-3 border-t border-border pt-3">
@@ -239,8 +246,24 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                         {countMentions(v.name)}×
                       </span>
                       {v.value ? (
-                        <span className="text-xs text-muted-foreground truncate">
-                          = {v.value}{v.unit ? ` ${v.unit}` : ""}
+                        <span className="text-xs text-muted-foreground truncate flex items-center gap-1 flex-wrap">
+                          <span className="font-mono">= {v.value}</span>
+                          {(() => {
+                            const ev = evaluatedVars[v.name];
+                            if (!ev) return null;
+                            const res = ev.result;
+                            if (res.ok) {
+                              return <span className="text-emerald-600 font-medium">→ {res.display}{v.unit ? ` ${v.unit}` : ""}</span>;
+                            }
+                            const errMsg = res.error === "missing_vars"
+                              ? t("variables.errorMissing", { vars: res.missing?.join(", ") })
+                              : res.error === "cycle"
+                              ? t("variables.errorCycle")
+                              : res.error === "div_zero"
+                              ? t("variables.errorDivZero")
+                              : t("variables.errorParse");
+                            return <span className="text-amber-500 cursor-help" title={errMsg}>→ ?</span>;
+                          })()}
                         </span>
                       ) : (
                         <span className="text-xs text-muted-foreground italic truncate">
@@ -265,6 +288,27 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
+                    </div>
+                  )}
+                  {/* Variablen-Matrix: wenn Variable in mehreren Aufgaben zugewiesen wird */}
+                  {varAssignments[v.name] && varAssignments[v.name].length > 1 && (
+                    <div className="mt-1 ml-1 border-l-2 pl-2" style={{ borderColor: v.color }}>
+                      <p className="text-xs text-muted-foreground mb-1">{t("variables.matrixHint")}</p>
+                      <table className="w-full text-xs">
+                        <tbody>
+                          {varAssignments[v.name].map((a: any, idx: number) => (
+                            <tr key={idx} className="border-b border-border/50 last:border-0">
+                              <td className="py-0.5 pr-2 text-muted-foreground truncate max-w-[120px]">{a.taskName}</td>
+                              <td className="py-0.5 font-mono">{a.formula}</td>
+                              <td className="py-0.5 pl-2 text-right">
+                                {a.result?.ok
+                                  ? <span className="text-emerald-600">{a.result.display}{v.unit ? ` ${v.unit}` : ""}</span>
+                                  : <span className="text-amber-500">?</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>

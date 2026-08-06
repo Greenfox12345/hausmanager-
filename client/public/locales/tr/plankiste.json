@@ -173,6 +173,11 @@
     "deleteDescWithMentions": "VAR{{name}} değişkeni {{count}} yerde geçiyor. Listeden kaldırılsın mı?",
     "deleteAlsoFromTexts": "VAR{{name}} tüm görev metinlerinden de kaldır",
     "deleteCancel": "İptal",
-    "deleteConfirm": "Sil"
+    "deleteConfirm": "Sil",
+    "matrixHint": "Farklı görevlerdeki tanımlar:",
+    "errorMissing": "Eksik değişkenler: {{vars}}",
+    "errorCycle": "Döngüsel bağımlılık tespit edildi",
+    "errorDivZero": "Sıfıra bölme",
+    "errorParse": "Geçersiz formül"
   }
 }

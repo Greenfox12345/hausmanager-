@@ -173,6 +173,11 @@
     "deleteDescWithMentions": "变量 VAR{{name}} 在 {{count}} 处被提及。从列表中删除？",
     "deleteAlsoFromTexts": "同时从所有任务文本中删除 VAR{{name}}",
     "deleteCancel": "取消",
-    "deleteConfirm": "删除"
+    "deleteConfirm": "删除",
+    "matrixHint": "不同任务中的定义：",
+    "errorMissing": "缺少变量：{{vars}}",
+    "errorCycle": "检测到循环依赖",
+    "errorDivZero": "除以零",
+    "errorParse": "无效公式"
   }
 }

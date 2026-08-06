@@ -33,6 +33,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { PlanVariablesPanel } from "@/components/PlanVariablesPanel";
 import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
+import { evaluateFormula, buildVarValueMap, type PlanVariable } from "@/lib/varParser";
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 type TemplateType = "shopping" | "tasks" | "project" | "mixed";
@@ -389,6 +390,24 @@ function TemplateItemsPreview({
     setEditNotes(item.notes ?? "");
   };
 
+  // Variablen-System: enableVariables und Variablen-Liste aus der Vorlage
+  const enableVariables = (template as any)?.enableVariables ?? false;
+  const templateVariables: PlanVariable[] = (template as any)?.variables ?? [];
+  const varValueMap = buildVarValueMap(templateVariables);
+
+  // Hilfsfunktion: Menge auflösen (VAR-Name → berechneter Wert oder direkte Zahl)
+  const resolveQuantity = (qty: string | null | undefined): string | null => {
+    if (!qty) return null;
+    if (!enableVariables) return qty;
+    const varMatch = qty.match(/^VAR([A-Za-z\u00C0-\u024F][A-Za-z\u00C0-\u024F0-9]*)$/);
+    if (!varMatch) return qty;
+    const varName = varMatch[1];
+    const rawValue = varValueMap[varName];
+    if (!rawValue) return qty;
+    const result = evaluateFormula(rawValue, varValueMap, varName);
+    return result.ok ? result.display : qty;
+  };
+
   const unitOptions: UnitOption[] = (units as any[]).map((u: any) => ({
     id: u.id, name: u.name, symbol: u.symbol
   }));
@@ -618,7 +637,19 @@ function TemplateItemsPreview({
                   </div>
                   {item.quantity && (
                     <span className="text-xs text-muted-foreground mt-0.5">
-                      {formatQuantityWithUnit(item.quantity, unit)}
+                      {(() => {
+                        const resolved = resolveQuantity(item.quantity);
+                        const isVar = enableVariables && item.quantity?.startsWith("VAR");
+                        if (isVar && resolved !== item.quantity) {
+                          return (
+                            <span>
+                              <span className="font-mono text-violet-600">{item.quantity}</span>
+                              <span className="text-muted-foreground"> → {resolved}{unit ? ` ${unit.symbol ?? unit.name}` : ""}</span>
+                            </span>
+                          );
+                        }
+                        return <span>{formatQuantityWithUnit(resolved, unit)}</span>;
+                      })()}
                     </span>
                   )}
                   <Button

@@ -173,6 +173,11 @@
     "deleteDescWithMentions": "Variable VAR{{name}} is mentioned in {{count}} place(s). Remove from list?",
     "deleteAlsoFromTexts": "Also remove VAR{{name}} from all task texts",
     "deleteCancel": "Cancel",
-    "deleteConfirm": "Delete"
+    "deleteConfirm": "Delete",
+    "matrixHint": "Definitions in different tasks:",
+    "errorMissing": "Missing variables: {{vars}}",
+    "errorCycle": "Cyclic dependency detected",
+    "errorDivZero": "Division by zero",
+    "errorParse": "Invalid formula"
   }
 }

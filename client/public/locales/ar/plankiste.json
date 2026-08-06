@@ -173,6 +173,11 @@
     "deleteDescWithMentions": "المتغير VAR{{name}} مذكور في {{count}} مكان. إزالة من القائمة؟",
     "deleteAlsoFromTexts": "إزالة VAR{{name}} من جميع نصوص المهام أيضاً",
     "deleteCancel": "إلغاء",
-    "deleteConfirm": "حذف"
+    "deleteConfirm": "حذف",
+    "matrixHint": "التعريفات في مهام مختلفة:",
+    "errorMissing": "متغيرات مفقودة: {{vars}}",
+    "errorCycle": "تم اكتشاف تبعية دورية",
+    "errorDivZero": "قسمة على صفر",
+    "errorParse": "صيغة غير صالحة"
   }
 }
