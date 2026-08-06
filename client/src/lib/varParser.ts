@@ -237,6 +237,38 @@ function extractModifier(formula: string): { expr: string; modifier: "ceil" | "f
 }
 
 /**
+ * Interne Formel-Auswertung mit bestehendem visiting-Set (für rekursive Aufrufe aus resolveVars).
+ * Wendet Modifier (!Runden etc.) korrekt an.
+ */
+function evaluateFormulaInternal(
+  formula: string,
+  varMap: Record<string, string>,
+  visiting: Set<string>
+): FormulaResult {
+  if (!formula.trim()) return { ok: false, error: "parse_error" };
+  const { expr, modifier } = extractModifier(formula);
+  const directNum = parseFloat(expr);
+  if (!isNaN(directNum) && String(directNum) === expr.replace(/\s/g, "")) {
+    const val = applyModifier(directNum, modifier);
+    return { ok: true, value: val, display: formatNumber(val) };
+  }
+  const { resolved, missing } = resolveVars(expr, varMap, visiting);
+  if (missing.length > 0) {
+    return { ok: false, error: missing.some(m => m.includes("Zyklus")) ? "cycle" : "missing_vars", missing };
+  }
+  let value: number | null;
+  try {
+    value = evalMathExpr(resolved);
+  } catch (e: any) {
+    if (e.message?.includes("zero")) return { ok: false, error: "div_zero" };
+    return { ok: false, error: "parse_error" };
+  }
+  if (value === null || isNaN(value)) return { ok: false, error: "parse_error" };
+  const final = applyModifier(value, modifier);
+  return { ok: true, value: final, display: formatNumber(final) };
+}
+
+/**
  * Ersetzt alle VAR-Token in einem Ausdruck durch ihre numerischen Werte.
  * Gibt null zurück wenn eine Variable fehlt oder keinen numerischen Wert hat.
  * Erkennt Zyklen über den `visiting`-Set.
@@ -258,18 +290,21 @@ function resolveVars(
       missing.push(varName);
       return "NaN";
     }
-    // Wenn der Wert selbst eine Formel ist, rekursiv auswerten
+    // Wenn der Wert selbst eine direkte Zahl ist, direkt zurückgeben
     const num = parseFloat(rawValue);
-    if (!isNaN(num)) return String(num);
-    // Wert enthält VAR-Referenzen → rekursiv auflösen
+    if (!isNaN(num) && String(num) === rawValue.trim()) return String(num);
+    // Wert enthält VAR-Referenzen oder Modifier → vollständig auswerten
+    // (damit !Runden etc. korrekt angewendet werden)
     visiting.add(varName);
-    const sub = resolveVars(rawValue, varMap, visiting);
+    const subResult = evaluateFormulaInternal(rawValue, varMap, visiting);
     visiting.delete(varName);
-    if (sub.missing.length > 0) {
-      missing.push(...sub.missing);
+    if (!subResult.ok) {
+      if (subResult.error === "missing_vars" && subResult.missing) {
+        missing.push(...subResult.missing);
+      }
       return "NaN";
     }
-    return sub.resolved;
+    return String(subResult.value);
   });
   return { resolved: result, missing };
 }
@@ -285,6 +320,7 @@ function evalMathExpr(expr: string): number | null {
   // Alle anderen nicht-numerischen Zeichen entfernen, aber "NaN" als Ganzes erhalten
   const sanitized = expr
     .replace(/×/g, "*")
+    .replace(/\s+x\s+/gi, " * ") // ' x ' mit Leerzeichen als Multiplikation
     .replace(/NaN/g, "___NaN___") // NaN schützen
     .replace(/[^0-9+\-*/().\s_]/g, "") // nur erlaubte Zeichen + Underscore für NaN
     .replace(/___NaN___/g, "NaN"); // NaN wiederherstellen
