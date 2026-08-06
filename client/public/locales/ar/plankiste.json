@@ -164,6 +164,15 @@
     "valuePlaceholder": "قيمة أو صيغة",
     "unitPlaceholder": "وحدة",
     "colorLabel": "تغيير اللون",
-    "saveError": "خطأ في حفظ المتغيرات"
+    "saveError": "خطأ في حفظ المتغيرات",
+    "deleted": "تم حذف المتغير {{name}}",
+    "editLabel": "تعديل",
+    "deleteLabel": "حذف",
+    "deleteTitle": "حذف المتغير؟",
+    "deleteDesc": "إزالة المتغير VAR{{name}} من القائمة؟",
+    "deleteDescWithMentions": "المتغير VAR{{name}} مذكور في {{count}} مكان. إزالة من القائمة؟",
+    "deleteAlsoFromTexts": "إزالة VAR{{name}} من جميع نصوص المهام أيضاً",
+    "deleteCancel": "إلغاء",
+    "deleteConfirm": "حذف"
   }
 }

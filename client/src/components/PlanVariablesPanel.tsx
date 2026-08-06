@@ -1,26 +1,31 @@
 /**
  * PlanVariablesPanel – Variablen-Schalter und Variablen-Liste für Plankiste-Aufgaben-Vorlagen
- *
- * Zeigt:
- * - Einen Toggle-Schalter "Variablen aktivieren"
- * - Wenn aktiv: Liste aller erkannten VAR-Variablen aus allen Aufgaben
- * - Für jede Variable: Name (farbig), Wert/Formel, Einheit, Farb-Picker
  */
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Variable, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
+import { Variable, Pencil, Check, X, Trash2 } from "lucide-react";
 import {
   extractVarNames,
   generateVarColor,
   mergeVarsFromText,
+  countVarMentions,
+  removeVarFromText,
   type PlanVariable,
 } from "@/lib/varParser";
 import { useTranslation } from "react-i18next";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PlanVariablesPanelProps {
   templateId: number;
@@ -32,16 +37,11 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
 
-  // Vorlage laden (enthält enableVariables und variables)
   const { data: template } = trpc.planTemplates.getTemplate.useQuery(
-    { templateId },
-    { enabled: templateId > 0 }
+    { templateId }, { enabled: templateId > 0 }
   );
-
-  // Alle Aufgaben laden um VAR-Namen zu extrahieren
   const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
-    { templateId },
-    { enabled: templateId > 0 }
+    { templateId }, { enabled: templateId > 0 }
   );
 
   const updateMutation = trpc.planTemplates.updateTemplate.useMutation({
@@ -52,10 +52,21 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     onError: () => toast.error(t("variables.saveError")),
   });
 
+  const bulkUpdateMutation = trpc.planTemplates.bulkUpdateTaskItems.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
+    },
+    onError: () => toast.error(t("variables.saveError")),
+  });
+
   const [editingVar, setEditingVar] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [editUnit, setEditUnit] = useState("");
   const [editColor, setEditColor] = useState("");
+
+  // Lösch-Dialog State
+  const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
+  const [deleteAlsoFromTexts, setDeleteAlsoFromTexts] = useState(false);
 
   const enableVariables = (template as any)?.enableVariables ?? false;
   const savedVariables: PlanVariable[] = (template as any)?.variables ?? [];
@@ -63,8 +74,8 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   // Alle VAR-Namen aus allen Aufgaben extrahieren
   const allVarNames = new Set<string>();
   for (const item of taskItems as any[]) {
-    extractVarNames(item.name ?? "").forEach(n => allVarNames.add(n));
-    extractVarNames(item.description ?? "").forEach(n => allVarNames.add(n));
+    extractVarNames(item.name ?? "").forEach((n: string) => allVarNames.add(n));
+    extractVarNames(item.description ?? "").forEach((n: string) => allVarNames.add(n));
   }
 
   // Gespeicherte Variablen mit neu erkannten mergen
@@ -75,11 +86,19 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     }
   }
 
+  // Zählt Erwähnungen einer Variable in allen Aufgaben
+  const countMentions = (varName: string): number => {
+    let count = 0;
+    for (const item of taskItems as any[]) {
+      count += countVarMentions(item.name ?? "", varName);
+      count += countVarMentions(item.description ?? "", varName);
+    }
+    return count;
+  };
+
   const toggleVariables = () => {
     updateMutation.mutate({
-      templateId,
-      householdId,
-      memberId,
+      templateId, householdId, memberId,
       enableVariables: !enableVariables,
       variables: mergedVars,
     });
@@ -91,10 +110,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
         ? { ...v, value: editValue || undefined, unit: editUnit || undefined, color: editColor || v.color }
         : v
     );
-    updateMutation.mutate({
-      templateId, householdId, memberId,
-      variables: updated,
-    });
+    updateMutation.mutate({ templateId, householdId, memberId, variables: updated });
     setEditingVar(null);
   };
 
@@ -105,17 +121,49 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     setEditColor(v.color);
   };
 
+  // Variable aus der Liste löschen (und optional aus allen Texten entfernen)
+  const confirmDelete = (varName: string) => {
+    // Variable aus der gespeicherten Liste entfernen
+    const updatedVars = mergedVars.filter(v => v.name !== varName);
+    updateMutation.mutate({ templateId, householdId, memberId, variables: updatedVars });
+
+    // Optional: VAR-Token aus allen Aufgaben-Texten entfernen
+    if (deleteAlsoFromTexts) {
+      const updates: { itemId: number; name?: string; description?: string | null }[] = [];
+      for (const item of taskItems as any[]) {
+        const newName = removeVarFromText(item.name ?? "", varName).trim();
+        const newDesc = item.description
+          ? removeVarFromText(item.description, varName).trim() || null
+          : item.description;
+        const nameChanged = newName !== item.name;
+        const descChanged = newDesc !== item.description;
+        if (nameChanged || descChanged) {
+          updates.push({
+            itemId: item.id,
+            ...(nameChanged ? { name: newName || item.name } : {}),
+            ...(descChanged ? { description: newDesc } : {}),
+          });
+        }
+      }
+      if (updates.length > 0) {
+        bulkUpdateMutation.mutate({ updates });
+      }
+    }
+
+    setDeleteCandidate(null);
+    toast.success(t("variables.deleted", { name: varName }));
+  };
+
   // Wenn neue Variablen erkannt werden, automatisch speichern
   useEffect(() => {
     if (!template || !enableVariables) return;
     const hasNew = Array.from(allVarNames).some(n => !savedVariables.find(v => v.name === n));
     if (hasNew) {
-      updateMutation.mutate({
-        templateId, householdId, memberId,
-        variables: mergedVars,
-      });
+      updateMutation.mutate({ templateId, householdId, memberId, variables: mergedVars });
     }
-  }, [taskItems.length, enableVariables]);
+  }, [(taskItems as any[]).length, enableVariables]);
+
+  const mentionCount = deleteCandidate ? countMentions(deleteCandidate) : 0;
 
   return (
     <div className="mt-3 border-t border-border pt-3">
@@ -147,10 +195,8 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
               {mergedVars.map(v => (
                 <div key={v.name} className="rounded-md border border-border bg-muted/30 p-2">
                   {editingVar === v.name ? (
-                    /* Bearbeitungs-Zeile */
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        {/* Farbpicker */}
                         <input
                           type="color"
                           value={editColor}
@@ -184,30 +230,41 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                       </div>
                     </div>
                   ) : (
-                    /* Anzeige-Zeile */
                     <div className="flex items-center gap-2">
-                      <span
-                        className="text-sm font-mono font-medium flex-shrink-0"
-                        style={{ color: v.color }}
-                      >
+                      <span className="text-sm font-mono font-medium flex-shrink-0" style={{ color: v.color }}>
                         VAR{v.name}
                       </span>
+                      {/* Erwähnungs-Zähler */}
+                      <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full flex-shrink-0">
+                        {countMentions(v.name)}×
+                      </span>
                       {v.value ? (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground truncate">
                           = {v.value}{v.unit ? ` ${v.unit}` : ""}
                         </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">
+                        <span className="text-xs text-muted-foreground italic truncate">
                           {t("variables.noValue")}
                         </span>
                       )}
-                      <button
-                        type="button"
-                        className="ml-auto text-muted-foreground hover:text-foreground"
-                        onClick={() => startEdit(v)}
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </button>
+                      <div className="ml-auto flex items-center gap-1 flex-shrink-0">
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground"
+                          onClick={() => startEdit(v)}
+                          title={t("variables.editLabel")}
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={() => { setDeleteCandidate(v.name); setDeleteAlsoFromTexts(false); }}
+                          title={t("variables.deleteLabel")}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -216,6 +273,43 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
           )}
         </div>
       )}
+
+      {/* Lösch-Bestätigungs-Dialog */}
+      <AlertDialog open={deleteCandidate !== null} onOpenChange={open => { if (!open) setDeleteCandidate(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("variables.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {mentionCount > 0
+                ? t("variables.deleteDescWithMentions", { name: deleteCandidate, count: mentionCount })
+                : t("variables.deleteDesc", { name: deleteCandidate })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {mentionCount > 0 && (
+            <div className="flex items-center gap-2 py-2">
+              <input
+                type="checkbox"
+                id="deleteFromTexts"
+                checked={deleteAlsoFromTexts}
+                onChange={e => setDeleteAlsoFromTexts(e.target.checked)}
+                className="rounded"
+              />
+              <label htmlFor="deleteFromTexts" className="text-sm cursor-pointer">
+                {t("variables.deleteAlsoFromTexts", { name: deleteCandidate })}
+              </label>
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("variables.deleteCancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteCandidate && confirmDelete(deleteCandidate)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("variables.deleteConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

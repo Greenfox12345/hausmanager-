@@ -164,6 +164,15 @@
     "valuePlaceholder": "Value or formula",
     "unitPlaceholder": "Unit",
     "colorLabel": "Change color",
-    "saveError": "Error saving variables"
+    "saveError": "Error saving variables",
+    "deleted": "Variable {{name}} deleted",
+    "editLabel": "Edit",
+    "deleteLabel": "Delete",
+    "deleteTitle": "Delete variable?",
+    "deleteDesc": "Remove variable VAR{{name}} from the list?",
+    "deleteDescWithMentions": "Variable VAR{{name}} is mentioned in {{count}} place(s). Remove from list?",
+    "deleteAlsoFromTexts": "Also remove VAR{{name}} from all task texts",
+    "deleteCancel": "Cancel",
+    "deleteConfirm": "Delete"
   }
 }

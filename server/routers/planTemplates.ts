@@ -765,6 +765,34 @@ export const planTemplatesRouter = router({
       return { ok: true };
     }),
 
+  /**
+   * Mehrere Aufgaben gleichzeitig aktualisieren (z.B. nach Variablen-Löschung).
+   * Jedes Item enthält itemId + die zu ändernden Felder.
+   */
+  bulkUpdateTaskItems: publicProcedure
+    .input(z.object({
+      updates: z.array(z.object({
+        itemId: z.number(),
+        name: z.string().optional(),
+        description: z.string().nullable().optional(),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+      for (const u of input.updates) {
+        const update: Record<string, unknown> = {};
+        if (u.name !== undefined) update.name = u.name;
+        if (u.description !== undefined) update.description = u.description;
+        if (Object.keys(update).length > 0) {
+          await db.update(planTemplateTaskItems)
+            .set(update)
+            .where(eq(planTemplateTaskItems.id, u.itemId));
+        }
+      }
+      return { ok: true, count: input.updates.length };
+    }),
+
   /** Aufgaben einer Instanz abrufen */
   listInstanceTaskItems: publicProcedure
     .input(z.object({ instanceId: z.number() }))

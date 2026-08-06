@@ -164,6 +164,15 @@
     "valuePlaceholder": "Valor o fórmula",
     "unitPlaceholder": "Unidad",
     "colorLabel": "Cambiar color",
-    "saveError": "Error al guardar las variables"
+    "saveError": "Error al guardar las variables",
+    "deleted": "Variable {{name}} eliminada",
+    "editLabel": "Editar",
+    "deleteLabel": "Eliminar",
+    "deleteTitle": "¿Eliminar variable?",
+    "deleteDesc": "¿Eliminar la variable VAR{{name}} de la lista?",
+    "deleteDescWithMentions": "La variable VAR{{name}} se menciona en {{count}} lugar(es). ¿Eliminar de la lista?",
+    "deleteAlsoFromTexts": "Eliminar también VAR{{name}} de todos los textos de tareas",
+    "deleteCancel": "Cancelar",
+    "deleteConfirm": "Eliminar"
   }
 }

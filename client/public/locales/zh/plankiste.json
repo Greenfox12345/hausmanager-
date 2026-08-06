@@ -164,6 +164,15 @@
     "valuePlaceholder": "值或公式",
     "unitPlaceholder": "单位",
     "colorLabel": "更改颜色",
-    "saveError": "保存变量时出错"
+    "saveError": "保存变量时出错",
+    "deleted": "变量 {{name}} 已删除",
+    "editLabel": "编辑",
+    "deleteLabel": "删除",
+    "deleteTitle": "删除变量？",
+    "deleteDesc": "从列表中删除变量 VAR{{name}}？",
+    "deleteDescWithMentions": "变量 VAR{{name}} 在 {{count}} 处被提及。从列表中删除？",
+    "deleteAlsoFromTexts": "同时从所有任务文本中删除 VAR{{name}}",
+    "deleteCancel": "取消",
+    "deleteConfirm": "删除"
   }
 }

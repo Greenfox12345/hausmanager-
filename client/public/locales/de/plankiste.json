@@ -164,6 +164,15 @@
     "valuePlaceholder": "Wert oder Formel",
     "unitPlaceholder": "Einheit",
     "colorLabel": "Farbe ändern",
-    "saveError": "Fehler beim Speichern der Variablen"
+    "saveError": "Fehler beim Speichern der Variablen",
+    "deleted": "Variable {{name}} gelöscht",
+    "editLabel": "Bearbeiten",
+    "deleteLabel": "Löschen",
+    "deleteTitle": "Variable löschen?",
+    "deleteDesc": "Variable VAR{{name}} aus der Liste entfernen?",
+    "deleteDescWithMentions": "Variable VAR{{name}} wird in {{count}} Stelle(n) erwähnt. Aus der Liste entfernen?",
+    "deleteAlsoFromTexts": "VAR{{name}} auch aus allen Aufgabentexten entfernen",
+    "deleteCancel": "Abbrechen",
+    "deleteConfirm": "Löschen"
   }
 }

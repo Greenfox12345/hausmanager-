@@ -142,3 +142,36 @@ export function buildVarColorMap(variables: PlanVariable[]): Record<string, stri
   }
   return map;
 }
+
+/**
+ * Erstellt eine Regex die exakt VARName matcht, aber NICHT VARNameLänger.
+ * Nutzt negativen Lookahead um sicherzustellen, dass nach dem Namen kein
+ * weiterer Buchstabe/Ziffer folgt.
+ *
+ * Beispiel: exactVarRegex("Brett") matcht "VARBrett " aber nicht "VARBrettBreite"
+ */
+export function exactVarRegex(varName: string): RegExp {
+  // Escape für Sonderzeichen im Namen (Umlaute sind sicher, aber zur Sicherheit)
+  const escaped = varName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Negativer Lookahead: nach dem Namen darf kein Buchstabe/Ziffer/Umlaut folgen
+  return new RegExp(`VAR${escaped}(?![A-Za-zÄÖÜäöüß0-9])`, "g");
+}
+
+/**
+ * Zählt wie oft eine Variable exakt in einem Text vorkommt.
+ * VARBrett zählt nicht in VARBrettBreite.
+ */
+export function countVarMentions(text: string, varName: string): number {
+  const regex = exactVarRegex(varName);
+  const matches = text.match(regex);
+  return matches ? matches.length : 0;
+}
+
+/**
+ * Entfernt alle exakten Vorkommen von VARName aus einem Text.
+ * VARBrettBreite bleibt unberührt wenn varName="Brett".
+ */
+export function removeVarFromText(text: string, varName: string): string {
+  const regex = exactVarRegex(varName);
+  return text.replace(regex, "");
+}

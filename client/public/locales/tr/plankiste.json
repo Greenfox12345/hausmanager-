@@ -164,6 +164,15 @@
     "valuePlaceholder": "Değer veya formül",
     "unitPlaceholder": "Birim",
     "colorLabel": "Rengi değiştir",
-    "saveError": "Değişkenler kaydedilirken hata oluştu"
+    "saveError": "Değişkenler kaydedilirken hata oluştu",
+    "deleted": "{{name}} değişkeni silindi",
+    "editLabel": "Düzenle",
+    "deleteLabel": "Sil",
+    "deleteTitle": "Değişken silinsin mi?",
+    "deleteDesc": "VAR{{name}} değişkeni listeden kaldırılsın mı?",
+    "deleteDescWithMentions": "VAR{{name}} değişkeni {{count}} yerde geçiyor. Listeden kaldırılsın mı?",
+    "deleteAlsoFromTexts": "VAR{{name}} tüm görev metinlerinden de kaldır",
+    "deleteCancel": "İptal",
+    "deleteConfirm": "Sil"
   }
 }
