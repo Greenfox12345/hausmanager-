@@ -664,9 +664,21 @@ export const planTemplates = mysqlTable("plan_templates", {
   usageCount: int("usageCount").default(0).notNull(),
   lastUsedAt: datetime("lastUsedAt"),
   isArchived: boolean("isArchived").default(false).notNull(),
+  // Variablen-System: Schalter und Variablen-Liste
+  enableVariables: boolean("enableVariables").default(false).notNull(),
+  // Format: [{name, color, value?, unit?, description?}]
+  variables: json("variables").$type<PlanVariable[]>(),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
   updatedAt: datetime("updatedAt").$defaultFn(() => new Date()).notNull(),
 });
+/** Eine Variable in einer Plan-Vorlage */
+export type PlanVariable = {
+  name: string;         // z.B. "HochbeetLänge"
+  color: string;        // Hex-Farbe, z.B. "#3b82f6"
+  value?: string;       // Direktwert oder Formel, z.B. "120" oder "VARHöhe * 2"
+  unit?: string;        // Einheit, z.B. "cm", "Stück"
+  description?: string; // Freitext-Beschreibung
+};
 export type PlanTemplate = typeof planTemplates.$inferSelect;
 export type InsertPlanTemplate = typeof planTemplates.$inferInsert;
 

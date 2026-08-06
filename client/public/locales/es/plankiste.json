@@ -153,5 +153,17 @@
     "gapDays": "días de intervalo",
     "save": "Guardar",
     "cancel": "Cancelar"
+  },
+  "variables": {
+    "toggle": "Variables",
+    "on": "activo",
+    "off": "inactivo",
+    "noVars": "Aún no se detectaron variables. Escribe VAR seguido de un nombre en los nombres o descripciones de tareas.",
+    "hint": "Variables detectadas en todas las tareas de esta plantilla:",
+    "noValue": "sin valor",
+    "valuePlaceholder": "Valor o fórmula",
+    "unitPlaceholder": "Unidad",
+    "colorLabel": "Cambiar color",
+    "saveError": "Error al guardar las variables"
   }
 }

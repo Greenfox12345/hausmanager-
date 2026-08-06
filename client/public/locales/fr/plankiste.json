@@ -153,5 +153,17 @@
     "gapDays": "jours d'écart",
     "save": "Enregistrer",
     "cancel": "Annuler"
+  },
+  "variables": {
+    "toggle": "Variables",
+    "on": "actif",
+    "off": "inactif",
+    "noVars": "Aucune variable détectée. Écrivez VAR suivi d'un nom dans les noms ou descriptions de tâches.",
+    "hint": "Variables détectées dans toutes les tâches de ce modèle :",
+    "noValue": "aucune valeur",
+    "valuePlaceholder": "Valeur ou formule",
+    "unitPlaceholder": "Unité",
+    "colorLabel": "Changer la couleur",
+    "saveError": "Erreur lors de la sauvegarde des variables"
   }
 }

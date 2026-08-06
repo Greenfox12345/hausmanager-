@@ -153,5 +153,17 @@
     "gapDays": "天间隔",
     "save": "保存",
     "cancel": "取消"
+  },
+  "variables": {
+    "toggle": "变量",
+    "on": "已启用",
+    "off": "未启用",
+    "noVars": "尚未检测到变量。在任务名称或描述中写入VAR后跟名称。",
+    "hint": "从此模板的所有任务中检测到的变量：",
+    "noValue": "无值",
+    "valuePlaceholder": "值或公式",
+    "unitPlaceholder": "单位",
+    "colorLabel": "更改颜色",
+    "saveError": "保存变量时出错"
   }
 }

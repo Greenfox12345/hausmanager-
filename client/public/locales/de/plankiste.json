@@ -153,5 +153,17 @@
     "gapDays": "Tage Abstand",
     "save": "Speichern",
     "cancel": "Abbrechen"
+  },
+  "variables": {
+    "toggle": "Variablen",
+    "on": "aktiv",
+    "off": "inaktiv",
+    "noVars": "Noch keine Variablen erkannt. Schreibe VAR gefolgt von einem Namen in Aufgabennamen oder -beschreibungen.",
+    "hint": "Erkannte Variablen aus allen Aufgaben dieser Vorlage:",
+    "noValue": "kein Wert",
+    "valuePlaceholder": "Wert oder Formel",
+    "unitPlaceholder": "Einheit",
+    "colorLabel": "Farbe ändern",
+    "saveError": "Fehler beim Speichern der Variablen"
   }
 }

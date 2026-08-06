@@ -148,6 +148,14 @@ export const planTemplatesRouter = router({
       description: z.string().nullable().optional(),
       type: z.enum(["shopping", "tasks", "project", "mixed"]).optional(),
       tags: z.array(z.string()).optional(),
+      enableVariables: z.boolean().optional(),
+      variables: z.array(z.object({
+        name: z.string(),
+        color: z.string(),
+        value: z.string().optional(),
+        unit: z.string().optional(),
+        description: z.string().optional(),
+      })).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -157,6 +165,8 @@ export const planTemplatesRouter = router({
       if (input.description !== undefined) updates.description = input.description;
       if (input.type !== undefined) updates.type = input.type;
       if (input.tags !== undefined) updates.tags = input.tags;
+      if (input.enableVariables !== undefined) updates.enableVariables = input.enableVariables;
+      if (input.variables !== undefined) updates.variables = input.variables;
       if (Object.keys(updates).length > 0) {
         await db.update(planTemplates).set(updates).where(eq(planTemplates.id, input.templateId));
       }

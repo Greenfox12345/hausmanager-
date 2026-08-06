@@ -31,6 +31,8 @@ import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/compon
 import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
+import { PlanVariablesPanel } from "@/components/PlanVariablesPanel";
+import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 type TemplateType = "shopping" | "tasks" | "project" | "mixed";
@@ -653,6 +655,13 @@ function TemplateTaskItemsSection({
 }: { templateId: number; householdId: number; memberId: number }) {
   const { t } = useTranslation("plankiste");
   const utils = trpc.useUtils();
+  // Vorlage laden um enableVariables und variables zu kennen (für farbige Anzeige)
+  const { data: template } = trpc.planTemplates.getTemplate.useQuery(
+    { templateId }, { enabled: templateId > 0 }
+  );
+  const enableVariables = (template as any)?.enableVariables ?? false;
+  const savedVariables = (template as any)?.variables ?? [];
+  const varColorMap = buildVarColorMap(savedVariables);
   const [showAddTask, setShowAddTask] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   // Neu-Formular State
@@ -690,6 +699,23 @@ function TemplateTaskItemsSection({
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId }, { enabled: householdId > 0 }
   );
+  // Mutation um Variablen nach Aufgaben-Speicherung zu aktualisieren
+  const updateVarsMutation = trpc.planTemplates.updateTemplate.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.getTemplate.invalidate({ templateId });
+    },
+  });
+
+  // Hilfsfunktion: Neue Variablen aus Text extrahieren und zur Vorlage hinzufügen
+  const syncVarsFromText = (name: string, desc: string) => {
+    if (!enableVariables) return;
+    const combined = `${name} ${desc}`;
+    const newVars = mergeVarsFromText(combined, savedVariables);
+    if (newVars.length > savedVariables.length) {
+      updateVarsMutation.mutate({ templateId, householdId, memberId, variables: newVars });
+    }
+  };
+
   const addMutation = trpc.planTemplates.addTemplateTaskItem.useMutation({
     onSuccess: () => {
       utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
@@ -697,6 +723,7 @@ function TemplateTaskItemsSection({
       setNewTaskName(""); setNewTaskDesc(""); setNewTaskDueDays(""); setNewTaskFreq("once");
       setNewTaskDurationDays(""); setNewTaskDurationMinutes(""); setNewTaskEnableRotation(false); setNewTaskAssigned([]);
       toast.success("Aufgabe hinzugefügt");
+      syncVarsFromText(newTaskName, newTaskDesc);
     },
     onError: () => toast.error("Fehler beim Hinzufügen"),
   });
@@ -705,6 +732,7 @@ function TemplateTaskItemsSection({
       utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
       setEditingTaskId(null);
       toast.success("Aufgabe aktualisiert");
+      syncVarsFromText(editTaskName, editTaskDesc);
     },
     onError: () => toast.error("Fehler beim Aktualisieren"),
   });
@@ -962,6 +990,7 @@ function TemplateTaskItemsSection({
   };
 
   return (
+    <>
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-muted-foreground">
@@ -1038,8 +1067,26 @@ function TemplateTaskItemsSection({
             <div className="flex items-start gap-2">
               <CheckSquare className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{item.name}</p>
-                {item.description && <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>}
+                <p className="text-sm font-medium">
+                  {enableVariables
+                    ? tokenizeWithVars(item.name ?? "", varColorMap).map((seg, i) =>
+                        seg.type === "var"
+                          ? <span key={i} className="font-mono font-semibold" style={{ color: seg.color }}>VAR{seg.varName}</span>
+                          : <span key={i}>{seg.text}</span>
+                      )
+                    : item.name}
+                </p>
+                {item.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {enableVariables
+                      ? tokenizeWithVars(item.description ?? "", varColorMap).map((seg, i) =>
+                          seg.type === "var"
+                            ? <span key={i} className="font-mono font-semibold" style={{ color: seg.color }}>VAR{seg.varName}</span>
+                            : <span key={i}>{seg.text}</span>
+                        )
+                      : item.description}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {item.frequency && item.frequency !== "once" && (
                     <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
@@ -1103,6 +1150,8 @@ function TemplateTaskItemsSection({
         </div>
       ))}
     </div>
+    <PlanVariablesPanel templateId={templateId} householdId={householdId} memberId={memberId} />
+    </>
   );
 }
 // ─── Vorlage erstellen/bearbeiten Dialog ─────────────────────────────────────

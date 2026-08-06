@@ -153,5 +153,17 @@
     "gapDays": "gün aralık",
     "save": "Kaydet",
     "cancel": "İptal"
+  },
+  "variables": {
+    "toggle": "Değişkenler",
+    "on": "aktif",
+    "off": "pasif",
+    "noVars": "Henüz değişken algılanmadı. Görev adlarına veya açıklamalarına VAR ardından bir isim yazın.",
+    "hint": "Bu şablonun tüm görevlerinden algılanan değişkenler:",
+    "noValue": "değer yok",
+    "valuePlaceholder": "Değer veya formül",
+    "unitPlaceholder": "Birim",
+    "colorLabel": "Rengi değiştir",
+    "saveError": "Değişkenler kaydedilirken hata oluştu"
   }
 }

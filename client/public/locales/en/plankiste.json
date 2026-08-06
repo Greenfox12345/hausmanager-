@@ -153,5 +153,17 @@
     "gapDays": "days gap",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "variables": {
+    "toggle": "Variables",
+    "on": "active",
+    "off": "inactive",
+    "noVars": "No variables detected yet. Write VAR followed by a name in task names or descriptions.",
+    "hint": "Detected variables from all tasks in this template:",
+    "noValue": "no value",
+    "valuePlaceholder": "Value or formula",
+    "unitPlaceholder": "Unit",
+    "colorLabel": "Change color",
+    "saveError": "Error saving variables"
   }
 }
