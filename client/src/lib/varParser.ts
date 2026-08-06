@@ -61,22 +61,38 @@ export function generateVarColor(name: string): string {
 export function parseVarAssignment(text: string): { varName: string; formula: string } | null {
   const t = text.trim();
 
+  // Präfix-Bereinigung: Text vor dem ersten VAR-Token entfernen wenn kein "=" dazwischen
+  // z.B. "Höhe: VARBretterProSeite = ..." → "VARBretterProSeite = ..."
+  const cleanText = (() => {
+    const firstVarIdx = t.search(/VAR[A-Za-zÄÖÜäöüß]/);
+    const firstEqIdx = t.indexOf("=");
+    if (firstVarIdx > 0 && (firstEqIdx === -1 || firstVarIdx < firstEqIdx)) {
+      const prefix = t.slice(0, firstVarIdx);
+      if (!prefix.includes("=")) {
+        return t.slice(firstVarIdx);
+      }
+    }
+    return t;
+  })();
+
+  // Doppelpunkt mit Leerzeichen beidseitig als Division behandeln
+  // z.B. "VARHöhe : VARBreite" → "VARHöhe / VARBreite"
+  const normalized = cleanText.replace(/\s+:\s+/g, " / ");
+
   // Format 1 (Standard): VARName = Formel
   // z.B. "VARBretterProSeite = VARGrobeHöhe / VARBrettBreite !Runden"
-  const matchLeft = t.match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)\s*=\s*(.+)$/);
+  const matchLeft = normalized.match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)\s*=\s*(.+)$/);
   if (matchLeft) {
     return { varName: matchLeft[1], formula: matchLeft[2].trim() };
   }
 
   // Format 2 (umgekehrt): Formel = VARName [!Modifier]
   // z.B. "VARGrobeHöhe / VARBrettBreite = VARBretterProSeite !Runden"
-  // Modifier kann am Ende stehen, nach dem Variablennamen
-  const matchRight = t.match(/^(.+?)\s*=\s*VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)(\s*![A-Za-z]+)?\s*$/);
+  const matchRight = normalized.match(/^(.+?)\s*=\s*VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)(\s*![A-Za-z]+)?\s*$/);
   if (matchRight) {
     const formula = matchRight[1].trim();
     const varName = matchRight[2];
     const modifier = matchRight[3]?.trim() ?? "";
-    // Formel darf kein "=" enthalten (sonst wäre es eine andere Struktur)
     if (!formula.includes("=")) {
       return { varName, formula: modifier ? `${formula} ${modifier}` : formula };
     }

@@ -1222,20 +1222,25 @@ function TemplateTaskItemsSection({
         <AlertDialogHeader>
           <AlertDialogTitle>Variablen-Definitionen übernehmen?</AlertDialogTitle>
           <AlertDialogDescription>
-            In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden:
-            <ul className="mt-2 space-y-1">
-              {pendingDefinitions.map(d => (
-                <li key={d.varName} className="font-mono text-sm">
-                  <span className="font-semibold text-violet-600">VAR{d.varName}</span>
-                  <span className="text-muted-foreground"> = {d.formula}</span>
-                </li>
-              ))}
-            </ul>
-            <span className="block mt-2 text-sm">
-              Sollen diese als Variablen-Definitionen gespeichert werden?
-            </span>
+            In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden. Du kannst die Formeln noch anpassen:
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <div className="space-y-3 py-2">
+          {pendingDefinitions.map((d, i) => (
+            <div key={d.varName} className="flex items-center gap-2">
+              <span className="font-mono font-semibold text-violet-600 text-sm whitespace-nowrap">
+                VAR{d.varName} =
+              </span>
+              <Input
+                value={d.formula}
+                onChange={e => setPendingDefinitions(prev =>
+                  prev.map((p, j) => j === i ? { ...p, formula: e.target.value } : p)
+                )}
+                className="h-7 text-xs font-mono flex-1"
+              />
+            </div>
+          ))}
+        </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => { setShowAdoptDialog(false); setPendingDefinitions([]); }}>
             Nein, ignorieren
