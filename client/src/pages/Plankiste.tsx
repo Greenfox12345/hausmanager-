@@ -35,6 +35,11 @@ import { PlanVariablesPanel } from "@/components/PlanVariablesPanel";
 import { VarText } from "@/components/VarToken";
 import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
 import { evaluateFormula, buildVarValueMap, type PlanVariable } from "@/lib/varParser";
+import { parseVarAssignment } from "@/lib/varParser";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 type TemplateType = "shopping" | "tasks" | "project" | "mixed";
@@ -738,14 +743,51 @@ function TemplateTaskItemsSection({
     },
   });
 
+  // State für Übernahme-Dialog: erkannte Variablen-Definitionen aus Beschreibungen
+  const [pendingDefinitions, setPendingDefinitions] = useState<{varName: string; formula: string}[]>([]);
+  const [showAdoptDialog, setShowAdoptDialog] = useState(false);
+
   // Hilfsfunktion: Neue Variablen aus Text extrahieren und zur Vorlage hinzufügen
+  // Außerdem: Variablen-Definitionen (VARName = Formel) erkennen und Übernahme anbieten
   const syncVarsFromText = (name: string, desc: string) => {
     if (!enableVariables) return;
     const combined = `${name} ${desc}`;
+    // 1. Neue VAR-Namen in die Variablen-Liste aufnehmen
     const newVars = mergeVarsFromText(combined, savedVariables);
     if (newVars.length > savedVariables.length) {
       updateVarsMutation.mutate({ templateId, householdId, memberId, variables: newVars });
     }
+    // 2. Variablen-Definitionen (VARName = Formel) in Beschreibung suchen
+    const lines = desc.split(/[;\n]/);
+    const found: {varName: string; formula: string}[] = [];
+    for (const line of lines) {
+      const assignment = parseVarAssignment(line.trim());
+      if (!assignment) continue;
+      // Nur vorschlagen wenn die Variable noch keinen Wert hat
+      const existing = savedVariables.find((v: PlanVariable) => v.name === assignment.varName);
+      if (!existing?.value) {
+        // Duplikate vermeiden
+        if (!found.some(f => f.varName === assignment.varName)) {
+          found.push(assignment);
+        }
+      }
+    }
+    if (found.length > 0) {
+      setPendingDefinitions(found);
+      setShowAdoptDialog(true);
+    }
+  };
+
+  // Definitionen aus Beschreibung übernehmen
+  const adoptDefinitions = () => {
+    const updated = savedVariables.map((v: PlanVariable) => {
+      const def = pendingDefinitions.find(d => d.varName === v.name);
+      if (def && !v.value) return { ...v, value: def.formula };
+      return v;
+    });
+    updateVarsMutation.mutate({ templateId, householdId, memberId, variables: updated });
+    setShowAdoptDialog(false);
+    setPendingDefinitions([]);
   };
 
   const addMutation = trpc.planTemplates.addTemplateTaskItem.useMutation({
@@ -1174,6 +1216,36 @@ function TemplateTaskItemsSection({
         </div>
       ))}
     </div>
+    {/* Übernahme-Dialog: Variablen-Definitionen aus Beschreibungen */}
+    <AlertDialog open={showAdoptDialog} onOpenChange={setShowAdoptDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Variablen-Definitionen übernehmen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden:
+            <ul className="mt-2 space-y-1">
+              {pendingDefinitions.map(d => (
+                <li key={d.varName} className="font-mono text-sm">
+                  <span className="font-semibold text-violet-600">VAR{d.varName}</span>
+                  <span className="text-muted-foreground"> = {d.formula}</span>
+                </li>
+              ))}
+            </ul>
+            <span className="block mt-2 text-sm">
+              Sollen diese als Variablen-Definitionen gespeichert werden?
+            </span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setShowAdoptDialog(false); setPendingDefinitions([]); }}>
+            Nein, ignorieren
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={adoptDefinitions}>
+            Ja, übernehmen
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     <PlanVariablesPanel templateId={templateId} householdId={householdId} memberId={memberId} />
     </>
   );
