@@ -172,6 +172,30 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const rawVarMap = buildVarValueMap(mergedVars);
   const varAssignments = extractVarAssignmentsFromTasks(taskItems as any[], rawVarMap);
 
+  // Auto-Zuweisung: Wenn Aufgaben Formeln enthalten (VARName = Formel) und
+  // alle Eingabevariablen bekannt sind, den berechneten Wert automatisch speichern.
+  // Nur Variablen ohne manuell gesetzten Wert werden auto-zugewiesen.
+  useEffect(() => {
+    if (!enableVariables || !template) return;
+    let changed = false;
+    const updated = mergedVars.map(v => {
+      if (v.value) return v; // Manuellen Wert nicht überschreiben
+      const assignments = varAssignments[v.name];
+      if (!assignments || assignments.length === 0) return v;
+      for (const a of assignments) {
+        if (a.result?.ok) {
+          changed = true;
+          return { ...v, value: a.result.display };
+        }
+      }
+      return v;
+    });
+    if (changed) {
+      updateMutation.mutate({ templateId, householdId, memberId, variables: updated });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(rawVarMap), enableVariables]);
+
   return (
     <div className="mt-3 border-t border-border pt-3">
       {/* Schalter */}

@@ -32,6 +32,7 @@ import PageHeader from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { PlanVariablesPanel } from "@/components/PlanVariablesPanel";
+import { VarText } from "@/components/VarToken";
 import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
 import { evaluateFormula, buildVarValueMap, type PlanVariable } from "@/lib/varParser";
 
@@ -1100,21 +1101,13 @@ function TemplateTaskItemsSection({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">
                   {enableVariables
-                    ? tokenizeWithVars(item.name ?? "", varColorMap).map((seg, i) =>
-                        seg.type === "var"
-                          ? <span key={i} className="font-mono font-semibold" style={{ color: seg.color }}>VAR{seg.varName}</span>
-                          : <span key={i}>{seg.text}</span>
-                      )
+                    ? <VarText text={item.name ?? ""} variables={savedVariables} />
                     : item.name}
                 </p>
                 {item.description && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {enableVariables
-                      ? tokenizeWithVars(item.description ?? "", varColorMap).map((seg, i) =>
-                          seg.type === "var"
-                            ? <span key={i} className="font-mono font-semibold" style={{ color: seg.color }}>VAR{seg.varName}</span>
-                            : <span key={i}>{seg.text}</span>
-                        )
+                      ? <VarText text={item.description ?? ""} variables={savedVariables} />
                       : item.description}
                   </p>
                 )}
