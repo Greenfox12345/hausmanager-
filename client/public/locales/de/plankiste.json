@@ -83,7 +83,9 @@
     "noTasks": "Noch keine Aufgaben",
     "tasksCount": "{{count}} Aufgabe",
     "tasksCountPlural": "{{count}} Aufgaben",
-    "addTask": "Aufgabe hinzufügen"
+    "addTask": "Aufgabe hinzufügen",
+    "sortTopo": "Topologisch",
+    "sortOriginal": "Original"
   },
   "instances": {
     "empty": "Keine aktiven Pläne",

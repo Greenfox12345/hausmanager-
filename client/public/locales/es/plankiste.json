@@ -83,7 +83,9 @@
     "noTasks": "Sin tareas",
     "tasksCount": "{{count}} tarea",
     "tasksCountPlural": "{{count}} tareas",
-    "addTask": "Añadir tarea"
+    "addTask": "Añadir tarea",
+    "sortTopo": "Topológico",
+    "sortOriginal": "Original"
   },
   "instances": {
     "empty": "Sin planes activos",

@@ -533,3 +533,161 @@ export function extractVarAssignmentsFromTasks(
 
   return out;
 }
+
+// ─── Topologische Sortierung ──────────────────────────────────────────────────
+
+/**
+ * Topologische Sortierung von Aufgaben nach Vor-/Folgeaufgaben-Abhängigkeiten.
+ * Verwendet Kahn's Algorithmus (BFS-basiert).
+ *
+ * Aufgaben ohne Voraussetzungen kommen zuerst.
+ * Bei Zyklen werden die betroffenen Aufgaben am Ende angehängt (in Originalreihenfolge).
+ *
+ * @param tasks  Aufgaben mit id, prerequisiteItemIds, followupItemIds
+ * @returns Sortierte Aufgaben-Liste
+ */
+export function topoSortTasks<T extends {
+  id: number;
+  prerequisiteItemIds?: unknown;
+  followupItemIds?: unknown;
+}>(tasks: T[]): T[] {
+  if (tasks.length === 0) return tasks;
+
+  // Normalisierung: altes Format (number[]) und neues Format ({id, gapDays}[]) unterstützen
+  const getIds = (raw: unknown): number[] => {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((e: unknown) => typeof e === "number" ? e : (e as {id: number}).id);
+  };
+
+  const taskMap = new Map<number, T>(tasks.map(t => [t.id, t]));
+
+  // Eingangsgrade berechnen (wie viele Voraussetzungen hat jede Aufgabe?)
+  const inDegree = new Map<number, number>(tasks.map(t => [t.id, 0]));
+  // Adjazenzliste: von Voraussetzung → abhängige Aufgaben
+  const adj = new Map<number, number[]>(tasks.map(t => [t.id, []]));
+
+  for (const task of tasks) {
+    const prereqs = getIds(task.prerequisiteItemIds);
+    for (const prereqId of prereqs) {
+      if (taskMap.has(prereqId)) {
+        // prereqId → task.id
+        adj.get(prereqId)!.push(task.id);
+        inDegree.set(task.id, (inDegree.get(task.id) ?? 0) + 1);
+      }
+    }
+  }
+
+  // Kahn's Algorithmus: Starte mit allen Aufgaben ohne Voraussetzungen
+  // Reihenfolge innerhalb einer Ebene: Originalreihenfolge beibehalten
+  const queue: number[] = tasks
+    .filter(t => (inDegree.get(t.id) ?? 0) === 0)
+    .map(t => t.id);
+
+  const result: T[] = [];
+  const visited = new Set<number>();
+
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    if (visited.has(id)) continue;
+    visited.add(id);
+    const task = taskMap.get(id);
+    if (task) result.push(task);
+
+    // Nachfolger in Originalreihenfolge hinzufügen
+    const successors = (adj.get(id) ?? [])
+      .filter(sid => !visited.has(sid))
+      .sort((a, b) => {
+        const ia = tasks.findIndex(t => t.id === a);
+        const ib = tasks.findIndex(t => t.id === b);
+        return ia - ib;
+      });
+
+    for (const sid of successors) {
+      const newDegree = (inDegree.get(sid) ?? 1) - 1;
+      inDegree.set(sid, newDegree);
+      if (newDegree === 0) queue.push(sid);
+    }
+  }
+
+  // Aufgaben in Zyklen am Ende anhängen (Originalreihenfolge)
+  for (const task of tasks) {
+    if (!visited.has(task.id)) result.push(task);
+  }
+
+  return result;
+}
+
+/**
+ * Topologische Sortierung von Variablen nach Abhängigkeiten.
+ * Variablen die andere referenzieren kommen nach denen, von denen sie abhängen.
+ * Eingabe-Variablen (kein VAR in value) kommen zuerst.
+ *
+ * Bei Zyklen werden die betroffenen Variablen am Ende angehängt.
+ */
+export function topoSortVars(variables: PlanVariable[]): PlanVariable[] {
+  if (variables.length === 0) return variables;
+
+  const varNames = new Set(variables.map(v => v.name));
+
+  // Abhängigkeiten: welche VAR-Namen referenziert der Wert einer Variable?
+  const getDeps = (v: PlanVariable): string[] => {
+    if (!v.value) return [];
+    const deps: string[] = [];
+    const regex = new RegExp(VAR_REGEX.source, "g");
+    let m: RegExpExecArray | null;
+    while ((m = regex.exec(v.value)) !== null) {
+      const dep = m[1];
+      if (varNames.has(dep) && dep !== v.name) deps.push(dep);
+    }
+    return deps;
+  };
+
+  const varMap = new Map<string, PlanVariable>(variables.map(v => [v.name, v]));
+  const inDegree = new Map<string, number>(variables.map(v => [v.name, 0]));
+  const adj = new Map<string, string[]>(variables.map(v => [v.name, []]));
+
+  for (const v of variables) {
+    const deps = getDeps(v);
+    for (const dep of deps) {
+      if (varMap.has(dep)) {
+        adj.get(dep)!.push(v.name);
+        inDegree.set(v.name, (inDegree.get(v.name) ?? 0) + 1);
+      }
+    }
+  }
+
+  const queue: string[] = variables
+    .filter(v => (inDegree.get(v.name) ?? 0) === 0)
+    .map(v => v.name);
+
+  const result: PlanVariable[] = [];
+  const visited = new Set<string>();
+
+  while (queue.length > 0) {
+    const name = queue.shift()!;
+    if (visited.has(name)) continue;
+    visited.add(name);
+    const v = varMap.get(name);
+    if (v) result.push(v);
+
+    const successors = (adj.get(name) ?? [])
+      .filter(s => !visited.has(s))
+      .sort((a, b) => {
+        const ia = variables.findIndex(v => v.name === a);
+        const ib = variables.findIndex(v => v.name === b);
+        return ia - ib;
+      });
+
+    for (const s of successors) {
+      const newDegree = (inDegree.get(s) ?? 1) - 1;
+      inDegree.set(s, newDegree);
+      if (newDegree === 0) queue.push(s);
+    }
+  }
+
+  for (const v of variables) {
+    if (!visited.has(v.name)) result.push(v);
+  }
+
+  return result;
+}

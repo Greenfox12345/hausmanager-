@@ -83,7 +83,9 @@
     "noTasks": "No tasks yet",
     "tasksCount": "{{count}} task",
     "tasksCountPlural": "{{count}} tasks",
-    "addTask": "Add task"
+    "addTask": "Add task",
+    "sortTopo": "Topological",
+    "sortOriginal": "Original"
   },
   "instances": {
     "empty": "No active plans",

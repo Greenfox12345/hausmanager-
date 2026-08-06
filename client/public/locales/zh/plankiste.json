@@ -83,7 +83,9 @@
     "noTasks": "暂无任务",
     "tasksCount": "{{count}} 个任务",
     "tasksCountPlural": "{{count}} 个任务",
-    "addTask": "添加任务"
+    "addTask": "添加任务",
+    "sortTopo": "拓扑排序",
+    "sortOriginal": "原始顺序"
   },
   "instances": {
     "empty": "无活跃计划",

@@ -83,7 +83,9 @@
     "noTasks": "Henüz görev yok",
     "tasksCount": "{{count}} görev",
     "tasksCountPlural": "{{count}} görev",
-    "addTask": "Görev ekle"
+    "addTask": "Görev ekle",
+    "sortTopo": "Topolojik",
+    "sortOriginal": "Orijinal"
   },
   "instances": {
     "empty": "Aktif plan yok",

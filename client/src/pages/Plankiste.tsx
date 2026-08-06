@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import {
   Plus, Trash2, Edit2, Play, BookOpen, ShoppingCart, CheckSquare,
   FolderKanban, ChevronRight, Archive, MoreVertical, Package,
-  ArrowRight, Check, X, ListChecks, Layers
+  ArrowRight, Check, X, ListChecks, Layers, GitBranch
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
@@ -36,6 +36,7 @@ import { VarText } from "@/components/VarToken";
 import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
 import { evaluateFormula, buildVarValueMap, type PlanVariable } from "@/lib/varParser";
 import { parseVarAssignment } from "@/lib/varParser";
+import { topoSortTasks } from "@/lib/varParser";
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
@@ -700,6 +701,7 @@ function TemplateTaskItemsSection({
   const savedVariables = (template as any)?.variables ?? [];
   const varColorMap = buildVarColorMap(savedVariables);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [taskSortOrder, setTaskSortOrder] = useState<"original" | "topo">("original");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   // Neu-Formular State
   const [newTaskName, setNewTaskName] = useState("");
@@ -732,6 +734,14 @@ function TemplateTaskItemsSection({
 
   const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
     { templateId }, { enabled: templateId > 0 }
+  );
+  // Topologisch sortierte Aufgaben-Liste (nur wenn Abhängigkeiten vorhanden)
+  const displayedTaskItems = taskSortOrder === "topo"
+    ? topoSortTasks(taskItems as any[])
+    : (taskItems as any[]);
+  const hasAnyDeps = (taskItems as any[]).some((t: any) =>
+    (Array.isArray(t.prerequisiteItemIds) && t.prerequisiteItemIds.length > 0) ||
+    (Array.isArray(t.followupItemIds) && t.followupItemIds.length > 0)
   );
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId }, { enabled: householdId > 0 }
@@ -1074,9 +1084,22 @@ function TemplateTaskItemsSection({
               ? t("plankiste:taskItems.tasksCount", { count: 1 })
               : t("plankiste:taskItems.tasksCountPlural", { count: (taskItems as any[]).length })}
         </span>
-        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowAddTask(!showAddTask)}>
-          <Plus className="w-3 h-3 mr-1" />{t("plankiste:taskItems.addTask")}
-        </Button>
+        <div className="flex items-center gap-1">
+          {hasAnyDeps && (taskItems as any[]).length > 1 && (
+            <Button
+              size="sm" variant={taskSortOrder === "topo" ? "default" : "outline"}
+              className="h-7 text-xs gap-1"
+              onClick={() => setTaskSortOrder(taskSortOrder === "topo" ? "original" : "topo")}
+              title={taskSortOrder === "topo" ? "Originalreihenfolge" : "Topologisch sortieren"}
+            >
+              <GitBranch className="w-3 h-3" />
+              {taskSortOrder === "topo" ? t("plankiste:taskItems.sortTopo") : t("plankiste:taskItems.sortOriginal")}
+            </Button>
+          )}
+          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowAddTask(!showAddTask)}>
+            <Plus className="w-3 h-3 mr-1" />{t("plankiste:taskItems.addTask")}
+          </Button>
+        </div>
       </div>
       {showAddTask && renderTaskForm(
         "add", undefined,
@@ -1107,7 +1130,7 @@ function TemplateTaskItemsSection({
         () => setShowAddTask(false),
         addMutation.isPending
       )}
-      {(taskItems as any[]).map((item: any) => (
+      {displayedTaskItems.map((item: any) => (
         <div key={item.id} className="rounded-lg border border-border bg-card p-2">
           {editingTaskId === item.id ? renderTaskForm(
             "edit", item.id,

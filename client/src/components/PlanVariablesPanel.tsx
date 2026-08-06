@@ -16,6 +16,8 @@ import {
   type PlanVariable,
 } from "@/lib/varParser";
 import { evaluateAllVars, extractVarAssignmentsFromTasks, buildVarValueMap } from "@/lib/varParser";
+import { topoSortVars } from "@/lib/varParser";
+import { GitBranch } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -64,6 +66,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const [editValue, setEditValue] = useState("");
   const [editUnit, setEditUnit] = useState("");
   const [editColor, setEditColor] = useState("");
+  const [varSortOrder, setVarSortOrder] = useState<"original" | "topo">("original");
 
   // Lösch-Dialog State
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
@@ -86,6 +89,10 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
       mergedVars.push({ name, color: generateVarColor(name) });
     }
   }
+
+  // Topologisch sortierte Variablen-Liste
+  const displayedVars = varSortOrder === "topo" ? topoSortVars(mergedVars) : mergedVars;
+  const hasVarDeps = mergedVars.some(v => v.value && /VAR[A-Za-z]/.test(v.value));
 
   // Zählt Erwähnungen einer Variable in allen Aufgaben
   const countMentions = (varName: string): number => {
@@ -222,8 +229,21 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
             <p className="text-xs text-muted-foreground italic">{t("variables.noVars")}</p>
           ) : (
             <>
-              <p className="text-xs text-muted-foreground mb-2">{t("variables.hint")}</p>
-              {mergedVars.map(v => (
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-muted-foreground">{t("variables.hint")}</p>
+                {hasVarDeps && mergedVars.length > 1 && (
+                  <Button
+                    size="sm" variant={varSortOrder === "topo" ? "default" : "outline"}
+                    className="h-6 text-xs gap-1"
+                    onClick={() => setVarSortOrder(varSortOrder === "topo" ? "original" : "topo")}
+                    title={varSortOrder === "topo" ? "Originalreihenfolge" : "Topologisch sortieren"}
+                  >
+                    <GitBranch className="w-3 h-3" />
+                    {varSortOrder === "topo" ? "Original" : "Topologisch"}
+                  </Button>
+                )}
+              </div>
+              {displayedVars.map(v => (
                 <div key={v.name} className="rounded-md border border-border bg-muted/30 p-2">
                   {editingVar === v.name ? (
                     <div className="space-y-1.5">

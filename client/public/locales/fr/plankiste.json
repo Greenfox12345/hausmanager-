@@ -83,7 +83,9 @@
     "noTasks": "Aucune tâche",
     "tasksCount": "{{count}} tâche",
     "tasksCountPlural": "{{count}} tâches",
-    "addTask": "Ajouter une tâche"
+    "addTask": "Ajouter une tâche",
+    "sortTopo": "Topologique",
+    "sortOriginal": "Original"
   },
   "instances": {
     "empty": "Aucun plan actif",

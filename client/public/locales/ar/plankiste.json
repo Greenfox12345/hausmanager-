@@ -83,7 +83,9 @@
     "noTasks": "لا توجد مهام بعد",
     "tasksCount": "{{count}} مهمة",
     "tasksCountPlural": "{{count}} مهام",
-    "addTask": "إضافة مهمة"
+    "addTask": "إضافة مهمة",
+    "sortTopo": "ترتيب طوبولوجي",
+    "sortOriginal": "الترتيب الأصلي"
   },
   "instances": {
     "empty": "لا توجد خطط نشطة",
