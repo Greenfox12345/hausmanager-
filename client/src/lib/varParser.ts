@@ -59,10 +59,30 @@ export function generateVarColor(name: string): string {
  * Gibt {varName, formula} zurück oder null.
  */
 export function parseVarAssignment(text: string): { varName: string; formula: string } | null {
-  // Muster: VARName = Formel (am Anfang der Zeile oder nach Leerzeichen)
-  const match = text.match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)\s*=\s*(.+)$/);
-  if (!match) return null;
-  return { varName: match[1], formula: match[2].trim() };
+  const t = text.trim();
+
+  // Format 1 (Standard): VARName = Formel
+  // z.B. "VARBretterProSeite = VARGrobeHöhe / VARBrettBreite !Runden"
+  const matchLeft = t.match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)\s*=\s*(.+)$/);
+  if (matchLeft) {
+    return { varName: matchLeft[1], formula: matchLeft[2].trim() };
+  }
+
+  // Format 2 (umgekehrt): Formel = VARName [!Modifier]
+  // z.B. "VARGrobeHöhe / VARBrettBreite = VARBretterProSeite !Runden"
+  // Modifier kann am Ende stehen, nach dem Variablennamen
+  const matchRight = t.match(/^(.+?)\s*=\s*VAR([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)(\s*![A-Za-z]+)?\s*$/);
+  if (matchRight) {
+    const formula = matchRight[1].trim();
+    const varName = matchRight[2];
+    const modifier = matchRight[3]?.trim() ?? "";
+    // Formel darf kein "=" enthalten (sonst wäre es eine andere Struktur)
+    if (!formula.includes("=")) {
+      return { varName, formula: modifier ? `${formula} ${modifier}` : formula };
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -244,13 +264,18 @@ function resolveVars(
  * Gibt null bei Parse-Fehler zurück.
  */
 function evalMathExpr(expr: string): number | null {
-  // × durch * ersetzen, dann sicher auswerten
+  // × durch * ersetzen
+  // NaN-Literale beibehalten (entstehen wenn eine VAR nicht aufgelöst werden konnte)
+  // Alle anderen nicht-numerischen Zeichen entfernen, aber "NaN" als Ganzes erhalten
   const sanitized = expr
     .replace(/×/g, "*")
-    .replace(/[^0-9+\-*/().\s]/g, ""); // nur erlaubte Zeichen
+    .replace(/NaN/g, "___NaN___") // NaN schützen
+    .replace(/[^0-9+\-*/().\s_]/g, "") // nur erlaubte Zeichen + Underscore für NaN
+    .replace(/___NaN___/g, "NaN"); // NaN wiederherstellen
   if (!sanitized.trim()) return null;
+  // Wenn NaN im Ausdruck vorkommt, ist das Ergebnis NaN
+  if (sanitized.includes("NaN")) return NaN;
   try {
-    // Sichere Auswertung ohne eval: rekursiver Descent-Parser
     return parseMathExpr(sanitized.trim());
   } catch {
     return null;
