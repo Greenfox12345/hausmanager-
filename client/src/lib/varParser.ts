@@ -218,7 +218,7 @@ export function removeVarFromText(text: string, varName: string): string {
  * Ergebnis einer Formel-Auswertung.
  */
 export type FormulaResult =
-  | { ok: true; value: number; display: string }
+  | { ok: true; value: number; display: string; unit?: string }
   | { ok: false; error: "missing_vars" | "cycle" | "parse_error" | "div_zero"; missing?: string[] };
 
 /**
@@ -250,7 +250,7 @@ function evaluateFormulaInternal(
   const directNum = parseFloat(expr);
   if (!isNaN(directNum) && String(directNum) === expr.replace(/\s/g, "")) {
     const val = applyModifier(directNum, modifier);
-    return { ok: true, value: val, display: formatNumber(val) };
+    return { ok: true, value: val, display: formatNumber(val), unit: undefined };
   }
   const { resolved, missing } = resolveVars(expr, varMap, visiting);
   if (missing.length > 0) {
@@ -265,7 +265,9 @@ function evaluateFormulaInternal(
   }
   if (value === null || isNaN(value)) return { ok: false, error: "parse_error" };
   const final = applyModifier(value, modifier);
-  return { ok: true, value: final, display: formatNumber(final) };
+  // Einheit propagieren: wenn alle VAR-Referenzen dieselbe Einheit haben, übernehmen
+  const unit = inferUnit(expr, varMap);
+  return { ok: true, value: final, display: formatNumber(final), unit };
 }
 
 /**
@@ -406,7 +408,8 @@ function parseMathExpr(expr: string): number {
 export function evaluateFormula(
   formula: string,
   varMap: Record<string, string>,
-  varName?: string
+  varName?: string,
+  unitMap?: Record<string, string>
 ): FormulaResult {
   if (!formula.trim()) return { ok: false, error: "parse_error" };
 
@@ -417,7 +420,7 @@ export function evaluateFormula(
   const directNum = parseFloat(expr);
   if (!isNaN(directNum) && String(directNum) === expr.replace(/\s/g, "")) {
     const val = applyModifier(directNum, modifier);
-    return { ok: true, value: val, display: formatNumber(val) };
+    return { ok: true, value: val, display: formatNumber(val), unit: undefined };
   }
 
   // VAR-Referenzen auflösen
@@ -440,7 +443,8 @@ export function evaluateFormula(
   if (value === null || isNaN(value)) return { ok: false, error: "parse_error" };
 
   const final = applyModifier(value, modifier);
-  return { ok: true, value: final, display: formatNumber(final) };
+  const unit = unitMap ? inferUnit(expr, varMap, unitMap) : inferUnit(expr, varMap);
+  return { ok: true, value: final, display: formatNumber(final), unit };
 }
 
 function applyModifier(value: number, modifier: "ceil" | "floor" | "round" | null): number {
@@ -453,6 +457,44 @@ function applyModifier(value: number, modifier: "ceil" | "floor" | "round" | nul
 function formatNumber(n: number): string {
   // Maximal 4 Nachkommastellen, trailing zeros entfernen
   return parseFloat(n.toFixed(4)).toString();
+}
+
+/**
+ * Leitet die Einheit eines Ausdrucks ab.
+ * Regel: Wenn alle VAR-Referenzen im Ausdruck dieselbe Einheit haben
+ *        UND der Ausdruck nur Addition/Subtraktion enthält (keine Division/Multiplikation
+ *        die Einheiten verändern würde), wird diese Einheit übernommen.
+ * Bei Multiplikation/Division wird keine Einheit propagiert (Einheiten würden sich ändern,
+ * z.B. cm * cm = cm² – das ist zu komplex für automatische Inferenz).
+ */
+function inferUnit(
+  expr: string,
+  varMap: Record<string, string>,
+  unitMap?: Record<string, string>
+): string | undefined {
+  // Alle VAR-Namen im Ausdruck sammeln
+  const varNames: string[] = [];
+  const regex = new RegExp(VAR_REGEX.source, "g");
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(expr)) !== null) varNames.push(m[1]);
+  if (varNames.length === 0) return undefined;
+
+  // Prüfen ob der Ausdruck Multiplikation oder Division enthält
+  // (nach Entfernung der VAR-Namen und Zahlen)
+  const stripped = expr.replace(new RegExp(VAR_REGEX.source, "g"), "0").replace(/[0-9.]/g, "0");
+  const hasMulDiv = /[*/×]/.test(stripped);
+  if (hasMulDiv) return undefined; // Einheit nicht propagierbar
+
+  // Einheiten aller referenzierten Variablen sammeln
+  const units = new Set<string>();
+  for (const name of varNames) {
+    const unit = unitMap?.[name];
+    if (unit) units.add(unit);
+  }
+
+  // Nur wenn alle Variablen dieselbe Einheit haben
+  if (units.size === 1) return Array.from(units)[0];
+  return undefined;
 }
 
 /**
@@ -476,13 +518,15 @@ export function evaluateAllVars(
   variables: PlanVariable[]
 ): Record<string, { result: FormulaResult; unit?: string }> {
   const rawMap = buildVarValueMap(variables);
+  const unitMap: Record<string, string> = {};
+  for (const v of variables) { if (v.unit) unitMap[v.name] = v.unit; }
   const out: Record<string, { result: FormulaResult; unit?: string }> = {};
   for (const v of variables) {
     if (!v.value) continue;
-    out[v.name] = {
-      result: evaluateFormula(v.value, rawMap, v.name),
-      unit: v.unit,
-    };
+    const result = evaluateFormula(v.value, rawMap, v.name, unitMap);
+    // Einheit: explizit gesetzte Einheit hat Vorrang, sonst propagierte Einheit
+    const unit = v.unit ?? (result.ok ? result.unit : undefined);
+    out[v.name] = { result, unit };
   }
   return out;
 }

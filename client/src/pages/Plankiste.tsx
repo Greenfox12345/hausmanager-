@@ -701,7 +701,7 @@ function TemplateTaskItemsSection({
   const savedVariables = (template as any)?.variables ?? [];
   const varColorMap = buildVarColorMap(savedVariables);
   const [showAddTask, setShowAddTask] = useState(false);
-  const [taskSortOrder, setTaskSortOrder] = useState<"original" | "topo">("original");
+  const [taskSortOrder, setTaskSortOrder] = useState<"original" | "topo">("topo");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   // Neu-Formular State
   const [newTaskName, setNewTaskName] = useState("");

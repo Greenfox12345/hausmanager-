@@ -66,7 +66,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const [editValue, setEditValue] = useState("");
   const [editUnit, setEditUnit] = useState("");
   const [editColor, setEditColor] = useState("");
-  const [varSortOrder, setVarSortOrder] = useState<"original" | "topo">("original");
+  const [varSortOrder, setVarSortOrder] = useState<"original" | "topo">("topo");
 
   // Lösch-Dialog State
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
@@ -297,7 +297,8 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                             if (!ev) return null;
                             const res = ev.result;
                             if (res.ok) {
-                              return <span className="text-emerald-600 font-medium">→ {res.display}{v.unit ? ` ${v.unit}` : ""}</span>;
+                              const displayUnit = v.unit ?? res.unit;
+                              return <span className="text-emerald-600 font-medium">→ {res.display}{displayUnit ? ` ${displayUnit}` : ""}</span>;
                             }
                             const errMsg = res.error === "missing_vars"
                               ? t("variables.errorMissing", { vars: res.missing?.join(", ") })
@@ -306,7 +307,19 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                               : res.error === "div_zero"
                               ? t("variables.errorDivZero")
                               : t("variables.errorParse");
-                            return <span className="text-amber-500 cursor-help" title={errMsg}>→ ?</span>;
+                            return (
+                              <span
+                                className="text-amber-500 cursor-help inline-flex items-center gap-0.5"
+                                title={errMsg}
+                              >
+                                → <span className="underline decoration-dotted">?</span>
+                                <span className="text-[10px] opacity-70">({
+                                  res.error === "missing_vars" ? `fehlt: ${res.missing?.slice(0,2).join(", ")}${(res.missing?.length ?? 0) > 2 ? "…" : ""}` :
+                                  res.error === "cycle" ? "Zyklus" :
+                                  res.error === "div_zero" ? "÷0" : "Syntax"
+                                })</span>
+                              </span>
+                            );
                           })()}
                         </span>
                       ) : (
@@ -346,7 +359,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                               <td className="py-0.5 font-mono">{a.formula}</td>
                               <td className="py-0.5 pl-2 text-right">
                                 {a.result?.ok
-                                  ? <span className="text-emerald-600">{a.result.display}{v.unit ? ` ${v.unit}` : ""}</span>
+                                  ? <span className="text-emerald-600">{a.result.display}{(v.unit ?? a.result.unit) ? ` ${v.unit ?? a.result.unit}` : ""}</span>
                                   : <span className="text-amber-500">?</span>}
                               </td>
                             </tr>

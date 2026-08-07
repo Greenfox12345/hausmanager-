@@ -32,16 +32,24 @@ export function VarToken({ varName, variables, unit }: VarTokenProps) {
     const result = evaluateFormula(varDef.value, rawMap, varName);
     if (result.ok) {
       displayValue = result.display;
-      const unitStr = varDef.unit ?? unit ?? "";
+      const unitStr = varDef.unit ?? result.unit ?? unit ?? "";
       tooltipText = `VAR${varName} = ${result.display}${unitStr ? ` ${unitStr}` : ""}`;
     } else {
-      tooltipText = `VAR${varName} (${varDef.value} – noch nicht auflösbar)`;
+      const errDetail =
+        result.error === "missing_vars"
+          ? `fehlt: ${result.missing?.slice(0, 3).join(", ")}${(result.missing?.length ?? 0) > 3 ? "…" : ""}`
+          : result.error === "cycle"
+          ? "Zyklus erkannt"
+          : result.error === "div_zero"
+          ? "Division durch 0"
+          : "Syntaxfehler";
+      tooltipText = `VAR${varName} = ${varDef.value} → ⚠ ${errDetail}`;
     }
   } else {
-    tooltipText = `VAR${varName} (kein Wert)`;
+    tooltipText = `VAR${varName} (kein Wert gesetzt)`;
   }
 
-  const unitStr = varDef?.unit ?? unit ?? "";
+  const unitStr = varDef?.unit ?? unit ?? "";  // Für Anzeige im Token
 
   return (
     <button
@@ -58,9 +66,9 @@ export function VarToken({ varName, variables, unit }: VarTokenProps) {
       {showName ? (
         <span>VAR{varName}</span>
       ) : displayValue !== null ? (
-        <span>{displayValue}{unitStr ? ` ${unitStr}` : ""}</span>
+        <span>{displayValue}{unitStr ? ` ${unitStr}` : (varDef?.unit ? ` ${varDef.unit}` : "")}</span>
       ) : (
-        <span title={tooltipText}>?</span>
+        <span className="opacity-60" title={tooltipText}>?</span>
       )}
     </button>
   );
