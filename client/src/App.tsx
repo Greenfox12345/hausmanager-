@@ -24,6 +24,8 @@ import InventoryDetail from "./pages/InventoryDetail";
 import Borrows from "./pages/Borrows";
 import Plankiste from "./pages/Plankiste";
 import { Privacy } from "./pages/Privacy";
+import Plansack from "./pages/Plansack";
+import SharePlan from "./pages/SharePlan";
 import Imprint from "./pages/Imprint";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import { TutorialProvider } from "./contexts/TutorialContext";
@@ -48,6 +50,8 @@ function Router() {
       <Route path="/inventory/:id" component={InventoryDetail} />
       <Route path="/borrows" component={Borrows} />
       <Route path="/plankiste" component={Plankiste} />
+      <Route path="/plansack" component={Plansack} />
+      <Route path="/share/plan/:token" component={SharePlan} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/imprint" component={Imprint} />
       <Route path="/settings" component={HouseholdSettings} />

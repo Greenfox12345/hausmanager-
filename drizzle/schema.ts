@@ -815,3 +815,63 @@ export const planInstanceTaskItems = mysqlTable("plan_instance_task_items", {
 });
 export type PlanInstanceTaskItem = typeof planInstanceTaskItems.$inferSelect;
 export type InsertPlanInstanceTaskItem = typeof planInstanceTaskItems.$inferInsert;
+
+// ─── Plansack ────────────────────────────────────────────────────────────────
+
+/**
+ * Snapshot-Typ für eine Vorlage im Plansack.
+ * Enthält alle Daten außer haushaltsspezifischen IDs (assignedToMemberId etc.)
+ */
+export interface PlanBagSnapshot {
+  name: string;
+  description?: string | null;
+  type: "shopping" | "tasks" | "mixed";
+  phases?: Array<{ id: string; name: string; color: string; order: number }>;
+  variables?: Array<{
+    name: string; color: string; value?: string; unit?: string;
+    alias?: string; min?: string; max?: string; locked?: boolean;
+  }>;
+  enableVariables?: boolean;
+  shoppingItems?: Array<{
+    name: string; quantity?: string | null; unitSymbol?: string | null;
+    unitName?: string | null; notes?: string | null; categoryName?: string | null;
+    categoryColor?: string | null; phaseId?: string | null; sortOrder?: number;
+  }>;
+  taskItems?: Array<{
+    name: string; description?: string | null; dueDaysFromStart?: number | null;
+    frequency?: string; customFrequencyDays?: number | null; repeatInterval?: number | null;
+    repeatUnit?: string | null; durationDays?: number; durationMinutes?: number;
+    enableRotation?: boolean; requiredPersons?: number | null;
+    prerequisiteNames?: string[]; followupNames?: string[];
+    gapDaysMap?: Record<string, number>; phaseId?: string | null; sortOrder?: number;
+  }>;
+  originalTemplateId?: number;
+  originalHouseholdId?: number;
+  snapshotAt: string; // ISO timestamp
+}
+
+/**
+ * plan_bag_items – Nutzer-eigene Sammlung von Vorlagen-Snapshots.
+ * Gehört zum Nutzer (userId), nicht zum Haushalt.
+ */
+export const planBagItems = mysqlTable("plan_bag_items", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: varchar("userId", { length: 128 }).notNull(),
+  snapshot: json("snapshot").$type<PlanBagSnapshot>().notNull(),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
+  updatedAt: datetime("updatedAt").$defaultFn(() => new Date()).notNull(),
+});
+export type PlanBagItem = typeof planBagItems.$inferSelect;
+
+/**
+ * plan_bag_shares – Share-Links für Plansack-Einträge.
+ * Ein Share-Token erlaubt anderen Nutzern den Import.
+ */
+export const planBagShares = mysqlTable("plan_bag_shares", {
+  id: int("id").autoincrement().primaryKey(),
+  bagItemId: int("bagItemId").notNull().references(() => planBagItems.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 64 }).notNull().unique(),
+  createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
+  expiresAt: datetime("expiresAt"),
+});
+export type PlanBagShare = typeof planBagShares.$inferSelect;

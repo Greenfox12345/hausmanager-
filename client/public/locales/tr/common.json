@@ -25,7 +25,8 @@
       "exitDemo": "Demodan çık"
     },
     "tutorial": "Eğitim",
-    "plankiste": "Plan Kutusu"
+    "plankiste": "Plan Kutusu",
+    "plansack": "Plan Çantası"
   },
   "actions": {
     "save": "Kaydet",

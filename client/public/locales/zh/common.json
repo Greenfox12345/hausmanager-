@@ -25,7 +25,8 @@
       "exitDemo": "退出演示"
     },
     "tutorial": "教程",
-    "plankiste": "计划箱"
+    "plankiste": "计划箱",
+    "plansack": "计划袋"
   },
   "actions": {
     "save": "保存",

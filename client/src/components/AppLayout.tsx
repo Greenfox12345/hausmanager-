@@ -33,6 +33,7 @@ import {
   UserPlus,
   BookOpen,
 } from "lucide-react";
+import { Backpack } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -140,6 +141,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: BookOpen,
       href: "/plankiste",
       color: "text-amber-600",
+    },
+    {
+      title: t("nav.plansack"),
+      icon: Backpack,
+      href: "/plansack",
+      color: "text-violet-600",
     },
     {
       title: t("nav.history"),

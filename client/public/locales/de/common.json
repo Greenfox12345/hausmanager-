@@ -25,7 +25,8 @@
     "shopping_label": "Einkaufen",
     "calendar_label": "Termine",
     "tutorial": "Tutorial",
-    "plankiste": "Plankiste"
+    "plankiste": "Plankiste",
+    "plansack": "Plansack"
   },
   "actions": {
     "save": "Speichern",

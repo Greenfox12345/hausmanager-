@@ -24,6 +24,7 @@ import {
   FolderKanban, ChevronRight, Archive, MoreVertical, Package,
   ArrowRight, Check, X, ListChecks, Layers, GitBranch
 } from "lucide-react";
+import { Backpack } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
@@ -182,6 +183,7 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
   const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [sort, setSort] = useState<SortOption>("date_desc");
+  const [addToBagTemplateId, setAddToBagTemplateId] = useState<number | null>(null);
 
   const { data: templates = [], isLoading } = trpc.planTemplates.listTemplates.useQuery(
     { householdId },
@@ -202,6 +204,13 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
             toast.success(t("plankiste:startDialog.started"));
     },
     onError: () => toast.error(t("plankiste:startDialog.startError")),
+  });
+  const addToBagMutation = trpc.planBag.addToBag.useMutation({
+    onSuccess: () => {
+      toast.success(t("plankiste:plansack.addedToBag"));
+      setAddToBagTemplateId(null);
+    },
+    onError: () => toast.error(t("plankiste:plansack.addError")),
   });
 
   if (isLoading) {
@@ -292,6 +301,10 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                             <Edit2 className="w-4 h-4 mr-2" />
                             {t("plankiste:templates.edit")}
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setAddToBagTemplateId(template.id)}>
+                            <Backpack className="w-4 h-4 mr-2" />
+                            {t("plankiste:plansack.addToBag")}
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => archiveMutation.mutate({ templateId: template.id, householdId, memberId })}
@@ -323,6 +336,25 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
         memberId={memberId}
         template={editingTemplate}
       />
+      {/* Plansack-Bestätigungsdialog */}
+      <AlertDialog open={addToBagTemplateId !== null} onOpenChange={open => { if (!open) setAddToBagTemplateId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("plankiste:plansack.addToBagTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("plankiste:plansack.addToBagDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => addToBagTemplateId && addToBagMutation.mutate({ templateId: addToBagTemplateId })}
+              disabled={addToBagMutation.isPending}
+            >
+              <Backpack className="w-4 h-4 mr-2" />
+              {t("plankiste:plansack.addToBag")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

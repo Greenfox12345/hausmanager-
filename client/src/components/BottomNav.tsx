@@ -32,7 +32,7 @@ export function BottomNav() {
   const pendingCount = pendingData?.count || 0;
 
   const isActive = (path: string) => location === path;
-  const isMoreActive = ["/projects", "/history", "/members", "/inventory", "/borrows", "/neighborhood", "/plankiste"].includes(location) || location.startsWith("/inventory/");
+  const isMoreActive = ["/projects", "/history", "/members", "/inventory", "/borrows", "/neighborhood", "/plankiste", "/plansack"].includes(location) || location.startsWith("/inventory/");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
@@ -102,6 +102,9 @@ export function BottomNav() {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/plankiste'}>
                 Plankiste
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/plansack'}>
+                {t("nav.plansack")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = '/projects'}>
                 {t("nav.projects")}

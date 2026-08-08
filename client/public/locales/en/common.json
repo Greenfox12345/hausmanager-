@@ -25,7 +25,8 @@
       "exitDemo": "Exit demo"
     },
     "tutorial": "Tutorial",
-    "plankiste": "Plan Chest"
+    "plankiste": "Plan Chest",
+    "plansack": "Plan Bag"
   },
   "actions": {
     "save": "Save",

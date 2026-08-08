@@ -25,7 +25,8 @@
       "exitDemo": "Quitter la démo"
     },
     "tutorial": "Tutoriel",
-    "plankiste": "Boîte à plans"
+    "plankiste": "Boîte à plans",
+    "plansack": "Sac à plans"
   },
   "actions": {
     "save": "Enregistrer",

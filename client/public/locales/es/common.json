@@ -26,7 +26,8 @@
       "exitDemo": "Salir del demo"
     },
     "tutorial": "Tutorial",
-    "plankiste": "Caja de planes"
+    "plankiste": "Caja de planes",
+    "plansack": "Bolsa de planes"
   },
   "actions": {
     "save": "Guardar",

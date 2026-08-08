@@ -3676,3 +3676,15 @@
 - [x] rotation-occurrence-management.test.ts auf DB-unabhängige In-Memory-Unit-Tests umgestellt (11 Tests bestehen jetzt)
 - [x] tasks.creation.test.ts: assignedTo-Typ-Fehler behoben (number → number[])
 - [x] lint-i18n.test.ts: alle 22 Tests bestehen jetzt
+
+## Feature: Plansack (2026-08-08)
+- [x] Backend: planBag.ts Router mit TypeScript-Fehler-Fix (phaseId entfernt, Non-null assertions)
+- [x] Backend: buildSnapshot / importSnapshot Helfer (vollständiger Snapshot ohne Verantwortliche)
+- [x] Backend: addToBag, listBag, removeFromBag, updateSnapshot, importFromBag Prozeduren
+- [x] Backend: createShareLink, deleteShareLink, getSharedTemplate, importFromShare Prozeduren
+- [x] Frontend: "In Plansack" Button im DropdownMenu jeder Vorlage-Karte (Plankiste.tsx)
+- [x] Frontend: Plansack.tsx Seite mit Liste, Import, Aktualisieren, Teilen, Löschen
+- [x] Frontend: SharePlan.tsx öffentliche Seite für geteilte Vorlagen (/share/plan/:token)
+- [x] Navigation: Plansack in AppLayout, BottomNav, App.tsx Route registriert
+- [x] i18n: plansack-Schlüssel in alle 7 Sprachen (DE, EN, ES, FR, TR, ZH, AR)
+- [x] i18n: nav.plansack in alle 7 common.json Dateien
