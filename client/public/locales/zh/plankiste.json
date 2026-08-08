@@ -269,6 +269,7 @@
     "importToHousehold": "导入到我的家庭",
     "importedSuccess": "模板导入成功！",
     "goToPlankiste": "前往计划箱",
-    "loginToImport": "请登录以导入此模板。"
+    "loginToImport": "请登录以导入此模板。",
+    "editTitle": "编辑模板"
   }
 }

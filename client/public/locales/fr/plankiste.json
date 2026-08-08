@@ -269,6 +269,7 @@
     "importToHousehold": "Importer dans mon foyer",
     "importedSuccess": "Modèle importé avec succès !",
     "goToPlankiste": "Aller à la boîte à plans",
-    "loginToImport": "Veuillez vous connecter pour importer ce modèle."
+    "loginToImport": "Veuillez vous connecter pour importer ce modèle.",
+    "editTitle": "Modifier le modèle"
   }
 }

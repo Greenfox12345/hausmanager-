@@ -196,6 +196,30 @@ export const planBagRouter = router({
       return { ok: true };
     }),
 
+  updateMeta: protectedProcedure
+    .input(z.object({
+      bagItemId: z.number(),
+      name: z.string().min(1).max(255),
+      description: z.string().max(1000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = (await getDb())!;
+      const [item] = await db.select().from(planBagItems)
+        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.id)));
+      if (!item) throw new Error("Nicht gefunden");
+      // Snapshot-Name und -Beschreibung aktualisieren
+      const currentSnapshot = item.snapshot as PlanBagSnapshot;
+      const updatedSnapshot: PlanBagSnapshot = {
+        ...currentSnapshot,
+        name: input.name,
+        description: input.description ?? currentSnapshot.description,
+      };
+      await db.update(planBagItems)
+        .set({ snapshot: updatedSnapshot, updatedAt: new Date() })
+        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.id)));
+      return { ok: true };
+    }),
+
   importFromBag: protectedProcedure
     .input(z.object({ bagItemId: z.number(), householdId: z.number(), memberId: z.number() }))
     .mutation(async ({ ctx, input }) => {

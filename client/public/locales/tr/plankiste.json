@@ -269,6 +269,7 @@
     "importToHousehold": "Haneme aktar",
     "importedSuccess": "Şablon başarıyla içe aktarıldı!",
     "goToPlankiste": "Plan kutusuna git",
-    "loginToImport": "Bu şablonu içe aktarmak için lütfen giriş yapın."
+    "loginToImport": "Bu şablonu içe aktarmak için lütfen giriş yapın.",
+    "editTitle": "Şablonu düzenle"
   }
 }

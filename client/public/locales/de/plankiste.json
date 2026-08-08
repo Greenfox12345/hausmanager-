@@ -269,6 +269,7 @@
     "importToHousehold": "In meinen Haushalt importieren",
     "importedSuccess": "Vorlage erfolgreich importiert!",
     "goToPlankiste": "Zur Plankiste",
-    "loginToImport": "Bitte melde dich an, um diese Vorlage zu importieren."
+    "loginToImport": "Bitte melde dich an, um diese Vorlage zu importieren.",
+    "editTitle": "Vorlage bearbeiten"
   }
 }

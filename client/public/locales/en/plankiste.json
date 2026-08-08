@@ -269,6 +269,7 @@
     "importToHousehold": "Import into my household",
     "importedSuccess": "Template imported successfully!",
     "goToPlankiste": "Go to plan box",
-    "loginToImport": "Please log in to import this template."
+    "loginToImport": "Please log in to import this template.",
+    "editTitle": "Edit template"
   }
 }

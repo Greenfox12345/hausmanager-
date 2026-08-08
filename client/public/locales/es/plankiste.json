@@ -269,6 +269,7 @@
     "importToHousehold": "Importar a mi hogar",
     "importedSuccess": "¡Plantilla importada correctamente!",
     "goToPlankiste": "Ir a la caja de planes",
-    "loginToImport": "Por favor inicia sesión para importar esta plantilla."
+    "loginToImport": "Por favor inicia sesión para importar esta plantilla.",
+    "editTitle": "Editar plantilla"
   }
 }
