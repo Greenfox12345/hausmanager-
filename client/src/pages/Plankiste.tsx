@@ -407,17 +407,22 @@ function TemplateItemsPreview({
   const evaluatedVars = evaluateAllVars(templateVariables);
 
   // Hilfsfunktion: Menge auflösen (VAR-Name → berechneter Wert oder direkte Zahl)
-  const resolveQuantity = (qty: string | null | undefined): string | null => {
-    if (!qty) return null;
-    if (!enableVariables) return qty;
+  // Hilfsfunktion: Menge auflösen – gibt Wert und ggf. Einheit aus Variable zurück
+  const resolveQuantityWithUnit = (qty: string | null | undefined): { value: string | null; varUnit?: string } => {
+    if (!qty) return { value: null };
+    if (!enableVariables) return { value: qty };
     const varMatch = qty.match(/^VAR([A-Za-z\u00C0-\u024F][A-Za-z\u00C0-\u024F0-9]*)$/);
-    if (!varMatch) return qty;
+    if (!varMatch) return { value: qty };
     const varName = varMatch[1];
     const rawValue = varValueMap[varName];
-    if (!rawValue) return qty;
+    if (!rawValue) return { value: qty };
     const result = evaluateFormula(rawValue, varValueMap, varName);
-    return result.ok ? result.display : qty;
+    const varDef = templateVariables.find(v => v.name === varName);
+    const varUnit = result.ok ? (result.unit ?? varDef?.unit ?? undefined) : undefined;
+    return { value: result.ok ? result.display : qty, varUnit };
   };
+  // Rückwärtskompatibel
+  const resolveQuantity = (qty: string | null | undefined): string | null => resolveQuantityWithUnit(qty)?.value ?? null;
 
   const unitOptions: UnitOption[] = (units as any[]).map((u: any) => ({
     id: u.id, name: u.name, symbol: u.symbol
@@ -704,13 +709,15 @@ function TemplateItemsPreview({
                     )}
                   </div>
                  {item.quantity && (
-                   <span className="text-xs text-muted-foreground mt-0.5">
-                     {(() => {
-                       const resolved = resolveQuantity(item.quantity);
-                       return <span>{formatQuantityWithUnit(resolved, unit)}</span>;
-                     })()}
-                   </span>
-                 )}
+                  <span className="text-xs text-muted-foreground mt-0.5">
+                    {(() => {
+                       const { value: resolved, varUnit } = resolveQuantityWithUnit(item.quantity) ?? { value: null };
+                       // Wenn kein unitId gesetzt, aber Variable hat Einheit → Einheit aus Variable verwenden
+                       const displayUnit = unit ?? (varUnit ? { id: 0, name: varUnit, symbol: varUnit } : null);
+                       return <span>{formatQuantityWithUnit(resolved, displayUnit)}</span>;
+                    })()}
+                  </span>
+                )}
                   <Button
                     size="sm"
                     variant="ghost"
