@@ -817,6 +817,23 @@ function TemplateTaskItemsSection({
     updateMutation.mutate({ itemId: taskId, phaseId });
   };
 
+  // Drag-and-Drop State für Phasen-Reihenfolge
+  const [dragPhaseId, setDragPhaseId] = useState<string | null>(null);
+  const [dragOverPhaseId, setDragOverPhaseId] = useState<string | null>(null);
+
+  const reorderPhase = (fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    const sorted = [...savedPhases].sort((a, b) => a.order - b.order);
+    const fromIdx = sorted.findIndex(p => p.id === fromId);
+    const toIdx = sorted.findIndex(p => p.id === toId);
+    if (fromIdx === -1 || toIdx === -1) return;
+    const reordered = [...sorted];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+    const updated = reordered.map((p, i) => ({ ...p, order: i }));
+    updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: updated });
+  };
+
   // State für Übernahme-Dialog: erkannte Variablen-Definitionen aus Beschreibungen
   const [pendingDefinitions, setPendingDefinitions] = useState<{varName: string; formula: string}[]>([]);
   const [showAdoptDialog, setShowAdoptDialog] = useState(false);
@@ -1272,7 +1289,16 @@ function TemplateTaskItemsSection({
             <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setShowPhasePanel(false)}>✕</button>
           </div>
           {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
-            <div key={phase.id} className="flex items-center gap-2">
+            <div
+              key={phase.id}
+              draggable
+              onDragStart={() => setDragPhaseId(phase.id)}
+              onDragOver={e => { e.preventDefault(); setDragOverPhaseId(phase.id); }}
+              onDrop={() => { if (dragPhaseId) reorderPhase(dragPhaseId, phase.id); setDragPhaseId(null); setDragOverPhaseId(null); }}
+              onDragEnd={() => { setDragPhaseId(null); setDragOverPhaseId(null); }}
+              className={`flex items-center gap-2 rounded px-1 transition-colors ${dragOverPhaseId === phase.id && dragPhaseId !== phase.id ? 'bg-accent' : ''}`}
+            >
+              <span className="cursor-grab text-muted-foreground select-none touch-none" title="Halten und ziehen zum Umsortieren">⠿</span>
               <input type="color" value={phase.color} onChange={e => updatePhaseColor(phase.id, e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0 p-0" />
               <input type="text" defaultValue={phase.name} onBlur={e => updatePhaseName(phase.id, e.target.value)} className="flex-1 h-6 text-xs border border-border rounded px-1.5 bg-background" />
               <button type="button" className="text-muted-foreground hover:text-destructive" onClick={() => deletePhase(phase.id)}><Trash2 className="w-3 h-3" /></button>
