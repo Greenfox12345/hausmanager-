@@ -1218,7 +1218,7 @@ function TemplateTaskItemsSection({
               ? t("plankiste:taskItems.tasksCount", { count: 1 })
               : t("plankiste:taskItems.tasksCountPlural", { count: (taskItems as any[]).length })}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-wrap justify-end">
           {hasAnyDeps && (taskItems as any[]).length > 1 && (
             <Button
               size="sm" variant={taskSortOrder === "topo" ? "default" : "outline"}
@@ -1347,22 +1347,22 @@ function TemplateTaskItemsSection({
                     <ChevronDown className="w-3 h-3" />
                   </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.name}</p>
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  <p className="text-sm font-medium break-words">{item.name}</p>
                   {violation && <p className="text-[11px] text-amber-600">⚠ {violation.reason}</p>}
-                </div>
-                <div className="flex flex-wrap gap-1 justify-end">
-                  <button type="button"
-                    className={`text-xs px-1.5 py-0.5 rounded border ${!item.phaseId ? 'bg-muted border-border text-foreground font-medium' : 'border-border text-muted-foreground'}`}
-                    onClick={() => assignTaskPhase(item.id, null)}>–</button>
-                  {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
-                    <button key={phase.id} type="button"
-                      className="text-xs px-1.5 py-0.5 rounded border font-medium"
-                      style={{ backgroundColor: item.phaseId === phase.id ? phase.color : phase.color + "22", color: item.phaseId === phase.id ? "#fff" : phase.color, borderColor: phase.color + "66" }}
-                      onClick={() => assignTaskPhase(item.id, item.phaseId === phase.id ? null : phase.id)}>
-                      {phase.name}
-                    </button>
-                  ))}
+                  <div className="flex flex-wrap gap-1">
+                    <button type="button"
+                      className={`text-xs px-1.5 py-0.5 rounded border ${!item.phaseId ? 'bg-muted border-border text-foreground font-medium' : 'border-border text-muted-foreground'}`}
+                      onClick={() => assignTaskPhase(item.id, null)}>–</button>
+                    {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
+                      <button key={phase.id} type="button"
+                        className="text-xs px-1.5 py-0.5 rounded border font-medium"
+                        style={{ backgroundColor: item.phaseId === phase.id ? phase.color : phase.color + "22", color: item.phaseId === phase.id ? "#fff" : phase.color, borderColor: phase.color + "66" }}
+                        onClick={() => assignTaskPhase(item.id, item.phaseId === phase.id ? null : phase.id)}>
+                        {phase.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
