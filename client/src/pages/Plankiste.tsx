@@ -1026,6 +1026,7 @@ function TemplateTaskItemsSection({
     };
 
     const togglePrereq = (tid: number) => {
+      if (tid === itemId) return; // Selbst-Referenz verhindern
       if (isPrereq(tid)) {
         // Prüfen ob diese Aufgabe transitiv gesperrt ist
         const blockers = getBlockingPrereqs(tid);
@@ -1048,6 +1049,7 @@ function TemplateTaskItemsSection({
     };
 
     const toggleFollowup = (tid: number) => {
+      if (tid === itemId) return; // Selbst-Referenz verhindern
       if (isFollowup(tid)) {
         setFollowups(followups.filter(f => f.id !== tid));
         setPrereqs(prereqs.filter(p => p.id !== tid));
