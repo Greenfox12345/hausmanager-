@@ -34,7 +34,7 @@ import { useTranslation } from "react-i18next";
 import { PlanVariablesPanel } from "@/components/PlanVariablesPanel";
 import { VarText } from "@/components/VarToken";
 import { tokenizeWithVars, buildVarColorMap, mergeVarsFromText } from "@/lib/varParser";
-import { evaluateFormula, buildVarValueMap, type PlanVariable } from "@/lib/varParser";
+import { evaluateFormula, buildVarValueMap, evaluateAllVars, type PlanVariable } from "@/lib/varParser";
 import { parseVarAssignment } from "@/lib/varParser";
 import { topoSortTasks } from "@/lib/varParser";
 import {
@@ -337,6 +337,7 @@ function TemplateItemsPreview({
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState<number | null>(null);
+  const [newItemVarQty, setNewItemVarQty] = useState<string | null>(null);
   const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
   const [newItemCategoryId, setNewItemCategoryId] = useState<number | null>(null);
   const [newItemNotes, setNewItemNotes] = useState("");
@@ -344,6 +345,7 @@ function TemplateItemsPreview({
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editQty, setEditQty] = useState<number | null>(null);
+  const [editVarQty, setEditVarQty] = useState<string | null>(null);
   const [editUnitId, setEditUnitId] = useState<number | null>(null);
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editNotes, setEditNotes] = useState("");
@@ -364,7 +366,7 @@ function TemplateItemsPreview({
   const addItemMutation = trpc.planTemplates.addTemplateItem.useMutation({
     onSuccess: () => {
       utils.planTemplates.getTemplate.invalidate({ templateId });
-      setNewItemName(""); setNewItemQty(null); setNewItemUnitId(null); setNewItemCategoryId(null);
+      setNewItemName(""); setNewItemQty(null); setNewItemVarQty(null); setNewItemUnitId(null); setNewItemCategoryId(null);
       setShowAddItem(false);
       toast.success("Artikel hinzugefügt");
     },
@@ -392,6 +394,7 @@ function TemplateItemsPreview({
     setEditingItemId(item.id);
     setEditName(item.name);
     setEditQty(item.quantity ?? null);
+    setEditVarQty(item.quantity?.startsWith?.("VAR") ? item.quantity : null);
     setEditUnitId(item.unitId ?? null);
     setEditCategoryId(item.categoryId ?? null);
     setEditNotes(item.notes ?? "");
@@ -401,6 +404,7 @@ function TemplateItemsPreview({
   const enableVariables = (template as any)?.enableVariables ?? false;
   const templateVariables: PlanVariable[] = (template as any)?.variables ?? [];
   const varValueMap = buildVarValueMap(templateVariables);
+  const evaluatedVars = evaluateAllVars(templateVariables);
 
   // Hilfsfunktion: Menge auflösen (VAR-Name → berechneter Wert oder direkte Zahl)
   const resolveQuantity = (qty: string | null | undefined): string | null => {
@@ -486,14 +490,31 @@ function TemplateItemsPreview({
             rows={2}
           />
           <div className="flex gap-2">
-            <div className="flex-1">
-              <QuantityInput
-                value={newItemQty}
-                onChange={setNewItemQty}
-                unitId={newItemUnitId}
-                onUnitChange={setNewItemUnitId}
-                units={unitOptions}
-              />
+            <div className="flex-1 flex gap-1">
+              <div className="flex-1">
+                <QuantityInput
+                  value={newItemQty}
+                  onChange={setNewItemQty}
+                  unitId={newItemUnitId}
+                  onUnitChange={setNewItemUnitId}
+                  units={unitOptions}
+                />
+              </div>
+              {enableVariables && templateVariables.length > 0 && (
+                <Select value={newItemVarQty ?? ""} onValueChange={v => { setNewItemVarQty(v); setNewItemQty(null); }}>
+                  <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
+                    <span className="font-mono text-xs">x</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templateVariables.map(v => (
+                      <SelectItem key={v.name} value={`VAR${v.name}`}>
+                        <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
+                        {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <Select
               value={newItemCategoryId?.toString() ?? "none"}
@@ -527,7 +548,7 @@ function TemplateItemsPreview({
                 templateId,
                 name: newItemName.trim(),
                 categoryId: newItemCategoryId,
-                quantity: newItemQty,
+                quantity: newItemVarQty ?? (newItemQty !== null ? String(newItemQty) : null),
                 unitId: newItemUnitId,
                 notes: newItemNotes.trim() || undefined,
               })}
@@ -570,14 +591,31 @@ function TemplateItemsPreview({
                     rows={2}
                   />
                   <div className="flex gap-2">
-                    <div className="flex-1">
-                      <QuantityInput
-                        value={editQty}
-                        onChange={setEditQty}
-                        unitId={editUnitId}
-                        onUnitChange={setEditUnitId}
-                        units={unitOptions}
-                      />
+                    <div className="flex-1 flex gap-1">
+                      <div className="flex-1">
+                        <QuantityInput
+                          value={editQty}
+                          onChange={setEditQty}
+                          unitId={editUnitId}
+                          onUnitChange={setEditUnitId}
+                          units={unitOptions}
+                        />
+                      </div>
+                      {enableVariables && templateVariables.length > 0 && (
+                        <Select value={editVarQty ?? ""} onValueChange={v => { setEditVarQty(v); setEditQty(null); }}>
+                          <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
+                            <span className="font-mono text-xs">x</span>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {templateVariables.map(v => (
+                              <SelectItem key={v.name} value={`VAR${v.name}`}>
+                                <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
+                                {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                     <Select
                       value={editCategoryId?.toString() ?? "none"}
@@ -608,7 +646,7 @@ function TemplateItemsPreview({
                         itemId: item.id,
                         name: editName.trim(),
                         categoryId: editCategoryId,
-                        quantity: editQty,
+                        quantity: editVarQty ?? (editQty !== null ? String(editQty) : null),
                         unitId: editUnitId,
                         notes: editNotes.trim() || null,
                       })}
@@ -637,9 +675,17 @@ function TemplateItemsPreview({
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm">{item.name}</span>
+                    <span className="text-sm">
+                      {enableVariables
+                        ? <VarText text={item.name ?? ""} variables={templateVariables} />
+                        : item.name}
+                    </span>
                     {item.notes && (
-                      <p className="text-xs text-muted-foreground italic mt-0.5">{item.notes}</p>
+                      <p className="text-xs text-muted-foreground italic mt-0.5">
+                        {enableVariables
+                          ? <VarText text={item.notes ?? ""} variables={templateVariables} />
+                          : item.notes}
+                      </p>
                     )}
                   </div>
                   {item.quantity && (

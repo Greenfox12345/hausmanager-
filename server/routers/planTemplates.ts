@@ -208,7 +208,7 @@ export const planTemplatesRouter = router({
       templateId: z.number(),
       name: z.string().min(1).max(255),
       categoryId: z.number().nullable().optional(),
-      quantity: z.number().nullable().optional(),
+      quantity: z.union([z.number(), z.string()]).nullable().optional(),
       unitId: z.number().nullable().optional(),
       notes: z.string().optional(),
       sortOrder: z.number().optional(),
@@ -242,7 +242,7 @@ export const planTemplatesRouter = router({
       itemId: z.number(),
       name: z.string().min(1).max(255).optional(),
       categoryId: z.number().nullable().optional(),
-      quantity: z.number().nullable().optional(),
+      quantity: z.union([z.number(), z.string()]).nullable().optional(),
       unitId: z.number().nullable().optional(),
       notes: z.string().nullable().optional(),
       sortOrder: z.number().optional(),
@@ -554,7 +554,7 @@ export const planTemplatesRouter = router({
         instanceItemId: z.number(),
         name: z.string().min(1),
         categoryId: z.number().nullable().optional(),
-        quantity: z.number().nullable().optional(),
+        quantity: z.union([z.number(), z.string()]).nullable().optional(),
         unitId: z.number().nullable().optional(),
         notes: z.string().nullable().optional(),
       })),
@@ -610,7 +610,7 @@ export const planTemplatesRouter = router({
   updateInstanceItem: publicProcedure
     .input(z.object({
       instanceItemId: z.number(),
-      quantity: z.number().nullable().optional(),
+      quantity: z.union([z.number(), z.string()]).nullable().optional(),
       notes: z.string().nullable().optional(),
     }))
     .mutation(async ({ input }) => {
