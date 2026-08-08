@@ -489,8 +489,14 @@ function TemplateItemsPreview({
             className="text-sm resize-none"
             rows={2}
           />
-          <div className="flex gap-2">
-            <div className="flex-1 flex gap-1">
+          {/* Zeile 1: Menge + Einheit + VAR-Picker */}
+          <div className="flex gap-1 items-center">
+            {newItemVarQty ? (
+              <div className="flex-1 flex items-center gap-1 h-8 px-2 rounded border border-violet-300 bg-violet-50 text-sm">
+                <span className="font-mono text-violet-700 text-xs flex-1 truncate">{newItemVarQty}</span>
+                <button type="button" className="text-muted-foreground hover:text-destructive text-xs" onClick={() => setNewItemVarQty(null)}>×</button>
+              </div>
+            ) : (
               <div className="flex-1">
                 <QuantityInput
                   value={newItemQty}
@@ -500,27 +506,30 @@ function TemplateItemsPreview({
                   units={unitOptions}
                 />
               </div>
-              {enableVariables && templateVariables.length > 0 && (
-                <Select value={newItemVarQty ?? ""} onValueChange={v => { setNewItemVarQty(v); setNewItemQty(null); }}>
-                  <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
-                    <span className="font-mono text-xs">x</span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templateVariables.map(v => (
-                      <SelectItem key={v.name} value={`VAR${v.name}`}>
-                        <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
-                        {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+            )}
+            {enableVariables && templateVariables.length > 0 && (
+              <Select value={newItemVarQty ?? ""} onValueChange={v => { setNewItemVarQty(v); setNewItemQty(null); }}>
+                <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
+                  <span className="font-mono text-xs font-bold">x</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {templateVariables.map(v => (
+                    <SelectItem key={v.name} value={`VAR${v.name}`}>
+                      <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
+                      {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+          {/* Zeile 2: Kategorie */}
+          <div className="flex gap-2">
             <Select
               value={newItemCategoryId?.toString() ?? "none"}
               onValueChange={v => setNewItemCategoryId(v === "none" ? null : Number(v))}
             >
-              <SelectTrigger className="h-8 text-sm flex-1">
+              <SelectTrigger className="h-8 text-sm w-full">
                 <SelectValue placeholder="Kategorie" />
               </SelectTrigger>
               <SelectContent>
@@ -528,10 +537,7 @@ function TemplateItemsPreview({
                 {(categories as any[]).map((c: any) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     <span className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full inline-block"
-                        style={{ backgroundColor: c.color }}
-                      />
+                      <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: c.color }} />
                       {c.name}
                     </span>
                   </SelectItem>
@@ -590,8 +596,14 @@ function TemplateItemsPreview({
                     className="text-sm resize-none"
                     rows={2}
                   />
-                  <div className="flex gap-2">
-                    <div className="flex-1 flex gap-1">
+                  {/* Zeile 1: Menge + Einheit + VAR-Picker */}
+                  <div className="flex gap-1 items-center">
+                    {editVarQty ? (
+                      <div className="flex-1 flex items-center gap-1 h-8 px-2 rounded border border-violet-300 bg-violet-50 text-sm">
+                        <span className="font-mono text-violet-700 text-xs flex-1 truncate">{editVarQty}</span>
+                        <button type="button" className="text-muted-foreground hover:text-destructive text-xs" onClick={() => setEditVarQty(null)}>×</button>
+                      </div>
+                    ) : (
                       <div className="flex-1">
                         <QuantityInput
                           value={editQty}
@@ -601,27 +613,30 @@ function TemplateItemsPreview({
                           units={unitOptions}
                         />
                       </div>
-                      {enableVariables && templateVariables.length > 0 && (
-                        <Select value={editVarQty ?? ""} onValueChange={v => { setEditVarQty(v); setEditQty(null); }}>
-                          <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
-                            <span className="font-mono text-xs">x</span>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {templateVariables.map(v => (
-                              <SelectItem key={v.name} value={`VAR${v.name}`}>
-                                <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
-                                {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </div>
+                    )}
+                    {enableVariables && templateVariables.length > 0 && (
+                      <Select value={editVarQty ?? ""} onValueChange={v => { setEditVarQty(v); setEditQty(null); }}>
+                        <SelectTrigger className="h-8 w-8 p-0 text-xs text-violet-600 border-violet-300 flex-shrink-0" title="Variable als Menge">
+                          <span className="font-mono text-xs font-bold">x</span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templateVariables.map(v => (
+                            <SelectItem key={v.name} value={`VAR${v.name}`}>
+                              <span className="font-mono text-xs" style={{ color: v.color }}>VAR{v.name}</span>
+                              {v.value && <span className="text-muted-foreground ml-1 text-xs">= {v.value}</span>}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                  {/* Zeile 2: Kategorie */}
+                  <div>
                     <Select
                       value={editCategoryId?.toString() ?? "none"}
                       onValueChange={v => setEditCategoryId(v === "none" ? null : Number(v))}
                     >
-                      <SelectTrigger className="h-8 text-sm flex-1">
+                      <SelectTrigger className="h-8 text-sm w-full">
                         <SelectValue placeholder="Kategorie" />
                       </SelectTrigger>
                       <SelectContent>
