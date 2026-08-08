@@ -703,23 +703,14 @@ function TemplateItemsPreview({
                       </p>
                     )}
                   </div>
-                  {item.quantity && (
-                    <span className="text-xs text-muted-foreground mt-0.5">
-                      {(() => {
-                        const resolved = resolveQuantity(item.quantity);
-                        const isVar = enableVariables && item.quantity?.startsWith("VAR");
-                        if (isVar && resolved !== item.quantity) {
-                          return (
-                            <span>
-                              <span className="font-mono text-violet-600">{item.quantity}</span>
-                              <span className="text-muted-foreground"> → {resolved}{unit ? ` ${unit.symbol ?? unit.name}` : ""}</span>
-                            </span>
-                          );
-                        }
-                        return <span>{formatQuantityWithUnit(resolved, unit)}</span>;
-                      })()}
-                    </span>
-                  )}
+                 {item.quantity && (
+                   <span className="text-xs text-muted-foreground mt-0.5">
+                     {(() => {
+                       const resolved = resolveQuantity(item.quantity);
+                       return <span>{formatQuantityWithUnit(resolved, unit)}</span>;
+                     })()}
+                   </span>
+                 )}
                   <Button
                     size="sm"
                     variant="ghost"
