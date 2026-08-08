@@ -24,7 +24,7 @@ import {
   FolderKanban, ChevronRight, Archive, MoreVertical, Package,
   ArrowRight, Check, X, ListChecks, Layers, GitBranch
 } from "lucide-react";
-import { Backpack } from "lucide-react";
+import { Backpack, Download, ChevronUp, ChevronDown } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
@@ -78,6 +78,17 @@ export default function Plankiste() {
 
   const [activeTab, setActiveTab] = useState<"templates" | "instances">("templates");
 
+  const [plansackOpen, setPlansackOpen] = useState(false);
+  const utils = trpc.useUtils();
+  const { data: bagItems = [] } = trpc.planBag.listBag.useQuery(undefined, { enabled: householdId > 0 });
+  const importBagMutation = trpc.planBag.importFromBag.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplates.invalidate({ householdId });
+      toast.success(t("plankiste:plansack.imported"));
+    },
+    onError: () => toast.error(t("plankiste:plansack.importError")),
+  });
+
   if (!householdId) {
     return (
       <AppLayout>
@@ -96,7 +107,22 @@ export default function Plankiste() {
           iconColor="text-amber-600"
           iconBg="bg-amber-50"
           title={t("plankiste:title")}
-        />
+        >
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 px-3 text-violet-700 border-violet-200 hover:bg-violet-50"
+            onClick={() => setPlansackOpen(true)}
+          >
+            <Backpack className="w-4 h-4 mr-1.5" />
+            {t("plankiste:plansack.title", "Plansack")}
+            {(bagItems as any[]).length > 0 && (
+              <span className="ml-1.5 bg-violet-100 text-violet-700 text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+                {(bagItems as any[]).length}
+              </span>
+            )}
+          </Button>
+        </PageHeader>
 
         {/* Tabs */}
         <div className="flex gap-1 bg-muted rounded-lg p-1 mb-6">
@@ -129,6 +155,73 @@ export default function Plankiste() {
         )}
       </div>
       <BottomNav />
+
+      {/* ─── Plansack-Drawer ───────────────────────────────────────── */}
+      {plansackOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setPlansackOpen(false)} />
+          <div className="relative w-full max-w-sm bg-background h-full flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div className="flex items-center gap-2">
+                <Backpack className="w-5 h-5 text-violet-600" />
+                <h2 className="font-semibold text-base">{t("plankiste:plansack.title", "Plansack")}</h2>
+                <span className="text-xs text-muted-foreground">({(bagItems as any[]).length})</span>
+              </div>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setPlansackOpen(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {(bagItems as any[]).length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Backpack className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium">{t("plankiste:plansack.empty", "Plansack ist leer")}</p>
+                  <p className="text-xs mt-1">{t("plankiste:plansack.emptyHint", "Klicke bei einer Vorlage auf '⋮ → In Plansack'")}</p>
+                </div>
+              ) : (
+                (bagItems as any[]).map((item: any) => {
+                  const snapshot = item.snapshot as any;
+                  const shoppingCount = snapshot?.shoppingItems?.length ?? 0;
+                  const taskCount = snapshot?.taskItems?.length ?? 0;
+                  return (
+                    <div key={item.id} className="border rounded-lg p-3 bg-card">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{snapshot?.name ?? "?"}</p>
+                          {snapshot?.description && (
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{snapshot.description}</p>
+                          )}
+                          <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                            {shoppingCount > 0 && (
+                              <span className="flex items-center gap-1">
+                                <ShoppingCart className="w-3 h-3" />{shoppingCount}
+                              </span>
+                            )}
+                            {taskCount > 0 && (
+                              <span className="flex items-center gap-1">
+                                <CheckSquare className="w-3 h-3" />{taskCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="h-8 px-3 bg-violet-600 hover:bg-violet-700 text-white text-xs flex-shrink-0"
+                          onClick={() => importBagMutation.mutate({ bagItemId: item.id, householdId, memberId })}
+                          disabled={importBagMutation.isPending}
+                        >
+                          <Download className="w-3.5 h-3.5 mr-1" />
+                          {t("plankiste:plansack.import", "Importieren")}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }
@@ -2453,4 +2546,3 @@ function InstanceTaskItemsList({
     </div>
   );
 }
-import { ChevronUp, ChevronDown } from "lucide-react";
