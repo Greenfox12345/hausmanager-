@@ -358,7 +358,7 @@ export function PlansackEditor({
   const [editShoppingItem, setEditShoppingItem] = useState<{ item: Partial<SnapshotShoppingItem>; idx: number } | null>(null);
   const [editTaskItem, setEditTaskItem] = useState<{ task: Partial<SnapshotTaskItem>; idx: number } | null>(null);
   const [showPhasesDialog, setShowPhasesDialog] = useState(false);
-  const [activeSection, setActiveSection] = useState<"meta" | "shopping" | "tasks" | "phases">("meta");
+  const [activeSection, setActiveSection] = useState<"meta" | "shopping" | "tasks" | "phases" | "variables">("meta");
 
   const updateFull = trpc.planBag.updateFull.useMutation({
     onSuccess: () => {
@@ -431,6 +431,18 @@ export function PlansackEditor({
   const phases = draft.phases ?? [];
   const shoppingItems = draft.shoppingItems ?? [];
   const taskItems = draft.taskItems ?? [];
+  const variables = (draft.variables ?? []) as PlanVariable[];
+  const enableVariables = draft.enableVariables ?? false;
+
+  // Berechnete Variablen-Werte für Anzeige
+  const evaluatedVarsRaw = evaluateAllVars(variables);
+  const evalDisplay: Record<string, string> = {};
+  for (const [name, ev] of Object.entries(evaluatedVarsRaw)) {
+    const r = ev.result;
+    if (r !== null && r !== undefined && typeof r !== "object") {
+      evalDisplay[name] = String(r) + (ev.unit ? ` ${ev.unit}` : "");
+    }
+  }
 
   const getPhase = (id: string | null | undefined) => phases.find(p => p.id === id);
 
@@ -495,6 +507,31 @@ export function PlansackEditor({
         )}
       </Card>
 
+      {/* ─── Abschnitt: Variablen ─────────────────────────────────── */}
+      <Card>
+        <CardHeader className="pb-2 cursor-pointer" onClick={() => setActiveSection(s => s === "variables" ? "meta" : "variables")}>
+          <CardTitle className="text-sm flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              🔢 {t("plankiste:variables.title", "Variablen")}
+              {enableVariables && variables.length > 0 && (
+                <span className="text-xs text-violet-600 font-normal">({variables.length})</span>
+              )}
+            </span>
+            {activeSection === "variables" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </CardTitle>
+        </CardHeader>
+        {activeSection === "variables" && (
+          <CardContent className="pt-0">
+            <PlansackVariablesPanel
+              snapshot={draft}
+              onChange={(updatedVars, newEnableVariables) => {
+                update(prev => ({ ...prev, variables: updatedVars, enableVariables: newEnableVariables }));
+              }}
+            />
+          </CardContent>
+        )}
+      </Card>
+
       {/* ─── Abschnitt: Einkaufsartikel ───────────────────────────── */}
       <Card>
         <CardHeader className="pb-2 cursor-pointer" onClick={() => setActiveSection(s => s === "shopping" ? "meta" : "shopping")}>
@@ -516,9 +553,19 @@ export function PlansackEditor({
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: phase.color }} />
                   )}
                   <div className="flex-1 min-w-0">
-                    <span className="font-medium truncate">{item.name}</span>
-                    {item.quantity && <span className="text-muted-foreground ml-2 text-xs">{item.quantity}</span>}
-                    {item.notes && <p className="text-xs text-muted-foreground truncate">{item.notes}</p>}
+                    <span className="font-medium">
+                      {enableVariables ? <VarText text={item.name} variables={variables} /> : item.name}
+                    </span>
+                    {item.quantity && (
+                      <span className="text-muted-foreground ml-2 text-xs">
+                        {enableVariables ? <VarText text={item.quantity} variables={variables} /> : item.quantity}
+                      </span>
+                    )}
+                    {item.notes && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {enableVariables ? <VarText text={item.notes} variables={variables} /> : item.notes}
+                      </p>
+                    )}
                   </div>
                   <button onClick={() => setEditShoppingItem({ item, idx })} className="text-muted-foreground hover:text-foreground">
                     <Edit2 className="w-3.5 h-3.5" />
@@ -558,8 +605,14 @@ export function PlansackEditor({
                     <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: phase.color }} />
                   )}
                   <div className="flex-1 min-w-0">
-                    <span className="font-medium truncate block">{task.name}</span>
-                    {task.description && <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>}
+                    <span className="font-medium block">
+                      {enableVariables ? <VarText text={task.name} variables={variables} /> : task.name}
+                    </span>
+                    {task.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {enableVariables ? <VarText text={task.description} variables={variables} /> : task.description}
+                      </p>
+                    )}
                     <div className="flex gap-2 mt-0.5 flex-wrap">
                       {task.frequency && task.frequency !== "once" && (
                         <Badge variant="secondary" className="text-xs px-1.5 py-0">{task.frequency}</Badge>
@@ -607,3 +660,6 @@ export function PlansackEditor({
     </div>
   );
 }
+import { PlansackVariablesPanel } from "@/components/PlansackVariablesPanel";
+import { VarText } from "@/components/VarToken";
+import { evaluateAllVars, type PlanVariable } from "@/lib/varParser";
