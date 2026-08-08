@@ -702,6 +702,7 @@ function TemplateTaskItemsSection({
   const varColorMap = buildVarColorMap(savedVariables);
   const savedPhases: {id:string;name:string;color:string;order:number}[] = (template as any)?.phases ?? [];
   const [phaseOrganizeMode, setPhaseOrganizeMode] = useState(false);
+  const [expandedPhaseItemId, setExpandedPhaseItemId] = useState<number | null>(null);
   const [newPhaseName, setNewPhaseName] = useState("");
   const [newPhaseColor, setNewPhaseColor] = useState("#3b82f6");
   const [showPhasePanel, setShowPhasePanel] = useState(false);
@@ -1379,17 +1380,36 @@ function TemplateTaskItemsSection({
                   <p className="text-sm font-medium break-words">{item.name}</p>
                   {violation && <p className="text-[11px] text-amber-600">⚠ {violation.reason}</p>}
                   <div className="flex flex-wrap gap-1">
-                    <button type="button"
-                      className={`text-xs px-1.5 py-0.5 rounded border ${!item.phaseId ? 'bg-muted border-border text-foreground font-medium' : 'border-border text-muted-foreground'}`}
-                      onClick={() => assignTaskPhase(item.id, null)}>–</button>
-                    {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
-                      <button key={phase.id} type="button"
-                        className="text-xs px-1.5 py-0.5 rounded border font-medium"
-                        style={{ backgroundColor: item.phaseId === phase.id ? phase.color : phase.color + "22", color: item.phaseId === phase.id ? "#fff" : phase.color, borderColor: phase.color + "66" }}
-                        onClick={() => assignTaskPhase(item.id, item.phaseId === phase.id ? null : phase.id)}>
-                        {phase.name}
-                      </button>
-                    ))}
+                    {/* Wenn eine Phase gewählt ist und das Item nicht expanded: nur aktive Phase + Expand-Button */}
+                    {item.phaseId && expandedPhaseItemId !== item.id ? (
+                      <>
+                        {(() => {
+                          const activePhase = savedPhases.find(p => p.id === item.phaseId);
+                          return activePhase ? (
+                            <button key={activePhase.id} type="button"
+                              className="text-xs px-1.5 py-0.5 rounded border font-medium"
+                              style={{ backgroundColor: activePhase.color, color: "#fff", borderColor: activePhase.color }}
+                              onClick={() => setExpandedPhaseItemId(item.id)}>
+                              {activePhase.name} ▾
+                            </button>
+                          ) : null;
+                        })()}
+                      </>
+                    ) : (
+                      <>
+                        <button type="button"
+                          className={`text-xs px-1.5 py-0.5 rounded border ${!item.phaseId ? 'bg-muted border-border text-foreground font-medium' : 'border-border text-muted-foreground'}`}
+                          onClick={() => { assignTaskPhase(item.id, null); setExpandedPhaseItemId(null); }}>–</button>
+                        {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
+                          <button key={phase.id} type="button"
+                            className="text-xs px-1.5 py-0.5 rounded border font-medium"
+                            style={{ backgroundColor: item.phaseId === phase.id ? phase.color : phase.color + "22", color: item.phaseId === phase.id ? "#fff" : phase.color, borderColor: phase.color + "66" }}
+                            onClick={() => { assignTaskPhase(item.id, item.phaseId === phase.id ? null : phase.id); setExpandedPhaseItemId(null); }}>
+                            {phase.name}
+                          </button>
+                        ))}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
