@@ -92,6 +92,9 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const [editMin, setEditMin] = useState("");
   const [editMax, setEditMax] = useState("");
 
+  // Lokaler Schieberegler-State: varName → aktueller Draft-Wert (vor dem Speichern)
+  const [sliderDrafts, setSliderDrafts] = useState<Record<string, number>>({});
+
   // Lösch-Dialog State
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
   const [deleteAlsoFromTexts, setDeleteAlsoFromTexts] = useState(false);
@@ -475,29 +478,81 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
               )}
             </div>
 
-            {/* Zeile 3: Bereich + Schieberegler (nur Eingabe-Variablen, entsperrt, mit Range) */}
-            {hasSlider && (
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground w-8 text-right flex-shrink-0">{v.min}</span>
-                  <input
-                    type="range"
-                    min={minNum}
-                    max={maxNum}
-                    step={(maxNum - minNum) > 100 ? Math.round((maxNum - minNum) / 100) : 1}
-                    value={currentNum ?? minNum}
-                    onChange={e => updateValue(v.name, e.target.value)}
-                    className="flex-1 h-2 accent-violet-500"
-                  />
-                  <span className="text-[11px] text-muted-foreground w-8 flex-shrink-0">{v.max}</span>
+            {/* Zeile 3: Schieberegler (nur Eingabe-Variablen, entsperrt, mit Range) */}
+            {hasSlider && (() => {
+              const range = maxNum! - minNum!;
+              // Intelligente Schrittweite basierend auf dem Abstand
+              const step = range <= 2 ? 0.01
+                : range <= 5 ? 0.05
+                : range <= 10 ? 0.1
+                : range <= 20 ? 0.25
+                : range <= 50 ? 0.5
+                : range <= 200 ? 1
+                : range <= 1000 ? 5
+                : Math.round(range / 200);
+              const draft = sliderDrafts[v.name];
+              const displayVal = draft !== undefined ? draft : (currentNum ?? minNum!);
+              const hasDraft = draft !== undefined && draft !== currentNum;
+              const formatVal = (n: number) => {
+                // Keine unnötigen Dezimalstellen
+                return step < 1 ? n.toFixed(step < 0.1 ? 2 : 1) : String(Math.round(n));
+              };
+              return (
+                <div className="space-y-1 pt-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-muted-foreground w-10 text-right flex-shrink-0 font-mono">
+                      {formatVal(minNum!)}
+                    </span>
+                    <input
+                      type="range"
+                      min={minNum}
+                      max={maxNum}
+                      step={step}
+                      value={displayVal}
+                      onChange={e => setSliderDrafts(d => ({ ...d, [v.name]: parseFloat(e.target.value) }))}
+                      className="flex-1 h-3 accent-violet-500 cursor-pointer"
+                    />
+                    <span className="text-[11px] text-muted-foreground w-10 flex-shrink-0 font-mono">
+                      {formatVal(maxNum!)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    {hasDraft ? (
+                      <>
+                        <span className="text-xs font-mono text-muted-foreground line-through">
+                          {currentNum !== undefined ? formatVal(currentNum) : "–"}{displayUnit ? ` ${displayUnit}` : ""}
+                        </span>
+                        <span className="text-xs text-muted-foreground">→</span>
+                        <span className="text-xs font-mono font-semibold text-emerald-600">
+                          {formatVal(draft)}{displayUnit ? ` ${displayUnit}` : ""}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateValue(v.name, String(draft));
+                            setSliderDrafts(d => { const n = {...d}; delete n[v.name]; return n; });
+                          }}
+                          className="ml-1 px-2 py-0.5 rounded text-xs bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+                        >
+                          {t("variables.save")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSliderDrafts(d => { const n = {...d}; delete n[v.name]; return n; })}
+                          className="px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground border border-border"
+                        >
+                          ✕
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs font-mono text-violet-600">
+                        {formatVal(displayVal)}{displayUnit ? ` ${displayUnit}` : ""}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {currentNum !== undefined && (
-                  <p className="text-center text-xs font-mono text-violet-600">
-                    {currentNum}{displayUnit ? ` ${displayUnit}` : ""}
-                  </p>
-                )}
-              </div>
-            )}
+              );
+            })()}
 
             {/* Bereichs-Hinweis aus Aufgabentexten */}
             {hasNewRange && rangeHint && (
