@@ -1,12 +1,13 @@
 /**
  * PlansackVariablesPanel – Variablen-Bearbeitung für Plansack-Snapshots.
  * Arbeitet direkt auf dem lokalen Draft-State (kein tRPC-Backend).
- * Gleiche Logik wie PlanVariablesPanel, aber snapshot-basiert.
+ * Features: Kategorien, Schieberegler, Schloss, Alias, Bereichs-Erkennung,
+ * Einheits-Vorschläge, Definitions-Erkennung aus Aufgabentexten, Lösch-Dialog.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Variable, Check, X, Trash2, Calculator, Keyboard, Lock, Unlock, Link2, Plus } from "lucide-react";
+import { Variable, Check, X, Trash2, Calculator, Keyboard, Lock, Unlock, Link2, Pencil } from "lucide-react";
 import {
   extractVarNames,
   generateVarColor,
@@ -14,12 +15,14 @@ import {
   removeVarFromText,
   type PlanVariable,
   type RangeHint,
+  type VarAssignment,
   evaluateAllVars,
+  buildVarValueMap,
   extractRangeHintsFromTasks,
+  extractVarAssignmentsFromTasks,
   topoSortVars,
 } from "@/lib/varParser";
-import { extractUnitHintsFromTasks } from "@/lib/varParser";
-import { VarText } from "@/components/VarToken";
+import { extractUnitHintsFromTasks, type UnitHint } from "@/lib/varParser";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -35,6 +38,17 @@ function isComputedVar(v: PlanVariable): boolean {
 function isDependentInputVar(v: PlanVariable): boolean {
   if (isComputedVar(v)) return false;
   return !!(v.min && /VAR[A-Za-zÄÖÜäöüß]/.test(v.min)) || !!(v.max && /VAR[A-Za-zÄÖÜäöüß]/.test(v.max));
+}
+function calcStep(min: number, max: number): number {
+  const range = max - min;
+  if (range <= 2) return 0.01;
+  if (range <= 5) return 0.05;
+  if (range <= 10) return 0.1;
+  if (range <= 20) return 0.25;
+  if (range <= 50) return 0.5;
+  if (range <= 200) return 1;
+  if (range <= 1000) return 5;
+  return Math.round(range / 200);
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -79,22 +93,23 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
 
   // Berechnete Werte
   const evaluatedVarsRaw = evaluateAllVars(mergedVars);
-  const evalDisplay: Record<string, string> = {};
-  for (const [name, ev] of Object.entries(evaluatedVarsRaw)) {
-    const r = ev.result;
-    if (r !== null && r !== undefined && typeof r !== "object") {
-      evalDisplay[name] = String(r) + (ev.unit ? ` ${ev.unit}` : "");
-    } else if (typeof r === "object" && r !== null && "error" in r) {
-      evalDisplay[name] = `? (${(r as any).error})`;
-    }
-  }
+  const rawVarMap = buildVarValueMap(mergedVars);
 
-  // Einheits-Hinweise aus Aufgaben
+  // Definitions-Erkennung aus Aufgabentexten
+  // extractVarAssignmentsFromTasks braucht id: number, also synthetische IDs
+  const tasksForAssign = taskItems.map((ti, idx) => ({
+    id: idx,
+    name: ti.name ?? "",
+    description: ti.description ?? null,
+  }));
+  const varAssignments = extractVarAssignmentsFromTasks(tasksForAssign, rawVarMap);
+
+  // Einheits-Hinweise
   const taskItemsForHints = taskItems.map(ti => ({ name: ti.name ?? "", description: ti.description ?? "" }));
   const unitHintsRaw = extractUnitHintsFromTasks(taskItemsForHints);
-  const unitHints: Record<string, string> = {};
+  const unitHints: Record<string, UnitHint | undefined> = {};
   for (const [name, hints] of Object.entries(unitHintsRaw)) {
-    if (hints.length > 0 && hints[0].unit) unitHints[name] = hints[0].unit;
+    if (hints.length > 0) unitHints[name] = hints[0];
   }
 
   // Bereichs-Hinweise
@@ -122,11 +137,71 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
   const [editAlias, setEditAlias] = useState("");
   const [editMin, setEditMin] = useState("");
   const [editMax, setEditMax] = useState("");
+  const [editingUnitVar, setEditingUnitVar] = useState<string | null>(null);
+  const [unitDraft, setUnitDraft] = useState("");
   const [sliderDrafts, setSliderDrafts] = useState<Record<string, number>>({});
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
   const [deleteAlsoFromTexts, setDeleteAlsoFromTexts] = useState(false);
   const [rangeProposals, setRangeProposals] = useState<Array<{ varName: string; hint: RangeHint }>>([]);
   const [showRangeDialog, setShowRangeDialog] = useState(false);
+  const [unitProposals, setUnitProposals] = useState<Array<{ varName: string; hint: UnitHint }>>([]);
+  const [showUnitDialog, setShowUnitDialog] = useState(false);
+
+  // ─── Auto-Zuweisung aus Definitions-Erkennung ─────────────────────────────
+  useEffect(() => {
+    if (!enableVariables) return;
+    let changed = false;
+    const updated = mergedVars.map(v => {
+      let result = { ...v };
+      // Auto-Wert aus Aufgaben-Zuweisungen (nur wenn noch kein Wert)
+      if (!result.value) {
+        const assignments = varAssignments[v.name];
+        if (assignments && assignments.length > 0) {
+          for (const a of assignments) {
+            if (a.result?.ok) {
+              changed = true;
+              result = { ...result, value: a.result.display };
+              break;
+            }
+          }
+        }
+      }
+      // Auto-Einheit aus propagierter Einheit (nur wenn keine manuelle Einheit gesetzt)
+      if (!result.unit) {
+        const evalEntry = evaluatedVarsRaw[v.name];
+        const propagatedUnit = evalEntry?.result?.ok ? evalEntry.result.unit : undefined;
+        if (propagatedUnit) {
+          changed = true;
+          result = { ...result, unit: propagatedUnit };
+        }
+      }
+      return result;
+    });
+    if (changed) {
+      onChange(updated, enableVariables);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(rawVarMap), enableVariables]);
+
+  // ─── Bereichs-Vorschläge prüfen ───────────────────────────────────────────
+  useEffect(() => {
+    if (!enableVariables) return;
+    const proposals: Array<{ varName: string; hint: RangeHint }> = [];
+    for (const [varName, hints] of Object.entries(rangeHints)) {
+      const v = mergedVars.find(mv => mv.name === varName);
+      if (!v) continue;
+      for (const hint of hints) {
+        if ((hint.min !== undefined && hint.min !== v.min) || (hint.max !== undefined && hint.max !== v.max)) {
+          proposals.push({ varName, hint });
+        }
+      }
+    }
+    if (proposals.length > 0) {
+      setRangeProposals(proposals);
+      setShowRangeDialog(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(rangeHints), enableVariables]);
 
   // ─── Aktionen ─────────────────────────────────────────────────────────────
   const saveVarEdit = (varName: string) => {
@@ -159,10 +234,14 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
     onChange(updated, enableVariables);
   };
 
-  const confirmDelete = (varName: string, alsoFromTexts: boolean) => {
+  const updateUnit = (varName: string, newUnit: string) => {
+    const updated = mergedVars.map(v => v.name === varName ? { ...v, unit: newUnit || undefined } : v);
+    onChange(updated, enableVariables);
+    setEditingUnitVar(null);
+  };
+
+  const confirmDelete = (varName: string) => {
     const updatedVars = mergedVars.filter(v => v.name !== varName);
-    // Wenn auch aus Texten löschen, dann aus shoppingItems und taskItems entfernen
-    // (wird über onChange weitergegeben – der PlansackEditor muss das verarbeiten)
     onChange(updatedVars, enableVariables);
     setDeleteCandidate(null);
   };
@@ -171,20 +250,7 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
     onChange(mergedVars, !enableVariables);
   };
 
-  // Schieberegler-Schritt berechnen
-  const calcStep = (min: number, max: number): number => {
-    const range = max - min;
-    if (range <= 2) return 0.01;
-    if (range <= 5) return 0.05;
-    if (range <= 10) return 0.1;
-    if (range <= 20) return 0.25;
-    if (range <= 50) return 0.5;
-    if (range <= 200) return 1;
-    if (range <= 1000) return 5;
-    return 10;
-  };
-
-  // Numerischen Wert einer Variable auflösen (für Slider-Grenzen)
+  // Numerischen Wert einer Variable auflösen
   const resolveNumeric = (val: string | undefined): number | undefined => {
     if (!val) return undefined;
     const n = parseFloat(val);
@@ -196,21 +262,27 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
 
   // ─── Variablen-Karte rendern ───────────────────────────────────────────────
   const renderVar = (v: PlanVariable) => {
+    const ev = evaluatedVarsRaw[v.name];
+    const res = ev?.result;
+    const propagatedUnit = res?.ok ? res.unit : undefined;
+    const displayUnit = v.unit ?? propagatedUnit;
+    const unitMismatch = v.unit && propagatedUnit && v.unit !== propagatedUnit;
+    const unitHint = unitHints[v.name];
+    const hasNewUnit = unitHint && unitHint.unit !== v.unit;
     const mentions = countMentions(v.name);
-    const isInput = !isComputedVar(v) && !isDependentInputVar(v);
+    const isInput = !isComputedVar(v);
     const minNum = resolveNumeric(v.min);
     const maxNum = resolveNumeric(v.max);
     const currentNum = v.value ? parseFloat(v.value) : undefined;
     const hasSlider = isInput && !v.locked && minNum !== undefined && maxNum !== undefined && minNum < maxNum;
     const rangeHint = rangeHints[v.name]?.[0];
     const hasNewRange = rangeHint && (rangeHint.min !== v.min || rangeHint.max !== v.max);
-    const unitHint: string | undefined = unitHints[v.name];
-    const hasUnitHint = unitHint !== undefined && unitHint !== v.unit;
-    const evalResult: string | undefined = evalDisplay[v.name];
+    const assignments = varAssignments[v.name] ?? [];
 
     return (
       <div key={v.name} className="rounded-md border border-border bg-muted/30 p-2.5">
         {editingVar === v.name ? (
+          /* ── Bearbeitungs-Modus ── */
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <input type="color" value={editColor} onChange={e => setEditColor(e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0 p-0 flex-shrink-0" />
@@ -242,7 +314,9 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
             </div>
           </div>
         ) : (
+          /* ── Anzeige-Modus ── */
           <div className="space-y-1.5">
+            {/* Zeile 1: Name + Alias + Schloss + Buttons */}
             <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-mono font-medium break-all leading-tight" style={{ color: v.color }}>VAR{v.name}</span>
@@ -253,73 +327,168 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
                 <button type="button" className={`p-0.5 transition-colors ${v.locked ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground hover:text-foreground"}`} onClick={() => toggleLock(v.name)} title={v.locked ? t("variables.unlock") : t("variables.lock")}>
                   {v.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                 </button>
-                <button type="button" className="text-muted-foreground hover:text-foreground p-0.5" onClick={() => startEdit(v)} title={t("variables.edit")}>
-                  <Variable className="w-3 h-3" />
+                <button type="button" className="text-muted-foreground hover:text-foreground p-0.5" onClick={() => startEdit(v)} title={t("variables.editLabel", "Bearbeiten")}>
+                  <Pencil className="w-3 h-3" />
                 </button>
-                <button type="button" className="text-destructive hover:text-destructive/80 p-0.5" onClick={() => setDeleteCandidate(v.name)} title={t("variables.delete")}>
+                <button type="button" className="text-muted-foreground hover:text-destructive p-0.5" onClick={() => { setDeleteCandidate(v.name); setDeleteAlsoFromTexts(false); }} title={t("variables.deleteLabel", "Löschen")}>
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>
             </div>
-            {/* Wert-Anzeige */}
-            {v.value !== undefined && (
-              <div className="text-xs text-muted-foreground">
-                <span className="font-mono">= {v.value}</span>
-                {evalResult !== undefined && evalResult !== v.value && (
-                  <span className="ml-1 font-semibold text-foreground">→ {evalResult}</span>
-                )}
-              </div>
-            )}
-            {/* Einheit */}
-            {v.unit && <span className="text-xs text-muted-foreground">[{v.unit}]{hasUnitHint && <span className="ml-1 text-amber-500" title={`Vorschlag: ${unitHint}`}>⚠</span>}</span>}
-            {/* Bereichs-Vorschlag */}
-            {hasNewRange && (
-              <button type="button" className="text-xs text-blue-600 hover:text-blue-800 underline" onClick={() => { setRangeProposals([{ varName: v.name, hint: rangeHint! }]); setShowRangeDialog(true); }}>
-                📏 {t("variables.rangeProposal", "Bereich übernehmen")}
-              </button>
-            )}
-            {/* Einheits-Vorschlag */}
-            {hasUnitHint && unitHint && (
-              <button type="button" className="text-xs text-green-600 hover:text-green-800 underline ml-2" onClick={() => { const updated = mergedVars.map(vv => vv.name === v.name ? { ...vv, unit: unitHint } : vv); onChange(updated, enableVariables); }}>
-                📐 {unitHint}
-              </button>
-            )}
+
+            {/* Zeile 2: Wert / Definition */}
+            <div className="text-xs text-muted-foreground">
+              {v.value ? (
+                <div className="flex flex-wrap items-center gap-1">
+                  {!isComputedVar(v) && !v.locked ? (
+                    <input
+                      type="number"
+                      value={v.value}
+                      onChange={e => updateValue(v.name, e.target.value)}
+                      className="h-6 w-20 text-xs border border-border rounded px-1 bg-background font-mono"
+                    />
+                  ) : (
+                    <span className="font-mono break-all">= {v.value}</span>
+                  )}
+                  {res ? (
+                    res.ok ? (
+                      isComputedVar(v) ? (
+                        <span className="text-emerald-600 font-medium whitespace-nowrap">
+                          → {res.display}{displayUnit ? ` ${displayUnit}` : ""}
+                        </span>
+                      ) : null
+                    ) : (
+                      <span className="text-amber-500 cursor-help inline-flex items-center gap-0.5"
+                        title={res.error === "missing_vars" ? t("variables.errorMissing", { vars: (res.missing ?? []).join(", ") }) : res.error === "cycle" ? t("variables.errorCycle") : res.error === "div_zero" ? t("variables.errorDivZero") : t("variables.errorParse")}>
+                        → <span className="underline decoration-dotted">?</span>
+                        <span className="text-[10px] opacity-70">({res.error === "missing_vars" ? `fehlt: ${(res.missing ?? []).slice(0, 2).join(", ")}` : res.error === "cycle" ? "Zyklus" : res.error === "div_zero" ? "÷0" : "Syntax"})</span>
+                      </span>
+                    )
+                  ) : null}
+                  {displayUnit && !isComputedVar(v) && <span className="text-muted-foreground">{displayUnit}</span>}
+                </div>
+              ) : (
+                !isComputedVar(v) && !v.locked ? (
+                  <input
+                    type="number"
+                    placeholder={t("variables.enterValue")}
+                    onChange={e => e.target.value && updateValue(v.name, e.target.value)}
+                    className="h-6 w-24 text-xs border border-border rounded px-1 bg-background"
+                  />
+                ) : (
+                  <span className="italic">{t("variables.noValue")}</span>
+                )
+              )}
+            </div>
+
+            {/* Einheit – direkt editierbar */}
+            <div className="flex items-center gap-1.5">
+              {editingUnitVar === v.name ? (
+                <>
+                  <Input
+                    value={unitDraft}
+                    onChange={e => setUnitDraft(e.target.value)}
+                    placeholder={t("variables.unitPlaceholder")}
+                    className="h-6 w-20 text-xs"
+                    autoFocus
+                    onKeyDown={e => { if (e.key === "Enter") updateUnit(v.name, unitDraft); if (e.key === "Escape") setEditingUnitVar(null); }}
+                  />
+                  <button type="button" className="text-emerald-600 hover:text-emerald-700 p-0.5" onClick={() => updateUnit(v.name, unitDraft)}>
+                    <Check className="w-3 h-3" />
+                  </button>
+                  <button type="button" className="text-muted-foreground p-0.5" onClick={() => setEditingUnitVar(null)}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 group"
+                  onClick={() => { setEditingUnitVar(v.name); setUnitDraft(v.unit ?? ""); }}
+                  title={t("variables.unitPlaceholder")}
+                >
+                  {displayUnit ? (
+                    <span className="font-mono">[{displayUnit}]</span>
+                  ) : (
+                    <span className="italic opacity-50">{t("variables.unitPlaceholder")}</span>
+                  )}
+                  {unitMismatch && <span className="text-amber-500 ml-0.5" title={`Berechnet: ${propagatedUnit}`}>⚠</span>}
+                  <Pencil className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />
+                </button>
+              )}
+            </div>
+
             {/* Schieberegler */}
             {hasSlider && (
               <div className="pt-1">
-                <input
-                  type="range"
-                  min={minNum}
-                  max={maxNum}
-                  step={calcStep(minNum!, maxNum!)}
-                  value={sliderDrafts[v.name] ?? (currentNum ?? minNum)}
-                  onChange={e => setSliderDrafts(prev => ({ ...prev, [v.name]: parseFloat(e.target.value) }))}
-                  className="w-full h-1.5 accent-violet-600"
-                />
-                {sliderDrafts[v.name] !== undefined && sliderDrafts[v.name] !== currentNum && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs line-through text-muted-foreground">{currentNum ?? "?"}</span>
-                    <span className="text-xs font-semibold text-green-600">{sliderDrafts[v.name]}</span>
-                    <Button size="sm" className="h-6 px-2 text-xs" onClick={() => { updateValue(v.name, String(sliderDrafts[v.name])); setSliderDrafts(prev => { const n = { ...prev }; delete n[v.name]; return n; }); }}>
-                      <Check className="w-3 h-3 mr-1" />{t("variables.save")}
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => setSliderDrafts(prev => { const n = { ...prev }; delete n[v.name]; return n; })}>
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground w-10 text-right flex-shrink-0 font-mono">{minNum}</span>
+                  <input
+                    type="range" min={minNum} max={maxNum} step={calcStep(minNum!, maxNum!)}
+                    value={sliderDrafts[v.name] ?? (currentNum ?? minNum)}
+                    onChange={e => setSliderDrafts(prev => ({ ...prev, [v.name]: parseFloat(e.target.value) }))}
+                    className="flex-1 h-3 accent-violet-500 cursor-pointer"
+                  />
+                  <span className="text-[11px] text-muted-foreground w-10 flex-shrink-0 font-mono">{maxNum}</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  {sliderDrafts[v.name] !== undefined && sliderDrafts[v.name] !== currentNum ? (
+                    <>
+                      <span className="text-xs font-mono text-muted-foreground line-through">{currentNum ?? "–"}{displayUnit ? ` ${displayUnit}` : ""}</span>
+                      <span className="text-xs text-muted-foreground">→</span>
+                      <span className="text-xs font-mono font-semibold text-emerald-600">{sliderDrafts[v.name]}{displayUnit ? ` ${displayUnit}` : ""}</span>
+                      <button type="button" onClick={() => { updateValue(v.name, String(sliderDrafts[v.name])); setSliderDrafts(prev => { const n = { ...prev }; delete n[v.name]; return n; }); }} className="ml-1 px-2 py-0.5 rounded text-xs bg-emerald-500 text-white hover:bg-emerald-600">
+                        {t("variables.save")}
+                      </button>
+                      <button type="button" onClick={() => setSliderDrafts(prev => { const n = { ...prev }; delete n[v.name]; return n; })} className="px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground border border-border">✕</button>
+                    </>
+                  ) : (
+                    <span className="text-xs font-mono text-violet-600">{sliderDrafts[v.name] ?? currentNum ?? minNum}{displayUnit ? ` ${displayUnit}` : ""}</span>
+                  )}
+                </div>
               </div>
             )}
-            {/* Eingabe-Feld wenn nicht gesperrt */}
-            {isInput && !v.locked && !hasSlider && (
-              <div className="flex gap-1.5 mt-1">
-                <Input
-                  value={v.value ?? ""}
-                  onChange={e => updateValue(v.name, e.target.value)}
-                  placeholder={t("variables.valuePlaceholder")}
-                  className="h-7 text-xs flex-1"
-                />
-                {v.unit && <span className="text-xs text-muted-foreground self-center">{v.unit}</span>}
+
+            {/* Bereichs-Hinweis */}
+            {hasNewRange && rangeHint && (
+              <button type="button" className="text-[11px] text-blue-500 hover:text-blue-600 underline decoration-dotted"
+                onClick={() => { setRangeProposals([{ varName: v.name, hint: rangeHint }]); setShowRangeDialog(true); }}>
+                {t("variables.rangeFoundInText", { min: rangeHint.min, max: rangeHint.max })}
+              </button>
+            )}
+
+            {/* Einheits-Vorschlag */}
+            {hasNewUnit && unitHint && (
+              <button type="button" className="text-[11px] text-emerald-600 hover:text-emerald-700 underline decoration-dotted"
+                onClick={() => { setUnitProposals([{ varName: v.name, hint: unitHint }]); setShowUnitDialog(true); }}>
+                {t("variables.unitFoundInText", { unit: unitHint.unit })}
+              </button>
+            )}
+
+            {/* Definitions-Matrix (mehrere Definitionen aus Aufgabentexten) */}
+            {assignments.length > 1 && (
+              <div className="mt-1 border-l-2 pl-2" style={{ borderColor: v.color }}>
+                <p className="text-xs text-muted-foreground mb-1">{t("variables.matrixHint")}</p>
+                <div className="space-y-0.5">
+                  {assignments.map((a: VarAssignment, idx: number) => (
+                    <div key={idx} className="text-xs flex flex-col gap-0.5 border-b border-border/30 pb-0.5 last:border-0 last:pb-0">
+                      <span className="text-muted-foreground text-[11px]">{a.taskName}</span>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className="font-mono break-all">{a.formula}</span>
+                        {a.result?.ok
+                          ? <span className="text-emerald-600 whitespace-nowrap">→ {a.result.display}{(v.unit ?? a.result.unit) ? ` ${v.unit ?? a.result.unit}` : ""}</span>
+                          : <span className="text-amber-500">→ ?</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Einzelne Definition anzeigen wenn Wert aus Aufgabe stammt */}
+            {assignments.length === 1 && assignments[0].result?.ok && (
+              <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <span className="italic">{assignments[0].taskName}:</span>
+                <span className="font-mono">{assignments[0].formula}</span>
               </div>
             )}
           </div>
@@ -384,52 +553,94 @@ export function PlansackVariablesPanel({ snapshot, onChange }: PlansackVariables
         </div>
       )}
 
-      {/* Lösch-Dialog */}
-      <AlertDialog open={deleteCandidate !== null} onOpenChange={open => { if (!open) setDeleteCandidate(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("variables.deleteTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteCandidate && t("variables.deleteDesc", { varName: deleteCandidate, count: countMentions(deleteCandidate) })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex items-center gap-2 px-4 pb-2">
-            <input type="checkbox" id="deleteFromTexts" checked={deleteAlsoFromTexts} onChange={e => setDeleteAlsoFromTexts(e.target.checked)} />
-            <label htmlFor="deleteFromTexts" className="text-sm">{t("variables.deleteFromTexts")}</label>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("variables.cancel")}</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteCandidate && confirmDelete(deleteCandidate, deleteAlsoFromTexts)}>
-              <Trash2 className="w-4 h-4 mr-2" />{t("variables.delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* ─── Dialoge ──────────────────────────────────────────────── */}
 
       {/* Bereichs-Vorschlag-Dialog */}
       <AlertDialog open={showRangeDialog} onOpenChange={setShowRangeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("variables.rangeProposalTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {rangeProposals.map(p => (
-                <span key={p.varName} className="block">VAR{p.varName}: {p.hint.min} – {p.hint.max}</span>
-              ))}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{t("variables.rangeDialogDesc")}</AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            {rangeProposals.map((p, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <span className="font-mono font-medium" style={{ color: mergedVars.find(v => v.name === p.varName)?.color }}>VAR{p.varName}</span>
+                <span className="text-muted-foreground">{p.hint.min} ≤ x ≤ {p.hint.max}</span>
+              </div>
+            ))}
+          </div>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowRangeDialog(false)}>{t("variables.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setShowRangeDialog(false)}>{t("variables.rangeDialogIgnore")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
               const updated = mergedVars.map(v => {
                 const proposal = rangeProposals.find(p => p.varName === v.name);
                 if (!proposal) return v;
-                return { ...v, min: proposal.hint.min, max: proposal.hint.max };
+                return { ...v, min: proposal.hint.min ?? v.min, max: proposal.hint.max ?? v.max };
               });
               onChange(updated, enableVariables);
               setShowRangeDialog(false);
-            }}>
-              {t("variables.rangeProposalAccept")}
+            }}>{t("variables.rangeDialogApply")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Einheits-Vorschlag-Dialog */}
+      <AlertDialog open={showUnitDialog} onOpenChange={open => { if (!open) setShowUnitDialog(false); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("variables.unitDialogTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("variables.unitDialogDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            {unitProposals.map((p, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <span className="font-mono text-violet-600">VAR{p.varName}</span>
+                <span className="text-muted-foreground">→</span>
+                <span className="font-mono font-semibold">{p.hint.unit}</span>
+                <span className="text-[11px] text-muted-foreground italic">({p.hint.sourceText})</span>
+              </div>
+            ))}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("variables.rangeDialogCancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              const updated = mergedVars.map(v => {
+                const proposal = unitProposals.find(p => p.varName === v.name);
+                if (!proposal) return v;
+                return { ...v, unit: proposal.hint.unit };
+              });
+              onChange(updated, enableVariables);
+              setShowUnitDialog(false);
+            }}>{t("variables.unitDialogApply")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Lösch-Dialog */}
+      <AlertDialog open={deleteCandidate !== null} onOpenChange={open => { if (!open) setDeleteCandidate(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("variables.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteCandidate && (() => {
+                const cnt = countMentions(deleteCandidate);
+                return cnt > 0
+                  ? t("variables.deleteDescWithMentions", { name: deleteCandidate, count: cnt })
+                  : t("variables.deleteDesc", { name: deleteCandidate });
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteCandidate && countMentions(deleteCandidate) > 0 && (
+            <div className="flex items-center gap-2 py-2 px-4">
+              <input type="checkbox" id="deleteFromTexts" checked={deleteAlsoFromTexts} onChange={e => setDeleteAlsoFromTexts(e.target.checked)} className="rounded" />
+              <label htmlFor="deleteFromTexts" className="text-sm cursor-pointer">{t("variables.deleteAlsoFromTexts", { name: deleteCandidate })}</label>
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("variables.deleteCancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteCandidate && confirmDelete(deleteCandidate)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("variables.deleteConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
