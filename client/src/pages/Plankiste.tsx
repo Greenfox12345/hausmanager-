@@ -732,6 +732,10 @@ function TemplateTaskItemsSection({
   const [editTaskPrereqs, setEditTaskPrereqs] = useState<{id:number;gapDays?:number}[]>([]);
   const [editTaskFollowups, setEditTaskFollowups] = useState<{id:number;gapDays?:number}[]>([]);
 
+  // Blink-State für transitive Abhängigkeits-Visualisierung (muss auf Komponenten-Ebene stehen)
+  const [blinkIds, setBlinkIds] = useState<Set<number>>(new Set());
+  const blinkTimeouts = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
   const { data: taskItems = [] } = trpc.planTemplates.listTemplateTaskItems.useQuery(
     { templateId }, { enabled: templateId > 0 }
   );
@@ -899,20 +903,14 @@ function TemplateTaskItemsSection({
     const getPrereqGap = (tid: number) => prereqs.find(p => p.id === tid)?.gapDays ?? "";
     const getFollowupGap = (tid: number) => followups.find(f => f.id === tid)?.gapDays ?? "";
 
-    // Blink-State: Set von Task-IDs die gerade blinken
-    const [blinkIds, setBlinkIds] = useState<Set<number>>(new Set());
-    const blinkTimeouts = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
-
     const triggerBlink = (ids: number[]) => {
       const newBlinks = new Set(Array.from(blinkIds));
       ids.forEach(id => {
         newBlinks.add(id);
-        // Bestehenden Timeout löschen falls vorhanden
         const existing = blinkTimeouts.current.get(id);
         if (existing) clearTimeout(existing);
-        // Nach 1.2s Blink beenden
         const t = setTimeout(() => {
-          setBlinkIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+          setBlinkIds(prev => { const n = new Set(Array.from(prev)); n.delete(id); return n; });
           blinkTimeouts.current.delete(id);
         }, 1200);
         blinkTimeouts.current.set(id, t);
