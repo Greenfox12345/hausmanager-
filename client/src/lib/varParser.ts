@@ -148,6 +148,14 @@ export interface PlanVariable {
   value?: string;
   unit?: string;
   description?: string;
+  /** Alias-Kurzname, aufrufbar mit &Name */
+  alias?: string;
+  /** Untere Grenze (inklusive) für Eingabe-Variablen */
+  min?: string;
+  /** Obere Grenze (inklusive) für Eingabe-Variablen */
+  max?: string;
+  /** Wenn true, kann der Wert nicht über UI geändert werden */
+  locked?: boolean;
 }
 
 export function mergeVarsFromText(
@@ -735,3 +743,121 @@ export function topoSortVars(variables: PlanVariable[]): PlanVariable[] {
 
   return result;
 }
+
+// ─── Alias-System ─────────────────────────────────────────────────────────────
+
+/**
+ * Baut eine Map von Alias → vollständiger VAR-Name auf.
+ * Beispiel: { "Breite": "HochbeetBreite" } wenn VARHochbeetBreite alias="Breite" hat.
+ */
+export function buildAliasMap(variables: PlanVariable[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const v of variables) {
+    if (v.alias) map[v.alias] = v.name;
+  }
+  return map;
+}
+
+/**
+ * Ersetzt &Alias-Token in einem Text durch den vollständigen VARName.
+ * Beispiel: "&Breite" → "VARHochbeetBreite" (wenn alias "Breite" → "HochbeetBreite")
+ */
+export function resolveAliases(text: string, aliasMap: Record<string, string>): string {
+  const regex = new RegExp(ALIAS_REGEX.source, "g");
+  return text.replace(regex, (_, aliasName) => {
+    const varName = aliasMap[aliasName];
+    return varName ? `VAR${varName}` : `&${aliasName}`; // unbekannte Aliases unverändert lassen
+  });
+}
+
+/**
+ * Tokenisiert einen Text und ersetzt &-Alias-Token durch VarToken-Segmente.
+ * Gibt Segmente zurück: { type: "text" | "var" | "alias", text?, varName?, aliasName? }
+ */
+export function tokenizeWithAliases(
+  text: string,
+  colorMap: Record<string, string>,
+  aliasMap: Record<string, string>
+): Array<{ type: "text"; text: string } | { type: "var"; varName: string; color: string } | { type: "alias"; aliasName: string; varName?: string; color?: string }> {
+  // Erst Aliases auflösen, dann normal tokenisieren
+  const resolved = resolveAliases(text, aliasMap);
+  return tokenizeWithVars(resolved, colorMap);
+}
+
+// ─── Bereichs-Erkennung ───────────────────────────────────────────────────────
+
+/**
+ * Ergebnis der Bereichs-Erkennung aus einem Text.
+ */
+export interface RangeHint {
+  varName: string;       // Name der Variable (ohne VAR-Präfix)
+  min?: string;          // Untere Grenze (Zahl oder VARName)
+  max?: string;          // Obere Grenze (Zahl oder VARName)
+  sourceText: string;    // Originaltext der Fundstelle
+}
+
+/**
+ * Extrahiert Bereichs-Hinweise aus einem Text.
+ * Erkennt Muster wie:
+ *   - "10 ≤ VARBreite ≤ 200"
+ *   - "10 <= VARBreite <= 200"
+ *   - "10 < VARBreite < 200"
+ *   - "VARMin < VARBreite < VARMax"
+ *   - "VARBreite1 < VARBreite2 < 100" (Breite1 = min für Breite2)
+ */
+export function extractRangeHints(text: string): RangeHint[] {
+  const hints: RangeHint[] = [];
+  const varPat = `(?:VAR[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*|[0-9]+(?:\\.[0-9]+)?)`;
+  const cmpPat = `(?:<=|>=|≤|≥|<|>)`;
+  // Muster: WERT CMP VAR CMP WERT
+  const pattern = new RegExp(
+    `(${varPat})\\s*(${cmpPat})\\s*(VAR[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)\\s*(${cmpPat})\\s*(${varPat})`,
+    "g"
+  );
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(text)) !== null) {
+    const [full, left, cmpLeft, varToken, cmpRight, right] = m;
+    const varName = varToken.replace(/^VAR/, "");
+    // Normalisieren: linker Wert ist min, rechter ist max
+    // (bei > / >= ist die Richtung umgekehrt)
+    const leftIsMin = cmpLeft === "<" || cmpLeft === "<=" || cmpLeft === "≤";
+    const minRaw = leftIsMin ? left : right;
+    const maxRaw = leftIsMin ? right : left;
+    // VAR-Präfix entfernen für Referenzen
+    const normalizeVal = (v: string) => v.startsWith("VAR") ? v : v;
+    hints.push({
+      varName,
+      min: normalizeVal(minRaw),
+      max: normalizeVal(maxRaw),
+      sourceText: full,
+    });
+  }
+  return hints;
+}
+
+/**
+ * Extrahiert alle Bereichs-Hinweise aus allen Aufgaben-Texten.
+ * Gibt Map varName → RangeHint[] zurück.
+ */
+export function extractRangeHintsFromTasks(
+  tasks: Array<{ name?: string; description?: string }>
+): Record<string, RangeHint[]> {
+  const result: Record<string, RangeHint[]> = {};
+  for (const task of tasks) {
+    const texts = [task.name ?? "", task.description ?? ""];
+    for (const text of texts) {
+      const hints = extractRangeHints(text);
+      for (const hint of hints) {
+        if (!result[hint.varName]) result[hint.varName] = [];
+        // Duplikate vermeiden
+        const exists = result[hint.varName].some(
+          h => h.min === hint.min && h.max === hint.max
+        );
+        if (!exists) result[hint.varName].push(hint);
+      }
+    }
+  }
+  return result;
+}
+/** Regex für &-Alias-Token */
+export const ALIAS_REGEX = /&([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)/g;

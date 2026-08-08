@@ -182,6 +182,21 @@
     "errorDivZero": "除以零",
     "errorParse": "无效公式",
     "categoryInput": "输入变量 ({{count}})",
-    "categoryComputed": "计算变量 ({{count}})"
+    "categoryComputed": "计算变量 ({{count}})",
+    "categoryDependentInput": "依赖输入变量 ({{count}})",
+    "aliasLabel": "别名",
+    "rangeLabel": "范围",
+    "minPlaceholder": "最小",
+    "maxPlaceholder": "最大",
+    "lock": "锁定输入",
+    "unlock": "解锁输入",
+    "enterValue": "输入值...",
+    "save": "保存",
+    "rangeFoundInText": "从任务文本找到范围: {{min}} – {{max}} – 采用?",
+    "rangeDialogTitle": "从任务文本采用范围?",
+    "rangeDialogDesc": "在任务描述中找到以下范围限制:",
+    "rangeDialogIgnore": "忽略",
+    "rangeDialogApply": "应用",
+    "rangeApplied": "范围限制已应用"
   }
 }

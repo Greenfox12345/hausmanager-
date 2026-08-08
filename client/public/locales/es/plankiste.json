@@ -182,6 +182,21 @@
     "errorDivZero": "División por cero",
     "errorParse": "Fórmula inválida",
     "categoryInput": "Variables de entrada ({{count}})",
-    "categoryComputed": "Variables calculadas ({{count}})"
+    "categoryComputed": "Variables calculadas ({{count}})",
+    "categoryDependentInput": "Variables de entrada dependientes ({{count}})",
+    "aliasLabel": "Alias",
+    "rangeLabel": "Rango",
+    "minPlaceholder": "Mín",
+    "maxPlaceholder": "Máx",
+    "lock": "Bloquear entrada",
+    "unlock": "Desbloquear entrada",
+    "enterValue": "Ingresar valor...",
+    "save": "Guardar",
+    "rangeFoundInText": "Rango del texto: {{min}} – {{max}} – ¿adoptar?",
+    "rangeDialogTitle": "¿Adoptar rango de las tareas?",
+    "rangeDialogDesc": "Se encontraron los siguientes límites en las descripciones:",
+    "rangeDialogIgnore": "Ignorar",
+    "rangeDialogApply": "Aplicar",
+    "rangeApplied": "Límites de rango aplicados"
   }
 }

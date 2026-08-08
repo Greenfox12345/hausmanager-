@@ -182,6 +182,21 @@
     "errorDivZero": "قسمة على صفر",
     "errorParse": "صيغة غير صالحة",
     "categoryInput": "متغيرات الإدخال ({{count}})",
-    "categoryComputed": "المتغيرات المحسوبة ({{count}})"
+    "categoryComputed": "المتغيرات المحسوبة ({{count}})",
+    "categoryDependentInput": "متغيرات الإدخال التابعة ({{count}})",
+    "aliasLabel": "الاسم المستعار",
+    "rangeLabel": "النطاق",
+    "minPlaceholder": "الحد الأدنى",
+    "maxPlaceholder": "الحد الأقصى",
+    "lock": "قفل الإدخال",
+    "unlock": "فتح الإدخال",
+    "enterValue": "أدخل قيمة...",
+    "save": "حفظ",
+    "rangeFoundInText": "نطاق من النص: {{min}} – {{max}} – تبني؟",
+    "rangeDialogTitle": "تبني النطاق من نصوص المهام؟",
+    "rangeDialogDesc": "تم العثور على الحدود التالية في الأوصاف:",
+    "rangeDialogIgnore": "تجاهل",
+    "rangeDialogApply": "تطبيق",
+    "rangeApplied": "تم تطبيق حدود النطاق"
   }
 }

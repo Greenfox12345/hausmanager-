@@ -182,6 +182,21 @@
     "errorDivZero": "Division by zero",
     "errorParse": "Invalid formula",
     "categoryInput": "Input Variables ({{count}})",
-    "categoryComputed": "Computed Variables ({{count}})"
+    "categoryComputed": "Computed Variables ({{count}})",
+    "categoryDependentInput": "Dependent Input Variables ({{count}})",
+    "aliasLabel": "Alias",
+    "rangeLabel": "Range",
+    "minPlaceholder": "Min",
+    "maxPlaceholder": "Max",
+    "lock": "Lock input",
+    "unlock": "Unlock input",
+    "enterValue": "Enter value...",
+    "save": "Save",
+    "rangeFoundInText": "Range from task text: {{min}} – {{max}} – adopt?",
+    "rangeDialogTitle": "Adopt range from task texts?",
+    "rangeDialogDesc": "The following range limits were found in task descriptions:",
+    "rangeDialogIgnore": "Ignore",
+    "rangeDialogApply": "Apply",
+    "rangeApplied": "Range limits applied"
   }
 }

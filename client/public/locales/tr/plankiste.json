@@ -182,6 +182,21 @@
     "errorDivZero": "Sıfıra bölme",
     "errorParse": "Geçersiz formül",
     "categoryInput": "Giriş Değişkenleri ({{count}})",
-    "categoryComputed": "Hesaplama Değişkenleri ({{count}})"
+    "categoryComputed": "Hesaplama Değişkenleri ({{count}})",
+    "categoryDependentInput": "Bağımlı Giriş Değişkenleri ({{count}})",
+    "aliasLabel": "Takma Ad",
+    "rangeLabel": "Aralık",
+    "minPlaceholder": "Min",
+    "maxPlaceholder": "Maks",
+    "lock": "Girişi kilitle",
+    "unlock": "Kilidi aç",
+    "enterValue": "Değer girin...",
+    "save": "Kaydet",
+    "rangeFoundInText": "Görev metninden aralık: {{min}} – {{max}} – kabul?",
+    "rangeDialogTitle": "Görev metinlerinden aralık kabul edilsin mi?",
+    "rangeDialogDesc": "Görev açıklamalarında aşağıdaki sınırlar bulundu:",
+    "rangeDialogIgnore": "Yoksay",
+    "rangeDialogApply": "Uygula",
+    "rangeApplied": "Aralık sınırları uygulandı"
   }
 }

@@ -182,6 +182,21 @@
     "errorDivZero": "Division durch Null",
     "errorParse": "Ungültige Formel",
     "categoryInput": "Eingabe-Variablen ({{count}})",
-    "categoryComputed": "Rechen-Variablen ({{count}})"
+    "categoryComputed": "Rechen-Variablen ({{count}})",
+    "categoryDependentInput": "Abhängige Eingabe-Variablen ({{count}})",
+    "aliasLabel": "Alias",
+    "rangeLabel": "Bereich",
+    "minPlaceholder": "Min",
+    "maxPlaceholder": "Max",
+    "lock": "Eingabe sperren",
+    "unlock": "Eingabe entsperren",
+    "enterValue": "Wert eingeben...",
+    "save": "Speichern",
+    "rangeFoundInText": "Bereich aus Aufgabentext: {{min}} – {{max}} übernehmen?",
+    "rangeDialogTitle": "Bereich aus Aufgabentexten übernehmen?",
+    "rangeDialogDesc": "In den Aufgabenbeschreibungen wurden folgende Bereichsgrenzen gefunden:",
+    "rangeDialogIgnore": "Ignorieren",
+    "rangeDialogApply": "Übernehmen",
+    "rangeApplied": "Bereichsgrenzen übernommen"
   }
 }

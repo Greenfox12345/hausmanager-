@@ -182,6 +182,21 @@
     "errorDivZero": "Division par zéro",
     "errorParse": "Formule invalide",
     "categoryInput": "Variables d'entrée ({{count}})",
-    "categoryComputed": "Variables calculées ({{count}})"
+    "categoryComputed": "Variables calculées ({{count}})",
+    "categoryDependentInput": "Variables d'entrée dépendantes ({{count}})",
+    "aliasLabel": "Alias",
+    "rangeLabel": "Plage",
+    "minPlaceholder": "Min",
+    "maxPlaceholder": "Max",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "enterValue": "Entrer une valeur...",
+    "save": "Enregistrer",
+    "rangeFoundInText": "Plage trouvée: {{min}} – {{max}} – adopter?",
+    "rangeDialogTitle": "Adopter la plage des tâches?",
+    "rangeDialogDesc": "Les limites suivantes ont été trouvées dans les descriptions:",
+    "rangeDialogIgnore": "Ignorer",
+    "rangeDialogApply": "Appliquer",
+    "rangeApplied": "Limites de plage appliquées"
   }
 }
