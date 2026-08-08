@@ -856,7 +856,7 @@ export interface PlanBagSnapshot {
  */
 export const planBagItems = mysqlTable("plan_bag_items", {
   id: int("id").autoincrement().primaryKey(),
-  userId: varchar("userId", { length: 128 }).notNull(),
+  userId: int("userId").notNull(),
   snapshot: json("snapshot").$type<PlanBagSnapshot>().notNull(),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
   updatedAt: datetime("updatedAt").$defaultFn(() => new Date()).notNull(),

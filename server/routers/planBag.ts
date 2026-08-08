@@ -158,7 +158,7 @@ export const planBagRouter = router({
       const snapshot = await buildSnapshot(input.templateId);
       if (!snapshot) throw new Error("Vorlage nicht gefunden");
       const db = (await getDb())!;
-      await db.insert(planBagItems).values({ userId: ctx.user.openId!, snapshot });
+      await db.insert(planBagItems).values({ userId: ctx.user.id, snapshot });
       return { ok: true };
     }),
 
@@ -166,7 +166,7 @@ export const planBagRouter = router({
     .query(async ({ ctx }) => {
       const db = (await getDb())!;
       const items = await db.select().from(planBagItems)
-        .where(eq(planBagItems.userId, ctx.user.openId!));
+        .where(eq(planBagItems.userId, ctx.user.id));
       const result = await Promise.all(items.map(async item => {
         const shares = await db.select().from(planBagShares)
           .where(eq(planBagShares.bagItemId, item.id));
@@ -180,7 +180,7 @@ export const planBagRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = (await getDb())!;
       await db.delete(planBagItems)
-        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.openId!)));
+        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.id)));
       return { ok: true };
     }),
 
@@ -192,7 +192,7 @@ export const planBagRouter = router({
       const db = (await getDb())!;
       await db.update(planBagItems)
         .set({ snapshot, updatedAt: new Date() })
-        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.openId!)));
+        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.id)));
       return { ok: true };
     }),
 
@@ -212,7 +212,7 @@ export const planBagRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = (await getDb())!;
       const [item] = await db.select().from(planBagItems)
-        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.openId!)));
+        .where(and(eq(planBagItems.id, input.bagItemId), eq(planBagItems.userId, ctx.user.id)));
       if (!item) throw new Error("Nicht gefunden");
       const token = crypto.randomBytes(24).toString("base64url");
       await db.insert(planBagShares).values({ bagItemId: input.bagItemId, token });
@@ -226,7 +226,7 @@ export const planBagRouter = router({
       const [share] = await db.select().from(planBagShares).where(eq(planBagShares.id, input.shareId));
       if (!share) throw new Error("Nicht gefunden");
       const [item] = await db.select().from(planBagItems)
-        .where(and(eq(planBagItems.id, share.bagItemId), eq(planBagItems.userId, ctx.user.openId!)));
+        .where(and(eq(planBagItems.id, share.bagItemId), eq(planBagItems.userId, ctx.user.id)));
       if (!item) throw new Error("Keine Berechtigung");
       await db.delete(planBagShares).where(eq(planBagShares.id, input.shareId));
       return { ok: true };
