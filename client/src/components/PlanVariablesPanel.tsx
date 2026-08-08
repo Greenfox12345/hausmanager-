@@ -245,16 +245,30 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     if (!enableVariables || !template) return;
     let changed = false;
     const updated = mergedVars.map(v => {
-      if (v.value) return v;
-      const assignments = varAssignments[v.name];
-      if (!assignments || assignments.length === 0) return v;
-      for (const a of assignments) {
-        if (a.result?.ok) {
-          changed = true;
-          return { ...v, value: a.result.display };
+      let result = { ...v };
+      // Auto-Wert aus Aufgaben-Zuweisungen (nur wenn noch kein Wert)
+      if (!result.value) {
+        const assignments = varAssignments[v.name];
+        if (assignments && assignments.length > 0) {
+          for (const a of assignments) {
+            if (a.result?.ok) {
+              changed = true;
+              result = { ...result, value: a.result.display };
+              break;
+            }
+          }
         }
       }
-      return v;
+      // Auto-Einheit aus propagierter Einheit (nur wenn keine manuelle Einheit gesetzt)
+      if (!result.unit) {
+        const evalEntry = evaluatedVars[v.name];
+        const propagatedUnit = evalEntry?.result?.ok ? evalEntry.result.unit : undefined;
+        if (propagatedUnit) {
+          changed = true;
+          result = { ...result, unit: propagatedUnit };
+        }
+      }
+      return result;
     });
     if (changed) {
       updateMutation.mutate({ templateId, householdId, memberId, variables: updated });

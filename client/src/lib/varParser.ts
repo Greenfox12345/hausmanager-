@@ -491,7 +491,17 @@ function inferUnit(
   // (nach Entfernung der VAR-Namen und Zahlen)
   const stripped = expr.replace(new RegExp(VAR_REGEX.source, "g"), "0").replace(/[0-9.]/g, "0");
   const hasMulDiv = /[*/×]/.test(stripped);
-  if (hasMulDiv) return undefined; // Einheit nicht propagierbar
+  if (hasMulDiv && unitMap) {
+    // Sonderfall: Wenn nur eine Variable eine Einheit hat und alle anderen dimensionslos sind,
+    // propagiere die Einheit der einzigen dimensionierten Variable
+    const unitedVars = varNames.filter(n => unitMap[n]);
+    const unitlessVars = varNames.filter(n => !unitMap[n]);
+    if (unitedVars.length === 1 && unitlessVars.length === varNames.length - 1) {
+      return unitMap[unitedVars[0]];
+    }
+    return undefined; // Mehrere Einheiten bei Mul/Div → nicht propagierbar
+  }
+  if (hasMulDiv) return undefined;
 
   // Einheiten aller referenzierten Variablen sammeln
   const units = new Set<string>();
@@ -502,6 +512,10 @@ function inferUnit(
 
   // Nur wenn alle Variablen dieselbe Einheit haben
   if (units.size === 1) return Array.from(units)[0];
+  // Wenn manche Variablen keine Einheit haben, aber eine hat eine Einheit → propagieren
+  if (units.size === 1) return Array.from(units)[0];
+  const allUnits = varNames.map(n => unitMap?.[n]).filter(Boolean);
+  if (allUnits.length === 1) return allUnits[0] as string;
   return undefined;
 }
 
