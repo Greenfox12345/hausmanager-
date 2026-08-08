@@ -197,6 +197,12 @@
     "rangeDialogDesc": "Görev açıklamalarında aşağıdaki sınırlar bulundu:",
     "rangeDialogIgnore": "Yoksay",
     "rangeDialogApply": "Uygula",
-    "rangeApplied": "Aralık sınırları uygulandı"
+    "rangeApplied": "Aralık sınırları uygulandı",
+    "unitMismatch": "Manuel birim \"{{manual}}\", hesaplanan birim \"{{computed}}\" ile uyusmuyor",
+    "unitFoundInText": "Gorev metinlerinden \"{{unit}}\" birimini al?",
+    "unitDialogTitle": "Birimler alinsın mı?",
+    "unitDialogDesc": "Gorev metinlerinde asagidaki birimler bulundu:",
+    "unitDialogApply": "Evet, al",
+    "unitApplied": "Birimler alindi"
   }
 }

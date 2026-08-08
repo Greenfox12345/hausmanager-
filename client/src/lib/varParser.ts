@@ -867,3 +867,73 @@ export function extractRangeHintsFromTasks(
 }
 /** Regex für &-Alias-Token */
 export const ALIAS_REGEX = /&([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*)/g;
+
+/**
+ * Einheits-Hinweis: VAR-Name → erkannte Einheit aus Aufgabentexten
+ */
+export interface UnitHint {
+  varName: string;
+  unit: string;
+  sourceText: string;
+}
+
+/**
+ * Erkennt Einheiten neben VAR-Namen in Texten.
+ * Muster: "VARName cm", "VARName = 30 cm", "30 cm VARName", "VARName: 30cm"
+ * Bekannte Einheiten: cm, m, mm, km, kg, g, mg, l, ml, °C, %, Stück, St., stk
+ */
+export function extractUnitHints(text: string): UnitHint[] {
+  const hints: UnitHint[] = [];
+  const UNIT_PAT = `(?:cm|mm|m(?!VAR)|km|kg|g(?!VAR)|mg|l(?!VAR)|ml|°C|°F|%|Stück|St\\.|stk|pcs|ft|in|lbs|oz)`;
+  const VAR_PAT = `VAR[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*`;
+
+  // Muster 1: VARName = Zahl Einheit  (z.B. VARBreite = 30 cm)
+  const pat1 = new RegExp(`(${VAR_PAT})\\s*=\\s*[0-9]+(?:\\.[0-9]+)?\\s*(${UNIT_PAT})(?![A-Za-z])`, "g");
+  let m: RegExpExecArray | null;
+  while ((m = pat1.exec(text)) !== null) {
+    hints.push({ varName: m[1].replace(/^VAR/, ""), unit: m[2], sourceText: m[0] });
+  }
+
+  // Muster 2: Zahl Einheit < VARName < Zahl Einheit  (aus Bereichsangaben)
+  const pat2 = new RegExp(`[0-9]+(?:\\.[0-9]+)?\\s*(${UNIT_PAT})\\s*[<>≤≥]=?\\s*(${VAR_PAT})`, "g");
+  while ((m = pat2.exec(text)) !== null) {
+    hints.push({ varName: m[2].replace(/^VAR/, ""), unit: m[1], sourceText: m[0] });
+  }
+
+  // Muster 3: VARName Einheit (direkt dahinter, z.B. "VARBreite cm")
+  const pat3 = new RegExp(`(${VAR_PAT})\\s+(${UNIT_PAT})(?![A-Za-z0-9])`, "g");
+  while ((m = pat3.exec(text)) !== null) {
+    hints.push({ varName: m[1].replace(/^VAR/, ""), unit: m[2], sourceText: m[0] });
+  }
+
+  // Duplikate entfernen (gleicher varName + unit)
+  const seen = new Set<string>();
+  return hints.filter(h => {
+    const key = `${h.varName}:${h.unit}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Extrahiert alle Einheits-Hinweise aus allen Aufgaben-Texten.
+ * Gibt Map varName → UnitHint[] zurück.
+ */
+export function extractUnitHintsFromTasks(
+  tasks: Array<{ name?: string; description?: string }>
+): Record<string, UnitHint[]> {
+  const result: Record<string, UnitHint[]> = {};
+  for (const task of tasks) {
+    const texts = [task.name ?? "", task.description ?? ""];
+    for (const text of texts) {
+      const hints = extractUnitHints(text);
+      for (const hint of hints) {
+        if (!result[hint.varName]) result[hint.varName] = [];
+        const exists = result[hint.varName].some(h => h.unit === hint.unit);
+        if (!exists) result[hint.varName].push(hint);
+      }
+    }
+  }
+  return result;
+}

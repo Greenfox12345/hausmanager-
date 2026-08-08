@@ -197,6 +197,12 @@
     "rangeDialogDesc": "In den Aufgabenbeschreibungen wurden folgende Bereichsgrenzen gefunden:",
     "rangeDialogIgnore": "Ignorieren",
     "rangeDialogApply": "Übernehmen",
-    "rangeApplied": "Bereichsgrenzen übernommen"
+    "rangeApplied": "Bereichsgrenzen übernommen",
+    "unitMismatch": "Manuelle Einheit \"{{manual}}\" weicht von berechneter Einheit \"{{computed}}\" ab",
+    "unitFoundInText": "Einheit \"{{unit}}\" aus Aufgabentexten übernehmen?",
+    "unitDialogTitle": "Einheiten übernehmen?",
+    "unitDialogDesc": "Folgende Einheiten wurden in Aufgabentexten erkannt:",
+    "unitDialogApply": "Ja, übernehmen",
+    "unitApplied": "Einheiten übernommen"
   }
 }

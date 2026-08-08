@@ -197,6 +197,12 @@
     "rangeDialogDesc": "Se encontraron los siguientes límites en las descripciones:",
     "rangeDialogIgnore": "Ignorar",
     "rangeDialogApply": "Aplicar",
-    "rangeApplied": "Límites de rango aplicados"
+    "rangeApplied": "Límites de rango aplicados",
+    "unitMismatch": "La unidad manual \"{{manual}}\" difiere de la unidad calculada \"{{computed}}\"",
+    "unitFoundInText": "Adoptar la unidad \"{{unit}}\" de los textos de tarea?",
+    "unitDialogTitle": "Adoptar unidades?",
+    "unitDialogDesc": "Se encontraron las siguientes unidades en los textos de tarea:",
+    "unitDialogApply": "Si, adoptar",
+    "unitApplied": "Unidades adoptadas"
   }
 }

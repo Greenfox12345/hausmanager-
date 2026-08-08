@@ -25,6 +25,10 @@ import {
   buildAliasMap,
   evaluateFormula,
 } from "@/lib/varParser";
+import {
+  extractUnitHintsFromTasks,
+  type UnitHint,
+} from "@/lib/varParser";
 import { topoSortVars } from "@/lib/varParser";
 import { useTranslation } from "react-i18next";
 import {
@@ -229,6 +233,13 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   // Bereichs-Hinweise aus Aufgaben extrahieren
   const rangeHints = extractRangeHintsFromTasks(taskItems as any[]);
 
+  // Einheits-Hinweise aus Aufgaben extrahieren
+  const unitHints = extractUnitHintsFromTasks(taskItems as any[]);
+
+  // Einheits-Vorschlag-Dialog State
+  const [unitProposals, setUnitProposals] = useState<Array<{varName: string; hint: UnitHint}>>([]);
+  const [showUnitDialog, setShowUnitDialog] = useState(false);
+
   // Auto-Zuweisung
   useEffect(() => {
     if (!enableVariables || !template) return;
@@ -287,7 +298,13 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const renderVarCard = (v: PlanVariable) => {
     const ev = evaluatedVars[v.name];
     const res = ev?.result;
-    const displayUnit = v.unit ?? (res?.ok ? res.unit : undefined);
+    const propagatedUnit = res?.ok ? res.unit : undefined;
+    const displayUnit = v.unit ?? propagatedUnit;
+    // Einheits-Mismatch: manuelle Einheit weicht von propagierter ab
+    const unitMismatch = v.unit && propagatedUnit && v.unit !== propagatedUnit;
+    // Einheits-Hinweis aus Aufgabentexten (für alle Variablen-Typen)
+    const unitHint = unitHints[v.name]?.[0];
+    const hasNewUnit = unitHint && unitHint.unit !== v.unit;
     const mentions = countMentions(v.name);
     const isInput = !isComputedVar(v);
     const hasRange = isInput && (v.min !== undefined || v.max !== undefined);
@@ -568,6 +585,31 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
               </button>
             )}
 
+            {/* Einheits-Mismatch-Warnung: manuelle Einheit weicht von propagierter ab */}
+            {unitMismatch && (
+              <div
+                className="flex items-center gap-1 text-[11px] text-amber-600 cursor-help"
+                title={`Manuelle Einheit "${v.unit}" weicht von berechneter Einheit "${propagatedUnit}" ab`}
+              >
+                <span>⚠</span>
+                <span>{t("variables.unitMismatch", { manual: v.unit, computed: propagatedUnit })}</span>
+              </div>
+            )}
+
+            {/* Einheits-Vorschlag aus Aufgabentexten (für alle Variablen-Typen) */}
+            {hasNewUnit && unitHint && (
+              <button
+                type="button"
+                className="text-[11px] text-emerald-600 hover:text-emerald-700 underline decoration-dotted"
+                onClick={() => {
+                  setUnitProposals([{ varName: v.name, hint: unitHint }]);
+                  setShowUnitDialog(true);
+                }}
+              >
+                {t("variables.unitFoundInText", { unit: unitHint.unit })}
+              </button>
+            )}
+
             {/* Variablen-Matrix */}
             {varAssignments[v.name] && varAssignments[v.name].length > 1 && (
               <div className="mt-1 border-l-2 pl-2" style={{ borderColor: v.color }}>
@@ -711,6 +753,43 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
 
       {/* Lösch-Bestätigungs-Dialog */}
       <AlertDialog open={deleteCandidate !== null} onOpenChange={open => { if (!open) setDeleteCandidate(null); }}>
+      {/* Einheits-Vorschlag-Dialog */}
+      <AlertDialog open={showUnitDialog} onOpenChange={open => { if (!open) setShowUnitDialog(false); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("variables.unitDialogTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("variables.unitDialogDesc")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            {unitProposals.map((p, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <span className="font-mono text-violet-600">VAR{p.varName}</span>
+                <span className="text-muted-foreground">→</span>
+                <span className="font-mono font-semibold">{p.hint.unit}</span>
+                <span className="text-[11px] text-muted-foreground italic">({p.hint.sourceText})</span>
+              </div>
+            ))}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("variables.rangeDialogCancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              const updated = mergedVars.map(v => {
+                const proposal = unitProposals.find(p => p.varName === v.name);
+                if (!proposal) return v;
+                return { ...v, unit: proposal.hint.unit };
+              });
+              updateMutation.mutate({ templateId, householdId, memberId, variables: updated });
+              setShowUnitDialog(false);
+              toast.success(t("variables.unitApplied"));
+            }}>
+              {t("variables.unitDialogApply")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("variables.deleteTitle")}</AlertDialogTitle>

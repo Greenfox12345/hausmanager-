@@ -197,6 +197,12 @@
     "rangeDialogDesc": "The following range limits were found in task descriptions:",
     "rangeDialogIgnore": "Ignore",
     "rangeDialogApply": "Apply",
-    "rangeApplied": "Range limits applied"
+    "rangeApplied": "Range limits applied",
+    "unitMismatch": "Manual unit \"{{manual}}\" differs from computed unit \"{{computed}}\"",
+    "unitFoundInText": "Adopt unit \"{{unit}}\" from task texts?",
+    "unitDialogTitle": "Adopt units?",
+    "unitDialogDesc": "The following units were found in task texts:",
+    "unitDialogApply": "Yes, adopt",
+    "unitApplied": "Units adopted"
   }
 }

@@ -197,6 +197,12 @@
     "rangeDialogDesc": "تم العثور على الحدود التالية في الأوصاف:",
     "rangeDialogIgnore": "تجاهل",
     "rangeDialogApply": "تطبيق",
-    "rangeApplied": "تم تطبيق حدود النطاق"
+    "rangeApplied": "تم تطبيق حدود النطاق",
+    "unitMismatch": "الوحدة اليدوية {{manual}} تختلف عن الوحدة المحسوبة {{computed}}",
+    "unitFoundInText": "اعتماد الوحدة {{unit}} من نصوص المهام؟",
+    "unitDialogTitle": "اعتماد الوحدات؟",
+    "unitDialogDesc": "تم العثور على الوحدات التالية في نصوص المهام:",
+    "unitDialogApply": "نعم، اعتماد",
+    "unitApplied": "تم اعتماد الوحدات"
   }
 }

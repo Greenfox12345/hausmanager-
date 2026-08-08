@@ -197,6 +197,12 @@
     "rangeDialogDesc": "Les limites suivantes ont été trouvées dans les descriptions:",
     "rangeDialogIgnore": "Ignorer",
     "rangeDialogApply": "Appliquer",
-    "rangeApplied": "Limites de plage appliquées"
+    "rangeApplied": "Limites de plage appliquées",
+    "unitMismatch": "L'unité manuelle \"{{manual}}\" diffère de l'unité calculée \"{{computed}}\"",
+    "unitFoundInText": "Adopter l'unité \"{{unit}}\" des textes de tâche ?",
+    "unitDialogTitle": "Adopter les unités ?",
+    "unitDialogDesc": "Les unités suivantes ont été trouvées dans les textes de tâche :",
+    "unitDialogApply": "Oui, adopter",
+    "unitApplied": "Unités adoptées"
   }
 }
