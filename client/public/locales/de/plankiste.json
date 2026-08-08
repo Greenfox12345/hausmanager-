@@ -204,5 +204,19 @@
     "unitDialogDesc": "Folgende Einheiten wurden in Aufgabentexten erkannt:",
     "unitDialogApply": "Ja, übernehmen",
     "unitApplied": "Einheiten übernommen"
+  },
+  "phases": {
+    "title": "Phasen",
+    "manage": "Phasen verwalten",
+    "organize": "Organisieren",
+    "count": "{{count}} Phase",
+    "countPlural": "{{count}} Phasen",
+    "maxReached": "Maximal 12 Phasen erreicht",
+    "newPlaceholder": "Neue Phase...",
+    "noPhases": "Noch keine Phasen definiert",
+    "violationTitle": "Phasen-Abhängigkeitsfehler",
+    "violationReason": "Voraussetzung liegt in einer späteren Phase",
+    "organizeHint": "Klicke auf eine Phase um die Aufgabe zuzuordnen.",
+    "done": "Fertig"
   }
 }

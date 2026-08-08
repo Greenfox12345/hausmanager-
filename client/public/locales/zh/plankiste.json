@@ -204,5 +204,19 @@
     "unitDialogDesc": "在任务文本中发现以下单位：",
     "unitDialogApply": "是，采用",
     "unitApplied": "单位已采用"
+  },
+  "phases": {
+    "title": "阶段",
+    "manage": "管理阶段",
+    "organize": "整理",
+    "count": "{{count}} 个阶段",
+    "countPlural": "{{count}} 个阶段",
+    "maxReached": "最多12个阶段",
+    "newPlaceholder": "新阶段...",
+    "noPhases": "尚未定义阶段",
+    "violationTitle": "阶段依赖错误",
+    "violationReason": "前置任务在后续阶段",
+    "organizeHint": "点击阶段以分配任务。",
+    "done": "完成"
   }
 }

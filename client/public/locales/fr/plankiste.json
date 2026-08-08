@@ -204,5 +204,19 @@
     "unitDialogDesc": "Les unités suivantes ont été trouvées dans les textes de tâche :",
     "unitDialogApply": "Oui, adopter",
     "unitApplied": "Unités adoptées"
+  },
+  "phases": {
+    "title": "Phases",
+    "manage": "Gérer les phases",
+    "organize": "Organiser",
+    "count": "{{count}} phase",
+    "countPlural": "{{count}} phases",
+    "maxReached": "Maximum 12 phases atteint",
+    "newPlaceholder": "Nouvelle phase...",
+    "noPhases": "Aucune phase définie",
+    "violationTitle": "Erreurs de dépendance de phase",
+    "violationReason": "Le prérequis est dans une phase ultérieure",
+    "organizeHint": "Cliquez sur une phase pour assigner la tâche.",
+    "done": "Terminé"
   }
 }

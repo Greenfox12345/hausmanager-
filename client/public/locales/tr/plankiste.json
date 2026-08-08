@@ -204,5 +204,19 @@
     "unitDialogDesc": "Gorev metinlerinde asagidaki birimler bulundu:",
     "unitDialogApply": "Evet, al",
     "unitApplied": "Birimler alindi"
+  },
+  "phases": {
+    "title": "Aşamalar",
+    "manage": "Aşamaları yönet",
+    "organize": "Düzenle",
+    "count": "{{count}} aşama",
+    "countPlural": "{{count}} aşama",
+    "maxReached": "Maksimum 12 aşamaya ulaşıldı",
+    "newPlaceholder": "Yeni aşama...",
+    "noPhases": "Henüz aşama tanımlanmadı",
+    "violationTitle": "Aşama bağımlılık hataları",
+    "violationReason": "Ön koşul sonraki bir aşamada",
+    "organizeHint": "Görevi atamak için bir aşamaya tıklayın.",
+    "done": "Bitti"
   }
 }

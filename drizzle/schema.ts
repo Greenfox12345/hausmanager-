@@ -666,8 +666,9 @@ export const planTemplates = mysqlTable("plan_templates", {
   isArchived: boolean("isArchived").default(false).notNull(),
   // Variablen-System: Schalter und Variablen-Liste
   enableVariables: boolean("enableVariables").default(false).notNull(),
-  // Format: [{name, color, value?, unit?, description?}]
   variables: json("variables").$type<PlanVariable[]>(),
+  // Phasen-System: Liste der Phasen (max. 12)
+  phases: json("phases").$type<PlanPhase[]>(),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
   updatedAt: datetime("updatedAt").$defaultFn(() => new Date()).notNull(),
 });
@@ -678,6 +679,13 @@ export type PlanVariable = {
   value?: string;       // Direktwert oder Formel, z.B. "120" oder "VARHöhe * 2"
   unit?: string;        // Einheit, z.B. "cm", "Stück"
   description?: string; // Freitext-Beschreibung
+};
+/** Eine Phase in einer Plan-Vorlage (max. 12) */
+export type PlanPhase = {
+  id: string;     // z.B. "ph_1"
+  name: string;   // z.B. "Vorbereitung"
+  color: string;  // Hex-Farbe, z.B. "#3b82f6"
+  order: number;  // Reihenfolge (0-basiert)
 };
 export type PlanTemplate = typeof planTemplates.$inferSelect;
 export type InsertPlanTemplate = typeof planTemplates.$inferInsert;
@@ -769,6 +777,7 @@ export const planTemplateTaskItems = mysqlTable("plan_template_task_items", {
   prerequisiteItemIds: json("prerequisiteItemIds").$type<{id: number; gapDays?: number}[]>(),
   followupItemIds: json("followupItemIds").$type<{id: number; gapDays?: number}[]>(),
   sortOrder: int("sortOrder").default(0).notNull(),
+  phaseId: varchar("phaseId", { length: 64 }),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),
 });
 export type PlanTaskDependency = { id: number; gapDays?: number };

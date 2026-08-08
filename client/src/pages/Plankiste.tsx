@@ -700,6 +700,11 @@ function TemplateTaskItemsSection({
   const enableVariables = (template as any)?.enableVariables ?? false;
   const savedVariables = (template as any)?.variables ?? [];
   const varColorMap = buildVarColorMap(savedVariables);
+  const savedPhases: {id:string;name:string;color:string;order:number}[] = (template as any)?.phases ?? [];
+  const [phaseOrganizeMode, setPhaseOrganizeMode] = useState(false);
+  const [newPhaseName, setNewPhaseName] = useState("");
+  const [newPhaseColor, setNewPhaseColor] = useState("#3b82f6");
+  const [showPhasePanel, setShowPhasePanel] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [taskSortOrder, setTaskSortOrder] = useState<"original" | "topo">("topo");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -743,6 +748,10 @@ function TemplateTaskItemsSection({
   const displayedTaskItems = taskSortOrder === "topo"
     ? topoSortTasks(taskItems as any[])
     : (taskItems as any[]);
+  // Phasen-sortierte Aufgaben
+  const phaseDisplayedTaskItems = savedPhases.length > 0 ? sortByPhase(displayedTaskItems) : displayedTaskItems;
+  // Phasen-Verletzungen
+  const phaseViolations = getPhaseViolations(taskItems as any[]);
   const hasAnyDeps = (taskItems as any[]).some((t: any) =>
     (Array.isArray(t.prerequisiteItemIds) && t.prerequisiteItemIds.length > 0) ||
     (Array.isArray(t.followupItemIds) && t.followupItemIds.length > 0)
@@ -756,6 +765,53 @@ function TemplateTaskItemsSection({
       utils.planTemplates.getTemplate.invalidate({ templateId });
     },
   });
+
+  const updatePhasesMutation = trpc.planTemplates.updateTemplate.useMutation({
+    onSuccess: () => { utils.planTemplates.getTemplate.invalidate({ templateId }); },
+  });
+
+  function getPhaseViolations(tasks: any[]): Array<{taskId: number; taskName: string; depName: string; reason: string}> {
+    const violations: Array<{taskId: number; taskName: string; depName: string; reason: string}> = [];
+    const sp = [...savedPhases].sort((a, b) => a.order - b.order);
+    const pi = (phaseId: string | null) => { if (!phaseId) return 999; const i = sp.findIndex(p => p.id === phaseId); return i === -1 ? 999 : i; };
+    for (const task of tasks) {
+      const tp = pi(task.phaseId);
+      for (const entry of (task.prerequisiteItemIds ?? []) as (number|{id:number})[]) {
+        const depId = typeof entry === "number" ? entry : entry.id;
+        const dep = tasks.find((t: any) => t.id === depId);
+        if (!dep) continue;
+        if (pi(dep.phaseId) > tp) violations.push({ taskId: task.id, taskName: task.name, depName: dep.name, reason: `Voraussetzung „${dep.name}" liegt in einer späteren Phase` });
+      }
+    }
+    return violations;
+  }
+
+  function sortByPhase(tasks: any[]): any[] {
+    if (savedPhases.length === 0) return tasks;
+    const sp = [...savedPhases].sort((a, b) => a.order - b.order);
+    const pi = (phaseId: string | null) => { if (!phaseId) return sp.length; const i = sp.findIndex(p => p.id === phaseId); return i === -1 ? sp.length : i; };
+    return [...tasks].sort((a, b) => pi(a.phaseId) - pi(b.phaseId));
+  }
+
+  const addPhase = () => {
+    if (!newPhaseName.trim() || savedPhases.length >= 12) return;
+    const newPhase = { id: `ph_${Date.now()}`, name: newPhaseName.trim(), color: newPhaseColor, order: savedPhases.length };
+    updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: [...savedPhases, newPhase] });
+    setNewPhaseName("");
+  };
+  const deletePhase = (phaseId: string) => {
+    updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: savedPhases.filter(p => p.id !== phaseId).map((p, i) => ({ ...p, order: i })) });
+    (taskItems as any[]).filter((t: any) => t.phaseId === phaseId).forEach((t: any) => updateMutation.mutate({ itemId: t.id, phaseId: null }));
+  };
+  const updatePhaseColor = (phaseId: string, color: string) => {
+    updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: savedPhases.map(p => p.id === phaseId ? { ...p, color } : p) });
+  };
+  const updatePhaseName = (phaseId: string, name: string) => {
+    updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: savedPhases.map(p => p.id === phaseId ? { ...p, name } : p) });
+  };
+  const assignTaskPhase = (taskId: number, phaseId: string | null) => {
+    updateMutation.mutate({ itemId: taskId, phaseId });
+  };
 
   // State für Übernahme-Dialog: erkannte Variablen-Definitionen aus Beschreibungen
   const [pendingDefinitions, setPendingDefinitions] = useState<{varName: string; formula: string}[]>([]);
@@ -1173,39 +1229,138 @@ function TemplateTaskItemsSection({
           <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowAddTask(!showAddTask)}>
             <Plus className="w-3 h-3 mr-1" />{t("plankiste:taskItems.addTask")}
           </Button>
+          <Button
+            size="sm" variant={showPhasePanel ? "default" : "outline"}
+            className="h-7 text-xs gap-1"
+            onClick={() => { setShowPhasePanel(!showPhasePanel); setPhaseOrganizeMode(false); }}
+          >
+            <Layers className="w-3 h-3" />
+            Phasen {savedPhases.length > 0 && `(${savedPhases.length})`}
+          </Button>
+          {savedPhases.length > 0 && (
+            <Button
+              size="sm" variant={phaseOrganizeMode ? "default" : "outline"}
+              className="h-7 text-xs gap-1"
+              onClick={() => { setPhaseOrganizeMode(!phaseOrganizeMode); setShowPhasePanel(false); }}
+            >
+              <Layers className="w-3 h-3" />
+              Organisieren
+            </Button>
+          )}
         </div>
       </div>
-      {showAddTask && renderTaskForm(
-        "add", undefined,
-        newTaskName, setNewTaskName, newTaskDesc, setNewTaskDesc,
-        newTaskDueDays, setNewTaskDueDays, newTaskFreq, setNewTaskFreq,
-        newTaskRepeatInterval, setNewTaskRepeatInterval, newTaskRepeatUnit, setNewTaskRepeatUnit,
-        newTaskDurationDays, setNewTaskDurationDays, newTaskDurationMinutes, setNewTaskDurationMinutes,
-        newTaskEnableRotation, setNewTaskEnableRotation, newTaskRequiredPersons, setNewTaskRequiredPersons,
-        newTaskAssigned, setNewTaskAssigned,
-        newTaskPrereqs, setNewTaskPrereqs,
-        newTaskFollowups, setNewTaskFollowups,
-        () => {
-          const { frequency, repeatInterval: ri, repeatUnit: ru } = buildRepeatParams(newTaskFreq, newTaskRepeatInterval, newTaskRepeatUnit);
-          addMutation.mutate({
-            templateId, name: newTaskName.trim(),
-            description: newTaskDesc.trim() || null,
-            assignedToMemberIds: newTaskAssigned,
-            dueDaysFromStart: newTaskDueDays ? parseInt(newTaskDueDays) : null,
-            frequency, repeatInterval: ri as number|null, repeatUnit: ru as "days"|"weeks"|"months"|null,
-            durationDays: parseInt(newTaskDurationDays) || 0,
-            durationMinutes: parseInt(newTaskDurationMinutes) || 0,
-            enableRotation: newTaskEnableRotation,
-            requiredPersons: newTaskEnableRotation ? parseInt(newTaskRequiredPersons) || 1 : null,
-            prerequisiteItemIds: newTaskPrereqs,
-            followupItemIds: newTaskFollowups,
-          });
-        },
-        () => setShowAddTask(false),
-        addMutation.isPending
+
+      {/* Phasen-Verletzungs-Warnungen */}
+      {phaseViolations.length > 0 && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-2 space-y-1">
+          <p className="text-xs font-medium text-amber-700">⚠ Phasen-Abhängigkeitsfehler:</p>
+          {phaseViolations.map((v, i) => (
+            <p key={i} className="text-xs text-amber-600">„{v.taskName}": {v.reason}</p>
+          ))}
+        </div>
       )}
-      {displayedTaskItems.map((item: any) => (
-        <div key={item.id} className="rounded-lg border border-border bg-card p-2">
+
+      {/* Phasen-Verwaltungs-Panel */}
+      {showPhasePanel && (
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium">Phasen ({savedPhases.length}/12)</span>
+            <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setShowPhasePanel(false)}>✕</button>
+          </div>
+          {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
+            <div key={phase.id} className="flex items-center gap-2">
+              <input type="color" value={phase.color} onChange={e => updatePhaseColor(phase.id, e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0 p-0" />
+              <input type="text" defaultValue={phase.name} onBlur={e => updatePhaseName(phase.id, e.target.value)} className="flex-1 h-6 text-xs border border-border rounded px-1.5 bg-background" />
+              <button type="button" className="text-muted-foreground hover:text-destructive" onClick={() => deletePhase(phase.id)}><Trash2 className="w-3 h-3" /></button>
+            </div>
+          ))}
+          {savedPhases.length < 12 && (
+            <div className="flex items-center gap-2 pt-1 border-t border-border">
+              <input type="color" value={newPhaseColor} onChange={e => setNewPhaseColor(e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0 p-0" />
+              <input type="text" value={newPhaseName} onChange={e => setNewPhaseName(e.target.value)} placeholder="Neue Phase..." className="flex-1 h-6 text-xs border border-border rounded px-1.5 bg-background" onKeyDown={e => e.key === "Enter" && addPhase()} />
+              <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={addPhase} disabled={!newPhaseName.trim()}><Plus className="w-3 h-3" /></Button>
+            </div>
+          )}
+        </div>
+      )}
+      {showAddTask && renderTaskForm(
+      "add", undefined,
+      newTaskName, setNewTaskName, newTaskDesc, setNewTaskDesc,
+      newTaskDueDays, setNewTaskDueDays, newTaskFreq, setNewTaskFreq,
+      newTaskRepeatInterval, setNewTaskRepeatInterval, newTaskRepeatUnit, setNewTaskRepeatUnit,
+      newTaskDurationDays, setNewTaskDurationDays, newTaskDurationMinutes, setNewTaskDurationMinutes,
+      newTaskEnableRotation, setNewTaskEnableRotation, newTaskRequiredPersons, setNewTaskRequiredPersons,
+      newTaskAssigned, setNewTaskAssigned,
+      newTaskPrereqs, setNewTaskPrereqs,
+      newTaskFollowups, setNewTaskFollowups,
+      () => { 
+        const { frequency, repeatInterval: ri, repeatUnit: ru } = buildRepeatParams(newTaskFreq, newTaskRepeatInterval, newTaskRepeatUnit);
+        addMutation.mutate({
+          templateId, name: newTaskName.trim(),
+          description: newTaskDesc.trim() || null,
+          assignedToMemberIds: newTaskAssigned,
+          dueDaysFromStart: newTaskDueDays ? parseInt(newTaskDueDays) : null,
+          frequency, repeatInterval: ri as number|null, repeatUnit: ru as "days"|"weeks"|"months"|null,
+          durationDays: parseInt(newTaskDurationDays) || 0,
+          durationMinutes: parseInt(newTaskDurationMinutes) || 0,
+          enableRotation: newTaskEnableRotation,
+          requiredPersons: newTaskEnableRotation ? parseInt(newTaskRequiredPersons) || 1 : null,
+          prerequisiteItemIds: newTaskPrereqs,
+          followupItemIds: newTaskFollowups,
+        });
+      },
+      () => setShowAddTask(false),
+      addMutation.isPending
+    )}
+
+      {/* Phasen-Organisieren-Schnellverfahren */}
+      {phaseOrganizeMode && (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-muted-foreground">Klicke auf eine Phase um die Aufgabe zuzuordnen.</span>
+            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setPhaseOrganizeMode(false)}>✕ Fertig</Button>
+          </div>
+          {phaseDisplayedTaskItems.map((item: any, idx: number) => {
+            const violation = phaseViolations.find(v => v.taskId === item.id);
+            return (
+              <div key={item.id} className={`rounded border p-2 flex items-center gap-2 ${violation ? 'border-amber-400 bg-amber-50' : 'border-border bg-card'}`}>
+                <div className="flex flex-col gap-0.5">
+                  <button type="button" className="text-muted-foreground hover:text-foreground disabled:opacity-30" disabled={idx === 0}
+                    onClick={() => updateMutation.mutate({ itemId: item.id, sortOrder: ((phaseDisplayedTaskItems[idx-1] as any)?.sortOrder ?? 0) - 1 })}>
+                    <ChevronUp className="w-3 h-3" />
+                  </button>
+                  <button type="button" className="text-muted-foreground hover:text-foreground disabled:opacity-30" disabled={idx === phaseDisplayedTaskItems.length - 1}
+                    onClick={() => updateMutation.mutate({ itemId: item.id, sortOrder: ((phaseDisplayedTaskItems[idx+1] as any)?.sortOrder ?? 0) + 1 })}>
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{item.name}</p>
+                  {violation && <p className="text-[11px] text-amber-600">⚠ {violation.reason}</p>}
+                </div>
+                <div className="flex flex-wrap gap-1 justify-end">
+                  <button type="button"
+                    className={`text-xs px-1.5 py-0.5 rounded border ${!item.phaseId ? 'bg-muted border-border text-foreground font-medium' : 'border-border text-muted-foreground'}`}
+                    onClick={() => assignTaskPhase(item.id, null)}>–</button>
+                  {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
+                    <button key={phase.id} type="button"
+                      className="text-xs px-1.5 py-0.5 rounded border font-medium"
+                      style={{ backgroundColor: item.phaseId === phase.id ? phase.color : phase.color + "22", color: item.phaseId === phase.id ? "#fff" : phase.color, borderColor: phase.color + "66" }}
+                      onClick={() => assignTaskPhase(item.id, item.phaseId === phase.id ? null : phase.id)}>
+                      {phase.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Normale Aufgaben-Liste */}
+      {!phaseOrganizeMode && phaseDisplayedTaskItems.map((item: any) => (
+        <div key={item.id} className="rounded-lg border bg-card p-2"
+          style={item.phaseId ? { borderLeft: `4px solid ${savedPhases.find(p => p.id === item.phaseId)?.color ?? '#e5e7eb'}` } : { borderColor: 'hsl(var(--border))' }}>
           {editingTaskId === item.id ? renderTaskForm(
             "edit", item.id,
             editTaskName, setEditTaskName, editTaskDesc, setEditTaskDesc,
@@ -2100,3 +2255,4 @@ function InstanceTaskItemsList({
     </div>
   );
 }
+import { ChevronUp, ChevronDown } from "lucide-react";

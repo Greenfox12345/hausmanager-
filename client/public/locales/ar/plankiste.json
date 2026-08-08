@@ -204,5 +204,19 @@
     "unitDialogDesc": "تم العثور على الوحدات التالية في نصوص المهام:",
     "unitDialogApply": "نعم، اعتماد",
     "unitApplied": "تم اعتماد الوحدات"
+  },
+  "phases": {
+    "title": "المراحل",
+    "manage": "إدارة المراحل",
+    "organize": "تنظيم",
+    "count": "{{count}} مرحلة",
+    "countPlural": "{{count}} مراحل",
+    "maxReached": "تم الوصول إلى الحد الأقصى 12 مرحلة",
+    "newPlaceholder": "مرحلة جديدة...",
+    "noPhases": "لم يتم تحديد مراحل بعد",
+    "violationTitle": "أخطاء تبعية المرحلة",
+    "violationReason": "المتطلب الأساسي في مرحلة لاحقة",
+    "organizeHint": "انقر على مرحلة لتعيين المهمة.",
+    "done": "تم"
   }
 }

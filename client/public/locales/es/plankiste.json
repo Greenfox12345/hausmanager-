@@ -204,5 +204,19 @@
     "unitDialogDesc": "Se encontraron las siguientes unidades en los textos de tarea:",
     "unitDialogApply": "Si, adoptar",
     "unitApplied": "Unidades adoptadas"
+  },
+  "phases": {
+    "title": "Fases",
+    "manage": "Gestionar fases",
+    "organize": "Organizar",
+    "count": "{{count}} fase",
+    "countPlural": "{{count}} fases",
+    "maxReached": "Máximo 12 fases alcanzado",
+    "newPlaceholder": "Nueva fase...",
+    "noPhases": "Sin fases definidas",
+    "violationTitle": "Errores de dependencia de fase",
+    "violationReason": "El requisito previo está en una fase posterior",
+    "organizeHint": "Haz clic en una fase para asignar la tarea.",
+    "done": "Listo"
   }
 }

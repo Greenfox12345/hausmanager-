@@ -204,5 +204,19 @@
     "unitDialogDesc": "The following units were found in task texts:",
     "unitDialogApply": "Yes, adopt",
     "unitApplied": "Units adopted"
+  },
+  "phases": {
+    "title": "Phases",
+    "manage": "Manage phases",
+    "organize": "Organize",
+    "count": "{{count}} phase",
+    "countPlural": "{{count}} phases",
+    "maxReached": "Maximum 12 phases reached",
+    "newPlaceholder": "New phase...",
+    "noPhases": "No phases defined yet",
+    "violationTitle": "Phase dependency errors",
+    "violationReason": "Prerequisite is in a later phase",
+    "organizeHint": "Click a phase to assign the task.",
+    "done": "Done"
   }
 }

@@ -160,6 +160,12 @@ export const planTemplatesRouter = router({
         max: z.string().optional(),
         locked: z.boolean().optional(),
       })).optional(),
+      phases: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        color: z.string(),
+        order: z.number(),
+      })).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -171,6 +177,7 @@ export const planTemplatesRouter = router({
       if (input.tags !== undefined) updates.tags = input.tags;
       if (input.enableVariables !== undefined) updates.enableVariables = input.enableVariables;
       if (input.variables !== undefined) updates.variables = input.variables;
+      if (input.phases !== undefined) updates.phases = input.phases;
       if (Object.keys(updates).length > 0) {
         await db.update(planTemplates).set(updates).where(eq(planTemplates.id, input.templateId));
       }
@@ -690,6 +697,7 @@ export const planTemplatesRouter = router({
       prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       sortOrder: z.number().default(0),
+      phaseId: z.string().nullable().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -711,6 +719,7 @@ export const planTemplatesRouter = router({
         prerequisiteItemIds: input.prerequisiteItemIds ?? [],
         followupItemIds: input.followupItemIds ?? [],
         sortOrder: input.sortOrder,
+        phaseId: input.phaseId ?? null,
       });
       return { id: res.insertId };
     }),
@@ -733,6 +742,8 @@ export const planTemplatesRouter = router({
       requiredPersons: z.number().nullable().optional(),
       prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
+      phaseId: z.string().nullable().optional(),
+      sortOrder: z.number().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -753,6 +764,8 @@ export const planTemplatesRouter = router({
       if (fields.requiredPersons !== undefined) update.requiredPersons = fields.requiredPersons;
       if (fields.prerequisiteItemIds !== undefined) update.prerequisiteItemIds = fields.prerequisiteItemIds;
       if (fields.followupItemIds !== undefined) update.followupItemIds = fields.followupItemIds;
+      if (fields.phaseId !== undefined) update.phaseId = fields.phaseId;
+      if (fields.sortOrder !== undefined) update.sortOrder = fields.sortOrder;
       if (Object.keys(update).length > 0) {
         await db.update(planTemplateTaskItems).set(update).where(eq(planTemplateTaskItems.id, itemId));
       }
