@@ -5,7 +5,7 @@
  * - Tab "Vorlagen": Alle Vorlagen anzeigen, neue erstellen, bearbeiten, starten
  * - Tab "Aktive Pläne": Gestartete Instanzen mit Übertragungsfunktion
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -899,15 +899,76 @@ function TemplateTaskItemsSection({
     const getPrereqGap = (tid: number) => prereqs.find(p => p.id === tid)?.gapDays ?? "";
     const getFollowupGap = (tid: number) => followups.find(f => f.id === tid)?.gapDays ?? "";
 
+    // Blink-State: Set von Task-IDs die gerade blinken
+    const [blinkIds, setBlinkIds] = useState<Set<number>>(new Set());
+    const blinkTimeouts = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
+    const triggerBlink = (ids: number[]) => {
+      const newBlinks = new Set(Array.from(blinkIds));
+      ids.forEach(id => {
+        newBlinks.add(id);
+        // Bestehenden Timeout löschen falls vorhanden
+        const existing = blinkTimeouts.current.get(id);
+        if (existing) clearTimeout(existing);
+        // Nach 1.2s Blink beenden
+        const t = setTimeout(() => {
+          setBlinkIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+          blinkTimeouts.current.delete(id);
+        }, 1200);
+        blinkTimeouts.current.set(id, t);
+      });
+      setBlinkIds(newBlinks);
+    };
+
+    // Berechnet alle transitiven Voraussetzungen einer Aufgabe (rekursiv)
+    const getTransitivePrereqs = (tid: number, visited = new Set<number>()): number[] => {
+      if (visited.has(tid)) return []; // Zyklus-Schutz
+      visited.add(tid);
+      const task = (taskItems as any[]).find((t: any) => t.id === tid);
+      if (!task) return [];
+      const directPrereqs: number[] = (task.prerequisiteItemIds ?? []).map((p: any) =>
+        typeof p === "number" ? p : p.id
+      );
+      const result: number[] = [...directPrereqs];
+      for (const pid of directPrereqs) {
+        result.push(...getTransitivePrereqs(pid, visited));
+      }
+      return Array.from(new Set(result));
+    };
+
+    // Berechnet welche direkt gewählten Voraussetzungen eine bestimmte Aufgabe "erzwingen"
+    // (d.h. tid ist transitiv in deren Voraussetzungen enthalten)
+    const getBlockingPrereqs = (tid: number): number[] => {
+      return prereqs
+        .map(p => p.id)
+        .filter(pid => getTransitivePrereqs(pid).includes(tid));
+    };
+
+    // Gibt true zurück wenn tid nur transitiv (nicht direkt) als Voraussetzung gesetzt ist
+    const isTransitivePrereq = (tid: number): boolean => {
+      if (!isPrereq(tid)) return false;
+      return getBlockingPrereqs(tid).length > 0;
+    };
+
     const togglePrereq = (tid: number) => {
       if (isPrereq(tid)) {
+        // Prüfen ob diese Aufgabe transitiv gesperrt ist
+        const blockers = getBlockingPrereqs(tid);
+        if (blockers.length > 0) {
+          // Blinken lassen statt abwählen
+          triggerBlink(blockers);
+          return;
+        }
         setPrereqs(prereqs.filter(p => p.id !== tid));
-        // Bidirektional: auch aus Folgeaufgaben entfernen
         setFollowups(followups.filter(f => f.id !== tid));
       } else {
-        setPrereqs([...prereqs, { id: tid }]);
-        // Bidirektional: wenn diese Aufgabe schon als Folgeaufgabe gesetzt war, entfernen
-        setFollowups(followups.filter(f => f.id !== tid));
+        // Transitiv: alle Voraussetzungen von tid ebenfalls hinzufügen
+        const transPrereqs = getTransitivePrereqs(tid);
+        const newPrereqs = [...prereqs];
+        const toAdd = [tid, ...transPrereqs].filter(id => !newPrereqs.some(p => p.id === id));
+        setPrereqs([...newPrereqs, ...toAdd.map(id => ({ id }))]);
+        // Bidirektional: aus Folgeaufgaben entfernen
+        setFollowups(followups.filter(f => f.id !== tid && !transPrereqs.includes(f.id)));
       }
     };
 
@@ -1004,29 +1065,44 @@ function TemplateTaskItemsSection({
         <div>
           <Label className="text-xs text-muted-foreground block mb-1">{t("plankiste:taskForm.prerequisites")}</Label>
           <div className="flex flex-col gap-1.5">
-            {otherTasks.map((task: any) => (
-              <div key={task.id} className="flex items-center gap-2">
-                <button type="button"
-                  className={`px-2 py-0.5 rounded-full text-xs border transition-colors flex-shrink-0 ${
-                    isPrereq(task.id) ? "bg-orange-100 border-orange-300 text-orange-700" : "bg-background border-border text-muted-foreground"
-                  }`}
-                  onClick={() => togglePrereq(task.id)}
-                >
-                  {task.name}
-                </button>
-                {isPrereq(task.id) && (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="number" min="0" placeholder="0"
-                      value={getPrereqGap(task.id)}
-                      onChange={e => setPrereqGap(task.id, e.target.value)}
-                      className="h-6 text-xs w-14"
-                    />
-                    <span className="text-xs text-muted-foreground">{t("plankiste:taskForm.gapDays")}</span>
-                  </div>
-                )}
-              </div>
-            ))}
+            {otherTasks.map((task: any) => {
+              const transitive = isTransitivePrereq(task.id);
+              const blinking = blinkIds.has(task.id);
+              const blockerNames = transitive
+                ? getBlockingPrereqs(task.id).map((bid: number) => (taskItems as any[]).find((t: any) => t.id === bid)?.name ?? bid).join(", ")
+                : "";
+              return (
+                <div key={task.id} className="flex items-center gap-2">
+                  <button type="button"
+                    className={`px-2 py-0.5 rounded-full text-xs border transition-all flex-shrink-0 flex items-center gap-1 ${
+                      blinking
+                        ? "bg-orange-400 border-orange-500 text-white scale-105"
+                        : transitive
+                        ? "bg-orange-50 border-orange-200 text-orange-600 cursor-not-allowed opacity-80"
+                        : isPrereq(task.id)
+                        ? "bg-orange-100 border-orange-300 text-orange-700"
+                        : "bg-background border-border text-muted-foreground"
+                    }`}
+                    onClick={() => togglePrereq(task.id)}
+                    title={transitive ? `Transitiv erforderlich durch: ${blockerNames}` : undefined}
+                  >
+                    {transitive && <span className="text-[10px]">🔒</span>}
+                    {task.name}
+                  </button>
+                  {isPrereq(task.id) && !transitive && (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number" min="0" placeholder="0"
+                        value={getPrereqGap(task.id)}
+                        onChange={e => setPrereqGap(task.id, e.target.value)}
+                        className="h-6 text-xs w-14"
+                      />
+                      <span className="text-xs text-muted-foreground">{t("plankiste:taskForm.gapDays")}</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
