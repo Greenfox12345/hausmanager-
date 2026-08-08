@@ -180,6 +180,8 @@
     "errorMissing": "Variables manquantes : {{vars}}",
     "errorCycle": "Dépendance cyclique détectée",
     "errorDivZero": "Division par zéro",
-    "errorParse": "Formule invalide"
+    "errorParse": "Formule invalide",
+    "categoryInput": "Variables d'entrée ({{count}})",
+    "categoryComputed": "Variables calculées ({{count}})"
   }
 }

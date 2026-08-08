@@ -180,6 +180,8 @@
     "errorMissing": "متغيرات مفقودة: {{vars}}",
     "errorCycle": "تم اكتشاف تبعية دورية",
     "errorDivZero": "قسمة على صفر",
-    "errorParse": "صيغة غير صالحة"
+    "errorParse": "صيغة غير صالحة",
+    "categoryInput": "متغيرات الإدخال ({{count}})",
+    "categoryComputed": "المتغيرات المحسوبة ({{count}})"
   }
 }

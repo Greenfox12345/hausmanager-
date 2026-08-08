@@ -180,6 +180,8 @@
     "errorMissing": "Eksik değişkenler: {{vars}}",
     "errorCycle": "Döngüsel bağımlılık tespit edildi",
     "errorDivZero": "Sıfıra bölme",
-    "errorParse": "Geçersiz formül"
+    "errorParse": "Geçersiz formül",
+    "categoryInput": "Giriş Değişkenleri ({{count}})",
+    "categoryComputed": "Hesaplama Değişkenleri ({{count}})"
   }
 }

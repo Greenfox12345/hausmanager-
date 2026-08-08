@@ -6,18 +6,16 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Variable, Pencil, Check, X, Trash2 } from "lucide-react";
+import { Variable, Pencil, Check, X, Trash2, Calculator, Keyboard } from "lucide-react";
 import {
   extractVarNames,
   generateVarColor,
-  mergeVarsFromText,
   countVarMentions,
   removeVarFromText,
   type PlanVariable,
 } from "@/lib/varParser";
 import { evaluateAllVars, extractVarAssignmentsFromTasks, buildVarValueMap } from "@/lib/varParser";
 import { topoSortVars } from "@/lib/varParser";
-import { GitBranch } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -34,6 +32,12 @@ interface PlanVariablesPanelProps {
   templateId: number;
   householdId: number;
   memberId: number;
+}
+
+/** Prüft ob eine Variable eine Rechen-Variable ist (enthält VAR-Referenz in value) */
+function isComputedVar(v: PlanVariable): boolean {
+  if (!v.value) return false;
+  return /VAR[A-Za-zÄÖÜäöüß]/.test(v.value);
 }
 
 export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVariablesPanelProps) {
@@ -66,7 +70,6 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const [editValue, setEditValue] = useState("");
   const [editUnit, setEditUnit] = useState("");
   const [editColor, setEditColor] = useState("");
-  const [varSortOrder, setVarSortOrder] = useState<"original" | "topo">("topo");
 
   // Lösch-Dialog State
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
@@ -90,9 +93,11 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     }
   }
 
-  // Topologisch sortierte Variablen-Liste
-  const displayedVars = varSortOrder === "topo" ? topoSortVars(mergedVars) : mergedVars;
-  const hasVarDeps = mergedVars.some(v => v.value && /VAR[A-Za-z]/.test(v.value));
+  // Kategorisieren: Eingabe vs. Rechen
+  const inputVars = topoSortVars(mergedVars.filter(v => !isComputedVar(v)));
+  const computedVars = topoSortVars(mergedVars.filter(v => isComputedVar(v)));
+  // Standardreihenfolge: Eingabe zuerst, dann Rechen (beide topologisch sortiert)
+  const displayedVars = [...inputVars, ...computedVars];
 
   // Zählt Erwähnungen einer Variable in allen Aufgaben
   const countMentions = (varName: string): number => {
@@ -131,11 +136,9 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
 
   // Variable aus der Liste löschen (und optional aus allen Texten entfernen)
   const confirmDelete = (varName: string) => {
-    // Variable aus der gespeicherten Liste entfernen
     const updatedVars = mergedVars.filter(v => v.name !== varName);
     updateMutation.mutate({ templateId, householdId, memberId, variables: updatedVars });
 
-    // Optional: VAR-Token aus allen Aufgaben-Texten entfernen
     if (deleteAlsoFromTexts) {
       const updates: { itemId: number; name?: string; description?: string | null }[] = [];
       for (const item of taskItems as any[]) {
@@ -172,21 +175,16 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   }, [(taskItems as any[]).length, enableVariables]);
 
   const mentionCount = deleteCandidate ? countMentions(deleteCandidate) : 0;
-  // Alle Variablen auswerten (Formel-Engine)
   const evaluatedVars = evaluateAllVars(mergedVars);
-
-  // Variablen-Zuweisungen aus Aufgaben-Texten extrahieren (für Matrix)
   const rawVarMap = buildVarValueMap(mergedVars);
   const varAssignments = extractVarAssignmentsFromTasks(taskItems as any[], rawVarMap);
 
-  // Auto-Zuweisung: Wenn Aufgaben Formeln enthalten (VARName = Formel) und
-  // alle Eingabevariablen bekannt sind, den berechneten Wert automatisch speichern.
-  // Nur Variablen ohne manuell gesetzten Wert werden auto-zugewiesen.
+  // Auto-Zuweisung
   useEffect(() => {
     if (!enableVariables || !template) return;
     let changed = false;
     const updated = mergedVars.map(v => {
-      if (v.value) return v; // Manuellen Wert nicht überschreiben
+      if (v.value) return v;
       const assignments = varAssignments[v.name];
       if (!assignments || assignments.length === 0) return v;
       for (const a of assignments) {
@@ -202,6 +200,147 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(rawVarMap), enableVariables]);
+
+  /** Rendert eine einzelne Variablen-Karte */
+  const renderVarCard = (v: PlanVariable) => {
+    const ev = evaluatedVars[v.name];
+    const res = ev?.result;
+    const displayUnit = v.unit ?? (res?.ok ? res.unit : undefined);
+    const mentions = countMentions(v.name);
+
+    return (
+      <div key={v.name} className="rounded-md border border-border bg-muted/30 p-2.5">
+        {editingVar === v.name ? (
+          /* ── Bearbeitungs-Modus ── */
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={editColor}
+                onChange={e => setEditColor(e.target.value)}
+                className="w-6 h-6 rounded cursor-pointer border-0 p-0 flex-shrink-0"
+                title={t("variables.colorLabel")}
+              />
+              <span className="text-sm font-mono font-medium break-all" style={{ color: editColor }}>
+                VAR{v.name}
+              </span>
+            </div>
+            <div className="flex gap-1.5">
+              <Input
+                placeholder={t("variables.valuePlaceholder")}
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                className="h-7 text-xs flex-1 min-w-0"
+              />
+              <Input
+                placeholder={t("variables.unitPlaceholder")}
+                value={editUnit}
+                onChange={e => setEditUnit(e.target.value)}
+                className="h-7 text-xs w-16 flex-shrink-0"
+              />
+              <Button size="sm" className="h-7 w-7 p-0 flex-shrink-0" onClick={() => saveVarEdit(v.name)}>
+                <Check className="w-3 h-3" />
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 flex-shrink-0" onClick={() => setEditingVar(null)}>
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* ── Anzeige-Modus ── */
+          <div className="space-y-1">
+            {/* Zeile 1: Name + Erwähnungen + Buttons */}
+            <div className="flex items-start gap-2">
+              <span
+                className="text-sm font-mono font-medium break-all leading-tight flex-1 min-w-0"
+                style={{ color: v.color }}
+              >
+                VAR{v.name}
+              </span>
+              <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+                  {mentions}×
+                </span>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground p-0.5"
+                  onClick={() => startEdit(v)}
+                  title={t("variables.editLabel")}
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-destructive p-0.5"
+                  onClick={() => { setDeleteCandidate(v.name); setDeleteAlsoFromTexts(false); }}
+                  title={t("variables.deleteLabel")}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+            {/* Zeile 2: Definition / Wert */}
+            <div className="text-xs text-muted-foreground">
+              {v.value ? (
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="font-mono break-all">= {v.value}</span>
+                  {res ? (
+                    res.ok ? (
+                      <span className="text-emerald-600 font-medium whitespace-nowrap">
+                        → {res.display}{displayUnit ? ` ${displayUnit}` : ""}
+                      </span>
+                    ) : (
+                      <span
+                        className="text-amber-500 cursor-help inline-flex items-center gap-0.5"
+                        title={
+                          res.error === "missing_vars"
+                            ? t("variables.errorMissing", { vars: res.missing?.join(", ") })
+                            : res.error === "cycle"
+                            ? t("variables.errorCycle")
+                            : res.error === "div_zero"
+                            ? t("variables.errorDivZero")
+                            : t("variables.errorParse")
+                        }
+                      >
+                        → <span className="underline decoration-dotted">?</span>
+                        <span className="text-[10px] opacity-70">({
+                          res.error === "missing_vars"
+                            ? `fehlt: ${res.missing?.slice(0, 2).join(", ")}${(res.missing?.length ?? 0) > 2 ? "…" : ""}`
+                            : res.error === "cycle" ? "Zyklus"
+                            : res.error === "div_zero" ? "÷0" : "Syntax"
+                        })</span>
+                      </span>
+                    )
+                  ) : null}
+                </div>
+              ) : (
+                <span className="italic">{t("variables.noValue")}</span>
+              )}
+            </div>
+            {/* Variablen-Matrix */}
+            {varAssignments[v.name] && varAssignments[v.name].length > 1 && (
+              <div className="mt-1 border-l-2 pl-2" style={{ borderColor: v.color }}>
+                <p className="text-xs text-muted-foreground mb-1">{t("variables.matrixHint")}</p>
+                <div className="space-y-0.5">
+                  {varAssignments[v.name].map((a: any, idx: number) => (
+                    <div key={idx} className="text-xs flex flex-col gap-0.5 border-b border-border/30 pb-0.5 last:border-0 last:pb-0">
+                      <span className="text-muted-foreground text-[11px]">{a.taskName}</span>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className="font-mono break-all">{a.formula}</span>
+                        {a.result?.ok
+                          ? <span className="text-emerald-600 whitespace-nowrap">→ {a.result.display}{(v.unit ?? a.result.unit) ? ` ${v.unit ?? a.result.unit}` : ""}</span>
+                          : <span className="text-amber-500">→ ?</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="mt-3 border-t border-border pt-3">
@@ -229,147 +368,33 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
             <p className="text-xs text-muted-foreground italic">{t("variables.noVars")}</p>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{t("variables.hint")}</p>
-                {hasVarDeps && mergedVars.length > 1 && (
-                  <Button
-                    size="sm" variant={varSortOrder === "topo" ? "default" : "outline"}
-                    className="h-6 text-xs gap-1"
-                    onClick={() => setVarSortOrder(varSortOrder === "topo" ? "original" : "topo")}
-                    title={varSortOrder === "topo" ? "Originalreihenfolge" : "Topologisch sortieren"}
-                  >
-                    <GitBranch className="w-3 h-3" />
-                    {varSortOrder === "topo" ? "Original" : "Topologisch"}
-                  </Button>
-                )}
-              </div>
-              {displayedVars.map(v => (
-                <div key={v.name} className="rounded-md border border-border bg-muted/30 p-2">
-                  {editingVar === v.name ? (
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editColor}
-                          onChange={e => setEditColor(e.target.value)}
-                          className="w-6 h-6 rounded cursor-pointer border-0 p-0"
-                          title={t("variables.colorLabel")}
-                        />
-                        <span className="text-sm font-mono font-medium" style={{ color: editColor }}>
-                          VAR{v.name}
-                        </span>
-                      </div>
-                      <div className="flex gap-1.5">
-                        <Input
-                          placeholder={t("variables.valuePlaceholder")}
-                          value={editValue}
-                          onChange={e => setEditValue(e.target.value)}
-                          className="h-7 text-xs flex-1"
-                        />
-                        <Input
-                          placeholder={t("variables.unitPlaceholder")}
-                          value={editUnit}
-                          onChange={e => setEditUnit(e.target.value)}
-                          className="h-7 text-xs w-16"
-                        />
-                        <Button size="sm" className="h-7 w-7 p-0" onClick={() => saveVarEdit(v.name)}>
-                          <Check className="w-3 h-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingVar(null)}>
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-mono font-medium flex-shrink-0" style={{ color: v.color }}>
-                        VAR{v.name}
-                      </span>
-                      {/* Erwähnungs-Zähler */}
-                      <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full flex-shrink-0">
-                        {countMentions(v.name)}×
-                      </span>
-                      {v.value ? (
-                        <span className="text-xs text-muted-foreground truncate flex items-center gap-1 flex-wrap">
-                          <span className="font-mono">= {v.value}</span>
-                          {(() => {
-                            const ev = evaluatedVars[v.name];
-                            if (!ev) return null;
-                            const res = ev.result;
-                            if (res.ok) {
-                              const displayUnit = v.unit ?? res.unit;
-                              return <span className="text-emerald-600 font-medium">→ {res.display}{displayUnit ? ` ${displayUnit}` : ""}</span>;
-                            }
-                            const errMsg = res.error === "missing_vars"
-                              ? t("variables.errorMissing", { vars: res.missing?.join(", ") })
-                              : res.error === "cycle"
-                              ? t("variables.errorCycle")
-                              : res.error === "div_zero"
-                              ? t("variables.errorDivZero")
-                              : t("variables.errorParse");
-                            return (
-                              <span
-                                className="text-amber-500 cursor-help inline-flex items-center gap-0.5"
-                                title={errMsg}
-                              >
-                                → <span className="underline decoration-dotted">?</span>
-                                <span className="text-[10px] opacity-70">({
-                                  res.error === "missing_vars" ? `fehlt: ${res.missing?.slice(0,2).join(", ")}${(res.missing?.length ?? 0) > 2 ? "…" : ""}` :
-                                  res.error === "cycle" ? "Zyklus" :
-                                  res.error === "div_zero" ? "÷0" : "Syntax"
-                                })</span>
-                              </span>
-                            );
-                          })()}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground italic truncate">
-                          {t("variables.noValue")}
-                        </span>
-                      )}
-                      <div className="ml-auto flex items-center gap-1 flex-shrink-0">
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground"
-                          onClick={() => startEdit(v)}
-                          title={t("variables.editLabel")}
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-destructive"
-                          onClick={() => { setDeleteCandidate(v.name); setDeleteAlsoFromTexts(false); }}
-                          title={t("variables.deleteLabel")}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  {/* Variablen-Matrix: wenn Variable in mehreren Aufgaben zugewiesen wird */}
-                  {varAssignments[v.name] && varAssignments[v.name].length > 1 && (
-                    <div className="mt-1 ml-1 border-l-2 pl-2" style={{ borderColor: v.color }}>
-                      <p className="text-xs text-muted-foreground mb-1">{t("variables.matrixHint")}</p>
-                      <table className="w-full text-xs">
-                        <tbody>
-                          {varAssignments[v.name].map((a: any, idx: number) => (
-                            <tr key={idx} className="border-b border-border/50 last:border-0">
-                              <td className="py-0.5 pr-2 text-muted-foreground truncate max-w-[120px]">{a.taskName}</td>
-                              <td className="py-0.5 font-mono">{a.formula}</td>
-                              <td className="py-0.5 pl-2 text-right">
-                                {a.result?.ok
-                                  ? <span className="text-emerald-600">{a.result.display}{(v.unit ?? a.result.unit) ? ` ${v.unit ?? a.result.unit}` : ""}</span>
-                                  : <span className="text-amber-500">?</span>}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+              <p className="text-xs text-muted-foreground mb-2">{t("variables.hint")}</p>
+
+              {/* Eingabe-Variablen */}
+              {inputVars.length > 0 && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Keyboard className="w-3 h-3 text-blue-500" />
+                    <span className="text-xs font-medium text-blue-600">
+                      {t("variables.categoryInput", { count: inputVars.length })}
+                    </span>
+                  </div>
+                  {inputVars.map(v => renderVarCard(v))}
                 </div>
-              ))}
+              )}
+
+              {/* Rechen-Variablen */}
+              {computedVars.length > 0 && (
+                <div className="space-y-1 mt-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Calculator className="w-3 h-3 text-violet-500" />
+                    <span className="text-xs font-medium text-violet-600">
+                      {t("variables.categoryComputed", { count: computedVars.length })}
+                    </span>
+                  </div>
+                  {computedVars.map(v => renderVarCard(v))}
+                </div>
+              )}
             </>
           )}
         </div>

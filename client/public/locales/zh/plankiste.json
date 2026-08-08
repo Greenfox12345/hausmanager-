@@ -180,6 +180,8 @@
     "errorMissing": "缺少变量：{{vars}}",
     "errorCycle": "检测到循环依赖",
     "errorDivZero": "除以零",
-    "errorParse": "无效公式"
+    "errorParse": "无效公式",
+    "categoryInput": "输入变量 ({{count}})",
+    "categoryComputed": "计算变量 ({{count}})"
   }
 }
