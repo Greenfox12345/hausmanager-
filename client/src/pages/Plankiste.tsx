@@ -706,6 +706,8 @@ function TemplateTaskItemsSection({
   const [newPhaseColor, setNewPhaseColor] = useState("#3b82f6");
   const [showPhasePanel, setShowPhasePanel] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [deleteConfirmTaskId, setDeleteConfirmTaskId] = useState<number | null>(null);
+  const PHASE_COLORS = ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#06b6d4","#84cc16","#f97316","#6366f1","#14b8a6","#e11d48"];
   const [taskSortOrder, setTaskSortOrder] = useState<"original" | "topo">("topo");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   // Neu-Formular State
@@ -795,9 +797,11 @@ function TemplateTaskItemsSection({
 
   const addPhase = () => {
     if (!newPhaseName.trim() || savedPhases.length >= 12) return;
-    const newPhase = { id: `ph_${Date.now()}`, name: newPhaseName.trim(), color: newPhaseColor, order: savedPhases.length };
+    const autoColor = PHASE_COLORS[savedPhases.length % PHASE_COLORS.length];
+    const newPhase = { id: `ph_${Date.now()}`, name: newPhaseName.trim(), color: newPhaseColor || autoColor, order: savedPhases.length };
     updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: [...savedPhases, newPhase] });
     setNewPhaseName("");
+    setNewPhaseColor(PHASE_COLORS[(savedPhases.length + 1) % PHASE_COLORS.length]);
   };
   const deletePhase = (phaseId: string) => {
     updatePhasesMutation.mutate({ templateId, householdId, memberId, phases: savedPhases.filter(p => p.id !== phaseId).map((p, i) => ({ ...p, order: i })) });
@@ -1281,6 +1285,15 @@ function TemplateTaskItemsSection({
               <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={addPhase} disabled={!newPhaseName.trim()}><Plus className="w-3 h-3" /></Button>
             </div>
           )}
+          {/* Mobile: Phasen als Chips mit Namen darunter */}
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-border sm:hidden">
+            {[...savedPhases].sort((a, b) => a.order - b.order).map(phase => (
+              <div key={`chip-${phase.id}`} className="flex flex-col items-center gap-0.5">
+                <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: phase.color }} />
+                <span className="text-[10px] text-muted-foreground max-w-[48px] truncate">{phase.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       {showAddTask && renderTaskForm(
@@ -1460,7 +1473,7 @@ function TemplateTaskItemsSection({
               <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" onClick={() => startEditTask(item)}>
                 <Edit2 className="w-3 h-3" />
               </Button>
-              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ itemId: item.id })}>
+              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={() => setDeleteConfirmTaskId(item.id)}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -1504,6 +1517,52 @@ function TemplateTaskItemsSection({
       </AlertDialogContent>
     </AlertDialog>
     <PlanVariablesPanel templateId={templateId} householdId={householdId} memberId={memberId} />
+    {/* Lösch-Bestätigungs-Dialog */}
+    <AlertDialog open={deleteConfirmTaskId !== null} onOpenChange={open => { if (!open) setDeleteConfirmTaskId(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Aufgabe löschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {(() => {
+              const task = (taskItems as any[]).find((t: any) => t.id === deleteConfirmTaskId);
+              const deps = (taskItems as any[]).filter((t: any) =>
+                (t.prerequisiteItemIds ?? []).some((e: any) => (typeof e === "number" ? e : e.id) === deleteConfirmTaskId) ||
+                (t.followupItemIds ?? []).some((e: any) => (typeof e === "number" ? e : e.id) === deleteConfirmTaskId)
+              );
+              return (
+                <>
+                  <span>„{task?.name}" wird unwiderruflich gelöscht.</span>
+                  {deps.length > 0 && (
+                    <span className="block mt-1 text-amber-600">
+                      Wird auch aus {deps.length} Aufgabe{deps.length > 1 ? "n" : ""} als Vor-/Folgeaufgabe entfernt: {deps.map((d: any) => `„${d.name}"`).join(", ")}.
+                    </span>
+                  )}
+                </>
+              );
+            })()}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setDeleteConfirmTaskId(null)}>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => {
+            const id = deleteConfirmTaskId!;
+            (taskItems as any[]).forEach((t: any) => {
+              const hasPrereq = (t.prerequisiteItemIds ?? []).some((e: any) => (typeof e === "number" ? e : e.id) === id);
+              const hasFollowup = (t.followupItemIds ?? []).some((e: any) => (typeof e === "number" ? e : e.id) === id);
+              if (hasPrereq || hasFollowup) {
+                updateMutation.mutate({
+                  itemId: t.id,
+                  prerequisiteItemIds: (t.prerequisiteItemIds ?? []).filter((e: any) => (typeof e === "number" ? e : e.id) !== id),
+                  followupItemIds: (t.followupItemIds ?? []).filter((e: any) => (typeof e === "number" ? e : e.id) !== id),
+                });
+              }
+            });
+            deleteMutation.mutate({ itemId: id });
+            setDeleteConfirmTaskId(null);
+          }}>Löschen</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 }
