@@ -807,7 +807,8 @@ export interface RangeHint {
  */
 export function extractRangeHints(text: string): RangeHint[] {
   const hints: RangeHint[] = [];
-  const varPat = `(?:VAR[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*|[0-9]+(?:\\.[0-9]+)?)`;
+  // Grenzwert: Zahl (optional mit Einheit wie cm, m, kg, %) oder VAR-Referenz
+  const varPat = `(?:VAR[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9]*|[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z%°]+)?)`;
   const cmpPat = `(?:<=|>=|≤|≥|<|>)`;
   // Muster: WERT CMP VAR CMP WERT
   const pattern = new RegExp(
@@ -823,8 +824,13 @@ export function extractRangeHints(text: string): RangeHint[] {
     const leftIsMin = cmpLeft === "<" || cmpLeft === "<=" || cmpLeft === "≤";
     const minRaw = leftIsMin ? left : right;
     const maxRaw = leftIsMin ? right : left;
-    // VAR-Präfix entfernen für Referenzen
-    const normalizeVal = (v: string) => v.startsWith("VAR") ? v : v;
+    // Einheit aus Grenzwert entfernen (z.B. "30cm" → "30"), VAR-Referenzen unverändert lassen
+    const normalizeVal = (v: string) => {
+      if (v.startsWith("VAR")) return v;
+      // Zahl + optionale Einheit: nur die Zahl behalten
+      const numMatch = v.match(/^([0-9]+(?:\.[0-9]+)?)/);
+      return numMatch ? numMatch[1] : v;
+    };
     hints.push({
       varName,
       min: normalizeVal(minRaw),

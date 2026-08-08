@@ -155,6 +155,10 @@ export const planTemplatesRouter = router({
         value: z.string().optional(),
         unit: z.string().optional(),
         description: z.string().optional(),
+        alias: z.string().optional(),
+        min: z.string().optional(),
+        max: z.string().optional(),
+        locked: z.boolean().optional(),
       })).optional(),
     }))
     .mutation(async ({ input }) => {
