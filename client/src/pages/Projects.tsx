@@ -43,6 +43,172 @@ import { ReminderDialog } from "@/components/ReminderDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
+import { ShoppingCart, CheckSquare, Variable, Play, Layers } from "lucide-react";
+import { VarText } from "@/components/VarToken";
+import { type PlanVariable } from "@/lib/varParser";
+
+// ─── Plan-Sektion für Projekte aus Plankiste ──────────────────────────────────
+function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: number; householdId: number; memberId: number }) {
+  const { t } = useTranslation(["plankiste", "common"]);
+  const utils = trpc.useUtils();
+  const [startDialogOpen, setStartDialogOpen] = useState(false);
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [activeSection, setActiveSection] = useState<"phases" | "variables" | "shopping" | "tasks" | null>(null);
+
+  const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
+  const startMutation = trpc.planProjects.startProject.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${t("plankiste:project.started", "Projekt gestartet!")} ${data.createdTaskIds.length} Aufgaben, ${data.createdShoppingIds.length} Einkaufsartikel.`);
+      utils.planProjects.getWithPlanData.invalidate({ projectId });
+      utils.tasks.list.invalidate();
+      setStartDialogOpen(false);
+    },
+    onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
+  });
+
+  if (!project || !project.planTemplateId) return null;
+
+  const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number }>;
+  const variables = (project.planVariables ?? []) as PlanVariable[];
+  const shoppingItemsList = (project.planShoppingItems ?? []) as Array<{ name: string; quantity?: string; notes?: string; phaseId?: string }>;
+  const taskItemsList = (project.planTaskItems ?? []) as Array<{ name: string; description?: string; phaseId?: string; daysOffset?: number }>;
+  const enableVariables = project.enableVariables ?? false;
+  const isActive = project.status !== "planning";
+  const getPhase = (id?: string | null) => phases.find(p => p.id === id);
+
+  return (
+    <Card className="shadow-md border-amber-200">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Layers className="w-4 h-4 text-amber-600" />
+            {t("plankiste:project.planSection", "Plan-Inhalte")}
+          </CardTitle>
+          {!isActive ? (
+            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => setStartDialogOpen(true)}>
+              <Play className="w-3.5 h-3.5 mr-1.5" />
+              {t("plankiste:project.startProject", "Projekt starten")}
+            </Button>
+          ) : (
+            <Badge variant="outline" className="text-green-600 border-green-300">
+              {t("plankiste:project.alreadyStarted", "Gestartet")}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          {t("plankiste:project.planSectionDesc", "Aus Plankiste-Vorlage. Beim Starten werden Aufgaben und Einkäufe übertragen.")}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0">
+        {phases.length > 0 && (
+          <div>
+            <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "phases" ? null : "phases")}>
+              <span className="flex items-center gap-2"><Layers className="w-3.5 h-3.5" /> {t("plankiste:phases.title", "Phasen")} ({phases.length})</span>
+              <span>{activeSection === "phases" ? "▲" : "▼"}</span>
+            </button>
+            {activeSection === "phases" && (
+              <div className="flex flex-wrap gap-2 mt-1 pl-2">
+                {phases.sort((a, b) => a.order - b.order).map(phase => (
+                  <span key={phase.id} className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
+                    <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
+                    {phase.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {enableVariables && variables.length > 0 && (
+          <div>
+            <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "variables" ? null : "variables")}>
+              <span className="flex items-center gap-2"><Variable className="w-3.5 h-3.5" /> {t("plankiste:variables.title", "Variablen")} ({variables.length})</span>
+              <span>{activeSection === "variables" ? "▲" : "▼"}</span>
+            </button>
+            {activeSection === "variables" && (
+              <div className="space-y-1 mt-1 pl-2">
+                {variables.map(v => (
+                  <div key={v.name} className="flex items-center gap-2 text-xs">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
+                    <span className="font-mono" style={{ color: v.color }}>VAR{v.name}</span>
+                    {v.value && <span className="text-muted-foreground">= {v.value}{v.unit ? ` ${v.unit}` : ""}</span>}
+                    {v.alias && <span className="text-muted-foreground italic">&amp;{v.alias}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {shoppingItemsList.length > 0 && (
+          <div>
+            <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "shopping" ? null : "shopping")}>
+              <span className="flex items-center gap-2"><ShoppingCart className="w-3.5 h-3.5" /> {t("plankiste:items.title", "Einkaufsartikel")} ({shoppingItemsList.length})</span>
+              <span>{activeSection === "shopping" ? "▲" : "▼"}</span>
+            </button>
+            {activeSection === "shopping" && (
+              <div className="space-y-1 mt-1 pl-2">
+                {shoppingItemsList.map((item, idx) => {
+                  const phase = getPhase(item.phaseId);
+                  return (
+                    <div key={idx} className="flex items-center gap-2 text-xs">
+                      {phase && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: phase.color }} />}
+                      <span className="flex-1">{enableVariables ? <VarText text={item.name} variables={variables} /> : item.name}</span>
+                      {item.quantity && <span className="text-muted-foreground font-mono">{enableVariables ? <VarText text={item.quantity} variables={variables} /> : item.quantity}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        {taskItemsList.length > 0 && (
+          <div>
+            <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "tasks" ? null : "tasks")}>
+              <span className="flex items-center gap-2"><CheckSquare className="w-3.5 h-3.5" /> {t("plankiste:tasks.title", "Aufgaben")} ({taskItemsList.length})</span>
+              <span>{activeSection === "tasks" ? "▲" : "▼"}</span>
+            </button>
+            {activeSection === "tasks" && (
+              <div className="space-y-1 mt-1 pl-2">
+                {taskItemsList.map((task, idx) => {
+                  const phase = getPhase(task.phaseId);
+                  return (
+                    <div key={idx} className="flex items-start gap-2 text-xs">
+                      {phase && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5" style={{ background: phase.color }} />}
+                      <div className="flex-1">
+                        <span>{enableVariables ? <VarText text={task.name} variables={variables} /> : task.name}</span>
+                        {task.daysOffset != null && task.daysOffset > 0 && <span className="ml-2 text-muted-foreground">+{task.daysOffset}d</span>}
+                        {task.description && <p className="text-muted-foreground line-clamp-1 mt-0.5">{task.description}</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+      {startDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setStartDialogOpen(false)} />
+          <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
+            <h3 className="font-semibold text-base mb-2">{t("plankiste:project.startProject", "Projekt starten")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{taskItemsList.length} {t("plankiste:tasks.title", "Aufgaben")} + {shoppingItemsList.length} {t("plankiste:items.title", "Einkaufsartikel")} {t("plankiste:project.willBeTransferred", "werden übertragen")}</p>
+            <div className="mb-4">
+              <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setStartDialogOpen(false)}>{t("common:cancel")}</Button>
+              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => startMutation.mutate({ projectId, householdId, memberId, startDate })} disabled={startMutation.isPending}>
+                <Play className="w-3.5 h-3.5 mr-1.5" />
+                {t("plankiste:project.startNow", "Jetzt starten")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
 
 export default function Projects() {
   const { t } = useTranslation(["projects", "tasks", "common"]);
@@ -899,6 +1065,15 @@ export default function Projects() {
                     </div>
                   </CardHeader>
                 </Card>
+
+                {/* Plan-Sektion (nur für Projekte aus Plankiste) */}
+                {selectedProjectId && household && member && (
+                  <ProjectPlanSection
+                    projectId={selectedProjectId}
+                    householdId={household.householdId}
+                    memberId={member.memberId}
+                  />
+                )}
 
                 {/* Task Views */}
                 <Tabs defaultValue="list" className="space-y-4">

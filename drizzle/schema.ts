@@ -270,6 +270,50 @@ export const projects = mysqlTable("projects", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+export const projectsExtended = mysqlTable("projects", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  startDate: datetime("startDate"),
+  endDate: datetime("endDate"),
+  status: mysqlEnum("status", ["planning", "active", "completed", "cancelled"]).default("planning").notNull(),
+  isNeighborhoodProject: boolean("isNeighborhoodProject").default(false).notNull(),
+  isArchived: boolean("isArchived").default(false).notNull(),
+  createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  planTemplateId: int("planTemplateId"),
+  planPhases: json("planPhases").$type<PlanPhase[]>(),
+  planVariables: json("planVariables").$type<PlanVariable[]>(),
+  planShoppingItems: json("planShoppingItems").$type<ProjectPlanShoppingItem[]>(),
+  planTaskItems: json("planTaskItems").$type<ProjectPlanTaskItem[]>(),
+  enableVariables: boolean("enableVariables").default(false).notNull(),
+});
+/** Plan-Einkaufsartikel in einem Projekt (vor dem Start) */
+export type ProjectPlanShoppingItem = {
+  id?: number;
+  name: string;
+  quantity?: string;
+  unitId?: number | null;
+  categoryId?: number | null;
+  notes?: string | null;
+  phaseId?: string | null;
+  sortOrder?: number;
+};
+/** Plan-Aufgabe in einem Projekt (vor dem Start) */
+export type ProjectPlanTaskItem = {
+  id?: number;
+  name: string;
+  description?: string | null;
+  phaseId?: string | null;
+  sortOrder?: number;
+  repeatType?: string | null;
+  repeatInterval?: number | null;
+  repeatUnit?: string | null;
+  daysOffset?: number | null;
+  prerequisites?: number[];
+  followups?: number[];
+};
 
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;

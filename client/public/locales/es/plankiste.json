@@ -271,5 +271,23 @@
     "goToPlankiste": "Ir a la caja de planes",
     "loginToImport": "Por favor inicia sesión para importar esta plantilla.",
     "editTitle": "Editar plantilla"
+  },
+  "project": {
+    "createFromTemplate": "Iniciar como proyecto",
+    "createFromTemplateDesc": "Crea un nuevo proyecto con todas las fases, tareas y artículos de compra de esta plantilla.",
+    "projectName": "Nombre del proyecto",
+    "projectNamePlaceholder": "Nombre del proyecto",
+    "create": "Crear proyecto",
+    "created": "¡Proyecto creado!",
+    "createError": "Error al crear el proyecto",
+    "planSection": "Contenido del plan",
+    "planSectionDesc": "De la plantilla. Las tareas y compras se transferirán al iniciar.",
+    "startProject": "Iniciar proyecto",
+    "startDate": "Fecha de inicio",
+    "startNow": "Iniciar ahora",
+    "started": "¡Proyecto iniciado!",
+    "startError": "Error al iniciar el proyecto",
+    "alreadyStarted": "Iniciado",
+    "willBeTransferred": "se transferirán"
   }
 }

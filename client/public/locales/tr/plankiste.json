@@ -271,5 +271,23 @@
     "goToPlankiste": "Plan kutusuna git",
     "loginToImport": "Bu şablonu içe aktarmak için lütfen giriş yapın.",
     "editTitle": "Şablonu düzenle"
+  },
+  "project": {
+    "createFromTemplate": "Proje olarak başlat",
+    "createFromTemplateDesc": "Bu şablondan tüm aşamalar, görevler ve alışveriş öğeleriyle yeni bir proje oluşturur.",
+    "projectName": "Proje adı",
+    "projectNamePlaceholder": "Proje adı",
+    "create": "Proje oluştur",
+    "created": "Proje oluşturuldu!",
+    "createError": "Proje oluşturulurken hata",
+    "planSection": "Plan içeriği",
+    "planSectionDesc": "Şablondan. Başlatıldığında görevler ve alışveriş öğeleri aktarılacak.",
+    "startProject": "Projeyi başlat",
+    "startDate": "Başlangıç tarihi",
+    "startNow": "Şimdi başlat",
+    "started": "Proje başlatıldı!",
+    "startError": "Proje başlatılırken hata",
+    "alreadyStarted": "Başlatıldı",
+    "willBeTransferred": "aktarılacak"
   }
 }

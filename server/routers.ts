@@ -6,7 +6,7 @@ import { authRouter } from "./routers/auth";
 import { shoppingRouter } from "./routers/shopping";
 import { tasksRouter } from "./routers/tasks";
 import { uploadRouter } from "./routers/upload";
-import { projectsRouter } from "./routers/projects";
+import { projectsRouter, planProjectsRouter } from "./routers/projects";
 import { notificationsRouter } from "./routers/notifications";
 import { userAuthRouter } from "./routers/userAuth";
 import { userProfileRouter } from "./routers/userProfile";
@@ -49,6 +49,7 @@ export const appRouter = router({
   tasks: tasksRouter,
   upload: uploadRouter,
   projects: projectsRouter,
+  planProjects: planProjectsRouter,
   notifications: notificationsRouter,
   activities: activitiesRouter,
   inventory: inventoryRouter,

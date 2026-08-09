@@ -271,5 +271,23 @@
     "goToPlankiste": "الذهاب إلى صندوق الخطط",
     "loginToImport": "يرجى تسجيل الدخول لاستيراد هذا القالب.",
     "editTitle": "تعديل القالب"
+  },
+  "project": {
+    "createFromTemplate": "بدء كمشروع",
+    "createFromTemplateDesc": "ينشئ مشروعاً جديداً بجميع المراحل والمهام وعناصر التسوق من هذا النموذج.",
+    "projectName": "اسم المشروع",
+    "projectNamePlaceholder": "اسم المشروع",
+    "create": "إنشاء مشروع",
+    "created": "تم إنشاء المشروع!",
+    "createError": "خطأ في إنشاء المشروع",
+    "planSection": "محتوى الخطة",
+    "planSectionDesc": "من النموذج. سيتم نقل المهام والمشتريات عند البدء.",
+    "startProject": "بدء المشروع",
+    "startDate": "تاريخ البدء",
+    "startNow": "ابدأ الآن",
+    "started": "تم بدء المشروع!",
+    "startError": "خطأ في بدء المشروع",
+    "alreadyStarted": "تم البدء",
+    "willBeTransferred": "سيتم نقلها"
   }
 }

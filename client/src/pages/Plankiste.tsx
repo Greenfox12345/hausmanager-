@@ -277,6 +277,8 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [sort, setSort] = useState<SortOption>("date_desc");
   const [addToBagTemplateId, setAddToBagTemplateId] = useState<number | null>(null);
+  const [createProjectTemplateId, setCreateProjectTemplateId] = useState<number | null>(null);
+  const [createProjectName, setCreateProjectName] = useState("");
 
   const { data: templates = [], isLoading } = trpc.planTemplates.listTemplates.useQuery(
     { householdId },
@@ -304,6 +306,15 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
       setAddToBagTemplateId(null);
     },
     onError: () => toast.error(t("plankiste:plansack.addError")),
+  });
+  const createProjectMutation = trpc.planProjects.createFromTemplate.useMutation({
+    onSuccess: () => {
+      toast.success(t("plankiste:project.created", "Projekt erstellt!"));
+      setCreateProjectTemplateId(null);
+      setCreateProjectName("");
+      window.location.href = "/projects";
+    },
+    onError: () => toast.error(t("plankiste:project.createError", "Fehler beim Erstellen")),
   });
 
   if (isLoading) {
@@ -394,6 +405,10 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
                             <Edit2 className="w-4 h-4 mr-2" />
                             {t("plankiste:templates.edit")}
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => { setCreateProjectTemplateId(template.id); setCreateProjectName(template.name); }}>
+                            <FolderKanban className="w-4 h-4 mr-2" />
+                            {t("plankiste:project.createFromTemplate", "Als Projekt starten")}
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setAddToBagTemplateId(template.id)}>
                             <Backpack className="w-4 h-4 mr-2" />
                             {t("plankiste:plansack.addToBag")}
@@ -444,6 +459,40 @@ function TemplatesTab({ householdId, memberId }: { householdId: number; memberId
             >
               <Backpack className="w-4 h-4 mr-2" />
               {t("plankiste:plansack.addToBag")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Als Projekt starten Dialog */}
+      <AlertDialog open={createProjectTemplateId !== null} onOpenChange={open => { if (!open) { setCreateProjectTemplateId(null); setCreateProjectName(""); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("plankiste:project.createFromTemplate", "Als Projekt starten")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("plankiste:project.createFromTemplateDesc", "Erstellt ein neues Projekt mit allen Phasen, Aufgaben und Einkaufsartikeln dieser Vorlage.")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2 px-1">
+            <label className="text-sm font-medium">{t("plankiste:project.projectName", "Projektname")}</label>
+            <input
+              type="text"
+              value={createProjectName}
+              onChange={e => setCreateProjectName(e.target.value)}
+              className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background"
+              placeholder={t("plankiste:project.projectNamePlaceholder", "Name des Projekts")}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => createProjectTemplateId && createProjectMutation.mutate({
+                householdId,
+                memberId,
+                templateId: createProjectTemplateId,
+                name: createProjectName || undefined,
+              })}
+              disabled={createProjectMutation.isPending}
+            >
+              <FolderKanban className="w-4 h-4 mr-2" />
+              {t("plankiste:project.create", "Projekt erstellen")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

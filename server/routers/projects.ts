@@ -10,7 +10,18 @@ import {
   projectStatusChanged,
 } from "../activityTexts";
 import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
-import { eq, and, inArray, desc } from "drizzle-orm";
+import { eq, and, inArray, desc, asc } from "drizzle-orm";
+import {
+  planTemplates,
+  planTemplateShoppingItems,
+  planTemplateTaskItems,
+  shoppingItems,
+  projectsExtended,
+  type PlanPhase,
+  type PlanVariable,
+  type ProjectPlanShoppingItem,
+  type ProjectPlanTaskItem,
+} from "../../drizzle/schema";
 
 /** Resolve the member name for a given memberId (householdMembers.id). */
 async function getMemberName(memberId: number): Promise<string> {
@@ -624,5 +635,182 @@ export const projectsRouter = router({
       }
 
       return { success: true };
+    }),
+});
+// ─── Plan-Integration ──────────────────────────────────────────────────────────
+// Diese Prozeduren werden dem projectsRouter nachträglich hinzugefügt.
+// Da TypeScript keine direkte Erweiterung von router()-Objekten erlaubt,
+// exportieren wir einen separaten planProjectsRouter.
+export const planProjectsRouter = router({
+  /** Projekt aus einer Plankiste-Vorlage erstellen */
+  createFromTemplate: protectedProcedure
+    .input(z.object({
+      householdId: z.number(),
+      memberId: z.number(),
+      templateId: z.number(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [template] = await db.select().from(planTemplates).where(eq(planTemplates.id, input.templateId));
+      if (!template) throw new Error("Vorlage nicht gefunden");
+      const shoppingItemRows = await db.select().from(planTemplateShoppingItems)
+        .where(eq(planTemplateShoppingItems.templateId, input.templateId))
+        .orderBy(asc(planTemplateShoppingItems.sortOrder));
+      const taskItemRows = await db.select().from(planTemplateTaskItems)
+        .where(eq(planTemplateTaskItems.templateId, input.templateId))
+        .orderBy(asc(planTemplateTaskItems.sortOrder));
+      const [result] = await db.insert(projectsExtended).values({
+        name: input.name ?? template.name,
+        description: input.description ?? template.description ?? undefined,
+        status: "planning",
+        isNeighborhoodProject: false,
+        createdBy: input.memberId,
+        planTemplateId: input.templateId,
+        planPhases: (template.phases ?? []) as PlanPhase[],
+        planVariables: (template.variables ?? []) as PlanVariable[],
+        enableVariables: template.enableVariables,
+        planShoppingItems: shoppingItemRows.map((item, idx) => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity ?? undefined,
+          unitId: item.unitId ?? undefined,
+          categoryId: item.categoryId ?? undefined,
+          notes: item.notes ?? undefined,
+          phaseId: (item as any).phaseId ?? undefined,
+          sortOrder: item.sortOrder ?? idx,
+        })) as ProjectPlanShoppingItem[],
+        planTaskItems: taskItemRows.map((item, idx) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description ?? undefined,
+          phaseId: item.phaseId ?? undefined,
+          sortOrder: item.sortOrder ?? idx,
+          repeatType: item.frequency ?? undefined,
+          repeatInterval: item.repeatInterval ?? undefined,
+          repeatUnit: item.repeatUnit ?? undefined,
+          daysOffset: item.dueDaysFromStart ?? undefined,
+          prerequisites: (item.prerequisiteItemIds ?? []).map((p: any) => typeof p === "object" ? p.id : p),
+          followups: (item.followupItemIds ?? []).map((f: any) => typeof f === "object" ? f.id : f),
+        })) as ProjectPlanTaskItem[],
+      });
+      const projectId = Number(result.insertId);
+      await db.insert(projectHouseholds).values({ projectId, householdId: input.householdId });
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectCreated",
+        description: projectCreated(lang, template.name, memberName),
+        relatedItemId: projectId,
+      });
+      return { projectId };
+    }),
+
+  /** Plan-Daten eines Projekts aktualisieren (Variablen, Phasen, Items) */
+  updatePlanData: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      planPhases: z.any().optional(),
+      planVariables: z.any().optional(),
+      planShoppingItems: z.any().optional(),
+      planTaskItems: z.any().optional(),
+      enableVariables: z.boolean().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const updateData: Record<string, any> = {};
+      if (input.planPhases !== undefined) updateData.planPhases = input.planPhases;
+      if (input.planVariables !== undefined) updateData.planVariables = input.planVariables;
+      if (input.planShoppingItems !== undefined) updateData.planShoppingItems = input.planShoppingItems;
+      if (input.planTaskItems !== undefined) updateData.planTaskItems = input.planTaskItems;
+      if (input.enableVariables !== undefined) updateData.enableVariables = input.enableVariables;
+      await db.update(projectsExtended).set(updateData).where(eq(projectsExtended.id, input.projectId));
+      return { success: true };
+    }),
+
+  /** Projekt starten: Aufgaben und Einkäufe aus dem Plan übertragen */
+  startProject: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      householdId: z.number(),
+      memberId: z.number(),
+      startDate: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
+      const createdTaskIds: number[] = [];
+      const createdShoppingIds: number[] = [];
+      // Aufgaben übertragen
+      for (const item of taskItemsList) {
+        let dueDate: Date | undefined;
+        if (item.daysOffset != null) {
+          dueDate = new Date(startDate);
+          dueDate.setDate(dueDate.getDate() + item.daysOffset);
+        }
+        const [res] = await db.insert(tasks).values({
+          householdId: input.householdId,
+          name: item.name,
+          description: item.description ?? null,
+          assignedTo: [],
+          frequency: (item.repeatType as any) ?? "once",
+          repeatInterval: item.repeatInterval ?? null,
+          repeatUnit: (item.repeatUnit as any) ?? null,
+          durationDays: 0,
+          durationMinutes: 0,
+          enableRotation: false,
+          dueDate: dueDate,
+          isCompleted: false,
+          createdBy: input.memberId,
+          projectIds: [input.projectId],
+        });
+        createdTaskIds.push(Number(res.insertId));
+      }
+      // Einkaufsartikel übertragen
+      for (const item of shoppingItemsList) {
+        const [res] = await db.insert(shoppingItems).values({
+          householdId: input.householdId,
+          name: item.name,
+          categoryId: item.categoryId ?? null,
+          quantity: item.quantity ?? null,
+          unitId: item.unitId ?? null,
+          notes: item.notes ?? null,
+          addedBy: input.memberId,
+          isCompleted: false,
+        });
+        createdShoppingIds.push(Number(res.insertId));
+      }
+      // Status auf "active" setzen
+      await db.update(projectsExtended).set({ status: "active" }).where(eq(projectsExtended.id, input.projectId));
+      const household = await getHouseholdById(input.householdId);
+      const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
+      const memberName = await getMemberName(input.memberId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "project",
+        action: "projectStatusChanged",
+        description: projectStatusChanged(lang, project.name, "active", memberName),
+        relatedItemId: input.projectId,
+      });
+      return { createdTaskIds, createdShoppingIds };
+    }),
+
+  /** Erweitertes Projekt-Objekt mit Plan-Daten laden */
+  getWithPlanData: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const db = (await getDb())!;
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
+      return project ?? null;
     }),
 });

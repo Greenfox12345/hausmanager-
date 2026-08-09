@@ -271,5 +271,23 @@
     "goToPlankiste": "Zur Plankiste",
     "loginToImport": "Bitte melde dich an, um diese Vorlage zu importieren.",
     "editTitle": "Vorlage bearbeiten"
+  },
+  "project": {
+    "createFromTemplate": "Als Projekt starten",
+    "createFromTemplateDesc": "Erstellt ein neues Projekt mit allen Phasen, Aufgaben und Einkaufsartikeln dieser Vorlage.",
+    "projectName": "Projektname",
+    "projectNamePlaceholder": "Name des Projekts",
+    "create": "Projekt erstellen",
+    "created": "Projekt erstellt!",
+    "createError": "Fehler beim Erstellen des Projekts",
+    "planSection": "Plan-Inhalte",
+    "planSectionDesc": "Aus Plankiste-Vorlage. Beim Starten werden Aufgaben und Einkäufe übertragen.",
+    "startProject": "Projekt starten",
+    "startDate": "Startdatum",
+    "startNow": "Jetzt starten",
+    "started": "Projekt gestartet!",
+    "startError": "Fehler beim Starten des Projekts",
+    "alreadyStarted": "Gestartet",
+    "willBeTransferred": "werden übertragen"
   }
 }

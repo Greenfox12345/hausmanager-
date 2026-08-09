@@ -271,5 +271,23 @@
     "goToPlankiste": "前往计划箱",
     "loginToImport": "请登录以导入此模板。",
     "editTitle": "编辑模板"
+  },
+  "project": {
+    "createFromTemplate": "作为项目启动",
+    "createFromTemplateDesc": "从此模板创建包含所有阶段、任务和购物项目的新项目。",
+    "projectName": "项目名称",
+    "projectNamePlaceholder": "项目名称",
+    "create": "创建项目",
+    "created": "项目已创建！",
+    "createError": "创建项目时出错",
+    "planSection": "计划内容",
+    "planSectionDesc": "来自模板。启动时将转移任务和购物项目。",
+    "startProject": "启动项目",
+    "startDate": "开始日期",
+    "startNow": "立即启动",
+    "started": "项目已启动！",
+    "startError": "启动项目时出错",
+    "alreadyStarted": "已启动",
+    "willBeTransferred": "将被转移"
   }
 }

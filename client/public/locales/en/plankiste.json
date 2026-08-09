@@ -271,5 +271,23 @@
     "goToPlankiste": "Go to plan box",
     "loginToImport": "Please log in to import this template.",
     "editTitle": "Edit template"
+  },
+  "project": {
+    "createFromTemplate": "Start as project",
+    "createFromTemplateDesc": "Creates a new project with all phases, tasks and shopping items from this template.",
+    "projectName": "Project name",
+    "projectNamePlaceholder": "Name of the project",
+    "create": "Create project",
+    "created": "Project created!",
+    "createError": "Error creating project",
+    "planSection": "Plan contents",
+    "planSectionDesc": "From template. Tasks and shopping items will be transferred when started.",
+    "startProject": "Start project",
+    "startDate": "Start date",
+    "startNow": "Start now",
+    "started": "Project started!",
+    "startError": "Error starting project",
+    "alreadyStarted": "Started",
+    "willBeTransferred": "will be transferred"
   }
 }

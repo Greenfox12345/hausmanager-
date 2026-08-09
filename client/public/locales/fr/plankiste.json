@@ -271,5 +271,23 @@
     "goToPlankiste": "Aller à la boîte à plans",
     "loginToImport": "Veuillez vous connecter pour importer ce modèle.",
     "editTitle": "Modifier le modèle"
+  },
+  "project": {
+    "createFromTemplate": "Démarrer comme projet",
+    "createFromTemplateDesc": "Crée un nouveau projet avec toutes les phases, tâches et articles de ce modèle.",
+    "projectName": "Nom du projet",
+    "projectNamePlaceholder": "Nom du projet",
+    "create": "Créer le projet",
+    "created": "Projet créé !",
+    "createError": "Erreur lors de la création du projet",
+    "planSection": "Contenu du plan",
+    "planSectionDesc": "Depuis le modèle. Les tâches et achats seront transférés au démarrage.",
+    "startProject": "Démarrer le projet",
+    "startDate": "Date de début",
+    "startNow": "Démarrer maintenant",
+    "started": "Projet démarré !",
+    "startError": "Erreur lors du démarrage",
+    "alreadyStarted": "Démarré",
+    "willBeTransferred": "seront transférés"
   }
 }
