@@ -430,7 +430,8 @@
     "asc": "A–Z",
     "desc": "Z–A",
     "ascending": "Aufsteigend sortieren",
-    "descending": "Absteigend sortieren"
+    "descending": "Absteigend sortieren",
+    "topological": "Abhängigkeiten"
   },
   "back": "Zurück",
   "common": {

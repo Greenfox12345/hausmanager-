@@ -21,6 +21,7 @@ import { ReminderDialog } from "@/components/ReminderDialog";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
+import { topoSortTasks } from "@/lib/varParser";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import TaskDependencies from "@/components/TaskDependencies";
 import { DatePickerInput } from "@/components/DatePickerInput";
@@ -91,7 +92,7 @@ export default function Tasks() {
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "completed">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<number | "all">("all");
   const [dueDateFilter, setDueDateFilter] = useState<"all" | "overdue" | "today" | "week" | "month">("all");
-  const [sortBy, setSortBy] = useState<"dueDate" | "name" | "createdAt">("dueDate");
+  const [sortBy, setSortBy] = useState<"dueDate" | "name" | "createdAt" | "topological">("dueDate");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<number[]>([]); // Kategorie-Filter (Mehrfachauswahl)
   
@@ -595,6 +596,17 @@ export default function Tasks() {
       filtered = filtered.filter(t => taskIdsWithCategory.has(t.id));
     }
 
+    // Topologische Sortierung
+    if (sortBy === "topological") {
+      const tasksWithDeps = filtered.map(t => ({
+        ...t,
+        prerequisiteItemIds: dependencies
+          .filter(d => d.taskId === t.id && d.dependencyType === "prerequisite")
+          .map(d => ({ id: d.dependsOnTaskId })),
+      }));
+      return topoSortTasks(tasksWithDeps);
+    }
+
     // Sort
     filtered.sort((a, b) => {
       let comparison = 0;
@@ -615,7 +627,7 @@ export default function Tasks() {
     });
     
     return filtered;
-  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments]);
+  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments, dependencies]);
   
   const resetFilters = () => {
     setStatusFilter("all");
@@ -1268,8 +1280,9 @@ export default function Tasks() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="dueDate">{t("common:dueDate")}</SelectItem>
-                          <SelectItem value="name">{t("common:labels.name")}</SelectItem>
-                          <SelectItem value="createdAt">{t("common:creationDate")}</SelectItem>
+                         <SelectItem value="name">{t("common:labels.name")}</SelectItem>
+                         <SelectItem value="createdAt">{t("common:creationDate")}</SelectItem>
+                          <SelectItem value="topological">{t("common:sort.topological", "Abhängigkeiten")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button

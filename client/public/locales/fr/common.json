@@ -434,7 +434,8 @@
     "asc": "A-Z",
     "desc": "Z-A",
     "ascending": "Trier par ordre croissant",
-    "descending": "Trier par ordre décroissant"
+    "descending": "Trier par ordre décroissant",
+    "topological": "Dépendances"
   },
   "back": "Retour",
   "common": {

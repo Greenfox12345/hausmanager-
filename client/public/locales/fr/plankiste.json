@@ -290,6 +290,14 @@
     "alreadyStarted": "Démarré",
     "willBeTransferred": "seront transférés",
     "resetVarsTitle": "Réinitialiser les variables d'entrée",
-    "resetVarsDesc": "Effacer les valeurs des variables d'entrée pour pouvoir les ressaisir. Les limites (min/max) sont conservées."
+    "resetVarsDesc": "Effacer les valeurs des variables d'entrée pour pouvoir les ressaisir. Les limites (min/max) sont conservées.",
+    "selectPhases": "Phases à démarrer maintenant:",
+    "enterVarsForPhases": "Variables d'entrée pour les phases sélectionnées:",
+    "openVars": "Variables ouvertes – veuillez saisir:",
+    "phaseActive": "Actif",
+    "phaseCompleted": "Terminé",
+    "startPhase": "Démarrer",
+    "startPhaseTitle": "Démarrer la phase",
+    "phaseStarted": "Phase démarrée!"
   }
 }

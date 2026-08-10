@@ -290,6 +290,14 @@
     "alreadyStarted": "Başlatıldı",
     "willBeTransferred": "aktarılacak",
     "resetVarsTitle": "Giriş değişkenlerini sıfırla",
-    "resetVarsDesc": "Giriş değişkenlerinin değerlerini silerek yeniden girilebilmelerini sağlayın. Sınırlar (min/maks) korunur."
+    "resetVarsDesc": "Giriş değişkenlerinin değerlerini silerek yeniden girilebilmelerini sağlayın. Sınırlar (min/maks) korunur.",
+    "selectPhases": "Şimdi başlatılacak aşamalar:",
+    "enterVarsForPhases": "Seçili aşamalar için giriş değişkenleri:",
+    "openVars": "Açık değişkenler – lütfen girin:",
+    "phaseActive": "Aktif",
+    "phaseCompleted": "Tamamlandı",
+    "startPhase": "Başlat",
+    "startPhaseTitle": "Aşamayı başlat",
+    "phaseStarted": "Aşama başlatıldı!"
   }
 }

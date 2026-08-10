@@ -724,12 +724,20 @@ export type PlanVariable = {
   unit?: string;        // Einheit, z.B. "cm", "Stück"
   description?: string; // Freitext-Beschreibung
 };
+/** Erweiterter PlanVariable-Typ mit allen Feldern (inkl. Schieberegler-Grenzen) */
+export type PlanVariableFull = PlanVariable & {
+  alias?: string;       // Alias-Name, z.B. "Länge"
+  min?: number;         // Untere Grenze für Schieberegler
+  max?: number;         // Obere Grenze für Schieberegler
+  locked?: boolean;     // Eingabe gesperrt
+};
 /** Eine Phase in einer Plan-Vorlage (max. 12) */
 export type PlanPhase = {
   id: string;     // z.B. "ph_1"
   name: string;   // z.B. "Vorbereitung"
   color: string;  // Hex-Farbe, z.B. "#3b82f6"
   order: number;  // Reihenfolge (0-basiert)
+  status?: "pending" | "active" | "completed"; // Nur in Projekten verwendet
 };
 export type PlanTemplate = typeof planTemplates.$inferSelect;
 export type InsertPlanTemplate = typeof planTemplates.$inferInsert;

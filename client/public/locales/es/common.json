@@ -511,7 +511,8 @@
     "asc": "A–Z",
     "desc": "Z–A",
     "ascending": "Ordenar ascendente",
-    "descending": "Ordenar descendente"
+    "descending": "Ordenar descendente",
+    "topological": "Dependencias"
   },
   "back": "Atrás",
   "common": {

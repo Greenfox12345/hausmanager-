@@ -769,24 +769,46 @@ export const planProjectsRouter = router({
     }),
 
   /** Projekt starten: Aufgaben und Einkäufe aus dem Plan übertragen */
+  /** Projekt starten: Aufgaben und Einkäufe aus dem Plan übertragen */
   startProject: protectedProcedure
     .input(z.object({
       projectId: z.number(),
       householdId: z.number(),
       memberId: z.number(),
       startDate: z.string().optional(),
+      phasesToStart: z.array(z.string()).optional(),
+      variableValues: z.record(z.string(), z.string()).optional(),
     }))
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
       const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
       if (!project) throw new Error("Projekt nicht gefunden");
       const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const variables = (project.planVariables ?? []) as PlanVariable[];
+      let updatedVariables = variables;
+      if (input.variableValues && Object.keys(input.variableValues).length > 0) {
+        updatedVariables = variables.map(v => {
+          const newVal = input.variableValues![v.name];
+          return newVal !== undefined ? { ...v, value: newVal } as PlanVariable : v;
+        }) as PlanVariable[];
+        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
+      }
+      const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
+      const phasesToStart = input.phasesToStart ?? null;
+      const updatedPhases = phases.map(ph => ({
+        ...ph,
+        status: ((phasesToStart === null || phasesToStart.includes(ph.id)) ? "active" : (ph.status ?? "pending")) as "active" | "completed" | "pending",
+      }));
+      if (phases.length > 0) {
+        await db.update(projectsExtended).set({ planPhases: updatedPhases as any }).where(eq(projectsExtended.id, input.projectId));
+      }
       const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
       const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
       const createdTaskIds: number[] = [];
       const createdShoppingIds: number[] = [];
-      // Aufgaben übertragen
       for (const item of taskItemsList) {
+        const phaseId = (item as any).phaseId;
+        if (phasesToStart !== null && phaseId && !phasesToStart.includes(phaseId)) continue;
         let dueDate: Date | undefined;
         if (item.daysOffset != null) {
           dueDate = new Date(startDate);
@@ -810,13 +832,14 @@ export const planProjectsRouter = router({
         });
         createdTaskIds.push(Number(res.insertId));
       }
-      // Einkaufsartikel übertragen
       for (const item of shoppingItemsList) {
+        const phaseId = (item as any).phaseId;
+        if (phasesToStart !== null && phaseId && !phasesToStart.includes(phaseId)) continue;
         const [res] = await db.insert(shoppingItems).values({
           householdId: input.householdId,
           name: item.name,
           categoryId: item.categoryId ?? null,
-          quantity: resolveVarQuantity(item.quantity, (project.planVariables ?? []) as PlanVariable[]),
+          quantity: resolveVarQuantity(item.quantity, updatedVariables),
           unitId: item.unitId ?? null,
           notes: item.notes ?? null,
           addedBy: input.memberId,
@@ -824,11 +847,7 @@ export const planProjectsRouter = router({
         });
         createdShoppingIds.push(Number(res.insertId));
       }
-      // Status auf "active" setzen und Startdatum speichern
-      await db.update(projectsExtended).set({
-        status: "active",
-        startDate: startDate,
-      }).where(eq(projectsExtended.id, input.projectId));
+      await db.update(projectsExtended).set({ status: "active", startDate: startDate }).where(eq(projectsExtended.id, input.projectId));
       const household = await getHouseholdById(input.householdId);
       const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       const memberName = await getMemberName(input.memberId);
@@ -842,6 +861,80 @@ export const planProjectsRouter = router({
       });
       return { createdTaskIds, createdShoppingIds };
     }),
+
+  /** Weitere Phase eines laufenden Projekts starten */
+  startPhase: protectedProcedure
+    .input(z.object({
+      projectId: z.number(),
+      householdId: z.number(),
+      memberId: z.number(),
+      phaseId: z.string(),
+      startDate: z.string().optional(),
+      variableValues: z.record(z.string(), z.string()).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const variables = (project.planVariables ?? []) as PlanVariable[];
+      let updatedVariables = variables;
+      if (input.variableValues && Object.keys(input.variableValues).length > 0) {
+        updatedVariables = variables.map(v => {
+          const newVal = input.variableValues![v.name];
+          return newVal !== undefined ? { ...v, value: newVal } as PlanVariable : v;
+        }) as PlanVariable[];
+        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
+      }
+      const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
+      const updatedPhases = phases.map(ph => ph.id === input.phaseId ? { ...ph, status: "active" as const } : ph);
+      await db.update(projectsExtended).set({ planPhases: updatedPhases as any }).where(eq(projectsExtended.id, input.projectId));
+      const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
+      const createdTaskIds: number[] = [];
+      const createdShoppingIds: number[] = [];
+      for (const item of taskItemsList) {
+        if ((item as any).phaseId !== input.phaseId) continue;
+        let dueDate: Date | undefined;
+        if (item.daysOffset != null) {
+          dueDate = new Date(startDate);
+          dueDate.setDate(dueDate.getDate() + item.daysOffset);
+        }
+        const [res] = await db.insert(tasks).values({
+          householdId: input.householdId,
+          name: item.name,
+          description: item.description ?? null,
+          assignedTo: [],
+          frequency: (item.repeatType as any) ?? "once",
+          repeatInterval: item.repeatInterval ?? null,
+          repeatUnit: (item.repeatUnit as any) ?? null,
+          durationDays: 0,
+          durationMinutes: 0,
+          enableRotation: false,
+          dueDate: dueDate,
+          isCompleted: false,
+          createdBy: input.memberId,
+          projectIds: [input.projectId],
+        });
+        createdTaskIds.push(Number(res.insertId));
+      }
+      for (const item of shoppingItemsList) {
+        if ((item as any).phaseId !== input.phaseId) continue;
+        const [res] = await db.insert(shoppingItems).values({
+          householdId: input.householdId,
+          name: item.name,
+          categoryId: item.categoryId ?? null,
+          quantity: resolveVarQuantity(item.quantity, updatedVariables),
+          unitId: item.unitId ?? null,
+          notes: item.notes ?? null,
+          addedBy: input.memberId,
+          isCompleted: false,
+        });
+        createdShoppingIds.push(Number(res.insertId));
+      }
+      return { createdTaskIds, createdShoppingIds };
+    }),
+
   /** Eingabe-Variablen eines Projekts zurücksetzen (Werte löschen, Grenzen behalten) */
   resetInputVariables: protectedProcedure
     .input(z.object({ projectId: z.number() }))

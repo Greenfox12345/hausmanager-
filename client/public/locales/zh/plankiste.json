@@ -290,6 +290,14 @@
     "alreadyStarted": "已启动",
     "willBeTransferred": "将被转移",
     "resetVarsTitle": "重置输入变量",
-    "resetVarsDesc": "清除输入变量的值，以便重新输入。限制（最小/最大）将保留。"
+    "resetVarsDesc": "清除输入变量的值，以便重新输入。限制（最小/最大）将保留。",
+    "selectPhases": "现在要启动的阶段：",
+    "enterVarsForPhases": "所选阶段的输入变量：",
+    "openVars": "未填写的变量 – 请输入：",
+    "phaseActive": "活跃",
+    "phaseCompleted": "已完成",
+    "startPhase": "启动",
+    "startPhaseTitle": "启动阶段",
+    "phaseStarted": "阶段已启动！"
   }
 }

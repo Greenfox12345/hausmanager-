@@ -46,15 +46,23 @@ import { DatePickerInput } from "@/components/DatePickerInput";
 import { ShoppingCart, CheckSquare, Variable, Play, Layers } from "lucide-react";
 import { VarText } from "@/components/VarToken";
 import { type PlanVariable } from "@/lib/varParser";
+import { topoSortTasks } from "@/lib/varParser";
 
 // ─── Plan-Sektion für Projekte aus Plankiste ──────────────────────────────────
 function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: number; householdId: number; memberId: number }) {
   const { t } = useTranslation(["plankiste", "common"]);
   const utils = trpc.useUtils();
   const [startDialogOpen, setStartDialogOpen] = useState(false);
-  const [resetVars, setResetVars] = useState(false);
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [activeSection, setActiveSection] = useState<"phases" | "variables" | "shopping" | "tasks" | null>(null);
+  // Phasen-Auswahl im Start-Dialog
+  const [selectedPhaseIds, setSelectedPhaseIds] = useState<string[]>([]);
+  // Variablen-Werte die beim Start eingegeben werden
+  const [inputVarValues, setInputVarValues] = useState<Record<string, string>>({});
+  // Phase-Start-Dialog
+  const [phaseStartDialogId, setPhaseStartDialogId] = useState<string | null>(null);
+  const [phaseStartDate, setPhaseStartDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [phaseInputVarValues, setPhaseInputVarValues] = useState<Record<string, string>>({});
 
   const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
   const startMutation = trpc.planProjects.startProject.useMutation({
@@ -66,21 +74,70 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
   });
-  const resetVarsMutation = trpc.planProjects.resetInputVariables.useMutation({
-    onSuccess: () => {
+  const startPhaseMutation = trpc.planProjects.startPhase.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${t("plankiste:project.phaseStarted", "Phase gestartet!")} ${data.createdTaskIds.length} Aufgaben, ${data.createdShoppingIds.length} Einkaufsartikel.`);
       utils.planProjects.getWithPlanData.invalidate({ projectId });
+      utils.tasks.list.invalidate();
+      setPhaseStartDialogId(null);
     },
+    onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
   });
 
   if (!project || !project.planTemplateId) return null;
 
-  const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number }>;
+  const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
   const variables = (project.planVariables ?? []) as PlanVariable[];
   const shoppingItemsList = (project.planShoppingItems ?? []) as Array<{ name: string; quantity?: string; notes?: string; phaseId?: string }>;
   const taskItemsList = (project.planTaskItems ?? []) as Array<{ name: string; description?: string; phaseId?: string; daysOffset?: number }>;
   const enableVariables = project.enableVariables ?? false;
   const isActive = project.status !== "planning";
   const getPhase = (id?: string | null) => phases.find(p => p.id === id);
+
+  // Eingabe-Variablen: keine VAR-Referenz im Wert und kein Wert gesetzt
+  const isInputVar = (v: PlanVariable) => !v.value || !v.value.includes("VAR");
+  const inputVarsWithoutValue = variables.filter(v => isInputVar(v) && !v.value);
+
+  // Variablen die in einer bestimmten Phase benötigt werden (erste Erwähnung)
+  const getVarsForPhase = (phaseId: string | null) => {
+    if (!enableVariables) return [];
+    const phaseItems = phaseId
+      ? [...taskItemsList.filter(t => (t as any).phaseId === phaseId), ...shoppingItemsList.filter(s => (s as any).phaseId === phaseId)]
+      : [...taskItemsList.filter(t => !(t as any).phaseId), ...shoppingItemsList.filter(s => !(s as any).phaseId)];
+    const usedVarNames = new Set<string>();
+    for (const item of phaseItems) {
+      const texts = [item.name, (item as any).description, (item as any).quantity, (item as any).notes].filter(Boolean);
+      for (const text of texts) {
+        const matches = text.match(/VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)/g) ?? [];
+        for (const m of matches) usedVarNames.add(m.slice(3));
+      }
+    }
+    return variables.filter(v => usedVarNames.has(v.name) && isInputVar(v) && !v.value);
+  };
+
+  // Beim Öffnen des Start-Dialogs: alle Phasen vorauswählen
+  const openStartDialog = () => {
+    setSelectedPhaseIds(phases.map(p => p.id));
+    setInputVarValues({});
+    setStartDialogOpen(true);
+  };
+
+  // Beim Öffnen des Phase-Start-Dialogs
+  const openPhaseStartDialog = (phaseId: string) => {
+    setPhaseStartDate(new Date().toISOString().split("T")[0]);
+    setPhaseInputVarValues({});
+    setPhaseStartDialogId(phaseId);
+  };
+
+  const pendingPhases = phases.filter(p => p.status === "pending" || !p.status).sort((a, b) => a.order - b.order);
+  const activePhases = phases.filter(p => p.status === "active").sort((a, b) => a.order - b.order);
+
+  // Variablen für die ausgewählten Phasen im Start-Dialog
+  const varsForSelectedPhases = phases.length > 0
+    ? Array.from(new Map(
+        selectedPhaseIds.flatMap(pid => getVarsForPhase(pid)).map(v => [v.name, v] as [string, PlanVariable])
+      ).values())
+    : inputVarsWithoutValue;
 
   return (
     <Card className="shadow-md border-amber-200">
@@ -91,7 +148,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             {t("plankiste:project.planSection", "Plan-Inhalte")}
           </CardTitle>
           {!isActive ? (
-            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => setStartDialogOpen(true)}>
+            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={openStartDialog}>
               <Play className="w-3.5 h-3.5 mr-1.5" />
               {t("plankiste:project.startProject", "Projekt starten")}
             </Button>
@@ -106,6 +163,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
         </p>
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
+        {/* Phasen-Übersicht mit Status */}
         {phases.length > 0 && (
           <div>
             <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "phases" ? null : "phases")}>
@@ -113,15 +171,59 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               <span>{activeSection === "phases" ? "▲" : "▼"}</span>
             </button>
             {activeSection === "phases" && (
-              <div className="flex flex-wrap gap-2 mt-1 pl-2">
+              <div className="space-y-1 mt-1 pl-2">
                 {phases.sort((a, b) => a.order - b.order).map(phase => (
-                  <span key={phase.id} className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
-                    <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
-                    {phase.name}
-                  </span>
+                  <div key={phase.id} className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
+                      <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
+                      {phase.name}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {phase.status === "active" && <Badge variant="outline" className="text-xs text-green-600 border-green-300">{t("plankiste:project.phaseActive", "Aktiv")}</Badge>}
+                      {phase.status === "completed" && <Badge variant="outline" className="text-xs text-gray-500">{t("plankiste:project.phaseCompleted", "Abgeschlossen")}</Badge>}
+                      {isActive && (phase.status === "pending" || !phase.status) && (
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => openPhaseStartDialog(phase.id)}>
+                          <Play className="w-2.5 h-2.5 mr-1" />
+                          {t("plankiste:project.startPhase", "Starten")}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
+          </div>
+        )}
+        {/* Offene Variablen-Eingabe oben */}
+        {enableVariables && inputVarsWithoutValue.length > 0 && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.openVars", "Offene Variablen – bitte eingeben:")}</p>
+            <div className="space-y-2">
+              {inputVarsWithoutValue.map(v => (
+                <div key={v.name} className="flex items-center gap-2">
+                  <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}{v.alias ? ` (${v.alias})` : ""}</span>
+                  {v.min && v.max && <span className="text-xs text-muted-foreground">[{v.min}–{v.max}{v.unit ? ` ${v.unit}` : ""}]</span>}
+                  <input
+                    type="number"
+                    value={inputVarValues[v.name] ?? ""}
+                    onChange={e => setInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
+                    placeholder={v.description ?? "Wert"}
+                    className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
+                  />
+                  {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+                  {inputVarValues[v.name] && (
+                    <Button size="sm" variant="outline" className="h-6 text-xs px-2 flex-shrink-0" onClick={() => {
+                      const vals = { ...inputVarValues };
+                      if (vals[v.name]) {
+                        startMutation.mutate({ projectId, householdId, memberId, startDate, variableValues: vals });
+                      }
+                    }}>
+                      ✓
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
         {enableVariables && variables.length > 0 && (
@@ -137,6 +239,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
                     <span className="font-mono" style={{ color: v.color }}>VAR{v.name}</span>
                     {v.value && <span className="text-muted-foreground">= {v.value}{v.unit ? ` ${v.unit}` : ""}</span>}
+                    {!v.value && <span className="text-amber-500 text-xs">⚠ kein Wert</span>}
                     {v.alias && <span className="text-muted-foreground italic">&amp;{v.alias}</span>}
                   </div>
                 ))}
@@ -153,7 +256,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             {activeSection === "shopping" && (
               <div className="space-y-1 mt-1 pl-2">
                 {shoppingItemsList.map((item, idx) => {
-                  const phase = getPhase(item.phaseId);
+                  const phase = getPhase((item as any).phaseId);
                   return (
                     <div key={idx} className="flex items-center gap-2 text-xs">
                       {phase && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: phase.color }} />}
@@ -175,7 +278,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             {activeSection === "tasks" && (
               <div className="space-y-1 mt-1 pl-2">
                 {taskItemsList.map((task, idx) => {
-                  const phase = getPhase(task.phaseId);
+                  const phase = getPhase((task as any).phaseId);
                   return (
                     <div key={idx} className="flex items-start gap-2 text-xs">
                       {phase && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5" style={{ background: phase.color }} />}
@@ -192,30 +295,64 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
           </div>
         )}
       </CardContent>
+
+      {/* Start-Dialog */}
       {startDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setStartDialogOpen(false)} />
-          <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
+          <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <h3 className="font-semibold text-base mb-2">{t("plankiste:project.startProject", "Projekt starten")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{taskItemsList.length} {t("plankiste:tasks.title", "Aufgaben")} + {shoppingItemsList.length} {t("plankiste:items.title", "Einkaufsartikel")} {t("plankiste:project.willBeTransferred", "werden übertragen")}</p>
             <div className="mb-4">
               <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
             </div>
-            {enableVariables && variables.some(v => !v.value?.includes("VAR")) && (
+            {/* Phasen-Auswahl */}
+            {phases.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">{t("plankiste:project.selectPhases", "Phasen die jetzt gestartet werden:")}</p>
+                <div className="space-y-2">
+                  {phases.sort((a, b) => a.order - b.order).map(phase => {
+                    const phaseTaskCount = taskItemsList.filter(t => (t as any).phaseId === phase.id).length;
+                    const phaseShopCount = shoppingItemsList.filter(s => (s as any).phaseId === phase.id).length;
+                    return (
+                      <label key={phase.id} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-border hover:bg-muted/50">
+                        <input
+                          type="checkbox"
+                          checked={selectedPhaseIds.includes(phase.id)}
+                          onChange={e => setSelectedPhaseIds(prev =>
+                            e.target.checked ? [...prev, phase.id] : prev.filter(id => id !== phase.id)
+                          )}
+                          className="w-4 h-4 rounded"
+                        />
+                        <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: phase.color }} />
+                        <span className="text-sm flex-1">{phase.name}</span>
+                        <span className="text-xs text-muted-foreground">{phaseTaskCount}A + {phaseShopCount}E</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {/* Variablen-Eingabe für ausgewählte Phasen */}
+            {enableVariables && varsForSelectedPhases.length > 0 && (
               <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={resetVars}
-                    onChange={e => setResetVars(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-border"
-                  />
-                  <div>
-                    <span className="text-sm font-medium">{t("plankiste:project.resetVarsTitle", "Eingabe-Variablen zurücksetzen")}</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("plankiste:project.resetVarsDesc", "Werte der Eingabe-Variablen löschen, damit sie neu eingegeben werden können. Grenzen (min/max) bleiben erhalten.")}</p>
-                  </div>
-                </label>
+                <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen für die gewählten Phasen:")}</p>
+                <div className="space-y-2">
+                  {varsForSelectedPhases.map(v => (
+                    <div key={v.name} className="flex items-center gap-2">
+                      <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}{v.alias ? ` (${v.alias})` : ""}</span>
+                      {v.min && v.max && <span className="text-xs text-muted-foreground flex-shrink-0">[{v.min}–{v.max}]</span>}
+                      <input
+                        type="number"
+                        value={inputVarValues[v.name] ?? ""}
+                        onChange={e => setInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
+                        placeholder={v.description ?? "Wert"}
+                        className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
+                      />
+                      {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             <div className="flex gap-2 justify-end">
@@ -223,13 +360,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               <Button
                 size="sm"
                 className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={async () => {
-                  if (resetVars) {
-                    await resetVarsMutation.mutateAsync({ projectId });
-                  }
-                  startMutation.mutate({ projectId, householdId, memberId, startDate });
-                }}
-                disabled={startMutation.isPending || resetVarsMutation.isPending}
+                onClick={() => startMutation.mutate({
+                  projectId, householdId, memberId, startDate,
+                  phasesToStart: phases.length > 0 ? selectedPhaseIds : undefined,
+                  variableValues: Object.keys(inputVarValues).length > 0 ? inputVarValues : undefined,
+                })}
+                disabled={startMutation.isPending}
               >
                 <Play className="w-3.5 h-3.5 mr-1.5" />
                 {t("plankiste:project.startNow", "Jetzt starten")}
@@ -238,6 +374,65 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
           </div>
         </div>
       )}
+
+      {/* Phase-Start-Dialog */}
+      {phaseStartDialogId && (() => {
+        const phase = phases.find(p => p.id === phaseStartDialogId);
+        if (!phase) return null;
+        const phaseVars = getVarsForPhase(phaseStartDialogId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setPhaseStartDialogId(null)} />
+            <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 max-h-[90vh] overflow-y-auto">
+              <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full" style={{ background: phase.color }} />
+                {t("plankiste:project.startPhaseTitle", "Phase starten")}: {phase.name}
+              </h3>
+              <div className="mb-4">
+                <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
+                <input type="date" value={phaseStartDate} onChange={e => setPhaseStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
+              </div>
+              {enableVariables && phaseVars.length > 0 && (
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen für diese Phase:")}</p>
+                  <div className="space-y-2">
+                    {phaseVars.map(v => (
+                      <div key={v.name} className="flex items-center gap-2">
+                        <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}</span>
+                        <input
+                          type="number"
+                          value={phaseInputVarValues[v.name] ?? ""}
+                          onChange={e => setPhaseInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
+                          placeholder={v.description ?? "Wert"}
+                          className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
+                        />
+                        {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setPhaseStartDialogId(null)}>{t("common:cancel")}</Button>
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => startPhaseMutation.mutate({
+                    projectId, householdId, memberId,
+                    phaseId: phaseStartDialogId,
+                    startDate: phaseStartDate,
+                    variableValues: Object.keys(phaseInputVarValues).length > 0 ? phaseInputVarValues : undefined,
+                  })}
+                  disabled={startPhaseMutation.isPending}
+                >
+                  <Play className="w-3.5 h-3.5 mr-1.5" />
+                  {t("plankiste:project.startNow", "Jetzt starten")}
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </Card>
   );
 }
@@ -527,8 +722,19 @@ export default function Projects() {
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const projectTasks = useMemo(
-    () => selectedProjectId ? tasks.filter(t => t.projectIds && t.projectIds.includes(selectedProjectId)) : [],
-    [selectedProjectId, tasks]
+    () => {
+      if (!selectedProjectId) return [];
+      const filtered = tasks.filter(t => t.projectIds && t.projectIds.includes(selectedProjectId));
+      // Topologisch sortieren
+      const withDeps = filtered.map(t => ({
+        ...t,
+        prerequisiteItemIds: dependencies
+          .filter(d => d.taskId === t.id && d.dependencyType === "prerequisite")
+          .map(d => ({ id: d.dependsOnTaskId })),
+      }));
+      return topoSortTasks(withDeps);
+    },
+    [selectedProjectId, tasks, dependencies]
   );
 
   const addTaskMutation = trpc.tasks.add.useMutation({

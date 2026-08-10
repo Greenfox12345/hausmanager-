@@ -434,7 +434,8 @@
     "asc": "أ–ي",
     "desc": "ي–أ",
     "ascending": "ترتيب تصاعدي",
-    "descending": "ترتيب تنازلي"
+    "descending": "ترتيب تنازلي",
+    "topological": "التبعيات"
   },
   "back": "عودة",
   "common": {

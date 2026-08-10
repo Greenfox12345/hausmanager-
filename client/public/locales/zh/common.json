@@ -370,5 +370,8 @@
       "tasks": "任务",
       "mixed": "混合"
     }
+  },
+  "sort": {
+    "topological": "依赖关系"
   }
 }

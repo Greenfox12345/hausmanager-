@@ -290,6 +290,14 @@
     "alreadyStarted": "Gestartet",
     "willBeTransferred": "werden übertragen",
     "resetVarsTitle": "Eingabe-Variablen zurücksetzen",
-    "resetVarsDesc": "Werte der Eingabe-Variablen löschen, damit sie neu eingegeben werden können. Grenzen (min/max) bleiben erhalten."
+    "resetVarsDesc": "Werte der Eingabe-Variablen löschen, damit sie neu eingegeben werden können. Grenzen (min/max) bleiben erhalten.",
+    "selectPhases": "Phasen die jetzt gestartet werden:",
+    "enterVarsForPhases": "Eingabe-Variablen für die gewählten Phasen:",
+    "openVars": "Offene Variablen – bitte eingeben:",
+    "phaseActive": "Aktiv",
+    "phaseCompleted": "Abgeschlossen",
+    "startPhase": "Starten",
+    "startPhaseTitle": "Phase starten",
+    "phaseStarted": "Phase gestartet!"
   }
 }

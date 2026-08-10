@@ -290,6 +290,14 @@
     "alreadyStarted": "Started",
     "willBeTransferred": "will be transferred",
     "resetVarsTitle": "Reset input variables",
-    "resetVarsDesc": "Clear the values of input variables so they can be re-entered. Limits (min/max) are preserved."
+    "resetVarsDesc": "Clear the values of input variables so they can be re-entered. Limits (min/max) are preserved.",
+    "selectPhases": "Phases to start now:",
+    "enterVarsForPhases": "Input variables for selected phases:",
+    "openVars": "Open variables – please enter:",
+    "phaseActive": "Active",
+    "phaseCompleted": "Completed",
+    "startPhase": "Start",
+    "startPhaseTitle": "Start phase",
+    "phaseStarted": "Phase started!"
   }
 }

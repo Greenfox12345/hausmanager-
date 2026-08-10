@@ -434,7 +434,8 @@
     "asc": "A–Z",
     "desc": "Z–A",
     "ascending": "Artan sırada sırala",
-    "descending": "Azalan sırada sırala"
+    "descending": "Azalan sırada sırala",
+    "topological": "Bağımlılıklar"
   },
   "back": "Geri",
   "common": {
