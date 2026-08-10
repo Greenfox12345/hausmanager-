@@ -288,6 +288,8 @@
     "started": "Project started!",
     "startError": "Error starting project",
     "alreadyStarted": "Started",
-    "willBeTransferred": "will be transferred"
+    "willBeTransferred": "will be transferred",
+    "resetVarsTitle": "Reset input variables",
+    "resetVarsDesc": "Clear the values of input variables so they can be re-entered. Limits (min/max) are preserved."
   }
 }

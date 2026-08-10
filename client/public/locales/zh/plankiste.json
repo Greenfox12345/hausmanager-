@@ -288,6 +288,8 @@
     "started": "项目已启动！",
     "startError": "启动项目时出错",
     "alreadyStarted": "已启动",
-    "willBeTransferred": "将被转移"
+    "willBeTransferred": "将被转移",
+    "resetVarsTitle": "重置输入变量",
+    "resetVarsDesc": "清除输入变量的值，以便重新输入。限制（最小/最大）将保留。"
   }
 }

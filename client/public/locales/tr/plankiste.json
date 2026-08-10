@@ -288,6 +288,8 @@
     "started": "Proje başlatıldı!",
     "startError": "Proje başlatılırken hata",
     "alreadyStarted": "Başlatıldı",
-    "willBeTransferred": "aktarılacak"
+    "willBeTransferred": "aktarılacak",
+    "resetVarsTitle": "Giriş değişkenlerini sıfırla",
+    "resetVarsDesc": "Giriş değişkenlerinin değerlerini silerek yeniden girilebilmelerini sağlayın. Sınırlar (min/maks) korunur."
   }
 }

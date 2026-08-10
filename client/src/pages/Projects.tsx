@@ -52,6 +52,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const { t } = useTranslation(["plankiste", "common"]);
   const utils = trpc.useUtils();
   const [startDialogOpen, setStartDialogOpen] = useState(false);
+  const [resetVars, setResetVars] = useState(false);
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [activeSection, setActiveSection] = useState<"phases" | "variables" | "shopping" | "tasks" | null>(null);
 
@@ -64,6 +65,11 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       setStartDialogOpen(false);
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
+  });
+  const resetVarsMutation = trpc.planProjects.resetInputVariables.useMutation({
+    onSuccess: () => {
+      utils.planProjects.getWithPlanData.invalidate({ projectId });
+    },
   });
 
   if (!project || !project.planTemplateId) return null;
@@ -196,9 +202,35 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
             </div>
+            {enableVariables && variables.some(v => !v.value?.includes("VAR")) && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={resetVars}
+                    onChange={e => setResetVars(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-border"
+                  />
+                  <div>
+                    <span className="text-sm font-medium">{t("plankiste:project.resetVarsTitle", "Eingabe-Variablen zurücksetzen")}</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("plankiste:project.resetVarsDesc", "Werte der Eingabe-Variablen löschen, damit sie neu eingegeben werden können. Grenzen (min/max) bleiben erhalten.")}</p>
+                  </div>
+                </label>
+              </div>
+            )}
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setStartDialogOpen(false)}>{t("common:cancel")}</Button>
-              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => startMutation.mutate({ projectId, householdId, memberId, startDate })} disabled={startMutation.isPending}>
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={async () => {
+                  if (resetVars) {
+                    await resetVarsMutation.mutateAsync({ projectId });
+                  }
+                  startMutation.mutate({ projectId, householdId, memberId, startDate });
+                }}
+                disabled={startMutation.isPending || resetVarsMutation.isPending}
+              >
                 <Play className="w-3.5 h-3.5 mr-1.5" />
                 {t("plankiste:project.startNow", "Jetzt starten")}
               </Button>

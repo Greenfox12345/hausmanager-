@@ -641,6 +641,41 @@ export const projectsRouter = router({
 // Diese Prozeduren werden dem projectsRouter nachträglich hinzugefügt.
 // Da TypeScript keine direkte Erweiterung von router()-Objekten erlaubt,
 // exportieren wir einen separaten planProjectsRouter.
+
+/**
+ * Löst einen VAR-String in eine Dezimalzahl auf.
+ * Wenn der Wert ein VAR-Name ist (z.B. "VARGitterLänge"), wird der Wert
+ * aus der Variablen-Map geholt und als Dezimalzahl zurückgegeben.
+ * Wenn der Wert bereits eine Zahl ist, wird sie direkt zurückgegeben.
+ * Wenn nicht auflösbar, wird null zurückgegeben.
+ */
+function resolveVarQuantity(
+  quantity: string | null | undefined,
+  variables: PlanVariable[]
+): string | null {
+  if (!quantity) return null;
+  // Bereits eine Zahl?
+  const num = parseFloat(quantity);
+  if (!isNaN(num) && String(num) === quantity.trim()) return quantity;
+  // VAR-Referenz?
+  const varMatch = quantity.trim().match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)$/);
+  if (varMatch) {
+    const varName = varMatch[1];
+    const variable = variables.find(v => v.name === varName);
+    if (variable?.value) {
+      const resolved = parseFloat(variable.value);
+      if (!isNaN(resolved)) return String(resolved);
+    }
+    return null; // Variable nicht gefunden oder kein Wert
+  }
+  // Einfacher numerischer String mit Leerzeichen?
+  const trimmed = quantity.trim();
+  const trimNum = parseFloat(trimmed);
+  if (!isNaN(trimNum)) return String(trimNum);
+  // Nicht auflösbar → null (kein Fehler beim Insert)
+  return null;
+}
+
 export const planProjectsRouter = router({
   /** Projekt aus einer Plankiste-Vorlage erstellen */
   createFromTemplate: protectedProcedure
@@ -781,7 +816,7 @@ export const planProjectsRouter = router({
           householdId: input.householdId,
           name: item.name,
           categoryId: item.categoryId ?? null,
-          quantity: item.quantity ?? null,
+          quantity: resolveVarQuantity(item.quantity, (project.planVariables ?? []) as PlanVariable[]),
           unitId: item.unitId ?? null,
           notes: item.notes ?? null,
           addedBy: input.memberId,
@@ -789,8 +824,11 @@ export const planProjectsRouter = router({
         });
         createdShoppingIds.push(Number(res.insertId));
       }
-      // Status auf "active" setzen
-      await db.update(projectsExtended).set({ status: "active" }).where(eq(projectsExtended.id, input.projectId));
+      // Status auf "active" setzen und Startdatum speichern
+      await db.update(projectsExtended).set({
+        status: "active",
+        startDate: startDate,
+      }).where(eq(projectsExtended.id, input.projectId));
       const household = await getHouseholdById(input.householdId);
       const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
       const memberName = await getMemberName(input.memberId);
@@ -803,6 +841,25 @@ export const planProjectsRouter = router({
         relatedItemId: input.projectId,
       });
       return { createdTaskIds, createdShoppingIds };
+    }),
+  /** Eingabe-Variablen eines Projekts zurücksetzen (Werte löschen, Grenzen behalten) */
+  resetInputVariables: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const variables = (project.planVariables ?? []) as PlanVariable[];
+      // Eingabe-Variablen: keine Definition aus anderen Variablen (kein VAR im value)
+      const resetVars = variables.map(v => {
+        const isInputVar = !v.value || !v.value.includes("VAR");
+        if (isInputVar) {
+          return { ...v, value: undefined }; // Wert löschen, min/max/locked bleiben
+        }
+        return v;
+      });
+      await db.update(projectsExtended).set({ planVariables: resetVars }).where(eq(projectsExtended.id, input.projectId));
+      return { success: true, resetCount: resetVars.filter((v, i) => v.value === undefined && variables[i].value !== undefined).length };
     }),
 
   /** Erweitertes Projekt-Objekt mit Plan-Daten laden */

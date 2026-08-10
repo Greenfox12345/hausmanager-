@@ -288,6 +288,8 @@
     "started": "تم بدء المشروع!",
     "startError": "خطأ في بدء المشروع",
     "alreadyStarted": "تم البدء",
-    "willBeTransferred": "سيتم نقلها"
+    "willBeTransferred": "سيتم نقلها",
+    "resetVarsTitle": "إعادة تعيين متغيرات الإدخال",
+    "resetVarsDesc": "مسح قيم متغيرات الإدخال لإعادة إدخالها. يتم الاحتفاظ بالحدود (الحد الأدنى/الأقصى)."
   }
 }

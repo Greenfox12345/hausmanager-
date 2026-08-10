@@ -288,6 +288,8 @@
     "started": "Projet démarré !",
     "startError": "Erreur lors du démarrage",
     "alreadyStarted": "Démarré",
-    "willBeTransferred": "seront transférés"
+    "willBeTransferred": "seront transférés",
+    "resetVarsTitle": "Réinitialiser les variables d'entrée",
+    "resetVarsDesc": "Effacer les valeurs des variables d'entrée pour pouvoir les ressaisir. Les limites (min/max) sont conservées."
   }
 }

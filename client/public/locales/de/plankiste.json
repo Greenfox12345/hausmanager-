@@ -288,6 +288,8 @@
     "started": "Projekt gestartet!",
     "startError": "Fehler beim Starten des Projekts",
     "alreadyStarted": "Gestartet",
-    "willBeTransferred": "werden übertragen"
+    "willBeTransferred": "werden übertragen",
+    "resetVarsTitle": "Eingabe-Variablen zurücksetzen",
+    "resetVarsDesc": "Werte der Eingabe-Variablen löschen, damit sie neu eingegeben werden können. Grenzen (min/max) bleiben erhalten."
   }
 }
