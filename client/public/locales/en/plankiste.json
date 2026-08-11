@@ -298,6 +298,12 @@
     "phaseCompleted": "Completed",
     "startPhase": "Start",
     "startPhaseTitle": "Start phase",
-    "phaseStarted": "Phase started!"
+    "phaseStarted": "Phase started!",
+    "phaseVars": "Variables:",
+    "generalVars": "General variables:",
+    "editVars": "Edit variables",
+    "editVarsTitle": "Edit input variables:",
+    "varsSaved": "Variables saved",
+    "noValue": "no value"
   }
 }

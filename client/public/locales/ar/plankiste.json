@@ -298,6 +298,12 @@
     "phaseCompleted": "مكتمل",
     "startPhase": "بدء",
     "startPhaseTitle": "بدء المرحلة",
-    "phaseStarted": "تم بدء المرحلة!"
+    "phaseStarted": "تم بدء المرحلة!",
+    "phaseVars": "المتغيرات:",
+    "generalVars": "المتغيرات العامة:",
+    "editVars": "تعديل المتغيرات",
+    "editVarsTitle": "تعديل متغيرات الإدخال:",
+    "varsSaved": "تم حفظ المتغيرات",
+    "noValue": "لا قيمة"
   }
 }

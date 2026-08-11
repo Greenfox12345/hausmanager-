@@ -298,6 +298,12 @@
     "phaseCompleted": "已完成",
     "startPhase": "启动",
     "startPhaseTitle": "启动阶段",
-    "phaseStarted": "阶段已启动！"
+    "phaseStarted": "阶段已启动！",
+    "phaseVars": "变量：",
+    "generalVars": "通用变量：",
+    "editVars": "编辑变量",
+    "editVarsTitle": "编辑输入变量：",
+    "varsSaved": "变量已保存",
+    "noValue": "无值"
   }
 }

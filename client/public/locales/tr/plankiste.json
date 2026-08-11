@@ -298,6 +298,12 @@
     "phaseCompleted": "Tamamlandı",
     "startPhase": "Başlat",
     "startPhaseTitle": "Aşamayı başlat",
-    "phaseStarted": "Aşama başlatıldı!"
+    "phaseStarted": "Aşama başlatıldı!",
+    "phaseVars": "Değişkenler:",
+    "generalVars": "Genel değişkenler:",
+    "editVars": "Değişkenleri düzenle",
+    "editVarsTitle": "Giriş değişkenlerini düzenle:",
+    "varsSaved": "Değişkenler kaydedildi",
+    "noValue": "değer yok"
   }
 }

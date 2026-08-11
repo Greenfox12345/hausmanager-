@@ -649,6 +649,23 @@ export const projectsRouter = router({
  * Wenn der Wert bereits eine Zahl ist, wird sie direkt zurückgegeben.
  * Wenn nicht auflösbar, wird null zurückgegeben.
  */
+/** Ersetzt alle VARName-Tokens in einem Text durch berechnete Werte */
+function resolveVarText(
+  text: string | null | undefined,
+  variables: PlanVariable[]
+): string | null {
+  if (!text) return null;
+  return text.replace(/VAR([A-Za-z\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF][A-Za-z0-9\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF_]*)/g, (match, varName) => {
+    const variable = variables.find(v => v.name === varName);
+    if (variable?.value) {
+      const num = parseFloat(variable.value);
+      const displayVal = !isNaN(num) ? String(num) : variable.value;
+      return variable.unit ? `${displayVal} ${variable.unit}` : displayVal;
+    }
+    return match;
+  });
+}
+
 function resolveVarQuantity(
   quantity: string | null | undefined,
   variables: PlanVariable[]
@@ -816,8 +833,8 @@ export const planProjectsRouter = router({
         }
         const [res] = await db.insert(tasks).values({
           householdId: input.householdId,
-          name: item.name,
-          description: item.description ?? null,
+          name: resolveVarText(item.name, updatedVariables) ?? item.name,
+          description: resolveVarText(item.description, updatedVariables),
           assignedTo: [],
           frequency: (item.repeatType as any) ?? "once",
           repeatInterval: item.repeatInterval ?? null,
@@ -902,8 +919,8 @@ export const planProjectsRouter = router({
         }
         const [res] = await db.insert(tasks).values({
           householdId: input.householdId,
-          name: item.name,
-          description: item.description ?? null,
+          name: resolveVarText(item.name, updatedVariables) ?? item.name,
+          description: resolveVarText(item.description, updatedVariables),
           assignedTo: [],
           frequency: (item.repeatType as any) ?? "once",
           repeatInterval: item.repeatInterval ?? null,

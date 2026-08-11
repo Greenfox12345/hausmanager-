@@ -57,12 +57,15 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [activeSection, setActiveSection] = useState<"phases" | "variables" | "shopping" | "tasks" | null>(null);
   // Phasen-Auswahl im Start-Dialog
   const [selectedPhaseIds, setSelectedPhaseIds] = useState<string[]>([]);
-  // Variablen-Werte die beim Start eingegeben werden
+  // Variablen-Werte die beim Start eingegeben werden (key = varName)
   const [inputVarValues, setInputVarValues] = useState<Record<string, string>>({});
   // Phase-Start-Dialog
   const [phaseStartDialogId, setPhaseStartDialogId] = useState<string | null>(null);
   const [phaseStartDate, setPhaseStartDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [phaseInputVarValues, setPhaseInputVarValues] = useState<Record<string, string>>({});
+  // Variablen-Bearbeitung während des Projekts
+  const [editingVarValues, setEditingVarValues] = useState<Record<string, string>>({});
+  const [varEditMode, setVarEditMode] = useState(false);
 
   const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
   const startMutation = trpc.planProjects.startProject.useMutation({
@@ -83,6 +86,14 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
   });
+  const updatePlanDataMutation = trpc.planProjects.updatePlanData.useMutation({
+    onSuccess: () => {
+      toast.success(t("plankiste:project.varsSaved", "Variablen gespeichert"));
+      utils.planProjects.getWithPlanData.invalidate({ projectId });
+      setVarEditMode(false);
+    },
+    onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Speichern")),
+  });
 
   if (!project || !project.planTemplateId) return null;
 
@@ -94,12 +105,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const isActive = project.status !== "planning";
   const getPhase = (id?: string | null) => phases.find(p => p.id === id);
 
-  // Eingabe-Variablen: keine VAR-Referenz im Wert und kein Wert gesetzt
-  const isInputVar = (v: PlanVariable) => !v.value || !v.value.includes("VAR");
-  const inputVarsWithoutValue = variables.filter(v => isInputVar(v) && !v.value);
+  // Eingabe-Variablen: kein VAR im Wert (keine Formel)
+  const isInputVar = (v: PlanVariable) => !v.description || !v.description.includes("VAR");
+  const allInputVars = variables.filter(v => isInputVar(v));
 
-  // Variablen die in einer bestimmten Phase benötigt werden (erste Erwähnung)
-  const getVarsForPhase = (phaseId: string | null) => {
+  // Variablen die in einer Phase verwendet werden (alle, nicht nur ohne Wert)
+  const getInputVarsForPhase = (phaseId: string | null): PlanVariable[] => {
     if (!enableVariables) return [];
     const phaseItems = phaseId
       ? [...taskItemsList.filter(t => (t as any).phaseId === phaseId), ...shoppingItemsList.filter(s => (s as any).phaseId === phaseId)]
@@ -108,36 +119,112 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     for (const item of phaseItems) {
       const texts = [item.name, (item as any).description, (item as any).quantity, (item as any).notes].filter(Boolean);
       for (const text of texts) {
-        const matches = text.match(/VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)/g) ?? [];
+        const matches = (text as string).match(/VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)/g) ?? [];
         for (const m of matches) usedVarNames.add(m.slice(3));
       }
     }
-    return variables.filter(v => usedVarNames.has(v.name) && isInputVar(v) && !v.value);
+    // Alle Eingabe-Variablen die in dieser Phase vorkommen
+    return variables.filter(v => usedVarNames.has(v.name) && isInputVar(v));
   };
 
-  // Beim Öffnen des Start-Dialogs: alle Phasen vorauswählen
+  // Beim Öffnen des Start-Dialogs: alle Phasen vorauswählen, Variablen-Werte vorausfüllen
   const openStartDialog = () => {
     setSelectedPhaseIds(phases.map(p => p.id));
-    setInputVarValues({});
+    // Vorausfüllen mit bestehenden Werten
+    const prefill: Record<string, string> = {};
+    for (const v of allInputVars) {
+      if (v.value) prefill[v.name] = v.value;
+    }
+    setInputVarValues(prefill);
     setStartDialogOpen(true);
   };
 
   // Beim Öffnen des Phase-Start-Dialogs
   const openPhaseStartDialog = (phaseId: string) => {
     setPhaseStartDate(new Date().toISOString().split("T")[0]);
-    setPhaseInputVarValues({});
+    const prefill: Record<string, string> = {};
+    for (const v of getInputVarsForPhase(phaseId)) {
+      if (v.value) prefill[v.name] = v.value;
+    }
+    setPhaseInputVarValues(prefill);
     setPhaseStartDialogId(phaseId);
   };
 
-  const pendingPhases = phases.filter(p => p.status === "pending" || !p.status).sort((a, b) => a.order - b.order);
-  const activePhases = phases.filter(p => p.status === "active").sort((a, b) => a.order - b.order);
+  // Variablen-Bearbeitung starten
+  const startVarEdit = () => {
+    const vals: Record<string, string> = {};
+    for (const v of allInputVars) {
+      if (v.value) vals[v.name] = v.value;
+    }
+    setEditingVarValues(vals);
+    setVarEditMode(true);
+  };
 
-  // Variablen für die ausgewählten Phasen im Start-Dialog
-  const varsForSelectedPhases = phases.length > 0
+  // Variablen speichern
+  const saveVarEdit = () => {
+    const updatedVars = variables.map(v => {
+      if (isInputVar(v) && editingVarValues[v.name] !== undefined) {
+        return { ...v, value: editingVarValues[v.name] || undefined };
+      }
+      return v;
+    });
+    updatePlanDataMutation.mutate({ projectId, planVariables: updatedVars });
+  };
+
+  // Variablen für ausgewählte Phasen im Start-Dialog (dedupliziert)
+  const varsForSelectedPhases = enableVariables
     ? Array.from(new Map(
-        selectedPhaseIds.flatMap(pid => getVarsForPhase(pid)).map(v => [v.name, v] as [string, PlanVariable])
+        selectedPhaseIds.flatMap(pid => getInputVarsForPhase(pid)).map(v => [v.name, v] as [string, PlanVariable])
       ).values())
-    : inputVarsWithoutValue;
+    : [];
+
+  // Auch phasenlose Variablen hinzufügen
+  const phaselessVars = enableVariables ? getInputVarsForPhase(null) : [];
+  const allStartVars = Array.from(new Map(
+    [...varsForSelectedPhases, ...phaselessVars].map(v => [v.name, v] as [string, PlanVariable])
+  ).values());
+
+  const sortedPhases = [...phases].sort((a, b) => a.order - b.order);
+
+  // Render-Hilfsfunktion: Variablen-Eingabe-Block
+  const renderVarInputs = (
+    vars: PlanVariable[],
+    values: Record<string, string>,
+    setValues: (fn: (prev: Record<string, string>) => Record<string, string>) => void,
+    showReset = true
+  ) => (
+    <div className="space-y-2">
+      {vars.map(v => (
+        <div key={v.name} className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
+          <span className="text-xs font-mono flex-shrink-0 min-w-0" style={{ color: v.color }}>
+            {v.alias ? `&${v.alias}` : `VAR${v.name}`}
+          </span>
+          {v.min && v.max && (
+            <span className="text-xs text-muted-foreground flex-shrink-0">[{v.min}–{v.max}]</span>
+          )}
+          <input
+            type="number"
+            value={values[v.name] ?? ""}
+            onChange={e => setValues(prev => ({ ...prev, [v.name]: e.target.value }))}
+            placeholder={v.description ?? v.name}
+            className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
+          />
+          {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+          {showReset && values[v.name] && (
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground flex-shrink-0"
+              title={t("common:reset", "Zurücksetzen")}
+              onClick={() => setValues(prev => { const n = { ...prev }; delete n[v.name]; return n; })}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <Card className="shadow-md border-amber-200">
@@ -172,7 +259,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             </button>
             {activeSection === "phases" && (
               <div className="space-y-1 mt-1 pl-2">
-                {phases.sort((a, b) => a.order - b.order).map(phase => (
+                {sortedPhases.map(phase => (
                   <div key={phase.id} className="flex items-center justify-between gap-2">
                     <span className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
                       <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
@@ -194,38 +281,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             )}
           </div>
         )}
-        {/* Offene Variablen-Eingabe oben */}
-        {enableVariables && inputVarsWithoutValue.length > 0 && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.openVars", "Offene Variablen – bitte eingeben:")}</p>
-            <div className="space-y-2">
-              {inputVarsWithoutValue.map(v => (
-                <div key={v.name} className="flex items-center gap-2">
-                  <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}{v.alias ? ` (${v.alias})` : ""}</span>
-                  {v.min && v.max && <span className="text-xs text-muted-foreground">[{v.min}–{v.max}{v.unit ? ` ${v.unit}` : ""}]</span>}
-                  <input
-                    type="number"
-                    value={inputVarValues[v.name] ?? ""}
-                    onChange={e => setInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
-                    placeholder={v.description ?? "Wert"}
-                    className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
-                  />
-                  {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
-                  {inputVarValues[v.name] && (
-                    <Button size="sm" variant="outline" className="h-6 text-xs px-2 flex-shrink-0" onClick={() => {
-                      const vals = { ...inputVarValues };
-                      if (vals[v.name]) {
-                        startMutation.mutate({ projectId, householdId, memberId, startDate, variableValues: vals });
-                      }
-                    }}>
-                      ✓
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
+        {/* Variablen-Sektion – editierbar */}
         {enableVariables && variables.length > 0 && (
           <div>
             <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "variables" ? null : "variables")}>
@@ -233,20 +290,48 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               <span>{activeSection === "variables" ? "▲" : "▼"}</span>
             </button>
             {activeSection === "variables" && (
-              <div className="space-y-1 mt-1 pl-2">
-                {variables.map(v => (
-                  <div key={v.name} className="flex items-center gap-2 text-xs">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
-                    <span className="font-mono" style={{ color: v.color }}>VAR{v.name}</span>
-                    {v.value && <span className="text-muted-foreground">= {v.value}{v.unit ? ` ${v.unit}` : ""}</span>}
-                    {!v.value && <span className="text-amber-500 text-xs">⚠ kein Wert</span>}
-                    {v.alias && <span className="text-muted-foreground italic">&amp;{v.alias}</span>}
+              <div className="mt-1 pl-2 space-y-2">
+                {!varEditMode ? (
+                  <>
+                    <div className="space-y-1">
+                      {variables.map(v => (
+                        <div key={v.name} className="flex items-center gap-2 text-xs">
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
+                          <span className="font-mono" style={{ color: v.color }}>
+                            {v.alias ? `&${v.alias}` : `VAR${v.name}`}
+                          </span>
+                          {v.value
+                            ? <span className="text-muted-foreground">= {v.value}{v.unit ? ` ${v.unit}` : ""}</span>
+                            : <span className="text-amber-500">⚠ {t("plankiste:project.noValue", "kein Wert")}</span>
+                          }
+                          {!isInputVar(v) && <span className="text-xs text-muted-foreground italic">{t("plankiste:variables.calculated", "berechnet")}</span>}
+                        </div>
+                      ))}
+                    </div>
+                    {allInputVars.length > 0 && (
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={startVarEdit}>
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        {t("plankiste:project.editVars", "Variablen bearbeiten")}
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                    <p className="text-xs font-medium text-amber-700">{t("plankiste:project.editVarsTitle", "Eingabe-Variablen bearbeiten:")}</p>
+                    {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues)}
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setVarEditMode(false)}>{t("common:cancel")}</Button>
+                      <Button size="sm" className="h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white" onClick={saveVarEdit} disabled={updatePlanDataMutation.isPending}>
+                        {t("common:save")}
+                      </Button>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
         )}
+
         {shoppingItemsList.length > 0 && (
           <div>
             <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "shopping" ? null : "shopping")}>
@@ -296,65 +381,72 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
         )}
       </CardContent>
 
-      {/* Start-Dialog */}
+      {/* ── Start-Dialog ── */}
       {startDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setStartDialogOpen(false)} />
           <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="font-semibold text-base mb-2">{t("plankiste:project.startProject", "Projekt starten")}</h3>
-            <div className="mb-4">
+            <h3 className="font-semibold text-base mb-4">{t("plankiste:project.startProject", "Projekt starten")}</h3>
+
+            {/* Startdatum */}
+            <div className="mb-5">
               <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
             </div>
-            {/* Phasen-Auswahl */}
+
+            {/* Phasen als Überschriften mit Variablen darunter */}
             {phases.length > 0 && (
-              <div className="mb-4">
-                <p className="text-sm font-medium mb-2">{t("plankiste:project.selectPhases", "Phasen die jetzt gestartet werden:")}</p>
-                <div className="space-y-2">
-                  {phases.sort((a, b) => a.order - b.order).map(phase => {
-                    const phaseTaskCount = taskItemsList.filter(t => (t as any).phaseId === phase.id).length;
-                    const phaseShopCount = shoppingItemsList.filter(s => (s as any).phaseId === phase.id).length;
-                    return (
-                      <label key={phase.id} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-border hover:bg-muted/50">
+              <div className="mb-5 space-y-4">
+                <p className="text-sm font-medium">{t("plankiste:project.selectPhases", "Phasen die jetzt gestartet werden:")}</p>
+                {sortedPhases.map(phase => {
+                  const phaseTaskCount = taskItemsList.filter(t => (t as any).phaseId === phase.id).length;
+                  const phaseShopCount = shoppingItemsList.filter(s => (s as any).phaseId === phase.id).length;
+                  const phaseVars = enableVariables ? getInputVarsForPhase(phase.id) : [];
+                  const isSelected = selectedPhaseIds.includes(phase.id);
+                  return (
+                    <div key={phase.id} className={`rounded-lg border p-3 transition-colors ${isSelected ? "border-amber-300 bg-amber-50/50" : "border-border bg-muted/30 opacity-60"}`}>
+                      {/* Phase-Header mit Checkbox */}
+                      <label className="flex items-center gap-2 cursor-pointer mb-2">
                         <input
                           type="checkbox"
-                          checked={selectedPhaseIds.includes(phase.id)}
+                          checked={isSelected}
                           onChange={e => setSelectedPhaseIds(prev =>
                             e.target.checked ? [...prev, phase.id] : prev.filter(id => id !== phase.id)
                           )}
                           className="w-4 h-4 rounded"
                         />
                         <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: phase.color }} />
-                        <span className="text-sm flex-1">{phase.name}</span>
+                        <span className="text-sm font-medium flex-1">{phase.name}</span>
                         <span className="text-xs text-muted-foreground">{phaseTaskCount}A + {phaseShopCount}E</span>
                       </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {/* Variablen-Eingabe für ausgewählte Phasen */}
-            {enableVariables && varsForSelectedPhases.length > 0 && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen für die gewählten Phasen:")}</p>
-                <div className="space-y-2">
-                  {varsForSelectedPhases.map(v => (
-                    <div key={v.name} className="flex items-center gap-2">
-                      <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}{v.alias ? ` (${v.alias})` : ""}</span>
-                      {v.min && v.max && <span className="text-xs text-muted-foreground flex-shrink-0">[{v.min}–{v.max}]</span>}
-                      <input
-                        type="number"
-                        value={inputVarValues[v.name] ?? ""}
-                        onChange={e => setInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
-                        placeholder={v.description ?? "Wert"}
-                        className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
-                      />
-                      {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+                      {/* Variablen dieser Phase */}
+                      {isSelected && phaseVars.length > 0 && (
+                        <div className="pl-6 space-y-1">
+                          <p className="text-xs text-muted-foreground mb-1">{t("plankiste:project.phaseVars", "Variablen:")}</p>
+                          {renderVarInputs(phaseVars, inputVarValues, setInputVarValues)}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+                {/* Phasenlose Variablen */}
+                {enableVariables && phaselessVars.length > 0 && (
+                  <div className="rounded-lg border border-border p-3">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">{t("plankiste:project.generalVars", "Allgemeine Variablen:")}</p>
+                    {renderVarInputs(phaselessVars, inputVarValues, setInputVarValues)}
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Ohne Phasen: alle Variablen direkt */}
+            {phases.length === 0 && enableVariables && allInputVars.length > 0 && (
+              <div className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen:")}</p>
+                {renderVarInputs(allInputVars, inputVarValues, setInputVarValues)}
+              </div>
+            )}
+
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setStartDialogOpen(false)}>{t("common:cancel")}</Button>
               <Button
@@ -375,16 +467,16 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
         </div>
       )}
 
-      {/* Phase-Start-Dialog */}
+      {/* ── Phase-Start-Dialog ── */}
       {phaseStartDialogId && (() => {
         const phase = phases.find(p => p.id === phaseStartDialogId);
         if (!phase) return null;
-        const phaseVars = getVarsForPhase(phaseStartDialogId);
+        const phaseVars = enableVariables ? getInputVarsForPhase(phaseStartDialogId) : [];
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={() => setPhaseStartDialogId(null)} />
             <div className="relative bg-background rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 max-h-[90vh] overflow-y-auto">
-              <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full" style={{ background: phase.color }} />
                 {t("plankiste:project.startPhaseTitle", "Phase starten")}: {phase.name}
               </h3>
@@ -392,24 +484,10 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
                 <input type="date" value={phaseStartDate} onChange={e => setPhaseStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
               </div>
-              {enableVariables && phaseVars.length > 0 && (
+              {phaseVars.length > 0 && (
                 <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen für diese Phase:")}</p>
-                  <div className="space-y-2">
-                    {phaseVars.map(v => (
-                      <div key={v.name} className="flex items-center gap-2">
-                        <span className="text-xs font-mono flex-shrink-0" style={{ color: v.color }}>VAR{v.name}</span>
-                        <input
-                          type="number"
-                          value={phaseInputVarValues[v.name] ?? ""}
-                          onChange={e => setPhaseInputVarValues(prev => ({ ...prev, [v.name]: e.target.value }))}
-                          placeholder={v.description ?? "Wert"}
-                          className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
-                        />
-                        {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.phaseVars", "Variablen:")}</p>
+                  {renderVarInputs(phaseVars, phaseInputVarValues, setPhaseInputVarValues)}
                 </div>
               )}
               <div className="flex gap-2 justify-end">

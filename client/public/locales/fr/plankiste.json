@@ -298,6 +298,12 @@
     "phaseCompleted": "Terminé",
     "startPhase": "Démarrer",
     "startPhaseTitle": "Démarrer la phase",
-    "phaseStarted": "Phase démarrée!"
+    "phaseStarted": "Phase démarrée!",
+    "phaseVars": "Variables:",
+    "generalVars": "Variables générales:",
+    "editVars": "Modifier les variables",
+    "editVarsTitle": "Modifier les variables d'entrée:",
+    "varsSaved": "Variables enregistrées",
+    "noValue": "aucune valeur"
   }
 }
