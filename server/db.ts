@@ -11,6 +11,7 @@ import {
   projects,
   projectHouseholds,
   activityHistory,
+  taskDependencies,
   taskRotationExclusions,
   taskRotationSchedule,
   taskRotationOccurrenceNotes,
@@ -808,6 +809,32 @@ export async function getActivityHistory(householdId: number, limit: number = 30
           .limit(1);
         if (taskResult.length > 0) {
           const task = taskResult[0];
+          const dependencyRows = await db.select({
+            id: taskDependencies.id,
+            dependsOnTaskId: taskDependencies.dependsOnTaskId,
+            dependencyType: taskDependencies.dependencyType,
+          })
+            .from(taskDependencies)
+            .where(eq(taskDependencies.taskId, task.id));
+
+          const relatedTaskIds = Array.from(new Set(
+            dependencyRows
+              .map(dependency => dependency.dependsOnTaskId)
+              .filter(relatedTaskId => relatedTaskId !== task.id)
+          ));
+          const relatedTasks = relatedTaskIds.length > 0
+            ? await db.select({ id: tasks.id, name: tasks.name })
+              .from(tasks)
+              .where(inArray(tasks.id, relatedTaskIds))
+            : [];
+          const relatedTaskNames = new Map(relatedTasks.map(relatedTask => [relatedTask.id, relatedTask.name]));
+          const mapDependencies = (dependencyType: "prerequisite" | "followup") => dependencyRows
+            .filter(dependency => dependency.dependencyType === dependencyType)
+            .map(dependency => ({
+              id: dependency.dependsOnTaskId,
+              name: relatedTaskNames.get(dependency.dependsOnTaskId) ?? `#${dependency.dependsOnTaskId}`,
+            }));
+
           return {
             ...activity,
             taskDetails: {
@@ -815,6 +842,8 @@ export async function getActivityHistory(householdId: number, limit: number = 30
               description: task.description,
               assignedTo: task.assignedTo,
               dueDate: task.dueDate ? dateToWallClockString(task.dueDate) : null,
+              prerequisites: mapDependencies("prerequisite"),
+              followups: mapDependencies("followup"),
             },
           };
         }

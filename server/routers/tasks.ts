@@ -51,7 +51,7 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
   return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
-import { handleRecurringCompletion, advanceByInterval, TaskForCompletion } from "./taskCompletion";
+import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 
 // ─── German label helpers ───────────────────────────────────────────────────
@@ -598,8 +598,8 @@ export const tasksRouter = router({
       // Store original due date for activity log
       const originalDueDate = task.dueDate;
 
-      // Check if task is recurring
-      const isRecurring = task.repeatInterval && task.repeatUnit;
+      // Dieselbe Definition wie im ausführlichen Abschlussdialog verwenden.
+      const isRecurring = isTaskRecurring(task);
 
       if (input.isCompleted && isRecurring) {
         // For recurring tasks: delegate all recurring logic to shared helper
@@ -736,12 +736,8 @@ export const tasksRouter = router({
         throw new Error("Task not found");
       }
 
-      // Determine if task is recurring: check repeatInterval+repeatUnit first, then frequency
-      const isRecurring = (task.repeatInterval && task.repeatUnit && task.repeatUnit !== 'irregular') 
-        || task.frequency === "daily" 
-        || task.frequency === "weekly" 
-        || task.frequency === "monthly" 
-        || (task.frequency === "custom" && (task.customFrequencyDays || (task.repeatInterval && task.repeatUnit)));
+      // Einheitliche Definition mit dem Checkbox-Abschluss verwenden.
+      const isRecurring = isTaskRecurring(task);
       console.log('[completeTask] Task found:', { id: task.id, name: task.name, frequency: task.frequency, repeatInterval: task.repeatInterval, repeatUnit: task.repeatUnit, isRecurring });
 
       // Save original due date before updating (for activity history)
@@ -837,7 +833,7 @@ export const tasksRouter = router({
 
       // ===== 2-5. Calculate next due date, skip-chain, rotation cleanup, ensure min occurrences =====
       let nextDueDate: Date | null = null;
-      if (isRecurring && task.dueDate) {
+      if (isRecurring) {
         const result = await handleRecurringCompletion(
           task,
           input.householdId,

@@ -65,6 +65,28 @@ export interface TaskForCompletion {
 }
 
 /**
+ * Ermittelt zentral, ob eine Aufgabe wiederkehrend ist.
+ *
+ * Die UI verwendet sowohl die älteren frequency-Werte (daily/weekly/monthly)
+ * als auch die neueren repeatInterval/repeatUnit-Felder. Beide Abschlusswege
+ * müssen daher dieselbe Definition verwenden, damit eine Aufgabe nicht je
+ * nach Button als einmalig oder wiederkehrend behandelt wird.
+ */
+export function isTaskRecurring(task: Pick<TaskForCompletion,
+  "frequency" | "repeatInterval" | "repeatUnit" | "customFrequencyDays"
+>): boolean {
+  const hasInterval = Boolean(task.repeatInterval && task.repeatUnit && task.repeatUnit !== "irregular");
+  const isIrregular = task.repeatUnit === "irregular";
+
+  return hasInterval
+    || isIrregular
+    || task.frequency === "daily"
+    || task.frequency === "weekly"
+    || task.frequency === "monthly"
+    || (task.frequency === "custom" && Boolean(task.customFrequencyDays || hasInterval || isIrregular));
+}
+
+/**
  * Advance a date by one interval using LOCAL date components.
  *
  * Strategy: "wall-clock time" — DB stores times as the user entered them.
@@ -125,8 +147,6 @@ export async function handleRecurringCompletion(
   householdId: number,
   completedOccurrenceNumber: number | null,
 ): Promise<{ nextDueDate: Date }> {
-  const currentDueDate = task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate!);
-
   // ── 0. Check if occurrence 1 is a special occurrence ────────────────────────
   // Special occurrences have their own date (specialDate) and are NOT part of the
   // regular interval sequence. When a special occurrence is completed:
@@ -136,6 +156,9 @@ export async function handleRecurringCompletion(
   const occNumToDelete = completedOccurrenceNumber ?? 1;
   const completedOcc = schedule.find(occ => occ.occurrenceNumber === occNumToDelete);
   const isCompletingSpecialOcc = completedOcc?.isSpecial === true && completedOcc?.specialDate != null;
+  const currentDueDate = task.dueDate
+    ? (task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate))
+    : (completedOcc?.specialDate ? new Date(completedOcc.specialDate) : null);
 
   // ── 1. Calculate raw next due date ──────────────────────────────────────────
   // For special occurrences: keep task.dueDate as the next due date (regular schedule unchanged)
@@ -143,7 +166,15 @@ export async function handleRecurringCompletion(
   let nextDueDate: Date;
   if (isCompletingSpecialOcc) {
     // The regular due date stays the same – only the special entry is removed
-    nextDueDate = new Date(currentDueDate);
+    nextDueDate = task.dueDate
+      ? new Date(currentDueDate!)
+      : new Date(completedOcc!.specialDate!);
+  } else if (!currentDueDate || task.repeatUnit === "irregular") {
+    // Unregelmäßige Aufgaben haben keine rechnerische Intervall-Folge. Ihre
+    // nächsten Termine liegen als explizite Einträge im Rotationsplan vor.
+    // Nach dem Entfernen des aktuellen Eintrags wird weiter unten der erste
+    // verbleibende Termin verwendet. Bis dahin bleibt ein valides Datum nötig.
+    nextDueDate = currentDueDate ? new Date(currentDueDate) : new Date();
   } else {
     nextDueDate = await advanceByInterval(currentDueDate, task);
 
@@ -167,6 +198,19 @@ export async function handleRecurringCompletion(
 
   // ── 3. Remove completed occurrence & renumber ────────────────────────────────
   await deleteRotationOccurrence(task.id, occNumToDelete);
+
+  // Für unregelmäßige Aufgaben den nächsten explizit geplanten Termin als
+  // Fälligkeit übernehmen. Dadurch bleibt die Aufgabe nach dem Abschluss aktiv
+  // und springt nicht auf ein künstlich berechnetes Datum.
+  if (task.repeatUnit === "irregular") {
+    const remainingSchedule = await getRotationSchedule(task.id);
+    const nextExplicit = remainingSchedule
+      .filter(occ => !occ.isSkipped && occ.specialDate)
+      .sort((a, b) => new Date(a.specialDate!).getTime() - new Date(b.specialDate!).getTime())[0];
+    if (nextExplicit?.specialDate) {
+      nextDueDate = new Date(nextExplicit.specialDate);
+    }
+  }
 
   // Renumber taskOccurrenceItems
   const db = await getDb();

@@ -189,7 +189,7 @@
 - [x] Implement Gantt chart view for project tasks
 - [x] Display task dependencies in Haushaltsaufgaben page
 - [x] Display task dependencies in Projektansicht
-- [ ] Display task dependencies in Verlauf (History)
+- [x] Display task dependencies in Verlauf (History)
 - [x] Show prerequisites and follow-up tasks with icons and links
 - [x] Create TaskDependencies reusable component
 - [x] Add getAllDependencies endpoint for efficient loading
@@ -3668,6 +3668,14 @@
 - [ ] Frontend: Mehrfachauswahl + Neu-Erstellen-Button im Aufgaben-Formular (Erstellen + Bearbeiten)
 - [ ] Frontend: Filterleiste nach Kategorien in der Aufgabenliste
 - [ ] i18n: Keys in alle 7 Sprachen
+
+## Priorisierte Stabilisierung nach TODO-Audit (2026-08-13)
+- [ ] Datenbankgestützte Vitest-Tests analysieren und eine verlässliche Testdatenbank- bzw. Mock-Strategie herstellen
+- [ ] Wiederkehrende Aufgaben: Abschlusslogik mit realistischen Wiederholungsfällen analysieren und fehlerhafte Fälle beheben
+- [ ] Aufgaben-Abhängigkeiten: doppelte Spiegelungen und fehlende Listendarstellung reproduzieren und an der Ursache korrigieren
+- [x] Verlauf: sinnvolle Anzeige von Voraussetzungen und Folgeaufgaben für Aufgabenaktivitäten ergänzen
+- [x] Wiederkehrende Aufgaben: zentrale Erkennung für beide Abschlusswege vereinheitlicht und mit Unit-Tests abgesichert
+- [ ] Priorisierte Stabilisierung testen, Ergebnisse dokumentieren und zugehörige TODOs aktualisieren
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt

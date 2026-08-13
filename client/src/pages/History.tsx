@@ -352,6 +352,22 @@ export default function History() {
                                   </span>
                                 </div>
                               )}
+                              {Array.isArray((activity.taskDetails as any).prerequisites) && (activity.taskDetails as any).prerequisites.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">{t("tasks:prerequisites", "Voraussetzungen")}:</span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {(activity.taskDetails as any).prerequisites.map((dependency: { id: number; name: string }) => dependency.name).join(", ")}
+                                  </span>
+                                </div>
+                              )}
+                              {Array.isArray((activity.taskDetails as any).followups) && (activity.taskDetails as any).followups.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-accent">{t("tasks:followups", "Folgeaufgaben")}:</span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {(activity.taskDetails as any).followups.map((dependency: { id: number; name: string }) => dependency.name).join(", ")}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
