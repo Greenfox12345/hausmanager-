@@ -617,5 +617,10 @@
     "colorLabel": "Couleur",
     "createSuccess": "Catégorie créée",
     "createError": "Impossible de créer la catégorie"
+  },
+  "comments": {
+    "title": "Commentaires",
+    "placeholder": "Écrire un commentaire …",
+    "add": "Ajouter un commentaire"
   }
 }

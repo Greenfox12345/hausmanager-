@@ -617,5 +617,10 @@
     "colorLabel": "Renk",
     "createSuccess": "Kategori oluşturuldu",
     "createError": "Kategori oluşturulamadı"
+  },
+  "comments": {
+    "title": "Yorumlar",
+    "placeholder": "Yorum yazın …",
+    "add": "Yorum ekle"
   }
 }

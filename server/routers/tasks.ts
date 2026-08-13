@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, asc } from "drizzle-orm";
 import { publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -28,7 +28,7 @@ import {
   getRealRotationSchedule,
   dateToWallClockString,
 } from "../db";
-import { notifyTaskAssigned, notifyTaskCompleted, createNotification } from "../notificationHelpers";
+import { notifyTaskAssigned, notifyTaskCompleted, notifyCommentAdded, createNotification } from "../notificationHelpers";
 import {
   taskCreated,
   taskUpdated,
@@ -1830,5 +1830,73 @@ export const tasksRouter = router({
         .from(taskCategoryAssignments)
         .innerJoin(shoppingCategories, eq(taskCategoryAssignments.categoryId, shoppingCategories.id))
         .where(eq(taskCategoryAssignments.taskId, input.taskId));
+    }),
+
+  /** Kommentare einer Aufgabe in zeitlicher Reihenfolge laden. */
+  listTaskComments: publicProcedure
+    .input(z.object({ householdId: z.number(), taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { taskComments, householdMembers } = await import("../../drizzle/schema");
+      return db.select({
+        id: taskComments.id,
+        content: taskComments.content,
+        createdAt: taskComments.createdAt,
+        memberId: taskComments.memberId,
+        memberName: householdMembers.memberName,
+      })
+        .from(taskComments)
+        .innerJoin(householdMembers, eq(taskComments.memberId, householdMembers.id))
+        .where(and(
+          eq(taskComments.householdId, input.householdId),
+          eq(taskComments.taskId, input.taskId),
+        ))
+        .orderBy(asc(taskComments.createdAt));
+    }),
+
+  /** Kommentar speichern und die anderen verantwortlichen Mitglieder informieren. */
+  addTaskComment: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      taskId: z.number(),
+      memberId: z.number(),
+      content: z.string().trim().min(1).max(2_000),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const task = await getTaskById(input.taskId);
+      const member = await getHouseholdMemberById(input.memberId);
+      if (!task || task.householdId !== input.householdId || !member || member.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe oder Mitglied nicht gefunden" });
+      }
+
+      const { taskComments } = await import("../../drizzle/schema");
+      const [result] = await db.insert(taskComments).values({
+        householdId: input.householdId,
+        taskId: input.taskId,
+        memberId: input.memberId,
+        content: input.content,
+      });
+
+      const lang = await getHouseholdLang(input.householdId);
+      const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : [];
+      for (const recipientId of Array.from(new Set(assignees))) {
+        if (recipientId === input.memberId) continue;
+        await notifyCommentAdded(input.householdId, recipientId, task.id, task.name, member.memberName, lang);
+      }
+
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "commented",
+        description: `${member.memberName} hat einen Kommentar zu „${task.name}“ hinzugefügt`,
+        relatedItemId: task.id,
+        comment: input.content,
+      });
+
+      return { id: Number(result.insertId), success: true };
     }),
 });

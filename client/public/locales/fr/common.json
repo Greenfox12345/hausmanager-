@@ -323,7 +323,8 @@
     "taskAssigned": "Attributions de tâches",
     "taskDue": "Tâches dues",
     "taskCompleted": "Tâches terminées",
-    "comments": "Commentaires"
+    "comments": "Commentaires",
+    "taskDueDays": "Rappeler jusqu’à … jours à l’avance"
   },
   "dnd": {
     "title": "Ne pas déranger",

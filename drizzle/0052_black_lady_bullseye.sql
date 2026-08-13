@@ -1,0 +1,1 @@
+ALTER TABLE `notification_preferences` ADD `taskDueReminderDays` int DEFAULT 1 NOT NULL;

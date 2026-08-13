@@ -400,7 +400,8 @@
     "taskAssigned": "Asignaciones de tareas",
     "taskDue": "Tareas vencidas",
     "taskCompleted": "Tareas completadas",
-    "comments": "Comentarios"
+    "comments": "Comentarios",
+    "taskDueDays": "Recordar hasta … días antes"
   },
   "dnd": {
     "title": "No molestar",

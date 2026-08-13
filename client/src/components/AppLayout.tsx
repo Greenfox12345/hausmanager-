@@ -51,6 +51,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { openTutorial } = useTutorial();
   const { t } = useTranslation("common");
+  const utils = trpc.useUtils();
   
   // Detect desktop/mobile for conditional rendering
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -77,6 +78,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   // Mutation to switch household
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+  const checkDueTasksMutation = trpc.notifications.checkDueTasksOnAppOpen.useMutation({
+    onSuccess: (result) => {
+      if (result.created > 0 && member) {
+        utils.notifications.list.invalidate({ householdId: member.householdId, memberId: member.memberId });
+        utils.notifications.getUnreadCount.invalidate({ householdId: member.householdId, memberId: member.memberId });
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (!member?.householdId || !member.memberId) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const storageKey = `due-reminder-check:${member.householdId}:${member.memberId}:${today}`;
+    if (sessionStorage.getItem(storageKey)) return;
+
+    checkDueTasksMutation.mutate(
+      { householdId: member.householdId, memberId: member.memberId },
+      {
+        onSuccess: (result) => {
+          // Während der Ruhezeit nicht markieren, damit eine spätere Öffnung
+          // außerhalb der Ruhezeit die In-App-Erinnerung noch erzeugen kann.
+          if (result.skipped !== "quiet-hours") sessionStorage.setItem(storageKey, "1");
+        },
+      },
+    );
+  }, [member?.householdId, member?.memberId]);
 
   // Pending borrow requests count for badge
   const { data: pendingData } = trpc.borrow.getPendingRequestsCount.useQuery(

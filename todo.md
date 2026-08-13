@@ -3686,6 +3686,14 @@
 - [x] Frontend: transitive Voraussetzungen und Folgeaufgaben anzeigen und ihre Entfernung sperren, solange die vermittelnde Beziehung besteht
 - [x] Datumstabiles Modell für übersprungene Termine und Terminnotizen implementieren
 
+## Benachrichtigungen und Aufgaben-Erinnerungen (2026-08-13)
+- [x] Bestehende Benachrichtigungen, Kommentare und Nutzerpräferenzen fachlich abgleichen
+- [x] Benachrichtigung bei neuen Aufgabenkommentaren implementieren
+- [x] Konfigurierbare Fälligkeitserinnerungen mit Ruhezeit berücksichtigen
+- [x] Beim Öffnen der App fällige Aufgaben auf In-App-Erinnerungen prüfen
+- [x] Grundlage für spätere Push-Zustellung vorbereiten (Browser-Berechtigung und Präferenz vorhanden)
+- [x] Benachrichtigungsabläufe mit datenfreien Regeln testen und dokumentieren
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt

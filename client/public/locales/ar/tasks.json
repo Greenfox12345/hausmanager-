@@ -384,5 +384,10 @@
   },
   "sharing": {
     "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"
+  },
+  "comments": {
+    "title": "التعليقات",
+    "placeholder": "اكتب تعليقًا …",
+    "add": "إضافة تعليق"
   }
 }

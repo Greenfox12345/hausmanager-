@@ -617,5 +617,10 @@
     "colorLabel": "颜色",
     "createSuccess": "分类已创建",
     "createError": "无法创建分类"
+  },
+  "comments": {
+    "title": "评论",
+    "placeholder": "撰写评论 …",
+    "add": "添加评论"
   }
 }

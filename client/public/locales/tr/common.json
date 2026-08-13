@@ -323,7 +323,8 @@
     "taskAssigned": "Görev Atamaları",
     "taskDue": "Süresi Dolan Görevler",
     "taskCompleted": "Tamamlanan Görevler",
-    "comments": "Yorumlar"
+    "comments": "Yorumlar",
+    "taskDueDays": "… gün öncesine kadar hatırlat"
   },
   "dnd": {
     "title": "Rahatsız Etmeyin",

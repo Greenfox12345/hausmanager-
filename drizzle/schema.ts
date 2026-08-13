@@ -70,6 +70,7 @@ export const notificationPreferences = mysqlTable("notification_preferences", {
   enableTaskCompleted: boolean("enableTaskCompleted").default(true),
   enableComments: boolean("enableComments").default(true),
   enableBrowserPush: boolean("enableBrowserPush").default(false),
+  taskDueReminderDays: int("taskDueReminderDays").default(1).notNull(),
   dndStartTime: varchar("dndStartTime", { length: 5 }),
   dndEndTime: varchar("dndEndTime", { length: 5 }),
   createdAt: timestamp("createdAt").defaultNow(),
@@ -85,12 +86,27 @@ export const notifications = mysqlTable("notifications", {
   message: text("message").notNull(),
   relatedTaskId: int("relatedTaskId"),
   relatedProjectId: int("relatedProjectId"),
+  /** Verhindert doppelte automatische Erinnerungen für denselben Termin. */
+  dedupeKey: varchar("dedupeKey", { length: 191 }),
   isRead: boolean("isRead").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+/** Kommentare zu einer Aufgabe; sichtbar für Mitglieder des jeweiligen Haushalts. */
+export const taskComments = mysqlTable("task_comments", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  memberId: int("memberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TaskComment = typeof taskComments.$inferSelect;
+export type InsertTaskComment = typeof taskComments.$inferInsert;
 
 /**
  * Item units - household-wide units for quantity tracking (e.g. Stück, Kilo, Gramm)

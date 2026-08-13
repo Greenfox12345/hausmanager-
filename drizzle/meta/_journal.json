@@ -274,6 +274,20 @@
       "when": 1786655208569,
       "tag": "0050_graceful_leech",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "5",
+      "when": 1786658937085,
+      "tag": "0051_dashing_dakota_north",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "5",
+      "when": 1786659185870,
+      "tag": "0052_black_lady_bullseye",
+      "breakpoints": true
     }
   ]
 }

@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
-import { getDb } from "../db";
+import { getDb, getHouseholdById, getTasks } from "../db";
 import { notifications, notificationPreferences } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { notifyTaskDue } from "../notificationHelpers";
+import { getDaysUntilDue, isWithinDndWindow } from "../../shared/notificationRules";
+
+type NotificationLanguage = "de" | "en" | "es" | "fr" | "tr" | "zh" | "ar";
 
 export const notificationsRouter = router({
   /**
@@ -197,6 +201,7 @@ export const notificationsRouter = router({
           enableTaskCompleted: true,
           enableComments: true,
           enableBrowserPush: false,
+          taskDueReminderDays: 1,
           dndStartTime: null,
           dndEndTime: null,
         };
@@ -218,6 +223,7 @@ export const notificationsRouter = router({
         enableTaskCompleted: z.boolean().optional(),
         enableComments: z.boolean().optional(),
         enableBrowserPush: z.boolean().optional(),
+        taskDueReminderDays: z.number().int().min(0).max(30).optional(),
         dndStartTime: z.string().nullable().optional(),
         dndEndTime: z.string().nullable().optional(),
       })
@@ -244,6 +250,7 @@ export const notificationsRouter = router({
       if (input.enableTaskCompleted !== undefined) updateData.enableTaskCompleted = input.enableTaskCompleted;
       if (input.enableComments !== undefined) updateData.enableComments = input.enableComments;
       if (input.enableBrowserPush !== undefined) updateData.enableBrowserPush = input.enableBrowserPush;
+      if (input.taskDueReminderDays !== undefined) updateData.taskDueReminderDays = input.taskDueReminderDays;
       if (input.dndStartTime !== undefined) updateData.dndStartTime = input.dndStartTime;
       if (input.dndEndTime !== undefined) updateData.dndEndTime = input.dndEndTime;
 
@@ -268,5 +275,74 @@ export const notificationsRouter = router({
       }
 
       return { success: true };
+    }),
+
+  /**
+   * Lightweight reminder check: runs when a household member opens the app.
+   * Each task occurrence is protected by a dedupeKey, so repeated opens do not
+   * create duplicate in-app notifications.
+   */
+  checkDueTasksOnAppOpen: publicProcedure
+    .input(z.object({ householdId: z.number(), memberId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [preferences] = await db.select()
+        .from(notificationPreferences)
+        .where(and(
+          eq(notificationPreferences.householdId, input.householdId),
+          eq(notificationPreferences.memberId, input.memberId),
+        ))
+        .limit(1);
+
+      const reminderDays = preferences?.taskDueReminderDays ?? 1;
+      if (preferences?.enableTaskDue === false) return { created: 0, skipped: "disabled" as const };
+      if (isWithinDndWindow(preferences?.dndStartTime ?? null, preferences?.dndEndTime ?? null)) {
+        return { created: 0, skipped: "quiet-hours" as const };
+      }
+
+      const household = await getHouseholdById(input.householdId);
+      const language = (["de", "en", "es", "fr", "tr", "zh", "ar"].includes(household?.language ?? "de")
+        ? household?.language
+        : "de") as NotificationLanguage;
+      const tasks = await getTasks(input.householdId);
+      let created = 0;
+
+      for (const task of tasks) {
+        if (task.isCompleted || !task.dueDate) continue;
+        const assignedTo = Array.isArray(task.assignedTo) ? task.assignedTo : [];
+        if (!assignedTo.includes(input.memberId)) continue;
+
+        const dueDate = new Date(task.dueDate);
+        const daysUntilDue = getDaysUntilDue(dueDate);
+        if (daysUntilDue < 0 || daysUntilDue > reminderDays) continue;
+
+        const dateKey = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, "0")}-${String(dueDate.getDate()).padStart(2, "0")}`;
+        const dedupeKey = `task-due:${task.id}:${dateKey}`;
+        const before = await db.select({ id: notifications.id })
+          .from(notifications)
+          .where(and(
+            eq(notifications.householdId, input.householdId),
+            eq(notifications.memberId, input.memberId),
+            eq(notifications.dedupeKey, dedupeKey),
+          ))
+          .limit(1);
+        if (before.length > 0) continue;
+
+        await notifyTaskDue(
+          input.householdId,
+          input.memberId,
+          task.id,
+          task.name,
+          daysUntilDue,
+          Boolean(task.repeatInterval && task.repeatUnit),
+          language,
+          dedupeKey,
+        );
+        created += 1;
+      }
+
+      return { created, skipped: null };
     }),
 });

@@ -1,5 +1,6 @@
 import { getDb } from "./db";
-import { notifications } from "../drizzle/schema";
+import { notificationPreferences, notifications } from "../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
 /**
  * Notification Helper Functions
@@ -24,6 +25,8 @@ interface CreateNotificationParams {
   message: string;
   relatedTaskId?: number;
   relatedProjectId?: number;
+  /** Verhindert doppelte automatische Erinnerungen für denselben Termin. */
+  dedupeKey?: string;
 }
 
 /** Simple multilingual helper */
@@ -49,12 +52,46 @@ export async function createNotification(params: CreateNotificationParams) {
     message,
     relatedTaskId,
     relatedProjectId,
+    dedupeKey,
   } = params;
 
   const db = await getDb();
   if (!db) {
     console.warn("[Notifications] Cannot create notification: database not available");
     return;
+  }
+
+  const preferenceColumn = type === "task_assigned"
+    ? notificationPreferences.enableTaskAssigned
+    : type === "task_due"
+      ? notificationPreferences.enableTaskDue
+      : type === "task_completed"
+        ? notificationPreferences.enableTaskCompleted
+        : type === "comment_added"
+          ? notificationPreferences.enableComments
+          : null;
+
+  if (preferenceColumn) {
+    const [preferences] = await db.select({ enabled: preferenceColumn })
+      .from(notificationPreferences)
+      .where(and(
+        eq(notificationPreferences.householdId, householdId),
+        eq(notificationPreferences.memberId, memberId),
+      ))
+      .limit(1);
+    if (preferences && !preferences.enabled) return;
+  }
+
+  if (dedupeKey) {
+    const [existing] = await db.select({ id: notifications.id })
+      .from(notifications)
+      .where(and(
+        eq(notifications.householdId, householdId),
+        eq(notifications.memberId, memberId),
+        eq(notifications.dedupeKey, dedupeKey),
+      ))
+      .limit(1);
+    if (existing) return;
   }
 
   await db.insert(notifications).values({
@@ -65,6 +102,7 @@ export async function createNotification(params: CreateNotificationParams) {
     message,
     relatedTaskId: relatedTaskId || null,
     relatedProjectId: relatedProjectId || null,
+    dedupeKey: dedupeKey || null,
     isRead: false,
     createdAt: new Date(),
   });
@@ -116,7 +154,8 @@ export async function notifyTaskDue(
   taskTitle: string,
   daysUntilDue: number,
   isRecurring?: boolean,
-  lang: NotifLang = "de"
+  lang: NotifLang = "de",
+  dedupeKey?: string,
 ) {
   const title = isRecurring
     ? nt(lang, "Termin anstehend", "Upcoming occurrence", "Cita próxima", "Rendez-vous à venir", "即将到来的计划", "Yaklaşan tekrar", "موعد قادم")
@@ -172,6 +211,7 @@ export async function notifyTaskDue(
     title,
     message,
     relatedTaskId: taskId,
+    dedupeKey,
   });
 }
 

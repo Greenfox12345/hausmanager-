@@ -319,7 +319,8 @@
     "taskAssigned": "Task Assignments",
     "taskDue": "Due Tasks",
     "taskCompleted": "Completed Tasks",
-    "comments": "Comments"
+    "comments": "Comments",
+    "taskDueDays": "Remind up to … days ahead"
   },
   "dnd": {
     "title": "Do Not Disturb",

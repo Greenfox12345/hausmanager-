@@ -24,6 +24,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   const [taskDueEnabled, setTaskDueEnabled] = useState(true);
   const [taskCompletedEnabled, setTaskCompletedEnabled] = useState(true);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [taskDueReminderDays, setTaskDueReminderDays] = useState(1);
   const [dndStartTime, setDndStartTime] = useState("");
   const [dndEndTime, setDndEndTime] = useState("");
   const [permissionStatus, setPermissionStatus] = useState<"default" | "granted" | "denied">("default");
@@ -55,6 +56,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
       setTaskDueEnabled(preferences.enableTaskDue ?? true);
       setTaskCompletedEnabled(preferences.enableTaskCompleted ?? true);
       setCommentsEnabled(preferences.enableComments ?? true);
+      setTaskDueReminderDays(preferences.taskDueReminderDays ?? 1);
       setDndStartTime(preferences.dndStartTime ?? "");
       setDndEndTime(preferences.dndEndTime ?? "");
     }
@@ -108,6 +110,17 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
       memberId: member.memberId,
       dndStartTime: dndStartTime || null,
       dndEndTime: dndEndTime || null,
+    });
+  };
+
+  const handleReminderDaysChange = () => {
+    if (!household?.householdId || !member?.memberId) return;
+    const days = Math.min(30, Math.max(0, Math.trunc(taskDueReminderDays || 0)));
+    setTaskDueReminderDays(days);
+    updatePreferences.mutate({
+      householdId: household.householdId,
+      memberId: member.memberId,
+      taskDueReminderDays: days,
     });
   };
 
@@ -183,6 +196,23 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
                 }}
               />
             </div>
+            {taskDueEnabled && (
+              <div className="ml-1 flex items-center justify-between gap-4 rounded-md bg-muted/45 px-3 py-2">
+                <Label htmlFor="task-due-reminder-days" className="text-xs text-muted-foreground">
+                  {t("notificationTypes.taskDueDays", "Erinnerung bis zu … Tage vorher")}
+                </Label>
+                <Input
+                  id="task-due-reminder-days"
+                  type="number"
+                  min={0}
+                  max={30}
+                  value={taskDueReminderDays}
+                  onChange={(event) => setTaskDueReminderDays(Number(event.target.value))}
+                  onBlur={handleReminderDaysChange}
+                  className="h-8 w-20 text-center"
+                />
+              </div>
+            )}
 
             {/* Task Completed */}
             <div className="flex items-center justify-between">

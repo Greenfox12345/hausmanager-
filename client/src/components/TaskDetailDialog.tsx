@@ -120,6 +120,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { taskId: task?.id ?? 0, householdId: household?.householdId ?? 0 },
     { enabled: !!task?.id && !!household && open && activeTab === "history" }
   );
+
+  const [commentDraft, setCommentDraft] = useState("");
+  const { data: taskComments = [] } = trpc.tasks.listTaskComments.useQuery(
+    { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && !!household?.householdId && open },
+  );
+  const addTaskCommentMutation = trpc.tasks.addTaskComment.useMutation({
+    onSuccess: () => {
+      setCommentDraft("");
+      if (task?.id && household?.householdId) {
+        utils.tasks.listTaskComments.invalidate({ householdId: household.householdId, taskId: task.id });
+        utils.notifications.getUnreadCount.invalidate({ householdId: household.householdId, memberId: member?.memberId ?? 0 });
+      }
+    },
+    onError: () => toast.error(t("messages.genericError", "Kommentar konnte nicht gespeichert werden")),
+  });
   
   // Sub-tab state for history tab
   const [historySubTab, setHistorySubTab] = useState<"activities" | "past_appointments">("activities");
@@ -2243,6 +2259,53 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     <p className="text-sm text-muted-foreground mt-2">{task.description}</p>
                   )}
                 </div>
+
+                <section className="space-y-3 border-t pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h4 className="text-sm font-semibold">{t("comments.title", "Kommentare")}</h4>
+                    <span className="text-xs text-muted-foreground">{taskComments.length}</span>
+                  </div>
+                  {taskComments.length > 0 && (
+                    <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
+                      {taskComments.map((comment) => (
+                        <div key={comment.id} className="rounded-md bg-muted/55 px-3 py-2">
+                          <div className="flex items-baseline justify-between gap-2 text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">{comment.memberName}</span>
+                            <time>{format(new Date(comment.createdAt), "Pp", { locale: dateFnsLocale })}</time>
+                          </div>
+                          <p className="mt-1 whitespace-pre-wrap text-sm">{comment.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Textarea
+                      value={commentDraft}
+                      onChange={(event) => setCommentDraft(event.target.value)}
+                      placeholder={t("comments.placeholder", "Kommentar schreiben …")}
+                      rows={2}
+                      maxLength={2000}
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={!member?.memberId || !commentDraft.trim() || addTaskCommentMutation.isPending}
+                        onClick={() => {
+                          if (!task || !household || !member || !commentDraft.trim()) return;
+                          addTaskCommentMutation.mutate({
+                            householdId: household.householdId,
+                            taskId: task.id,
+                            memberId: member.memberId,
+                            content: commentDraft.trim(),
+                          });
+                        }}
+                      >
+                        {t("comments.add", "Kommentar hinzufügen")}
+                      </Button>
+                    </div>
+                  </div>
+                </section>
 
                 {assignedMemberIds.length > 0 && (
                   <div className="flex items-center gap-2">

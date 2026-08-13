@@ -319,7 +319,8 @@
     "taskAssigned": "Aufgabenzuweisungen",
     "taskDue": "Fällige Aufgaben",
     "taskCompleted": "Erledigte Aufgaben",
-    "comments": "Kommentare"
+    "comments": "Kommentare",
+    "taskDueDays": "Erinnerung bis zu … Tage vorher"
   },
   "dnd": {
     "title": "Nicht stören",

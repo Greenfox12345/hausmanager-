@@ -319,7 +319,8 @@
     "taskAssigned": "任务分配",
     "taskDue": "逾期任务",
     "taskCompleted": "已完成任务",
-    "comments": "评论"
+    "comments": "评论",
+    "taskDueDays": "最多提前 … 天提醒"
   },
   "dnd": {
     "title": "勿扰",
