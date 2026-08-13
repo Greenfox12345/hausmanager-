@@ -3535,7 +3535,7 @@
 - [x] findNextOpenOccurrence: springt jetzt auch in die Vergangenheit wenn alle zukünftigen Termine übersprungen sind
 
 ## Bug: „Zu aktuellem Termin" bei vergangenen Terminen nicht sichtbar
-- [ ] Button nur bei isFutureOccurrence sichtbar – auch bei Aufgaben mit vergangenem nächsten Termin anzeigen
+- [x] Button nur bei isFutureOccurrence sichtbar – auch bei Aufgaben mit vergangenem nächsten Termin anzeigen
 
 ## Bug: Skip-System nicht synchron (skippedDates + occurrenceNotes)
 - [x] db.ts: occurrenceNotes-Abfrage auch isSkipped=1 laden (vorher nur notes != '')

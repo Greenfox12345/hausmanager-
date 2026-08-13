@@ -23,6 +23,7 @@ import { EventDetailDialog } from "@/components/EventDetailDialog";
 import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { shouldShowJumpToCurrent } from "@/lib/taskOccurrenceNavigation";
 
 export default function Calendar() {
   const { t, i18n } = useTranslation(["tasks", "common", "calendar"]);
@@ -1391,11 +1392,19 @@ export default function Calendar() {
                               )}
                             </>
                           )}
+                          {shouldShowJumpToCurrent({
+                            dueDate: task.dueDate,
+                            isFutureOccurrence: task.isFutureOccurrence,
+                            isCompleted: task.isCompleted,
+                            isCompletedOccurrence: task.isCompletedOccurrence,
+                            isSkippedOccurrence: (task as any).isSkippedOccurrence,
+                          }) && (
+                            <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const realTask = tasks.find((t: any) => t.id === task.id) || task; const nextDate = findNextOpenOccurrence(realTask as any); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); setSelectedDate(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
+                              <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
+                            </Button>
+                          )}
                           {task.isFutureOccurrence && (
                             <>
-                              <Button size="sm" variant="outline" className="col-span-2" onClick={(e) => { e.stopPropagation(); const nextDate = findNextOpenOccurrence(task); if (taskCalendarRef.current) { onClose(); taskCalendarRef.current.jumpToOccurrence(nextDate, task.id); } else { setCurrentMonth(nextDate); toast.info(t("calendar:messages.jumpedToCurrent", "Zu aktuellem Termin gesprungen")); onClose(); } }}>
-                                <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
-                              </Button>
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
                                 <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
                               </Button>
