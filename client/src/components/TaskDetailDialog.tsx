@@ -31,6 +31,8 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
+import { TaskCategorySelector } from "@/components/TaskCategorySelector";
+import { getTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
 import {
   getFollowupClosure,
   getPrerequisiteClosure,
@@ -248,6 +250,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [description, setDescription] = useState("");
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   const toggleAssignee = (memberId: number) => {
     setSelectedAssignees(prev =>
@@ -273,6 +276,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
+
+  const { data: existingTaskCategories = [] } = trpc.tasks.getTaskCategories.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open },
+  );
+
+  useEffect(() => {
+    if (task && open) {
+      setSelectedCategoryIds(getTaskCategoryIds(existingTaskCategories));
+    }
+  }, [task?.id, open, existingTaskCategories]);
   const [isDurationExpanded, setIsDurationExpanded] = useState(false); // Default: collapsed
   const [isRepeatExpanded, setIsRepeatExpanded] = useState(false); // Default: collapsed
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
@@ -680,6 +694,17 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.error(t("messages.genericError", { message: error.message }));
     },
   });
+
+  const setTaskCategoriesMutation = trpc.tasks.setTaskCategories.useMutation({
+    onSuccess: () => {
+      if (household) {
+        utils.tasks.getTaskCategoryAssignments.invalidate({ householdId: household.householdId });
+      }
+      if (task?.id) {
+        utils.tasks.getTaskCategories.invalidate({ taskId: task.id });
+      }
+    },
+  });
   
   const setRotationScheduleMutation = trpc.tasks.setRotationSchedule.useMutation({
     onSuccess: () => {
@@ -917,6 +942,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         projectIds: isProjectTask ? selectedProjectIds : [],
         sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
         nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
+      });
+
+      await setTaskCategoriesMutation.mutateAsync({
+        taskId: task.id,
+        categoryIds: normalizeTaskCategoryIds(selectedCategoryIds),
       });
       
       // Step 1.5: Save rotation schedule if repeat mode is not none and schedule exists
@@ -1205,6 +1235,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   rows={3}
                 />
               </div>
+
+              {household && member && (
+                <TaskCategorySelector
+                  householdId={household.householdId}
+                  memberId={member.memberId}
+                  selectedCategoryIds={selectedCategoryIds}
+                  onChange={setSelectedCategoryIds}
+                />
+              )}
 
               <div className="space-y-2">
                 <Label>{t("dialog.assignees")} *</Label>

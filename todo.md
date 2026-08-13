@@ -3664,11 +3664,11 @@
 - [ ] i18n: neededBy-Keys in alle 7 Sprachdateien
 
 ## Feature: Aufgaben-Kategorien
-- [ ] DB: task_categories + task_category_assignments Tabellen
-- [ ] Backend: CRUD-Prozeduren (list, create, delete) + Zuweisung bei create/update task
-- [ ] Frontend: Mehrfachauswahl + Neu-Erstellen-Button im Aufgaben-Formular (Erstellen + Bearbeiten)
-- [ ] Frontend: Filterleiste nach Kategorien in der Aufgabenliste
-- [ ] i18n: Keys in alle 7 Sprachen
+- [x] DB: task_category_assignments-Tabelle; nutzt die bereits haushaltsweiten, farbigen shopping_categories als gemeinsame Kategorienquelle
+- [x] Backend: Kategorien listen/erstellen/löschen und Zuweisungen bei Erstellen sowie Bearbeiten einer Aufgabe setzen
+- [x] Frontend: Mehrfachauswahl + Neu-Erstellen-Button im Aufgaben-Formular und im Bearbeitungsdialog
+- [x] Frontend: Filterleiste nach Kategorien in der Aufgabenliste
+- [x] i18n: Kategorie-Keys in alle 7 Sprachen
 
 ## Priorisierte Stabilisierung nach TODO-Audit (2026-08-13)
 - [x] Datenbankgestützte Vitest-Tests analysieren und sichere TEST_DATABASE_URL-Strategie mit Schutzprüfung dokumentieren
