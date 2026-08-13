@@ -3526,7 +3526,7 @@
 - [ ] Frontend Kalender: Auslassen ruft skipRotationOccurrence auf (nicht skippedDates)
 - [ ] Frontend Kalender: „Notiz hinzufügen" Button zwischen „Zu aktuellem Termin" und „Auslassen"
 - [ ] Frontend Dialog: isSkipped und Notizen kommen aus Rotationsplan-Tabellen
-- [ ] Speichern im Dialog persistiert Rotationsplan-Einträge sofort
+- [x] Speichern im Dialog persistiert Rotationsplan-Einträge sofort und bewahrt datumstabile Terminnotizen
 
 ## Bug: calcOccurrenceNumber schlägt für fernere Termine fehl
 - [x] calcOccurrenceNumber in db.ts robuster machen – monthly same_date/same_weekday, frequency-Fallbacks und ferne Termine sicher berechnen; unregelmäßige Termine bewusst über explizite Planung behandeln

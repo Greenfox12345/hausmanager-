@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, or, inArray } from "drizzle-orm";
+import { eq, and, desc, sql, or, inArray, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -1495,7 +1495,7 @@ export async function getRotationSchedule(taskId: number) {
     .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
 
   // Group by occurrence number
-  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string; isSkipped?: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date; calculatedDate?: Date }> = {};
+  const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string; isSkipped?: boolean; isSpecial?: boolean; specialName?: string; occurrenceDate?: Date; specialDate?: Date; calculatedDate?: Date }> = {};
   
   for (const entry of scheduleEntries) {
     if (!grouped[entry.occurrenceNumber]) {
@@ -1518,6 +1518,7 @@ export async function getRotationSchedule(taskId: number) {
     grouped[note.occurrenceNumber].isSkipped = (note as TaskRotationOccurrenceNote).isSkipped || false;
     grouped[note.occurrenceNumber].isSpecial = (note as any).isSpecial || false;
     grouped[note.occurrenceNumber].specialName = (note as any).specialName || undefined;
+    grouped[note.occurrenceNumber].occurrenceDate = (note as any).occurrenceDate || undefined;
     grouped[note.occurrenceNumber].specialDate = (note as any).specialDate || undefined;
   }
 
@@ -1529,6 +1530,7 @@ export async function getRotationSchedule(taskId: number) {
     isSkipped: data.isSkipped || false,
     isSpecial: data.isSpecial || false,
     specialName: data.specialName,
+    occurrenceDate: data.occurrenceDate,
     specialDate: data.specialDate,
   }));
 
@@ -1544,6 +1546,7 @@ export async function getRotationSchedule(taskId: number) {
         isSkipped: false,
         isSpecial: false,
         specialName: undefined,
+        occurrenceDate: undefined,
         specialDate: undefined,
       });
     }
@@ -1565,15 +1568,19 @@ export async function setRotationSchedule(
     isSkipped?: boolean;
     isSpecial?: boolean;
     specialName?: string;
+    occurrenceDate?: Date;
     specialDate?: Date;
   }>
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Delete existing schedule and notes
+  // Schedule members are fully replaced. Datumstabile Terminnotizen bleiben
+  // jedoch erhalten, damit vergangene Überspringungen nicht verloren gehen.
   await db.delete(taskRotationSchedule).where(eq(taskRotationSchedule.taskId, taskId));
-  await db.delete(taskRotationOccurrenceNotes).where(eq(taskRotationOccurrenceNotes.taskId, taskId));
+  await db.delete(taskRotationOccurrenceNotes).where(
+    and(eq(taskRotationOccurrenceNotes.taskId, taskId), isNull(taskRotationOccurrenceNotes.occurrenceDate)),
+  );
 
   // Insert new schedule entries
   for (const occurrence of schedule) {
@@ -1590,18 +1597,33 @@ export async function setRotationSchedule(
     // Re-reading from DB by occurrence number causes cascade bugs when occurrences are renumbered
     const isSkipped = occurrence.isSkipped ?? false;
 
-    // Always insert a notes entry for every occurrence to ensure it persists
-    // even when the occurrence has no members, notes, or special status.
-    // Previously, occurrences without notes/skip/special/specialDate were silently dropped.
-    await db.insert(taskRotationOccurrenceNotes).values({
+    const noteData = {
       taskId,
       occurrenceNumber: occurrence.occurrenceNumber,
+      occurrenceDate: occurrence.occurrenceDate || null,
       notes: occurrence.notes || "",
       isSkipped,
       isSpecial: occurrence.isSpecial || false,
       specialName: occurrence.specialName || null,
       specialDate: occurrence.specialDate || null,
-    } as typeof taskRotationOccurrenceNotes.$inferInsert);
+    } as typeof taskRotationOccurrenceNotes.$inferInsert;
+
+    if (occurrence.occurrenceDate) {
+      const occurrenceDateKey = toOccurrenceDateKey(occurrence.occurrenceDate);
+      const [result] = await db.execute(
+        sql`SELECT id FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND DATE(occurrenceDate) = ${occurrenceDateKey} LIMIT 1`,
+      );
+      const existing = (result as unknown as { id: number }[])[0];
+      if (existing) {
+        await db.update(taskRotationOccurrenceNotes)
+          .set(noteData as any)
+          .where(eq(taskRotationOccurrenceNotes.id, existing.id));
+      } else {
+        await db.insert(taskRotationOccurrenceNotes).values(noteData);
+      }
+    } else {
+      await db.insert(taskRotationOccurrenceNotes).values(noteData);
+    }
   }
 
   return { success: true };

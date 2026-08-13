@@ -1528,6 +1528,7 @@ export const tasksRouter = router({
             isSpecial: z.boolean().optional(),
             specialName: z.string().optional(),
             calculatedDate: z.date().optional(),
+            occurrenceDate: z.date().optional(),
             specialDate: z.date().optional(),
           })
         ),

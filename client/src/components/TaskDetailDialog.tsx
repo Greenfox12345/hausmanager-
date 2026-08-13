@@ -571,7 +571,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       const scheduleWithDates = rotationScheduleData.map((occ: any) => {
         // Calculate date for regular recurring occurrences
         let calculatedDate: Date | undefined;
-        if (occ.specialDate) {
+        if (occ.occurrenceDate) {
+          calculatedDate = new Date(occ.occurrenceDate);
+        } else if (occ.specialDate) {
           calculatedDate = new Date(occ.specialDate);
         } else if (task.dueDate && task.repeatUnit && task.repeatUnit !== "irregular") {
           const baseDate = new Date(task.dueDate);
@@ -929,6 +931,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
           isSkipped: occ.isSkipped, // Preserve skip status
           isSpecial: occ.isSpecial, // Preserve special occurrence flag
           specialName: occ.specialName, // Preserve special occurrence name
+          occurrenceDate: occ.date, // Datumstabiler Schlüssel für reguläre Termine
           specialDate: occ.specialDate, // For special occurrences and irregular appointments
         }));
         
