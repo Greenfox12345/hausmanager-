@@ -3547,10 +3547,10 @@
 - [x] Tests: server/skip-system.test.ts (16 Tests alle bestanden)
 
 ## Refactoring: toggleComplete + completeTask vereinheitlichen
-- [ ] Gemeinsame Hilfsfunktion handleRecurringCompletion extrahieren (Skip-Chain, Rotation-Shift, Mindest-3, Assignee-Update)
-- [ ] completeTask auf Hilfsfunktion umstellen
-- [ ] toggleComplete auf Hilfsfunktion umstellen
-- [ ] Tests aktualisieren
+- [x] Gemeinsame Hilfsfunktion handleRecurringCompletion extrahieren (Skip-Chain, Rotation-Shift, Mindest-3, Assignee-Update)
+- [x] completeTask auf Hilfsfunktion umstellen
+- [x] toggleComplete auf Hilfsfunktion umstellen
+- [x] Tests aktualisieren
 
 - [x] Shopping: Artikel ohne Kategorie speicherbar machen (Kategorie optional)
 - [x] Shopping: Karten der Gegenstände kompakter/dünner gestalten
