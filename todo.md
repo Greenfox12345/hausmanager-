@@ -3670,7 +3670,7 @@
 - [ ] i18n: Keys in alle 7 Sprachen
 
 ## Priorisierte Stabilisierung nach TODO-Audit (2026-08-13)
-- [ ] Datenbankgestützte Vitest-Tests analysieren und eine verlässliche Testdatenbank- bzw. Mock-Strategie herstellen
+- [x] Datenbankgestützte Vitest-Tests analysieren und sichere TEST_DATABASE_URL-Strategie mit Schutzprüfung dokumentieren
 - [ ] Wiederkehrende Aufgaben: Abschlusslogik mit realistischen Wiederholungsfällen analysieren und fehlerhafte Fälle beheben
 - [ ] Aufgaben-Abhängigkeiten: doppelte Spiegelungen und fehlende Listendarstellung reproduzieren und an der Ursache korrigieren
 - [x] Verlauf: sinnvolle Anzeige von Voraussetzungen und Folgeaufgaben für Aufgabenaktivitäten ergänzen
