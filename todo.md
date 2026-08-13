@@ -3655,13 +3655,13 @@
 - [x] main.tsx wartet jetzt auf i18n.initialized bevor App gerendert wird – behebt fehlende Übersetzungen beim ersten Render (DemoConfigDialog, DemoOnboardingDialog, UserLogin)
 
 ## Feature: "Gebraucht bis"-Datum in der Einkaufsliste
-- [ ] Datenbankschema: neededBy-Spalte (bigint, nullable) in shopping_items
-- [ ] Migration: pnpm db:push
-- [ ] Backend: create/update/list-Prozeduren um neededBy erweitern
-- [ ] Frontend: Datumseingabe im Formular (optional)
-- [ ] Frontend: "Bis"-Anzeige in der Listenzeile zwischen Name und Kategorie
-- [ ] Frontend: Abgelaufene Artikel farblich markieren (orange/rot)
-- [ ] i18n: neededBy-Keys in alle 7 Sprachdateien
+- [x] Datenbankschema: neededBy-Spalte (bigint, nullable) in shopping_items
+- [x] Migration: Spalte in der Datenbank vorhanden
+- [x] Backend: create/update/list-Prozeduren um neededBy erweitert
+- [x] Frontend: Datumseingabe im Formular und im Bearbeitungsdialog (optional)
+- [x] Frontend: "Bis"-Anzeige in der Listenzeile zwischen Name und Kategorie
+- [x] Frontend: Abgelaufene Artikel rot, zukünftige Bedarfstermine amber markieren
+- [x] i18n: neededBy-Keys in alle 7 Sprachdateien
 
 ## Feature: Aufgaben-Kategorien
 - [x] DB: task_category_assignments-Tabelle; nutzt die bereits haushaltsweiten, farbigen shopping_categories als gemeinsame Kategorienquelle
