@@ -1999,45 +1999,69 @@ function toUTCMidnight(d: Date | string): Date {
 }
 
 export function calcOccurrenceNumber(
-  task: { dueDate?: Date | string | null; repeatInterval?: number | null; repeatUnit?: string | null },
+  task: {
+    dueDate?: Date | string | null;
+    repeatInterval?: number | null;
+    repeatUnit?: string | null;
+    frequency?: string | null;
+    customFrequencyDays?: number | null;
+    monthlyRecurrenceMode?: string | null;
+  },
   targetDate: Date | string
 ): number | null {
-  if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) return null;
+  if (!task.dueDate) return null;
+
+  const unit = task.repeatUnit
+    ?? (task.frequency === "daily" ? "days"
+      : task.frequency === "weekly" ? "weeks"
+      : task.frequency === "monthly" ? "months"
+      : null);
+  const interval = task.repeatInterval
+    ?? (task.frequency === "custom" ? task.customFrequencyDays : 1)
+    ?? 1;
+
+  // Unregelmäßige Aufgaben bestehen aus expliziten Rotationsterminen. Es gibt
+  // bewusst keine berechenbare Terminposition.
+  if (!unit || unit === "irregular" || !Number.isFinite(interval) || interval < 1) return null;
 
   // Normalize both dates to local midnight for day-level comparison (wall-clock strategy)
   const due = toUTCMidnight(task.dueDate);
   const target = toUTCMidnight(targetDate);
-  const targetStr = toDateStr(target);
+  if (target.getTime() < due.getTime()) return null;
 
-  // Walk forward from dueDate until we reach targetDate (compare as local date strings)
-  let current = new Date(due);
-  let occurrenceNumber = 1;
-  const maxIterations = 50000; // covers daily repeats for ~137 years
+  const calendarDay = (date: Date) => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
 
-  for (let i = 0; i < maxIterations; i++) {
-    if (toDateStr(current) === targetStr) return occurrenceNumber;
-    if (current.getTime() > target.getTime()) return null;
-
-    if (task.repeatUnit === "days") {
-      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval, 0, 0, 0, 0);
-    } else if (task.repeatUnit === "weeks") {
-      current = new Date(current.getFullYear(), current.getMonth(), current.getDate() + task.repeatInterval * 7, 0, 0, 0, 0);
-    } else if (task.repeatUnit === "months") {
-      // Preserve the original day-of-month to avoid drift (e.g. Jan 31 + 1 month → Feb 28 → Mar 28)
-      const origDay = due.getDate();
-      const newMonth = current.getMonth() + task.repeatInterval;
-      const newYear = current.getFullYear() + Math.floor(newMonth / 12);
-      const normMonth = ((newMonth % 12) + 12) % 12;
-      // Clamp to last day of resulting month
-      const daysInMonth = new Date(newYear, normMonth + 1, 0).getDate();
-      current = new Date(newYear, normMonth, Math.min(origDay, daysInMonth), 0, 0, 0, 0);
-    } else {
-      return null;
-    }
-    occurrenceNumber++;
+  if (unit === "days" || unit === "weeks") {
+    const stepDays = interval * (unit === "weeks" ? 7 : 1);
+    const elapsedDays = calendarDay(target) - calendarDay(due);
+    return elapsedDays % stepDays === 0 ? (elapsedDays / stepDays) + 1 : null;
   }
 
-  return null;
+  if (unit !== "months") return null;
+
+  const elapsedMonths = (target.getFullYear() - due.getFullYear()) * 12
+    + (target.getMonth() - due.getMonth());
+  if (elapsedMonths < 0 || elapsedMonths % interval !== 0) return null;
+
+  const targetYear = due.getFullYear() + Math.floor((due.getMonth() + elapsedMonths) / 12);
+  const targetMonth = ((due.getMonth() + elapsedMonths) % 12 + 12) % 12;
+  const daysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+  let expectedDay: number;
+
+  if (task.monthlyRecurrenceMode === "same_weekday") {
+    const originalWeekday = due.getDay();
+    const weekdayOccurrence = Math.ceil(due.getDate() / 7);
+    const firstDayWeekday = new Date(targetYear, targetMonth, 1).getDay();
+    const firstMatchingDay = 1 + ((originalWeekday - firstDayWeekday + 7) % 7);
+    const candidateDay = firstMatchingDay + (weekdayOccurrence - 1) * 7;
+    // Bei einem nicht vorhandenen fünften Wochentag wird, wie in dateUtils,
+    // auf den vorherigen gleichartigen Wochentag zurückgefallen.
+    expectedDay = candidateDay <= daysInTargetMonth ? candidateDay : candidateDay - 7;
+  } else {
+    expectedDay = Math.min(due.getDate(), daysInTargetMonth);
+  }
+
+  return target.getDate() === expectedDay ? (elapsedMonths / interval) + 1 : null;
 }
 
 /**

@@ -3529,7 +3529,7 @@
 - [ ] Speichern im Dialog persistiert Rotationsplan-Einträge sofort
 
 ## Bug: calcOccurrenceNumber schlägt für fernere Termine fehl
-- [ ] calcOccurrenceNumber in db.ts robuster machen – monatliche und unregelmäßige Wiederholungen korrekt berechnen
+- [x] calcOccurrenceNumber in db.ts robuster machen – monthly same_date/same_weekday, frequency-Fallbacks und ferne Termine sicher berechnen; unregelmäßige Termine bewusst über explizite Planung behandeln
 
 ## Bug: „Zu aktuellem Termin" springt nicht in die Vergangenheit
 - [x] findNextOpenOccurrence: springt jetzt auch in die Vergangenheit wenn alle zukünftigen Termine übersprungen sind
@@ -3673,6 +3673,7 @@
 - [x] Datenbankgestützte Vitest-Tests analysieren und sichere TEST_DATABASE_URL-Strategie mit Schutzprüfung dokumentieren
 - [ ] Wiederkehrende Aufgaben: Abschlusslogik mit realistischen Wiederholungsfällen analysieren und fehlerhafte Fälle beheben
 - [ ] Aufgaben-Abhängigkeiten: doppelte Spiegelungen und fehlende Listendarstellung reproduzieren und an der Ursache korrigieren
+- [x] Aufgaben-Abhängigkeiten: doppelte und selbstreferenzielle Anzeigeeinträge in TaskDependencies zuverlässig herausfiltern
 - [x] Verlauf: sinnvolle Anzeige von Voraussetzungen und Folgeaufgaben für Aufgabenaktivitäten ergänzen
 - [x] Wiederkehrende Aufgaben: zentrale Erkennung für beide Abschlusswege vereinheitlicht und mit Unit-Tests abgesichert
 - [ ] Priorisierte Stabilisierung testen, Ergebnisse dokumentieren und zugehörige TODOs aktualisieren

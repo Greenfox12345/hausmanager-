@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { calcOccurrenceNumber } from "./db";
 import { advanceByInterval, isTaskRecurring, type TaskForCompletion } from "./routers/taskCompletion";
 
 function makeTask(overrides: Partial<TaskForCompletion> = {}): TaskForCompletion {
@@ -70,5 +71,43 @@ describe("advanceByInterval", () => {
     expect(fallbackWeekly.getDate()).toBe(22);
     expect(fallbackWeekly.getHours()).toBe(9);
     expect(fallbackWeekly.getMinutes()).toBe(45);
+  });
+});
+
+describe("calcOccurrenceNumber", () => {
+  it("berechnet tägliche und frequency-basierte wöchentliche Terminpositionen ohne Schleife", () => {
+    expect(calcOccurrenceNumber(
+      { dueDate: new Date(2026, 0, 10), repeatInterval: 5, repeatUnit: "days" },
+      new Date(2026, 0, 20)
+    )).toBe(3);
+    expect(calcOccurrenceNumber(
+      { dueDate: new Date(2026, 0, 10), repeatInterval: 5, repeatUnit: "days" },
+      new Date(2026, 0, 19)
+    )).toBeNull();
+    expect(calcOccurrenceNumber(
+      { dueDate: new Date(2026, 0, 5), frequency: "weekly" },
+      new Date(2026, 0, 12)
+    )).toBe(2);
+  });
+
+  it("behandelt Monatsenden und gleiche Wochentage wie die Terminfortschreibung", () => {
+    const sameDate = { dueDate: new Date(2026, 0, 31), repeatInterval: 1, repeatUnit: "months", monthlyRecurrenceMode: "same_date" };
+    expect(calcOccurrenceNumber(sameDate, new Date(2026, 1, 28))).toBe(2);
+    expect(calcOccurrenceNumber(sameDate, new Date(2026, 2, 31))).toBe(3);
+
+    const sameWeekday = { dueDate: new Date(2026, 0, 29), repeatInterval: 1, repeatUnit: "months", monthlyRecurrenceMode: "same_weekday" };
+    expect(calcOccurrenceNumber(sameWeekday, new Date(2026, 1, 26))).toBe(2);
+    expect(calcOccurrenceNumber(sameWeekday, new Date(2026, 2, 26))).toBe(3);
+  });
+
+  it("liefert für unregelmäßige oder vorgezogene Termine keine künstliche Terminposition", () => {
+    expect(calcOccurrenceNumber(
+      { dueDate: new Date(2026, 0, 10), repeatUnit: "irregular" },
+      new Date(2026, 0, 10)
+    )).toBeNull();
+    expect(calcOccurrenceNumber(
+      { dueDate: new Date(2026, 0, 10), repeatInterval: 1, repeatUnit: "weeks" },
+      new Date(2026, 0, 3)
+    )).toBeNull();
   });
 });

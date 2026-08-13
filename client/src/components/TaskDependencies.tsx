@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 
 interface Dependency {
   id: number;
@@ -39,8 +40,20 @@ export default function TaskDependencies({
     { enabled: providedDependencies === undefined && !!household }
   );
   
-  // Use provided dependencies if available, otherwise use loaded ones
-  const dependencies = providedDependencies ?? loadedDependencies;
+  // Use provided dependencies if available, otherwise use loaded ones. Alte
+  // Datensätze können dieselbe Spiegelbeziehung mehrfach enthalten; für die
+  // Anzeige zählt jede Richtung jedoch genau einmal.
+  const dependencies = useMemo(() => {
+    const source = providedDependencies ?? loadedDependencies;
+    const seen = new Set<string>();
+    return source.filter((dependency) => {
+      if (dependency.taskId !== taskId || dependency.dependsOnTaskId === taskId) return false;
+      const key = `${dependency.dependencyType}:${dependency.dependsOnTaskId}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [providedDependencies, loadedDependencies, taskId]);
   // Get prerequisites (tasks that must be completed before this task)
   const prerequisites = dependencies.filter(
     (dep) => dep.taskId === taskId && dep.dependencyType === "prerequisite"
