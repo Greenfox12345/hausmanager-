@@ -3521,11 +3521,11 @@
 - [x] restoreSkippedOccurrenceMutation im Dialog hinzugefügt (Toggle-Funktion)
 
 ## Einheitliches Termin-System (Kalender + Dialog)
-- [ ] Backend: skipOccurrence legt Rotationsplan-Eintrag an (falls nicht vorhanden) und setzt isSkipped=true
-- [ ] Backend: addOccurrenceNote legt Rotationsplan-Eintrag an und speichert Notiz
-- [ ] Frontend Kalender: Auslassen ruft skipRotationOccurrence auf (nicht skippedDates)
-- [ ] Frontend Kalender: „Notiz hinzufügen" Button zwischen „Zu aktuellem Termin" und „Auslassen"
-- [ ] Frontend Dialog: isSkipped und Notizen kommen aus Rotationsplan-Tabellen
+- [x] Backend: skipOccurrence legt Terminnotiz für das konkrete Datum an und setzt isSkipped=true
+- [x] Backend: addOccurrenceNote legt Terminnotiz an und speichert die Notiz
+- [x] Frontend Kalender: Auslassen ruft die einheitliche skipOccurrence-Mutation auf
+- [x] Frontend Kalender: „Notiz hinzufügen" Button zwischen „Zu aktuellem Termin" und „Auslassen"
+- [x] Frontend Dialog: isSkipped und Notizen kommen aus den Terminnotiz-Tabellen
 - [x] Speichern im Dialog persistiert Rotationsplan-Einträge sofort und bewahrt datumstabile Terminnotizen
 
 ## Bug: calcOccurrenceNumber schlägt für fernere Termine fehl
