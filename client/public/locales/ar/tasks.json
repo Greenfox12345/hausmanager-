@@ -203,7 +203,8 @@
     "milestonesReminders": "الأهداف المرحلية والتذكيرات",
     "noPastOccurrences": "لا توجد مواعيد سابقة بعد",
     "completedByLabel": "أُكمل بواسطة:",
-    "saveChangesConfirm": "هل تريد حفظ التغييرات؟"
+    "saveChangesConfirm": "هل تريد حفظ التغييرات؟",
+    "requiredByDependency": "مطلوبة بسبب التبعية"
   },
   "occurrences": {
     "title": "المواعيد القادمة",

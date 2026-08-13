@@ -604,7 +604,8 @@
     "milestonesReminders": "Hitos intermedios y recordatorios",
     "noPastOccurrences": "Aún no hay ocurrencias pasadas",
     "completedByLabel": "Completado por:",
-    "saveChangesConfirm": "¿Deseas guardar los cambios?"
+    "saveChangesConfirm": "¿Deseas guardar los cambios?",
+    "requiredByDependency": "requerida por dependencia"
   },
   "occurrences": {
     "title": "Próximas citas",

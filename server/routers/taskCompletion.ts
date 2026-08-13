@@ -24,8 +24,9 @@ import {
   shiftRotationSchedule,
   deleteRotationOccurrence,
   calcOccurrenceNumber,
+  getSkippedOccurrenceDates,
   getSkippedOccurrenceNumbers,
-  clearSkippedOccurrencesUpTo,
+  toOccurrenceDateKey,
   getRealRotationSchedule,
   updateTask,
 } from "../db";
@@ -179,20 +180,19 @@ export async function handleRecurringCompletion(
     nextDueDate = await advanceByInterval(currentDueDate, task);
 
     // ── 2. Skip-chain ─────────────────────────────────────────────────────────
-    const skippedOccNums = await getSkippedOccurrenceNumbers(task.id);
-    let highestConsumedOccNum = 0;
+    const skippedDates = await getSkippedOccurrenceDates(task.id);
+    // Bestehende Einträge ohne occurrenceDate bleiben vorübergehend lesbar.
+    const legacySkippedOccNums = await getSkippedOccurrenceNumbers(task.id);
     let maxSkipIter = 500;
     while (maxSkipIter-- > 0) {
       const occNum = calcOccurrenceNumber(task, nextDueDate);
-      if (occNum !== null && skippedOccNums.has(occNum)) {
-        highestConsumedOccNum = Math.max(highestConsumedOccNum, occNum);
+      const isSkippedByDate = skippedDates.has(toOccurrenceDateKey(nextDueDate));
+      const isSkippedLegacy = occNum !== null && legacySkippedOccNums.has(occNum);
+      if (isSkippedByDate || isSkippedLegacy) {
         nextDueDate = await advanceByInterval(nextDueDate, task);
       } else {
         break;
       }
-    }
-    if (highestConsumedOccNum > 0) {
-      await clearSkippedOccurrencesUpTo(task.id, highestConsumedOccNum);
     }
   }
 

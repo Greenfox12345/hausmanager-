@@ -203,7 +203,8 @@
     "milestonesReminders": "Zwischenziele & Erinnerungen",
     "noPastOccurrences": "Noch keine vergangenen Termine",
     "completedByLabel": "Abgeschlossen von:",
-    "saveChangesConfirm": "Möchtest du die Änderungen speichern?"
+    "saveChangesConfirm": "Möchtest du die Änderungen speichern?",
+    "requiredByDependency": "über Abhängigkeit erforderlich"
   },
   "occurrences": {
     "title": "Kommende Termine",

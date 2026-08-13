@@ -203,7 +203,8 @@
     "milestonesReminders": "Milestones & Reminders",
     "noPastOccurrences": "No past occurrences yet",
     "completedByLabel": "Completed by:",
-    "saveChangesConfirm": "Do you want to save the changes?"
+    "saveChangesConfirm": "Do you want to save the changes?",
+    "requiredByDependency": "required by dependency"
   },
   "occurrences": {
     "title": "Upcoming appointments",

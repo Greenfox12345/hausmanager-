@@ -31,6 +31,12 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { PDFViewer } from "@/components/PDFViewer";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
+import {
+  getFollowupClosure,
+  getPrerequisiteClosure,
+  wouldCreatePrerequisiteCycle,
+  type TaskDependencyEdge,
+} from "../../../shared/taskDependencies";
 
 interface Task {
   id: number;
@@ -191,6 +197,32 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const { data: taskDependencies } = trpc.projects.getTaskDependencies.useQuery(
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open }
+  );
+
+  const { data: allDependencies = [] } = trpc.projects.getAllDependencies.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household && open && !!task?.id && isProjectTask },
+  );
+
+  const dependencyGraph = useMemo<TaskDependencyEdge[]>(() => {
+    if (!task?.id) return [];
+    const remainingDependencies = (allDependencies as TaskDependencyEdge[]).filter(
+      (dependency) => dependency.taskId !== task.id && dependency.dependsOnTaskId !== task.id,
+    );
+    const draftDependencies: TaskDependencyEdge[] = [
+      ...prerequisites.map((dependsOnTaskId) => ({ taskId: task.id, dependsOnTaskId, dependencyType: "prerequisite" as const })),
+      ...followups.map((dependsOnTaskId) => ({ taskId: task.id, dependsOnTaskId, dependencyType: "followup" as const })),
+    ];
+    return [...remainingDependencies, ...draftDependencies];
+  }, [allDependencies, task?.id, prerequisites, followups]);
+
+  const transitivePrerequisites = useMemo(
+    () => task?.id ? getPrerequisiteClosure(task.id, dependencyGraph) : new Set<number>(),
+    [task?.id, dependencyGraph],
+  );
+  const transitiveFollowups = useMemo(
+    () => task?.id ? getFollowupClosure(task.id, dependencyGraph) : new Set<number>(),
+    [task?.id, dependencyGraph],
   );
   
   // Load rotation schedule
@@ -2082,17 +2114,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                 <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
                                   <Checkbox
                                     id={`prereq-${availableTask.id}`}
-                                    checked={prerequisites.includes(availableTask.id)}
+                                    checked={prerequisites.includes(availableTask.id) || transitivePrerequisites.has(availableTask.id)}
+                                    disabled={
+                                      (transitivePrerequisites.has(availableTask.id) && !prerequisites.includes(availableTask.id)) ||
+                                      (!prerequisites.includes(availableTask.id) && !!task?.id && wouldCreatePrerequisiteCycle(task.id, availableTask.id, dependencyGraph))
+                                    }
                                     onCheckedChange={(checked) => {
                                       setPrerequisites(prev =>
                                         checked
-                                          ? [...prev, availableTask.id]
+                                          ? Array.from(new Set([...prev, availableTask.id]))
                                           : prev.filter(id => id !== availableTask.id)
                                       );
                                     }}
                                   />
                                   <Label htmlFor={`prereq-${availableTask.id}`} className="cursor-pointer text-sm flex-1">
                                     {availableTask.name}
+                                    {transitivePrerequisites.has(availableTask.id) && !prerequisites.includes(availableTask.id) && (
+                                      <span className="ml-1 text-xs text-muted-foreground">({t("dialog.requiredByDependency", "über Abhängigkeit")})</span>
+                                    )}
                                   </Label>
                                 </div>
                               ))
@@ -2114,17 +2153,24 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                 <div key={availableTask.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-muted/50">
                                   <Checkbox
                                     id={`followup-${availableTask.id}`}
-                                    checked={followups.includes(availableTask.id)}
+                                    checked={followups.includes(availableTask.id) || transitiveFollowups.has(availableTask.id)}
+                                    disabled={
+                                      (transitiveFollowups.has(availableTask.id) && !followups.includes(availableTask.id)) ||
+                                      (!followups.includes(availableTask.id) && !!task?.id && wouldCreatePrerequisiteCycle(availableTask.id, task.id, dependencyGraph))
+                                    }
                                     onCheckedChange={(checked) => {
                                       setFollowups(prev =>
                                         checked
-                                          ? [...prev, availableTask.id]
+                                          ? Array.from(new Set([...prev, availableTask.id]))
                                           : prev.filter(id => id !== availableTask.id)
                                       );
                                     }}
                                   />
                                   <Label htmlFor={`followup-${availableTask.id}`} className="cursor-pointer text-sm flex-1">
                                     {availableTask.name}
+                                    {transitiveFollowups.has(availableTask.id) && !followups.includes(availableTask.id) && (
+                                      <span className="ml-1 text-xs text-muted-foreground">({t("dialog.requiredByDependency", "über Abhängigkeit")})</span>
+                                    )}
                                   </Label>
                                 </div>
                               ))

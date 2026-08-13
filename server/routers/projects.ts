@@ -11,6 +11,7 @@ import {
 } from "../activityTexts";
 import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
 import { eq, and, inArray, desc, asc } from "drizzle-orm";
+import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import {
   planTemplates,
   planTemplateShoppingItems,
@@ -33,6 +34,97 @@ async function getMemberName(memberId: number): Promise<string> {
     .where(eq(householdMembers.id, memberId))
     .limit(1);
   return m?.memberName ?? "Unknown";
+}
+
+async function validateDependencyGraph(
+  db: any,
+  householdId: number,
+  currentTaskId: number,
+  prerequisites: number[] = [],
+  followups: number[] = [],
+  replaceExisting: boolean = false,
+): Promise<{ prerequisites: number[]; followups: number[] }> {
+  const normalizedPrerequisites = Array.from(new Set(prerequisites));
+  const normalizedFollowups = Array.from(new Set(followups));
+  const referencedIds = Array.from(new Set([currentTaskId, ...normalizedPrerequisites, ...normalizedFollowups]));
+
+  if (normalizedPrerequisites.includes(currentTaskId) || normalizedFollowups.includes(currentTaskId)) {
+    throw new Error("Eine Aufgabe kann nicht von sich selbst abhängen.");
+  }
+
+  const referencedTasks = await db.select({ id: tasks.id, householdId: tasks.householdId })
+    .from(tasks)
+    .where(inArray(tasks.id, referencedIds));
+  if (referencedTasks.length !== referencedIds.length || referencedTasks.some((task: { householdId: number }) => task.householdId !== householdId)) {
+    throw new Error("Alle verknüpften Aufgaben müssen zum selben Haushalt gehören.");
+  }
+
+  const householdTaskIds = (await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.householdId, householdId)))
+    .map((task: { id: number }) => task.id);
+  const existingDependencies: TaskDependencyEdge[] = householdTaskIds.length > 0
+    ? await db.select({
+      taskId: taskDependencies.taskId,
+      dependsOnTaskId: taskDependencies.dependsOnTaskId,
+      dependencyType: taskDependencies.dependencyType,
+    }).from(taskDependencies).where(inArray(taskDependencies.taskId, householdTaskIds))
+    : [];
+
+  // Beim Ersetzen werden die Beziehungen der aktuell bearbeiteten Aufgabe
+  // neu erstellt. Beim Ergänzen bleiben sie Teil der Zyklusprüfung.
+  const graph = replaceExisting
+    ? existingDependencies.filter(
+      (dependency) => dependency.taskId !== currentTaskId && dependency.dependsOnTaskId !== currentTaskId,
+    )
+    : [...existingDependencies];
+  for (const prerequisiteId of normalizedPrerequisites) {
+    if (wouldCreatePrerequisiteCycle(currentTaskId, prerequisiteId, graph)) {
+      throw new Error("Diese Voraussetzung würde einen zyklischen Aufgabenablauf erzeugen.");
+    }
+    graph.push({ taskId: currentTaskId, dependsOnTaskId: prerequisiteId, dependencyType: "prerequisite" });
+  }
+  for (const followupId of normalizedFollowups) {
+    if (wouldCreatePrerequisiteCycle(followupId, currentTaskId, graph)) {
+      throw new Error("Diese Folgeaufgabe würde einen zyklischen Aufgabenablauf erzeugen.");
+    }
+    graph.push({ taskId: followupId, dependsOnTaskId: currentTaskId, dependencyType: "prerequisite" });
+  }
+
+  return { prerequisites: normalizedPrerequisites, followups: normalizedFollowups };
+}
+
+async function insertDependencyIfMissing(
+  db: any,
+  taskId: number,
+  dependsOnTaskId: number,
+  dependencyType: "prerequisite" | "followup",
+) {
+  const [existing] = await db.select({ id: taskDependencies.id })
+    .from(taskDependencies)
+    .where(and(
+      eq(taskDependencies.taskId, taskId),
+      eq(taskDependencies.dependsOnTaskId, dependsOnTaskId),
+      eq(taskDependencies.dependencyType, dependencyType),
+    ))
+    .limit(1);
+  if (!existing) {
+    await db.insert(taskDependencies).values({ taskId, dependsOnTaskId, dependencyType });
+  }
+}
+
+async function insertBidirectionalDependencies(
+  db: any,
+  currentTaskId: number,
+  prerequisites: number[],
+  followups: number[],
+) {
+  for (const prerequisiteId of prerequisites) {
+    await insertDependencyIfMissing(db, currentTaskId, prerequisiteId, "prerequisite");
+    await insertDependencyIfMissing(db, prerequisiteId, currentTaskId, "followup");
+  }
+  for (const followupId of followups) {
+    await insertDependencyIfMissing(db, currentTaskId, followupId, "followup");
+    await insertDependencyIfMissing(db, followupId, currentTaskId, "prerequisite");
+  }
 }
 
 export const projectsRouter = router({
@@ -153,69 +245,13 @@ export const projectsRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      // Validate task belongs to household
-      const task = await db.select().from(tasks).where(eq(tasks.id, input.taskId)).limit(1);
-      if (!task[0] || task[0].householdId !== input.householdId) {
-        throw new Error("Unauthorized: Task does not belong to your household");
-      }
-
-      // Add prerequisites
-      if (input.prerequisites && input.prerequisites.length > 0) {
-        await db.insert(taskDependencies).values(
-          input.prerequisites.map((depId) => ({
-            taskId: input.taskId,
-            dependsOnTaskId: depId,
-            dependencyType: "prerequisite" as const,
-          }))
-        );
-      }
-
-      // Add followups (direct, not mirrored)
-      if (input.followups && input.followups.length > 0) {
-        await db.insert(taskDependencies).values(
-          input.followups.map((depId) => ({
-            taskId: input.taskId,
-            dependsOnTaskId: depId,
-            dependencyType: "followup" as const,
-          }))
-        );
-      }
-
-      // Automatically create bidirectional mirrors
-      const mirroredDependencies: Array<{ taskId: number; taskName: string; type: string }> = [];
-      
-      // For each prerequisite, create reverse followup
-      if (input.prerequisites && input.prerequisites.length > 0) {
-        for (const depId of input.prerequisites) {
-          await db.insert(taskDependencies).values({
-            taskId: depId,
-            dependsOnTaskId: input.taskId,
-            dependencyType: "followup" as const,
-          });
-          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
-          if (depTask[0]) {
-            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "prerequisite" });
-          }
-        }
-      }
-      
-      // For each followup, create reverse prerequisite
-      if (input.followups && input.followups.length > 0) {
-        for (const depId of input.followups) {
-          await db.insert(taskDependencies).values({
-            taskId: depId,
-            dependsOnTaskId: input.taskId,
-            dependencyType: "prerequisite" as const,
-          });
-          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
-          if (depTask[0]) {
-            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "followup" });
-          }
-        }
-      }
-
-      return { success: true, mirroredDependencies };
+      const dependencies = await validateDependencyGraph(
+        db, input.householdId, input.taskId, input.prerequisites, input.followups,
+      );
+      await insertBidirectionalDependencies(
+        db, input.taskId, dependencies.prerequisites, dependencies.followups,
+      );
+      return { success: true };
     }),
 
   // Update task dependencies (replaces all existing dependencies)
@@ -232,11 +268,9 @@ export const projectsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // Validate task belongs to household
-      const task = await db.select().from(tasks).where(eq(tasks.id, input.taskId)).limit(1);
-      if (!task[0] || task[0].householdId !== input.householdId) {
-        throw new Error("Unauthorized: Task does not belong to your household");
-      }
+      const dependencies = await validateDependencyGraph(
+        db, input.householdId, input.taskId, input.prerequisites, input.followups, true,
+      );
 
       // Delete all existing dependencies for this task (both direct and mirrored)
       await db.delete(taskDependencies).where(eq(taskDependencies.taskId, input.taskId));
@@ -244,62 +278,10 @@ export const projectsRouter = router({
       // Also delete mirrored dependencies where this task is the target
       await db.delete(taskDependencies).where(eq(taskDependencies.dependsOnTaskId, input.taskId));
 
-      // Add new prerequisites
-      if (input.prerequisites && input.prerequisites.length > 0) {
-        await db.insert(taskDependencies).values(
-          input.prerequisites.map((depId) => ({
-            taskId: input.taskId,
-            dependsOnTaskId: depId,
-            dependencyType: "prerequisite" as const,
-          }))
-        );
-      }
-
-      // Add new followups
-      if (input.followups && input.followups.length > 0) {
-        await db.insert(taskDependencies).values(
-          input.followups.map((depId) => ({
-            taskId: input.taskId,
-            dependsOnTaskId: depId,
-            dependencyType: "followup" as const,
-          }))
-        );
-      }
-
-      // Automatically create bidirectional mirrors
-      const mirroredDependencies: Array<{ taskId: number; taskName: string; type: string }> = [];
-      
-      // For each prerequisite, create reverse followup
-      if (input.prerequisites && input.prerequisites.length > 0) {
-        for (const depId of input.prerequisites) {
-          await db.insert(taskDependencies).values({
-            taskId: depId,
-            dependsOnTaskId: input.taskId,
-            dependencyType: "followup" as const,
-          });
-          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
-          if (depTask[0]) {
-            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "prerequisite" });
-          }
-        }
-      }
-      
-      // For each followup, create reverse prerequisite
-      if (input.followups && input.followups.length > 0) {
-        for (const depId of input.followups) {
-          await db.insert(taskDependencies).values({
-            taskId: depId,
-            dependsOnTaskId: input.taskId,
-            dependencyType: "prerequisite" as const,
-          });
-          const depTask = await db.select().from(tasks).where(eq(tasks.id, depId)).limit(1);
-          if (depTask[0]) {
-            mirroredDependencies.push({ taskId: depId, taskName: depTask[0].name, type: "followup" });
-          }
-        }
-      }
-
-      return { success: true, mirroredDependencies };
+      await insertBidirectionalDependencies(
+        db, input.taskId, dependencies.prerequisites, dependencies.followups,
+      );
+      return { success: true };
     }),
 
   // Get task dependencies
@@ -609,30 +591,18 @@ export const projectsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // Validate all tasks belong to household
-      const allTaskIds = [input.currentTaskId, ...input.dependencies.map((d) => d.taskId)];
-      const taskRecords = await db.select().from(tasks).where(inArray(tasks.id, allTaskIds));
-      
-      if (taskRecords.some((t) => t.householdId !== input.householdId)) {
-        throw new Error("Unauthorized: Some tasks do not belong to your household");
-      }
-
-      // Add bidirectional dependencies
-      for (const dep of input.dependencies) {
-        if (dep.type === "prerequisite") {
-          await db.insert(taskDependencies).values({
-            taskId: dep.taskId,
-            dependsOnTaskId: input.currentTaskId,
-            dependencyType: "followup",
-          });
-        } else {
-          await db.insert(taskDependencies).values({
-            taskId: dep.taskId,
-            dependsOnTaskId: input.currentTaskId,
-            dependencyType: "prerequisite",
-          });
-        }
-      }
+      const prerequisites = input.dependencies
+        .filter((dependency) => dependency.type === "prerequisite")
+        .map((dependency) => dependency.taskId);
+      const followups = input.dependencies
+        .filter((dependency) => dependency.type === "followup")
+        .map((dependency) => dependency.taskId);
+      const dependencies = await validateDependencyGraph(
+        db, input.householdId, input.currentTaskId, prerequisites, followups,
+      );
+      await insertBidirectionalDependencies(
+        db, input.currentTaskId, dependencies.prerequisites, dependencies.followups,
+      );
 
       return { success: true };
     }),

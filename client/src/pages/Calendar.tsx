@@ -293,6 +293,13 @@ export default function Calendar() {
     return d;
   }, [monthEnd]);
 
+  const getOccurrenceNoteForDate = (notes: any[], date: Date, occurrenceNumber: number) => {
+    const dateKey = format(date, "yyyy-MM-dd");
+    return notes.find((note: any) =>
+      note.occurrenceDate && format(new Date(note.occurrenceDate), "yyyy-MM-dd") === dateKey,
+    ) ?? notes.find((note: any) => !note.occurrenceDate && note.occurrenceNumber === occurrenceNumber);
+  };
+
   // Calculate future occurrences for recurring tasks
   const calculateFutureOccurrences = (task: typeof tasks[0], maxMonths: number = 12) => {
     if (!task.dueDate || !task.repeatInterval || !task.repeatUnit) {
@@ -325,7 +332,7 @@ export default function Calendar() {
       occurrenceNumber++;
 
       // Check if this occurrence is skipped (occurrenceNotes is single source of truth)
-      const noteEntry = occurrenceNotes.find(n => n.occurrenceNumber === occurrenceNumber);
+      const noteEntry = getOccurrenceNoteForDate(occurrenceNotes, nextDate, occurrenceNumber);
       const isSkipped = noteEntry?.isSkipped === true;
 
       // Check if this occurrence has a note
@@ -387,7 +394,7 @@ export default function Calendar() {
     let occNum = 1;
     let earliestRegular: Date | null = null;
     while (cur <= maxDate && i < maxIterations) {
-      const noteEntry = occurrenceNotes.find((n: any) => n.occurrenceNumber === occNum);
+      const noteEntry = getOccurrenceNoteForDate(occurrenceNotes, cur, occNum);
       const isSkipped = noteEntry?.isSkipped === true;
       if (!isSkipped) {
         earliestRegular = new Date(cur);
@@ -421,10 +428,18 @@ export default function Calendar() {
 
     // Build a temporary task with occ1 marked as skipped to calculate the next date
     const occNotes: any[] = (task as any).occurrenceNotes || [];
-    const occ1Exists = occNotes.some((n: any) => n.occurrenceNumber === 1);
+    const occ1Exists = occNotes.some((n: any) =>
+      (n.occurrenceDate && format(new Date(n.occurrenceDate), "yyyy-MM-dd") === dateToSkip) ||
+      (!n.occurrenceDate && n.occurrenceNumber === 1),
+    );
     const simulatedNotes = occ1Exists
-      ? occNotes.map((n: any) => n.occurrenceNumber === 1 ? { ...n, isSkipped: true } : n)
-      : [...occNotes, { occurrenceNumber: 1, notes: "", isSkipped: true }];
+      ? occNotes.map((n: any) => (
+        (n.occurrenceDate && format(new Date(n.occurrenceDate), "yyyy-MM-dd") === dateToSkip) ||
+        (!n.occurrenceDate && n.occurrenceNumber === 1)
+          ? { ...n, isSkipped: true }
+          : n
+      ))
+      : [...occNotes, { occurrenceNumber: 1, occurrenceDate: dateToSkip, notes: "", isSkipped: true }];
     const simulatedTask = { ...task, occurrenceNotes: simulatedNotes };
     const nextDateObj = findNextOpenOccurrence(simulatedTask as any);
     const nextDate = nextDateObj ? format(nextDateObj, "dd.MM.yyyy", { locale: dateFnsLocale }) : null;
@@ -455,9 +470,9 @@ export default function Calendar() {
         const matchingSpecialNote = occurrenceNotesList.find((n: any) =>
           n.isSpecial && n.specialDate && format(new Date(n.specialDate), "yyyy-MM-dd") === taskDueDateStr
         );
-        const occ1Note = matchingSpecialNote || occurrenceNotesList.find((n: any) => n.occurrenceNumber === 1 && !n.isSkipped);
-        const occ1IsSpecial = !!matchingSpecialNote;
         const displayDate = new Date(task.dueDate);
+        const occ1Note = matchingSpecialNote || getOccurrenceNoteForDate(occurrenceNotesList, displayDate, 1);
+        const occ1IsSpecial = !!matchingSpecialNote;
         const taskDueDateKey = taskDueDateStr;
         if (!grouped[taskDueDateKey]) grouped[taskDueDateKey] = [];
         const currentNote = occ1Note?.notes || null;
@@ -482,14 +497,18 @@ export default function Calendar() {
           const unit = task.repeatUnit;
           taskOccNotes.forEach((noteEntry: any) => {
             const occNum = noteEntry.occurrenceNumber;
-            if (occNum <= 1) return; // Occurrence 1 = dueDate, already added
+            if (occNum <= 1 && !noteEntry.occurrenceDate) return; // Alte Termin 1 = dueDate, bereits oben eingefügt
             // Special occurrences have their own date (specialDate) and are handled separately below
             if (noteEntry.isSpecial && noteEntry.specialDate) return;
-            const calcDate = new Date(task.dueDate!);
-            const steps = occNum - 1;
-            if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
-            else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
-            else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            const calcDate = noteEntry.occurrenceDate
+              ? new Date(noteEntry.occurrenceDate)
+              : new Date(task.dueDate!);
+            if (!noteEntry.occurrenceDate) {
+              const steps = occNum - 1;
+              if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
+              else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
+              else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            }
             const isInMonth = calcDate >= wideMonthStart && calcDate <= wideMonthEnd;
             if (!isInMonth) return;
             const dateKey = format(calcDate, "yyyy-MM-dd");
@@ -716,7 +735,7 @@ export default function Calendar() {
     tasks.forEach(task => {
       if (task.dueDate) {
         const occNotesList: any[] = (task as any).occurrenceNotes || [];
-        const occ1Note = occNotesList.find((n: any) => n.occurrenceNumber === 1);
+        const occ1Note = getOccurrenceNoteForDate(occNotesList, new Date(task.dueDate), 1);
         const isOcc1Skipped = occ1Note?.isSkipped === true;
         // If occurrence 1 is a special occurrence, use its specialDate as the display date
         const occ1IsSpecial = occ1Note?.isSpecial === true && occ1Note?.specialDate;
@@ -755,16 +774,19 @@ export default function Calendar() {
           const unit = task.repeatUnit;
           taskOccurrenceNotes.forEach((noteEntry: any) => {
             const occNum = noteEntry.occurrenceNumber;
-            if (occNum <= 1) return; // Occurrence 1 = dueDate, already added above
+            if (occNum <= 1 && !noteEntry.occurrenceDate) return; // Alte Termin 1 = dueDate, bereits oben eingefügt
             if (noteEntry.isSkipped) return;
             // Special occurrences have their own date (specialDate) and are handled separately below
             if (noteEntry.isSpecial && noteEntry.specialDate) return;
-            // Calculate date: dueDate + (occNum - 1) * interval
-            const calcDate = new Date(task.dueDate!);
-            const steps = occNum - 1;
-            if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
-            else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
-            else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            const calcDate = noteEntry.occurrenceDate
+              ? new Date(noteEntry.occurrenceDate)
+              : new Date(task.dueDate!);
+            if (!noteEntry.occurrenceDate) {
+              const steps = occNum - 1;
+              if (unit === 'days') calcDate.setDate(calcDate.getDate() + interval * steps);
+              else if (unit === 'weeks') calcDate.setDate(calcDate.getDate() + interval * 7 * steps);
+              else if (unit === 'months') calcDate.setMonth(calcDate.getMonth() + interval * steps);
+            }
             const calcDateNorm = new Date(calcDate);
             calcDateNorm.setHours(0, 0, 0, 0);
             if (calcDateNorm > endDate) return;

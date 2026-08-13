@@ -23,10 +23,8 @@ import {
   skipRotationOccurrence,
   moveRotationOccurrence,
   calcOccurrenceNumber,
-  upsertOccurrenceNote,
+  upsertOccurrenceNoteByDate,
   getSkippedOccurrenceNumbers,
-  clearSkippedOccurrencesUpTo,
-  shiftOccurrenceNotesDown,
   getRealRotationSchedule,
   dateToWallClockString,
 } from "../db";
@@ -1388,8 +1386,15 @@ export const tasksRouter = router({
       const isCurrentOccurrence = taskDueDateStr !== null && taskDueDateStr === skipDateStr;
 
       if (isCurrentOccurrence && task.repeatInterval && task.repeatUnit) {
-        // SIMPLE PATH: The current occurrence is being skipped.
-        // Just advance dueDate to the next interval – no occurrenceNote needed.
+        // Der übersprungene Termin wird zuerst datumstabil protokolliert. Das
+        // Fälligkeitsdatum darf danach weiterlaufen, ohne den Eintrag umzudeuten.
+        const currentOccurrenceNumber = calcOccurrenceNumber(task, input.dateToSkip) ?? 1;
+        await upsertOccurrenceNoteByDate(
+          input.taskId,
+          input.dateToSkip,
+          currentOccurrenceNumber,
+          { isSkipped: true },
+        );
         const nextDueDate = await advanceByInterval(
           task.dueDate instanceof Date ? task.dueDate : new Date(String(task.dueDate!).replace(' ', 'T')),
           task as TaskForCompletion
@@ -1403,10 +1408,8 @@ export const tasksRouter = router({
           await updateTask(input.taskId, { dueDateRaw: input.dateToSkip.includes(' ') ? input.dateToSkip : input.dateToSkip + ' 00:00:00' });
           taskForCalc = { ...task, dueDate: input.dateToSkip as any };
         }
-        const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip);
-        if (occNum !== null) {
-          await upsertOccurrenceNote(input.taskId, occNum, { isSkipped: true });
-        }
+        const occNum = calcOccurrenceNumber(taskForCalc, input.dateToSkip) ?? 1;
+        await upsertOccurrenceNoteByDate(input.taskId, input.dateToSkip, occNum, { isSkipped: true });
       }
 
       const skipLang = await getHouseholdLang(input.householdId);
@@ -1447,11 +1450,9 @@ export const tasksRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Mark occurrence as not skipped in occurrenceNotes (single source of truth)
-      const restoreOccNum = calcOccurrenceNumber(task, input.dateToRestore);
-      if (restoreOccNum !== null) {
-        await upsertOccurrenceNote(input.taskId, restoreOccNum, { isSkipped: false });
-      }
+      // Das konkrete Datum bleibt der Schlüssel, auch nachdem dueDate weitergelaufen ist.
+      const restoreOccNum = calcOccurrenceNumber(task, input.dateToRestore) ?? 1;
+      await upsertOccurrenceNoteByDate(input.taskId, input.dateToRestore, restoreOccNum, { isSkipped: false });
 
       const restoreLang = await getHouseholdLang(input.householdId);
       const restoreLocale = restoreLang === "en" ? "en-GB" : restoreLang === "es" ? "es-ES" : "de-DE";
@@ -1626,12 +1627,8 @@ export const tasksRouter = router({
         task.dueDate = input.occurrenceDate as any;
       }
 
-      const occNum = calcOccurrenceNumber(task, input.occurrenceDate);
-      if (occNum === null) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Could not calculate occurrence number for this date" });
-      }
-
-      await upsertOccurrenceNote(input.taskId, occNum, { notes: input.notes });
+      const occNum = calcOccurrenceNumber(task, input.occurrenceDate) ?? 1;
+      await upsertOccurrenceNoteByDate(input.taskId, input.occurrenceDate, occNum, { notes: input.notes });
 
       return { success: true, occurrenceNumber: occNum };
     }),

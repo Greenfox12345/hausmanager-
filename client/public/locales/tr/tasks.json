@@ -203,7 +203,8 @@
     "milestonesReminders": "Ara Hedefler ve Hatırlatıcılar",
     "noPastOccurrences": "Henüz geçmiş tekrar yok",
     "completedByLabel": "Tamamlayan:",
-    "saveChangesConfirm": "Değişiklikleri kaydetmek istiyor musunuz?"
+    "saveChangesConfirm": "Değişiklikleri kaydetmek istiyor musunuz?",
+    "requiredByDependency": "bağımlılık nedeniyle gerekli"
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",

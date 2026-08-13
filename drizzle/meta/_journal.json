@@ -267,6 +267,13 @@
       "when": 1786006824528,
       "tag": "0049_fine_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "5",
+      "when": 1786655208569,
+      "tag": "0050_graceful_leech",
+      "breakpoints": true
     }
   ]
 }

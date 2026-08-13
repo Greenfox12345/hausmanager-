@@ -3678,6 +3678,13 @@
 - [x] Wiederkehrende Aufgaben: zentrale Erkennung für beide Abschlusswege vereinheitlicht und mit Unit-Tests abgesichert
 - [ ] Priorisierte Stabilisierung testen, Ergebnisse dokumentieren und zugehörige TODOs aktualisieren
 
+## Abhängigkeiten vor Umbau des Terminmodells (2026-08-13)
+- [x] Abhängigkeitsmodell auf Spiegelung, Transitivität, Selbstbezüge und Zyklen prüfen
+- [x] Abhängigkeitsänderungen für Aufgaben und Projekte mit datenbankfreien Tests absichern
+- [x] Backend: Doppelte Spiegelungen verhindern sowie Selbstbezüge und gerichtete Zyklen vor dem Speichern ablehnen
+- [x] Frontend: transitive Voraussetzungen und Folgeaufgaben anzeigen und ihre Entfernung sperren, solange die vermittelnde Beziehung besteht
+- [x] Datumstabiles Modell für übersprungene Termine und Terminnotizen implementieren
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt

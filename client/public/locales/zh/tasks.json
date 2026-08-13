@@ -203,7 +203,8 @@
     "milestonesReminders": "里程碑和提醒",
     "noPastOccurrences": "暂无历史日程",
     "completedByLabel": "完成者：",
-    "saveChangesConfirm": "是否保存更改？"
+    "saveChangesConfirm": "是否保存更改？",
+    "requiredByDependency": "由依赖关系要求"
   },
   "occurrences": {
     "title": "即将到来的任务",

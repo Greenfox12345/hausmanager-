@@ -226,6 +226,7 @@ export const taskRotationOccurrenceNotes = mysqlTable("task_rotation_occurrence_
   id: int("id").autoincrement().primaryKey(),
   taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
   occurrenceNumber: int("occurrenceNumber").notNull(), // 1 = next occurrence, 2 = second occurrence, etc. (negative for special occurrences)
+  occurrenceDate: datetime("occurrenceDate"), // Datumstabiler Schlüssel für Terminnotizen und Überspringen
   notes: text("notes"),
   isSkipped: boolean("isSkipped").default(false).notNull(), // Toggle for skipped status
   isSpecial: boolean("isSpecial").default(false).notNull(), // True for special occurrences (not counted in rotation)

@@ -203,7 +203,8 @@
     "milestonesReminders": "Étapes clés & rappels",
     "noPastOccurrences": "Aucune occurrence passée pour l'instant",
     "completedByLabel": "Complété par :",
-    "saveChangesConfirm": "Voulez-vous enregistrer les modifications ?"
+    "saveChangesConfirm": "Voulez-vous enregistrer les modifications ?",
+    "requiredByDependency": "requise par dépendance"
   },
   "occurrences": {
     "title": "Rendez-vous à venir",

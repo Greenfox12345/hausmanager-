@@ -510,7 +510,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     .filter((t: any) => t.enableRotation === true)
     .map((t: any) => t.id as number);
 
-  let occurrenceNotesMap: Record<number, { occurrenceNumber: number; notes: string; isSkipped: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date }[]> = {};
+  let occurrenceNotesMap: Record<number, { occurrenceNumber: number; occurrenceDate?: Date; notes: string; isSkipped: boolean; isSpecial?: boolean; specialName?: string; specialDate?: Date }[]> = {};
   if (recurringTaskIds.length > 0) {
     // For rotation tasks: load all entries (no content filter)
     // For non-rotation tasks: load only entries with content
@@ -519,22 +519,23 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
     const allNotesRows: any[] = [];
     if (rotationTaskIds.length > 0) {
       const [rotNotes] = await db.execute(
-        sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(rotationTaskIds.join(','))})`
+        sql`SELECT taskId, occurrenceNumber, occurrenceDate, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(rotationTaskIds.join(','))})`
       );
       allNotesRows.push(...(rotNotes as unknown as any[]));
     }
     if (nonRotationIds.length > 0) {
       const [nonRotNotes] = await db.execute(
-        sql`SELECT taskId, occurrenceNumber, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(nonRotationIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1 OR isSpecial = 1 OR specialDate IS NOT NULL)`
+        sql`SELECT taskId, occurrenceNumber, occurrenceDate, notes, isSkipped, isSpecial, specialName, specialDate FROM task_rotation_occurrence_notes WHERE taskId IN (${sql.raw(nonRotationIds.join(','))}) AND ((notes IS NOT NULL AND notes != '') OR isSkipped = 1 OR isSpecial = 1 OR specialDate IS NOT NULL)`
       );
       allNotesRows.push(...(nonRotNotes as unknown as any[]));
     }
     const notesResult = allNotesRows;
-    const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; notes: string; isSkipped: number; isSpecial?: number; specialName?: string; specialDate?: string | Date }[];
+    const notesRows = notesResult as unknown as { taskId: number; occurrenceNumber: number; occurrenceDate?: string | Date; notes: string; isSkipped: number; isSpecial?: number; specialName?: string; specialDate?: string | Date }[];
     for (const row of notesRows) {
       if (!occurrenceNotesMap[row.taskId]) occurrenceNotesMap[row.taskId] = [];
       occurrenceNotesMap[row.taskId].push({
         occurrenceNumber: row.occurrenceNumber,
+        occurrenceDate: row.occurrenceDate ? new Date(row.occurrenceDate) : undefined,
         notes: row.notes,
         isSkipped: row.isSkipped === 1,
         isSpecial: row.isSpecial === 1,
@@ -2068,6 +2069,67 @@ export function calcOccurrenceNumber(
  * Upsert a note/skip entry for a specific occurrence (by occurrenceNumber).
  * Creates the record if it doesn't exist, updates it otherwise.
  */
+export function toOccurrenceDateKey(value: Date | string): string {
+  if (typeof value === "string") return value.slice(0, 10);
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Speichert eine Terminnotiz über das konkrete Kalenderdatum. Die Positions-
+ * nummer bleibt für ältere Ansichten erhalten, ist für neue Einträge aber
+ * nicht mehr der maßgebliche Schlüssel.
+ */
+export async function upsertOccurrenceNoteByDate(
+  taskId: number,
+  occurrenceDate: Date | string,
+  occurrenceNumber: number,
+  data: { notes?: string; isSkipped?: boolean },
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const dateKey = toOccurrenceDateKey(occurrenceDate);
+  const [result] = await db.execute(
+    sql`SELECT id FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND DATE(occurrenceDate) = ${dateKey} LIMIT 1`,
+  );
+  const existing = (result as unknown as { id: number }[])[0];
+  const updateData: Record<string, unknown> = {};
+  if (data.notes !== undefined) updateData.notes = data.notes;
+  if (data.isSkipped !== undefined) updateData.isSkipped = data.isSkipped;
+
+  if (existing) {
+    await db.update(taskRotationOccurrenceNotes)
+      .set(updateData as any)
+      .where(eq(taskRotationOccurrenceNotes.id, existing.id));
+  } else {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    await db.insert(taskRotationOccurrenceNotes).values({
+      taskId,
+      occurrenceNumber,
+      // Mittagszeit verhindert eine unbeabsichtigte Verschiebung beim Lesen
+      // in einer anderen Zeitzone; fachlich maßgeblich ist immer DATE(...).
+      occurrenceDate: new Date(year, month - 1, day, 12, 0, 0),
+      notes: data.notes ?? "",
+      isSkipped: data.isSkipped ?? false,
+    } as typeof taskRotationOccurrenceNotes.$inferInsert);
+  }
+
+  return { success: true };
+}
+
+export async function getSkippedOccurrenceDates(taskId: number): Promise<Set<string>> {
+  const db = await getDb();
+  if (!db) return new Set();
+  const [result] = await db.execute(
+    sql`SELECT DATE_FORMAT(occurrenceDate, '%Y-%m-%d') AS occurrenceDate FROM task_rotation_occurrence_notes WHERE taskId = ${taskId} AND isSkipped = 1 AND occurrenceDate IS NOT NULL`,
+  );
+  const rows = result as unknown as { occurrenceDate: string }[];
+  return new Set(rows.map((row) => row.occurrenceDate));
+}
+
 export async function upsertOccurrenceNote(
   taskId: number,
   occurrenceNumber: number,
