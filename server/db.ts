@@ -1494,6 +1494,13 @@ export async function getRotationSchedule(taskId: number) {
   const notes = await db.select().from(taskRotationOccurrenceNotes)
     .where(eq(taskRotationOccurrenceNotes.taskId, taskId));
 
+  const [taskRecord] = await db.select({ dueDate: tasks.dueDate })
+    .from(tasks)
+    .where(eq(tasks.id, taskId))
+    .limit(1);
+  const activeDueDate = taskRecord?.dueDate ? new Date(taskRecord.dueDate) : null;
+  if (activeDueDate) activeDueDate.setHours(0, 0, 0, 0);
+
   // Group by occurrence number
   const grouped: Record<number, { members: { position: number; memberId: number }[]; notes?: string; isSkipped?: boolean; isSpecial?: boolean; specialName?: string; occurrenceDate?: Date; specialDate?: Date; calculatedDate?: Date }> = {};
   
@@ -1510,6 +1517,12 @@ export async function getRotationSchedule(taskId: number) {
   // Add notes, skip status, and special occurrence data to grouped data
   // Also create entries for special appointments without members
   for (const note of notes) {
+    const noteDate = note.occurrenceDate ? new Date(note.occurrenceDate) : null;
+    if (noteDate) noteDate.setHours(0, 0, 0, 0);
+    // Vergangene reguläre Terminnotizen gehören in den Verlauf. Werden sie
+    // hier mit occurrenceNumber=1 gruppiert, könnten sie den aktuellen Plan
+    // überschreiben, nachdem dueDate weitergeschoben wurde.
+    if (noteDate && activeDueDate && noteDate < activeDueDate && !note.isSpecial) continue;
     if (!grouped[note.occurrenceNumber]) {
       // Create entry for special appointments or notes without members
       grouped[note.occurrenceNumber] = { members: [] };
