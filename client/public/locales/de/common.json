@@ -461,5 +461,10 @@
       "tasks": "Aufgaben",
       "mixed": "Gemischt"
     }
+  },
+  "activityOverview": {
+    "title": "Seit deinem letzten Besuch",
+    "description": "Das haben andere Mitglieder in diesem Haushalt erledigt.",
+    "close": "Verstanden"
   }
 }

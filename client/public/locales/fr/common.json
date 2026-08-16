@@ -465,5 +465,10 @@
       "tasks": "Tâches",
       "mixed": "Mixte"
     }
+  },
+  "activityOverview": {
+    "title": "Depuis votre dernière visite",
+    "description": "Voici ce que les autres membres du foyer ont fait.",
+    "close": "Compris"
   }
 }

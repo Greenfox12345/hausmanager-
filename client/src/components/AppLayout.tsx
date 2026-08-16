@@ -1,9 +1,10 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,8 +51,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const { user, currentHousehold, logout: userLogout, setCurrentHousehold, isDemoSession } = useUserAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { openTutorial } = useTutorial();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const utils = trpc.useUtils();
+  const [activityOverviewOpen, setActivityOverviewOpen] = useState(false);
+  const pendingActivityReadThroughRef = useRef<Date | null>(null);
+  const handledActivityReadThroughRef = useRef<string | null>(null);
   
   // Detect desktop/mobile for conditional rendering
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -78,6 +82,42 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   // Mutation to switch household
   const switchHouseholdMutation = trpc.householdManagement.switchHousehold.useMutation();
+  const { data: newActivitiesData } = trpc.activities.getNewSinceLastVisit.useQuery(
+    { householdId: member?.householdId ?? 0, memberId: member?.memberId ?? 0, limit: 20 },
+    { enabled: !!member?.householdId && !!member?.memberId && !isDemoSession, staleTime: 0 },
+  );
+  const markActivitiesViewedMutation = trpc.activities.markActivitiesViewed.useMutation();
+
+  useEffect(() => {
+    if (!newActivitiesData || !member?.householdId || !member.memberId) return;
+    const readThroughKey = new Date(newActivitiesData.readThrough).toISOString();
+    if (handledActivityReadThroughRef.current === readThroughKey) return;
+    handledActivityReadThroughRef.current = readThroughKey;
+    pendingActivityReadThroughRef.current = new Date(newActivitiesData.readThrough);
+
+    if (newActivitiesData.activities.length > 0) {
+      setActivityOverviewOpen(true);
+      return;
+    }
+
+    markActivitiesViewedMutation.mutate({
+      householdId: member.householdId,
+      memberId: member.memberId,
+      readThrough: new Date(newActivitiesData.readThrough),
+    });
+    pendingActivityReadThroughRef.current = null;
+  }, [newActivitiesData, member?.householdId, member?.memberId]);
+
+  const handleActivityOverviewOpenChange = (open: boolean) => {
+    setActivityOverviewOpen(open);
+    if (open || !member?.householdId || !member.memberId || !pendingActivityReadThroughRef.current) return;
+    markActivitiesViewedMutation.mutate({
+      householdId: member.householdId,
+      memberId: member.memberId,
+      readThrough: pendingActivityReadThroughRef.current,
+    });
+    pendingActivityReadThroughRef.current = null;
+  };
   const checkDueTasksMutation = trpc.notifications.checkDueTasksOnAppOpen.useMutation({
     onSuccess: (result) => {
       if (result.created > 0 && member) {
@@ -432,6 +472,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
       )}
+
+      <Dialog open={activityOverviewOpen} onOpenChange={handleActivityOverviewOpenChange}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("activityOverview.title", "Seit deinem letzten Besuch")}</DialogTitle>
+            <DialogDescription>
+              {t("activityOverview.description", "Das haben andere Mitglieder in diesem Haushalt erledigt.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[55vh] space-y-2 overflow-y-auto pr-1">
+            {newActivitiesData?.activities.map((activity) => (
+              <div key={activity.id} className="rounded-md border bg-muted/35 px-3 py-2">
+                <p className="text-sm">{activity.description}</p>
+                <time className="mt-1 block text-xs text-muted-foreground">
+                  {new Date(activity.createdAt).toLocaleString(i18n.language)}
+                </time>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => handleActivityOverviewOpenChange(false)}>
+              {t("activityOverview.close", "Verstanden")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* DemoTutorial wird global in App.tsx gerendert und via TutorialContext gesteuert */}
     </div>

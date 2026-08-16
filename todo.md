@@ -3694,6 +3694,12 @@
 - [x] Grundlage für spätere Push-Zustellung vorbereiten (Browser-Berechtigung und Präferenz vorhanden)
 - [x] Benachrichtigungsabläufe mit datenfreien Regeln testen und dokumentieren
 
+## Aktivitäten seit dem letzten Haushaltsbesuch (2026-08-13)
+- [x] Persönlichen letzten Besuchszeitpunkt pro Haushaltsmitglied speichern
+- [x] Neue Aktivitäten anderer Mitglieder seit diesem Zeitpunkt sicher laden
+- [x] Übersicht beim Öffnen beziehungsweise Wechseln eines Haushalts anzeigen
+- [x] Besuchszeitpunkt erst nach erfolgreicher Anzeige aktualisieren
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt

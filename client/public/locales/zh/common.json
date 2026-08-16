@@ -374,5 +374,10 @@
   },
   "sort": {
     "topological": "依赖关系"
+  },
+  "activityOverview": {
+    "title": "自上次访问以来",
+    "description": "这是其他家庭成员完成的事项。",
+    "close": "知道了"
   }
 }

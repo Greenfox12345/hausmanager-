@@ -465,5 +465,10 @@
       "tasks": "Görevler",
       "mixed": "Karışık"
     }
+  },
+  "activityOverview": {
+    "title": "Son ziyaretinden beri",
+    "description": "Diğer hane üyelerinin yaptıkları bunlar.",
+    "close": "Anladım"
   }
 }

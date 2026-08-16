@@ -541,5 +541,10 @@
       "tasks": "Tareas",
       "mixed": "Mixto"
     }
+  },
+  "activityOverview": {
+    "title": "Desde tu última visita",
+    "description": "Esto es lo que han hecho otros miembros del hogar.",
+    "close": "Entendido"
   }
 }

@@ -461,5 +461,10 @@
       "tasks": "Tasks",
       "mixed": "Mixed"
     }
+  },
+  "activityOverview": {
+    "title": "Since your last visit",
+    "description": "This is what other household members have done.",
+    "close": "Got it"
   }
 }
