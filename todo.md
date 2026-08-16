@@ -3703,6 +3703,7 @@
 ## Bug: Aufgaben-Bearbeitungsdialog stürzt ab (2026-08-16)
 - [x] Absturz beim Öffnen des Bearbeitungsdialogs in der Aufgabenansicht reproduzieren und Ursache beheben
 - [x] Bearbeitungsdialog mit Aufgaben ohne optionale Daten und mit Kategorien absichern
+- [x] Ähnliche State-synchronisierende Effekte in den direkt verwandten Aufgaben- und Variablendialogen prüfen
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
