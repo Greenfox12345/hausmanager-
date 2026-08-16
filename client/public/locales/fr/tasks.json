@@ -204,7 +204,18 @@
     "noPastOccurrences": "Aucune occurrence passée pour l'instant",
     "completedByLabel": "Complété par :",
     "saveChangesConfirm": "Voulez-vous enregistrer les modifications ?",
-    "requiredByDependency": "requise par dépendance"
+    "requiredByDependency": "requise par dépendance",
+    "proposeChange": "Proposer une modification",
+    "permissionProposalHint": "Vous n’êtes pas responsable de cette tâche. Vous pouvez proposer une modification ; les personnes responsables décident.",
+    "proposalDescription": "Les personnes responsables seront notifiées et pourront accepter ou refuser votre proposition.",
+    "proposalNote": "Note pour les personnes responsables (facultatif)",
+    "sendProposal": "Envoyer la proposition",
+    "pendingProposals": "Propositions de modification en attente",
+    "suggests": "propose :",
+    "rejectProposal": "Refuser",
+    "approveProposal": "Accepter",
+    "proposalSent": "Proposition de modification envoyée",
+    "proposalReviewed": "Proposition de modification examinée"
   },
   "occurrences": {
     "title": "Rendez-vous à venir",

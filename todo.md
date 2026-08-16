@@ -3705,6 +3705,13 @@
 - [x] Bearbeitungsdialog mit Aufgaben ohne optionale Daten und mit Kategorien absichern
 - [x] Ähnliche State-synchronisierende Effekte in den direkt verwandten Aufgaben- und Variablendialogen prüfen
 
+## Aufgaben-Berechtigungen und Änderungsvorschläge (2026-08-16)
+- [x] Rechte für Erstellen, Bearbeiten, Löschen, Abschließen und Kommentare je Mitgliedsrolle definieren
+- [x] Berechtigungsregel umsetzen: alle Verantwortlichen direkt berechtigt; bei keiner Zuweisung alle Mitglieder direkt berechtigt; sonst Änderungsvorschlag
+- [x] Nicht berechtigte Änderungen an Name und Beschreibung als prüfbare Aufgabeänderungsvorschläge speichern
+- [x] Verantwortliche über Vorschläge informieren und Antragstellende über Annahme oder Ablehnung informieren
+- [x] Geschützte Aktionen und Vorschläge in Aufgaben-, Projekt- und Kalenderansicht verständlich darstellen
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt

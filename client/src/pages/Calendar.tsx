@@ -24,6 +24,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { shouldShowJumpToCurrent } from "@/lib/taskOccurrenceNavigation";
+import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 
 export default function Calendar() {
   const { t, i18n } = useTranslation(["tasks", "common", "calendar"]);
@@ -1425,7 +1426,7 @@ export default function Calendar() {
                               <ArrowRight className="h-4 w-4 mr-1" />{t("calendar:jumpToCurrent", "Zu aktuellem Termin")}
                             </Button>
                           )}
-                          {task.isFutureOccurrence && (
+                          {task.isFutureOccurrence && canDirectlyManageTask(task.assignedTo, member?.memberId ?? 0) && (
                             <>
                               <Button size="sm" variant="outline" className="text-blue-600 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); const targetDate = task.occurrenceDate || new Date(task.dueDate!); setNoteTask({ ...task, targetDate }); setNoteText(task.occurrenceNote || ""); setNoteDialogOpen(true); onClose(); }}>
                                 <span className="h-4 w-4 mr-1 text-base leading-none">📝</span>{task.occurrenceNote ? t("calendar:editNote", "Notiz bearbeiten") : t("calendar:addNote", "Notiz hinzufügen")}
@@ -1435,7 +1436,7 @@ export default function Calendar() {
                               </Button>
                             </>
                           )}
-                          {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && !(task as any).isSkippedOccurrence && (
+                          {!task.isCompleted && !task.isCompletedOccurrence && !task.isFutureOccurrence && !(task as any).isSkippedOccurrence && canDirectlyManageTask(task.assignedTo, member?.memberId ?? 0) && (
                             <>
                               <Button size="sm" variant="outline" onClick={async (e) => { e.stopPropagation(); setActionTask(task); pendingPopupCloseRef.current = onClose; const isRecurring = Boolean(task.repeatInterval && task.repeatUnit); if (isRecurring && household) { try { const check = await utils.tasks.checkNextOccurrence.fetch({ taskId: task.id, householdId: household.householdId }); if (check.skippedCount > 0) { setSkipConfirmData({ skippedCount: check.skippedCount, skippedOccurrenceDates: check.skippedOccurrenceDates, nextDate: check.nextDate, pendingCompleteData: { comment: undefined, photoUrls: [], fileUrls: [] } }); setSkipConfirmOpen(true); return; } } catch {} } setCompleteDialogOpen(true); }}>
                                 <Check className="h-4 w-4 mr-1" />{t("tasks:actions.complete", "Abschließen")}

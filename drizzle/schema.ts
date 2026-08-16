@@ -110,6 +110,29 @@ export type TaskComment = typeof taskComments.$inferSelect;
 export type InsertTaskComment = typeof taskComments.$inferInsert;
 
 /**
+ * Änderungsvorschläge von Mitgliedern ohne direkte Bearbeitungsberechtigung.
+ * Die Nutzlast enthält nur die beabsichtigten Änderungen und wird erst nach
+ * Annahme durch ein verantwortliches Mitglied auf die Aufgabe übertragen.
+ */
+export const taskChangeProposals = mysqlTable("task_change_proposals", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  proposedByMemberId: int("proposedByMemberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  proposalType: mysqlEnum("proposalType", ["update", "complete", "delete"]).notNull(),
+  payload: json("payload").$type<Record<string, unknown>>().notNull(),
+  note: text("note"),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  reviewedByMemberId: int("reviewedByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
+  reviewNote: text("reviewNote"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+});
+
+export type TaskChangeProposal = typeof taskChangeProposals.$inferSelect;
+export type InsertTaskChangeProposal = typeof taskChangeProposals.$inferInsert;
+
+/**
  * Item units - household-wide units for quantity tracking (e.g. Stück, Kilo, Gramm)
  */
 export const itemUnits = mysqlTable("item_units", {

@@ -204,7 +204,18 @@
     "noPastOccurrences": "No past occurrences yet",
     "completedByLabel": "Completed by:",
     "saveChangesConfirm": "Do you want to save the changes?",
-    "requiredByDependency": "required by dependency"
+    "requiredByDependency": "required by dependency",
+    "proposeChange": "Suggest change",
+    "permissionProposalHint": "You are not responsible for this task. You can suggest a change; responsible members decide on it.",
+    "proposalDescription": "Responsible members will be notified and can accept or reject your suggestion.",
+    "proposalNote": "Note for responsible members (optional)",
+    "sendProposal": "Send suggestion",
+    "pendingProposals": "Pending change suggestions",
+    "suggests": "suggests:",
+    "rejectProposal": "Reject",
+    "approveProposal": "Accept",
+    "proposalSent": "Change suggestion sent",
+    "proposalReviewed": "Change suggestion reviewed"
   },
   "occurrences": {
     "title": "Upcoming appointments",

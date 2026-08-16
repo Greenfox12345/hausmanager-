@@ -204,7 +204,18 @@
     "noPastOccurrences": "لا توجد مواعيد سابقة بعد",
     "completedByLabel": "أُكمل بواسطة:",
     "saveChangesConfirm": "هل تريد حفظ التغييرات؟",
-    "requiredByDependency": "مطلوبة بسبب التبعية"
+    "requiredByDependency": "مطلوبة بسبب التبعية",
+    "proposeChange": "اقتراح تعديل",
+    "permissionProposalHint": "لست مسؤولاً عن هذه المهمة. يمكنك اقتراح تعديل، ويقرر الأعضاء المسؤولون بشأنه.",
+    "proposalDescription": "سيتم إخطار الأعضاء المسؤولين ويمكنهم قبول اقتراحك أو رفضه.",
+    "proposalNote": "ملاحظة للأعضاء المسؤولين (اختياري)",
+    "sendProposal": "إرسال الاقتراح",
+    "pendingProposals": "اقتراحات التعديل المعلقة",
+    "suggests": "يقترح:",
+    "rejectProposal": "رفض",
+    "approveProposal": "قبول",
+    "proposalSent": "تم إرسال اقتراح التعديل",
+    "proposalReviewed": "تم اتخاذ قرار بشأن اقتراح التعديل"
   },
   "occurrences": {
     "title": "المواعيد القادمة",

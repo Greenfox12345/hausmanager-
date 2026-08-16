@@ -605,7 +605,18 @@
     "noPastOccurrences": "Aún no hay ocurrencias pasadas",
     "completedByLabel": "Completado por:",
     "saveChangesConfirm": "¿Deseas guardar los cambios?",
-    "requiredByDependency": "requerida por dependencia"
+    "requiredByDependency": "requerida por dependencia",
+    "proposeChange": "Sugerir cambio",
+    "permissionProposalHint": "No eres responsable de esta tarea. Puedes proponer un cambio; las personas responsables deciden.",
+    "proposalDescription": "Las personas responsables recibirán una notificación y podrán aceptar o rechazar tu propuesta.",
+    "proposalNote": "Nota para personas responsables (opcional)",
+    "sendProposal": "Enviar propuesta",
+    "pendingProposals": "Propuestas de cambio pendientes",
+    "suggests": "propone:",
+    "rejectProposal": "Rechazar",
+    "approveProposal": "Aceptar",
+    "proposalSent": "Propuesta de cambio enviada",
+    "proposalReviewed": "Propuesta de cambio revisada"
   },
   "occurrences": {
     "title": "Próximas citas",

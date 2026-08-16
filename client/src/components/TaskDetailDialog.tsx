@@ -33,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
+import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
 import {
   getFollowupClosure,
   getPrerequisiteClosure,
@@ -122,6 +123,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   );
 
   const [commentDraft, setCommentDraft] = useState("");
+  const [isProposingChange, setIsProposingChange] = useState(false);
+  const [proposalName, setProposalName] = useState("");
+  const [proposalDescription, setProposalDescription] = useState("");
+  const [proposalNote, setProposalNote] = useState("");
   const { data: taskComments = [] } = trpc.tasks.listTaskComments.useQuery(
     { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
     { enabled: !!task?.id && !!household?.householdId && open },
@@ -135,6 +140,33 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       }
     },
     onError: () => toast.error(t("messages.genericError", "Kommentar konnte nicht gespeichert werden")),
+  });
+  const hasDirectPermission = canDirectlyManageTask(task?.assignedTo, member?.memberId ?? 0);
+  const canReviewProposals = canReviewTaskProposal(task?.assignedTo, member?.memberId ?? 0);
+  const { data: taskChangeProposals = [] } = trpc.tasks.listTaskChangeProposals.useQuery(
+    { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && !!household?.householdId && open },
+  );
+  const proposeTaskChangeMutation = trpc.tasks.proposeTaskChange.useMutation({
+    onSuccess: () => {
+      setIsProposingChange(false);
+      setProposalNote("");
+      if (task?.id && household?.householdId) {
+        utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
+      }
+      toast.success(t("dialog.proposalSent", "Änderungsvorschlag gesendet"));
+    },
+    onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht gespeichert werden")),
+  });
+  const reviewTaskChangeProposalMutation = trpc.tasks.reviewTaskChangeProposal.useMutation({
+    onSuccess: () => {
+      if (task?.id && household?.householdId) {
+        utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
+        utils.tasks.list.invalidate();
+      }
+      toast.success(t("dialog.proposalReviewed", "Änderungsvorschlag entschieden"));
+    },
+    onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht entschieden werden")),
   });
   
   // Sub-tab state for history tab
@@ -1219,7 +1251,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               )}
               <span>{isEditing ? t("dialog.editTitle") : t("dialog.viewTitle")}</span>
             </div>
-            {!isEditing && (
+            {!isEditing && hasDirectPermission && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -1228,6 +1260,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               >
                 <Edit className="h-4 w-4" />
                 {t("common:actions.edit")}
+              </Button>
+            )}
+            {!isEditing && !hasDirectPermission && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setProposalName(task?.name ?? "");
+                  setProposalDescription(task?.description ?? "");
+                  setProposalNote("");
+                  setIsProposingChange(true);
+                }}
+                className="gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                {t("dialog.proposeChange", "Änderung vorschlagen")}
               </Button>
             )}
           </DialogTitle>
@@ -2249,7 +2297,70 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
             </>
           ) : (
             // View Mode with Tabs
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <>
+              {!hasDirectPermission && (
+                <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                  {t("dialog.permissionProposalHint", "Du bist nicht verantwortlich. Du kannst eine Änderung vorschlagen; Verantwortliche entscheiden darüber.")}
+                </p>
+              )}
+              {isProposingChange && household && member && task && (
+                <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
+                  <div>
+                    <h3 className="font-medium">{t("dialog.proposeChange", "Änderung vorschlagen")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("dialog.proposalDescription", "Verantwortliche Mitglieder werden benachrichtigt und können deinen Vorschlag annehmen oder ablehnen.")}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="proposal-name">{t("dialog.taskName", "Aufgabenname")}</Label>
+                    <Input id="proposal-name" value={proposalName} onChange={(event) => setProposalName(event.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="proposal-description">{t("dialog.description", "Beschreibung")}</Label>
+                    <Textarea id="proposal-description" value={proposalDescription} onChange={(event) => setProposalDescription(event.target.value)} rows={3} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="proposal-note">{t("dialog.proposalNote", "Hinweis für Verantwortliche (optional)")}</Label>
+                    <Textarea id="proposal-note" value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} rows={2} />
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsProposingChange(false)}>{t("common:actions.cancel", "Abbrechen")}</Button>
+                    <Button
+                      type="button"
+                      disabled={!proposalName.trim() || proposeTaskChangeMutation.isPending}
+                      onClick={() => proposeTaskChangeMutation.mutate({
+                        householdId: household.householdId,
+                        taskId: task.id,
+                        memberId: member.memberId,
+                        name: proposalName.trim(),
+                        description: proposalDescription.trim() || null,
+                        note: proposalNote.trim() || undefined,
+                      })}
+                    >
+                      {t("dialog.sendProposal", "Vorschlag senden")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {canReviewProposals && taskChangeProposals.length > 0 && household && member && task && (
+                <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                  <h3 className="font-medium">{t("dialog.pendingProposals", "Offene Änderungsvorschläge")}</h3>
+                  {taskChangeProposals.map((proposal) => {
+                    const payload = proposal.payload as { name?: string; description?: string | null };
+                    return (
+                      <div key={proposal.id} className="space-y-2 rounded-md border bg-background p-3">
+                        <p className="text-sm"><strong>{proposal.proposedByMemberName}</strong> {t("dialog.suggests", "schlägt vor:")}</p>
+                        {payload.name !== undefined && <p className="text-sm"><strong>{t("dialog.taskName", "Aufgabenname")}:</strong> {payload.name}</p>}
+                        {payload.description !== undefined && <p className="whitespace-pre-wrap text-sm"><strong>{t("dialog.description", "Beschreibung")}:</strong> {payload.description || "—"}</p>}
+                        {proposal.note && <p className="text-sm text-muted-foreground">{proposal.note}</p>}
+                        <div className="flex justify-end gap-2">
+                          <Button size="sm" variant="outline" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "rejected" })}>{t("dialog.rejectProposal", "Ablehnen")}</Button>
+                          <Button size="sm" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "approved" })}>{t("dialog.approveProposal", "Annehmen")}</Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="details">{t("dialog.tabDetails")}</TabsTrigger>
                 <TabsTrigger value="history">
@@ -3047,7 +3158,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </>
                 )}
               </TabsContent>
-            </Tabs>
+              </Tabs>
+            </>
           )}
         </div>
 

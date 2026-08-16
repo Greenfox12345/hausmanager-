@@ -204,7 +204,18 @@
     "noPastOccurrences": "暂无历史日程",
     "completedByLabel": "完成者：",
     "saveChangesConfirm": "是否保存更改？",
-    "requiredByDependency": "由依赖关系要求"
+    "requiredByDependency": "由依赖关系要求",
+    "proposeChange": "建议修改",
+    "permissionProposalHint": "你不是该任务的负责人。你可以提出修改建议，由负责人决定。",
+    "proposalDescription": "负责人会收到通知，并可以接受或拒绝你的建议。",
+    "proposalNote": "给负责人的说明（可选）",
+    "sendProposal": "发送建议",
+    "pendingProposals": "待处理的修改建议",
+    "suggests": "建议：",
+    "rejectProposal": "拒绝",
+    "approveProposal": "接受",
+    "proposalSent": "修改建议已发送",
+    "proposalReviewed": "修改建议已处理"
   },
   "occurrences": {
     "title": "即将到来的任务",

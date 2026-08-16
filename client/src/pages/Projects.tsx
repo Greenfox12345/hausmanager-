@@ -46,6 +46,7 @@ import { DatePickerInput } from "@/components/DatePickerInput";
 import { ShoppingCart, CheckSquare, Variable, Play, Layers } from "lucide-react";
 import { VarText } from "@/components/VarToken";
 import { type PlanVariable } from "@/lib/varParser";
+import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
 
 // ─── Plan-Sektion für Projekte aus Plankiste ──────────────────────────────────
@@ -1489,7 +1490,7 @@ export default function Projects() {
                                       
                                       {/* Task Action Buttons */}
                                       <div className="grid grid-cols-2 gap-1 shrink-0">
-                                        {!task.isCompleted && (
+                                        {canDirectlyManageTask(task.assignedTo, member?.memberId ?? 0) && !task.isCompleted && (
                                           <>
                                             <Button
                                               variant="ghost"
@@ -1532,18 +1533,20 @@ export default function Projects() {
                                             </Button>
                                           </>
                                         )}
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteTask(task.id);
-                                          }}
-                                          className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
-                                          title={t("tasks:actions.delete", "Aufgabe löschen")}
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        {canDirectlyManageTask(task.assignedTo, member?.memberId ?? 0) && (
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDeleteTask(task.id);
+                                            }}
+                                            className="touch-target text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            title={t("tasks:actions.delete", "Aufgabe löschen")}
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        )}
                                       </div>
                                     </div>
                                   </CardContent>

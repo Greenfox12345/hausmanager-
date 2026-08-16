@@ -204,7 +204,18 @@
     "noPastOccurrences": "Henüz geçmiş tekrar yok",
     "completedByLabel": "Tamamlayan:",
     "saveChangesConfirm": "Değişiklikleri kaydetmek istiyor musunuz?",
-    "requiredByDependency": "bağımlılık nedeniyle gerekli"
+    "requiredByDependency": "bağımlılık nedeniyle gerekli",
+    "proposeChange": "Değişiklik öner",
+    "permissionProposalHint": "Bu görevden sorumlu değilsiniz. Değişiklik önerebilirsiniz; sorumlu üyeler karar verir.",
+    "proposalDescription": "Sorumlu üyelere bildirim gönderilir; önerinizi kabul veya reddedebilirler.",
+    "proposalNote": "Sorumlu üyeler için not (isteğe bağlı)",
+    "sendProposal": "Öneriyi gönder",
+    "pendingProposals": "Bekleyen değişiklik önerileri",
+    "suggests": "şunu öneriyor:",
+    "rejectProposal": "Reddet",
+    "approveProposal": "Kabul et",
+    "proposalSent": "Değişiklik önerisi gönderildi",
+    "proposalReviewed": "Değişiklik önerisi karara bağlandı"
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",

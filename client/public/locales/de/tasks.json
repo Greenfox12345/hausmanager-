@@ -204,7 +204,18 @@
     "noPastOccurrences": "Noch keine vergangenen Termine",
     "completedByLabel": "Abgeschlossen von:",
     "saveChangesConfirm": "Möchtest du die Änderungen speichern?",
-    "requiredByDependency": "über Abhängigkeit erforderlich"
+    "requiredByDependency": "über Abhängigkeit erforderlich",
+    "proposeChange": "Änderung vorschlagen",
+    "permissionProposalHint": "Du bist nicht verantwortlich. Du kannst eine Änderung vorschlagen; Verantwortliche entscheiden darüber.",
+    "proposalDescription": "Verantwortliche Mitglieder werden benachrichtigt und können deinen Vorschlag annehmen oder ablehnen.",
+    "proposalNote": "Hinweis für Verantwortliche (optional)",
+    "sendProposal": "Vorschlag senden",
+    "pendingProposals": "Offene Änderungsvorschläge",
+    "suggests": "schlägt vor:",
+    "rejectProposal": "Ablehnen",
+    "approveProposal": "Annehmen",
+    "proposalSent": "Änderungsvorschlag gesendet",
+    "proposalReviewed": "Änderungsvorschlag entschieden"
   },
   "occurrences": {
     "title": "Kommende Termine",

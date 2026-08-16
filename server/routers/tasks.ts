@@ -51,6 +51,7 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
 import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
+import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
 
 // ─── German label helpers ───────────────────────────────────────────────────
 
@@ -142,6 +143,16 @@ function normaliseArr(v: any): number[] {
 function arraysEqual(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false;
   return a.every((v, i) => v === b[i]);
+}
+
+/** Erzwingt die Regeln für direktes Bearbeiten, Löschen und Abschließen. */
+function assertDirectTaskPermission(task: { assignedTo?: number[] | null }, memberId: number) {
+  if (!canDirectlyManageTask(task.assignedTo, memberId)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Nur verantwortliche Mitglieder dürfen diese Aufgabe direkt ändern. Bitte reiche einen Änderungsvorschlag ein.",
+    });
+  }
 }
 
 /**
@@ -500,6 +511,7 @@ export const tasksRouter = router({
       if (!currentTask) {
         throw new Error("Task not found");
       }
+      assertDirectTaskPermission(currentTask, memberId);
 
       // Combine date and time if both provided
       // Strategy: "wall-clock time" - store exactly what the user entered.
@@ -592,6 +604,7 @@ export const tasksRouter = router({
       if (!task) {
         throw new Error("Task not found");
       }
+      assertDirectTaskPermission(task, input.memberId);
 
       // Store original due date for activity log
       const originalDueDate = task.dueDate;
@@ -688,6 +701,8 @@ export const tasksRouter = router({
       const tasksList = await getTasks(input.householdId);
       const task = tasksList.find(t => t.id === input.taskId);
       const taskName = task?.name ?? `#${input.taskId}`;
+      if (!task) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+      assertDirectTaskPermission(task, input.memberId);
 
       await deleteTask(input.taskId);
 
@@ -733,6 +748,7 @@ export const tasksRouter = router({
       if (!task) {
         throw new Error("Task not found");
       }
+      assertDirectTaskPermission(task, input.memberId);
 
       // Einheitliche Definition mit dem Checkbox-Abschluss verwenden.
       const isRecurring = isTaskRecurring(task);
@@ -1029,6 +1045,7 @@ export const tasksRouter = router({
       if (!task) {
         throw new Error("Task not found");
       }
+      assertDirectTaskPermission(task, input.memberId);
 
       // Build detailed milestone description (multilingual)
       const milestoneLang = await getHouseholdLang(input.householdId);
@@ -1093,6 +1110,7 @@ export const tasksRouter = router({
       if (!task) {
         throw new Error("Task not found");
       }
+      assertDirectTaskPermission(task, input.memberId);
 
        const reminderLang = await getHouseholdLang(input.householdId);
       const reminderMembersList = await getHouseholdMembers(input.householdId);
@@ -1171,9 +1189,12 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      const tasksList = await getTasks(input.householdId);
       const deletedCount = await Promise.all(
         input.taskIds.map(async (taskId) => {
           try {
+            const task = tasksList.find((item) => item.id === taskId);
+            if (!task || !canDirectlyManageTask(task.assignedTo, input.memberId)) return 0;
             await deleteTask(taskId);
             return 1;
           } catch (error) {
@@ -1198,9 +1219,12 @@ export const tasksRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      const tasksList = await getTasks(input.householdId);
       const updatedCount = await Promise.all(
         input.taskIds.map(async (taskId) => {
           try {
+            const task = tasksList.find((item) => item.id === taskId);
+            if (!task || !canDirectlyManageTask(task.assignedTo, input.memberId)) return 0;
             await updateTask(taskId, {
               assignedTo: input.assignedTo,
             });
@@ -1232,6 +1256,7 @@ export const tasksRouter = router({
           try {
             const task = tasksList.find(t => t.id === taskId);
             if (!task) return 0;
+            if (!canDirectlyManageTask(task.assignedTo, input.memberId)) return 0;
 
             await updateTask(taskId, {
               isCompleted: true,
@@ -1898,5 +1923,148 @@ export const tasksRouter = router({
       });
 
       return { id: Number(result.insertId), success: true };
+    }),
+
+  /**
+   * Nicht verantwortliche Mitglieder schlagen eine inhaltliche Änderung vor,
+   * statt die Aufgabe direkt zu ändern. Die erste Version beschränkt sich
+   * bewusst auf Name und Beschreibung, damit Annahmen nachvollziehbar bleiben.
+   */
+  proposeTaskChange: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      taskId: z.number(),
+      memberId: z.number(),
+      name: z.string().trim().min(1).max(255).optional(),
+      description: z.string().max(10_000).nullable().optional(),
+      note: z.string().trim().max(2_000).optional(),
+    }).refine((input) => input.name !== undefined || input.description !== undefined, {
+      message: "Mindestens Name oder Beschreibung muss vorgeschlagen werden.",
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const task = await getTaskById(input.taskId);
+      const member = await getHouseholdMemberById(input.memberId);
+      if (!task || task.householdId !== input.householdId || !member || member.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe oder Mitglied nicht gefunden" });
+      }
+      if (canDirectlyManageTask(task.assignedTo, input.memberId)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Du darfst diese Aufgabe direkt bearbeiten." });
+      }
+
+      const { taskChangeProposals } = await import("../../drizzle/schema");
+      const payload: Record<string, unknown> = {};
+      if (input.name !== undefined) payload.name = input.name;
+      if (input.description !== undefined) payload.description = input.description;
+      const [result] = await db.insert(taskChangeProposals).values({
+        householdId: input.householdId,
+        taskId: input.taskId,
+        proposedByMemberId: input.memberId,
+        proposalType: "update",
+        payload,
+        note: input.note || null,
+      });
+
+      const recipients = Array.from(new Set(Array.isArray(task.assignedTo) ? task.assignedTo : []));
+      for (const recipientId of recipients) {
+        if (recipientId === input.memberId) continue;
+        await createNotification({
+          householdId: input.householdId,
+          memberId: recipientId,
+          type: "general",
+          title: "Änderungsvorschlag für Aufgabe",
+          message: `${member.memberName} hat eine Änderung für „${task.name}“ vorgeschlagen.`,
+          relatedTaskId: task.id,
+        });
+      }
+      return { id: Number(result.insertId), success: true };
+    }),
+
+  /** Offene Vorschläge einer Aufgabe einschließlich der Person, die sie eingereicht hat. */
+  listTaskChangeProposals: publicProcedure
+    .input(z.object({ householdId: z.number(), taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { taskChangeProposals, householdMembers } = await import("../../drizzle/schema");
+      return db.select({
+        id: taskChangeProposals.id,
+        proposalType: taskChangeProposals.proposalType,
+        payload: taskChangeProposals.payload,
+        note: taskChangeProposals.note,
+        status: taskChangeProposals.status,
+        createdAt: taskChangeProposals.createdAt,
+        proposedByMemberId: taskChangeProposals.proposedByMemberId,
+        proposedByMemberName: householdMembers.memberName,
+      })
+        .from(taskChangeProposals)
+        .innerJoin(householdMembers, eq(taskChangeProposals.proposedByMemberId, householdMembers.id))
+        .where(and(
+          eq(taskChangeProposals.householdId, input.householdId),
+          eq(taskChangeProposals.taskId, input.taskId),
+          eq(taskChangeProposals.status, "pending"),
+        ))
+        .orderBy(asc(taskChangeProposals.createdAt));
+    }),
+
+  /** Verantwortliche Mitglieder nehmen einen Änderungsvorschlag an oder lehnen ihn ab. */
+  reviewTaskChangeProposal: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      taskId: z.number(),
+      proposalId: z.number(),
+      memberId: z.number(),
+      decision: z.enum(["approved", "rejected"]),
+      reviewNote: z.string().trim().max(2_000).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const task = await getTaskById(input.taskId);
+      if (!task || task.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe nicht gefunden" });
+      }
+      if (!canReviewTaskProposal(task.assignedTo, input.memberId)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Nur verantwortliche Mitglieder dürfen Vorschläge entscheiden." });
+      }
+      const reviewer = await getHouseholdMemberById(input.memberId);
+      if (!reviewer || reviewer.householdId !== input.householdId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Mitglied gehört nicht zu diesem Haushalt." });
+      }
+      const { taskChangeProposals } = await import("../../drizzle/schema");
+      const proposals = await db.select().from(taskChangeProposals).where(and(
+        eq(taskChangeProposals.id, input.proposalId),
+        eq(taskChangeProposals.householdId, input.householdId),
+        eq(taskChangeProposals.taskId, input.taskId),
+        eq(taskChangeProposals.status, "pending"),
+      )).limit(1);
+      const proposal = proposals[0];
+      if (!proposal) throw new TRPCError({ code: "NOT_FOUND", message: "Offener Änderungsvorschlag nicht gefunden" });
+
+      if (input.decision === "approved" && proposal.proposalType === "update") {
+        const payload = (proposal.payload ?? {}) as Record<string, unknown>;
+        const updates: { name?: string; description?: string | null } = {};
+        if (typeof payload.name === "string") updates.name = payload.name;
+        if (typeof payload.description === "string" || payload.description === null) updates.description = payload.description;
+        if (Object.keys(updates).length > 0) await updateTask(input.taskId, updates);
+      }
+      await db.update(taskChangeProposals).set({
+        status: input.decision,
+        reviewedByMemberId: input.memberId,
+        reviewNote: input.reviewNote || null,
+        reviewedAt: new Date(),
+      }).where(eq(taskChangeProposals.id, input.proposalId));
+      await createNotification({
+        householdId: input.householdId,
+        memberId: proposal.proposedByMemberId,
+        type: "general",
+        title: "Änderungsvorschlag entschieden",
+        message: input.decision === "approved"
+          ? `Dein Änderungsvorschlag für „${task.name}“ wurde angenommen.`
+          : `Dein Änderungsvorschlag für „${task.name}“ wurde abgelehnt.`,
+        relatedTaskId: task.id,
+      });
+      return { success: true };
     }),
 });
