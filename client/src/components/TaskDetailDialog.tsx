@@ -32,7 +32,7 @@ import { PDFViewer } from "@/components/PDFViewer";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
-import { getTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
+import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
 import {
   getFollowupClosure,
   getPrerequisiteClosure,
@@ -293,16 +293,22 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
 
-  const { data: existingTaskCategories = [] } = trpc.tasks.getTaskCategories.useQuery(
+  const { data: existingTaskCategories } = trpc.tasks.getTaskCategories.useQuery(
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open },
+  );
+  const loadedCategoryIds = useMemo(
+    () => getTaskCategoryIds(existingTaskCategories ?? []),
+    [existingTaskCategories],
   );
 
   useEffect(() => {
     if (task && open) {
-      setSelectedCategoryIds(getTaskCategoryIds(existingTaskCategories));
+      setSelectedCategoryIds((currentIds) => {
+        return haveSameTaskCategoryIds(currentIds, loadedCategoryIds) ? currentIds : loadedCategoryIds;
+      });
     }
-  }, [task?.id, open, existingTaskCategories]);
+  }, [task?.id, open, loadedCategoryIds]);
   const [isDurationExpanded, setIsDurationExpanded] = useState(false); // Default: collapsed
   const [isRepeatExpanded, setIsRepeatExpanded] = useState(false); // Default: collapsed
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded

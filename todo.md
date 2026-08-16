@@ -3700,6 +3700,10 @@
 - [x] Übersicht beim Öffnen beziehungsweise Wechseln eines Haushalts anzeigen
 - [x] Besuchszeitpunkt erst nach erfolgreicher Anzeige aktualisieren
 
+## Bug: Aufgaben-Bearbeitungsdialog stürzt ab (2026-08-16)
+- [x] Absturz beim Öffnen des Bearbeitungsdialogs in der Aufgabenansicht reproduzieren und Ursache beheben
+- [x] Bearbeitungsdialog mit Aufgaben ohne optionale Daten und mit Kategorien absichern
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt
