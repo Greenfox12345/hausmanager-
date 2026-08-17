@@ -1,184 +1,141 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createCaller } from "./_core/trpc";
-import { db } from "./db";
-import { households, householdMembers, tasks } from "../drizzle/schema";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
+import { users } from "../drizzle/schema";
+import type { TrpcContext } from "./_core/context";
+import {
+  createHousehold,
+  createHouseholdMember,
+  deleteHousehold,
+  getDb,
+  getUserByOpenId,
+  upsertUser,
+} from "./db";
+import { appRouter } from "./routers";
 
-describe("Task Rotation Functionality", () => {
-  let testHouseholdId: number;
-  let testMember1Id: number;
-  let testMember2Id: number;
-  let testTaskId: number;
+type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
+
+function createTestContext(user: AuthenticatedUser): TrpcContext {
+  return {
+    user,
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: { clearCookie: () => {} } as TrpcContext["res"],
+  };
+}
+
+describe("Aufgabenrotation über die aktuelle tRPC-Schnittstelle", () => {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const testUserOpenId = `integration-task-rotation-${suffix}`;
+  let testUser: AuthenticatedUser;
+  let householdId: number;
+  let member1Id: number;
+  let member2Id: number;
+  let rotationTaskId: number;
+
+  const caller = () => appRouter.createCaller(createTestContext(testUser));
 
   beforeAll(async () => {
-    // Create test household
-    const [household] = await db
-      .insert(households)
-      .values({
-        name: "Test Rotation Household",
-        password: "test123",
-      })
-      .$returningId();
-    testHouseholdId = household.id;
+    await upsertUser({
+      openId: testUserOpenId,
+      name: "Integrationstest Aufgabenrotation",
+      email: `${testUserOpenId}@example.test`,
+      loginMethod: "email",
+    });
+    const createdUser = await getUserByOpenId(testUserOpenId);
+    if (!createdUser) throw new Error("Testbenutzer konnte nicht angelegt werden.");
+    testUser = createdUser;
 
-    // Create test members
-    const [member1] = await db
-      .insert(householdMembers)
-      .values({
-        householdId: testHouseholdId,
-        memberName: "Member 1",
-        password: "pass1",
-      })
-      .$returningId();
-    testMember1Id = member1.id;
+    householdId = await createHousehold(`Testhaushalt Rotation ${suffix}`, "test_hash", testUser.id);
+    member1Id = await createHouseholdMember({
+      householdId,
+      userId: testUser.id,
+      memberName: "Rotation Eins",
+      passwordHash: "test_hash",
+    });
+    member2Id = await createHouseholdMember({
+      householdId,
+      userId: null,
+      memberName: "Rotation Zwei",
+      passwordHash: "test_hash",
+    });
 
-    const [member2] = await db
-      .insert(householdMembers)
-      .values({
-        householdId: testHouseholdId,
-        memberName: "Member 2",
-        password: "pass2",
-      })
-      .$returningId();
-    testMember2Id = member2.id;
+    const task = await caller().tasks.add({
+      householdId,
+      memberId: member1Id,
+      name: "Rotierende Testaufgabe",
+      frequency: "weekly",
+      repeatInterval: 1,
+      repeatUnit: "weeks",
+      enableRotation: true,
+      requiredPersons: 1,
+      assignedTo: [member1Id],
+    });
+    rotationTaskId = task.id;
   });
 
   afterAll(async () => {
-    // Clean up test data
-    if (testTaskId) {
-      await db.delete(tasks).where(eq(tasks.id, testTaskId));
+    if (householdId) await deleteHousehold(householdId);
+    const db = await getDb();
+    if (db && testUser) {
+      await db.delete(users).where(eq(users.id, testUser.id));
     }
-    await db
-      .delete(householdMembers)
-      .where(eq(householdMembers.householdId, testHouseholdId));
-    await db.delete(households).where(eq(households.id, testHouseholdId));
   });
 
-  it("should create task with rotation enabled", async () => {
-    const caller = createCaller({
-      user: {
-        openId: "test-openid",
-        name: "Test User",
-        role: "user",
-        householdId: testHouseholdId,
-        memberId: testMember1Id,
-      },
+  it("speichert und liest einen Rotationsplan", async () => {
+    const result = await caller().tasks.setRotationSchedule({
+      taskId: rotationTaskId,
+      householdId,
+      memberId: member1Id,
+      schedule: [
+        { occurrenceNumber: 1, members: [{ position: 1, memberId: member1Id }], notes: "Erste Runde" },
+        { occurrenceNumber: 2, members: [{ position: 1, memberId: member2Id }], notes: "Zweite Runde" },
+        { occurrenceNumber: 3, members: [{ position: 1, memberId: member1Id }] },
+      ],
     });
 
-    const task = await caller.tasks.create({
-      name: "Rotating Task",
-      householdId: testHouseholdId,
-      assignedTo: [testMember1Id],
-      dueDate: new Date("2026-03-01").toISOString(),
-      enableRepeat: true,
-      repeatInterval: 1,
-      repeatUnit: "weeks",
-      enableRotation: true,
-      requiredPersons: 1,
-      excludedMembers: [],
+    expect(result).toEqual({ success: true });
+    const schedule = await caller().tasks.getRotationSchedule({ taskId: rotationTaskId });
+    expect(schedule).toHaveLength(3);
+    expect(schedule[0]).toMatchObject({
+      occurrenceNumber: 1,
+      members: [{ position: 1, memberId: member1Id }],
+      notes: "Erste Runde",
     });
-
-    expect(task).toBeDefined();
-    expect(task.enableRotation).toBe(true);
-    expect(task.requiredPersons).toBe(1);
-    testTaskId = task.id;
+    expect(schedule[1]?.members).toEqual([{ position: 1, memberId: member2Id }]);
   });
 
-  it("should retrieve rotation schedule for task", async () => {
-    const caller = createCaller({
-      user: {
-        openId: "test-openid",
-        name: "Test User",
-        role: "user",
-        householdId: testHouseholdId,
-        memberId: testMember1Id,
-      },
-    });
-
-    const schedule = await caller.tasks.getRotationSchedule({
-      taskId: testTaskId,
-    });
-
-    expect(schedule).toBeDefined();
-    expect(Array.isArray(schedule)).toBe(true);
-    // Schedule should have at least one entry
-    expect(schedule.length).toBeGreaterThan(0);
-  });
-
-  it("should update rotation schedule", async () => {
-    const caller = createCaller({
-      user: {
-        openId: "test-openid",
-        name: "Test User",
-        role: "user",
-        householdId: testHouseholdId,
-        memberId: testMember1Id,
-      },
-    });
-
-    const schedule = await caller.tasks.getRotationSchedule({
-      taskId: testTaskId,
-    });
-
-    // Update first occurrence to assign member 2
-    const updatedSchedule = schedule.map((occ, idx) => ({
-      ...occ,
-      assignedMemberIds: idx === 0 ? [testMember2Id] : occ.assignedMemberIds,
+  it("übernimmt Änderungen am gespeicherten Rotationsplan", async () => {
+    const current = await caller().tasks.getRotationSchedule({ taskId: rotationTaskId });
+    const updated = current.map((occurrence) => ({
+      ...occurrence,
+      members: occurrence.occurrenceNumber === 1
+        ? [{ position: 1, memberId: member2Id }]
+        : occurrence.members,
     }));
 
-    const result = await caller.tasks.updateRotationSchedule({
-      taskId: testTaskId,
-      schedule: updatedSchedule,
+    const result = await caller().tasks.setRotationSchedule({
+      taskId: rotationTaskId,
+      householdId,
+      memberId: member1Id,
+      schedule: updated,
     });
 
-    expect(result.success).toBe(true);
-
-    // Verify the update
-    const newSchedule = await caller.tasks.getRotationSchedule({
-      taskId: testTaskId,
-    });
-    expect(newSchedule[0].assignedMemberIds).toContain(testMember2Id);
+    expect(result).toEqual({ success: true });
+    const schedule = await caller().tasks.getRotationSchedule({ taskId: rotationTaskId });
+    expect(schedule[0]?.members).toEqual([{ position: 1, memberId: member2Id }]);
   });
 
-  it("should handle rotation with excluded members", async () => {
-    const caller = createCaller({
-      user: {
-        openId: "test-openid",
-        name: "Test User",
-        role: "user",
-        householdId: testHouseholdId,
-        memberId: testMember1Id,
-      },
-    });
-
-    // Create task with member 2 excluded
-    const task = await caller.tasks.create({
-      name: "Task with Exclusion",
-      householdId: testHouseholdId,
-      assignedTo: [testMember1Id],
-      dueDate: new Date("2026-03-15").toISOString(),
-      enableRepeat: true,
-      repeatInterval: 1,
-      repeatUnit: "weeks",
+  it("speichert ausgeschlossene Mitglieder für eine Rotationsaufgabe", async () => {
+    const task = await caller().tasks.add({
+      householdId,
+      memberId: member1Id,
+      name: "Rotation mit Ausschluss",
+      frequency: "weekly",
       enableRotation: true,
       requiredPersons: 1,
-      excludedMembers: [testMember2Id],
+      excludedMembers: [member2Id],
     });
 
-    expect(task.enableRotation).toBe(true);
-
-    // Get rotation schedule
-    const schedule = await caller.tasks.getRotationSchedule({
-      taskId: task.id,
-    });
-
-    // Member 2 should not be in any occurrence
-    const hasMember2 = schedule.some((occ) =>
-      occ.assignedMemberIds.includes(testMember2Id)
-    );
-    expect(hasMember2).toBe(false);
-
-    // Clean up
-    await db.delete(tasks).where(eq(tasks.id, task.id));
+    const exclusions = await caller().tasks.getRotationExclusions({ taskId: task.id });
+    expect(exclusions).toEqual([{ memberId: member2Id }]);
   });
 });

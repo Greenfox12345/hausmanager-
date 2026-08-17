@@ -39,7 +39,9 @@ Der ursprüngliche vollständige Testlauf ohne `TEST_DATABASE_URL` ergab **354 b
 
 Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **37 Testdateien und 352 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
 
-Die Integrationskonfiguration wurde zusätzlich ohne Datenbankverbindung gesammelt: Alle **24 Testdateien mit 126 Tests** lassen sich laden und werden bei einem absichtlich nicht passenden Testnamen erwartungsgemäß übersprungen. Dabei wurde ein veralteter Test für gemeinsame Haushalte repariert, der auf eine nicht vorhandene Hilfsdatei verwies. Er verwendet jetzt die aktuelle Router-Schnittstelle, erzeugt seine Testdaten isoliert und bereinigt sie nach dem Lauf.
+Die Integrationskonfiguration wurde zusätzlich ohne Datenbankverbindung gesammelt: Alle **24 Testdateien mit 125 Tests** lassen sich laden und werden bei einem absichtlich nicht passenden Testnamen erwartungsgemäß übersprungen. Das bestätigt, dass keine Modul- oder Importfehler die eigentlichen Datenbanktests mehr blockieren.
+
+Das Audit hat drei veraltete Tests gezielt modernisiert. Die Tests für gemeinsame Haushalte, Aufgabenerstellung und Aufgabenrotation verwenden jetzt die aktuelle Router-Schnittstelle, erzeugen isolierte Daten in einer Testdatenbank und bereinigen diese nach dem Lauf. Der Test für die Anzeige verantwortlicher Personen erzeugt nun ebenfalls verbindlich eigene Daten, statt in einer leeren Testdatenbank ohne Assertion erfolgreich zu sein. Die vollständige fachliche Ausführung dieser Tests bleibt der nächste Schritt, sobald eine isolierte Testdatenbank verfügbar ist.
 
 > Das ursprüngliche Ergebnis ist kein Hinweis auf 48 bestätigte Funktionsfehler. Es bestätigt, dass die Schutzvorkehrung gegen versehentlichen Zugriff auf Produktivdaten greift. Erst ein Lauf gegen eine isolierte Testdatenbank kann diese Integrationstests fachlich bewerten.
 

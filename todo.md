@@ -3773,3 +3773,6 @@
 ## Testtrennung verbessern (2026-08-17)
 - [x] Testkonfiguration prüfen und datenbankfreie Unit-Tests klar, ohne Ausblendung von Integrationstests, von datenbankgestützten Tests abgrenzen (24 Datenbanktests als `.integration.test.ts` gekennzeichnet; `pnpm test` besteht mit 37 Dateien und 352 Tests; `pnpm test:integration` bleibt durch `TEST_DATABASE_URL` geschützt)
 - [x] Defekte Hilfsdatei-Referenz im Integrationstest für gemeinsame Haushalte reparieren (`shared-households.integration.test.ts` nutzt jetzt die aktuelle Router-Schnittstelle sowie isolierte Anlage und Bereinigung der Testdaten; alle 24 Integrationstestdateien lassen sich laden)
+
+## Integrationstest-Audit fortsetzen (2026-08-17)
+- [x] Verbliebene Integrationstests statisch auf veraltete Router-Rückgaben, alte Imports und fehlende Testhilfen prüfen und bestätigte Abweichungen korrigieren (gemeinsame Haushalte, Aufgabenerstellung, Verantwortlichen-Anzeige und Aufgabenrotation auf aktuelle Schnittstellen sowie isolierte Daten umgestellt; alle 24 Dateien mit 125 Tests lassen sich laden)

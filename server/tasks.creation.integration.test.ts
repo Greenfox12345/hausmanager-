@@ -1,115 +1,140 @@
-import { describe, expect, it } from "vitest";
-import { appRouter } from "./routers";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { eq } from "drizzle-orm";
+import { users } from "../drizzle/schema";
 import type { TrpcContext } from "./_core/context";
+import {
+  createHousehold,
+  createHouseholdMember,
+  deleteHousehold,
+  getDb,
+  getUserByOpenId,
+  upsertUser,
+} from "./db";
+import { appRouter } from "./routers";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(): { ctx: TrpcContext } {
-  const user: AuthenticatedUser = {
-    id: 1,
-    openId: "sample-user",
-    email: "sample@example.com",
-    name: "Sample User",
-    loginMethod: "manus",
-    role: "user",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
-  };
-
-  const ctx: TrpcContext = {
+function createTestContext(user: AuthenticatedUser): TrpcContext {
+  return {
     user,
-    req: {
-      protocol: "https",
-      headers: {},
-    } as TrpcContext["req"],
-    res: {
-      clearCookie: () => {},
-    } as TrpcContext["res"],
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: { clearCookie: () => {} } as TrpcContext["res"],
   };
-
-  return { ctx };
 }
 
-describe("tasks.add with new fields", () => {
-  it("accepts task creation with due date and time", async () => {
-    const { ctx } = createAuthContext();
-    const caller = appRouter.createCaller(ctx);
+describe("tasks.add mit erweiterten Feldern", () => {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const testUserOpenId = `integration-task-create-${suffix}`;
+  let testUser: AuthenticatedUser;
+  let householdId: number;
+  let creatorMemberId: number;
+  let assigneeMemberId: number;
+  let excludedMemberId: number;
 
-    const input = {
-      householdId: 1,
-      memberId: 1,
-      name: "Test Task with Due Date",
-      description: "Task with specific due date and time",
-      dueDate: "2025-12-25",
+  beforeAll(async () => {
+    await upsertUser({
+      openId: testUserOpenId,
+      name: "Integrationstest Aufgabenerstellung",
+      email: `${testUserOpenId}@example.test`,
+      loginMethod: "email",
+    });
+    const createdUser = await getUserByOpenId(testUserOpenId);
+    if (!createdUser) throw new Error("Testbenutzer konnte nicht angelegt werden.");
+    testUser = createdUser;
+
+    householdId = await createHousehold(`Testhaushalt Aufgabenanlage ${suffix}`, "test_hash", testUser.id);
+    creatorMemberId = await createHouseholdMember({
+      householdId,
+      userId: testUser.id,
+      memberName: "Ersteller",
+      passwordHash: "test_hash",
+    });
+    assigneeMemberId = await createHouseholdMember({
+      householdId,
+      userId: null,
+      memberName: "Verantwortlich",
+      passwordHash: "test_hash",
+    });
+    excludedMemberId = await createHouseholdMember({
+      householdId,
+      userId: null,
+      memberName: "Ausgeschlossen",
+      passwordHash: "test_hash",
+    });
+  });
+
+  afterAll(async () => {
+    if (householdId) await deleteHousehold(householdId);
+    const db = await getDb();
+    if (db && testUser) {
+      await db.delete(users).where(eq(users.id, testUser.id));
+    }
+  });
+
+  it("akzeptiert die Anlage mit Datum und Uhrzeit", async () => {
+    const caller = appRouter.createCaller(createTestContext(testUser));
+    const result = await caller.tasks.add({
+      householdId,
+      memberId: creatorMemberId,
+      name: "Aufgabe mit Termin",
+      description: "Aufgabe mit Datum und Uhrzeit",
+      dueDate: "2026-12-25",
       dueTime: "14:30",
-      frequency: "once" as const,
-    };
+      frequency: "once",
+    });
 
-    // Should not throw
-    await expect(caller.tasks.add(input)).resolves.toBeDefined();
+    expect(result.id).toEqual(expect.any(Number));
   });
 
-  it("accepts task creation with repeat interval", async () => {
-    const { ctx } = createAuthContext();
-    const caller = appRouter.createCaller(ctx);
-
-    const input = {
-      householdId: 1,
-      memberId: 1,
-      name: "Repeating Task",
-      description: "Task that repeats every 3 days",
-      frequency: "custom" as const,
+  it("akzeptiert eine benutzerdefinierte Wiederholung", async () => {
+    const caller = appRouter.createCaller(createTestContext(testUser));
+    const result = await caller.tasks.add({
+      householdId,
+      memberId: creatorMemberId,
+      name: "Wiederkehrende Aufgabe",
+      description: "Wiederholt sich alle drei Tage",
+      frequency: "custom",
       repeatInterval: 3,
-      repeatUnit: "days" as const,
-    };
+      repeatUnit: "days",
+    });
 
-    // Should not throw
-    await expect(caller.tasks.add(input)).resolves.toBeDefined();
+    expect(result.id).toEqual(expect.any(Number));
   });
 
-  it("accepts task creation with rotation configuration", async () => {
-    const { ctx } = createAuthContext();
-    const caller = appRouter.createCaller(ctx);
-
-    const input = {
-      householdId: 1,
-      memberId: 1,
-      name: "Rotating Task",
-      description: "Task with rotation enabled",
-      frequency: "weekly" as const,
+  it("akzeptiert eine Rotation mit ausgeschlossenen Mitgliedern", async () => {
+    const caller = appRouter.createCaller(createTestContext(testUser));
+    const result = await caller.tasks.add({
+      householdId,
+      memberId: creatorMemberId,
+      name: "Rotierende Aufgabe",
+      description: "Aufgabe mit aktivierter Rotation",
+      frequency: "weekly",
       enableRotation: true,
-      requiredPersons: 2,
-      excludedMembers: [3, 4], // Member IDs to exclude
-    };
+      requiredPersons: 1,
+      excludedMembers: [excludedMemberId],
+    });
 
-    // Should not throw
-    await expect(caller.tasks.add(input)).resolves.toBeDefined();
+    expect(result.id).toEqual(expect.any(Number));
   });
 
-  it("accepts task creation with all new fields combined", async () => {
-    const { ctx } = createAuthContext();
-    const caller = appRouter.createCaller(ctx);
-
-    const input = {
-      householdId: 1,
-      memberId: 1,
-      name: "Complex Task",
-      description: "Task with all features",
-      dueDate: "2025-12-31",
+  it("liefert bei einer kombinierten Eingabe die aktuelle Rückgabeform mit id", async () => {
+    const caller = appRouter.createCaller(createTestContext(testUser));
+    const result = await caller.tasks.add({
+      householdId,
+      memberId: creatorMemberId,
+      name: "Komplexe Aufgabe",
+      description: "Aufgabe mit mehreren erweiterten Feldern",
+      dueDate: "2026-12-31",
       dueTime: "23:59",
-      frequency: "custom" as const,
+      frequency: "custom",
       repeatInterval: 2,
-      repeatUnit: "weeks" as const,
+      repeatUnit: "weeks",
       enableRotation: true,
-      requiredPersons: 3,
-      excludedMembers: [5],
-      assignedTo: [2], // Schema erwartet number[] (Array von Member-IDs)
-    };
+      requiredPersons: 1,
+      excludedMembers: [excludedMemberId],
+      assignedTo: [assigneeMemberId],
+    });
 
-    // Should not throw and return taskId
-    const result = await caller.tasks.add(input);
-    expect(result).toHaveProperty("taskId");
-    expect(typeof result.taskId).toBe("number");
+    expect(result).toEqual({ id: expect.any(Number) });
   });
 });
