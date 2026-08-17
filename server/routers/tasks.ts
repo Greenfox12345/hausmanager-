@@ -264,6 +264,28 @@ async function buildUpdateChanges(
     metadata.fieldChanges.frequency = { old: currentTask.frequency, new: updates.frequency };
   }
 
+  if (updates.customFrequencyDays !== undefined && updates.customFrequencyDays !== currentTask.customFrequencyDays) {
+    changes.push(`Benutzerdefiniertes Intervall geändert von '${currentTask.customFrequencyDays ?? "–"}' zu '${updates.customFrequencyDays ?? "–"}'`);
+    metadata.fieldChanges.customFrequencyDays = { old: currentTask.customFrequencyDays, new: updates.customFrequencyDays };
+  }
+  if (updates.irregularRecurrence !== undefined && Boolean(updates.irregularRecurrence) !== Boolean(currentTask.irregularRecurrence)) {
+    changes.push(`Unregelmäßige Wiederholung geändert von '${currentTask.irregularRecurrence ? "Ja" : "Nein"}' zu '${updates.irregularRecurrence ? "Ja" : "Nein"}'`);
+    metadata.fieldChanges.irregularRecurrence = { old: Boolean(currentTask.irregularRecurrence), new: Boolean(updates.irregularRecurrence) };
+  }
+  if (updates.monthlyRecurrenceMode !== undefined && updates.monthlyRecurrenceMode !== currentTask.monthlyRecurrenceMode) {
+    const monthlyLabels: Record<string, string> = { same_date: "gleicher Kalendertag", same_weekday: "gleicher Wochentag" };
+    changes.push(`Monatliche Wiederholung geändert von '${monthlyLabels[currentTask.monthlyRecurrenceMode] ?? "–"}' zu '${monthlyLabels[updates.monthlyRecurrenceMode] ?? "–"}'`);
+    metadata.fieldChanges.monthlyRecurrenceMode = { old: currentTask.monthlyRecurrenceMode, new: updates.monthlyRecurrenceMode };
+  }
+  if (updates.monthlyWeekday !== undefined && updates.monthlyWeekday !== currentTask.monthlyWeekday) {
+    changes.push(`Monatlicher Wochentag geändert von '${currentTask.monthlyWeekday ?? "–"}' zu '${updates.monthlyWeekday ?? "–"}'`);
+    metadata.fieldChanges.monthlyWeekday = { old: currentTask.monthlyWeekday, new: updates.monthlyWeekday };
+  }
+  if (updates.monthlyOccurrence !== undefined && updates.monthlyOccurrence !== currentTask.monthlyOccurrence) {
+    changes.push(`Monatliches Vorkommen geändert von '${currentTask.monthlyOccurrence ?? "–"}' zu '${updates.monthlyOccurrence ?? "–"}'`);
+    metadata.fieldChanges.monthlyOccurrence = { old: currentTask.monthlyOccurrence, new: updates.monthlyOccurrence };
+  }
+
   // ── Repeat Interval ──
   if (updates.repeatInterval !== undefined && updates.repeatInterval !== currentTask.repeatInterval) {
     const oldVal = currentTask.repeatInterval ?? "–";
@@ -292,6 +314,15 @@ async function buildUpdateChanges(
     const oldVal = currentTask.requiredPersons ?? "–";
     changes.push(`Benötigte Personen geändert von '${oldVal}' zu '${updates.requiredPersons}'`);
     metadata.fieldChanges.requiredPersons = { old: currentTask.requiredPersons, new: updates.requiredPersons };
+  }
+
+  if (updates.durationDays !== undefined && updates.durationDays !== currentTask.durationDays) {
+    changes.push(`Dauer in Tagen geändert von '${currentTask.durationDays ?? "–"}' zu '${updates.durationDays ?? "–"}'`);
+    metadata.fieldChanges.durationDays = { old: currentTask.durationDays, new: updates.durationDays };
+  }
+  if (updates.durationMinutes !== undefined && updates.durationMinutes !== currentTask.durationMinutes) {
+    changes.push(`Dauer in Minuten geändert von '${currentTask.durationMinutes ?? "–"}' zu '${updates.durationMinutes ?? "–"}'`);
+    metadata.fieldChanges.durationMinutes = { old: currentTask.durationMinutes, new: updates.durationMinutes };
   }
 
   // ── Project IDs ──
@@ -2015,6 +2046,10 @@ export const tasksRouter = router({
       const payload: Record<string, unknown> = { ...(input.changes ?? {}) };
       if (input.name !== undefined) payload.name = input.name;
       if (input.description !== undefined) payload.description = input.description;
+      const proposedDueDate = typeof payload.dueDate === "string"
+        ? new Date(`${payload.dueDate}${typeof payload.dueTime === "string" ? `T${payload.dueTime}` : "T00:00"}`)
+        : undefined;
+      const proposedChangeDetails = await buildUpdateChanges(task, payload, proposedDueDate, input.householdId);
       const proposalFieldLabels: Record<string, string> = {
         name: "Name", description: "Beschreibung", assignedTo: "Verantwortliche", frequency: "Wiederholung",
         dueDate: "Datum", dueTime: "Uhrzeit", categoryIds: "Kategorien", projectIds: "Projekte",
@@ -2050,7 +2085,13 @@ export const tasksRouter = router({
         action: "change_proposed",
         description: `${member.memberName} hat eine Änderung für „${task.name}“ vorgeschlagen${proposedFieldSummary}.`,
         relatedItemId: task.id,
-        metadata: { proposalId: Number(result.insertId), fields: Object.keys(payload) },
+        metadata: {
+          proposalId: Number(result.insertId),
+          fields: Object.keys(payload),
+          fieldChanges: proposedChangeDetails.metadata.fieldChanges,
+          proposalPayload: payload,
+          changeSummary: proposedChangeDetails.changes,
+        },
       });
       return { id: Number(result.insertId), success: true };
     }),
@@ -2117,6 +2158,12 @@ export const tasksRouter = router({
         reviewedAt: new Date(),
       }).where(eq(taskChangeProposals.id, proposal.id));
 
+      const withdrawnPayload = (proposal.payload ?? {}) as Record<string, unknown>;
+      const withdrawnDueDate = typeof withdrawnPayload.dueDate === "string"
+        ? new Date(`${withdrawnPayload.dueDate}${typeof withdrawnPayload.dueTime === "string" ? `T${withdrawnPayload.dueTime}` : "T00:00"}`)
+        : undefined;
+      const withdrawnChangeDetails = await buildUpdateChanges(task, withdrawnPayload, withdrawnDueDate, input.householdId);
+
       const recipients = Array.from(new Set(Array.isArray(task.assignedTo) ? task.assignedTo : []));
       for (const recipientId of recipients) {
         if (recipientId === input.memberId) continue;
@@ -2136,7 +2183,13 @@ export const tasksRouter = router({
         action: "change_proposal_withdrawn",
         description: `${member.memberName} hat einen Änderungsvorschlag für „${task.name}“ zurückgezogen.`,
         relatedItemId: task.id,
-        metadata: { proposalId: proposal.id, proposedByMemberId: input.memberId },
+        metadata: {
+          proposalId: proposal.id,
+          proposedByMemberId: input.memberId,
+          fieldChanges: withdrawnChangeDetails.metadata.fieldChanges,
+          proposalPayload: withdrawnPayload,
+          changeSummary: withdrawnChangeDetails.changes,
+        },
       });
       return { success: true };
     }),
@@ -2268,6 +2321,10 @@ export const tasksRouter = router({
         reviewedAt: new Date(),
       }).where(eq(taskChangeProposals.id, input.proposalId));
       const reviewedPayload = (proposal.payload ?? {}) as Record<string, unknown>;
+      const reviewedDueDate = typeof reviewedPayload.dueDate === "string"
+        ? new Date(`${reviewedPayload.dueDate}${typeof reviewedPayload.dueTime === "string" ? `T${reviewedPayload.dueTime}` : "T00:00"}`)
+        : undefined;
+      const reviewedChangeDetails = await buildUpdateChanges(task, reviewedPayload, reviewedDueDate, input.householdId);
       const resultingTaskName = typeof reviewedPayload.name === "string" && reviewedPayload.name.trim()
         ? reviewedPayload.name.trim()
         : task.name;
@@ -2297,7 +2354,13 @@ export const tasksRouter = router({
           ? `${reviewer.memberName} hat einen Änderungsvorschlag für „${resultingTaskName}“ angenommen${reviewFieldSummary}.`
           : `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ abgelehnt${reviewFieldSummary}.`,
         relatedItemId: task.id,
-        metadata: { proposalId: proposal.id, proposedByMemberId: proposal.proposedByMemberId },
+        metadata: {
+          proposalId: proposal.id,
+          proposedByMemberId: proposal.proposedByMemberId,
+          fieldChanges: reviewedChangeDetails.metadata.fieldChanges,
+          proposalPayload: reviewedPayload,
+          changeSummary: reviewedChangeDetails.changes,
+        },
       });
       return { success: true };
     }),

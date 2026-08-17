@@ -3730,6 +3730,18 @@
 - [x] Vorschlagsrücknahme deutlich im Verlauf protokollieren
 - [x] Vorschlagsrücknahme erst nach ausdrücklicher Bestätigung ausführen
 
+## Vollständige Änderungsdetails im Aufgabenverlauf (2026-08-17)
+- [x] Alle direkt geänderten Aufgabenfelder mit altem und neuem Wert im Verlauf speichern
+- [x] Vorschlagseinreichungen und Entscheidungen mit vollständigem Feldvergleich im Verlauf speichern
+- [x] Technische Werte im Verlauf in verständliche, lokalisierte Angaben auflösen
+- [x] Vollständige Änderungsdetails im Aufgabenverlauf lesbar darstellen
+
+## Vollständige Verkaufseinträge (2026-08-17)
+- [ ] Bestehende Verkaufsdaten und fehlende relevante Angaben prüfen
+- [ ] Preis, Zustand, Beschreibung, Übergabe und Verkaufsstatus vollständig erfassen
+- [ ] Anbieterinformationen und zugehörige Inventardaten verständlich anzeigen
+- [ ] Verkaufseinträge in allen unterstützten Sprachen vollständig übersetzen
+
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
 - [x] Hardcoded "Verantwortlich:" in TaskDetailDialog.tsx durch t("tasks:dialog.responsible") ersetzt

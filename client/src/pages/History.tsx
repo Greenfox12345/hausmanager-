@@ -372,6 +372,44 @@ export default function History() {
                           </div>
                         )}
 
+                        {activity.metadata && (activity.metadata as any).fieldChanges && Object.keys((activity.metadata as any).fieldChanges).length > 0 && (() => {
+                          const fieldChanges = (activity.metadata as any).fieldChanges as Record<string, any>;
+                          const fieldLabels: Record<string, string> = {
+                            name: t("tasks:labels.name", "Name"), description: t("common:labels.description", "Beschreibung"),
+                            assignedTo: t("tasks:labels.assignedTo", "Verantwortlich"), dueDate: t("tasks:dueDate", "Fälligkeitsdatum"),
+                            frequency: t("tasks:labels.frequency", "Wiederholung"), repeatInterval: t("tasks:labels.repeatInterval", "Intervall"),
+                            repeatUnit: t("tasks:labels.repeatUnit", "Einheit"), enableRotation: t("tasks:labels.rotation", "Rotation"),
+                            requiredPersons: t("tasks:labels.requiredPersons", "Benötigte Personen"), projectIds: t("projects:title", "Projekte"),
+                            customFrequencyDays: t("tasks:labels.customFrequencyDays", "Benutzerdefiniertes Intervall"),
+                            irregularRecurrence: t("tasks:labels.irregularRecurrence", "Unregelmäßige Wiederholung"),
+                            monthlyRecurrenceMode: t("tasks:labels.monthlyRecurrence", "Monatliche Wiederholung"),
+                            monthlyWeekday: t("tasks:labels.monthlyWeekday", "Monatlicher Wochentag"),
+                            monthlyOccurrence: t("tasks:labels.monthlyOccurrence", "Monatliches Vorkommen"),
+                            durationDays: t("tasks:labels.durationDays", "Dauer in Tagen"), durationMinutes: t("tasks:labels.durationMinutes", "Dauer in Minuten"),
+                          };
+                          const renderValue = (change: any, side: "old" | "new") => {
+                            const namedValue = side === "old" ? change?.oldNames : change?.newNames;
+                            const value = namedValue ?? change?.[side];
+                            if (value === undefined || value === null || value === "") return "—";
+                            if (typeof value === "boolean") return value ? t("common:yes", "Ja") : t("common:no", "Nein");
+                            if (Array.isArray(value)) return value.join(", ") || "—";
+                            if (typeof value === "object") return JSON.stringify(value);
+                            return String(value);
+                          };
+                          return (
+                            <div className="mt-2 rounded-md border border-amber-200 bg-amber-50/60 p-2 text-xs">
+                              {Object.entries(fieldChanges).map(([field, change]) => (
+                                <div key={field} className="break-words py-0.5">
+                                  <span className="font-semibold">{fieldLabels[field] ?? field}:</span>{" "}
+                                  <span className="text-muted-foreground line-through">{renderValue(change, "old")}</span>
+                                  <span className="mx-1">→</span>
+                                  <span className="font-medium text-green-700">{renderValue(change, "new")}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
                         {/* Linked Task Badge (for borrow entries linked to a task) */}
                         {activity.activityType === "borrow" && (activity as any).linkedTaskDetails && (() => {
                           const ltd = (activity as any).linkedTaskDetails;

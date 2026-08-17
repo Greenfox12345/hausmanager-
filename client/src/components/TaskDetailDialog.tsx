@@ -3245,6 +3245,32 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <div className="space-y-3">
                         {taskHistory.filter((a: any) => a.action !== 'completed').map((activity: any) => {
                           const activityMember = ownMembers.find(m => m.id === activity.memberId) || members.find(m => m.memberId === activity.memberId);
+                          const fieldChanges = activity.metadata?.fieldChanges as Record<string, any> | undefined;
+                          const fieldLabels: Record<string, string> = {
+                            name: t("dialog.taskName", "Aufgabenname"), description: t("dialog.description", "Beschreibung"),
+                            assignedTo: t("dialog.responsible", "Verantwortlich"), dueDate: t("dialog.dueDate", "Fälligkeitsdatum"),
+                            frequency: t("dialog.frequency", "Wiederholung"), repeatInterval: t("dialog.repeatInterval", "Intervall"),
+                            repeatUnit: t("dialog.repeatUnit", "Einheit"), enableRotation: t("dialog.enableRotation", "Verantwortung rotieren"),
+                            requiredPersons: t("dialog.requiredPersons", "Benötigte Personen"), projectIds: t("dialog.projects", "Projekte"),
+                            sharedHouseholdIds: t("dialog.sharedHouseholds", "Geteilte Haushalte"), nonResponsiblePermission: t("dialog.nonResponsiblePermission", "Berechtigung"),
+                            customFrequencyDays: t("dialog.customFrequencyDays", "Benutzerdefiniertes Intervall"),
+                            irregularRecurrence: t("dialog.irregularRecurrence", "Unregelmäßige Wiederholung"),
+                            monthlyRecurrenceMode: t("dialog.monthlyRecurrence", "Monatliche Wiederholung"),
+                            monthlyWeekday: t("dialog.monthlyWeekday", "Monatlicher Wochentag"),
+                            monthlyOccurrence: t("dialog.monthlyOccurrence", "Monatliches Vorkommen"),
+                            durationDays: t("dialog.durationDays", "Dauer in Tagen"), durationMinutes: t("dialog.durationMinutes", "Dauer in Minuten"),
+                          };
+                          const formatHistoryValue = (change: any, direction: "old" | "new") => {
+                            const namedValue = direction === "old" ? change?.oldNames : change?.newNames;
+                            const value = namedValue ?? change?.[direction];
+                            if (value === null || value === undefined || value === "") return "—";
+                            if (Array.isArray(value)) {
+                              return value.map((id) => ownMembers.find((candidate) => candidate.id === Number(id))?.memberName ?? `#${id}`).join(", ") || "—";
+                            }
+                            if (typeof value === "boolean") return value ? t("common:yes", "Ja") : t("common:no", "Nein");
+                            if (typeof value === "object") return JSON.stringify(value);
+                            return String(value);
+                          };
                           return (
                             <div key={activity.id} className="border rounded-lg p-4 space-y-2">
                               <div className="flex items-start justify-between">
@@ -3258,6 +3284,18 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     </span>
                                   </div>
                                   <p className="text-sm">{activity.description}</p>
+                                  {fieldChanges && Object.keys(fieldChanges).length > 0 && (
+                                    <div className="mt-2 space-y-1 rounded-md bg-muted/50 p-2 text-xs">
+                                      {Object.entries(fieldChanges).map(([field, change]) => (
+                                        <div key={field} className="break-words">
+                                          <strong>{fieldLabels[field] ?? field}:</strong>{" "}
+                                          <span className="text-muted-foreground line-through">{formatHistoryValue(change, "old")}</span>
+                                          <span className="mx-1">→</span>
+                                          <span className="font-medium text-green-700">{formatHistoryValue(change, "new")}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                   {activity.comment && (
                                     <p className="text-sm text-muted-foreground mt-2 italic">"{activity.comment}"</p>
                                   )}
