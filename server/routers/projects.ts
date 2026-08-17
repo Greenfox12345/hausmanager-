@@ -12,6 +12,7 @@ import {
 import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
 import { eq, and, inArray, desc, asc } from "drizzle-orm";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
+import { resolveProjectVariableQuantity } from "../../shared/projectVariableQuantity";
 import {
   planTemplates,
   planTemplateShoppingItems,
@@ -632,9 +633,9 @@ function resolveVarText(
 
 function resolveVarQuantity(
   quantity: string | null | undefined,
-  _variables: PlanVariable[]
+  variables: PlanVariable[]
 ): string | null {
-  return quantity ?? null;
+  return resolveProjectVariableQuantity(quantity, variables);
 }
 
 export const planProjectsRouter = router({

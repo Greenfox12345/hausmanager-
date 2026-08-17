@@ -3858,3 +3858,6 @@
 ## Projektvariablen wie Plankiste (2026-08-17)
 - [x] Vollständigen Variablenfluss beim Projektstart auf Eingaben, Formeldefinitionen, Überschreibungen, Einheiten und erzeugte Aufgaben sowie Einkäufe prüfen (Projektstart speichert Eingaben, übernimmt Formeln unverändert und verknüpft erzeugte Aufgaben sowie Einkäufe mit dem Projekt; die Anzeige rechnet dynamisch aus aktuellen Projektdaten)
 - [x] Projektvariablenverwaltung mit der Plankiste vereinheitlichen: Kategorien, Eingaben, berechnete Ergebnisse, Formeln, Einheiten, Bereiche und Überschreibungen nachvollziehbar nutzen (Eingaben zeigen Alias, Einheit, Bereich, Schieberegler und Sperre; Rechenvariablen zeigen Formel, Ergebnis und optionale Warnung bei manueller Überschreibung)
+
+## Fehlerkorrektur variable Einkaufsmenge beim Projektstart (2026-08-17)
+- [x] Variable Einkaufsmenge beim Projekt- und Phasenstart als gültige berechnete Zahl speichern, ohne dynamische Texte in Name und Notiz zu verlieren (direkte, formelbasierte und abhängige Variablen werden für das Datenbankfeld numerisch berechnet; nicht berechenbare Werte ergeben `null` statt eines fehlerhaften VAR-Textes)
