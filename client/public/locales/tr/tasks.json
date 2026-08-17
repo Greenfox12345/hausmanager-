@@ -215,7 +215,9 @@
     "rejectProposal": "Reddet",
     "approveProposal": "Kabul et",
     "proposalSent": "Değişiklik önerisi gönderildi",
-    "proposalReviewed": "Değişiklik önerisi karara bağlandı"
+    "proposalReviewed": "Değişiklik önerisi karara bağlandı",
+    "noChanges": "Herhangi bir değişiklik yapılmadı.",
+    "excludedMembers": "Hariç tutulan üyeler"
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",

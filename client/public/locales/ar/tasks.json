@@ -215,7 +215,9 @@
     "rejectProposal": "رفض",
     "approveProposal": "قبول",
     "proposalSent": "تم إرسال اقتراح التعديل",
-    "proposalReviewed": "تم اتخاذ قرار بشأن اقتراح التعديل"
+    "proposalReviewed": "تم اتخاذ قرار بشأن اقتراح التعديل",
+    "noChanges": "لم يتم إجراء أي تغييرات.",
+    "excludedMembers": "الأعضاء المستبعدون"
   },
   "occurrences": {
     "title": "المواعيد القادمة",

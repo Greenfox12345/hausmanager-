@@ -52,6 +52,7 @@ import { taskRotationExclusions, activityHistory, projects } from "../../drizzle
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
+import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 
 // ─── German label helpers ───────────────────────────────────────────────────
 
@@ -567,6 +568,15 @@ export const tasksRouter = router({
         dueDate: dueDatetime,
         ...(dueDatetimeString !== undefined ? { dueDateRaw: dueDatetimeString } : {}),
       });
+
+      if (input.excludedMembers !== undefined) {
+        const exclusionDb = await getDb();
+        if (!exclusionDb) throw new Error("Database not available");
+        await exclusionDb.delete(taskRotationExclusions).where(eq(taskRotationExclusions.taskId, taskId));
+        if (input.excludedMembers.length > 0) {
+          await createTaskRotationExclusions(taskId, input.excludedMembers);
+        }
+      }
 
       // Build description string (multilingual)
       const taskName = updates.name ?? currentTask.name;
@@ -1532,6 +1542,17 @@ export const tasksRouter = router({
       return await getRotationSchedule(input.taskId);
     }),
 
+  // Get members excluded from a task's rotation
+  getRotationExclusions: publicProcedure
+    .input(z.object({ taskId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      return await db.select({ memberId: taskRotationExclusions.memberId })
+        .from(taskRotationExclusions)
+        .where(eq(taskRotationExclusions.taskId, input.taskId));
+    }),
+
   // Set rotation schedule for a task
   setRotationSchedule: publicProcedure
     .input(
@@ -1937,9 +1958,45 @@ export const tasksRouter = router({
       memberId: z.number(),
       name: z.string().trim().min(1).max(255).optional(),
       description: z.string().max(10_000).nullable().optional(),
+      changes: z.object({
+        name: z.string().trim().min(1).max(255).optional(),
+        description: z.string().max(10_000).nullable().optional(),
+        assignedTo: z.array(z.number()).optional(),
+        frequency: z.enum(["once", "daily", "weekly", "monthly", "custom"]).optional(),
+        customFrequencyDays: z.number().nullable().optional(),
+        repeatInterval: z.number().nullable().optional(),
+        repeatUnit: z.enum(["days", "weeks", "months", "irregular"]).nullable().optional(),
+        irregularRecurrence: z.boolean().optional(),
+        monthlyRecurrenceMode: z.enum(["same_date", "same_weekday"]).nullable().optional(),
+        monthlyWeekday: z.number().nullable().optional(),
+        monthlyOccurrence: z.number().nullable().optional(),
+        enableRotation: z.boolean().optional(),
+        requiredPersons: z.number().nullable().optional(),
+        dueDate: z.string().nullable().optional(),
+        dueTime: z.string().nullable().optional(),
+        durationDays: z.number().min(0).optional(),
+        durationMinutes: z.number().min(0).max(1439).optional(),
+        projectIds: z.array(z.number()).optional(),
+        sharedHouseholdIds: z.array(z.number()).optional(),
+        nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).optional(),
+        categoryIds: z.array(z.number()).optional(),
+        excludedMembers: z.array(z.number()).optional(),
+        prerequisites: z.array(z.number()).optional(),
+        followups: z.array(z.number()).optional(),
+        rotationSchedule: z.array(z.object({
+          occurrenceNumber: z.number(),
+          members: z.array(z.object({ position: z.number(), memberId: z.number() })),
+          notes: z.string().optional(),
+          isSkipped: z.boolean().optional(),
+          isSpecial: z.boolean().optional(),
+          specialName: z.string().nullable().optional(),
+          occurrenceDate: z.string().nullable().optional(),
+          specialDate: z.string().nullable().optional(),
+        })).optional(),
+      }).optional(),
       note: z.string().trim().max(2_000).optional(),
-    }).refine((input) => input.name !== undefined || input.description !== undefined, {
-      message: "Mindestens Name oder Beschreibung muss vorgeschlagen werden.",
+    }).refine((input) => input.name !== undefined || input.description !== undefined || Object.keys(input.changes ?? {}).length > 0, {
+      message: "Mindestens eine Änderung muss vorgeschlagen werden.",
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -1954,7 +2011,7 @@ export const tasksRouter = router({
       }
 
       const { taskChangeProposals } = await import("../../drizzle/schema");
-      const payload: Record<string, unknown> = {};
+      const payload: Record<string, unknown> = { ...(input.changes ?? {}) };
       if (input.name !== undefined) payload.name = input.name;
       if (input.description !== undefined) payload.description = input.description;
       const [result] = await db.insert(taskChangeProposals).values({
@@ -1978,6 +2035,15 @@ export const tasksRouter = router({
           relatedTaskId: task.id,
         });
       }
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "change_proposed",
+        description: `${member.memberName} hat eine Änderung für „${task.name}“ vorgeschlagen.`,
+        relatedItemId: task.id,
+        metadata: { proposalId: Number(result.insertId), fields: Object.keys(payload) },
+      });
       return { id: Number(result.insertId), success: true };
     }),
 
@@ -2044,10 +2110,89 @@ export const tasksRouter = router({
 
       if (input.decision === "approved" && proposal.proposalType === "update") {
         const payload = (proposal.payload ?? {}) as Record<string, unknown>;
-        const updates: { name?: string; description?: string | null } = {};
-        if (typeof payload.name === "string") updates.name = payload.name;
-        if (typeof payload.description === "string" || payload.description === null) updates.description = payload.description;
+        const updates: Record<string, unknown> = {};
+        const updateFields = [
+          "name", "description", "assignedTo", "frequency", "customFrequencyDays", "repeatInterval", "repeatUnit",
+          "irregularRecurrence", "monthlyRecurrenceMode", "monthlyWeekday", "monthlyOccurrence", "enableRotation",
+          "requiredPersons", "durationDays", "durationMinutes", "projectIds", "sharedHouseholdIds", "nonResponsiblePermission",
+        ];
+        for (const field of updateFields) {
+          if (payload[field] !== undefined) updates[field] = payload[field];
+        }
+        if (payload.dueDate !== undefined || payload.dueTime !== undefined) {
+          const currentDate = task.dueDate
+            ? `${task.dueDate.getFullYear()}-${String(task.dueDate.getMonth() + 1).padStart(2, "0")}-${String(task.dueDate.getDate()).padStart(2, "0")}`
+            : null;
+          const date = payload.dueDate !== undefined ? payload.dueDate : currentDate;
+          const currentTime = task.dueDate
+            ? `${String(task.dueDate.getHours()).padStart(2, "0")}:${String(task.dueDate.getMinutes()).padStart(2, "0")}`
+            : "00:00";
+          const time = typeof payload.dueTime === "string" && payload.dueTime ? payload.dueTime : currentTime;
+          updates.dueDate = date ? new Date(`${date}T${time}:00`) : null;
+          if (date) updates.dueDateRaw = `${date} ${time}:00`;
+        }
         if (Object.keys(updates).length > 0) await updateTask(input.taskId, updates);
+
+        if (Array.isArray(payload.categoryIds)) {
+          const { taskCategoryAssignments } = await import("../../drizzle/schema");
+          await db.delete(taskCategoryAssignments).where(eq(taskCategoryAssignments.taskId, input.taskId));
+          if (payload.categoryIds.length > 0) {
+            await db.insert(taskCategoryAssignments).values(payload.categoryIds.map((categoryId) => ({ taskId: input.taskId, categoryId: Number(categoryId) })));
+          }
+        }
+
+        if (Array.isArray(payload.excludedMembers)) {
+          await db.delete(taskRotationExclusions).where(eq(taskRotationExclusions.taskId, input.taskId));
+          if (payload.excludedMembers.length > 0) {
+            await createTaskRotationExclusions(input.taskId, payload.excludedMembers.map(Number));
+          }
+        }
+
+        if (Array.isArray(payload.prerequisites) || Array.isArray(payload.followups)) {
+          const { taskDependencies } = await import("../../drizzle/schema");
+          const prerequisites = Array.isArray(payload.prerequisites) ? payload.prerequisites.map(Number) : [];
+          const followups = Array.isArray(payload.followups) ? payload.followups.map(Number) : [];
+          const linkedIds = [...prerequisites, ...followups];
+          const householdTasks = await getTasks(input.householdId);
+          if (linkedIds.some((id) => !Number.isInteger(id) || id === input.taskId || !householdTasks.some((candidate) => candidate.id === id))) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Ungültige Aufgaben-Abhängigkeit im Vorschlag." });
+          }
+          const allEdges = await db.select({
+            taskId: taskDependencies.taskId,
+            dependsOnTaskId: taskDependencies.dependsOnTaskId,
+            dependencyType: taskDependencies.dependencyType,
+          }).from(taskDependencies);
+          const edgesWithoutTask = allEdges.filter((edge) => edge.taskId !== input.taskId && edge.dependsOnTaskId !== input.taskId) as TaskDependencyEdge[];
+          if (prerequisites.some((id) => wouldCreatePrerequisiteCycle(input.taskId, id, edgesWithoutTask)) || followups.some((id) => wouldCreatePrerequisiteCycle(id, input.taskId, edgesWithoutTask))) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Der Vorschlag würde einen Aufgabenzyklus erzeugen." });
+          }
+          await db.delete(taskDependencies).where(eq(taskDependencies.taskId, input.taskId));
+          await db.delete(taskDependencies).where(eq(taskDependencies.dependsOnTaskId, input.taskId));
+          const dependencyRows = [
+            ...prerequisites.flatMap((dependsOnTaskId) => [
+              { taskId: input.taskId, dependsOnTaskId, dependencyType: "prerequisite" as const },
+              { taskId: dependsOnTaskId, dependsOnTaskId: input.taskId, dependencyType: "followup" as const },
+            ]),
+            ...followups.flatMap((dependsOnTaskId) => [
+              { taskId: input.taskId, dependsOnTaskId, dependencyType: "followup" as const },
+              { taskId: dependsOnTaskId, dependsOnTaskId: input.taskId, dependencyType: "prerequisite" as const },
+            ]),
+          ];
+          if (dependencyRows.length > 0) await db.insert(taskDependencies).values(dependencyRows);
+        }
+
+        if (Array.isArray(payload.rotationSchedule)) {
+          await setRotationSchedule(input.taskId, payload.rotationSchedule.map((occurrence: any) => ({
+            occurrenceNumber: occurrence.occurrenceNumber,
+            members: occurrence.members,
+            notes: occurrence.notes,
+            isSkipped: occurrence.isSkipped,
+            isSpecial: occurrence.isSpecial,
+            specialName: occurrence.specialName || undefined,
+            occurrenceDate: occurrence.occurrenceDate ? new Date(occurrence.occurrenceDate) : undefined,
+            specialDate: occurrence.specialDate ? new Date(occurrence.specialDate) : undefined,
+          })));
+        }
       }
       await db.update(taskChangeProposals).set({
         status: input.decision,
@@ -2064,6 +2209,17 @@ export const tasksRouter = router({
           ? `Dein Änderungsvorschlag für „${task.name}“ wurde angenommen.`
           : `Dein Änderungsvorschlag für „${task.name}“ wurde abgelehnt.`,
         relatedTaskId: task.id,
+      });
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: input.decision === "approved" ? "change_proposal_approved" : "change_proposal_rejected",
+        description: input.decision === "approved"
+          ? `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ angenommen.`
+          : `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ abgelehnt.`,
+        relatedItemId: task.id,
+        metadata: { proposalId: proposal.id, proposedByMemberId: proposal.proposedByMemberId },
       });
       return { success: true };
     }),

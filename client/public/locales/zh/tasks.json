@@ -215,7 +215,9 @@
     "rejectProposal": "拒绝",
     "approveProposal": "接受",
     "proposalSent": "修改建议已发送",
-    "proposalReviewed": "修改建议已处理"
+    "proposalReviewed": "修改建议已处理",
+    "noChanges": "未进行任何更改。",
+    "excludedMembers": "排除的成员"
   },
   "occurrences": {
     "title": "即将到来的任务",

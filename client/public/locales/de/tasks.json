@@ -215,7 +215,9 @@
     "rejectProposal": "Ablehnen",
     "approveProposal": "Annehmen",
     "proposalSent": "Änderungsvorschlag gesendet",
-    "proposalReviewed": "Änderungsvorschlag entschieden"
+    "proposalReviewed": "Änderungsvorschlag entschieden",
+    "noChanges": "Es wurden keine Änderungen vorgenommen.",
+    "excludedMembers": "Ausgeschlossene Mitglieder"
   },
   "occurrences": {
     "title": "Kommende Termine",

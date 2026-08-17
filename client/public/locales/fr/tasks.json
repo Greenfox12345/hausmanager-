@@ -215,7 +215,9 @@
     "rejectProposal": "Refuser",
     "approveProposal": "Accepter",
     "proposalSent": "Proposition de modification envoyée",
-    "proposalReviewed": "Proposition de modification examinée"
+    "proposalReviewed": "Proposition de modification examinée",
+    "noChanges": "Aucune modification n’a été effectuée.",
+    "excludedMembers": "Membres exclus"
   },
   "occurrences": {
     "title": "Rendez-vous à venir",

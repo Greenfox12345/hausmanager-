@@ -616,7 +616,9 @@
     "rejectProposal": "Rechazar",
     "approveProposal": "Aceptar",
     "proposalSent": "Propuesta de cambio enviada",
-    "proposalReviewed": "Propuesta de cambio revisada"
+    "proposalReviewed": "Propuesta de cambio revisada",
+    "noChanges": "No se realizaron cambios.",
+    "excludedMembers": "Miembros excluidos"
   },
   "occurrences": {
     "title": "Próximas citas",

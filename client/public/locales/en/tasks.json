@@ -215,7 +215,9 @@
     "rejectProposal": "Reject",
     "approveProposal": "Accept",
     "proposalSent": "Change suggestion sent",
-    "proposalReviewed": "Change suggestion reviewed"
+    "proposalReviewed": "Change suggestion reviewed",
+    "noChanges": "No changes were made.",
+    "excludedMembers": "Excluded members"
   },
   "occurrences": {
     "title": "Upcoming appointments",

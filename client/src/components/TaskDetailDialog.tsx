@@ -33,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
+import { getChangedProposalValues } from "../../../shared/taskProposalFields";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
 import {
   getFollowupClosure,
@@ -124,6 +125,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   const [commentDraft, setCommentDraft] = useState("");
   const [isProposingChange, setIsProposingChange] = useState(false);
+  const [isProposalEditing, setIsProposalEditing] = useState(false);
   const [proposalName, setProposalName] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
   const [proposalNote, setProposalNote] = useState("");
@@ -150,9 +152,12 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const proposeTaskChangeMutation = trpc.tasks.proposeTaskChange.useMutation({
     onSuccess: () => {
       setIsProposingChange(false);
+      setIsProposalEditing(false);
+      setIsEditing(false);
       setProposalNote("");
       if (task?.id && household?.householdId) {
         utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
+        utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id });
       }
       toast.success(t("dialog.proposalSent", "Änderungsvorschlag gesendet"));
     },
@@ -163,6 +168,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       if (task?.id && household?.householdId) {
         utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
         utils.tasks.list.invalidate();
+        utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id });
       }
       toast.success(t("dialog.proposalReviewed", "Änderungsvorschlag entschieden"));
     },
@@ -280,6 +286,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { taskId: task?.id ?? 0 },
     { enabled: !!task?.id && open }
   );
+  const { data: rotationExclusionData } = trpc.tasks.getRotationExclusions.useQuery(
+    { taskId: task?.id ?? 0 },
+    { enabled: !!task?.id && open && isEditing },
+  );
   
   // Load task occurrence items
   const { data: taskOccurrenceItemsData } = trpc.taskOccurrenceItems.getTaskOccurrenceItems.useQuery(
@@ -322,6 +332,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
+
+  useEffect(() => {
+    const incoming = (rotationExclusionData || []).map((entry) => entry.memberId).sort((left, right) => left - right);
+    if (isEditing && !haveSameTaskCategoryIds([...excludedMembers].sort((left, right) => left - right), incoming)) {
+      setExcludedMembers(incoming);
+    }
+  }, [rotationExclusionData, isEditing, excludedMembers]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
 
@@ -905,6 +922,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   const handleSave = async () => {
     if (!household || !task) return;
+
+    if (isProposalEditing) {
+      await submitFullChangeProposal();
+      return;
+    }
     
     if (selectedAssignees.length === 0) {
       toast.error(t("messages.assigneeRequired"));
@@ -938,6 +960,90 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
 
     await doSave();
+  };
+
+  const submitFullChangeProposal = async () => {
+    if (!household || !task || !member) return;
+    let proposedFrequency: "once" | "daily" | "weekly" | "monthly" | "custom" = "once";
+    let proposedCustomFrequencyDays: number | null = null;
+    if (repeatMode !== "none") {
+      const interval = parseInt(repeatInterval) || 1;
+      if (repeatUnit === "days" && interval === 1) proposedFrequency = "daily";
+      else if (repeatUnit === "weeks" && interval === 1) proposedFrequency = "weekly";
+      else if (repeatUnit === "months" && interval === 1) proposedFrequency = "monthly";
+      else {
+        proposedFrequency = "custom";
+        proposedCustomFrequencyDays = repeatUnit === "days" ? interval : repeatUnit === "weeks" ? interval * 7 : interval * 30;
+      }
+    }
+    const proposedValues: Record<string, unknown> = {
+      name: name.trim(), description: description || null, assignedTo: selectedAssignees,
+      frequency: proposedFrequency, customFrequencyDays: proposedCustomFrequencyDays,
+      repeatInterval: repeatMode !== "none" ? (parseInt(repeatInterval) || 1) : null,
+      repeatUnit: repeatMode !== "none" ? repeatUnit : null,
+      irregularRecurrence: repeatMode === "irregular",
+      monthlyRecurrenceMode: repeatMode === "regular" && repeatUnit === "months" ? monthlyRecurrenceMode : null,
+      monthlyWeekday: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyWeekday : null,
+      monthlyOccurrence: repeatMode === "regular" && repeatUnit === "months" && monthlyRecurrenceMode === "same_weekday" ? monthlyOccurrence : null,
+      enableRotation: repeatMode !== "none" && enableRotation,
+      requiredPersons: repeatMode !== "none" && enableRotation ? requiredPersons : null,
+      dueDate: dueDate || null, dueTime: dueTime || null,
+      durationDays: parseInt(durationDays) || 0,
+      durationMinutes: (() => { const [hours, minutes] = durationTime.split(":").map(Number); return (hours || 0) * 60 + (minutes || 0); })(),
+      projectIds: isProjectTask ? selectedProjectIds : [],
+      sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
+      nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
+      categoryIds: normalizeTaskCategoryIds(selectedCategoryIds),
+      excludedMembers,
+      prerequisites,
+      followups,
+      rotationSchedule: rotationSchedule.map((occurrence) => ({
+        occurrenceNumber: occurrence.occurrenceNumber,
+        members: occurrence.members.filter((member) => member.memberId !== 0).map((member) => ({ position: member.position, memberId: member.memberId })),
+        notes: occurrence.notes || "", isSkipped: !!occurrence.isSkipped, isSpecial: !!occurrence.isSpecial,
+        specialName: occurrence.specialName || null,
+        occurrenceDate: occurrence.date ? new Date(occurrence.date).toISOString() : null,
+        specialDate: occurrence.specialDate ? new Date(occurrence.specialDate).toISOString() : null,
+      })),
+    };
+    const rawTask = task as any;
+    const currentValues: Record<string, unknown> = {
+      name: task.name, description: task.description || null, assignedTo: task.assignedTo || [],
+      frequency: task.frequency, customFrequencyDays: task.customFrequencyDays ?? null,
+      repeatInterval: task.repeatInterval ?? null, repeatUnit: task.repeatUnit ?? null,
+      irregularRecurrence: !!rawTask.irregularRecurrence, monthlyRecurrenceMode: task.monthlyRecurrenceMode ?? null,
+      monthlyWeekday: task.monthlyWeekday ?? null, monthlyOccurrence: task.monthlyOccurrence ?? null,
+      enableRotation: !!task.enableRotation, requiredPersons: task.requiredPersons ?? null,
+      dueDate: task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : null,
+      dueTime: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : null,
+      durationDays: task.durationDays || 0, durationMinutes: task.durationMinutes || 0,
+      projectIds: task.projectIds || [], sharedHouseholdIds: rawTask.sharedHouseholdIds || [],
+      nonResponsiblePermission: task.nonResponsiblePermission || "full",
+      categoryIds: getTaskCategoryIds(existingTaskCategories || []),
+      excludedMembers: (rotationExclusionData || []).map((entry) => entry.memberId).sort((left, right) => left - right),
+      prerequisites: taskDependencies?.prerequisites?.map((dependency) => dependency.id) || [],
+      followups: taskDependencies?.followups?.map((dependency) => dependency.id) || [],
+      rotationSchedule: (rotationScheduleData || []).map((occurrence: any) => ({
+        occurrenceNumber: occurrence.occurrenceNumber,
+        members: (occurrence.members || []).filter((member: any) => member.memberId !== 0).map((member: any) => ({ position: member.position, memberId: member.memberId })),
+        notes: occurrence.notes || "", isSkipped: !!occurrence.isSkipped, isSpecial: !!occurrence.isSpecial,
+        specialName: occurrence.specialName || null,
+        occurrenceDate: occurrence.occurrenceDate ? new Date(occurrence.occurrenceDate).toISOString() : null,
+        specialDate: occurrence.specialDate ? new Date(occurrence.specialDate).toISOString() : null,
+      })),
+    };
+    const changes = getChangedProposalValues(proposedValues, currentValues);
+    if (Object.keys(changes).length === 0) {
+      toast.info(t("dialog.noChanges", "Es wurden keine Änderungen vorgenommen."));
+      return;
+    }
+    proposeTaskChangeMutation.mutate({
+      householdId: household.householdId,
+      taskId: task.id,
+      memberId: member.memberId,
+      note: proposalNote.trim() || undefined,
+      changes,
+    });
   };
 
   const doSave = async () => {
@@ -1111,6 +1217,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   };
 
   const handleCancel = () => {
+    setIsProposalEditing(false);
     // Reset form to original values
     if (task) {
       setName(task.name || "");
@@ -1249,7 +1356,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </Button>
                 </div>
               )}
-              <span>{isEditing ? t("dialog.editTitle") : t("dialog.viewTitle")}</span>
+              <span>{isEditing ? (isProposalEditing ? t("dialog.proposeChange", "Änderung vorschlagen") : t("dialog.editTitle")) : t("dialog.viewTitle")}</span>
             </div>
             {!isEditing && hasDirectPermission && (
               <Button
@@ -1267,10 +1374,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setProposalName(task?.name ?? "");
-                  setProposalDescription(task?.description ?? "");
                   setProposalNote("");
-                  setIsProposingChange(true);
+                  setIsProposalEditing(true);
+                  setIsEditing(true);
                 }}
                 className="gap-2"
               >
@@ -2291,6 +2397,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         </div>
                       </div>
                     </div>
+
+                    {isProposalEditing && (
+                      <div className="space-y-1 rounded-md border border-amber-200 bg-amber-50/60 p-3">
+                        <Label htmlFor="proposal-note">{t("dialog.proposalNote", "Hinweis für Verantwortliche (optional)")}</Label>
+                        <Textarea id="proposal-note" value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} rows={2} />
+                      </div>
+                    )}
                   </div>
                  )}
               </div>
@@ -2340,21 +2453,46 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   </div>
                 </div>
               )}
-              {canReviewProposals && taskChangeProposals.length > 0 && household && member && task && (
+              {taskChangeProposals.length > 0 && household && member && task && (
                 <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
                   <h3 className="font-medium">{t("dialog.pendingProposals", "Offene Änderungsvorschläge")}</h3>
                   {taskChangeProposals.map((proposal) => {
-                    const payload = proposal.payload as { name?: string; description?: string | null };
+                    const payload = proposal.payload as Record<string, unknown>;
+                    const fieldLabels: Record<string, string> = {
+                      name: t("dialog.taskName", "Aufgabenname"), description: t("dialog.description", "Beschreibung"),
+                      assignedTo: t("dialog.responsible", "Verantwortlich"), dueDate: t("dialog.dueDate", "Fällig am"),
+                      dueTime: t("dialog.dueTime", "Uhrzeit"), frequency: t("dialog.frequency", "Wiederholung"),
+                      repeatInterval: t("dialog.repeatInterval", "Intervall"), repeatUnit: t("dialog.repeatUnit", "Einheit"),
+                      durationDays: t("dialog.durationDays", "Dauer in Tagen"), durationMinutes: t("dialog.durationMinutes", "Dauer"),
+                      categoryIds: t("dialog.categories", "Kategorien"), projectIds: t("dialog.projects", "Projekte"),
+                      sharedHouseholdIds: t("dialog.sharedHouseholds", "Geteilte Haushalte"), enableRotation: t("dialog.enableRotation", "Verantwortung rotieren"),
+                      excludedMembers: t("dialog.excludedMembers", "Ausgeschlossene Mitglieder"),
+                      prerequisites: t("dialog.prerequisites", "Voraussetzungen"), followups: t("dialog.followUpTasks", "Folgeaufgaben"),
+                      rotationSchedule: t("dialog.rotationSchedule", "Rotationsplan"),
+                    };
+                    const valueText = (value: unknown) => Array.isArray(value) ? value.join(", ") : value === null ? "—" : value === true ? t("common:yes", "Ja") : value === false ? t("common:no", "Nein") : String(value);
                     return (
                       <div key={proposal.id} className="space-y-2 rounded-md border bg-background p-3">
                         <p className="text-sm"><strong>{proposal.proposedByMemberName}</strong> {t("dialog.suggests", "schlägt vor:")}</p>
-                        {payload.name !== undefined && <p className="text-sm"><strong>{t("dialog.taskName", "Aufgabenname")}:</strong> {payload.name}</p>}
-                        {payload.description !== undefined && <p className="whitespace-pre-wrap text-sm"><strong>{t("dialog.description", "Beschreibung")}:</strong> {payload.description || "—"}</p>}
-                        {proposal.note && <p className="text-sm text-muted-foreground">{proposal.note}</p>}
-                        <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="outline" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "rejected" })}>{t("dialog.rejectProposal", "Ablehnen")}</Button>
-                          <Button size="sm" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "approved" })}>{t("dialog.approveProposal", "Annehmen")}</Button>
+                        <div className="space-y-1">
+                          {Object.entries(payload).map(([field, proposedValue]) => {
+                            const currentValue = (task as any)[field];
+                            return (
+                              <div key={field} className="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-sm">
+                                <strong>{fieldLabels[field] ?? field}:</strong>{" "}
+                                {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue)}</span>}
+                                <span className="font-medium text-amber-900">→ {valueText(proposedValue)}</span>
+                              </div>
+                            );
+                          })}
                         </div>
+                        {proposal.note && <p className="text-sm text-muted-foreground">{proposal.note}</p>}
+                        {canReviewProposals && (
+                          <div className="flex justify-end gap-2">
+                            <Button size="sm" variant="outline" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "rejected" })}>{t("dialog.rejectProposal", "Ablehnen")}</Button>
+                            <Button size="sm" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "approved" })}>{t("dialog.approveProposal", "Annehmen")}</Button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -3170,9 +3308,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 <X className="h-4 w-4 mr-2" />
                 {t("common:actions.cancel")}
               </Button>
-              <Button onClick={handleSave} disabled={!name || updateTask.isPending}>
+              <Button onClick={handleSave} disabled={!name || updateTask.isPending || proposeTaskChangeMutation.isPending}>
                 <Check className="h-4 w-4 mr-2" />
-                {t("common:actions.save")}
+                {isProposalEditing ? t("dialog.sendProposal", "Vorschlag senden") : t("common:actions.save")}
               </Button>
             </>
           ) : (
