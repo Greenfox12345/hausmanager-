@@ -3804,3 +3804,4 @@
 
 ## Bilanz-Verlauf (2026-08-17)
 - [x] Bilanzaktionen im Haushaltsverlauf mit lokalisierten Badges statt technischer Aktionscodes darstellen (Erfassung, Änderung und Löschung in allen sieben Sprachen; Unit-Test ergänzt)
+- [x] Bilanz-Verlaufsbeschreibungen selbst in der eingestellten Haushaltssprache erzeugen, damit nicht nur das Badge, sondern auch der Beschreibungstext lokalisiert ist (Zahlungen, Arbeitsaufwände, Änderungen und Löschungen verwenden die Haushaltssprache; datenfreie Tests für Deutsch, Englisch, Französisch und Chinesisch ergänzt)

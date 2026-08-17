@@ -4,11 +4,21 @@ import { z } from "zod";
 import { balanceEntries, householdBalanceSettings, households } from "../../drizzle/schema";
 import { canModifyBalanceEntry } from "../../shared/balanceRules";
 import { summarizeBalanceEntries } from "../../shared/balanceSummary";
-import { createActivityLog, getDb, getHouseholdMemberById, getHouseholdMembers } from "../db";
+import { formatBalanceActivityText } from "../../shared/balanceActivityText";
+import { createActivityLog, getDb, getHouseholdById, getHouseholdMemberById, getHouseholdMembers } from "../db";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 
 const entryTypeSchema = z.enum(["payment", "work"]);
 const sourceTypeSchema = z.enum(["manual", "task", "milestone", "shopping"]);
+type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar";
+
+async function getHouseholdLang(householdId: number): Promise<Lang> {
+  const household = await getHouseholdById(householdId);
+  const language = household?.language ?? "de";
+  return language === "en" || language === "es" || language === "fr" || language === "zh" || language === "tr" || language === "ar"
+    ? language
+    : "de";
+}
 
 function validateEffort(entryType: "payment" | "work", amount?: number | null, minutes?: number | null) {
   if (entryType === "payment" && (!amount || amount <= 0)) {
@@ -38,14 +48,6 @@ async function allowSelectedMember(householdId: number, recordedByMemberId: numb
     throw new TRPCError({ code: "FORBIDDEN", message: "Dieser Haushalt erlaubt keine Auswahl anderer Mitglieder für Bilanzaufwände." });
   }
   return selectedMember;
-}
-
-function formatEntry(entryType: "payment" | "work", amount: unknown, minutes: unknown) {
-  if (entryType === "payment") return `${Number(amount).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} bezahlt`;
-  const totalMinutes = Number(minutes);
-  const hours = Math.floor(totalMinutes / 60);
-  const restMinutes = totalMinutes % 60;
-  return `${hours > 0 ? `${hours} Std. ` : ""}${restMinutes} Min. gearbeitet`;
 }
 
 export const balanceRouter = router({
@@ -132,12 +134,13 @@ export const balanceRouter = router({
         occurredAt: input.occurredAt ?? new Date(),
       });
       const entryId = Number((created as any).insertId);
+      const language = await getHouseholdLang(input.householdId);
       await createActivityLog({
         householdId: input.householdId,
         memberId: input.recordedByMemberId,
         activityType: "other",
         action: "balance_entry_created",
-        description: `${responsibleMember.memberName} hat ${formatEntry(input.entryType, input.amount, input.minutes)}: ${input.description}`,
+        description: formatBalanceActivityText({ language, event: "created", memberName: responsibleMember.memberName, entryType: input.entryType, amount: input.amount, minutes: input.minutes, description: input.description }),
         relatedItemId: entryId,
         metadata: { balanceEntryId: entryId, entryType: input.entryType, sourceType: input.sourceType, sourceId: input.sourceId },
       });
@@ -169,7 +172,8 @@ export const balanceRouter = router({
         ...(input.description !== undefined ? { description: input.description } : {}),
         ...(input.occurredAt !== undefined ? { occurredAt: input.occurredAt } : {}),
       }).where(eq(balanceEntries.id, input.entryId));
-      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_updated", description: `Bilanzaufwand „${entry.description}" wurde geändert.`, relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
+      const language = await getHouseholdLang(input.householdId);
+      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_updated", description: formatBalanceActivityText({ language, event: "updated", description: entry.description }), relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
       return { success: true };
     }),
 
@@ -184,7 +188,8 @@ export const balanceRouter = router({
       if (entry.recordedByMemberId !== input.editorMemberId) throw new TRPCError({ code: "FORBIDDEN", message: "Nur die erfassende Person kann diesen Bilanzaufwand löschen." });
       if (!canModifyBalanceEntry(entry.createdAt)) throw new TRPCError({ code: "FORBIDDEN", message: "Bilanzaufwände können nur fünf Tage lang gelöscht werden." });
       await db.delete(balanceEntries).where(eq(balanceEntries.id, input.entryId));
-      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_deleted", description: `Bilanzaufwand „${entry.description}" wurde gelöscht.`, relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
+      const language = await getHouseholdLang(input.householdId);
+      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_deleted", description: formatBalanceActivityText({ language, event: "deleted", description: entry.description }), relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
       return { success: true };
     }),
 });
