@@ -3720,6 +3720,9 @@
 - [x] Verantwortliche in Feldvergleichen als aufgelöste Mitgliedsnamen anzeigen
 - [x] Monatswiederholung in Vorschlägen mit dem richtigen lokalisierten Text anzeigen
 - [x] Verlaufseintrag nach Annahme oder Ablehnung eines Vorschlags auf korrekte Beschreibung prüfen und korrigieren
+- [x] Technische Wiederholungsfelder (customFrequencyDays, irregularRecurrence) in einer verständlichen Zusammenfassung anzeigen
+- [x] Fälligkeitsdatum und Uhrzeit ohne technische Rohformate anzeigen
+- [x] Rotationsplan in Vorschlägen mit konkreten Daten und Mitgliedsnamen statt Objektwerten darstellen
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt

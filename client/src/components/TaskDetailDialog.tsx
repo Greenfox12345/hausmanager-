@@ -35,6 +35,7 @@ import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
 import { getChangedProposalValues } from "../../../shared/taskProposalFields";
 import { getWordDiff } from "../../../shared/textDiff";
+import { buildProposalDisplayEntries, recurrenceProposalFields } from "../../../shared/taskProposalDisplay";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
 import {
   getFollowupClosure,
@@ -2483,24 +2484,76 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       }
                       return Array.isArray(value) ? value.join(", ") : value === null ? "—" : value === true ? t("common:yes", "Ja") : value === false ? t("common:no", "Nein") : String(value);
                     };
+                    const formatDueDateTime = (dateValue: unknown, timeValue: unknown) => {
+                      if (!dateValue) return "—";
+                      const rawDate = String(dateValue).slice(0, 10);
+                      const rawTime = typeof timeValue === "string" && timeValue ? timeValue.slice(0, 5) : String(dateValue).includes("T") ? String(dateValue).slice(11, 16) : "";
+                      const date = new Date(`${rawDate}T${rawTime || "00:00"}:00`);
+                      return Number.isNaN(date.getTime()) ? `${rawDate}${rawTime ? `, ${rawTime} Uhr` : ""}` : `${format(date, "dd.MM.yyyy")}${rawTime ? `, ${rawTime} Uhr` : ""}`;
+                    };
+                    const formatRecurrence = (source: Record<string, unknown>) => {
+                      const frequency = source.frequency;
+                      if (source.irregularRecurrence || source.repeatUnit === "irregular") return t("repeat.irregular", "Unregelmäßig / eigene Termine");
+                      if (!frequency || frequency === "once") return t("repeat.none", "Keine Wiederholung");
+                      const interval = Number(source.repeatInterval ?? 1) || 1;
+                      const unit = source.repeatUnit;
+                      const unitLabel = unit === "days" ? t("repeat.days", "Tage") : unit === "weeks" ? t("repeat.weeks", "Wochen") : unit === "months" ? t("repeat.months", "Monate") : frequency === "daily" ? t("repeat.days", "Tage") : frequency === "weekly" ? t("repeat.weeks", "Wochen") : t("repeat.months", "Monate");
+                      const base = `${t("repeat.every", "Alle")} ${interval} ${unitLabel}`;
+                      if ((unit === "months" || frequency === "monthly") && source.monthlyRecurrenceMode === "same_weekday") return `${base} – ${t("repeat.sameWeekday", "am gleichen Wochentag")}`;
+                      if (unit === "months" || frequency === "monthly") return `${base} – ${t("repeat.sameDate", "am gleichen Kalendertag")}`;
+                      return base;
+                    };
+                    const formatRotationSchedule = (value: unknown) => {
+                      if (!Array.isArray(value) || value.length === 0) return [] as string[];
+                      return value.map((entry: any) => {
+                        const dateValue = entry.specialDate || entry.occurrenceDate || entry.date;
+                        const dateText = dateValue ? formatDueDateTime(dateValue, null) : t("dialog.noDate", "Kein Datum");
+                        const memberNames = Array.isArray(entry.members)
+                          ? entry.members.map((assignment: any) => ownMembers.find((candidate) => candidate.id === Number(assignment.memberId))?.memberName ?? `#${assignment.memberId}`).join(", ")
+                          : "";
+                        const special = entry.isSpecial && entry.specialName ? ` – ${entry.specialName}` : "";
+                        const skipped = entry.isSkipped ? ` (${t("dialog.skipped", "übersprungen")})` : "";
+                        return `${dateText}: ${memberNames || "—"}${special}${skipped}`;
+                      });
+                    };
+                    const currentRecurrence: Record<string, unknown> = {
+                      frequency: task.frequency, repeatInterval: task.repeatInterval, repeatUnit: task.repeatUnit,
+                      irregularRecurrence: (task as any).irregularRecurrence, monthlyRecurrenceMode: task.monthlyRecurrenceMode,
+                    };
+                    const currentDue = { dueDate: task.dueDate, dueTime: task.dueDate ? format(new Date(task.dueDate), "HH:mm") : null };
+                    const changedEntries = buildProposalDisplayEntries(payload);
                     return (
                       <div key={proposal.id} className="space-y-2 rounded-md border bg-background p-3">
                         <p className="text-sm"><strong>{proposal.proposedByMemberName}</strong> {t("dialog.suggests", "schlägt vor:")}</p>
                         <div className="space-y-1">
-                          {Object.entries(payload).sort(([left], [right]) => left === "name" ? -1 : right === "name" ? 1 : 0).map(([field, proposedValue]) => {
-                            const currentValue = (task as any)[field];
+                          {changedEntries.map(([field, proposedValue]) => {
+                            const currentValue = field === "__recurrence" ? currentRecurrence : field === "__dueDate" ? currentDue : field === "rotationSchedule" ? rotationScheduleData : (task as any)[field];
                             const descriptionDiff = field === "description"
                               ? getWordDiff(String(currentValue ?? ""), String(proposedValue ?? ""))
                               : null;
+                            const isRecurrence = field === "__recurrence";
+                            const isDueDate = field === "__dueDate";
+                            const isRotationSchedule = field === "rotationSchedule";
+                            const previousRotation = isRotationSchedule ? formatRotationSchedule(currentValue) : [];
+                            const proposedRotation = isRotationSchedule ? formatRotationSchedule(proposedValue) : [];
                             return (
                               <div key={field} className="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-sm">
-                                <strong>{fieldLabels[field] ?? field}:</strong>{" "}
+                                <strong>{isRecurrence ? t("dialog.frequency", "Wiederholung") : isDueDate ? t("dialog.dueDate", "Fälligkeitsdatum") : fieldLabels[field] ?? field}:</strong>{" "}
                                 {descriptionDiff ? (
                                   <span className="leading-6">
                                     {descriptionDiff.map((part, index) => (
                                       <span key={`${part.type}-${index}`} className={part.type === "removed" ? "bg-red-100 text-red-800 line-through" : part.type === "added" ? "bg-green-100 font-medium text-green-800" : ""}>{part.value}</span>
                                     ))}
                                   </span>
+                                ) : isRecurrence ? (
+                                  <><span className="mr-1 text-muted-foreground line-through">{formatRecurrence(currentRecurrence)}</span><span className="font-medium text-amber-900">→ {formatRecurrence(payload)}</span></>
+                                ) : isDueDate ? (
+                                  <><span className="mr-1 text-muted-foreground line-through">{formatDueDateTime(currentDue.dueDate, currentDue.dueTime)}</span><span className="font-medium text-amber-900">→ {formatDueDateTime(payload.dueDate, payload.dueTime)}</span></>
+                                ) : isRotationSchedule ? (
+                                  <div className="mt-1 space-y-1">
+                                    {previousRotation.length > 0 && <div className="text-muted-foreground line-through">{previousRotation.map((line, index) => <div key={`old-${index}`}>{line}</div>)}</div>}
+                                    <div className="font-medium text-amber-900">{proposedRotation.map((line, index) => <div key={`new-${index}`}>{line}</div>)}</div>
+                                  </div>
                                 ) : (
                                   <>
                                     {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue, field)}</span>}
