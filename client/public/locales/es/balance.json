@@ -42,5 +42,7 @@
   "addWork": "Añadir tiempo de trabajo",
   "removeEffort": "Eliminar esfuerzo",
   "multipleEffortsHint": "Puede añadir varios pagos y tiempos de trabajo para distintas personas.",
-  "requiredEffort": "Añada al menos un gasto completo."
+  "requiredEffort": "Añada al menos un gasto completo.",
+  "effortNumber": "Esfuerzo {{number}}",
+  "viewHistory": "Abrir la entrada de historial relacionada"
 }

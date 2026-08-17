@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { balanceEntries } from "../../drizzle/schema";
+import { activityHistory, balanceEntries } from "../../drizzle/schema";
 import { canModifyBalanceEntry } from "../../shared/balanceRules";
 import { summarizeBalanceEntries } from "../../shared/balanceSummary";
 import { formatBalanceActivityText } from "../../shared/balanceActivityText";
+import { attachBalanceHistoryLinks } from "../../shared/balanceHistoryLinks";
 import { createActivityLog, getDb, getHouseholdById, getHouseholdMemberById, getHouseholdMembers } from "../db";
 import { publicProcedure, router } from "../_core/trpc";
 
@@ -44,10 +45,20 @@ export const balanceRouter = router({
       await assertActiveMember(input.householdId, input.memberId);
       const db = await getDb();
       if (!db) throw new Error("Datenbank nicht verfügbar");
-      return db.select().from(balanceEntries)
+      const entries = await db.select().from(balanceEntries)
         .where(eq(balanceEntries.householdId, input.householdId))
         .orderBy(desc(balanceEntries.occurredAt), desc(balanceEntries.id))
         .limit(input.limit);
+      if (entries.length === 0) return entries;
+      const activities = await db.select({ id: activityHistory.id, relatedItemId: activityHistory.relatedItemId })
+        .from(activityHistory)
+        .where(and(
+          eq(activityHistory.householdId, input.householdId),
+          inArray(activityHistory.relatedItemId, entries.map((entry) => entry.id)),
+          inArray(activityHistory.action, ["balance_entry_created", "balance_entry_updated"]),
+        ))
+        .orderBy(desc(activityHistory.createdAt), desc(activityHistory.id));
+      return attachBalanceHistoryLinks(entries, activities);
     }),
 
   summary: publicProcedure

@@ -42,5 +42,7 @@
   "addWork": "Add work time",
   "removeEffort": "Remove effort",
   "multipleEffortsHint": "You can add several payments and work times for different people.",
-  "requiredEffort": "Please add at least one complete balance effort."
+  "requiredEffort": "Please add at least one complete balance effort.",
+  "effortNumber": "Effort {{number}}",
+  "viewHistory": "Open related history entry"
 }

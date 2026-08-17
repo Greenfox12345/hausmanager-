@@ -42,5 +42,7 @@
   "addWork": "Arbeitszeit hinzufügen",
   "removeEffort": "Aufwand entfernen",
   "multipleEffortsHint": "Sie können mehrere Zahlungen und Arbeitszeiten für verschiedene Personen hinzufügen.",
-  "requiredEffort": "Bitte erfassen Sie mindestens einen vollständigen Bilanzaufwand."
+  "requiredEffort": "Bitte erfassen Sie mindestens einen vollständigen Bilanzaufwand.",
+  "effortNumber": "Aufwand {{number}}",
+  "viewHistory": "Zugehörigen Verlaufseintrag öffnen"
 }

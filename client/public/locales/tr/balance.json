@@ -42,5 +42,7 @@
   "addWork": "Çalışma süresi ekle",
   "removeEffort": "Eforu kaldır",
   "multipleEffortsHint": "Farklı kişiler için birden fazla ödeme ve çalışma süresi ekleyebilirsiniz.",
-  "requiredEffort": "Lütfen en az bir tam bilanço kaydı ekleyin."
+  "requiredEffort": "Lütfen en az bir tam bilanço kaydı ekleyin.",
+  "effortNumber": "Efor {{number}}",
+  "viewHistory": "İlgili geçmiş kaydını aç"
 }

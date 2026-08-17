@@ -10,7 +10,10 @@ import {
   getHouseholdMemberById,
   getAllHouseholds,
   getActivityHistory,
+  getDb,
 } from "../db";
+import { activityHistory } from "../../drizzle/schema";
+import { and, eq } from "drizzle-orm";
 
 const SALT_ROUNDS = 10;
 
@@ -207,15 +210,22 @@ export const authRouter = router({
       householdId: z.number(),
       limit: z.number().optional(),
       offset: z.number().optional(),
+      activityId: z.number().int().positive().optional(),
       activityType: z.enum(["shopping", "task", "project", "member", "inventory", "calendar", "borrow", "other"]).optional(),
     }))
     .query(async ({ input }) => {
-      const { activities, total } = await getActivityHistory(
-        input.householdId, 
-        input.limit || 30, 
-        input.offset || 0,
-        input.activityType
-      );
+      const requestedActivityId = input.activityId;
+      const specificActivity = requestedActivityId
+        ? await (async () => {
+            const db = await getDb();
+            if (!db) throw new Error("Datenbank nicht verfügbar");
+            return db.select().from(activityHistory).where(and(eq(activityHistory.id, requestedActivityId), eq(activityHistory.householdId, input.householdId))).limit(1);
+          })()
+        : null;
+      const historyResult = specificActivity === null
+        ? await getActivityHistory(input.householdId, input.limit || 30, input.offset || 0, input.activityType)
+        : { activities: specificActivity, total: specificActivity.length };
+      const { activities, total } = historyResult;
       
       // Get member names
       const members = await getHouseholdMembers(input.householdId);

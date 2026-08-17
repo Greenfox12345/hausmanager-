@@ -3816,3 +3816,7 @@
 - [x] Mehrere Personen und mehrere Geld- oder Arbeitsaufwände in einem manuellen Bilanzvorgang hinzufügen und speichern können (Mehrfachzeilen mit Person, Zahlungs-/Arbeitsart, Betrag bzw. Minuten und Zweck)
 - [x] Mehrere Bilanzaufwände pro Abschluss von Aufgaben, Zwischenzielen und Einkäufen erfassen können (die gemeinsame Mehrzeilen-Komponente wird in allen Abschlussdialogen wiederverwendet)
 - [x] Nicht mehr benötigte Haushaltseinstellung zur Mitgliederfreigabe aus Bilanz-Erfassung und Einstellungen entfernen (Sichtbarkeit, Frontend-Abfragen und Backend-Freigabe entfernt; die ehemalige Datentabelle bleibt bewusst unverändert bestehen)
+
+## Bilanz und Verlauf verknüpfen (2026-08-17)
+- [x] Mehrfachzeilen beim Erfassen als „Aufwand 1“, „Aufwand 2“ usw. statt als Personen nummerieren (lokalisiert in allen sieben Sprachen)
+- [x] Bilanzposten mit dem jeweils erzeugten Verlaufseintrag verknüpfen und über die Bilanzseite direkt dorthin navigieren können (je Bilanzposten wird der neueste zugehörige Verlaufseintrag ermittelt; der Link öffnet und hebt ihn in der Verlaufsseite hervor)

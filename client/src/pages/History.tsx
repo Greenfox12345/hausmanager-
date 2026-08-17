@@ -1,6 +1,6 @@
 import { formatBorrowDate } from "@/lib/utils";
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
+import { useLocation, useSearch } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -32,6 +32,8 @@ export default function History() {
   const { t, i18n } = useTranslation(["history", "common"]);
   const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const [, setLocation] = useLocation();
+  const search = useSearch();
+  const focusedActivityId = Number(new URLSearchParams(search).get("activityId")) || undefined;
   const { household, isAuthenticated } = useCompatAuth();
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,6 +51,7 @@ export default function History() {
       householdId: household?.householdId ?? 0,
       limit: itemsPerPage,
       offset: (currentPage - 1) * itemsPerPage,
+      activityId: focusedActivityId,
       activityType: filterType === "all" ? undefined : (filterType as any),
     },
     { enabled: !!household }
@@ -61,6 +64,11 @@ export default function History() {
   const activities = data?.activities || [];
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  useEffect(() => {
+    if (!focusedActivityId || !activities.some((activity) => activity.id === focusedActivityId)) return;
+    window.setTimeout(() => document.getElementById(`activity-${focusedActivityId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
+  }, [activities, focusedActivityId]);
 
   // Auth check removed - AppLayout handles this
 
@@ -295,7 +303,7 @@ export default function History() {
               const photoUrls = parsePhotoUrls(activity);
               
               return (
-                <Card key={activity.id} className="shadow-sm hover:shadow-md transition-shadow">
+                <Card id={`activity-${activity.id}`} key={activity.id} className={`shadow-sm hover:shadow-md transition-shadow ${activity.id === focusedActivityId ? "ring-2 ring-primary ring-offset-2" : ""}`}>
                   <CardContent className="p-4">
                     <div className="flex gap-3">
                       {/* Icon */}
