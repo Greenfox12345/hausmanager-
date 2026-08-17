@@ -59,6 +59,43 @@ export const householdMembers = mysqlTable("household_members", {
 export type HouseholdMember = typeof householdMembers.$inferSelect;
 export type InsertHouseholdMember = typeof householdMembers.$inferInsert;
 
+/** Steuerung für die Bilanz eines Haushalts. */
+export const householdBalanceSettings = mysqlTable("household_balance_settings", {
+  householdId: int("householdId").primaryKey().references(() => households.id, { onDelete: "cascade" }),
+  /** Erlaubt beim Erfassen, ein anderes Mitglied als zahlende bzw. arbeitende Person auszuwählen. */
+  allowOtherMemberSelection: boolean("allowOtherMemberSelection").default(false).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type HouseholdBalanceSettings = typeof householdBalanceSettings.$inferSelect;
+
+/**
+ * Einzelner Aufwand für die Haushaltsbilanz. Geld und Arbeitszeit bleiben
+ * absichtlich getrennt, damit keine stillschweigende Stundenlohn-Annahme entsteht.
+ */
+export const balanceEntries = mysqlTable("balance_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  /** Mitglied, das bezahlt oder gearbeitet hat; der Name bleibt als Momentaufnahme erhalten. */
+  memberId: int("memberId").notNull(),
+  memberName: varchar("memberName", { length: 255 }).notNull(),
+  recordedByMemberId: int("recordedByMemberId").notNull(),
+  entryType: mysqlEnum("entryType", ["payment", "work"]).notNull(),
+  /** Eurobetrag nur für Zahlungen. */
+  amount: decimal("amount", { precision: 12, scale: 2 }),
+  /** Minuten nur für Arbeitsaufwände. */
+  minutes: int("minutes"),
+  description: text("description").notNull(),
+  sourceType: mysqlEnum("sourceType", ["manual", "task", "milestone", "shopping"]).default("manual").notNull(),
+  sourceId: int("sourceId"),
+  occurredAt: datetime("occurredAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BalanceEntry = typeof balanceEntries.$inferSelect;
+export type InsertBalanceEntry = typeof balanceEntries.$inferInsert;
+
 /**
  * Notifications table - stores in-app and push notifications for household members
  */

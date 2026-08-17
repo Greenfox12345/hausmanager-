@@ -3794,3 +3794,10 @@
 - [x] Aufgabendetails und verknüpfte Abfragen nach Annahme oder Ablehnung eines Vorschlags sofort invalidieren (Aufgabenliste, Kategorien, Rotation, Ausschlüsse, Haushaltsfreigaben, Abhängigkeiten und Verlauf werden erneuert; die aktualisierte Aufgabe wird an den Dialog übergeben)
 - [x] Kategorien in offenen Vorschlägen und Verlaufseinträgen als Kategorienamen statt technischer IDs anzeigen (serverseitige Namensauflösung in `fieldChanges` sowie clientseitige Darstellung für offene Vorschläge und Gesamtverlauf)
 - [x] Vorschlagsformular nach erfolgreichem Absenden und erneuter Bearbeitung vollständig auf den aktuellen Aufgabenstand zurücksetzen (gemeinsamer Rücksetzimpuls initialisiert alle editorrelevanten Abfragen und Zustände neu)
+
+## Haushaltsbilanz (2026-08-17)
+- [x] Getrennte Bilanz für Geldzahlungen und Arbeitszeiten pro Haushaltsmitglied mit Summen und zeitlicher Zuordnung entwickeln (neue Bilanzseite mit getrennten Euro- und Minuten-Summen; aktive Mitglieder bleiben auch ohne Eintrag sichtbar)
+- [x] Haushaltseinstellung ergänzen, ob beim Erfassen eines Aufwands auch ein anderes Mitglied ausgewählt werden darf (nur Haushaltsersteller kann die Einstellung ändern; standardmäßig ist die Auswahl anderer Personen aus)
+- [x] Bilanzaufwände beim Abschließen von Aufgaben, Zwischenzielen und Einkäufen optional erfassen und mit der Quelle verknüpfen (gemeinsame Aufwands-Eingabe in allen drei Abschlussdialogen; Quelle wird als Aufgabe, Zwischenziel oder Einkauf gespeichert)
+- [x] Manuelle Bilanzaufwände mit Zweck, Datum sowie Mitglied erfassen und in der Bilanz anzeigen (Geld oder Arbeit, frei gewähltes Datum und bei aktivierter Einstellung auch andere Person)
+- [x] Bilanzaufwände innerhalb von fünf Tagen bearbeiten oder löschen; Änderungen nachvollziehbar im Verlauf dokumentieren (nur die erfassende Person innerhalb der Frist; Erstellung, Änderung und Löschung werden im Haushaltsverlauf festgehalten)

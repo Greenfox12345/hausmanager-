@@ -27,7 +27,8 @@ import { Privacy } from "./pages/Privacy";
 import Plansack from "./pages/Plansack";
 import SharePlan from "./pages/SharePlan";
 import Imprint from "./pages/Imprint";
-import HouseholdSettings from "./pages/HouseholdSettings";
+import HouseholdSettings from "@/pages/HouseholdSettings";
+import Balance from "@/pages/Balance";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { DemoTutorial } from "./components/DemoTutorial";
 
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/imprint" component={Imprint} />
       <Route path="/settings" component={HouseholdSettings} />
+      <Route path="/balance" component={Balance} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

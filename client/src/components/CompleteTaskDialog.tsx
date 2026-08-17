@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
+import { BalanceEffortFields, type BalanceEffortDraft } from "./BalanceEffortFields";
 import { QuickCategoryCreate } from "./QuickCategoryCreate";
 import { Loader2, CheckCircle2, ChevronDown, ChevronRight, ShoppingBag, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -83,11 +84,13 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
   const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
+  const [balanceEfforts, setBalanceEfforts] = useState<BalanceEffortDraft[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const prevOpenRef = useRef(open);
   
   const { household, member } = useCompatAuth();
+  const createBalanceEntryMutation = trpc.balance.create.useMutation();
   
   // Load shopping categories (use as inventory categories)
   const { data: inventoryCategories = [] } = trpc.shopping.listCategories.useQuery(
@@ -168,10 +171,24 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
         fileUrls: files,
         shoppingItemsToInventory: shoppingItemsToInventory.length > 0 ? shoppingItemsToInventory : undefined,
       });
+      if (household?.householdId && member?.memberId) {
+        await Promise.all(balanceEfforts.map((effort) => createBalanceEntryMutation.mutateAsync({
+          householdId: household.householdId,
+          recordedByMemberId: member.memberId,
+          memberId: effort.memberId,
+          entryType: effort.entryType,
+          amount: effort.amount,
+          minutes: effort.minutes,
+          description: effort.description,
+          sourceType: "task",
+          sourceId: taskId ?? task.id,
+        })));
+      }
       // Reset form
       setComment("");
       setPhotos([]);
       setFiles([]);
+      setBalanceEfforts([]);
       setSelectedItems(new Set());
       setExpandedItems(new Set());
       setInventoryData({});
@@ -266,6 +283,16 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               rows={3}
             />
           </div>
+
+          {household?.householdId && member?.memberId && (
+            <BalanceEffortFields
+              key={`balance-effort-${task.id}-${open ? "open" : "closed"}`}
+              householdId={household.householdId}
+              memberId={member.memberId}
+              defaultDescription={task.name}
+              onChange={setBalanceEfforts}
+            />
+          )}
 
           {/* Photo upload */}
           <div className="space-y-2">

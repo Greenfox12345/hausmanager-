@@ -309,6 +309,13 @@
       "when": 1786963520101,
       "tag": "0055_brown_luke_cage",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "5",
+      "when": 1786980165550,
+      "tag": "0056_curious_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }

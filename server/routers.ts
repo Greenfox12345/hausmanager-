@@ -23,6 +23,7 @@ import { taskOccurrenceItemsRouter } from "./routers/taskOccurrenceItems";
 import { inventoryAvailabilityRouter } from "./routers/inventoryAvailability";
 import { demoRouter } from "./routers/demo";
 import { unitsRouter } from "./routers/units";
+import { balanceRouter } from "./routers/balance";
 import { z } from "zod";
 import { deleteHousehold } from "./db";
 
@@ -62,6 +63,7 @@ export const appRouter = router({
   planBag: planBagRouter,
   demo: demoRouter,
   units: unitsRouter,
+  balance: balanceRouter,
   // Admin router
   admin: router({
     deleteHousehold: protectedProcedure

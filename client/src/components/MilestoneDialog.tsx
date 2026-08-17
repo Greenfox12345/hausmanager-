@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
+import { BalanceEffortFields, type BalanceEffortDraft } from "./BalanceEffortFields";
 import { Loader2, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { trpc } from "@/lib/trpc";
+import { useCompatAuth } from "@/hooks/useCompatAuth";
 
 interface Task {
   id: number;
@@ -37,8 +40,11 @@ const MilestoneDialogComponent = function MilestoneDialog({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<{url: string, filename: string}[]>([]);
   const [files, setFiles] = useState<{url: string, filename: string}[]>([]);
+  const [balanceEfforts, setBalanceEfforts] = useState<BalanceEffortDraft[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const { household, member } = useCompatAuth();
+  const createBalanceEntryMutation = trpc.balance.create.useMutation();
 
   // Callback for PhotoUpload
   const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
@@ -64,10 +70,24 @@ const MilestoneDialogComponent = function MilestoneDialog({
         photoUrls: photos,
         fileUrls: files,
       });
+      if (household?.householdId && member?.memberId) {
+        await Promise.all(balanceEfforts.map((effort) => createBalanceEntryMutation.mutateAsync({
+          householdId: household.householdId,
+          recordedByMemberId: member.memberId,
+          memberId: effort.memberId,
+          entryType: effort.entryType,
+          amount: effort.amount,
+          minutes: effort.minutes,
+          description: effort.description,
+          sourceType: "milestone",
+          sourceId: task.id,
+        })));
+      }
       // Reset form
       setComment("");
       setPhotos([]);
       setFiles([]);
+      setBalanceEfforts([]);
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding milestone:", error);
@@ -133,6 +153,16 @@ const MilestoneDialogComponent = function MilestoneDialog({
               required
             />
           </div>
+
+          {household?.householdId && member?.memberId && (
+            <BalanceEffortFields
+              key={`balance-milestone-${task.id}-${open ? "open" : "closed"}`}
+              householdId={household.householdId}
+              memberId={member.memberId}
+              defaultDescription={task.name}
+              onChange={setBalanceEfforts}
+            />
+          )}
 
           {/* Photo upload */}
           <div className="space-y-2">

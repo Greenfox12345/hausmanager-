@@ -82,3 +82,16 @@ Dieser Plan ergänzt die automatisierten Tests. Er wird in einem separaten **QA-
 | 13 | Mobile Darstellung | Die Schritte 3, 4, 7 und 11 auf einem schmalen Mobilgerät oder im Mobilmodus prüfen. | Dialoge bleiben scrollbar, Eingaben und Schaltflächen sind erreichbar, und lange Verlaufswerte brechen lesbar um. |
 
 > **Abnahmekriterium:** Ein Kernablauf gilt erst als bestanden, wenn Daten nach einem Neuladen erhalten bleiben, berechtigte und nicht berechtigte Rollen wie vorgesehen reagieren und keine technische Zeichenfolge in einer sichtbaren Oberfläche verbleibt.
+
+## Bilanz – geprüfte Kernregeln (17. August 2026)
+
+Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet keine Stundenlohn- oder Umrechnungsannahme. Datenfreie Tests prüfen die Fünf-Tage-Frist für Korrekturen einschließlich der Grenzsekunde sowie die getrennte Summierung von Zahlungen und Arbeitsminuten; dabei werden auch aktive Mitglieder ohne eigenen Eintrag in der Übersicht geführt.
+
+| Prüfschritt | Ergebnis |
+|---|---|
+| Bilanzregeln | Fünf-Tage-Korrekturfrist und centgenaue Geldnormalisierung bestanden |
+| Bilanzsummen | Zahlungen und Arbeitszeit getrennt; Mitglieder ohne Eintrag sichtbar |
+| Übersetzungen | Neuer Namensraum `balance` in allen sieben Sprachen; Übersetzungsprüfung grün |
+| Vollständiger Standardlauf | 41 Testdateien und 362 datenbankfreie Tests bestanden |
+
+Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

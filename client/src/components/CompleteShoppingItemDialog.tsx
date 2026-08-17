@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoUpload } from "./PhotoUpload";
+import { BalanceEffortFields, type BalanceEffortDraft } from "./BalanceEffortFields";
 import { QuickCategoryCreate } from "./QuickCategoryCreate";
 import { Loader2, ChevronDown, ChevronRight, Package } from "lucide-react";
 import { QuantityInput, formatQuantityWithUnit, type UnitOption } from "@/components/QuantityInput";
@@ -76,10 +77,12 @@ export function CompleteShoppingItemDialog({
 }: CompleteShoppingItemDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [balanceEfforts, setBalanceEfforts] = useState<BalanceEffortDraft[]>([]);
   const prevOpenRef = useRef(open);
   
   const { t } = useTranslation(["shopping", "common", "tasks"]);
   const { household, member } = useCompatAuth();
+  const createBalanceEntryMutation = trpc.balance.create.useMutation();
   
   // Load shopping categories (use as inventory categories)
   const { data: inventoryCategories = [] } = trpc.shopping.listCategories.useQuery(
@@ -152,11 +155,25 @@ export function CompleteShoppingItemDialog({
         itemIds: items.map(item => item.id),
         itemsToInventory: itemsToInventory.length > 0 ? itemsToInventory : undefined,
       });
+      if (household?.householdId && member?.memberId) {
+        await Promise.all(balanceEfforts.map((effort) => createBalanceEntryMutation.mutateAsync({
+          householdId: household.householdId,
+          recordedByMemberId: member.memberId,
+          memberId: effort.memberId,
+          entryType: effort.entryType,
+          amount: effort.amount,
+          minutes: effort.minutes,
+          description: effort.description,
+          sourceType: "shopping",
+          sourceId: items.length === 1 ? items[0]?.id : undefined,
+        })));
+      }
 
       // Reset form
       setSelectedItems(new Set());
       setExpandedItems(new Set());
       setInventoryData({});
+      setBalanceEfforts([]);
       onOpenChange(false);
     } catch (error) {
       console.error("Error completing shopping items:", error);
@@ -193,6 +210,16 @@ export function CompleteShoppingItemDialog({
         </DialogHeader>
 
         <div className="space-y-6">
+          {household?.householdId && member?.memberId && (
+            <BalanceEffortFields
+              key={`balance-shopping-${items.map((item) => item.id).join("-")}-${open ? "open" : "closed"}`}
+              householdId={household.householdId}
+              memberId={member.memberId}
+              defaultDescription={items.length === 1 ? items[0]?.name ?? "Einkauf" : `${items.length} Artikel eingekauft`}
+              onChange={setBalanceEfforts}
+            />
+          )}
+
           {/* Inventory Transfer Section */}
           {items.length > 0 && (
             <div className="space-y-4">
