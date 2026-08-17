@@ -36,7 +36,11 @@
     "overdue": "(süresi geçti)",
     "more": "Daha fazla",
     "noCategory": "Kategori yok",
-    "notesPlaceholder": "Not ekleyin (isteğe bağlı)"
+    "notesPlaceholder": "Not ekleyin (isteğe bağlı)",
+    "project": "Proje",
+    "noProject": "Proje yok",
+    "task": "Görev",
+    "noTask": "Görev yok"
   },
   "status": {
     "open": "Açık",

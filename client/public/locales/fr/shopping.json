@@ -36,7 +36,11 @@
     "overdue": "(expiré)",
     "more": "Plus",
     "noCategory": "Aucune catégorie",
-    "notesPlaceholder": "Ajouter une note (facultative)"
+    "notesPlaceholder": "Ajouter une note (facultative)",
+    "project": "Projet",
+    "noProject": "Aucun projet",
+    "task": "Tâche",
+    "noTask": "Aucune tâche"
   },
   "status": {
     "open": "Ouvert",

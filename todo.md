@@ -3834,3 +3834,8 @@
 ## Mengen und Einheiten im Verlauf (2026-08-17)
 - [x] Einkaufsmengen im Verlauf mit ihrer Einheit darstellen (beim Sammelabschluss wird die hinterlegte Einheits-Kurzform oder -Bezeichnung aufgelöst und mitprotokolliert)
 - [x] Ganze Mengen ohne unnötige Dezimalstellen und nicht-ganzzahlige Mengen präzise sowie lokal formatiert anzeigen (gemeinsame Mengenformatierung: `1.000` wird `1`, `1.250` wird sprachabhängig `1,25` beziehungsweise `1.25`)
+
+## Projektvariablen in Aufgaben und Einkäufen (2026-08-17)
+- [x] Einkaufsartikel direkt einem Projekt und optional einer Aufgabe zuordnen können (optionale Projektspalte mit Fremdschlüssel ergänzt; Auswahl im Hinzufügen- und Bearbeitungsformular)
+- [x] Bei über ein Projekt verknüpften Aufgaben und Einkaufsartikeln `VAR…` in der Anzeige dynamisch mit aktuellen Projektwerten und Einheiten auflösen (Aufgabendetails über verknüpftes Projekt; Einkaufsartikel über direktes Projekt oder das Projekt der zugeordneten Aufgabe)
+- [x] Originalwerte mit `VAR…` unverändert speichern, damit sie weiter bearbeitet und bei geänderten Projektvariablen neu dargestellt werden können (Anzeigeersetzung über gemeinsame, datenfreie Hilfsfunktion; Speicherung bleibt unverändert)

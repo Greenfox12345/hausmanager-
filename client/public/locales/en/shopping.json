@@ -36,7 +36,11 @@
     "overdue": "(overdue)",
     "more": "More",
     "noCategory": "No category",
-    "notesPlaceholder": "Add a note (optional)"
+    "notesPlaceholder": "Add a note (optional)",
+    "project": "Project",
+    "noProject": "No project",
+    "task": "Task",
+    "noTask": "No task"
   },
   "status": {
     "open": "Open",

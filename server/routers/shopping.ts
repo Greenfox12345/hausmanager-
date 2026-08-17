@@ -48,19 +48,21 @@ export const shoppingRouter = router({
 
   // Add new shopping item
   add: publicProcedure
-    .input(
-      z.object({
-        householdId: z.number(),
-        memberId: z.number(),
-        name: z.string().min(1),
-        categoryId: z.number().nullable().optional(),
-        details: z.string().optional(),
-        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
-        notes: z.string().optional(),
-        neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
-        quantity: z.number().nullable().optional(),
-        unitId: z.number().nullable().optional(),
-      })
+   .input(
+     z.object({
+       householdId: z.number(),
+       memberId: z.number(),
+       name: z.string().min(1),
+       categoryId: z.number().nullable().optional(),
+       details: z.string().optional(),
+       photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+       notes: z.string().optional(),
+       neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
+       quantity: z.number().nullable().optional(),
+       unitId: z.number().nullable().optional(),
+        taskId: z.number().nullable().optional(),
+        projectId: z.number().nullable().optional(),
+     })
     )
     .mutation(async ({ input }) => {
       const itemId = await createShoppingItem({
@@ -70,10 +72,12 @@ export const shoppingRouter = router({
         details: input.details,
         photoUrls: input.photoUrls,
         notes: input.notes,
-        neededBy: input.neededBy,
-        quantity: input.quantity,
-        unitId: input.unitId,
-        addedBy: input.memberId,
+       neededBy: input.neededBy,
+       quantity: input.quantity,
+       unitId: input.unitId,
+        taskId: input.taskId,
+        projectId: input.projectId,
+       addedBy: input.memberId,
       });
 
       const lang = await getHouseholdLang(input.householdId);
@@ -91,20 +95,22 @@ export const shoppingRouter = router({
 
   // Update shopping item
   update: publicProcedure
-    .input(
-      z.object({
-        itemId: z.number(),
-        householdId: z.number(),
-        memberId: z.number(),
-        name: z.string().optional(),
-        categoryId: z.number().nullable().optional(),
-        details: z.string().optional(),
-        photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
-        notes: z.string().optional(),
-        neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
-        quantity: z.number().nullable().optional(),
-        unitId: z.number().nullable().optional(),
-      })
+   .input(
+     z.object({
+       itemId: z.number(),
+       householdId: z.number(),
+       memberId: z.number(),
+       name: z.string().optional(),
+       categoryId: z.number().nullable().optional(),
+       details: z.string().optional(),
+       photoUrls: z.array(z.object({ url: z.string(), filename: z.string() })).optional(),
+       notes: z.string().optional(),
+       neededBy: z.number().nullable().optional(), // Unix-Timestamp (ms)
+       quantity: z.number().nullable().optional(),
+       unitId: z.number().nullable().optional(),
+        taskId: z.number().nullable().optional(),
+        projectId: z.number().nullable().optional(),
+     })
     )
     .mutation(async ({ input }) => {
       const { itemId, householdId, memberId, ...updates } = input;

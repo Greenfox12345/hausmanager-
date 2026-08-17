@@ -217,6 +217,7 @@ export const shoppingItems = mysqlTable("shopping_items", {
   quantity: decimal("quantity", { precision: 10, scale: 3 }), // Optional quantity (e.g. 2.5)
   unitId: int("unitId").references(() => itemUnits.id, { onDelete: "set null" }), // Optional unit
   taskId: int("taskId").references(() => tasks.id, { onDelete: "set null" }),
+  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
   addedBy: int("addedBy").references(() => householdMembers.id, { onDelete: "set null" }),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),

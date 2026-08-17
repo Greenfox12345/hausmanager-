@@ -36,7 +36,11 @@
     "overdue": "(已过期)",
     "more": "更多",
     "noCategory": "无分类",
-    "notesPlaceholder": "添加备注（可选）"
+    "notesPlaceholder": "添加备注（可选）",
+    "project": "项目",
+    "noProject": "无项目",
+    "task": "任务",
+    "noTask": "无任务"
   },
   "status": {
     "open": "开放",

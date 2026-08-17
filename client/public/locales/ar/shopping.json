@@ -36,7 +36,11 @@
     "overdue": "(منتهي)",
     "more": "المزيد",
     "noCategory": "بدون فئة",
-    "notesPlaceholder": "أضف ملاحظة (اختياري)"
+    "notesPlaceholder": "أضف ملاحظة (اختياري)",
+    "project": "المشروع",
+    "noProject": "لا يوجد مشروع",
+    "task": "المهمة",
+    "noTask": "لا توجد مهمة"
   },
   "status": {
     "open": "مفتوح",

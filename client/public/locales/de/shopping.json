@@ -36,7 +36,11 @@
     "overdue": "(abgelaufen)",
     "more": "Mehr",
     "noCategory": "Keine Kategorie",
-    "notesPlaceholder": "Notiz hinzufügen (optional)"
+    "notesPlaceholder": "Notiz hinzufügen (optional)",
+    "project": "Projekt",
+    "noProject": "Kein Projekt",
+    "task": "Aufgabe",
+    "noTask": "Keine Aufgabe"
   },
   "status": {
     "open": "Offen",

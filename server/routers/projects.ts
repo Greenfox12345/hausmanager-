@@ -953,4 +953,16 @@ export const planProjectsRouter = router({
       const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
       return project ?? null;
     }),
+
+  /** Aktuelle Variablen mehrerer Projekte für reine Anzeigezwecke laden */
+  getVariablesForProjects: protectedProcedure
+    .input(z.object({ projectIds: z.array(z.number()).max(24) }))
+    .query(async ({ input }) => {
+      if (input.projectIds.length === 0) return {};
+      const db = (await getDb())!;
+      const rows = await db.select({ id: projectsExtended.id, variables: projectsExtended.planVariables })
+        .from(projectsExtended)
+        .where(inArray(projectsExtended.id, input.projectIds));
+      return Object.fromEntries(rows.map((row) => [row.id, row.variables ?? []]));
+    }),
 });

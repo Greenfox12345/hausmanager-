@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { getCurrentLanguage } from "@/lib/i18n";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { PlanActiveBanner } from "@/components/PlanActiveBanner";
+import { resolveProjectVariableDisplay } from "../../../shared/projectVariableDisplay";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -56,6 +57,8 @@ export default function Shopping() {
   const [newItemNeededBy, setNewItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [newItemQuantity, setNewItemQuantity] = useState<number | null>(null);
   const [newItemUnitId, setNewItemUnitId] = useState<number | null>(null);
+  const [newItemProjectId, setNewItemProjectId] = useState<number | null>(null);
+  const [newItemTaskId, setNewItemTaskId] = useState<number | null>(null);
   const [isUploadingNewItemPhoto, setIsUploadingNewItemPhoto] = useState(false);
   const [showAddMore, setShowAddMore] = useState(false);
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
@@ -71,6 +74,8 @@ export default function Shopping() {
   const [editItemNeededBy, setEditItemNeededBy] = useState(""); // ISO-Datum-String für Datumseingabe
   const [editItemNumQuantity, setEditItemNumQuantity] = useState<number | null>(null);
   const [editItemUnitId, setEditItemUnitId] = useState<number | null>(null);
+  const [editItemProjectId, setEditItemProjectId] = useState<number | null>(null);
+  const [editItemTaskId, setEditItemTaskId] = useState<number | null>(null);
   const [editItemNotes, setEditItemNotes] = useState("");
   const [isUploadingEditItemPhoto, setIsUploadingEditItemPhoto] = useState(false);
   
@@ -131,6 +136,10 @@ export default function Shopping() {
   const { data: projects = [] } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
+  );
+  const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
+    { projectIds: projects.map((project: any) => project.id) },
+    { enabled: projects.length > 0 }
   );
 
   const { data: units = [] } = trpc.units.list.useQuery(
@@ -377,6 +386,8 @@ export default function Shopping() {
       neededBy: newItemNeededBy ? new Date(newItemNeededBy).getTime() : null,
       quantity: newItemQuantity,
       unitId: newItemUnitId,
+      taskId: newItemTaskId,
+      projectId: newItemProjectId,
     });
   };
 
@@ -431,6 +442,8 @@ export default function Shopping() {
     // quantity: decimal string from DB → number
     setEditItemNumQuantity(item.quantity ? parseFloat(item.quantity) : null);
     setEditItemUnitId(item.unitId ?? null);
+    setEditItemProjectId(item.projectId ?? null);
+    setEditItemTaskId(item.taskId ?? null);
     setEditItemNotes(item.notes || "");
     setShowEditDialog(true);
   };
@@ -491,6 +504,8 @@ export default function Shopping() {
       neededBy: editItemNeededBy ? new Date(editItemNeededBy).getTime() : null,
       quantity: editItemNumQuantity,
       unitId: editItemUnitId,
+      taskId: editItemTaskId,
+      projectId: editItemProjectId,
     });
   };
 
@@ -862,6 +877,10 @@ export default function Shopping() {
                           units={units}
                         />
                       </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2"><Label>{t("shopping:fields.project", "Projekt")}</Label><Select value={newItemProjectId?.toString() ?? "none"} onValueChange={(value) => setNewItemProjectId(value === "none" ? null : Number(value))}><SelectTrigger><SelectValue placeholder={t("shopping:fields.noProject", "Kein Projekt")} /></SelectTrigger><SelectContent><SelectItem value="none">{t("shopping:fields.noProject", "Kein Projekt")}</SelectItem>{projects.map((project: any) => <SelectItem key={project.id} value={String(project.id)}>{project.name}</SelectItem>)}</SelectContent></Select></div>
+                        <div className="space-y-2"><Label>{t("shopping:fields.task", "Aufgabe")}</Label><Select value={newItemTaskId?.toString() ?? "none"} onValueChange={(value) => setNewItemTaskId(value === "none" ? null : Number(value))}><SelectTrigger><SelectValue placeholder={t("shopping:fields.noTask", "Keine Aufgabe")} /></SelectTrigger><SelectContent><SelectItem value="none">{t("shopping:fields.noTask", "Keine Aufgabe")}</SelectItem>{allTasks.map((task: any) => <SelectItem key={task.id} value={String(task.id)}>{task.name}</SelectItem>)}</SelectContent></Select></div>
+                      </div>
                       {/* Gebraucht bis */}
                       <div className="space-y-2">
                         <Label htmlFor="itemNeededBy">{t("shopping:fields.neededBy", "Gebraucht bis")}</Label>
@@ -944,7 +963,7 @@ export default function Shopping() {
                     <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setDetailItem(item); setShowDetailDialog(true); }}>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`font-medium text-sm ${selectedItemIds.has(item.id) ? "line-through text-muted-foreground" : ""}`}>
-                          {item.name}
+                          {resolveProjectVariableDisplay(item.name, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}
                         </span>
                         {item.taskId && <ShoppingCart className="h-3 w-3 text-primary shrink-0" />}
                         {item.neededBy && (() => {
@@ -1158,6 +1177,10 @@ export default function Shopping() {
                   onUnitChange={setEditItemUnitId}
                   units={units}
                 />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2"><Label>{t("shopping:fields.project", "Projekt")}</Label><Select value={editItemProjectId?.toString() ?? "none"} onValueChange={(value) => setEditItemProjectId(value === "none" ? null : Number(value))}><SelectTrigger><SelectValue placeholder={t("shopping:fields.noProject", "Kein Projekt")} /></SelectTrigger><SelectContent><SelectItem value="none">{t("shopping:fields.noProject", "Kein Projekt")}</SelectItem>{projects.map((project: any) => <SelectItem key={project.id} value={String(project.id)}>{project.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label>{t("shopping:fields.task", "Aufgabe")}</Label><Select value={editItemTaskId?.toString() ?? "none"} onValueChange={(value) => setEditItemTaskId(value === "none" ? null : Number(value))}><SelectTrigger><SelectValue placeholder={t("shopping:fields.noTask", "Keine Aufgabe")} /></SelectTrigger><SelectContent><SelectItem value="none">{t("shopping:fields.noTask", "Keine Aufgabe")}</SelectItem>{allTasks.map((task: any) => <SelectItem key={task.id} value={String(task.id)}>{task.name}</SelectItem>)}</SelectContent></Select></div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="editItemPhotos">{t("shopping:fields.photos", "Fotos")} ({t("common:labels.optional")}, max. 5)</Label>
@@ -1581,7 +1604,7 @@ export default function Shopping() {
                   return item ? (
                     <div key={itemId} className="text-sm flex items-center gap-2">
                       <ShoppingCart className="h-3 w-3 text-primary" />
-                      {item.name}
+                      {resolveProjectVariableDisplay(item.name, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}
                     </div>
                   ) : null;
                 })}

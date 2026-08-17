@@ -315,6 +315,8 @@ export async function createShoppingItem(data: {
   neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
   quantity?: number | null;
   unitId?: number | null;
+  taskId?: number | null;
+  projectId?: number | null;
   addedBy: number;
 }) {
   const db = await getDb();
@@ -338,6 +340,8 @@ export async function updateShoppingItem(id: number, data: {
   neededBy?: number | null; // Unix-Timestamp (ms) – "Gebraucht bis"
   quantity?: number | null;
   unitId?: number | null;
+  taskId?: number | null;
+  projectId?: number | null;
   isCompleted?: boolean;
   completedBy?: number | null;
   completedAt?: Date | null;

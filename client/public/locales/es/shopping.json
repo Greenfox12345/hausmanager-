@@ -40,7 +40,11 @@
     "overdue": "(vencido)",
     "more": "Más",
     "noCategory": "Sin categoría",
-    "notesPlaceholder": "Añadir una nota (opcional)"
+    "notesPlaceholder": "Añadir una nota (opcional)",
+    "project": "Proyecto",
+    "noProject": "Sin proyecto",
+    "task": "Tarea",
+    "noTask": "Sin tarea"
   },
   "actions": {
     "check": "Marcar",
