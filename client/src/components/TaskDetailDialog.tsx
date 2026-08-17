@@ -245,7 +245,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load available tasks for dependencies
   const { data: allAvailableTasks = [] } = trpc.projects.getAvailableTasks.useQuery(
     { householdId: household?.householdId ?? 0 },
-    { enabled: !!household && open && isProjectTask }
+    { enabled: !!household && open }
   );
   
   // Exclude current task from available tasks (can't depend on itself)
@@ -2482,6 +2482,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       if (field === "monthlyRecurrenceMode") {
                         return value === "same_date" ? t("repeat.sameDate", "Am gleichen Kalendertag") : value === "same_weekday" ? t("repeat.sameWeekday", "Am gleichen Wochentag") : "—";
                       }
+                      if ((field === "prerequisites" || field === "followups") && Array.isArray(value)) {
+                        const names = value.map(Number).map((taskId) => allAvailableTasks.find((candidate: any) => candidate.id === taskId)?.name ?? `#${taskId}`);
+                        return names.length > 0 ? names.join(", ") : "—";
+                      }
                       return Array.isArray(value) ? value.join(", ") : value === null ? "—" : value === true ? t("common:yes", "Ja") : value === false ? t("common:no", "Nein") : String(value);
                     };
                     const formatDueDateTime = (dateValue: unknown, timeValue: unknown) => {
@@ -2546,7 +2550,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                     ))}
                                   </span>
                                 ) : isRecurrence ? (
-                                  <><span className="mr-1 text-muted-foreground line-through">{formatRecurrence(currentRecurrence)}</span><span className="font-medium text-amber-900">→ {formatRecurrence(payload)}</span></>
+                                  <><span className="mr-1 text-muted-foreground line-through">{formatRecurrence(currentRecurrence)}</span><span className="font-medium text-amber-900">→ {formatRecurrence({ ...currentRecurrence, ...payload })}</span></>
                                 ) : isDueDate ? (
                                   <><span className="mr-1 text-muted-foreground line-through">{formatDueDateTime(currentDue.dueDate, currentDue.dueTime)}</span><span className="font-medium text-amber-900">→ {formatDueDateTime(payload.dueDate, payload.dueTime)}</span></>
                                 ) : isRotationSchedule ? (
