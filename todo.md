@@ -3834,3 +3834,9 @@
 ## Mengen und Einheiten im Verlauf (2026-08-17)
 - [x] Einkaufsmengen im Verlauf mit ihrer Einheit darstellen (beim Sammelabschluss wird die hinterlegte Einheits-Kurzform oder -Bezeichnung aufgelöst und mitprotokolliert)
 - [x] Ganze Mengen ohne unnötige Dezimalstellen und nicht-ganzzahlige Mengen präzise sowie lokal formatiert anzeigen (gemeinsame Mengenformatierung: `1.000` wird `1`, `1.250` wird sprachabhängig `1,25` beziehungsweise `1.25`)
+
+## Variablen in Aufgaben- und Einkaufsverläufen (2026-08-17)
+- [x] Variablen in lesbaren Aufgaben- und Einkaufsverlaufstexten mit aktuellen Werten und Einheiten auflösen, ohne die zugrunde liegenden Bearbeitungsdaten zu ändern (fachlich präzisiert: gemeint war die konkrete Projektübertragung; die erzeugten Aufgaben und Einkaufsartikel enthalten nun dauerhaft aufgelöste Werte)
+
+## Variablen beim Projektstart (2026-08-17)
+- [x] Beim Start einer Projektphase Aufgaben und Einkaufsartikel aus dem Plan mit berechneten Variablenwerten und zugehörigen Einheiten konkret erzeugen, ohne die Vorlage zu verändern (Formeln, rekursive Variablen und `x` als Multiplikation werden berechnet; Aufgaben erhalten Werte mit Einheit, Mengenfelder nur den Zahlenwert)
