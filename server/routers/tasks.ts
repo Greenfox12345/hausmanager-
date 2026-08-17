@@ -2043,19 +2043,31 @@ export const tasksRouter = router({
       }
 
       const { taskChangeProposals } = await import("../../drizzle/schema");
-      const payload: Record<string, unknown> = { ...(input.changes ?? {}) };
-      if (input.name !== undefined) payload.name = input.name;
-      if (input.description !== undefined) payload.description = input.description;
-      const proposedDueDate = typeof payload.dueDate === "string"
-        ? new Date(`${payload.dueDate}${typeof payload.dueTime === "string" ? `T${payload.dueTime}` : "T00:00"}`)
+      const requestedPayload: Record<string, unknown> = { ...(input.changes ?? {}) };
+      if (input.name !== undefined) requestedPayload.name = input.name;
+      if (input.description !== undefined) requestedPayload.description = input.description;
+      const proposedDueDate = typeof requestedPayload.dueDate === "string"
+        ? new Date(`${requestedPayload.dueDate}${typeof requestedPayload.dueTime === "string" ? `T${requestedPayload.dueTime}` : "T00:00"}`)
         : undefined;
-      const proposedChangeDetails = await buildUpdateChanges(task, payload, proposedDueDate, input.householdId);
+      const proposedChangeDetails = await buildUpdateChanges(task, requestedPayload, proposedDueDate, input.householdId);
+      const actualFieldChanges = proposedChangeDetails.metadata.fieldChanges ?? {};
+      const payload = Object.fromEntries(
+        Object.entries(requestedPayload).filter(([field]) => Object.prototype.hasOwnProperty.call(actualFieldChanges, field)),
+      );
+      if (Object.keys(payload).length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Es wurden keine tatsächlichen Änderungen vorgeschlagen." });
+      }
       const proposalFieldLabels: Record<string, string> = {
         name: "Name", description: "Beschreibung", assignedTo: "Verantwortliche", frequency: "Wiederholung",
-        dueDate: "Datum", dueTime: "Uhrzeit", categoryIds: "Kategorien", projectIds: "Projekte",
+        customFrequencyDays: "Benutzerdefiniertes Intervall", repeatInterval: "Intervall", repeatUnit: "Einheit",
+        irregularRecurrence: "Unregelmäßige Wiederholung", monthlyRecurrenceMode: "Monatliche Wiederholung",
+        monthlyWeekday: "Monatlicher Wochentag", monthlyOccurrence: "Monatliches Vorkommen",
+        enableRotation: "Rotation", requiredPersons: "Benötigte Personen", dueDate: "Datum", dueTime: "Uhrzeit",
+        durationDays: "Dauer in Tagen", durationMinutes: "Dauer in Minuten", categoryIds: "Kategorien", projectIds: "Projekte",
+        sharedHouseholdIds: "Geteilte Haushalte", nonResponsiblePermission: "Berechtigung", excludedMembers: "Ausgeschlossene Mitglieder",
         prerequisites: "Voraussetzungen", followups: "Folgeaufgaben", rotationSchedule: "Rotationsplan",
       };
-      const proposedFields = Object.keys(payload).map((field) => proposalFieldLabels[field] ?? field);
+      const proposedFields = Object.keys(actualFieldChanges).map((field) => proposalFieldLabels[field] ?? field);
       const proposedFieldSummary = proposedFields.length > 0 ? ` (${proposedFields.join(", ")})` : "";
       const [result] = await db.insert(taskChangeProposals).values({
         householdId: input.householdId,

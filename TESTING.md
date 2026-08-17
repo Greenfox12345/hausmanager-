@@ -37,7 +37,7 @@ Für vollständig grüne Integrationstests muss eine isolierte Testdatenbank ber
 
 Der ursprüngliche vollständige Testlauf ohne `TEST_DATABASE_URL` ergab **354 bestandene Tests**, **71 übersprungene Tests** und **48 Fehlschläge in 24 Testdateien**. Die Fehlschläge betrafen ausschließlich Tests, die eine Datenbankverbindung benötigen; die erkennbare Ursache war die beabsichtigte nicht erreichbare Sicherheits-URL (`ECONNREFUSED`).
 
-Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **38 Testdateien und 354 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
+Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **38 Testdateien und 356 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
 
 Die Integrationskonfiguration wurde zusätzlich ohne Datenbankverbindung gesammelt: Alle **24 Testdateien mit 125 Tests** lassen sich laden und werden bei einem absichtlich nicht passenden Testnamen erwartungsgemäß übersprungen. Das bestätigt, dass keine Modul- oder Importfehler die eigentlichen Datenbanktests mehr blockieren.
 

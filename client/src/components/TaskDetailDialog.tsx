@@ -33,7 +33,7 @@ import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
-import { getChangedProposalValues } from "../../../shared/taskProposalFields";
+import { getStableProposalChanges } from "../../../shared/taskProposalFields";
 import { getWordDiff } from "../../../shared/textDiff";
 import { buildProposalDisplayEntries, recurrenceProposalFields } from "../../../shared/taskProposalDisplay";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
@@ -218,6 +218,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
   const [prerequisites, setPrerequisites] = useState<number[]>([]);
   const [followups, setFollowups] = useState<number[]>([]);
+  const [prerequisitesTouched, setPrerequisitesTouched] = useState(false);
+  const [followupsTouched, setFollowupsTouched] = useState(false);
   
   // Neighborhood sharing state
   const [enableSharing, setEnableSharing] = useState(false);
@@ -322,6 +324,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [assignedTo, setAssignedTo] = useState<number | null>(null);
   const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [categoryIdsTouched, setCategoryIdsTouched] = useState(false);
 
   const toggleAssignee = (memberId: number) => {
     setSelectedAssignees(prev =>
@@ -345,6 +348,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [enableRotation, setEnableRotation] = useState(false);
   const [requiredPersons, setRequiredPersons] = useState(1);
   const [excludedMembers, setExcludedMembers] = useState<number[]>([]);
+  const [excludedMembersTouched, setExcludedMembersTouched] = useState(false);
 
   useEffect(() => {
     const incoming = (rotationExclusionData || []).map((entry) => entry.memberId).sort((left, right) => left - right);
@@ -353,6 +357,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     }
   }, [rotationExclusionData, isEditing, excludedMembers]);
   const [rotationSchedule, setRotationSchedule] = useState<ScheduleOccurrence[]>([]);
+  const [rotationScheduleTouched, setRotationScheduleTouched] = useState(false);
   const [isRotationPlanExpanded, setIsRotationPlanExpanded] = useState(true); // Default: expanded
 
   const { data: existingTaskCategories } = trpc.tasks.getTaskCategories.useQuery(
@@ -475,6 +480,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Memoize handleRotationScheduleChange to prevent function recreation on every render
   const handleRotationScheduleChange = useCallback((schedule: ScheduleOccurrence[]) => {
+    setRotationScheduleTouched(true);
     // For irregular appointments: don't sort or renumber, just update the schedule as-is
     if (repeatUnit === 'irregular') {
       setRotationSchedule(schedule);
@@ -553,6 +559,11 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Load task data when dialog opens or task changes
   useEffect(() => {
     if (task && open) {
+      setCategoryIdsTouched(false);
+      setExcludedMembersTouched(false);
+      setRotationScheduleTouched(false);
+      setPrerequisitesTouched(false);
+      setFollowupsTouched(false);
       setName(task.name || "");
       setDescription(task.description || "");
       const assigneeArr = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? (typeof task.assignedTo === 'string' ? (() => { try { const p = JSON.parse(task.assignedTo); return Array.isArray(p) ? p : [p]; } catch { return []; } })() : [task.assignedTo]) : []);
@@ -1046,7 +1057,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         specialDate: occurrence.specialDate ? new Date(occurrence.specialDate).toISOString() : null,
       })),
     };
-    const changes = getChangedProposalValues(proposedValues, currentValues);
+    const changes = getStableProposalChanges(proposedValues, currentValues, {
+      categoryIds: categoryIdsTouched,
+      excludedMembers: excludedMembersTouched,
+      prerequisites: prerequisitesTouched,
+      followups: followupsTouched,
+      rotationSchedule: rotationScheduleTouched,
+    });
     if (Object.keys(changes).length === 0) {
       toast.info(t("dialog.noChanges", "Es wurden keine Änderungen vorgenommen."));
       return;
@@ -1431,7 +1448,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                   householdId={household.householdId}
                   memberId={member.memberId}
                   selectedCategoryIds={selectedCategoryIds}
-                  onChange={setSelectedCategoryIds}
+                  onChange={(categoryIds) => {
+                    setCategoryIdsTouched(true);
+                    setSelectedCategoryIds(categoryIds);
+                  }}
                 />
               )}
 
@@ -2121,6 +2141,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       id={`exclude-${m.id}`}
                                       checked={excludedMembers.includes(m.id)}
                                       onCheckedChange={(checked) => {
+                                        setExcludedMembersTouched(true);
                                         setExcludedMembers(prev =>
                                           checked
                                             ? [...prev, m.id]
@@ -2352,6 +2373,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       (!prerequisites.includes(availableTask.id) && !!task?.id && wouldCreatePrerequisiteCycle(task.id, availableTask.id, dependencyGraph))
                                     }
                                     onCheckedChange={(checked) => {
+                                      setPrerequisitesTouched(true);
                                       setPrerequisites(prev =>
                                         checked
                                           ? Array.from(new Set([...prev, availableTask.id]))
@@ -2391,6 +2413,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       (!followups.includes(availableTask.id) && !!task?.id && wouldCreatePrerequisiteCycle(availableTask.id, task.id, dependencyGraph))
                                     }
                                     onCheckedChange={(checked) => {
+                                      setFollowupsTouched(true);
                                       setFollowups(prev =>
                                         checked
                                           ? Array.from(new Set([...prev, availableTask.id]))
@@ -3274,10 +3297,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <Badge variant="outline" className="text-xs">
+                                    <Badge variant="outline" className="max-w-[calc(100%-6.5rem)] whitespace-normal break-words py-1 text-center text-xs leading-tight sm:max-w-none">
                                       {formatActivityAction(t, activity.action)}
                                     </Badge>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="ml-auto w-[5.75rem] shrink-0 text-right text-xs leading-tight text-muted-foreground">
                                       {format(new Date(activity.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
                                     </span>
                                   </div>

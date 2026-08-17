@@ -3779,5 +3779,9 @@
 
 ## Verlauf und Kernablauf-Qualität (2026-08-17)
 - [x] Technische Aktionscodes in Aufgaben-Verlaufseinträgen lesbar und in allen sieben Sprachen anzeigen (Aktions-Badges wie `change_proposed`, Rückzug, Annahme, Ablehnung und Aktualisierung werden über den History-Namensraum aufgelöst)
-- [x] Wiederholungs-, Monatsmodus- und Einheitenwerte in Feldänderungen lesbar und lokalisiert anzeigen (Wiederholung, Intervall-Einheit, Monatsmodus, Monatswoche und Wochentag erhalten eine gemeinsame testbare Darstellung)
+- [x] Wiederholungs-, Monatsmodus- und Einheitenwerte in Feldänderungen lesbar und lokalisiert anzeigen (Wiederholung, Intervall-Einheit, Monatswoche und Wochentag erhalten eine gemeinsame testbare Darstellung)
 - [x] Manuellen Kernablauf-Testplan für die wichtigsten Haushaltsfunktionen erstellen und dokumentieren (13 praxisnahe End-to-End-Abläufe in `TESTING.md` ergänzt)
+
+## Nachprüfung Änderungsvorschläge auf Mobilgeräten (2026-08-17)
+- [x] Unbeabsichtigt in Änderungsvorschläge gelangende Formularstandardwerte herausfiltern und die Verlaufsbeschreibung nur aus tatsächlich geänderten Feldern bilden (Kategorien, Ausschlüsse, Abhängigkeiten und Rotationspläne werden nur nach bewusster Bearbeitung aufgenommen; berechnete Terminwerte und inaktive Monatsaltwerte bleiben außen vor; Backend protokolliert nur bestätigte Feldänderungen mit lesbaren Namen)
+- [x] Lange Aktions-Badges im mobilen Aufgabenverlauf mit zweizeiligem Umbruch und lesbarer Datumsposition darstellen (feste mobile Maximalbreite, Zeilenumbruch und eine reservierte Datumsspalte)
