@@ -102,6 +102,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Dynamische Projektvariablen | Aufgaben- und Einkaufsanzeigen lösen gespeicherte `VAR…`-Texte aus dem verknüpften Projekt auf; bei Einkaufsartikeln wird alternativ das Projekt der verknüpften Aufgabe verwendet |
 | Berechnete Projektvariablen | Direkte und formelbasierte, voneinander abhängige Projektvariablen werden inklusive Einheit in Aufgaben, Einkaufsnamen, Details und Notizen aufgelöst |
 | Projektvariablen-Überschreibung | Formeln bleiben im Projekt sichtbar und bearbeitbar; abweichende manuelle Ergebnisse werden mit Warnhinweis gekennzeichnet |
+| Dynamische Karten und Projektstart | Aufgabenkarten lösen Namen und Beschreibungen aus dem Projekt auf; Projektstarts übertragen unveränderte Vorlagentexte samt Projektzuordnung |
 | Vollständiger Standardlauf | 46 Testdateien und 371 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

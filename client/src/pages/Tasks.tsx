@@ -28,6 +28,7 @@ import TaskDependencies from "@/components/TaskDependencies";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { PlanTaskBanner } from "@/components/PlanTaskBanner";
+import { resolveProjectVariableDisplay } from "../../../shared/projectVariableDisplay";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -125,6 +126,13 @@ export default function Tasks() {
     { householdId: household?.householdId ?? 0 },
     { enabled: !!household }
   );
+  const projectIdsWithTasks = useMemo(() => Array.from(new Set(tasks.flatMap((task: any) => task.projectIds ?? []))), [tasks]);
+  const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
+    { projectIds: projectIdsWithTasks },
+    { enabled: projectIdsWithTasks.length > 0 }
+  );
+  const resolveTaskProjectText = (task: any, text: string | null | undefined) =>
+    resolveProjectVariableDisplay(text, projectVariables[task.projectIds?.[0] ?? -1]);
   
   // Open task detail dialog if taskId is in URL
   useEffect(() => {
@@ -1435,11 +1443,11 @@ export default function Tasks() {
                     )}
                     <div className="flex-1 min-w-0">
                       <div className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                        {task.name}
+                        {resolveTaskProjectText(task, task.name)}
                       </div>
                       {task.description && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          {task.description}
+                          {resolveTaskProjectText(task, task.description)}
                         </p>
                       )}
                       <div className="flex flex-wrap gap-2 mt-2">

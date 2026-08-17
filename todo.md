@@ -3850,3 +3850,7 @@
 - [x] Abhängige Projektvariablen mit ihrer Formel weiterhin sichtbar und bearbeitbar halten (Projektkarte zeigt Formel unter dem Variablennamen; der Bearbeitungsmodus bietet ein eigenes Rechenweg-Feld)
 - [x] Berechnetes Ergebnis getrennt von der Formel anzeigen und optional bewusst überschreiben können (Rechenweg, aktuelles Ergebnis und optionales Überschreibungsfeld sind getrennt; Originalformel bleibt erhalten)
 - [x] Manuell von der Formel abweichende Ergebnisse mit einem gelben Ausrufezeichen kennzeichnen (numerischer Vergleich vermeidet falsche Warnungen bei gleichwertigen Schreibweisen wie `5` und `5,0`)
+
+## Fehlerkorrektur Karten und Projektstart (2026-08-17)
+- [x] Projektvariablen auch in Beschreibungen normaler Aufgaben- und Einkaufskarten dynamisch auflösen (Aufgabenkarten laden Projektvariablen wie der Detaildialog; Einkaufsname, Details und Notizen verwenden dieselbe Auflösung)
+- [x] Beim Projektstart aktuelle berechnete Variablenwerte einsetzen, ohne Formeln oder Vorlagentexte zu überschreiben (Projektstart und Phasenstart speichern die unveränderten VAR-Texte und ordnen erzeugte Einkaufsartikel nachträglich dem Projekt zu; die Anzeige löst stets aus aktuellen Projektdaten auf)

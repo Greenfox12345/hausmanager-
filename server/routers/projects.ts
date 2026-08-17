@@ -625,45 +625,16 @@ export const projectsRouter = router({
 /** Ersetzt alle VARName-Tokens in einem Text durch berechnete Werte */
 function resolveVarText(
   text: string | null | undefined,
-  variables: PlanVariable[]
+  _variables: PlanVariable[]
 ): string | null {
-  if (!text) return null;
-  return text.replace(/VAR([A-Za-z\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF][A-Za-z0-9\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF_]*)/g, (match, varName) => {
-    const variable = variables.find(v => v.name === varName);
-    if (variable?.value) {
-      const num = parseFloat(variable.value);
-      const displayVal = !isNaN(num) ? String(num) : variable.value;
-      return variable.unit ? `${displayVal} ${variable.unit}` : displayVal;
-    }
-    return match;
-  });
+  return text ?? null;
 }
 
 function resolveVarQuantity(
   quantity: string | null | undefined,
-  variables: PlanVariable[]
+  _variables: PlanVariable[]
 ): string | null {
-  if (!quantity) return null;
-  // Bereits eine Zahl?
-  const num = parseFloat(quantity);
-  if (!isNaN(num) && String(num) === quantity.trim()) return quantity;
-  // VAR-Referenz?
-  const varMatch = quantity.trim().match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)$/);
-  if (varMatch) {
-    const varName = varMatch[1];
-    const variable = variables.find(v => v.name === varName);
-    if (variable?.value) {
-      const resolved = parseFloat(variable.value);
-      if (!isNaN(resolved)) return String(resolved);
-    }
-    return null; // Variable nicht gefunden oder kein Wert
-  }
-  // Einfacher numerischer String mit Leerzeichen?
-  const trimmed = quantity.trim();
-  const trimNum = parseFloat(trimmed);
-  if (!isNaN(trimNum)) return String(trimNum);
-  // Nicht auflösbar → null (kein Fehler beim Insert)
-  return null;
+  return quantity ?? null;
 }
 
 export const planProjectsRouter = router({
@@ -799,6 +770,7 @@ export const planProjectsRouter = router({
       for (const item of taskItemsList) {
         const phaseId = (item as any).phaseId;
         if (phasesToStart !== null && phaseId && !phasesToStart.includes(phaseId)) continue;
+        // Übertragung beim initialen Projektstart
         let dueDate: Date | undefined;
         if (item.daysOffset != null) {
           dueDate = new Date(startDate);
@@ -836,6 +808,9 @@ export const planProjectsRouter = router({
           isCompleted: false,
         });
         createdShoppingIds.push(Number(res.insertId));
+      }
+      if (createdShoppingIds.length > 0) {
+        await db.update(shoppingItems).set({ projectId: input.projectId }).where(inArray(shoppingItems.id, createdShoppingIds));
       }
       await db.update(projectsExtended).set({ status: "active", startDate: startDate }).where(eq(projectsExtended.id, input.projectId));
       const household = await getHouseholdById(input.householdId);
@@ -885,6 +860,7 @@ export const planProjectsRouter = router({
       const createdShoppingIds: number[] = [];
       for (const item of taskItemsList) {
         if ((item as any).phaseId !== input.phaseId) continue;
+        // Übertragung beim späteren Phasenstart
         let dueDate: Date | undefined;
         if (item.daysOffset != null) {
           dueDate = new Date(startDate);
@@ -921,6 +897,9 @@ export const planProjectsRouter = router({
           isCompleted: false,
         });
         createdShoppingIds.push(Number(res.insertId));
+      }
+      if (createdShoppingIds.length > 0) {
+        await db.update(shoppingItems).set({ projectId: input.projectId }).where(inArray(shoppingItems.id, createdShoppingIds));
       }
       return { createdTaskIds, createdShoppingIds };
     }),
