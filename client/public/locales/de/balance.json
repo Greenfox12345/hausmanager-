@@ -37,5 +37,10 @@
   "entryDeleted": "Bilanzaufwand gelöscht",
   "deleteConfirm": "Bilanzaufwand wirklich löschen?",
   "requiredPurpose": "Bitte geben Sie an, wofür der Aufwand war.",
-  "separateHint": "Die Bilanz führt Geld und Arbeitszeit getrennt."
+  "separateHint": "Die Bilanz führt Geld und Arbeitszeit getrennt.",
+  "addPayment": "Zahlung hinzufügen",
+  "addWork": "Arbeitszeit hinzufügen",
+  "removeEffort": "Aufwand entfernen",
+  "multipleEffortsHint": "Sie können mehrere Zahlungen und Arbeitszeiten für verschiedene Personen hinzufügen.",
+  "requiredEffort": "Bitte erfassen Sie mindestens einen vollständigen Bilanzaufwand."
 }

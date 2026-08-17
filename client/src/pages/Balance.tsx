@@ -16,7 +16,9 @@ import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { canModifyBalanceEntry } from "../../../shared/balanceRules";
+import { getValidBalanceEfforts, type BalanceEffortDraftInput } from "../../../shared/balanceEffortDrafts";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
+import { BalanceEffortFields } from "@/components/BalanceEffortFields";
 
 type EntryType = "payment" | "work";
 
@@ -42,11 +44,8 @@ export default function Balance() {
   const [minutes, setMinutes] = useState("");
   const [description, setDescription] = useState("");
   const [occurredDate, setOccurredDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
+  const [manualEfforts, setManualEfforts] = useState<BalanceEffortDraftInput[]>([]);
 
-  const { data: settings } = trpc.balance.getSettings.useQuery(
-    { householdId, memberId },
-    { enabled: !!householdId && !!memberId },
-  );
   const { data: members = [] } = trpc.household.getHouseholdMembers.useQuery(
     { householdId },
     { enabled: !!householdId },
@@ -67,15 +66,7 @@ export default function Balance() {
       utils.balance.summary.invalidate({ householdId, memberId }),
     ]);
   };
-  const createMutation = trpc.balance.create.useMutation({
-    onSuccess: async () => {
-      await invalidateBalance();
-      setCreateOpen(false);
-      resetForm();
-      toast.success(t("balance:entryCreated"));
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const createMutation = trpc.balance.create.useMutation();
   const updateMutation = trpc.balance.update.useMutation({
     onSuccess: async () => {
       await invalidateBalance();
@@ -102,6 +93,7 @@ export default function Balance() {
     setMinutes("");
     setDescription("");
     setOccurredDate(format(new Date(), "yyyy-MM-dd"));
+    setManualEfforts([]);
   };
   const openCreate = () => {
     resetForm();
@@ -117,7 +109,32 @@ export default function Balance() {
     setOccurredDate(format(new Date(entry.occurredAt), "yyyy-MM-dd"));
   };
   const selectedEntryMemberId = Number(selectedMemberId || memberId);
-  const submit = () => {
+  const submit = async () => {
+    if (!editingEntry) {
+      const validEfforts = getValidBalanceEfforts(manualEfforts);
+      if (validEfforts.length === 0) return toast.error(t("balance:requiredEffort"));
+      try {
+        await Promise.all(validEfforts.map((effort) => createMutation.mutateAsync({
+          householdId,
+          recordedByMemberId: memberId,
+          memberId: effort.memberId,
+          entryType: effort.entryType,
+          amount: effort.amount,
+          minutes: effort.minutes,
+          description: effort.description,
+          sourceType: "manual",
+          occurredAt: new Date(`${occurredDate}T12:00:00`),
+        })));
+        await invalidateBalance();
+        setCreateOpen(false);
+        resetForm();
+        toast.success(t("balance:entryCreated"));
+      } catch (error: any) {
+        toast.error(error.message ?? t("common:error"));
+      }
+      return;
+    }
+
     if (!description.trim()) return toast.error(t("balance:requiredPurpose"));
     const values = {
       householdId,
@@ -128,11 +145,7 @@ export default function Balance() {
       description: description.trim(),
       occurredAt: new Date(`${occurredDate}T12:00:00`),
     };
-    if (editingEntry) {
-      updateMutation.mutate({ ...values, entryId: editingEntry.id, editorMemberId: memberId });
-    } else {
-      createMutation.mutate({ ...values, recordedByMemberId: memberId, sourceType: "manual" });
-    }
+    updateMutation.mutate({ ...values, entryId: editingEntry.id, editorMemberId: memberId });
   };
 
   if (!householdId || !memberId) {
@@ -145,23 +158,19 @@ export default function Balance() {
         <Button type="button" variant={entryType === "payment" ? "default" : "outline"} onClick={() => setEntryType("payment")} className="gap-2"><Banknote className="h-4 w-4" /> {t("balance:payment")}</Button>
         <Button type="button" variant={entryType === "work" ? "default" : "outline"} onClick={() => setEntryType("work")} className="gap-2"><BriefcaseBusiness className="h-4 w-4" /> {t("balance:work")}</Button>
       </div>
-      {settings?.allowOtherMemberSelection && (
-        <div className="space-y-2">
-          <Label>{t("balance:who", { action: t(entryType === "payment" ? "balance:paidAction" : "balance:workedAction") })}</Label>
-          <Select value={selectedMemberId || String(memberId)} onValueChange={setSelectedMemberId}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{activeMembers.map((candidate: any) => <SelectItem key={candidate.id} value={String(candidate.id)}>{candidate.memberName}</SelectItem>)}</SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">{t("balance:otherMembersHint")}</p>
-        </div>
-      )}
+      <div className="space-y-2">
+        <Label>{t("balance:who", { action: t(entryType === "payment" ? "balance:paidAction" : "balance:workedAction") })}</Label>
+        <Select value={selectedMemberId || String(memberId)} onValueChange={setSelectedMemberId}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>{activeMembers.map((candidate: any) => <SelectItem key={candidate.id} value={String(candidate.id)}>{candidate.memberName}</SelectItem>)}</SelectContent>
+        </Select>
+      </div>
       {entryType === "payment" ? (
         <div className="space-y-2"><Label htmlFor="balance-amount">{t("balance:amount")}</Label><Input id="balance-amount" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="24,50" /></div>
       ) : (
         <div className="space-y-2"><Label htmlFor="balance-minutes">{t("balance:workMinutes")}</Label><Input id="balance-minutes" inputMode="numeric" type="number" min="1" value={minutes} onChange={(event) => setMinutes(event.target.value)} placeholder="90" /></div>
       )}
       <div className="space-y-2"><Label htmlFor="balance-description">{t("balance:purpose")}</Label><Textarea id="balance-description" value={description} onChange={(event) => setDescription(event.target.value)} rows={3} /></div>
-      <div className="space-y-2"><Label htmlFor="balance-date">{t("balance:date")}</Label><Input id="balance-date" type="date" value={occurredDate} onChange={(event) => setOccurredDate(event.target.value)} /></div>
     </div>
   );
 
@@ -188,7 +197,7 @@ export default function Balance() {
         </Card>
       </div>
       <Dialog open={createOpen || !!editingEntry} onOpenChange={(open) => { if (!open) { setCreateOpen(false); setEditingEntry(null); } }}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editingEntry ? t("balance:edit") : t("balance:create")}</DialogTitle><DialogDescription>{t("balance:separateHint")}</DialogDescription></DialogHeader>{renderForm()}<DialogFooter><Button variant="outline" onClick={() => { setCreateOpen(false); setEditingEntry(null); }}>{t("balance:cancel")}</Button><Button onClick={submit} disabled={createMutation.isPending || updateMutation.isPending}>{editingEntry ? t("balance:save") : t("balance:record")}</Button></DialogFooter></DialogContent>
+      <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editingEntry ? t("balance:edit") : t("balance:create")}</DialogTitle><DialogDescription>{editingEntry ? t("balance:separateHint") : t("balance:multipleEffortsHint")}</DialogDescription></DialogHeader>{editingEntry ? renderForm() : <BalanceEffortFields householdId={householdId} memberId={memberId} defaultDescription="" onChange={setManualEfforts} />}<div className="space-y-2"><Label htmlFor="balance-date">{t("balance:date")}</Label><Input id="balance-date" type="date" value={occurredDate} onChange={(event) => setOccurredDate(event.target.value)} /></div><DialogFooter><Button variant="outline" onClick={() => { setCreateOpen(false); setEditingEntry(null); resetForm(); }}>{t("balance:cancel")}</Button><Button onClick={submit} disabled={createMutation.isPending || updateMutation.isPending}>{editingEntry ? t("balance:save") : t("balance:record")}</Button></DialogFooter></DialogContent>
       </Dialog>
       <BottomNav />
     </AppLayout>

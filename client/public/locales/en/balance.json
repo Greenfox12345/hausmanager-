@@ -37,5 +37,10 @@
   "entryDeleted": "Balance effort deleted",
   "deleteConfirm": "Really delete this balance effort?",
   "requiredPurpose": "Please state what the effort was for.",
-  "separateHint": "The balance keeps money and work time separate."
+  "separateHint": "The balance keeps money and work time separate.",
+  "addPayment": "Add payment",
+  "addWork": "Add work time",
+  "removeEffort": "Remove effort",
+  "multipleEffortsHint": "You can add several payments and work times for different people.",
+  "requiredEffort": "Please add at least one complete balance effort."
 }

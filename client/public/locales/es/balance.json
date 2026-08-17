@@ -37,5 +37,10 @@
   "entryDeleted": "Gasto eliminado",
   "deleteConfirm": "¿Eliminar este gasto?",
   "requiredPurpose": "Indique para qué fue el esfuerzo.",
-  "separateHint": "El balance separa dinero y tiempo de trabajo."
+  "separateHint": "El balance separa dinero y tiempo de trabajo.",
+  "addPayment": "Añadir pago",
+  "addWork": "Añadir tiempo de trabajo",
+  "removeEffort": "Eliminar esfuerzo",
+  "multipleEffortsHint": "Puede añadir varios pagos y tiempos de trabajo para distintas personas.",
+  "requiredEffort": "Añada al menos un gasto completo."
 }

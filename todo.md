@@ -3810,3 +3810,9 @@
 - [x] Bilanz als sichtbaren Einstieg auf der Haushalts-Startseite ergänzen (eigene Kachel mit Bilanzsymbol, Beschreibung und Link nach `/balance`)
 - [x] Bilanz als Eintrag in der Desktop-Seitenleiste ergänzen (regulärer Navigationseintrag zwischen Ausleihen und Plankiste)
 - [x] Manuelle Bilanz-Erfassung auf `/balance` bei aktivierter Haushaltseinstellung um die Auswahl anderer Mitglieder ergänzen (Dialog startet mit der eigenen Person; bei Freigabe zeigt er eine Auswahl aller aktiven Mitglieder mit erklärendem Hinweis)
+
+## Mehrfacherfassung von Bilanzaufwänden (2026-08-17)
+- [x] Bilanzaufwände unabhängig von einer Haushaltseinstellung immer auch für andere aktive Haushaltsmitglieder erfassen können (serverseitig wird jedes aktive Haushaltsmitglied akzeptiert)
+- [x] Mehrere Personen und mehrere Geld- oder Arbeitsaufwände in einem manuellen Bilanzvorgang hinzufügen und speichern können (Mehrfachzeilen mit Person, Zahlungs-/Arbeitsart, Betrag bzw. Minuten und Zweck)
+- [x] Mehrere Bilanzaufwände pro Abschluss von Aufgaben, Zwischenzielen und Einkäufen erfassen können (die gemeinsame Mehrzeilen-Komponente wird in allen Abschlussdialogen wiederverwendet)
+- [x] Nicht mehr benötigte Haushaltseinstellung zur Mitgliederfreigabe aus Bilanz-Erfassung und Einstellungen entfernen (Sichtbarkeit, Frontend-Abfragen und Backend-Freigabe entfernt; die ehemalige Datentabelle bleibt bewusst unverändert bestehen)

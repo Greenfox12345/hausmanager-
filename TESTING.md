@@ -94,6 +94,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Bilanzsummen | Zahlungen und Arbeitszeit getrennt; Mitglieder ohne Eintrag sichtbar |
 | Übersetzungen | Neuer Namensraum `balance` in allen sieben Sprachen; Übersetzungsprüfung grün |
 | Bilanz-Verlaufstexte | Haushaltssprachige Beschreibungen für Erfassung, Änderung und Löschung getestet |
-| Vollständiger Standardlauf | 42 Testdateien und 364 datenbankfreie Tests bestanden |
+| Mehrfacherfassung | Mehrere vollständige Aufwände für unterschiedliche Mitglieder bleiben erhalten; unvollständige Zeilen werden einzeln ignoriert |
+| Vollständiger Standardlauf | 43 Testdateien und 366 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +28,6 @@ import {
   ChevronLeft,
   Tag,
   Ruler,
-  Banknote,
   Pencil,
   Trash2,
   Plus,
@@ -50,7 +48,7 @@ const PRESET_COLORS = [
 ];
 
 export default function HouseholdSettings() {
-  const { t } = useTranslation(["common", "units", "household", "balance"]);
+  const { t } = useTranslation(["common", "units", "household"]);
   const { currentHousehold } = useUserAuth();
   const { member } = useCompatAuth();
   const [, setLocation] = useLocation();
@@ -81,19 +79,6 @@ export default function HouseholdSettings() {
 
   const currentHouseholdLang = settings?.language || "de";
   const currentLangInfo = SUPPORTED_LANGUAGES.find((l) => l.code === currentHouseholdLang);
-
-  // ── Balance settings ───────────────────────────────────────────────────────
-  const { data: balanceSettings } = trpc.balance.getSettings.useQuery(
-    { householdId, memberId },
-    { enabled: !!householdId && !!memberId },
-  );
-  const updateBalanceSettingsMutation = trpc.balance.setAllowOtherMemberSelection.useMutation({
-    onSuccess: () => {
-      utils.balance.getSettings.invalidate({ householdId, memberId });
-      toast.success(t("common:household.settings.saved"));
-    },
-    onError: (error) => toast.error(error.message || t("common:household.settings.saveError")),
-  });
 
   // ── Categories ─────────────────────────────────────────────────────────────
   const { data: categories = [] } = trpc.shopping.listCategories.useQuery(
@@ -325,39 +310,6 @@ export default function HouseholdSettings() {
                       {t("common:household.settings.onlyAdminCanChange", "Nur der Haushaltsersteller kann die Haushaltssprache ändern.")}
                     </p>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Banknote className="h-4 w-4" />
-                {t("balance:title")}
-              </CardTitle>
-              <CardDescription>
-                {t("balance:settingHint")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {settings?.isAdmin ? (
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <Label htmlFor="allow-balance-other-member" className="font-medium">{t("balance:otherMembers")}</Label>
-                    <p className="text-xs text-muted-foreground mt-1">{t("balance:otherMembersHint")}</p>
-                  </div>
-                  <Switch
-                    id="allow-balance-other-member"
-                    checked={balanceSettings?.allowOtherMemberSelection ?? false}
-                    onCheckedChange={(allowOtherMemberSelection) => updateBalanceSettingsMutation.mutate({ householdId, allowOtherMemberSelection })}
-                    disabled={updateBalanceSettingsMutation.isPending}
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <Lock className="h-4 w-4 shrink-0" />
-                  <p className="text-sm">{t("balance:onlyAdmin")}</p>
                 </div>
               )}
             </CardContent>

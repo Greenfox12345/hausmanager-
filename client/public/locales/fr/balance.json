@@ -37,5 +37,10 @@
   "entryDeleted": "Effort supprimé",
   "deleteConfirm": "Supprimer cet effort ?",
   "requiredPurpose": "Indiquez à quoi correspond cet effort.",
-  "separateHint": "Le bilan sépare argent et temps de travail."
+  "separateHint": "Le bilan sépare argent et temps de travail.",
+  "addPayment": "Ajouter un paiement",
+  "addWork": "Ajouter du temps de travail",
+  "removeEffort": "Retirer l’effort",
+  "multipleEffortsHint": "Vous pouvez ajouter plusieurs paiements et temps de travail pour différentes personnes.",
+  "requiredEffort": "Ajoutez au moins un effort complet."
 }

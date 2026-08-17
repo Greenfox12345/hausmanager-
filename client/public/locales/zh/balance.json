@@ -37,5 +37,10 @@
   "entryDeleted": "记录已删除",
   "deleteConfirm": "确定删除此记录吗？",
   "requiredPurpose": "请说明该记录的用途。",
-  "separateHint": "金额和工作时间将分别统计。"
+  "separateHint": "金额和工作时间将分别统计。",
+  "addPayment": "添加付款",
+  "addWork": "添加工时",
+  "removeEffort": "移除记录",
+  "multipleEffortsHint": "您可以为不同成员添加多笔付款和工时。",
+  "requiredEffort": "请至少添加一条完整记录。"
 }

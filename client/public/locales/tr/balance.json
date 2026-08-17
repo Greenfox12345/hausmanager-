@@ -37,5 +37,10 @@
   "entryDeleted": "Bilanço kaydı silindi",
   "deleteConfirm": "Bu bilanço kaydı silinsin mi?",
   "requiredPurpose": "Lütfen eforun ne için olduğunu belirtin.",
-  "separateHint": "Bilanço para ve çalışma süresini ayrı tutar."
+  "separateHint": "Bilanço para ve çalışma süresini ayrı tutar.",
+  "addPayment": "Ödeme ekle",
+  "addWork": "Çalışma süresi ekle",
+  "removeEffort": "Eforu kaldır",
+  "multipleEffortsHint": "Farklı kişiler için birden fazla ödeme ve çalışma süresi ekleyebilirsiniz.",
+  "requiredEffort": "Lütfen en az bir tam bilanço kaydı ekleyin."
 }

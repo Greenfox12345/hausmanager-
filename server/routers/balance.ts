@@ -1,12 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { balanceEntries, householdBalanceSettings, households } from "../../drizzle/schema";
+import { balanceEntries } from "../../drizzle/schema";
 import { canModifyBalanceEntry } from "../../shared/balanceRules";
 import { summarizeBalanceEntries } from "../../shared/balanceSummary";
 import { formatBalanceActivityText } from "../../shared/balanceActivityText";
 import { createActivityLog, getDb, getHouseholdById, getHouseholdMemberById, getHouseholdMembers } from "../db";
-import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, router } from "../_core/trpc";
 
 const entryTypeSchema = z.enum(["payment", "work"]);
 const sourceTypeSchema = z.enum(["manual", "task", "milestone", "shopping"]);
@@ -37,45 +37,7 @@ async function assertActiveMember(householdId: number, memberId: number) {
   return member;
 }
 
-async function allowSelectedMember(householdId: number, recordedByMemberId: number, selectedMemberId: number) {
-  const selectedMember = await assertActiveMember(householdId, selectedMemberId);
-  if (selectedMemberId === recordedByMemberId) return selectedMember;
-  const db = await getDb();
-  const settings = db
-    ? (await db.select().from(householdBalanceSettings).where(eq(householdBalanceSettings.householdId, householdId)).limit(1))[0]
-    : undefined;
-  if (!settings?.allowOtherMemberSelection) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Dieser Haushalt erlaubt keine Auswahl anderer Mitglieder für Bilanzaufwände." });
-  }
-  return selectedMember;
-}
-
 export const balanceRouter = router({
-  getSettings: publicProcedure
-    .input(z.object({ householdId: z.number(), memberId: z.number() }))
-    .query(async ({ input }) => {
-      await assertActiveMember(input.householdId, input.memberId);
-      const db = await getDb();
-      if (!db) throw new Error("Datenbank nicht verfügbar");
-      const settings = (await db.select().from(householdBalanceSettings).where(eq(householdBalanceSettings.householdId, input.householdId)).limit(1))[0];
-      return { allowOtherMemberSelection: settings?.allowOtherMemberSelection ?? false };
-    }),
-
-  setAllowOtherMemberSelection: protectedProcedure
-    .input(z.object({ householdId: z.number(), allowOtherMemberSelection: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Datenbank nicht verfügbar");
-      const household = (await db.select().from(households).where(eq(households.id, input.householdId)).limit(1))[0];
-      if (!household) throw new TRPCError({ code: "NOT_FOUND", message: "Haushalt nicht gefunden." });
-      if (household.createdBy !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Nur der Haushaltsersteller kann diese Einstellung ändern." });
-      await db.insert(householdBalanceSettings).values({
-        householdId: input.householdId,
-        allowOtherMemberSelection: input.allowOtherMemberSelection,
-      }).onDuplicateKeyUpdate({ set: { allowOtherMemberSelection: input.allowOtherMemberSelection } });
-      return { success: true };
-    }),
-
   list: publicProcedure
     .input(z.object({ householdId: z.number(), memberId: z.number(), limit: z.number().int().min(1).max(200).default(100) }))
     .query(async ({ input }) => {
@@ -116,7 +78,7 @@ export const balanceRouter = router({
     }))
     .mutation(async ({ input }) => {
       await assertActiveMember(input.householdId, input.recordedByMemberId);
-      const responsibleMember = await allowSelectedMember(input.householdId, input.recordedByMemberId, input.memberId ?? input.recordedByMemberId);
+      const responsibleMember = await assertActiveMember(input.householdId, input.memberId ?? input.recordedByMemberId);
       validateEffort(input.entryType, input.amount, input.minutes);
       const db = await getDb();
       if (!db) throw new Error("Datenbank nicht verfügbar");
@@ -163,7 +125,7 @@ export const balanceRouter = router({
       if (!canModifyBalanceEntry(entry.createdAt)) throw new TRPCError({ code: "FORBIDDEN", message: "Bilanzaufwände können nur fünf Tage lang geändert werden." });
       validateEffort(entry.entryType, input.amount ?? Number(entry.amount), input.minutes ?? entry.minutes);
       const responsibleMember = input.memberId !== undefined
-        ? await allowSelectedMember(input.householdId, input.editorMemberId, input.memberId)
+        ? await assertActiveMember(input.householdId, input.memberId)
         : null;
       await db.update(balanceEntries).set({
         ...(responsibleMember ? { memberId: responsibleMember.id, memberName: responsibleMember.memberName } : {}),
