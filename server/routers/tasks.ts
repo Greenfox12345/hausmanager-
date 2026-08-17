@@ -54,6 +54,7 @@ import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForC
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
+import { getTaskDueDateParts } from "../../shared/taskProposalApproval";
 
 // ─── German label helpers ───────────────────────────────────────────────────
 
@@ -2051,8 +2052,13 @@ export const tasksRouter = router({
         : undefined;
       const proposedChangeDetails = await buildUpdateChanges(task, requestedPayload, proposedDueDate, input.householdId);
       const actualFieldChanges = proposedChangeDetails.metadata.fieldChanges ?? {};
+      const explicitlyManagedComplexFields = new Set([
+        "categoryIds", "excludedMembers", "prerequisites", "followups", "rotationSchedule",
+      ]);
       const payload = Object.fromEntries(
-        Object.entries(requestedPayload).filter(([field]) => Object.prototype.hasOwnProperty.call(actualFieldChanges, field)),
+        Object.entries(requestedPayload).filter(([field]) =>
+          Object.prototype.hasOwnProperty.call(actualFieldChanges, field) || explicitlyManagedComplexFields.has(field),
+        ),
       );
       if (Object.keys(payload).length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Es wurden keine tatsächlichen Änderungen vorgeschlagen." });
@@ -2252,13 +2258,10 @@ export const tasksRouter = router({
           if (payload[field] !== undefined) updates[field] = payload[field];
         }
         if (payload.dueDate !== undefined || payload.dueTime !== undefined) {
-          const currentDate = task.dueDate
-            ? `${task.dueDate.getFullYear()}-${String(task.dueDate.getMonth() + 1).padStart(2, "0")}-${String(task.dueDate.getDate()).padStart(2, "0")}`
-            : null;
+          const currentDueDate = getTaskDueDateParts(task.dueDate);
+          const currentDate = currentDueDate?.date ?? null;
           const date = payload.dueDate !== undefined ? payload.dueDate : currentDate;
-          const currentTime = task.dueDate
-            ? `${String(task.dueDate.getHours()).padStart(2, "0")}:${String(task.dueDate.getMinutes()).padStart(2, "0")}`
-            : "00:00";
+          const currentTime = currentDueDate?.time ?? "00:00";
           const time = typeof payload.dueTime === "string" && payload.dueTime ? payload.dueTime : currentTime;
           updates.dueDate = date ? new Date(`${date}T${time}:00`) : null;
           if (date) updates.dueDateRaw = `${date} ${time}:00`;

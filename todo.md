@@ -3785,3 +3785,7 @@
 ## Nachprüfung Änderungsvorschläge auf Mobilgeräten (2026-08-17)
 - [x] Unbeabsichtigt in Änderungsvorschläge gelangende Formularstandardwerte herausfiltern und die Verlaufsbeschreibung nur aus tatsächlich geänderten Feldern bilden (Kategorien, Ausschlüsse, Abhängigkeiten und Rotationspläne werden nur nach bewusster Bearbeitung aufgenommen; berechnete Terminwerte und inaktive Monatsaltwerte bleiben außen vor; Backend protokolliert nur bestätigte Feldänderungen mit lesbaren Namen)
 - [x] Lange Aktions-Badges im mobilen Aufgabenverlauf mit zweizeiligem Umbruch und lesbarer Datumsposition darstellen (feste mobile Maximalbreite, Zeilenumbruch und eine reservierte Datumsspalte)
+
+## Fehlerkorrektur Vorschlagsannahme (2026-08-17)
+- [x] Terminwerte aus Änderungsvorschlägen vor der Annahme sicher als Datum normalisieren, damit die Annahme nicht an `getFullYear` auf einem Textwert scheitert (Text- und Datewerte werden über eine gemeinsame Hilfsfunktion als lokale Datum-/Uhrzeitteile gelesen; Unit-Test ergänzt)
+- [x] Bewusst geänderte Voraussetzungen und Folgeaufgaben wieder in Änderungsvorschläge aufnehmen, ohne nachgeladene Standardwerte zu übernehmen (bewusst berührte Abhängigkeitsfelder werden trotz eigener Speicherung erhalten; unberührte asynchrone Werte bleiben weiterhin ausgeschlossen)
