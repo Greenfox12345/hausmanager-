@@ -1,13 +1,5 @@
 import { beforeAll } from 'vitest';
-
-function isSafeTestDatabaseUrl(value: string): boolean {
-  try {
-    const databaseName = new URL(value).pathname.replace(/^\//, "").toLowerCase();
-    return databaseName.includes("test") || databaseName.includes("_ci");
-  } catch {
-    return false;
-  }
-}
+import { isSafeTestDatabaseUrl } from './shared/testDatabaseSafety';
 
 /**
  * CRITICAL: Prevent tests from accessing production database

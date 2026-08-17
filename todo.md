@@ -3769,3 +3769,7 @@
 - [x] Bereinigung des alten Auth-Systems auf ausdrücklichen Wunsch nicht weiter verfolgen
 - [x] Verbleibende Übersetzungslücken in Komponenten und Kalender systematisch ermitteln und schließen (Plankiste-Namensraum, 54 fehlende Schlüssel in 7 Sprachen sowie feste Texte korrigiert; i18n-Lint mit 22 Tests grün)
 - [x] Datenbankfreie und datenbankgestützte Testabdeckung prüfen sowie eine sichere Strategie für `TEST_DATABASE_URL` dokumentieren (354 Tests grün; 48 erwartete DB-Fehlschläge ohne Testdatenbank; Details in `TESTING.md`)
+
+## Testtrennung verbessern (2026-08-17)
+- [x] Testkonfiguration prüfen und datenbankfreie Unit-Tests klar, ohne Ausblendung von Integrationstests, von datenbankgestützten Tests abgrenzen (24 Datenbanktests als `.integration.test.ts` gekennzeichnet; `pnpm test` besteht mit 37 Dateien und 352 Tests; `pnpm test:integration` bleibt durch `TEST_DATABASE_URL` geschützt)
+- [x] Defekte Hilfsdatei-Referenz im Integrationstest für gemeinsame Haushalte reparieren (`shared-households.integration.test.ts` nutzt jetzt die aktuelle Router-Schnittstelle sowie isolierte Anlage und Bereinigung der Testdaten; alle 24 Integrationstestdateien lassen sich laden)

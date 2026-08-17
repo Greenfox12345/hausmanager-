@@ -3,6 +3,9 @@ import path from "path";
 
 const templateRoot = path.resolve(import.meta.dirname);
 
+/**
+ * Integrationstests greifen ausschließlich über TEST_DATABASE_URL auf eine getrennte Testdatenbank zu.
+ */
 export default defineConfig({
   root: templateRoot,
   resolve: {
@@ -14,8 +17,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
-    exclude: ["server/**/*.integration.test.ts"],
+    include: ["server/**/*.integration.test.ts"],
     setupFiles: ["./vitest.setup.ts"],
     env: {
       NODE_ENV: "test",

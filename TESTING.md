@@ -9,8 +9,15 @@ Automatisierte Tests dürfen **niemals** auf die Produktivdatenbank zugreifen. D
 Neue Logik sollte, soweit möglich, in datenbankfreien Unit-Tests abgesichert werden. Beispielsweise kann die Logik für Wiederholungen direkt getestet werden, ohne Haushalts- oder Aufgabendaten in einer Datenbank anzulegen.
 
 ```bash
+pnpm test
+# gleichbedeutend und ausdrücklich benannt:
+pnpm test:unit
+
+# gezielter Einzeltest:
 pnpm exec vitest run server/taskCompletion.logic.test.ts --pool=threads --poolOptions.threads.singleThread
 ```
+
+Der Standardlauf führt ausschließlich datenbankfreie Tests aus. Datenbankabhängige Testdateien tragen bewusst das Suffix `.integration.test.ts` und werden nicht stillschweigend gelöscht oder ignoriert: Sie sind ausschließlich Teil von `pnpm test:integration`.
 
 ## Datenbank-Integrationstests
 
@@ -28,15 +35,19 @@ Für vollständig grüne Integrationstests muss eine isolierte Testdatenbank ber
 
 ## QA-Audit vom 17. August 2026
 
-Der reguläre vollständige Testlauf wurde ohne `TEST_DATABASE_URL` ausgeführt. Dabei bestanden **354 Tests**, **71 Tests wurden übersprungen** und **48 Tests in 24 Testdateien** schlugen fehl. Die Fehlschläge betreffen ausschließlich Tests, die eine Datenbankverbindung benötigen; die erkennbare Ursache ist die beabsichtigte nicht erreichbare Sicherheits-URL (`ECONNREFUSED`).
+Der ursprüngliche vollständige Testlauf ohne `TEST_DATABASE_URL` ergab **354 bestandene Tests**, **71 übersprungene Tests** und **48 Fehlschläge in 24 Testdateien**. Die Fehlschläge betrafen ausschließlich Tests, die eine Datenbankverbindung benötigen; die erkennbare Ursache war die beabsichtigte nicht erreichbare Sicherheits-URL (`ECONNREFUSED`).
 
-> Das Ergebnis ist kein Hinweis auf 48 bestätigte Funktionsfehler. Es bestätigt, dass die Schutzvorkehrung gegen versehentlichen Zugriff auf Produktivdaten greift. Erst ein Lauf gegen eine isolierte Testdatenbank kann diese Integrationstests fachlich bewerten.
+Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **37 Testdateien und 352 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
+
+Die Integrationskonfiguration wurde zusätzlich ohne Datenbankverbindung gesammelt: Alle **24 Testdateien mit 126 Tests** lassen sich laden und werden bei einem absichtlich nicht passenden Testnamen erwartungsgemäß übersprungen. Dabei wurde ein veralteter Test für gemeinsame Haushalte repariert, der auf eine nicht vorhandene Hilfsdatei verwies. Er verwendet jetzt die aktuelle Router-Schnittstelle, erzeugt seine Testdaten isoliert und bereinigt sie nach dem Lauf.
+
+> Das ursprüngliche Ergebnis ist kein Hinweis auf 48 bestätigte Funktionsfehler. Es bestätigt, dass die Schutzvorkehrung gegen versehentlichen Zugriff auf Produktivdaten greift. Erst ein Lauf gegen eine isolierte Testdatenbank kann diese Integrationstests fachlich bewerten.
 
 Zusätzlich bestanden am selben Tag die Übersetzungsprüfung mit **22 Tests** sowie die TypeScript-Prüfung ohne Fehler.
 
 | Testart | Sicherer Befehl | Zweck |
 |---|---|---|
-| Datenfreie Unit-Tests | `pnpm test` | Prüft Logik ohne Zugriff auf Haushaltsdaten. Datenbankabhängige Alttests scheitern dabei absichtlich sicher. |
+| Datenfreie Unit-Tests | `pnpm test` oder `pnpm test:unit` | Prüft Logik ohne Zugriff auf Haushaltsdaten. Die klar gekennzeichneten Integrationstests werden hierbei nicht ausgeführt. |
 | Einzelner Logiktest | `pnpm exec vitest run server/<testdatei>.test.ts --pool=threads --poolOptions.threads.singleThread` | Schneller Test einer gekapselten Logikänderung. |
 | Übersetzungsprüfung | `pnpm exec vitest run server/lint-i18n.test.ts` | Prüft Schlüsselparität, fehlende Schlüssel, nicht registrierte Bereiche und harte Anzeige-Texte. |
 | Integrationstests | `TEST_DATABASE_URL='mysql://…/haushaltsmanager_test' pnpm test:integration` | Prüft Datenbankabläufe ausschließlich gegen eine getrennte Testdatenbank. |
