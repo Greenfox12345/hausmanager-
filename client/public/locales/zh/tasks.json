@@ -219,7 +219,9 @@
     "noChanges": "未进行任何更改。",
     "excludedMembers": "排除的成员",
     "withdrawProposal": "撤回建议",
-    "proposalWithdrawn": "更改建议已撤回"
+    "proposalWithdrawn": "更改建议已撤回",
+    "withdrawProposalTitle": "撤回建议？",
+    "withdrawProposalDescription": "该更改建议将被撤回，之后无法再被批准。"
   },
   "occurrences": {
     "title": "即将到来的任务",

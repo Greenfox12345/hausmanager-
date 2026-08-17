@@ -391,6 +391,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
   // Warn-dialog state: dueDate lands on a skipped date
   const [skippedDateWarnOpen, setSkippedDateWarnOpen] = useState(false);
+  const [proposalToWithdraw, setProposalToWithdraw] = useState<number | null>(null);
   const [pendingSaveData, setPendingSaveData] = useState<null | (() => Promise<void>)>(null);
   // Info shown in the skip-save warning dialog
   const [skipSaveInfo, setSkipSaveInfo] = useState<{ skippedDate: string; nextDate: string | null } | null>(null);
@@ -2587,7 +2588,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         )}
                         {proposal.proposedByMemberId === member.memberId && (
                           <div className="flex justify-end">
-                            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => withdrawTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId })}>
+                            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setProposalToWithdraw(proposal.id)}>
                               {t("dialog.withdrawProposal", "Vorschlag zurückziehen")}
                             </Button>
                           </div>
@@ -3649,6 +3650,29 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
 
     {/* Warning: dueDate is a skipped date */}
     {/* Skip-chain warning before completing a recurring task */}
+    <AlertDialog open={proposalToWithdraw !== null} onOpenChange={(open) => { if (!open) setProposalToWithdraw(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t("dialog.withdrawProposalTitle", "Vorschlag zurückziehen?")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("dialog.withdrawProposalDescription", "Der Änderungsvorschlag wird zurückgezogen und kann danach nicht mehr angenommen werden.")}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t("common:actions.cancel", "Abbrechen")}</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => {
+              if (proposalToWithdraw && household && task && member) {
+                withdrawTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposalToWithdraw, memberId: member.memberId });
+              }
+              setProposalToWithdraw(null);
+            }}
+          >
+            {t("dialog.withdrawProposal", "Vorschlag zurückziehen")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
     <AlertDialog open={skipCompleteWarnOpen} onOpenChange={setSkipCompleteWarnOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

@@ -3728,6 +3728,7 @@
 - [x] Wiederholungsintervall ohne nicht aufgelöste Übersetzungsplatzhalter anzeigen
 - [x] Antragstellenden das Zurückziehen eigener offener Änderungsvorschläge erlauben
 - [x] Vorschlagsrücknahme deutlich im Verlauf protokollieren
+- [x] Vorschlagsrücknahme erst nach ausdrücklicher Bestätigung ausführen
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt

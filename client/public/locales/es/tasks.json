@@ -620,7 +620,9 @@
     "noChanges": "No se realizaron cambios.",
     "excludedMembers": "Miembros excluidos",
     "withdrawProposal": "Retirar propuesta",
-    "proposalWithdrawn": "Propuesta de cambio retirada"
+    "proposalWithdrawn": "Propuesta de cambio retirada",
+    "withdrawProposalTitle": "¿Retirar propuesta?",
+    "withdrawProposalDescription": "La propuesta de cambio se retirará y ya no podrá aprobarse."
   },
   "occurrences": {
     "title": "Próximas citas",

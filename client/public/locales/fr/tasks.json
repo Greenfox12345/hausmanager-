@@ -219,7 +219,9 @@
     "noChanges": "Aucune modification n’a été effectuée.",
     "excludedMembers": "Membres exclus",
     "withdrawProposal": "Retirer la proposition",
-    "proposalWithdrawn": "Proposition de modification retirée"
+    "proposalWithdrawn": "Proposition de modification retirée",
+    "withdrawProposalTitle": "Retirer la proposition ?",
+    "withdrawProposalDescription": "La proposition sera retirée et ne pourra plus être acceptée."
   },
   "occurrences": {
     "title": "Rendez-vous à venir",

@@ -219,7 +219,9 @@
     "noChanges": "No changes were made.",
     "excludedMembers": "Excluded members",
     "withdrawProposal": "Withdraw proposal",
-    "proposalWithdrawn": "Change proposal withdrawn"
+    "proposalWithdrawn": "Change proposal withdrawn",
+    "withdrawProposalTitle": "Withdraw proposal?",
+    "withdrawProposalDescription": "The change proposal will be withdrawn and can no longer be approved."
   },
   "occurrences": {
     "title": "Upcoming appointments",

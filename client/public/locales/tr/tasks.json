@@ -219,7 +219,9 @@
     "noChanges": "Herhangi bir değişiklik yapılmadı.",
     "excludedMembers": "Hariç tutulan üyeler",
     "withdrawProposal": "Öneriyi geri çek",
-    "proposalWithdrawn": "Değişiklik önerisi geri çekildi"
+    "proposalWithdrawn": "Değişiklik önerisi geri çekildi",
+    "withdrawProposalTitle": "Öneri geri çekilsin mi?",
+    "withdrawProposalDescription": "Değişiklik önerisi geri çekilir ve artık kabul edilemez."
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",

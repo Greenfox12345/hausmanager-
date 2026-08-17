@@ -219,7 +219,9 @@
     "noChanges": "Es wurden keine Änderungen vorgenommen.",
     "excludedMembers": "Ausgeschlossene Mitglieder",
     "withdrawProposal": "Vorschlag zurückziehen",
-    "proposalWithdrawn": "Änderungsvorschlag zurückgezogen"
+    "proposalWithdrawn": "Änderungsvorschlag zurückgezogen",
+    "withdrawProposalTitle": "Vorschlag zurückziehen?",
+    "withdrawProposalDescription": "Der Änderungsvorschlag wird zurückgezogen und kann danach nicht mehr angenommen werden."
   },
   "occurrences": {
     "title": "Kommende Termine",

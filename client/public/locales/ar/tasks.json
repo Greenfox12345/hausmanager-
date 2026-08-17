@@ -219,7 +219,9 @@
     "noChanges": "لم يتم إجراء أي تغييرات.",
     "excludedMembers": "الأعضاء المستبعدون",
     "withdrawProposal": "سحب الاقتراح",
-    "proposalWithdrawn": "تم سحب اقتراح التغيير"
+    "proposalWithdrawn": "تم سحب اقتراح التغيير",
+    "withdrawProposalTitle": "سحب الاقتراح؟",
+    "withdrawProposalDescription": "سيتم سحب اقتراح التغيير ولن يمكن قبوله بعد ذلك."
   },
   "occurrences": {
     "title": "المواعيد القادمة",
