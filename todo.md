@@ -3776,3 +3776,8 @@
 
 ## Integrationstest-Audit fortsetzen (2026-08-17)
 - [x] Verbliebene Integrationstests statisch auf veraltete Router-Rückgaben, alte Imports und fehlende Testhilfen prüfen und bestätigte Abweichungen korrigieren (gemeinsame Haushalte, Aufgabenerstellung, Verantwortlichen-Anzeige und Aufgabenrotation auf aktuelle Schnittstellen sowie isolierte Daten umgestellt; alle 24 Dateien mit 125 Tests lassen sich laden)
+
+## Verlauf und Kernablauf-Qualität (2026-08-17)
+- [x] Technische Aktionscodes in Aufgaben-Verlaufseinträgen lesbar und in allen sieben Sprachen anzeigen (Aktions-Badges wie `change_proposed`, Rückzug, Annahme, Ablehnung und Aktualisierung werden über den History-Namensraum aufgelöst)
+- [x] Wiederholungs-, Monatsmodus- und Einheitenwerte in Feldänderungen lesbar und lokalisiert anzeigen (Wiederholung, Intervall-Einheit, Monatsmodus, Monatswoche und Wochentag erhalten eine gemeinsame testbare Darstellung)
+- [x] Manuellen Kernablauf-Testplan für die wichtigsten Haushaltsfunktionen erstellen und dokumentieren (13 praxisnahe End-to-End-Abläufe in `TESTING.md` ergänzt)

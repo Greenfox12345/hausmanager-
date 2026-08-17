@@ -28,7 +28,21 @@
     "borrow_approved": "借用已批准",
     "borrow_rejected": "借用已拒绝",
     "borrow_returned": "物品已归还",
-    "reminder": "提醒已发送"
+    "reminder": "已发送提醒",
+    "created": "已创建",
+    "updated": "已更新",
+    "update": "轮换计划已更新",
+    "completed": "已完成",
+    "uncompleted": "已标记为未完成",
+    "deleted": "已删除",
+    "milestone": "已记录里程碑",
+    "skipped": "已跳过预约",
+    "restored": "已恢复预约",
+    "commented": "已添加评论",
+    "change_proposed": "已提出修改",
+    "change_proposal_withdrawn": "已撤回修改建议",
+    "change_proposal_approved": "已接受修改建议",
+    "change_proposal_rejected": "已拒绝修改建议"
   },
   "fields": {
     "date": "日期",
@@ -48,5 +62,8 @@
     "photoCount": "{{count}} 张照片"
   },
   "noActivities": "暂无活动。",
-  "noActivitiesFiltered": "未找到符合您筛选条件的活动。"
+  "noActivitiesFiltered": "未找到符合您筛选条件的活动。",
+  "values": {
+    "minutes": "{{count}} 分钟"
+  }
 }

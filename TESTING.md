@@ -37,7 +37,7 @@ Für vollständig grüne Integrationstests muss eine isolierte Testdatenbank ber
 
 Der ursprüngliche vollständige Testlauf ohne `TEST_DATABASE_URL` ergab **354 bestandene Tests**, **71 übersprungene Tests** und **48 Fehlschläge in 24 Testdateien**. Die Fehlschläge betrafen ausschließlich Tests, die eine Datenbankverbindung benötigen; die erkennbare Ursache war die beabsichtigte nicht erreichbare Sicherheits-URL (`ECONNREFUSED`).
 
-Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **37 Testdateien und 352 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
+Die 24 betroffenen Dateien sind inzwischen eindeutig als Integrationstests gekennzeichnet. Der Standardlauf `pnpm test` besteht daher ohne Datenbankzugriff mit **38 Testdateien und 354 Tests**. Die Integrationstests bleiben vollständig erhalten und können ausschließlich über `pnpm test:integration` mit einer isolierten Testdatenbank ausgeführt werden.
 
 Die Integrationskonfiguration wurde zusätzlich ohne Datenbankverbindung gesammelt: Alle **24 Testdateien mit 125 Tests** lassen sich laden und werden bei einem absichtlich nicht passenden Testnamen erwartungsgemäß übersprungen. Das bestätigt, dass keine Modul- oder Importfehler die eigentlichen Datenbanktests mehr blockieren.
 
@@ -60,3 +60,25 @@ Zusätzlich bestanden am selben Tag die Übersetzungsprüfung mit **22 Tests** s
 2. Ausschließlich für den Testlauf `TEST_DATABASE_URL` setzen und das aktuelle Schema in dieser Datenbank einrichten. Die URL darf weder in Quellcode noch in Versionsverwaltung gespeichert werden.
 3. `pnpm test:integration` ausführen und erst danach die dann verbleibenden fachlichen Fehler einzeln bewerten.
 4. Ergänzend die Kernabläufe manuell prüfen: Haushaltswechsel, Aufgaben mit Wiederholung und Rotation, Aufgabenabhängigkeiten, Plankiste-Übertragungen sowie Rechte und Änderungsvorschläge.
+
+## Manueller Kernablauf-Testplan
+
+Dieser Plan ergänzt die automatisierten Tests. Er wird in einem separaten **QA-Haushalt** durchgeführt, damit Testaufgaben, Kommentare und Verlaufseinträge nicht mit echten Haushaltsdaten vermischt werden. Für jeden Durchlauf sollten Testergebnis, Datum, verwendetes Gerät und beobachtete Abweichungen festgehalten werden.
+
+| Nr. | Kernablauf | Prüfschritte | Erwartetes Ergebnis |
+|---:|---|---|---|
+| 1 | Anmeldung und Haushalt | Anmelden, Profil öffnen, zwischen zwei Haushalten wechseln und wieder zurückwechseln. | Die Sitzung bleibt bestehen; der aktive Haushalt, seine Mitglieder und die Navigation wechseln vollständig. Beim Öffnen erscheint gegebenenfalls nur der Aktivitätsüberblick des gewählten Haushalts. |
+| 2 | Haushaltsmitglieder | Zweites Mitglied einladen oder anlegen; Namen und Profilbild prüfen. | Das Mitglied erscheint sofort in Auswahlfeldern, Verantwortlichkeiten und Verlaufseinträgen mit dem richtigen Namen. |
+| 3 | Einmalige Aufgabe | Aufgabe mit Name, Beschreibung, Kategorie, verantwortlicher Person und Termin anlegen, bearbeiten und abschließen. | Alle Werte bleiben nach Aktualisierung erhalten. Abschließen erzeugt einen lesbaren Verlaufseintrag und die Aufgabe wechselt in den erledigten Zustand. |
+| 4 | Wiederholung und Terminlogik | Wöchentliche und monatliche Aufgabe anlegen. Bei der Monatsregel „gleicher Wochentag“ Monat, Vorkommen und Wochentag wählen; anschließend einen Termin überspringen und wiederherstellen. | Der nächste Termin wird korrekt berechnet. Überspringen und Wiederherstellen wirken auf genau den gewählten Termin. Im Verlauf stehen lesbare Werte wie „Monatlich“, „Am gleichen Wochentag“ und „Donnerstag“, niemals technische Codes. |
+| 5 | Rotation | Wiederkehrende Aufgabe mit mindestens zwei Mitgliedern und Rotation anlegen; Rotationsplan öffnen, Zuordnung ändern und einen Termin abschließen. | Die Zuordnung bleibt datumstabil, ausgeschlossene Mitglieder werden nicht geplant und der nächste Termin übernimmt die erwartete Person. |
+| 6 | Abhängigkeiten | Drei Aufgaben A → B → C anlegen; prüfen, ob A als indirekte Voraussetzung von C sichtbar ist. Einen Zyklusversuch ausführen. | Indirekte Voraussetzungen werden nachvollziehbar dargestellt. Selbstbezüge, Duplikate und Zyklen werden abgewiesen. |
+| 7 | Aufgabenrechte und Vorschläge | Aufgabe mit verantwortlicher Person anlegen. Mit einem anderen Mitglied eine Änderung vorschlagen, als verantwortliche Person annehmen und einen zweiten Vorschlag zurückziehen. | Nicht verantwortliche Mitglieder ändern nicht direkt. Vorschläge zeigen alte und neue Werte, Annahme übernimmt alles, Rückzug ist bestätigt und jeder Schritt erscheint lesbar im Verlauf. |
+| 8 | Verlauf und Übersetzungen | In Aufgaben-Dialog und globalem Verlauf die Aktionen Erstellen, Aktualisieren, Vorschlag, Annahme, Ablehnung und Rückzug öffnen. App-Sprache nacheinander auf Deutsch und Englisch stellen. | Aktions-Badges und Feldwerte sind lokalisiert; keine Codes wie `change_proposed`, `same_weekday`, `weekly` oder `months` erscheinen. Alte und neue Werte bleiben unterscheidbar. |
+| 9 | Einkauf und Inventar | Einkaufsartikel anlegen, Menge ändern, abschließen und einen Artikel ins Inventar übernehmen. | Status, Menge, Kategorie und Verlauf werden korrekt übernommen; Fotos oder Anhänge bleiben erreichbar. |
+| 10 | Ausleihen | Inventargegenstand zur Ausleihe freigeben, Anfrage stellen, annehmen, Rückgabe dokumentieren und optional widerrufen. | Statuswechsel, Beteiligte und verknüpfte Aufgabe sind verständlich sichtbar; keine Berechtigung wird umgangen. |
+| 11 | Plankiste, Variablen und Phasen | Plan mit Eingabe- und Rechenvariable, Einkauf, Aufgaben, Abhängigkeiten und mindestens zwei Phasen erstellen. Variablenwerte ändern und Plan in Haushalt übertragen. | Werte werden außerhalb des Editors korrekt aufgelöst, Einheiten sind plausibel und die Übertragung erzeugt reale Einkaufsartikel und Aufgaben in Phasenreihenfolge. |
+| 12 | Plansack und Projektstart | Plan in Plansack speichern, in einen anderen QA-Haushalt importieren und als Projekt starten. Eine spätere Phase danach starten. | Import enthält alle vorgesehenen Daten ohne Verantwortliche. Das Projekt hält Variablen und Phasen bereit; Aufgaben und Einkäufe entstehen erst beim Start der jeweiligen Phase. |
+| 13 | Mobile Darstellung | Die Schritte 3, 4, 7 und 11 auf einem schmalen Mobilgerät oder im Mobilmodus prüfen. | Dialoge bleiben scrollbar, Eingaben und Schaltflächen sind erreichbar, und lange Verlaufswerte brechen lesbar um. |
+
+> **Abnahmekriterium:** Ein Kernablauf gilt erst als bestanden, wenn Daten nach einem Neuladen erhalten bleiben, berechtigte und nicht berechtigte Rollen wie vorgesehen reagieren und keine technische Zeichenfolge in einer sichtbaren Oberfläche verbleibt.

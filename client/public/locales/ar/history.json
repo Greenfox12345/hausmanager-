@@ -28,7 +28,21 @@
     "borrow_approved": "تمت الموافقة على الاستعارة",
     "borrow_rejected": "تم رفض الاستعارة",
     "borrow_returned": "تم إرجاع العنصر",
-    "reminder": "تم إرسال التذكير"
+    "reminder": "تم إرسال التذكير",
+    "created": "تم الإنشاء",
+    "updated": "تم التحديث",
+    "update": "تم تحديث جدول التناوب",
+    "completed": "تم الإكمال",
+    "uncompleted": "تم وضع علامة مفتوحة",
+    "deleted": "تم الحذف",
+    "milestone": "تم تسجيل المرحلة",
+    "skipped": "تم تخطي الموعد",
+    "restored": "تمت استعادة الموعد",
+    "commented": "تمت إضافة تعليق",
+    "change_proposed": "تم اقتراح تغيير",
+    "change_proposal_withdrawn": "تم سحب اقتراح التغيير",
+    "change_proposal_approved": "تم قبول اقتراح التغيير",
+    "change_proposal_rejected": "تم رفض اقتراح التغيير"
   },
   "fields": {
     "date": "التاريخ",
@@ -48,5 +62,8 @@
     "photoCount": "{{count}} صورة"
   },
   "noActivities": "لا توجد أنشطة بعد.",
-  "noActivitiesFiltered": "لم يتم العثور على أنشطة تتوافق مع معايير التصفية الخاصة بك."
+  "noActivitiesFiltered": "لم يتم العثور على أنشطة تتوافق مع معايير التصفية الخاصة بك.",
+  "values": {
+    "minutes": "{{count}} دقيقة"
+  }
 }

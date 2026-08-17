@@ -124,7 +124,8 @@
     "week": "semaine",
     "weekly": "Hebdomadaire",
     "specialName": "Nom de l'occurrence spéciale",
-    "specialNamePlaceholder": "ex. Nettoyage de Noël"
+    "specialNamePlaceholder": "ex. Nettoyage de Noël",
+    "daysN": "{{count}} jours"
   },
   "weekdays": {
     "monday": "Lundi",

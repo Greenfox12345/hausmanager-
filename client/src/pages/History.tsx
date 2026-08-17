@@ -25,6 +25,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
+import { formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHistoryDisplay";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
@@ -387,23 +388,17 @@ export default function History() {
                             monthlyOccurrence: t("tasks:labels.monthlyOccurrence", "Monatliches Vorkommen"),
                             durationDays: t("tasks:labels.durationDays", "Dauer in Tagen"), durationMinutes: t("tasks:labels.durationMinutes", "Dauer in Minuten"),
                           };
-                          const renderValue = (change: any, side: "old" | "new") => {
-                            const namedValue = side === "old" ? change?.oldNames : change?.newNames;
-                            const value = namedValue ?? change?.[side];
-                            if (value === undefined || value === null || value === "") return "—";
-                            if (typeof value === "boolean") return value ? t("common:yes", "Ja") : t("common:no", "Nein");
-                            if (Array.isArray(value)) return value.join(", ") || "—";
-                            if (typeof value === "object") return JSON.stringify(value);
-                            return String(value);
+                          const renderValue = (field: string, change: any, side: "old" | "new") => {
+                            return formatTaskHistoryValue(t, field, getHistoryChangeValue(change, side));
                           };
                           return (
                             <div className="mt-2 rounded-md border border-amber-200 bg-amber-50/60 p-2 text-xs">
                               {Object.entries(fieldChanges).map(([field, change]) => (
                                 <div key={field} className="break-words py-0.5">
                                   <span className="font-semibold">{fieldLabels[field] ?? field}:</span>{" "}
-                                  <span className="text-muted-foreground line-through">{renderValue(change, "old")}</span>
+                                  <span className="text-muted-foreground line-through">{renderValue(field, change, "old")}</span>
                                   <span className="mx-1">→</span>
-                                  <span className="font-medium text-green-700">{renderValue(change, "new")}</span>
+                                  <span className="font-medium text-green-700">{renderValue(field, change, "new")}</span>
                                 </div>
                               ))}
                             </div>

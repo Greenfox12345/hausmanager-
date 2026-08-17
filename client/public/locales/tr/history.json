@@ -28,7 +28,21 @@
     "borrow_approved": "Ödünç alma onaylandı",
     "borrow_rejected": "Ödünç alma reddedildi",
     "borrow_returned": "Öğe iade edildi",
-    "reminder": "Hatırlatıcı gönderildi"
+    "reminder": "Hatırlatıcı gönderildi",
+    "created": "Oluşturuldu",
+    "updated": "Güncellendi",
+    "update": "Dönüşüm planı güncellendi",
+    "completed": "Tamamlandı",
+    "uncompleted": "Açık olarak işaretlendi",
+    "deleted": "Silindi",
+    "milestone": "Ara hedef kaydedildi",
+    "skipped": "Randevu atlandı",
+    "restored": "Randevu geri yüklendi",
+    "commented": "Yorum eklendi",
+    "change_proposed": "Değişiklik önerildi",
+    "change_proposal_withdrawn": "Değişiklik önerisi geri çekildi",
+    "change_proposal_approved": "Değişiklik önerisi kabul edildi",
+    "change_proposal_rejected": "Değişiklik önerisi reddedildi"
   },
   "fields": {
     "date": "Tarih",
@@ -48,5 +62,8 @@
     "photoCount": "{{count}} Fotoğraf"
   },
   "noActivities": "Henüz aktivite bulunamadı.",
-  "noActivitiesFiltered": "Filtre kriterlerinize uyan aktivite bulunamadı."
+  "noActivitiesFiltered": "Filtre kriterlerinize uyan aktivite bulunamadı.",
+  "values": {
+    "minutes": "{{count}} dakika"
+  }
 }

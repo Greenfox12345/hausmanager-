@@ -124,7 +124,8 @@
     "week": "Woche",
     "weekly": "Wöchentlich",
     "specialName": "Name des Sondertermins",
-    "specialNamePlaceholder": "z.B. Weihnachtsputz"
+    "specialNamePlaceholder": "z.B. Weihnachtsputz",
+    "daysN": "{{count}} Tage"
   },
   "weekdays": {
     "monday": "Montag",

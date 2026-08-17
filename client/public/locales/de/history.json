@@ -28,7 +28,21 @@
     "borrow_approved": "Ausleihe genehmigt",
     "borrow_rejected": "Ausleihe abgelehnt",
     "borrow_returned": "Gegenstand zurückgegeben",
-    "reminder": "Erinnerung gesendet"
+    "reminder": "Erinnerung gesendet",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "update": "Rotationsplan aktualisiert",
+    "completed": "Abgeschlossen",
+    "uncompleted": "Als offen markiert",
+    "deleted": "Gelöscht",
+    "milestone": "Zwischenziel erfasst",
+    "skipped": "Termin übersprungen",
+    "restored": "Termin wiederhergestellt",
+    "commented": "Kommentar hinzugefügt",
+    "change_proposed": "Änderung vorgeschlagen",
+    "change_proposal_withdrawn": "Änderungsvorschlag zurückgezogen",
+    "change_proposal_approved": "Änderungsvorschlag angenommen",
+    "change_proposal_rejected": "Änderungsvorschlag abgelehnt"
   },
   "fields": {
     "date": "Datum",
@@ -48,5 +62,8 @@
     "photoCount": "{{count}} Foto"
   },
   "noActivities": "Noch keine Aktivitäten vorhanden.",
-  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen."
+  "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen.",
+  "values": {
+    "minutes": "{{count}} Minuten"
+  }
 }

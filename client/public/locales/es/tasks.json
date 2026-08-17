@@ -130,7 +130,8 @@
     "repeats": "La tarea se repite",
     "requiredPersons": "Personas requeridas",
     "specialName": "Nombre de la ocurrencia especial",
-    "specialNamePlaceholder": "p.ej. Limpieza de Navidad"
+    "specialNamePlaceholder": "p.ej. Limpieza de Navidad",
+    "daysN": "{{count}} días"
   },
   "filter": {
     "all": "Todo",

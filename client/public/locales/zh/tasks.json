@@ -124,7 +124,8 @@
     "week": "周",
     "weekly": "每周",
     "specialName": "特殊日程名称",
-    "specialNamePlaceholder": "例如：圣诞大扫除"
+    "specialNamePlaceholder": "例如：圣诞大扫除",
+    "daysN": "{{count}} 天"
   },
   "weekdays": {
     "monday": "星期一",

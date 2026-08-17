@@ -14,16 +14,16 @@
     "household": "Hogar"
   },
   "actions": {
-    "created": "creado",
-    "updated": "actualizado",
-    "deleted": "eliminado",
-    "completed": "completado",
+    "created": "Creado",
+    "updated": "Actualizado",
+    "deleted": "Eliminado",
+    "completed": "Completado",
     "assigned": "asignado",
     "approved": "aprobado",
     "rejected": "rechazado",
     "returned": "devuelto",
     "add": "Añadido",
-    "update": "Actualizado",
+    "update": "Plan de rotación actualizado",
     "delete": "Eliminado",
     "complete": "Completado",
     "create": "Creado",
@@ -43,7 +43,16 @@
     "borrow_approved": "Préstamo aprobado",
     "borrow_rejected": "Préstamo rechazado",
     "borrow_returned": "Artículo devuelto",
-    "reminder": "Recordatorio enviado"
+    "reminder": "Recordatorio enviado",
+    "uncompleted": "Marcado como pendiente",
+    "milestone": "Hito registrado",
+    "skipped": "Cita omitida",
+    "restored": "Cita restaurada",
+    "commented": "Comentario añadido",
+    "change_proposed": "Cambio propuesto",
+    "change_proposal_withdrawn": "Propuesta de cambio retirada",
+    "change_proposal_approved": "Propuesta de cambio aprobada",
+    "change_proposal_rejected": "Propuesta de cambio rechazada"
   },
   "messages": {
     "loadError": "Error al cargar el historial.",
@@ -66,5 +75,8 @@
     "photoCount": "{{count}} foto"
   },
   "noActivities": "Aún no hay actividades.",
-  "noActivitiesFiltered": "No se encontraron actividades que coincidan con sus criterios de filtro."
+  "noActivitiesFiltered": "No se encontraron actividades que coincidan con sus criterios de filtro.",
+  "values": {
+    "minutes": "{{count}} minutos"
+  }
 }

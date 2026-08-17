@@ -124,7 +124,8 @@
     "week": "أسبوع",
     "weekly": "أسبوعيًا",
     "specialName": "اسم الموعد الخاص",
-    "specialNamePlaceholder": "مثال: تنظيف عيد الميلاد"
+    "specialNamePlaceholder": "مثال: تنظيف عيد الميلاد",
+    "daysN": "{{count}} أيام"
   },
   "weekdays": {
     "monday": "الاثنين",

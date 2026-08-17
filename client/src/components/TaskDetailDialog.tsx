@@ -37,6 +37,7 @@ import { getChangedProposalValues } from "../../../shared/taskProposalFields";
 import { getWordDiff } from "../../../shared/textDiff";
 import { buildProposalDisplayEntries, recurrenceProposalFields } from "../../../shared/taskProposalDisplay";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
+import { formatActivityAction, formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHistoryDisplay";
 import {
   getFollowupClosure,
   getPrerequisiteClosure,
@@ -3260,16 +3261,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                             monthlyOccurrence: t("dialog.monthlyOccurrence", "Monatliches Vorkommen"),
                             durationDays: t("dialog.durationDays", "Dauer in Tagen"), durationMinutes: t("dialog.durationMinutes", "Dauer in Minuten"),
                           };
-                          const formatHistoryValue = (change: any, direction: "old" | "new") => {
-                            const namedValue = direction === "old" ? change?.oldNames : change?.newNames;
-                            const value = namedValue ?? change?.[direction];
-                            if (value === null || value === undefined || value === "") return "—";
-                            if (Array.isArray(value)) {
-                              return value.map((id) => ownMembers.find((candidate) => candidate.id === Number(id))?.memberName ?? `#${id}`).join(", ") || "—";
-                            }
-                            if (typeof value === "boolean") return value ? t("common:yes", "Ja") : t("common:no", "Nein");
-                            if (typeof value === "object") return JSON.stringify(value);
-                            return String(value);
+                          const formatHistoryValue = (field: string, change: any, direction: "old" | "new") => {
+                            return formatTaskHistoryValue(
+                              t,
+                              field,
+                              getHistoryChangeValue(change, direction),
+                              (id) => ownMembers.find((candidate) => candidate.id === Number(id))?.memberName ?? `#${id}`,
+                            );
                           };
                           return (
                             <div key={activity.id} className="border rounded-lg p-4 space-y-2">
@@ -3277,7 +3275,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <Badge variant="outline" className="text-xs">
-                                      {activity.action}
+                                      {formatActivityAction(t, activity.action)}
                                     </Badge>
                                     <span className="text-xs text-muted-foreground">
                                       {format(new Date(activity.createdAt), i18n.language === "de" ? "PPP 'um' HH:mm 'Uhr'" : "PPP 'at' HH:mm", { locale: dateFnsLocale })}
@@ -3289,9 +3287,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                       {Object.entries(fieldChanges).map(([field, change]) => (
                                         <div key={field} className="break-words">
                                           <strong>{fieldLabels[field] ?? field}:</strong>{" "}
-                                          <span className="text-muted-foreground line-through">{formatHistoryValue(change, "old")}</span>
+                                          <span className="text-muted-foreground line-through">{formatHistoryValue(field, change, "old")}</span>
                                           <span className="mx-1">→</span>
-                                          <span className="font-medium text-green-700">{formatHistoryValue(change, "new")}</span>
+                                          <span className="font-medium text-green-700">{formatHistoryValue(field, change, "new")}</span>
                                         </div>
                                       ))}
                                     </div>

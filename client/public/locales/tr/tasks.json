@@ -124,7 +124,8 @@
     "week": "Hafta",
     "weekly": "Haftalık",
     "specialName": "Özel tekrar adı",
-    "specialNamePlaceholder": "örn. Yılbaşı temizliği"
+    "specialNamePlaceholder": "örn. Yılbaşı temizliği",
+    "daysN": "{{count}} gün"
   },
   "weekdays": {
     "monday": "Pazartesi",

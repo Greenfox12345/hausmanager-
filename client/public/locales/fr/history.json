@@ -28,7 +28,21 @@
     "borrow_approved": "Emprunt approuvé",
     "borrow_rejected": "Emprunt refusé",
     "borrow_returned": "Objet retourné",
-    "reminder": "Rappel envoyé"
+    "reminder": "Rappel envoyé",
+    "created": "Créé",
+    "updated": "Mis à jour",
+    "update": "Planning de rotation mis à jour",
+    "completed": "Terminé",
+    "uncompleted": "Marqué comme ouvert",
+    "deleted": "Supprimé",
+    "milestone": "Jalon enregistré",
+    "skipped": "Rendez-vous ignoré",
+    "restored": "Rendez-vous restauré",
+    "commented": "Commentaire ajouté",
+    "change_proposed": "Modification proposée",
+    "change_proposal_withdrawn": "Proposition de modification retirée",
+    "change_proposal_approved": "Proposition de modification acceptée",
+    "change_proposal_rejected": "Proposition de modification refusée"
   },
   "fields": {
     "date": "Date",
@@ -48,5 +62,8 @@
     "photoCount": "{{count}} photo"
   },
   "noActivities": "Aucune activité pour l'instant.",
-  "noActivitiesFiltered": "Aucune activité correspondant à vos critères de filtre n'a été trouvée."
+  "noActivitiesFiltered": "Aucune activité correspondant à vos critères de filtre n'a été trouvée.",
+  "values": {
+    "minutes": "{{count}} minutes"
+  }
 }
