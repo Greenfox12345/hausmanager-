@@ -3789,3 +3789,8 @@
 ## Fehlerkorrektur Vorschlagsannahme (2026-08-17)
 - [x] Terminwerte aus Änderungsvorschlägen vor der Annahme sicher als Datum normalisieren, damit die Annahme nicht an `getFullYear` auf einem Textwert scheitert (Text- und Datewerte werden über eine gemeinsame Hilfsfunktion als lokale Datum-/Uhrzeitteile gelesen; Unit-Test ergänzt)
 - [x] Bewusst geänderte Voraussetzungen und Folgeaufgaben wieder in Änderungsvorschläge aufnehmen, ohne nachgeladene Standardwerte zu übernehmen (bewusst berührte Abhängigkeitsfelder werden trotz eigener Speicherung erhalten; unberührte asynchrone Werte bleiben weiterhin ausgeschlossen)
+
+## Nachbearbeitung von Änderungsvorschlägen (2026-08-17)
+- [x] Aufgabendetails und verknüpfte Abfragen nach Annahme oder Ablehnung eines Vorschlags sofort invalidieren (Aufgabenliste, Kategorien, Rotation, Ausschlüsse, Haushaltsfreigaben, Abhängigkeiten und Verlauf werden erneuert; die aktualisierte Aufgabe wird an den Dialog übergeben)
+- [x] Kategorien in offenen Vorschlägen und Verlaufseinträgen als Kategorienamen statt technischer IDs anzeigen (serverseitige Namensauflösung in `fieldChanges` sowie clientseitige Darstellung für offene Vorschläge und Gesamtverlauf)
+- [x] Vorschlagsformular nach erfolgreichem Absenden und erneuter Bearbeitung vollständig auf den aktuellen Aufgabenstand zurücksetzen (gemeinsamer Rücksetzimpuls initialisiert alle editorrelevanten Abfragen und Zustände neu)

@@ -49,7 +49,7 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
   const l = hh?.language ?? "de";
   return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
-import { taskRotationExclusions, activityHistory, projects } from "../../drizzle/schema";
+import { taskRotationExclusions, activityHistory, projects, shoppingCategories, taskCategoryAssignments } from "../../drizzle/schema";
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
@@ -136,6 +136,18 @@ function householdIdsToNames(
   return names || "–";
 }
 
+/** Resolve category IDs to a comma-separated category name string. */
+function categoryIdsToNames(
+  ids: number[] | null | undefined,
+  categoryList: { id: number; name: string }[],
+): string {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return "–";
+  const names = ids
+    .map((id) => categoryList.find((category) => category.id === id)?.name ?? `#${id}`)
+    .join(", ");
+  return names || "–";
+}
+
 // Normalise arrays for comparison (null / undefined / [] all become [])
 function normaliseArr(v: any): number[] {
   if (!v) return [];
@@ -175,6 +187,8 @@ async function buildUpdateChanges(
   let _members: { id: number; memberName: string }[] | null = null;
   let _projectList: { id: number; name: string }[] | null = null;
   let _householdList: { id: number; name: string }[] | null = null;
+  let _categoryList: { id: number; name: string }[] | null = null;
+  let _currentCategoryIds: number[] | null = null;
 
   async function getMembers() {
     if (!_members) {
@@ -214,6 +228,31 @@ async function buildUpdateChanges(
       _householdList = (await getAllHouseholds()).map((h) => ({ id: h.id, name: h.name }));
     }
     return _householdList;
+  }
+
+  async function getCategoryList() {
+    if (!_categoryList) {
+      const db = await getDb();
+      _categoryList = db
+        ? await db.select({ id: shoppingCategories.id, name: shoppingCategories.name })
+          .from(shoppingCategories)
+          .where(eq(shoppingCategories.householdId, householdId))
+        : [];
+    }
+    return _categoryList;
+  }
+
+  async function getCurrentCategoryIds() {
+    if (!_currentCategoryIds) {
+      const db = await getDb();
+      const assignments = db
+        ? await db.select({ categoryId: taskCategoryAssignments.categoryId })
+          .from(taskCategoryAssignments)
+          .where(eq(taskCategoryAssignments.taskId, currentTask.id))
+        : [];
+      _currentCategoryIds = assignments.map((assignment) => assignment.categoryId).sort((left, right) => left - right);
+    }
+    return _currentCategoryIds;
   }
 
   // ── Name ──
@@ -349,6 +388,19 @@ async function buildUpdateChanges(
       const newNames = householdIdsToNames(newArr.length > 0 ? newArr : null, householdList);
       changes.push(`Geteilte Haushalte geändert von '${oldNames}' zu '${newNames}'`);
       metadata.fieldChanges.sharedHouseholdIds = { old: oldArr, new: newArr, oldNames, newNames };
+    }
+  }
+
+  // ── Categories ──
+  if (updates.categoryIds !== undefined) {
+    const oldArr = await getCurrentCategoryIds();
+    const newArr = normaliseArr(updates.categoryIds);
+    if (!arraysEqual(oldArr, newArr)) {
+      const categories = await getCategoryList();
+      const oldNames = categoryIdsToNames(oldArr.length > 0 ? oldArr : null, categories);
+      const newNames = categoryIdsToNames(newArr.length > 0 ? newArr : null, categories);
+      changes.push(`Kategorien geändert von '${oldNames}' zu '${newNames}'`);
+      metadata.fieldChanges.categoryIds = { old: oldArr, new: newArr, oldNames, newNames };
     }
   }
 

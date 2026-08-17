@@ -30,4 +30,9 @@ describe("Formatierung von Aufgaben-Verlaufseinträgen", () => {
     expect(getHistoryChangeValue({ old: [7], oldNames: ["Basti"] }, "old")).toEqual(["Basti"]);
     expect(getHistoryChangeValue({ new: [8], newNames: ["Alex"] }, "new")).toEqual(["Alex"]);
   });
+
+  it("verwendet bei Kategorieänderungen die übergebene Namensauflösung", () => {
+    expect(formatTaskHistoryValue(t, "categoryIds", [33, 34], (categoryId) => ({ 33: "Garten", 34: "Reparatur" }[Number(categoryId)] ?? `#${categoryId}`)))
+      .toBe("Garten, Reparatur");
+  });
 });

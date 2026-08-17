@@ -132,6 +132,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const [proposalName, setProposalName] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
   const [proposalNote, setProposalNote] = useState("");
+  const [editorResetKey, setEditorResetKey] = useState(0);
   const { data: taskComments = [] } = trpc.tasks.listTaskComments.useQuery(
     { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
     { enabled: !!task?.id && !!household?.householdId && open },
@@ -152,12 +153,19 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
     { enabled: !!task?.id && !!household?.householdId && open },
   );
+  const { data: householdCategories = [] } = trpc.shopping.listCategories.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household?.householdId && open },
+  );
   const proposeTaskChangeMutation = trpc.tasks.proposeTaskChange.useMutation({
     onSuccess: () => {
       setIsProposingChange(false);
       setIsProposalEditing(false);
       setIsEditing(false);
       setProposalNote("");
+      setProposalName("");
+      setProposalDescription("");
+      setEditorResetKey((current) => current + 1);
       if (task?.id && household?.householdId) {
         utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
         utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id });
@@ -167,12 +175,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht gespeichert werden")),
   });
   const reviewTaskChangeProposalMutation = trpc.tasks.reviewTaskChangeProposal.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       if (task?.id && household?.householdId) {
-        utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
-        utils.tasks.list.invalidate();
-        utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id });
+        await Promise.all([
+          utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id }),
+          utils.tasks.list.invalidate({ householdId: household.householdId }),
+          utils.tasks.getTaskCategories.invalidate({ taskId: task.id }),
+          utils.tasks.getRotationSchedule.invalidate({ taskId: task.id }),
+          utils.tasks.getRotationExclusions.invalidate({ taskId: task.id }),
+          utils.tasks.getSharedHouseholds.invalidate({ taskId: task.id }),
+          utils.projects.getTaskDependencies.invalidate({ taskId: task.id }),
+          utils.projects.getDependencies.invalidate({ taskId: task.id, householdId: household.householdId }),
+          utils.projects.getAllDependencies.invalidate({ householdId: household.householdId }),
+          utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id }),
+        ]);
+        const refreshedTasks = await utils.tasks.list.fetch({ householdId: household.householdId });
+        const updatedTask = refreshedTasks.find((candidate) => candidate.id === task.id);
+        if (updatedTask && onTaskUpdated) onTaskUpdated(updatedTask);
       }
+      setEditorResetKey((current) => current + 1);
       toast.success(t("dialog.proposalReviewed", "Änderungsvorschlag entschieden"));
     },
     onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht entschieden werden")),
@@ -375,7 +396,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         return haveSameTaskCategoryIds(currentIds, loadedCategoryIds) ? currentIds : loadedCategoryIds;
       });
     }
-  }, [task?.id, open, loadedCategoryIds]);
+  }, [task?.id, open, loadedCategoryIds, editorResetKey]);
   const [isDurationExpanded, setIsDurationExpanded] = useState(false); // Default: collapsed
   const [isRepeatExpanded, setIsRepeatExpanded] = useState(false); // Default: collapsed
   const [isUpcomingTermineExpanded, setIsUpcomingTermineExpanded] = useState(true); // Default: expanded
@@ -659,7 +680,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // Initialize sharing state from sharedHouseholds query (loaded separately)
       // This will be set in a separate useEffect when sharedHouseholds loads
     }
-  }, [task, open]);
+  }, [task, open, editorResetKey]);
   
   // Load rotation schedule when data arrives (for rotation AND recurring tasks)
   useEffect(() => {
@@ -743,7 +764,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       });
       setRotationSchedule(scheduleWithDates);
     }
-  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open]);
+  }, [rotationScheduleData, taskOccurrenceItemsData, task?.id, task?.enableRotation, task?.repeatUnit, task?.repeatInterval, task?.dueDate, task?.monthlyRecurrenceMode, task?.monthlyWeekday, task?.monthlyOccurrence, open, editorResetKey]);
   
   // Load existing dependencies when taskDependencies are fetched
   useEffect(() => {
@@ -757,7 +778,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       setPrerequisites(prereqIds);
       setFollowups(followupIds);
     }
-  }, [taskDependencies, task, open]);
+  }, [taskDependencies, task, open, editorResetKey]);
   
   // Track previous sharedHouseholds to prevent infinite loop
   const prevSharedHouseholdsRef = useRef<number[]>([]);
@@ -779,7 +800,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         setSelectedSharedHouseholds(householdIds);
       }
     }
-  }, [sharedHouseholds, task, open]);
+  }, [sharedHouseholds, task, open, editorResetKey]);
 
   // Update task mutation
   const updateTask = trpc.tasks.update.useMutation({
@@ -1406,6 +1427,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                 size="sm"
                 onClick={() => {
                   setProposalNote("");
+                  setEditorResetKey((current) => current + 1);
                   setIsProposalEditing(true);
                   setIsEditing(true);
                 }}
@@ -2512,6 +2534,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                     const valueText = (value: unknown, field?: string) => {
                       if (field === "assignedTo" && Array.isArray(value)) {
                         const names = value.map(Number).map((memberId) => ownMembers.find((candidate) => candidate.id === memberId)?.memberName ?? `#${memberId}`);
+                        return names.length > 0 ? names.join(", ") : "—";
+                      }
+                      if (field === "categoryIds" && Array.isArray(value)) {
+                        const names = value.map(Number).map((categoryId) => householdCategories.find((category: any) => category.id === categoryId)?.name ?? `#${categoryId}`);
                         return names.length > 0 ? names.join(", ") : "—";
                       }
                       if (field === "monthlyRecurrenceMode") {

@@ -53,6 +53,10 @@ export default function History() {
     },
     { enabled: !!household }
   );
+  const { data: householdCategories = [] } = trpc.shopping.listCategories.useQuery(
+    { householdId: household?.householdId ?? 0 },
+    { enabled: !!household?.householdId },
+  );
   
   const activities = data?.activities || [];
   const totalItems = data?.total || 0;
@@ -389,7 +393,14 @@ export default function History() {
                             durationDays: t("tasks:labels.durationDays", "Dauer in Tagen"), durationMinutes: t("tasks:labels.durationMinutes", "Dauer in Minuten"),
                           };
                           const renderValue = (field: string, change: any, side: "old" | "new") => {
-                            return formatTaskHistoryValue(t, field, getHistoryChangeValue(change, side));
+                            return formatTaskHistoryValue(
+                              t,
+                              field,
+                              getHistoryChangeValue(change, side),
+                              field === "categoryIds"
+                                ? (categoryId) => householdCategories.find((category: any) => category.id === Number(categoryId))?.name ?? `#${categoryId}`
+                                : undefined,
+                            );
                           };
                           return (
                             <div className="mt-2 rounded-md border border-amber-200 bg-amber-50/60 p-2 text-xs">
