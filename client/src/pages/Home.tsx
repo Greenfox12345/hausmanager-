@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useUserAuth } from "@/contexts/UserAuthContext";
 import AppLayout from "@/components/AppLayout";
-import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, HandCoins, LayoutList, LayoutGrid, BookOpen } from "lucide-react";
+import { ShoppingBag, CheckSquare, FolderKanban, History, Users, Building2, ChevronRight, Calendar, Package, HandCoins, LayoutList, LayoutGrid, BookOpen, Scale } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
@@ -31,6 +31,7 @@ export default function Home() {
   const { t: tHistory } = useTranslation("history");
   const { t: tNeighborhood } = useTranslation("neighborhood");
   const { t: tPlankiste } = useTranslation("plankiste");
+  const { t: tBalance } = useTranslation("balance");
 
   useEffect(() => {
     // Wait for auth check to complete before redirecting
@@ -100,6 +101,14 @@ export default function Home() {
       href: "/borrows",
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
+    },
+    {
+      title: tBalance("title"),
+      description: tBalance("subtitle"),
+      icon: Scale,
+      href: "/balance",
+      color: "text-emerald-700",
+      bgColor: "bg-emerald-50",
     },
     {
       title: tPlankiste("homeTitle"),

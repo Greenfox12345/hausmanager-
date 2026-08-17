@@ -3805,3 +3805,8 @@
 ## Bilanz-Verlauf (2026-08-17)
 - [x] Bilanzaktionen im Haushaltsverlauf mit lokalisierten Badges statt technischer Aktionscodes darstellen (Erfassung, Änderung und Löschung in allen sieben Sprachen; Unit-Test ergänzt)
 - [x] Bilanz-Verlaufsbeschreibungen selbst in der eingestellten Haushaltssprache erzeugen, damit nicht nur das Badge, sondern auch der Beschreibungstext lokalisiert ist (Zahlungen, Arbeitsaufwände, Änderungen und Löschungen verwenden die Haushaltssprache; datenfreie Tests für Deutsch, Englisch, Französisch und Chinesisch ergänzt)
+
+## Bilanz-Einstiege und Mitgliederwahl (2026-08-17)
+- [x] Bilanz als sichtbaren Einstieg auf der Haushalts-Startseite ergänzen (eigene Kachel mit Bilanzsymbol, Beschreibung und Link nach `/balance`)
+- [x] Bilanz als Eintrag in der Desktop-Seitenleiste ergänzen (regulärer Navigationseintrag zwischen Ausleihen und Plankiste)
+- [x] Manuelle Bilanz-Erfassung auf `/balance` bei aktivierter Haushaltseinstellung um die Auswahl anderer Mitglieder ergänzen (Dialog startet mit der eigenen Person; bei Freigabe zeigt er eine Auswahl aller aktiven Mitglieder mit erklärendem Hinweis)

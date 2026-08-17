@@ -95,7 +95,9 @@ export default function Balance() {
 
   const resetForm = () => {
     setEntryType("payment");
-    setSelectedMemberId("");
+    // Der Dialog startet immer mit der aktuell angemeldeten Person. Falls der
+    // Haushalt die Auswahl freigibt, kann sie im sichtbaren Auswahlfeld geändert werden.
+    setSelectedMemberId(String(memberId));
     setAmount("");
     setMinutes("");
     setDescription("");
@@ -150,6 +152,7 @@ export default function Balance() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{activeMembers.map((candidate: any) => <SelectItem key={candidate.id} value={String(candidate.id)}>{candidate.memberName}</SelectItem>)}</SelectContent>
           </Select>
+          <p className="text-xs text-muted-foreground">{t("balance:otherMembersHint")}</p>
         </div>
       )}
       {entryType === "payment" ? (

@@ -31,6 +31,7 @@ import {
   UserCircle,
   Package,
   HandCoins,
+  Scale,
   UserPlus,
   BookOpen,
 } from "lucide-react";
@@ -201,6 +202,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       href: "/borrows",
       color: "text-yellow-600",
       badge: pendingCount,
+    },
+    {
+      title: t("balance:title"),
+      icon: Scale,
+      href: "/balance",
+      color: "text-emerald-700",
     },
     {
       title: t("nav.plankiste"),
