@@ -99,7 +99,6 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Detaillierte Bilanzverläufe | Zahlung oder Arbeitszeit, Person, Zweck, Quelle und bei Einkäufen die konkreten Artikel werden strukturiert protokolliert |
 | Normale Verlaufseinträge | Sammelabschlüsse beim Einkauf, Kalenderereignisse und Projekte speichern strukturierten Kontext und werden als Detailblock dargestellt |
 | Mengenanzeige | Ganze Mengen erscheinen ohne Nachkommastellen; präzise Teilmengen und Einheiten bleiben lokal lesbar erhalten |
-| Projektvariablen | Aufgaben erhalten konkrete Werte mit Einheiten; Einkaufsartikel erhalten berechnete Mengen ohne Einheitendopplung; Vorlagen bleiben unverändert |
-| Vollständiger Standardlauf | 46 Testdateien und 371 datenbankfreie Tests bestanden |
+| Vollständiger Standardlauf | 45 Testdateien und 369 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

@@ -12,7 +12,6 @@ import {
 import { projects, projectHouseholds, tasks, taskDependencies, householdMembers } from "../../drizzle/schema";
 import { eq, and, inArray, desc, asc } from "drizzle-orm";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
-import { resolveProjectQuantity, resolveProjectText } from "../../shared/projectVariableResolution";
 import {
   planTemplates,
   planTemplateShoppingItems,
@@ -628,14 +627,43 @@ function resolveVarText(
   text: string | null | undefined,
   variables: PlanVariable[]
 ): string | null {
-  return resolveProjectText(text, variables);
+  if (!text) return null;
+  return text.replace(/VAR([A-Za-z\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF][A-Za-z0-9\u00C4\u00D6\u00DC\u00E4\u00F6\u00FC\u00DF_]*)/g, (match, varName) => {
+    const variable = variables.find(v => v.name === varName);
+    if (variable?.value) {
+      const num = parseFloat(variable.value);
+      const displayVal = !isNaN(num) ? String(num) : variable.value;
+      return variable.unit ? `${displayVal} ${variable.unit}` : displayVal;
+    }
+    return match;
+  });
 }
 
 function resolveVarQuantity(
   quantity: string | null | undefined,
   variables: PlanVariable[]
 ): string | null {
-  return resolveProjectQuantity(quantity, variables);
+  if (!quantity) return null;
+  // Bereits eine Zahl?
+  const num = parseFloat(quantity);
+  if (!isNaN(num) && String(num) === quantity.trim()) return quantity;
+  // VAR-Referenz?
+  const varMatch = quantity.trim().match(/^VAR([A-Za-zÄÖÜäöüß][A-Za-z0-9ÄÖÜäöüß_]*)$/);
+  if (varMatch) {
+    const varName = varMatch[1];
+    const variable = variables.find(v => v.name === varName);
+    if (variable?.value) {
+      const resolved = parseFloat(variable.value);
+      if (!isNaN(resolved)) return String(resolved);
+    }
+    return null; // Variable nicht gefunden oder kein Wert
+  }
+  // Einfacher numerischer String mit Leerzeichen?
+  const trimmed = quantity.trim();
+  const trimNum = parseFloat(trimmed);
+  if (!isNaN(trimNum)) return String(trimNum);
+  // Nicht auflösbar → null (kein Fehler beim Insert)
+  return null;
 }
 
 export const planProjectsRouter = router({
