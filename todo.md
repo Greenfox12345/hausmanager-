@@ -3839,3 +3839,6 @@
 - [x] Einkaufsartikel direkt einem Projekt und optional einer Aufgabe zuordnen können (optionale Projektspalte mit Fremdschlüssel ergänzt; Auswahl im Hinzufügen- und Bearbeitungsformular)
 - [x] Bei über ein Projekt verknüpften Aufgaben und Einkaufsartikeln `VAR…` in der Anzeige dynamisch mit aktuellen Projektwerten und Einheiten auflösen (Aufgabendetails über verknüpftes Projekt; Einkaufsartikel über direktes Projekt oder das Projekt der zugeordneten Aufgabe)
 - [x] Originalwerte mit `VAR…` unverändert speichern, damit sie weiter bearbeitet und bei geänderten Projektvariablen neu dargestellt werden können (Anzeigeersetzung über gemeinsame, datenfreie Hilfsfunktion; Speicherung bleibt unverändert)
+
+## Fehleranalyse dynamische Projektvariablen (2026-08-17)
+- [x] Vollständigen Datenfluss der Projektvariablen von Projekt, Aufgabe und Einkaufsartikel bis in Name, Beschreibung und Notiz prüfen und zentral korrigieren (eigene Abfrage liefert aktuelle Projektvariablen; zentraler Resolver berechnet direkte und abhängige Formeln; Aufgabendetails sowie Einkaufsname, Details und Notizen verwenden dieselbe Anzeigeauflösung)

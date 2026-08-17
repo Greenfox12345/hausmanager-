@@ -995,10 +995,10 @@ export default function Shopping() {
                           </span>
                         )}
                         {item.details && (
-                          <span className="text-xs text-muted-foreground">{item.details}</span>
+                          <span className="text-xs text-muted-foreground">{resolveProjectVariableDisplay(item.details, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</span>
                         )}
                         {item.notes && (
-                          <span className="text-xs text-muted-foreground italic">{item.notes}</span>
+                          <span className="text-xs text-muted-foreground italic">{resolveProjectVariableDisplay(item.notes, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</span>
                         )}
                       </div>
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
