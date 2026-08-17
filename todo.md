@@ -3842,3 +3842,6 @@
 
 ## Fehleranalyse dynamische Projektvariablen (2026-08-17)
 - [x] Vollständigen Datenfluss der Projektvariablen von Projekt, Aufgabe und Einkaufsartikel bis in Name, Beschreibung und Notiz prüfen und zentral korrigieren (eigene Abfrage liefert aktuelle Projektvariablen; zentraler Resolver berechnet direkte und abhängige Formeln; Aufgabendetails sowie Einkaufsname, Details und Notizen verwenden dieselbe Anzeigeauflösung)
+
+## Fehlerkorrektur abhängige Projektvariablen (2026-08-17)
+- [x] Abhängige Projektvariablen in allen Projektansichten, Aufgaben- und Einkaufsauflösungen nach Änderungen an Eingabevariablen zuverlässig berechnen und aktualisieren (Projektbereich berechnet Definitionsformeln zentral mit der bestehenden Formel-Engine; Karten sowie Aufgaben- und Einkaufs-Vorschauen verwenden den berechneten Wertestand samt Einheit)

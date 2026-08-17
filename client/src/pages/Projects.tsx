@@ -45,7 +45,7 @@ import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { ShoppingCart, CheckSquare, Variable, Play, Layers } from "lucide-react";
 import { VarText } from "@/components/VarToken";
-import { type PlanVariable } from "@/lib/varParser";
+import { evaluateFormula, parseVarAssignment, type PlanVariable } from "@/lib/varParser";
 import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
 
@@ -106,8 +106,22 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const isActive = project.status !== "planning";
   const getPhase = (id?: string | null) => phases.find(p => p.id === id);
 
-  // Eingabe-Variablen: kein VAR im Wert (keine Formel)
-  const isInputVar = (v: PlanVariable) => !v.description || !v.description.includes("VAR");
+  const getVariableFormula = (v: PlanVariable) => {
+    const assignment = v.description ? parseVarAssignment(v.description) : null;
+    return assignment?.varName === v.name ? assignment.formula : v.value;
+  };
+  const isInputVar = (v: PlanVariable) => !Boolean(v.description && parseVarAssignment(v.description));
+  const rawVariableMap = Object.fromEntries(variables.flatMap((v) => {
+    const formula = getVariableFormula(v);
+    return formula ? [[v.name, formula]] : [];
+  }));
+  const unitMap = Object.fromEntries(variables.flatMap((v) => v.unit ? [[v.name, v.unit]] : []));
+  const calculatedVariables = variables.map((v) => {
+    const formula = getVariableFormula(v);
+    if (!formula) return v;
+    const result = evaluateFormula(formula, rawVariableMap, v.name, unitMap);
+    return result.ok ? { ...v, value: result.display, unit: v.unit ?? result.unit } : v;
+  });
   const allInputVars = variables.filter(v => isInputVar(v));
 
   // Variablen die in einer Phase verwendet werden (alle, nicht nur ohne Wert)
@@ -295,7 +309,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 {!varEditMode ? (
                   <>
                     <div className="space-y-1">
-                      {variables.map(v => (
+                      {calculatedVariables.map(v => (
                         <div key={v.name} className="flex items-center gap-2 text-xs">
                           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
                           <span className="font-mono" style={{ color: v.color }}>
@@ -346,8 +360,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                   return (
                     <div key={idx} className="flex items-center gap-2 text-xs">
                       {phase && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: phase.color }} />}
-                      <span className="flex-1">{enableVariables ? <VarText text={item.name} variables={variables} /> : item.name}</span>
-                      {item.quantity && <span className="text-muted-foreground font-mono">{enableVariables ? <VarText text={item.quantity} variables={variables} /> : item.quantity}</span>}
+                      <span className="flex-1">{enableVariables ? <VarText text={item.name} variables={calculatedVariables} /> : item.name}</span>
+                      {item.quantity && <span className="text-muted-foreground font-mono">{enableVariables ? <VarText text={item.quantity} variables={calculatedVariables} /> : item.quantity}</span>}
                     </div>
                   );
                 })}
@@ -369,9 +383,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                     <div key={idx} className="flex items-start gap-2 text-xs">
                       {phase && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5" style={{ background: phase.color }} />}
                       <div className="flex-1">
-                        <span>{enableVariables ? <VarText text={task.name} variables={variables} /> : task.name}</span>
+                        <span>{enableVariables ? <VarText text={task.name} variables={calculatedVariables} /> : task.name}</span>
                         {task.daysOffset != null && task.daysOffset > 0 && <span className="ml-2 text-muted-foreground">+{task.daysOffset}d</span>}
-                        {task.description && <p className="text-muted-foreground line-clamp-1 mt-0.5">{task.description}</p>}
+                        {task.description && <p className="text-muted-foreground line-clamp-1 mt-0.5">{enableVariables ? <VarText text={task.description} variables={calculatedVariables} /> : task.description}</p>}
                       </div>
                     </div>
                   );
