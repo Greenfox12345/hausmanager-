@@ -34,6 +34,7 @@ import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { getTaskCategoryIds, haveSameTaskCategoryIds, normalizeTaskCategoryIds } from "../../../shared/taskCategories";
 import { getChangedProposalValues } from "../../../shared/taskProposalFields";
+import { getWordDiff } from "../../../shared/textDiff";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
 import {
   getFollowupClosure,
@@ -2475,13 +2476,26 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       <div key={proposal.id} className="space-y-2 rounded-md border bg-background p-3">
                         <p className="text-sm"><strong>{proposal.proposedByMemberName}</strong> {t("dialog.suggests", "schlägt vor:")}</p>
                         <div className="space-y-1">
-                          {Object.entries(payload).map(([field, proposedValue]) => {
+                          {Object.entries(payload).sort(([left], [right]) => left === "name" ? -1 : right === "name" ? 1 : 0).map(([field, proposedValue]) => {
                             const currentValue = (task as any)[field];
+                            const descriptionDiff = field === "description"
+                              ? getWordDiff(String(currentValue ?? ""), String(proposedValue ?? ""))
+                              : null;
                             return (
                               <div key={field} className="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-sm">
                                 <strong>{fieldLabels[field] ?? field}:</strong>{" "}
-                                {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue)}</span>}
-                                <span className="font-medium text-amber-900">→ {valueText(proposedValue)}</span>
+                                {descriptionDiff ? (
+                                  <span className="leading-6">
+                                    {descriptionDiff.map((part, index) => (
+                                      <span key={`${part.type}-${index}`} className={part.type === "removed" ? "bg-red-100 text-red-800 line-through" : part.type === "added" ? "bg-green-100 font-medium text-green-800" : ""}>{part.value}</span>
+                                    ))}
+                                  </span>
+                                ) : (
+                                  <>
+                                    {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue)}</span>}
+                                    <span className="font-medium text-amber-900">→ {valueText(proposedValue)}</span>
+                                  </>
+                                )}
                               </div>
                             );
                           })}

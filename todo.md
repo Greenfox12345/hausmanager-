@@ -3715,6 +3715,8 @@
 - [x] Änderungen in Vorschlägen sichtbar hervorheben und allen Mitgliedern anzeigen
 - [x] Annahme eines Vorschlags vollständig auf die Aufgabe übertragen
 - [x] Einreichung und Entscheidung eines Vorschlags im Verlauf protokollieren
+- [x] Namen eines Änderungsvorschlags vor allen weiteren Feldänderungen darstellen
+- [x] Beschreibung wortweise vergleichen: entfernten Text durchstreichen und neuen Text grün hervorheben
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
