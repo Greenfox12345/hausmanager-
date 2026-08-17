@@ -26,6 +26,7 @@ import PageHeader from "@/components/PageHeader";
 import { format } from "date-fns";
 import { getDateFnsLocaleSync } from "@/lib/i18n";
 import { formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHistoryDisplay";
+import { formatQuantityDisplay } from "../../../shared/quantityDisplay";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
@@ -440,10 +441,10 @@ export default function History() {
                         })()}
 
                         {activity.action === "completed_batch" && (activity.metadata as any)?.items && (() => {
-                          const items = (activity.metadata as any).items as Array<string | { name: string; quantity?: string | null; details?: string | null }>;
+                          const items = (activity.metadata as any).items as Array<string | { name: string; quantity?: string | null; unit?: string | null; details?: string | null }>;
                           const inventoryCount = Number((activity.metadata as any).inventoryCount ?? 0);
                           return <div className="mt-2 rounded-md border border-blue-200 bg-blue-50/60 p-3 text-sm space-y-1.5">
-                            <div><span className="font-semibold">{t("shopping:title")}:</span> {items.map((item) => typeof item === "string" ? item : `${item.name}${item.quantity ? ` (${item.quantity})` : ""}`).join(", ")}</div>
+                            <div><span className="font-semibold">{t("shopping:title")}:</span> {items.map((item) => typeof item === "string" ? item : `${item.name}${item.quantity ? ` (${formatQuantityDisplay(item.quantity, i18n.language, item.unit)})` : ""}`).join(", ")}</div>
                             {inventoryCount > 0 && <div><span className="font-semibold">{t("inventory:title")}:</span> {t("history:itemsTransferred", "{{count}} Artikel übernommen", { count: inventoryCount })}</div>}
                           </div>;
                         })()}

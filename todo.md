@@ -3830,3 +3830,7 @@
 - [x] Häufige normale Verlaufstypen und ihre Aktionscodes auf technische, unvollständige oder missverständliche Ausgaben prüfen (Aufgaben, Inventar und Ausleihen waren bereits detailliert; wichtigste Lücken bei Sammel-Einkäufen, Kalendern und Projekten identifiziert)
 - [x] Fehlende Kontextdaten für Einkäufe, Aufgaben, Zwischenziele, Projekte und weitere häufige Aktionen beim Protokollieren ergänzen (Sammel-Einkäufe führen Artikel und Mengen; Kalender führen Termin- und Änderungsdaten; Projekte führen Namen, Status und Änderungsdetails)
 - [x] Normale Verlaufseinträge in der zentralen Verlaufsansicht mit verständlichen Detailblöcken und lokalen Texten konsistent darstellen (eigene farblich zurückhaltende Detailblöcke für Sammel-Einkäufe, Kalender und Projekte; bestehende Aufgaben-, Inventar- und Ausleihen-Details beibehalten)
+
+## Mengen und Einheiten im Verlauf (2026-08-17)
+- [x] Einkaufsmengen im Verlauf mit ihrer Einheit darstellen (beim Sammelabschluss wird die hinterlegte Einheits-Kurzform oder -Bezeichnung aufgelöst und mitprotokolliert)
+- [x] Ganze Mengen ohne unnötige Dezimalstellen und nicht-ganzzahlige Mengen präzise sowie lokal formatiert anzeigen (gemeinsame Mengenformatierung: `1.000` wird `1`, `1.250` wird sprachabhängig `1,25` beziehungsweise `1.25`)

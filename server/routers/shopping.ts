@@ -14,7 +14,10 @@ import {
   unlinkItemsFromTask,
   addInventoryItem,
   getHouseholdById,
+  getDb,
 } from "../db";
+import { itemUnits } from "../../drizzle/schema";
+import { and, eq, inArray } from "drizzle-orm";
 import {
   shoppingItemAdded,
   shoppingItemUpdated,
@@ -204,9 +207,15 @@ export const shoppingRouter = router({
     .mutation(async ({ input }) => {
       // Get item names for description
       const items = await getShoppingItems(input.householdId);
+      const unitIds = Array.from(new Set(items.filter((item) => input.itemIds.includes(item.id) && item.unitId).map((item) => item.unitId!)));
+      const db = await getDb();
+      const units = db && unitIds.length > 0
+        ? await db.select({ id: itemUnits.id, name: itemUnits.name, symbol: itemUnits.symbol }).from(itemUnits).where(and(eq(itemUnits.householdId, input.householdId), inArray(itemUnits.id, unitIds)))
+        : [];
+      const unitNames = new Map(units.map((unit) => [unit.id, unit.symbol || unit.name]));
       const completedItems = items
         .filter((item) => input.itemIds.includes(item.id))
-        .map((item) => ({ name: item.name, quantity: item.quantity ?? null, details: item.details ?? null }));
+        .map((item) => ({ name: item.name, quantity: item.quantity ?? null, unit: item.unitId ? unitNames.get(item.unitId) ?? null : null, details: item.details ?? null }));
 
       // Transfer items to inventory if requested
       if (input.itemsToInventory && input.itemsToInventory.length > 0) {
