@@ -52,7 +52,10 @@
     "change_proposed": "Cambio propuesto",
     "change_proposal_withdrawn": "Propuesta de cambio retirada",
     "change_proposal_approved": "Propuesta de cambio aprobada",
-    "change_proposal_rejected": "Propuesta de cambio rechazada"
+    "change_proposal_rejected": "Propuesta de cambio rechazada",
+    "balance_entry_created": "Gasto registrado",
+    "balance_entry_updated": "Gasto actualizado",
+    "balance_entry_deleted": "Gasto eliminado"
   },
   "messages": {
     "loadError": "Error al cargar el historial.",

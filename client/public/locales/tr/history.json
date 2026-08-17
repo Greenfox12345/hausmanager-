@@ -42,7 +42,10 @@
     "change_proposed": "Değişiklik önerildi",
     "change_proposal_withdrawn": "Değişiklik önerisi geri çekildi",
     "change_proposal_approved": "Değişiklik önerisi kabul edildi",
-    "change_proposal_rejected": "Değişiklik önerisi reddedildi"
+    "change_proposal_rejected": "Değişiklik önerisi reddedildi",
+    "balance_entry_created": "Bilanço kaydı eklendi",
+    "balance_entry_updated": "Bilanço kaydı güncellendi",
+    "balance_entry_deleted": "Bilanço kaydı silindi"
   },
   "fields": {
     "date": "Tarih",

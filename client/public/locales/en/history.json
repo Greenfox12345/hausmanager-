@@ -42,7 +42,10 @@
     "change_proposed": "Change proposed",
     "change_proposal_withdrawn": "Change proposal withdrawn",
     "change_proposal_approved": "Change proposal approved",
-    "change_proposal_rejected": "Change proposal rejected"
+    "change_proposal_rejected": "Change proposal rejected",
+    "balance_entry_created": "Balance effort recorded",
+    "balance_entry_updated": "Balance effort updated",
+    "balance_entry_deleted": "Balance effort deleted"
   },
   "fields": {
     "date": "Date",

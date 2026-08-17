@@ -42,7 +42,10 @@
     "change_proposed": "已提出修改",
     "change_proposal_withdrawn": "已撤回修改建议",
     "change_proposal_approved": "已接受修改建议",
-    "change_proposal_rejected": "已拒绝修改建议"
+    "change_proposal_rejected": "已拒绝修改建议",
+    "balance_entry_created": "已添加收支与工时记录",
+    "balance_entry_updated": "已更新收支与工时记录",
+    "balance_entry_deleted": "已删除收支与工时记录"
   },
   "fields": {
     "date": "日期",

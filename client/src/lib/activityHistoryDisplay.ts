@@ -18,6 +18,9 @@ const actionFallbacks: Record<string, string> = {
   change_proposal_withdrawn: "Änderungsvorschlag zurückgezogen",
   change_proposal_approved: "Änderungsvorschlag angenommen",
   change_proposal_rejected: "Änderungsvorschlag abgelehnt",
+  balance_entry_created: "Bilanzaufwand erfasst",
+  balance_entry_updated: "Bilanzaufwand aktualisiert",
+  balance_entry_deleted: "Bilanzaufwand gelöscht",
 };
 
 const weekdayKeys: Record<number, string> = {

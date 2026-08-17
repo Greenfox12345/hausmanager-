@@ -42,7 +42,10 @@
     "change_proposed": "تم اقتراح تغيير",
     "change_proposal_withdrawn": "تم سحب اقتراح التغيير",
     "change_proposal_approved": "تم قبول اقتراح التغيير",
-    "change_proposal_rejected": "تم رفض اقتراح التغيير"
+    "change_proposal_rejected": "تم رفض اقتراح التغيير",
+    "balance_entry_created": "تم تسجيل إدخال الميزان",
+    "balance_entry_updated": "تم تحديث إدخال الميزان",
+    "balance_entry_deleted": "تم حذف إدخال الميزان"
   },
   "fields": {
     "date": "التاريخ",

@@ -7,6 +7,7 @@ import {
 
 const translations: Record<string, string> = {
   "history:actions.change_proposal_withdrawn": "Änderungsvorschlag zurückgezogen",
+  "history:actions.balance_entry_created": "Bilanzaufwand erfasst",
   "tasks:frequency.monthly": "Monatlich",
   "tasks:repeat.months": "Monate",
   "tasks:repeat.sameWeekday": "Am gleichen Wochentag",
@@ -19,6 +20,7 @@ const t = ((key: string, fallback?: string) => translations[key] ?? fallback ?? 
 describe("Formatierung von Aufgaben-Verlaufseinträgen", () => {
   it("löst Vorschlagsaktionen und technische Wiederholungswerte lesbar auf", () => {
     expect(formatActivityAction(t, "change_proposal_withdrawn")).toBe("Änderungsvorschlag zurückgezogen");
+    expect(formatActivityAction(t, "balance_entry_created")).toBe("Bilanzaufwand erfasst");
     expect(formatTaskHistoryValue(t, "frequency", "monthly")).toBe("Monatlich");
     expect(formatTaskHistoryValue(t, "repeatUnit", "months")).toBe("Monate");
     expect(formatTaskHistoryValue(t, "monthlyRecurrenceMode", "same_weekday")).toBe("Am gleichen Wochentag");

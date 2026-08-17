@@ -42,7 +42,10 @@
     "change_proposed": "Modification proposée",
     "change_proposal_withdrawn": "Proposition de modification retirée",
     "change_proposal_approved": "Proposition de modification acceptée",
-    "change_proposal_rejected": "Proposition de modification refusée"
+    "change_proposal_rejected": "Proposition de modification refusée",
+    "balance_entry_created": "Effort enregistré",
+    "balance_entry_updated": "Effort mis à jour",
+    "balance_entry_deleted": "Effort supprimé"
   },
   "fields": {
     "date": "Date",

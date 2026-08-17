@@ -3801,3 +3801,6 @@
 - [x] Bilanzaufwände beim Abschließen von Aufgaben, Zwischenzielen und Einkäufen optional erfassen und mit der Quelle verknüpfen (gemeinsame Aufwands-Eingabe in allen drei Abschlussdialogen; Quelle wird als Aufgabe, Zwischenziel oder Einkauf gespeichert)
 - [x] Manuelle Bilanzaufwände mit Zweck, Datum sowie Mitglied erfassen und in der Bilanz anzeigen (Geld oder Arbeit, frei gewähltes Datum und bei aktivierter Einstellung auch andere Person)
 - [x] Bilanzaufwände innerhalb von fünf Tagen bearbeiten oder löschen; Änderungen nachvollziehbar im Verlauf dokumentieren (nur die erfassende Person innerhalb der Frist; Erstellung, Änderung und Löschung werden im Haushaltsverlauf festgehalten)
+
+## Bilanz-Verlauf (2026-08-17)
+- [x] Bilanzaktionen im Haushaltsverlauf mit lokalisierten Badges statt technischer Aktionscodes darstellen (Erfassung, Änderung und Löschung in allen sieben Sprachen; Unit-Test ergänzt)
