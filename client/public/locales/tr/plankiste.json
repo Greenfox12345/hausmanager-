@@ -338,7 +338,10 @@
     "editVars": "Değişkenleri düzenle",
     "editVarsTitle": "Giriş değişkenlerini düzenle:",
     "varsSaved": "Değişkenler kaydedildi",
-    "noValue": "değer yok"
+    "noValue": "değer yok",
+    "formula": "Hesaplama",
+    "overrideValue": "Sonucu geçersiz kıl (isteğe bağlı)",
+    "variableOverride": "Elle geçersiz kılındı"
   },
   "tasks": {
     "title": "Görevler"

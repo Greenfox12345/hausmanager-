@@ -338,7 +338,10 @@
     "editVars": "تعديل المتغيرات",
     "editVarsTitle": "تعديل متغيرات الإدخال:",
     "varsSaved": "تم حفظ المتغيرات",
-    "noValue": "لا قيمة"
+    "noValue": "لا قيمة",
+    "formula": "المعادلة",
+    "overrideValue": "تجاوز النتيجة (اختياري)",
+    "variableOverride": "تم التجاوز يدويًا"
   },
   "tasks": {
     "title": "المهام"

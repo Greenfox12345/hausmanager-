@@ -338,7 +338,10 @@
     "editVars": "Variablen bearbeiten",
     "editVarsTitle": "Eingabe-Variablen bearbeiten:",
     "varsSaved": "Variablen gespeichert",
-    "noValue": "kein Wert"
+    "noValue": "kein Wert",
+    "formula": "Rechenweg",
+    "overrideValue": "Ergebnis überschreiben (optional)",
+    "variableOverride": "Manuell überschrieben"
   },
   "tasks": {
     "title": "Aufgaben"

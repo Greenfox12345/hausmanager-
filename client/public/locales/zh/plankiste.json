@@ -338,7 +338,10 @@
     "editVars": "编辑变量",
     "editVarsTitle": "编辑输入变量：",
     "varsSaved": "变量已保存",
-    "noValue": "无值"
+    "noValue": "无值",
+    "formula": "计算公式",
+    "overrideValue": "覆盖结果（可选）",
+    "variableOverride": "已手动覆盖"
   },
   "tasks": {
     "title": "任务"

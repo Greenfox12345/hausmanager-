@@ -28,7 +28,8 @@ import {
   Bell,
   Calendar as CalendarIcon,
   Users,
-  Globe
+  Globe,
+  AlertTriangle
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { format, isPast } from "date-fns";
@@ -66,6 +67,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [phaseInputVarValues, setPhaseInputVarValues] = useState<Record<string, string>>({});
   // Variablen-Bearbeitung während des Projekts
   const [editingVarValues, setEditingVarValues] = useState<Record<string, string>>({});
+  const [editingFormulaValues, setEditingFormulaValues] = useState<Record<string, string>>({});
+  const [editingOverrideValues, setEditingOverrideValues] = useState<Record<string, string>>({});
   const [varEditMode, setVarEditMode] = useState(false);
 
   const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
@@ -111,17 +114,27 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     return assignment?.varName === v.name ? assignment.formula : v.value;
   };
   const isInputVar = (v: PlanVariable) => !Boolean(v.description && parseVarAssignment(v.description));
-  const rawVariableMap = Object.fromEntries(variables.flatMap((v) => {
+  const formulaVariableMap = Object.fromEntries(variables.flatMap((v) => {
     const formula = getVariableFormula(v);
+    return formula ? [[v.name, formula]] : [];
+  }));
+  const effectiveVariableMap = Object.fromEntries(variables.flatMap((v) => {
+    const formula = v.overrideValue || getVariableFormula(v);
     return formula ? [[v.name, formula]] : [];
   }));
   const unitMap = Object.fromEntries(variables.flatMap((v) => v.unit ? [[v.name, v.unit]] : []));
   const calculatedVariables = variables.map((v) => {
-    const formula = getVariableFormula(v);
+    const formula = v.overrideValue || getVariableFormula(v);
     if (!formula) return v;
-    const result = evaluateFormula(formula, rawVariableMap, v.name, unitMap);
+    const result = evaluateFormula(formula, effectiveVariableMap, v.name, unitMap);
     return result.ok ? { ...v, value: result.display, unit: v.unit ?? result.unit } : v;
   });
+  const calculatedByName = Object.fromEntries(calculatedVariables.map((v) => [v.name, v]));
+  const formulaResults = Object.fromEntries(variables.map((v) => {
+    const formula = getVariableFormula(v);
+    const result = formula ? evaluateFormula(formula, formulaVariableMap, v.name, unitMap) : null;
+    return [v.name, result];
+  }));
   const allInputVars = variables.filter(v => isInputVar(v));
 
   // Variablen die in einer Phase verwendet werden (alle, nicht nur ohne Wert)
@@ -168,10 +181,19 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   // Variablen-Bearbeitung starten
   const startVarEdit = () => {
     const vals: Record<string, string> = {};
+    const formulas: Record<string, string> = {};
+    const overrides: Record<string, string> = {};
     for (const v of allInputVars) {
       if (v.value) vals[v.name] = v.value;
     }
+    for (const v of variables.filter((item) => !isInputVar(item))) {
+      const formula = getVariableFormula(v);
+      if (formula) formulas[v.name] = formula;
+      if (v.overrideValue) overrides[v.name] = v.overrideValue;
+    }
     setEditingVarValues(vals);
+    setEditingFormulaValues(formulas);
+    setEditingOverrideValues(overrides);
     setVarEditMode(true);
   };
 
@@ -180,6 +202,14 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     const updatedVars = variables.map(v => {
       if (isInputVar(v) && editingVarValues[v.name] !== undefined) {
         return { ...v, value: editingVarValues[v.name] || undefined };
+      }
+      if (!isInputVar(v)) {
+        const formula = editingFormulaValues[v.name]?.trim();
+        return {
+          ...v,
+          description: formula ? `VAR${v.name} = ${formula}` : v.description,
+          overrideValue: editingOverrideValues[v.name]?.trim() || undefined,
+        };
       }
       return v;
     });
@@ -309,19 +339,21 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 {!varEditMode ? (
                   <>
                     <div className="space-y-1">
-                      {calculatedVariables.map(v => (
-                        <div key={v.name} className="flex items-center gap-2 text-xs">
+                      {calculatedVariables.map(v => {
+                        const source = variables.find((item) => item.name === v.name)!;
+                        const formulaResult = formulaResults[v.name];
+                        const overrideNumber = Number(source.overrideValue?.replace(",", "."));
+                        const hasOverride = !isInputVar(source) && Boolean(source.overrideValue) && formulaResult?.ok && Number.isFinite(overrideNumber) && formulaResult.value !== overrideNumber;
+                        return <div key={v.name} className="flex items-start gap-2 text-xs">
                           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
-                          <span className="font-mono" style={{ color: v.color }}>
-                            {v.alias ? `&${v.alias}` : `VAR${v.name}`}
-                          </span>
-                          {v.value
-                            ? <span className="text-muted-foreground">= {v.value}{v.unit ? ` ${v.unit}` : ""}</span>
-                            : <span className="text-amber-500">⚠ {t("plankiste:project.noValue", "kein Wert")}</span>
-                          }
-                          {!isInputVar(v) && <span className="text-xs text-muted-foreground italic">{t("plankiste:variables.calculated", "berechnet")}</span>}
-                        </div>
-                      ))}
+                          <div className="min-w-0">
+                            <span className="font-mono" style={{ color: v.color }}>{v.alias ? `&${v.alias}` : `VAR${v.name}`}</span>
+                            {!isInputVar(source) && <span className="ml-1 text-muted-foreground">← {getVariableFormula(source)}</span>}
+                            <div className="text-muted-foreground">= {v.value ? `${v.value}${v.unit ? ` ${v.unit}` : ""}` : t("plankiste:project.noValue", "kein Wert")}</div>
+                          </div>
+                          {hasOverride && <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" aria-label={t("plankiste:project.variableOverride", "Manuell überschrieben")} />}
+                        </div>;
+                      })}
                     </div>
                     {allInputVars.length > 0 && (
                       <Button size="sm" variant="outline" className="h-7 text-xs" onClick={startVarEdit}>
@@ -334,6 +366,17 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
                     <p className="text-xs font-medium text-amber-700">{t("plankiste:project.editVarsTitle", "Eingabe-Variablen bearbeiten:")}</p>
                     {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues)}
+                    {variables.filter((v) => !isInputVar(v)).map((v) => (
+                      <div key={v.name} className="border-t border-amber-200 pt-2 space-y-1">
+                        <Label className="text-xs font-mono" style={{ color: v.color }}>VAR{v.name}</Label>
+                        <Input value={editingFormulaValues[v.name] ?? ""} onChange={(event) => setEditingFormulaValues((prev) => ({ ...prev, [v.name]: event.target.value }))} placeholder={t("plankiste:project.formula", "Rechenweg")} className="h-8 text-xs" />
+                        <div className="flex items-center gap-2">
+                          <Input type="number" value={editingOverrideValues[v.name] ?? ""} onChange={(event) => setEditingOverrideValues((prev) => ({ ...prev, [v.name]: event.target.value }))} placeholder={t("plankiste:project.overrideValue", "Ergebnis überschreiben (optional)")} className="h-8 text-xs" />
+                          {v.unit && <span className="text-xs text-muted-foreground">{v.unit}</span>}
+                          {editingOverrideValues[v.name] && <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => setEditingOverrideValues((prev) => { const next = { ...prev }; delete next[v.name]; return next; })}>{t("common:reset", "Zurücksetzen")}</Button>}
+                        </div>
+                      </div>
+                    ))}
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setVarEditMode(false)}>{t("common:cancel")}</Button>
                       <Button size="sm" className="h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white" onClick={saveVarEdit} disabled={updatePlanDataMutation.isPending}>

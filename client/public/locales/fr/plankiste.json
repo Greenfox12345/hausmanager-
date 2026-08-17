@@ -338,7 +338,10 @@
     "editVars": "Modifier les variables",
     "editVarsTitle": "Modifier les variables d'entrée:",
     "varsSaved": "Variables enregistrées",
-    "noValue": "aucune valeur"
+    "noValue": "aucune valeur",
+    "formula": "Formule",
+    "overrideValue": "Remplacer le résultat (facultatif)",
+    "variableOverride": "Remplacé manuellement"
   },
   "tasks": {
     "title": "Tâches"

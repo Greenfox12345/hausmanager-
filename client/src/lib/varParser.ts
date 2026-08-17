@@ -146,6 +146,8 @@ export interface PlanVariable {
   name: string;
   color: string;
   value?: string;
+  /** Bewusster Projektwert, der eine berechnete Definition nur für dieses Projekt überschreibt. */
+  overrideValue?: string;
   unit?: string;
   description?: string;
   /** Alias-Kurzname, aufrufbar mit &Name */
