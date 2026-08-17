@@ -52,7 +52,9 @@
     "created": "Template created",
     "saved": "Template saved",
     "createError": "Error creating",
-    "saveError": "Error saving"
+    "saveError": "Error saving",
+    "name": "Name",
+    "description": "Description"
   },
   "items": {
     "addItem": "Add item",
@@ -67,7 +69,14 @@
     "cancel": "Cancel",
     "addError": "Error adding",
     "deleteError": "Error deleting",
-    "updateError": "Error updating"
+    "updateError": "Error updating",
+    "add": "Add item",
+    "name": "Name",
+    "namePlaceholder": "Item name",
+    "quantity": "Quantity",
+    "notes": "Note (optional)",
+    "category": "Category",
+    "title": "Shopping items"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} tasks",
     "addTask": "Add task",
     "sortTopo": "Topological",
-    "sortOriginal": "Original"
+    "sortOriginal": "Original",
+    "title": "Tasks",
+    "add": "Add task",
+    "deleteTitle": "Delete task?",
+    "deleteDescription": "“{{name}}” will be permanently deleted.",
+    "deleteDependencies": "It will also be removed as a prerequisite/follow-up from {{count}} task(s): {{tasks}}."
   },
   "instances": {
     "empty": "No active plans",
@@ -154,7 +168,17 @@
     "followups": "Follow-up tasks (due after this)",
     "gapDays": "days gap",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "editTask": "Edit task",
+    "addTask": "Add task",
+    "name": "Name",
+    "description": "Description",
+    "once": "Once",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "custom": "Custom",
+    "interval": "Interval"
   },
   "variables": {
     "toggle": "Variables",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "Adopt units?",
     "unitDialogDesc": "The following units were found in task texts:",
     "unitDialogApply": "Yes, adopt",
-    "unitApplied": "Units adopted"
+    "unitApplied": "Units adopted",
+    "title": "Variables",
+    "calculated": "Calculated",
+    "adoptTitle": "Apply variable definitions?",
+    "adoptDescription": "The following definitions were found in the task description. You can still adjust the formulas:",
+    "adoptIgnore": "No, ignore",
+    "adoptConfirm": "Yes, apply"
   },
   "phases": {
     "title": "Phases",
@@ -217,7 +247,11 @@
     "violationTitle": "Phase dependency errors",
     "violationReason": "Prerequisite is in a later phase",
     "organizeHint": "Click a phase to assign the task.",
-    "done": "Done"
+    "done": "Done",
+    "phase": "Phase",
+    "noPhase": "No phase",
+    "color": "Color",
+    "newPhaseName": "New phase name"
   },
   "plansack": {
     "title": "Plan Bag",
@@ -305,5 +339,8 @@
     "editVarsTitle": "Edit input variables:",
     "varsSaved": "Variables saved",
     "noValue": "no value"
+  },
+  "tasks": {
+    "title": "Tasks"
   }
 }

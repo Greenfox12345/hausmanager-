@@ -397,7 +397,20 @@
     "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"
   },
   "labels": {
-    "occurrence": "موعد"
+    "occurrence": "موعد",
+    "name": "الاسم",
+    "frequency": "التكرار",
+    "repeatInterval": "الفاصل",
+    "repeatUnit": "الوحدة",
+    "rotation": "التناوب",
+    "requiredPersons": "الأشخاص المطلوبون",
+    "customFrequencyDays": "أيام التكرار المخصصة",
+    "irregularRecurrence": "تكرار غير منتظم",
+    "monthlyRecurrence": "تكرار شهري",
+    "monthlyWeekday": "يوم الأسبوع",
+    "monthlyOccurrence": "التكرار في الشهر",
+    "durationDays": "المدة (أيام)",
+    "durationMinutes": "المدة (دقائق)"
   },
   "sharing": {
     "shareWithOtherHouseholds": "مشاركة مع المنازل الأخرى"

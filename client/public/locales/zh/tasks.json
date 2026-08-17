@@ -607,7 +607,20 @@
   "dueDate": "截止日期:",
   "labels": {
     "assignedTo": "负责人",
-    "occurrence": "日程"
+    "occurrence": "日程",
+    "name": "名称",
+    "frequency": "重复",
+    "repeatInterval": "间隔",
+    "repeatUnit": "单位",
+    "rotation": "轮换",
+    "requiredPersons": "所需人员",
+    "customFrequencyDays": "自定义重复日期",
+    "irregularRecurrence": "不规则重复",
+    "monthlyRecurrence": "每月重复",
+    "monthlyWeekday": "星期",
+    "monthlyOccurrence": "当月第几次",
+    "durationDays": "时长（天）",
+    "durationMinutes": "时长（分钟）"
   },
   "linkedWith": "关联到",
   "otherHousehold": "其他家庭",

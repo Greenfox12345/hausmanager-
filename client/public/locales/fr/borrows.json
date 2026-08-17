@@ -260,5 +260,6 @@
   "partialReturns": {
     "title": "Retours partiels",
     "entry": "Retour partiel {{index}} : {{qty}} rendu(s)"
-  }
+  },
+  "approvalNote": "Note d’approbation (facultative)"
 }

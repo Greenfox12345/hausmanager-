@@ -39,7 +39,8 @@
     "neededByShort": "Antes del",
     "overdue": "(vencido)",
     "more": "Más",
-    "noCategory": "Sin categoría"
+    "noCategory": "Sin categoría",
+    "notesPlaceholder": "Añadir una nota (opcional)"
   },
   "actions": {
     "check": "Marcar",

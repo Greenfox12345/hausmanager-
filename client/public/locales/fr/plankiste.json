@@ -52,7 +52,9 @@
     "created": "Modèle créé",
     "saved": "Modèle enregistré",
     "createError": "Erreur lors de la création",
-    "saveError": "Erreur lors de l'enregistrement"
+    "saveError": "Erreur lors de l'enregistrement",
+    "name": "Nom",
+    "description": "Description"
   },
   "items": {
     "addItem": "Ajouter un article",
@@ -67,7 +69,14 @@
     "cancel": "Annuler",
     "addError": "Erreur lors de l'ajout",
     "deleteError": "Erreur lors de la suppression",
-    "updateError": "Erreur lors de la mise à jour"
+    "updateError": "Erreur lors de la mise à jour",
+    "add": "Ajouter un article",
+    "name": "Nom",
+    "namePlaceholder": "Nom de l’article",
+    "quantity": "Quantité",
+    "notes": "Note (facultative)",
+    "category": "Catégorie",
+    "title": "Articles à acheter"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} tâches",
     "addTask": "Ajouter une tâche",
     "sortTopo": "Topologique",
-    "sortOriginal": "Original"
+    "sortOriginal": "Original",
+    "title": "Tâches",
+    "add": "Ajouter une tâche",
+    "deleteTitle": "Supprimer la tâche ?",
+    "deleteDescription": "« {{name}} » sera supprimée définitivement.",
+    "deleteDependencies": "Elle sera aussi retirée comme prérequis/tâche suivante de {{count}} tâche(s) : {{tasks}}."
   },
   "instances": {
     "empty": "Aucun plan actif",
@@ -154,7 +168,17 @@
     "followups": "Tâches suivantes (dues après)",
     "gapDays": "jours d'écart",
     "save": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "editTask": "Modifier la tâche",
+    "addTask": "Ajouter une tâche",
+    "name": "Nom",
+    "description": "Description",
+    "once": "Une fois",
+    "daily": "Chaque jour",
+    "weekly": "Chaque semaine",
+    "monthly": "Chaque mois",
+    "custom": "Personnalisé",
+    "interval": "Intervalle"
   },
   "variables": {
     "toggle": "Variables",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "Adopter les unités ?",
     "unitDialogDesc": "Les unités suivantes ont été trouvées dans les textes de tâche :",
     "unitDialogApply": "Oui, adopter",
-    "unitApplied": "Unités adoptées"
+    "unitApplied": "Unités adoptées",
+    "title": "Variables",
+    "calculated": "Calculée",
+    "adoptTitle": "Reprendre les définitions de variables ?",
+    "adoptDescription": "Les définitions suivantes ont été trouvées dans la description de la tâche. Vous pouvez encore modifier les formules :",
+    "adoptIgnore": "Non, ignorer",
+    "adoptConfirm": "Oui, reprendre"
   },
   "phases": {
     "title": "Phases",
@@ -217,7 +247,11 @@
     "violationTitle": "Erreurs de dépendance de phase",
     "violationReason": "Le prérequis est dans une phase ultérieure",
     "organizeHint": "Cliquez sur une phase pour assigner la tâche.",
-    "done": "Terminé"
+    "done": "Terminé",
+    "phase": "Phase",
+    "noPhase": "Aucune phase",
+    "color": "Couleur",
+    "newPhaseName": "Nom de la nouvelle phase"
   },
   "plansack": {
     "title": "Sac à plans",
@@ -305,5 +339,8 @@
     "editVarsTitle": "Modifier les variables d'entrée:",
     "varsSaved": "Variables enregistrées",
     "noValue": "aucune valeur"
+  },
+  "tasks": {
+    "title": "Tâches"
   }
 }

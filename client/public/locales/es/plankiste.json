@@ -52,7 +52,9 @@
     "created": "Plantilla creada",
     "saved": "Plantilla guardada",
     "createError": "Error al crear",
-    "saveError": "Error al guardar"
+    "saveError": "Error al guardar",
+    "name": "Nombre",
+    "description": "Descripción"
   },
   "items": {
     "addItem": "Añadir artículo",
@@ -67,7 +69,14 @@
     "cancel": "Cancelar",
     "addError": "Error al añadir",
     "deleteError": "Error al eliminar",
-    "updateError": "Error al actualizar"
+    "updateError": "Error al actualizar",
+    "add": "Añadir artículo",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre del artículo",
+    "quantity": "Cantidad",
+    "notes": "Nota (opcional)",
+    "category": "Categoría",
+    "title": "Artículos de compra"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} tareas",
     "addTask": "Añadir tarea",
     "sortTopo": "Topológico",
-    "sortOriginal": "Original"
+    "sortOriginal": "Original",
+    "title": "Tareas",
+    "add": "Añadir tarea",
+    "deleteTitle": "¿Eliminar tarea?",
+    "deleteDescription": "“{{name}}” se eliminará permanentemente.",
+    "deleteDependencies": "También se eliminará como requisito/tarea posterior de {{count}} tarea(s): {{tasks}}."
   },
   "instances": {
     "empty": "Sin planes activos",
@@ -154,7 +168,17 @@
     "followups": "Tareas siguientes (vencen después)",
     "gapDays": "días de intervalo",
     "save": "Guardar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "editTask": "Editar tarea",
+    "addTask": "Añadir tarea",
+    "name": "Nombre",
+    "description": "Descripción",
+    "once": "Una vez",
+    "daily": "Diariamente",
+    "weekly": "Semanalmente",
+    "monthly": "Mensualmente",
+    "custom": "Personalizado",
+    "interval": "Intervalo"
   },
   "variables": {
     "toggle": "Variables",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "Adoptar unidades?",
     "unitDialogDesc": "Se encontraron las siguientes unidades en los textos de tarea:",
     "unitDialogApply": "Si, adoptar",
-    "unitApplied": "Unidades adoptadas"
+    "unitApplied": "Unidades adoptadas",
+    "title": "Variables",
+    "calculated": "Calculada",
+    "adoptTitle": "¿Aplicar definiciones de variables?",
+    "adoptDescription": "Se encontraron las siguientes definiciones en la descripción de la tarea. Aún puedes ajustar las fórmulas:",
+    "adoptIgnore": "No, ignorar",
+    "adoptConfirm": "Sí, aplicar"
   },
   "phases": {
     "title": "Fases",
@@ -217,7 +247,11 @@
     "violationTitle": "Errores de dependencia de fase",
     "violationReason": "El requisito previo está en una fase posterior",
     "organizeHint": "Haz clic en una fase para asignar la tarea.",
-    "done": "Listo"
+    "done": "Listo",
+    "phase": "Fase",
+    "noPhase": "Sin fase",
+    "color": "Color",
+    "newPhaseName": "Nombre de la nueva fase"
   },
   "plansack": {
     "title": "Bolsa de planes",
@@ -305,5 +339,8 @@
     "editVarsTitle": "Editar variables de entrada:",
     "varsSaved": "Variables guardadas",
     "noValue": "sin valor"
+  },
+  "tasks": {
+    "title": "Tareas"
   }
 }

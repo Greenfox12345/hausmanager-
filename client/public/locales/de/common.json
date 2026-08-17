@@ -466,5 +466,14 @@
     "title": "Seit deinem letzten Besuch",
     "description": "Das haben andere Mitglieder in diesem Haushalt erledigt.",
     "close": "Verstanden"
-  }
+  },
+  "saved": "Gespeichert",
+  "yes": "Ja",
+  "no": "Nein",
+  "deleted": "Gelöscht",
+  "edit": "Bearbeiten",
+  "close": "Schließen",
+  "reset": "Zurücksetzen",
+  "home": "Startseite",
+  "login": "Anmelden"
 }

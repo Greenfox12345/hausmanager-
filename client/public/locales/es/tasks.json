@@ -270,7 +270,20 @@
   "followupPluralSuffix": "s",
   "labels": {
     "assignedTo": "Asignado a",
-    "occurrence": "Ocurrencia"
+    "occurrence": "Ocurrencia",
+    "name": "Nombre",
+    "frequency": "Repetición",
+    "repeatInterval": "Intervalo",
+    "repeatUnit": "Unidad",
+    "rotation": "Rotación",
+    "requiredPersons": "Personas necesarias",
+    "customFrequencyDays": "Días de repetición personalizados",
+    "irregularRecurrence": "Repetición irregular",
+    "monthlyRecurrence": "Repetición mensual",
+    "monthlyWeekday": "Día de la semana",
+    "monthlyOccurrence": "Aparición en el mes",
+    "durationDays": "Duración (días)",
+    "durationMinutes": "Duración (minutos)"
   },
   "detail": {
     "linkedWith": "Vinculado con",

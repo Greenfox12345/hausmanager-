@@ -313,5 +313,6 @@
   "partialReturns": {
     "title": "Devoluciones parciales",
     "entry": "Devolución parcial {{index}}: {{qty}} devuelto"
-  }
+  },
+  "approvalNote": "Nota de aprobación (opcional)"
 }

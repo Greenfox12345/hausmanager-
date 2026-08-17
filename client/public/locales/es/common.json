@@ -546,5 +546,14 @@
     "title": "Desde tu última visita",
     "description": "Esto es lo que han hecho otros miembros del hogar.",
     "close": "Entendido"
-  }
+  },
+  "saved": "Guardado",
+  "yes": "Sí",
+  "no": "No",
+  "deleted": "Eliminado",
+  "edit": "Editar",
+  "close": "Cerrar",
+  "reset": "Restablecer",
+  "home": "Inicio",
+  "login": "Iniciar sesión"
 }

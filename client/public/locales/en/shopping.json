@@ -35,7 +35,8 @@
     "neededByShort": "By",
     "overdue": "(overdue)",
     "more": "More",
-    "noCategory": "No category"
+    "noCategory": "No category",
+    "notesPlaceholder": "Add a note (optional)"
   },
   "status": {
     "open": "Open",

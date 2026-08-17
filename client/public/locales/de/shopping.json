@@ -35,7 +35,8 @@
     "neededByShort": "Bis",
     "overdue": "(abgelaufen)",
     "more": "Mehr",
-    "noCategory": "Keine Kategorie"
+    "noCategory": "Keine Kategorie",
+    "notesPlaceholder": "Notiz hinzufügen (optional)"
   },
   "status": {
     "open": "Offen",

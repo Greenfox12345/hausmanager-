@@ -470,5 +470,14 @@
     "title": "Depuis votre dernière visite",
     "description": "Voici ce que les autres membres du foyer ont fait.",
     "close": "Compris"
-  }
+  },
+  "saved": "Enregistré",
+  "yes": "Oui",
+  "no": "Non",
+  "deleted": "Supprimé",
+  "edit": "Modifier",
+  "close": "Fermer",
+  "reset": "Réinitialiser",
+  "home": "Accueil",
+  "login": "Se connecter"
 }

@@ -52,7 +52,9 @@
     "created": "模板已创建",
     "saved": "模板已保存",
     "createError": "创建失败",
-    "saveError": "保存失败"
+    "saveError": "保存失败",
+    "name": "名称",
+    "description": "描述"
   },
   "items": {
     "addItem": "添加商品",
@@ -67,7 +69,14 @@
     "cancel": "取消",
     "addError": "添加失败",
     "deleteError": "删除失败",
-    "updateError": "更新失败"
+    "updateError": "更新失败",
+    "add": "添加项目",
+    "name": "名称",
+    "namePlaceholder": "项目名称",
+    "quantity": "数量",
+    "notes": "备注（可选）",
+    "category": "类别",
+    "title": "购物项目"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} 个任务",
     "addTask": "添加任务",
     "sortTopo": "拓扑排序",
-    "sortOriginal": "原始顺序"
+    "sortOriginal": "原始顺序",
+    "title": "任务",
+    "add": "添加任务",
+    "deleteTitle": "删除任务？",
+    "deleteDescription": "“{{name}}”将被永久删除。",
+    "deleteDependencies": "它也会从 {{count}} 个任务中移除，取消作为前置/后续任务：{{tasks}}。"
   },
   "instances": {
     "empty": "无活跃计划",
@@ -154,7 +168,17 @@
     "followups": "后续任务（之后到期）",
     "gapDays": "天间隔",
     "save": "保存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "editTask": "编辑任务",
+    "addTask": "添加任务",
+    "name": "名称",
+    "description": "描述",
+    "once": "一次",
+    "daily": "每天",
+    "weekly": "每周",
+    "monthly": "每月",
+    "custom": "自定义",
+    "interval": "间隔"
   },
   "variables": {
     "toggle": "变量",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "采用单位？",
     "unitDialogDesc": "在任务文本中发现以下单位：",
     "unitDialogApply": "是，采用",
-    "unitApplied": "单位已采用"
+    "unitApplied": "单位已采用",
+    "title": "变量",
+    "calculated": "已计算",
+    "adoptTitle": "采用变量定义？",
+    "adoptDescription": "在任务描述中发现了以下定义。您仍可以调整公式：",
+    "adoptIgnore": "否，忽略",
+    "adoptConfirm": "是，采用"
   },
   "phases": {
     "title": "阶段",
@@ -217,7 +247,11 @@
     "violationTitle": "阶段依赖错误",
     "violationReason": "前置任务在后续阶段",
     "organizeHint": "点击阶段以分配任务。",
-    "done": "完成"
+    "done": "完成",
+    "phase": "阶段",
+    "noPhase": "无阶段",
+    "color": "颜色",
+    "newPhaseName": "新阶段名称"
   },
   "plansack": {
     "title": "计划袋",
@@ -305,5 +339,8 @@
     "editVarsTitle": "编辑输入变量：",
     "varsSaved": "变量已保存",
     "noValue": "无值"
+  },
+  "tasks": {
+    "title": "任务"
   }
 }

@@ -466,5 +466,14 @@
     "title": "Since your last visit",
     "description": "This is what other household members have done.",
     "close": "Got it"
-  }
+  },
+  "saved": "Saved",
+  "yes": "Yes",
+  "no": "No",
+  "deleted": "Deleted",
+  "edit": "Edit",
+  "close": "Close",
+  "reset": "Reset",
+  "home": "Home",
+  "login": "Sign in"
 }

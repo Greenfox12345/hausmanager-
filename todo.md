@@ -3761,3 +3761,11 @@
 - [x] Navigation: Plansack in AppLayout, BottomNav, App.tsx Route registriert
 - [x] i18n: plansack-Schlüssel in alle 7 Sprachen (DE, EN, ES, FR, TR, ZH, AR)
 - [x] i18n: nav.plansack in alle 7 common.json Dateien
+## TODO-Konsolidierung und verbleibende Prüfung (2026-08-17)
+- [x] Haushaltsübergreifende Aufgaben als bereits umgesetzt und nicht weiter zu priorisieren dokumentieren (Teilen und Verwaltung über `sharedTasks` und `sharedHouseholdIds` vorhanden)
+- [x] Medien und Dokumente als bereits umgesetzt und nicht weiter zu priorisieren dokumentieren (Fotos für Einkaufsartikel sowie PDF-Anhänge und Originaldateinamen vorhanden)
+- [x] Item-Aufgaben-Verknüpfung als bereits umgesetzt und nicht weiter zu priorisieren dokumentieren (`taskOccurrenceItems` und zugehörige Abläufe vorhanden)
+- [x] Mehrprojekt-Aufgaben auf ausdrücklichen Wunsch nicht weiter verfolgen
+- [x] Bereinigung des alten Auth-Systems auf ausdrücklichen Wunsch nicht weiter verfolgen
+- [x] Verbleibende Übersetzungslücken in Komponenten und Kalender systematisch ermitteln und schließen (Plankiste-Namensraum, 54 fehlende Schlüssel in 7 Sprachen sowie feste Texte korrigiert; i18n-Lint mit 22 Tests grün)
+- [x] Datenbankfreie und datenbankgestützte Testabdeckung prüfen sowie eine sichere Strategie für `TEST_DATABASE_URL` dokumentieren (354 Tests grün; 48 erwartete DB-Fehlschläge ohne Testdatenbank; Details in `TESTING.md`)

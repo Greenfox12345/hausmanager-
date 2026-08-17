@@ -35,7 +35,8 @@
     "neededByShort": "Tarih",
     "overdue": "(süresi geçti)",
     "more": "Daha fazla",
-    "noCategory": "Kategori yok"
+    "noCategory": "Kategori yok",
+    "notesPlaceholder": "Not ekleyin (isteğe bağlı)"
   },
   "status": {
     "open": "Açık",

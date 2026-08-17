@@ -260,5 +260,6 @@
   "partialReturns": {
     "title": "Kısmi İadeler",
     "entry": "Kısmi iade {{index}}: {{qty}} iade edildi"
-  }
+  },
+  "approvalNote": "Onay notu (isteğe bağlı)"
 }

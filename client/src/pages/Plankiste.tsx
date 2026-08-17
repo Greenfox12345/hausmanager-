@@ -709,10 +709,10 @@ function TemplateItemsPreview({
               onValueChange={v => setNewItemCategoryId(v === "none" ? null : Number(v))}
             >
               <SelectTrigger className="h-8 text-sm w-full">
-                <SelectValue placeholder="Kategorie" />
+                <SelectValue placeholder={t("common:labels.category")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Keine Kategorie</SelectItem>
+                <SelectItem value="none">{t("common:labels.none")}</SelectItem>
                 {(categories as any[]).map((c: any) => (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     <span className="flex items-center gap-2">
@@ -738,7 +738,7 @@ function TemplateItemsPreview({
                 notes: newItemNotes.trim() || undefined,
               })}
             >
-              Hinzufügen
+              {t("common:actions.add")}
             </Button>
             <Button
               size="sm"
@@ -746,7 +746,7 @@ function TemplateItemsPreview({
               className="h-7 text-xs"
               onClick={() => setShowAddItem(false)}
             >
-              Abbrechen
+              {t("common:actions.cancel")}
             </Button>
           </div>
         </div>
@@ -766,10 +766,10 @@ function TemplateItemsPreview({
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
                     className="h-8 text-sm"
-                    placeholder="Artikelname"
+                    placeholder={t("plankiste:items.itemNamePlaceholder")}
                   />
                   <Textarea
-                    placeholder="Notiz (optional)"
+                    placeholder={t("plankiste:items.notes")}
                     value={editNotes}
                     onChange={e => setEditNotes(e.target.value)}
                     className="text-sm resize-none"
@@ -815,11 +815,11 @@ function TemplateItemsPreview({
                       value={editCategoryId?.toString() ?? "none"}
                       onValueChange={v => setEditCategoryId(v === "none" ? null : Number(v))}
                     >
-                      <SelectTrigger className="h-8 text-sm w-full">
-                        <SelectValue placeholder="Kategorie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Keine Kategorie</SelectItem>
+                    <SelectTrigger className="h-8 text-sm w-full">
+                      <SelectValue placeholder={t("common:labels.category")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">{t("common:labels.none")}</SelectItem>
                         {(categories as any[]).map((c: any) => (
                           <SelectItem key={c.id} value={c.id.toString()}>
                             <span className="flex items-center gap-1.5">
@@ -846,7 +846,7 @@ function TemplateItemsPreview({
                       })}
                     >
                       <Check className="w-3 h-3 mr-1" />
-                      Speichern
+                      {t("common:actions.save")}
                     </Button>
                     <Button
                       size="sm"
@@ -855,7 +855,7 @@ function TemplateItemsPreview({
                       onClick={() => setEditingItemId(null)}
                     >
                       <X className="w-3 h-3 mr-1" />
-                      Abbrechen
+                      {t("common:actions.cancel")}
                     </Button>
                   </div>
                 </div>
@@ -1592,8 +1592,8 @@ function TemplateTaskItemsSection({
       {phaseOrganizeMode && (
         <div className="space-y-1">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-muted-foreground">Klicke auf eine Phase um die Aufgabe zuzuordnen.</span>
-            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setPhaseOrganizeMode(false)}>✕ Fertig</Button>
+            <span className="text-xs text-muted-foreground">{t("plankiste:phases.organizeHint")}</span>
+            <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setPhaseOrganizeMode(false)}>✕ {t("plankiste:phases.done")}</Button>
           </div>
           {phaseDisplayedTaskItems.map((item: any, idx: number) => {
             const violation = phaseViolations.find(v => v.taskId === item.id);
@@ -1766,9 +1766,9 @@ function TemplateTaskItemsSection({
     <AlertDialog open={showAdoptDialog} onOpenChange={setShowAdoptDialog}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Variablen-Definitionen übernehmen?</AlertDialogTitle>
+          <AlertDialogTitle>{t("plankiste:variables.adoptTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden. Du kannst die Formeln noch anpassen:
+            {t("plankiste:variables.adoptDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="space-y-3 py-2">
@@ -1789,10 +1789,10 @@ function TemplateTaskItemsSection({
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => { setShowAdoptDialog(false); setPendingDefinitions([]); }}>
-            Nein, ignorieren
+            {t("plankiste:variables.adoptIgnore")}
           </AlertDialogCancel>
           <AlertDialogAction onClick={adoptDefinitions}>
-            Ja, übernehmen
+            {t("plankiste:variables.adoptConfirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -1802,7 +1802,7 @@ function TemplateTaskItemsSection({
     <AlertDialog open={deleteConfirmTaskId !== null} onOpenChange={open => { if (!open) setDeleteConfirmTaskId(null); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Aufgabe löschen?</AlertDialogTitle>
+          <AlertDialogTitle>{t("plankiste:taskItems.deleteTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
             {(() => {
               const task = (taskItems as any[]).find((t: any) => t.id === deleteConfirmTaskId);
@@ -1812,10 +1812,13 @@ function TemplateTaskItemsSection({
               );
               return (
                 <>
-                  <span>„{task?.name}" wird unwiderruflich gelöscht.</span>
+                  <span>{t("plankiste:taskItems.deleteDescription", { name: task?.name ?? "" })}</span>
                   {deps.length > 0 && (
                     <span className="block mt-1 text-amber-600">
-                      Wird auch aus {deps.length} Aufgabe{deps.length > 1 ? "n" : ""} als Vor-/Folgeaufgabe entfernt: {deps.map((d: any) => `„${d.name}"`).join(", ")}.
+                      {t("plankiste:taskItems.deleteDependencies", {
+                        count: deps.length,
+                        tasks: deps.map((d: any) => `„${d.name}“`).join(", "),
+                      })}
                     </span>
                   )}
                 </>
@@ -2012,8 +2015,8 @@ function InstancesTab({ householdId, memberId }: { householdId: number; memberId
     return (
       <div className="text-center py-16 text-muted-foreground">
         <ListChecks className="w-12 h-12 mx-auto mb-3 opacity-30" />
-        <p className="font-medium">Keine aktiven Pläne</p>
-        <p className="text-sm mt-1">Starte eine Vorlage aus dem Vorlagen-Tab</p>
+        <p className="font-medium">{t("plankiste:instances.empty")}</p>
+        <p className="text-sm mt-1">{t("plankiste:instances.emptyHint")}</p>
       </div>
     );
   }

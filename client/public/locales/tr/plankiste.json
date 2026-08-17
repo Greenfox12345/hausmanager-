@@ -52,7 +52,9 @@
     "created": "Şablon oluşturuldu",
     "saved": "Şablon kaydedildi",
     "createError": "Oluşturma hatası",
-    "saveError": "Kaydetme hatası"
+    "saveError": "Kaydetme hatası",
+    "name": "Ad",
+    "description": "Açıklama"
   },
   "items": {
     "addItem": "Ürün ekle",
@@ -67,7 +69,14 @@
     "cancel": "İptal",
     "addError": "Ekleme hatası",
     "deleteError": "Silme hatası",
-    "updateError": "Güncelleme hatası"
+    "updateError": "Güncelleme hatası",
+    "add": "Öğe ekle",
+    "name": "Ad",
+    "namePlaceholder": "Öğe adı",
+    "quantity": "Miktar",
+    "notes": "Not (isteğe bağlı)",
+    "category": "Kategori",
+    "title": "Alışveriş öğeleri"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} görev",
     "addTask": "Görev ekle",
     "sortTopo": "Topolojik",
-    "sortOriginal": "Orijinal"
+    "sortOriginal": "Orijinal",
+    "title": "Görevler",
+    "add": "Görev ekle",
+    "deleteTitle": "Görev silinsin mi?",
+    "deleteDescription": "“{{name}}” kalıcı olarak silinecek.",
+    "deleteDependencies": "Ayrıca {{count}} görevden önkoşul/takip görevi olarak kaldırılacak: {{tasks}}."
   },
   "instances": {
     "empty": "Aktif plan yok",
@@ -154,7 +168,17 @@
     "followups": "Takip görevleri (sonra yapılacak)",
     "gapDays": "gün aralık",
     "save": "Kaydet",
-    "cancel": "İptal"
+    "cancel": "İptal",
+    "editTask": "Görevi düzenle",
+    "addTask": "Görev ekle",
+    "name": "Ad",
+    "description": "Açıklama",
+    "once": "Bir kez",
+    "daily": "Günlük",
+    "weekly": "Haftalık",
+    "monthly": "Aylık",
+    "custom": "Özel",
+    "interval": "Aralık"
   },
   "variables": {
     "toggle": "Değişkenler",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "Birimler alinsın mı?",
     "unitDialogDesc": "Gorev metinlerinde asagidaki birimler bulundu:",
     "unitDialogApply": "Evet, al",
-    "unitApplied": "Birimler alindi"
+    "unitApplied": "Birimler alindi",
+    "title": "Değişkenler",
+    "calculated": "Hesaplandı",
+    "adoptTitle": "Değişken tanımları alınsın mı?",
+    "adoptDescription": "Görev açıklamasında aşağıdaki tanımlar bulundu. Formülleri hâlâ değiştirebilirsiniz:",
+    "adoptIgnore": "Hayır, yoksay",
+    "adoptConfirm": "Evet, al"
   },
   "phases": {
     "title": "Aşamalar",
@@ -217,7 +247,11 @@
     "violationTitle": "Aşama bağımlılık hataları",
     "violationReason": "Ön koşul sonraki bir aşamada",
     "organizeHint": "Görevi atamak için bir aşamaya tıklayın.",
-    "done": "Bitti"
+    "done": "Bitti",
+    "phase": "Aşama",
+    "noPhase": "Aşama yok",
+    "color": "Renk",
+    "newPhaseName": "Yeni aşama adı"
   },
   "plansack": {
     "title": "Plan Çantası",
@@ -305,5 +339,8 @@
     "editVarsTitle": "Giriş değişkenlerini düzenle:",
     "varsSaved": "Değişkenler kaydedildi",
     "noValue": "değer yok"
+  },
+  "tasks": {
+    "title": "Görevler"
   }
 }

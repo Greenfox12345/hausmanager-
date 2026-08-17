@@ -35,7 +35,8 @@
     "neededByShort": "بحلول",
     "overdue": "(منتهي)",
     "more": "المزيد",
-    "noCategory": "بدون فئة"
+    "noCategory": "بدون فئة",
+    "notesPlaceholder": "أضف ملاحظة (اختياري)"
   },
   "status": {
     "open": "مفتوح",

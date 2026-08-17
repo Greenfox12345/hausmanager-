@@ -607,7 +607,20 @@
   "dueDate": "Due:",
   "labels": {
     "assignedTo": "Responsible",
-    "occurrence": "Occurrence"
+    "occurrence": "Occurrence",
+    "name": "Name",
+    "frequency": "Recurrence",
+    "repeatInterval": "Interval",
+    "repeatUnit": "Unit",
+    "rotation": "Rotation",
+    "requiredPersons": "Required people",
+    "customFrequencyDays": "Custom recurrence days",
+    "irregularRecurrence": "Irregular recurrence",
+    "monthlyRecurrence": "Monthly recurrence",
+    "monthlyWeekday": "Weekday",
+    "monthlyOccurrence": "Occurrence in month",
+    "durationDays": "Duration (days)",
+    "durationMinutes": "Duration (minutes)"
   },
   "linkedWith": "Linked with",
   "otherHousehold": "another household",

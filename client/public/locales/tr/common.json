@@ -470,5 +470,14 @@
     "title": "Son ziyaretinden beri",
     "description": "Diğer hane üyelerinin yaptıkları bunlar.",
     "close": "Anladım"
-  }
+  },
+  "saved": "Kaydedildi",
+  "yes": "Evet",
+  "no": "Hayır",
+  "deleted": "Silindi",
+  "edit": "Düzenle",
+  "close": "Kapat",
+  "reset": "Sıfırla",
+  "home": "Ana sayfa",
+  "login": "Giriş yap"
 }

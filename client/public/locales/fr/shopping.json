@@ -35,7 +35,8 @@
     "neededByShort": "Avant",
     "overdue": "(expiré)",
     "more": "Plus",
-    "noCategory": "Aucune catégorie"
+    "noCategory": "Aucune catégorie",
+    "notesPlaceholder": "Ajouter une note (facultative)"
   },
   "status": {
     "open": "Ouvert",

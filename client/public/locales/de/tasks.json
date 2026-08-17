@@ -607,7 +607,20 @@
   "dueDate": "Fällig:",
   "labels": {
     "assignedTo": "Verantwortlich",
-    "occurrence": "Termin"
+    "occurrence": "Termin",
+    "name": "Name",
+    "frequency": "Wiederholung",
+    "repeatInterval": "Intervall",
+    "repeatUnit": "Einheit",
+    "rotation": "Rotation",
+    "requiredPersons": "Benötigte Personen",
+    "customFrequencyDays": "Eigene Wiederholungstage",
+    "irregularRecurrence": "Unregelmäßige Wiederholung",
+    "monthlyRecurrence": "Monatliche Wiederholung",
+    "monthlyWeekday": "Wochentag",
+    "monthlyOccurrence": "Auftreten im Monat",
+    "durationDays": "Dauer (Tage)",
+    "durationMinutes": "Dauer (Minuten)"
   },
   "linkedWith": "Verknüpft mit",
   "otherHousehold": "anderem Haushalt",

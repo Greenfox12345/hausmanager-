@@ -260,5 +260,6 @@
   "partialReturns": {
     "title": "Partial Returns",
     "entry": "Partial return {{index}}: {{qty}} returned"
-  }
+  },
+  "approvalNote": "Approval note (optional)"
 }

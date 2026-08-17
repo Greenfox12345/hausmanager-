@@ -260,5 +260,6 @@
   "partialReturns": {
     "title": "部分归还",
     "entry": "第{{index}}次部分归还：{{qty}}件"
-  }
+  },
+  "approvalNote": "批准说明（可选）"
 }

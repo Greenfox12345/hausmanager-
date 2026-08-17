@@ -607,7 +607,20 @@
   "dueDate": "À faire pour :",
   "labels": {
     "assignedTo": "Responsable",
-    "occurrence": "Occurrence"
+    "occurrence": "Occurrence",
+    "name": "Nom",
+    "frequency": "Répétition",
+    "repeatInterval": "Intervalle",
+    "repeatUnit": "Unité",
+    "rotation": "Rotation",
+    "requiredPersons": "Personnes nécessaires",
+    "customFrequencyDays": "Jours de répétition personnalisés",
+    "irregularRecurrence": "Répétition irrégulière",
+    "monthlyRecurrence": "Répétition mensuelle",
+    "monthlyWeekday": "Jour de la semaine",
+    "monthlyOccurrence": "Occurrence dans le mois",
+    "durationDays": "Durée (jours)",
+    "durationMinutes": "Durée (minutes)"
   },
   "linkedWith": "Lié avec",
   "otherHousehold": "autre foyer",

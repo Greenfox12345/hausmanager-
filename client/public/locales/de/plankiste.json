@@ -52,7 +52,9 @@
     "created": "Vorlage erstellt",
     "saved": "Vorlage gespeichert",
     "createError": "Fehler beim Erstellen",
-    "saveError": "Fehler beim Speichern"
+    "saveError": "Fehler beim Speichern",
+    "name": "Name",
+    "description": "Beschreibung"
   },
   "items": {
     "addItem": "Artikel hinzufügen",
@@ -67,7 +69,14 @@
     "cancel": "Abbrechen",
     "addError": "Fehler beim Hinzufügen",
     "deleteError": "Fehler beim Löschen",
-    "updateError": "Fehler beim Aktualisieren"
+    "updateError": "Fehler beim Aktualisieren",
+    "add": "Artikel hinzufügen",
+    "name": "Name",
+    "namePlaceholder": "Artikelname",
+    "quantity": "Menge",
+    "notes": "Notiz (optional)",
+    "category": "Kategorie",
+    "title": "Einkaufsartikel"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} Aufgaben",
     "addTask": "Aufgabe hinzufügen",
     "sortTopo": "Topologisch",
-    "sortOriginal": "Original"
+    "sortOriginal": "Original",
+    "title": "Aufgaben",
+    "add": "Aufgabe hinzufügen",
+    "deleteTitle": "Aufgabe löschen?",
+    "deleteDescription": "„{{name}}“ wird unwiderruflich gelöscht.",
+    "deleteDependencies": "Wird auch aus {{count}} Aufgabe(n) als Vor-/Folgeaufgabe entfernt: {{tasks}}."
   },
   "instances": {
     "empty": "Keine aktiven Pläne",
@@ -154,7 +168,17 @@
     "followups": "Folgeaufgaben (werden danach fällig)",
     "gapDays": "Tage Abstand",
     "save": "Speichern",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "editTask": "Aufgabe bearbeiten",
+    "addTask": "Aufgabe hinzufügen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "once": "Einmalig",
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich",
+    "custom": "Benutzerdefiniert",
+    "interval": "Intervall"
   },
   "variables": {
     "toggle": "Variablen",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "Einheiten übernehmen?",
     "unitDialogDesc": "Folgende Einheiten wurden in Aufgabentexten erkannt:",
     "unitDialogApply": "Ja, übernehmen",
-    "unitApplied": "Einheiten übernommen"
+    "unitApplied": "Einheiten übernommen",
+    "title": "Variablen",
+    "calculated": "Berechnet",
+    "adoptTitle": "Variablen-Definitionen übernehmen?",
+    "adoptDescription": "In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden. Du kannst die Formeln noch anpassen:",
+    "adoptIgnore": "Nein, ignorieren",
+    "adoptConfirm": "Ja, übernehmen"
   },
   "phases": {
     "title": "Phasen",
@@ -217,7 +247,11 @@
     "violationTitle": "Phasen-Abhängigkeitsfehler",
     "violationReason": "Voraussetzung liegt in einer späteren Phase",
     "organizeHint": "Klicke auf eine Phase um die Aufgabe zuzuordnen.",
-    "done": "Fertig"
+    "done": "Fertig",
+    "phase": "Phase",
+    "noPhase": "Keine Phase",
+    "color": "Farbe",
+    "newPhaseName": "Name der neuen Phase"
   },
   "plansack": {
     "title": "Plansack",
@@ -305,5 +339,8 @@
     "editVarsTitle": "Eingabe-Variablen bearbeiten:",
     "varsSaved": "Variablen gespeichert",
     "noValue": "kein Wert"
+  },
+  "tasks": {
+    "title": "Aufgaben"
   }
 }

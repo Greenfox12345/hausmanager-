@@ -260,5 +260,6 @@
   "partialReturns": {
     "title": "Teilrückgaben",
     "entry": "Teilrückgabe {{index}}: {{qty}} zurückgegeben"
-  }
+  },
+  "approvalNote": "Nachricht zur Genehmigung (optional)"
 }

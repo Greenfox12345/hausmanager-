@@ -607,7 +607,20 @@
   "dueDate": "Bitiş:",
   "labels": {
     "assignedTo": "Sorumlu",
-    "occurrence": "Tekrar"
+    "occurrence": "Tekrar",
+    "name": "Ad",
+    "frequency": "Tekrar",
+    "repeatInterval": "Aralık",
+    "repeatUnit": "Birim",
+    "rotation": "Döngü",
+    "requiredPersons": "Gerekli kişiler",
+    "customFrequencyDays": "Özel tekrar günleri",
+    "irregularRecurrence": "Düzensiz tekrar",
+    "monthlyRecurrence": "Aylık tekrar",
+    "monthlyWeekday": "Haftanın günü",
+    "monthlyOccurrence": "Aydaki tekrar",
+    "durationDays": "Süre (gün)",
+    "durationMinutes": "Süre (dakika)"
   },
   "linkedWith": "İle bağlantılı",
   "otherHousehold": "diğer hane",

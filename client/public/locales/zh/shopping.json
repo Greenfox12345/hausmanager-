@@ -35,7 +35,8 @@
     "neededByShort": "截止",
     "overdue": "(已过期)",
     "more": "更多",
-    "noCategory": "无分类"
+    "noCategory": "无分类",
+    "notesPlaceholder": "添加备注（可选）"
   },
   "status": {
     "open": "开放",

@@ -52,7 +52,9 @@
     "created": "تم إنشاء القالب",
     "saved": "تم حفظ القالب",
     "createError": "خطأ في الإنشاء",
-    "saveError": "خطأ في الحفظ"
+    "saveError": "خطأ في الحفظ",
+    "name": "الاسم",
+    "description": "الوصف"
   },
   "items": {
     "addItem": "إضافة عنصر",
@@ -67,7 +69,14 @@
     "cancel": "إلغاء",
     "addError": "خطأ في الإضافة",
     "deleteError": "خطأ في الحذف",
-    "updateError": "خطأ في التحديث"
+    "updateError": "خطأ في التحديث",
+    "add": "إضافة عنصر",
+    "name": "الاسم",
+    "namePlaceholder": "اسم العنصر",
+    "quantity": "الكمية",
+    "notes": "ملاحظة (اختياري)",
+    "category": "الفئة",
+    "title": "عناصر التسوق"
   },
   "taskItems": {
     "frequency": {
@@ -85,7 +94,12 @@
     "tasksCountPlural": "{{count}} مهام",
     "addTask": "إضافة مهمة",
     "sortTopo": "ترتيب طوبولوجي",
-    "sortOriginal": "الترتيب الأصلي"
+    "sortOriginal": "الترتيب الأصلي",
+    "title": "المهام",
+    "add": "إضافة مهمة",
+    "deleteTitle": "حذف المهمة؟",
+    "deleteDescription": "سيتم حذف «{{name}}» نهائيًا.",
+    "deleteDependencies": "ستتم إزالتها أيضًا كشرط مسبق/مهمة لاحقة من {{count}} مهمة: {{tasks}}."
   },
   "instances": {
     "empty": "لا توجد خطط نشطة",
@@ -154,7 +168,17 @@
     "followups": "المهام التالية (تستحق بعد ذلك)",
     "gapDays": "أيام فاصلة",
     "save": "حفظ",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "editTask": "تعديل المهمة",
+    "addTask": "إضافة مهمة",
+    "name": "الاسم",
+    "description": "الوصف",
+    "once": "مرة واحدة",
+    "daily": "يوميًا",
+    "weekly": "أسبوعيًا",
+    "monthly": "شهريًا",
+    "custom": "مخصص",
+    "interval": "الفاصل"
   },
   "variables": {
     "toggle": "المتغيرات",
@@ -203,7 +227,13 @@
     "unitDialogTitle": "اعتماد الوحدات؟",
     "unitDialogDesc": "تم العثور على الوحدات التالية في نصوص المهام:",
     "unitDialogApply": "نعم، اعتماد",
-    "unitApplied": "تم اعتماد الوحدات"
+    "unitApplied": "تم اعتماد الوحدات",
+    "title": "المتغيرات",
+    "calculated": "محسوب",
+    "adoptTitle": "اعتماد تعريفات المتغيرات؟",
+    "adoptDescription": "تم العثور على التعريفات التالية في وصف المهمة. لا يزال بإمكانك تعديل الصيغ:",
+    "adoptIgnore": "لا، تجاهل",
+    "adoptConfirm": "نعم، اعتماد"
   },
   "phases": {
     "title": "المراحل",
@@ -217,7 +247,11 @@
     "violationTitle": "أخطاء تبعية المرحلة",
     "violationReason": "المتطلب الأساسي في مرحلة لاحقة",
     "organizeHint": "انقر على مرحلة لتعيين المهمة.",
-    "done": "تم"
+    "done": "تم",
+    "phase": "مرحلة",
+    "noPhase": "لا توجد مرحلة",
+    "color": "اللون",
+    "newPhaseName": "اسم المرحلة الجديدة"
   },
   "plansack": {
     "title": "حقيبة الخطط",
@@ -305,5 +339,8 @@
     "editVarsTitle": "تعديل متغيرات الإدخال:",
     "varsSaved": "تم حفظ المتغيرات",
     "noValue": "لا قيمة"
+  },
+  "tasks": {
+    "title": "المهام"
   }
 }

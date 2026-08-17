@@ -33,6 +33,7 @@ export const NAMESPACES = [
   "auth",
   "tutorial",
   "units",
+  "plankiste",
 ] as const;
 
 i18n
