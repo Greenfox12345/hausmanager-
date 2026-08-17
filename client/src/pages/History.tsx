@@ -439,6 +439,36 @@ export default function History() {
                           </div>;
                         })()}
 
+                        {activity.action === "completed_batch" && (activity.metadata as any)?.items && (() => {
+                          const items = (activity.metadata as any).items as Array<string | { name: string; quantity?: string | null; details?: string | null }>;
+                          const inventoryCount = Number((activity.metadata as any).inventoryCount ?? 0);
+                          return <div className="mt-2 rounded-md border border-blue-200 bg-blue-50/60 p-3 text-sm space-y-1.5">
+                            <div><span className="font-semibold">{t("shopping:title")}:</span> {items.map((item) => typeof item === "string" ? item : `${item.name}${item.quantity ? ` (${item.quantity})` : ""}`).join(", ")}</div>
+                            {inventoryCount > 0 && <div><span className="font-semibold">{t("inventory:title")}:</span> {t("history:itemsTransferred", "{{count}} Artikel übernommen", { count: inventoryCount })}</div>}
+                          </div>;
+                        })()}
+
+                        {activity.activityType === "calendar" && (activity.metadata as any)?.calendar && (() => {
+                          const calendar = (activity.metadata as any).calendar;
+                          return <div className="mt-2 rounded-md border border-violet-200 bg-violet-50/60 p-3 text-sm space-y-1.5">
+                            <div><span className="font-semibold">{t("calendar:title")}:</span> {calendar.title}</div>
+                            {calendar.startDate && <div><span className="font-semibold">{t("calendar:date", "Datum")}:</span> {format(new Date(calendar.startDate), "Pp", { locale: dateFnsLocale })}</div>}
+                            {calendar.endDate && <div><span className="font-semibold">{t("calendar:endDate", "Ende")}:</span> {format(new Date(calendar.endDate), "Pp", { locale: dateFnsLocale })}</div>}
+                            {calendar.description && <div><span className="font-semibold">{t("common:labels.description")}:</span> {calendar.description}</div>}
+                            {Array.isArray(calendar.changes) && calendar.changes.length > 0 && <div><span className="font-semibold">{t("history:changes", "Änderungen")}:</span> {calendar.changes.join(", ")}</div>}
+                          </div>;
+                        })()}
+
+                        {activity.activityType === "project" && (activity.metadata as any)?.project && (() => {
+                          const project = (activity.metadata as any).project;
+                          return <div className="mt-2 rounded-md border border-indigo-200 bg-indigo-50/60 p-3 text-sm space-y-1.5">
+                            <div><span className="font-semibold">{t("projects:title")}:</span> {project.name}</div>
+                            {project.status && <div><span className="font-semibold">{t("projects:status", "Status")}:</span> {project.previousStatus ? `${project.previousStatus} → ${project.status}` : project.status}</div>}
+                            {project.description && <div><span className="font-semibold">{t("common:labels.description")}:</span> {project.description}</div>}
+                            {Array.isArray(project.changes) && project.changes.length > 0 && <div><span className="font-semibold">{t("history:changes", "Änderungen")}:</span> {project.changes.join(", ")}</div>}
+                          </div>;
+                        })()}
+
                         {/* Linked Task Badge (for borrow entries linked to a task) */}
                         {activity.activityType === "borrow" && (activity as any).linkedTaskDetails && (() => {
                           const ltd = (activity as any).linkedTaskDetails;

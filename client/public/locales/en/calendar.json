@@ -130,5 +130,7 @@
   "searchFilterCalendarActive": "Calendar filtered",
   "searchFilterCalendarActivate": "Filter calendar by search",
   "searchFilterCalendarDeactivate": "Deactivate calendar filter",
-  "searchJump": "Jump"
+  "searchJump": "Jump",
+  "date": "Date",
+  "endDate": "End"
 }

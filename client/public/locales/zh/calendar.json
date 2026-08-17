@@ -130,5 +130,7 @@
   "searchFilterCalendarActive": "日历已过滤",
   "searchFilterCalendarActivate": "按搜索过滤日历",
   "searchFilterCalendarDeactivate": "取消日历过滤",
-  "searchJump": "跳转"
+  "searchJump": "跳转",
+  "date": "日期",
+  "endDate": "结束"
 }

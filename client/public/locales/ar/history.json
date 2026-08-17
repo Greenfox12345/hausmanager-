@@ -68,5 +68,7 @@
   "noActivitiesFiltered": "لم يتم العثور على أنشطة تتوافق مع معايير التصفية الخاصة بك.",
   "values": {
     "minutes": "{{count}} دقيقة"
-  }
+  },
+  "itemsTransferred": "تم نقل {{count}} عنصرًا",
+  "changes": "التغييرات"
 }

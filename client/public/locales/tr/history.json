@@ -68,5 +68,7 @@
   "noActivitiesFiltered": "Filtre kriterlerinize uyan aktivite bulunamadı.",
   "values": {
     "minutes": "{{count}} dakika"
-  }
+  },
+  "itemsTransferred": "{{count}} ürün aktarıldı",
+  "changes": "Değişiklikler"
 }

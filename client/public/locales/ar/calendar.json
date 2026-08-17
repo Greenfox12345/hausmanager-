@@ -130,5 +130,7 @@
   "searchFilterCalendarActive": "التقويم مُصفَّى",
   "searchFilterCalendarActivate": "تصفية التقويم بالبحث",
   "searchFilterCalendarDeactivate": "إلغاء تصفية التقويم",
-  "searchJump": "انتقل"
+  "searchJump": "انتقل",
+  "date": "التاريخ",
+  "endDate": "النهاية"
 }

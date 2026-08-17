@@ -68,5 +68,7 @@
   "noActivitiesFiltered": "No activities found matching your filter criteria.",
   "values": {
     "minutes": "{{count}} minutes"
-  }
+  },
+  "itemsTransferred": "{{count}} items transferred",
+  "changes": "Changes"
 }

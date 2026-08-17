@@ -130,5 +130,7 @@
   "searchFilterCalendarActive": "Kalender gefiltert",
   "searchFilterCalendarActivate": "Kalender nach Suche filtern",
   "searchFilterCalendarDeactivate": "Kalenderfilter deaktivieren",
-  "searchJump": "Springen"
+  "searchJump": "Springen",
+  "date": "Datum",
+  "endDate": "Ende"
 }

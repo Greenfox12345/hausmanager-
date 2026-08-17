@@ -68,5 +68,7 @@
   "noActivitiesFiltered": "未找到符合您筛选条件的活动。",
   "values": {
     "minutes": "{{count}} 分钟"
-  }
+  },
+  "itemsTransferred": "已转入 {{count}} 件物品",
+  "changes": "更改"
 }

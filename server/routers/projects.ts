@@ -202,6 +202,7 @@ export const projectsRouter = router({
         action: "projectCreated",
         description: projectCreated(lang, input.name, memberName, input.description),
         relatedItemId: projectId,
+        metadata: { project: { name: input.name, description: input.description ?? null, status: "planned" } },
       });
 
       return { projectId };
@@ -474,6 +475,7 @@ export const projectsRouter = router({
           action: "projectStatusChanged",
           description: projectStatusChanged(lang, projectName, memberName, updateData.status),
           relatedItemId: id,
+          metadata: { project: { name: projectName, status: updateData.status, previousStatus: existing?.status ?? null } },
         });
       } else {
         await createActivityLog({
@@ -483,6 +485,7 @@ export const projectsRouter = router({
           action: "projectUpdated",
           description: projectUpdated(lang, projectName, memberName, changeParts.length > 0 ? changeParts.join(", ") : undefined),
           relatedItemId: id,
+          metadata: { project: { name: projectName, description: updateData.description ?? existing?.description ?? null, changes: changeParts } },
         });
       }
 

@@ -130,5 +130,7 @@
   "searchFilterCalendarActive": "Takvim filtrelendi",
   "searchFilterCalendarActivate": "Takvimi aramaya göre filtrele",
   "searchFilterCalendarDeactivate": "Takvim filtresini kaldır",
-  "searchJump": "Atla"
+  "searchJump": "Atla",
+  "date": "Tarih",
+  "endDate": "Bitiş"
 }

@@ -122,6 +122,7 @@ export const calendarRouter = router({
         action: "calendarEventCreated",
         description: calendarEventCreated(lang, input.title, memberName, fmtDate(input.startDate)),
         relatedItemId: Number(eventId),
+        metadata: { calendar: { title: input.title, description: input.description ?? null, startDate: input.startDate, endDate: input.endDate ?? null, eventType: input.eventType, icon: input.icon ?? null } },
       });
 
       return { eventId: Number(eventId) };
@@ -179,6 +180,7 @@ export const calendarRouter = router({
         action: "calendarEventUpdated",
         description: calendarEventUpdated(lang, eventTitle, memberName, changeParts.length > 0 ? changeParts.join(", ") : undefined),
         relatedItemId: id,
+        metadata: { calendar: { title: eventTitle, description: input.description ?? existing?.description ?? null, startDate: input.startDate ?? existing?.startDate ?? null, endDate: input.endDate ?? existing?.endDate ?? null, changes: changeParts } },
       });
 
       return { success: true };
@@ -210,6 +212,7 @@ export const calendarRouter = router({
         activityType: "calendar",
         action: "calendarEventDeleted",
         description: calendarEventDeleted(lang, eventTitle, memberName),
+        metadata: { calendar: { title: eventTitle, description: existing?.description ?? null, startDate: existing?.startDate ?? null, endDate: existing?.endDate ?? null } },
       });
 
       return { success: true };
@@ -245,6 +248,7 @@ export const calendarRouter = router({
         action: "calendarEventCompleted",
         description: calendarEventCompleted(lang, eventTitle, memberName),
         relatedItemId: input.id,
+        metadata: { calendar: { title: eventTitle, description: existing?.description ?? null, startDate: existing?.startDate ?? null, endDate: existing?.endDate ?? null } },
       });
 
       return { success: true };

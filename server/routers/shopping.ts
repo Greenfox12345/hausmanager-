@@ -204,9 +204,9 @@ export const shoppingRouter = router({
     .mutation(async ({ input }) => {
       // Get item names for description
       const items = await getShoppingItems(input.householdId);
-      const completedItemNames = items
+      const completedItems = items
         .filter((item) => input.itemIds.includes(item.id))
-        .map((item) => item.name);
+        .map((item) => ({ name: item.name, quantity: item.quantity ?? null, details: item.details ?? null }));
 
       // Transfer items to inventory if requested
       if (input.itemsToInventory && input.itemsToInventory.length > 0) {
@@ -244,7 +244,7 @@ export const shoppingRouter = router({
         photoUrls: input.photoUrls,
         metadata: {
           itemCount: input.itemIds.length,
-          items: completedItemNames,
+          items: completedItems,
           inventoryCount: input.itemsToInventory?.length || 0,
         },
       });

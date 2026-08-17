@@ -68,5 +68,7 @@
   "noActivitiesFiltered": "Keine Aktivitäten gefunden, die Ihren Filterkriterien entsprechen.",
   "values": {
     "minutes": "{{count}} Minuten"
-  }
+  },
+  "itemsTransferred": "{{count}} Artikel übernommen",
+  "changes": "Änderungen"
 }

@@ -3825,3 +3825,8 @@
 - [x] Automatisch erzeugte Bilanz-Verlaufseinträge mit Person, Zahlungs- oder Arbeitsart, Betrag beziehungsweise Zeit, Zweck und Quelltyp vollständig speichern und verständlich darstellen (strukturierte `metadata.balance` und lokalisiertes Beschreibungsschema für Erstellung, Änderung und Löschung)
 - [x] Bei bilanzrelevanten Einkäufen konkrete Artikel- und Einkaufsinformationen als Verlaufskontext übernehmen (Artikelnamen sowie vorhandene Mengen werden je Bilanzaufwand übergeben und protokolliert)
 - [x] Bilanzmetadaten in der zentralen Verlaufsansicht strukturiert und in der Haushaltssprache anzeigen (eigener Detailblock mit Person, Wert, Zweck, Quelle und Einkaufsartikeln)
+
+## Normaler Haushaltsverlauf – Detailprüfung (2026-08-17)
+- [x] Häufige normale Verlaufstypen und ihre Aktionscodes auf technische, unvollständige oder missverständliche Ausgaben prüfen (Aufgaben, Inventar und Ausleihen waren bereits detailliert; wichtigste Lücken bei Sammel-Einkäufen, Kalendern und Projekten identifiziert)
+- [x] Fehlende Kontextdaten für Einkäufe, Aufgaben, Zwischenziele, Projekte und weitere häufige Aktionen beim Protokollieren ergänzen (Sammel-Einkäufe führen Artikel und Mengen; Kalender führen Termin- und Änderungsdaten; Projekte führen Namen, Status und Änderungsdetails)
+- [x] Normale Verlaufseinträge in der zentralen Verlaufsansicht mit verständlichen Detailblöcken und lokalen Texten konsistent darstellen (eigene farblich zurückhaltende Detailblöcke für Sammel-Einkäufe, Kalender und Projekte; bestehende Aufgaben-, Inventar- und Ausleihen-Details beibehalten)
