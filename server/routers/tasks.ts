@@ -2014,6 +2014,13 @@ export const tasksRouter = router({
       const payload: Record<string, unknown> = { ...(input.changes ?? {}) };
       if (input.name !== undefined) payload.name = input.name;
       if (input.description !== undefined) payload.description = input.description;
+      const proposalFieldLabels: Record<string, string> = {
+        name: "Name", description: "Beschreibung", assignedTo: "Verantwortliche", frequency: "Wiederholung",
+        dueDate: "Datum", dueTime: "Uhrzeit", categoryIds: "Kategorien", projectIds: "Projekte",
+        prerequisites: "Voraussetzungen", followups: "Folgeaufgaben", rotationSchedule: "Rotationsplan",
+      };
+      const proposedFields = Object.keys(payload).map((field) => proposalFieldLabels[field] ?? field);
+      const proposedFieldSummary = proposedFields.length > 0 ? ` (${proposedFields.join(", ")})` : "";
       const [result] = await db.insert(taskChangeProposals).values({
         householdId: input.householdId,
         taskId: input.taskId,
@@ -2040,7 +2047,7 @@ export const tasksRouter = router({
         memberId: input.memberId,
         activityType: "task",
         action: "change_proposed",
-        description: `${member.memberName} hat eine Änderung für „${task.name}“ vorgeschlagen.`,
+        description: `${member.memberName} hat eine Änderung für „${task.name}“ vorgeschlagen${proposedFieldSummary}.`,
         relatedItemId: task.id,
         metadata: { proposalId: Number(result.insertId), fields: Object.keys(payload) },
       });
@@ -2200,13 +2207,24 @@ export const tasksRouter = router({
         reviewNote: input.reviewNote || null,
         reviewedAt: new Date(),
       }).where(eq(taskChangeProposals.id, input.proposalId));
+      const reviewedPayload = (proposal.payload ?? {}) as Record<string, unknown>;
+      const resultingTaskName = typeof reviewedPayload.name === "string" && reviewedPayload.name.trim()
+        ? reviewedPayload.name.trim()
+        : task.name;
+      const reviewFieldLabels: Record<string, string> = {
+        name: "Name", description: "Beschreibung", assignedTo: "Verantwortliche", frequency: "Wiederholung",
+        dueDate: "Datum", dueTime: "Uhrzeit", categoryIds: "Kategorien", projectIds: "Projekte",
+        prerequisites: "Voraussetzungen", followups: "Folgeaufgaben", rotationSchedule: "Rotationsplan",
+      };
+      const reviewFields = Object.keys(reviewedPayload).map((field) => reviewFieldLabels[field] ?? field);
+      const reviewFieldSummary = reviewFields.length > 0 ? ` (${reviewFields.join(", ")})` : "";
       await createNotification({
         householdId: input.householdId,
         memberId: proposal.proposedByMemberId,
         type: "general",
         title: "Änderungsvorschlag entschieden",
         message: input.decision === "approved"
-          ? `Dein Änderungsvorschlag für „${task.name}“ wurde angenommen.`
+          ? `Dein Änderungsvorschlag für „${resultingTaskName}“ wurde angenommen.`
           : `Dein Änderungsvorschlag für „${task.name}“ wurde abgelehnt.`,
         relatedTaskId: task.id,
       });
@@ -2216,8 +2234,8 @@ export const tasksRouter = router({
         activityType: "task",
         action: input.decision === "approved" ? "change_proposal_approved" : "change_proposal_rejected",
         description: input.decision === "approved"
-          ? `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ angenommen.`
-          : `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ abgelehnt.`,
+          ? `${reviewer.memberName} hat einen Änderungsvorschlag für „${resultingTaskName}“ angenommen${reviewFieldSummary}.`
+          : `${reviewer.memberName} hat einen Änderungsvorschlag für „${task.name}“ abgelehnt${reviewFieldSummary}.`,
         relatedItemId: task.id,
         metadata: { proposalId: proposal.id, proposedByMemberId: proposal.proposedByMemberId },
       });

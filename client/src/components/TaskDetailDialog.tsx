@@ -2463,6 +2463,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       name: t("dialog.taskName", "Aufgabenname"), description: t("dialog.description", "Beschreibung"),
                       assignedTo: t("dialog.responsible", "Verantwortlich"), dueDate: t("dialog.dueDate", "Fällig am"),
                       dueTime: t("dialog.dueTime", "Uhrzeit"), frequency: t("dialog.frequency", "Wiederholung"),
+                      monthlyRecurrenceMode: t("repeat.monthlyRepeat", "Monatliche Wiederholung"),
+                      monthlyWeekday: t("repeat.whichWeekday", "Wochentag"), monthlyOccurrence: t("repeat.whichInMonth", "Woche im Monat"),
                       repeatInterval: t("dialog.repeatInterval", "Intervall"), repeatUnit: t("dialog.repeatUnit", "Einheit"),
                       durationDays: t("dialog.durationDays", "Dauer in Tagen"), durationMinutes: t("dialog.durationMinutes", "Dauer"),
                       categoryIds: t("dialog.categories", "Kategorien"), projectIds: t("dialog.projects", "Projekte"),
@@ -2471,7 +2473,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       prerequisites: t("dialog.prerequisites", "Voraussetzungen"), followups: t("dialog.followUpTasks", "Folgeaufgaben"),
                       rotationSchedule: t("dialog.rotationSchedule", "Rotationsplan"),
                     };
-                    const valueText = (value: unknown) => Array.isArray(value) ? value.join(", ") : value === null ? "—" : value === true ? t("common:yes", "Ja") : value === false ? t("common:no", "Nein") : String(value);
+                    const valueText = (value: unknown, field?: string) => {
+                      if (field === "assignedTo" && Array.isArray(value)) {
+                        const names = value.map(Number).map((memberId) => ownMembers.find((candidate) => candidate.id === memberId)?.memberName ?? `#${memberId}`);
+                        return names.length > 0 ? names.join(", ") : "—";
+                      }
+                      if (field === "monthlyRecurrenceMode") {
+                        return value === "same_date" ? t("repeat.sameDate", "Am gleichen Kalendertag") : value === "same_weekday" ? t("repeat.sameWeekday", "Am gleichen Wochentag") : "—";
+                      }
+                      return Array.isArray(value) ? value.join(", ") : value === null ? "—" : value === true ? t("common:yes", "Ja") : value === false ? t("common:no", "Nein") : String(value);
+                    };
                     return (
                       <div key={proposal.id} className="space-y-2 rounded-md border bg-background p-3">
                         <p className="text-sm"><strong>{proposal.proposedByMemberName}</strong> {t("dialog.suggests", "schlägt vor:")}</p>
@@ -2492,8 +2503,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                                   </span>
                                 ) : (
                                   <>
-                                    {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue)}</span>}
-                                    <span className="font-medium text-amber-900">→ {valueText(proposedValue)}</span>
+                                    {currentValue !== undefined && <span className="mr-1 text-muted-foreground line-through">{valueText(currentValue, field)}</span>}
+                                    <span className="font-medium text-amber-900">→ {valueText(proposedValue, field)}</span>
                                   </>
                                 )}
                               </div>

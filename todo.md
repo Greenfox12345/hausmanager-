@@ -3717,6 +3717,9 @@
 - [x] Einreichung und Entscheidung eines Vorschlags im Verlauf protokollieren
 - [x] Namen eines Änderungsvorschlags vor allen weiteren Feldänderungen darstellen
 - [x] Beschreibung wortweise vergleichen: entfernten Text durchstreichen und neuen Text grün hervorheben
+- [x] Verantwortliche in Feldvergleichen als aufgelöste Mitgliedsnamen anzeigen
+- [x] Monatswiederholung in Vorschlägen mit dem richtigen lokalisierten Text anzeigen
+- [x] Verlaufseintrag nach Annahme oder Ablehnung eines Vorschlags auf korrekte Beschreibung prüfen und korrigieren
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt
