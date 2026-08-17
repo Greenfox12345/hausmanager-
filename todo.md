@@ -3725,6 +3725,9 @@
 - [x] Rotationsplan in Vorschlägen mit konkreten Daten und Mitgliedsnamen statt Objektwerten darstellen
 - [x] Wiederholungsintervall mit konkreter Zahl und Einheit in Vorschlägen darstellen
 - [x] Voraussetzungen und Folgeaufgaben in Vorschlägen als Aufgabennamen statt IDs anzeigen
+- [x] Wiederholungsintervall ohne nicht aufgelöste Übersetzungsplatzhalter anzeigen
+- [x] Antragstellenden das Zurückziehen eigener offener Änderungsvorschläge erlauben
+- [x] Vorschlagsrücknahme deutlich im Verlauf protokollieren
 
 ## Test-Fixes (2026-06-28)
 - [x] Fehlende i18n-Übersetzungsschlüssel in allen Locale-Dateien (de, en, ar, es, fr, tr, zh) ergänzt

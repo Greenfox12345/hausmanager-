@@ -217,7 +217,9 @@
     "proposalSent": "Change suggestion sent",
     "proposalReviewed": "Change suggestion reviewed",
     "noChanges": "No changes were made.",
-    "excludedMembers": "Excluded members"
+    "excludedMembers": "Excluded members",
+    "withdrawProposal": "Withdraw proposal",
+    "proposalWithdrawn": "Change proposal withdrawn"
   },
   "occurrences": {
     "title": "Upcoming appointments",

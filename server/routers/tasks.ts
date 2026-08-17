@@ -29,6 +29,7 @@ import {
   dateToWallClockString,
 } from "../db";
 import { notifyTaskAssigned, notifyTaskCompleted, notifyCommentAdded, createNotification } from "../notificationHelpers";
+import { canWithdrawTaskProposal } from "../../shared/taskProposalWithdrawal";
 import {
   taskCreated,
   taskUpdated,
@@ -2079,6 +2080,65 @@ export const tasksRouter = router({
           eq(taskChangeProposals.status, "pending"),
         ))
         .orderBy(asc(taskChangeProposals.createdAt));
+    }),
+
+  /** Antragstellende können eigene, noch nicht entschiedene Vorschläge zurückziehen. */
+  withdrawTaskChangeProposal: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      taskId: z.number(),
+      proposalId: z.number(),
+      memberId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const task = await getTaskById(input.taskId);
+      const member = await getHouseholdMemberById(input.memberId);
+      if (!task || task.householdId !== input.householdId || !member || member.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe oder Mitglied nicht gefunden" });
+      }
+      const { taskChangeProposals } = await import("../../drizzle/schema");
+      const proposals = await db.select().from(taskChangeProposals).where(and(
+        eq(taskChangeProposals.id, input.proposalId),
+        eq(taskChangeProposals.householdId, input.householdId),
+        eq(taskChangeProposals.taskId, input.taskId),
+        eq(taskChangeProposals.proposedByMemberId, input.memberId),
+        eq(taskChangeProposals.status, "pending"),
+      )).limit(1);
+      const proposal = proposals[0];
+      if (!proposal || !canWithdrawTaskProposal(proposal, input.memberId)) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Offener eigener Änderungsvorschlag nicht gefunden" });
+      }
+
+      await db.update(taskChangeProposals).set({
+        status: "withdrawn",
+        reviewNote: "Vom Antragsteller zurückgezogen.",
+        reviewedAt: new Date(),
+      }).where(eq(taskChangeProposals.id, proposal.id));
+
+      const recipients = Array.from(new Set(Array.isArray(task.assignedTo) ? task.assignedTo : []));
+      for (const recipientId of recipients) {
+        if (recipientId === input.memberId) continue;
+        await createNotification({
+          householdId: input.householdId,
+          memberId: recipientId,
+          type: "general",
+          title: "Änderungsvorschlag zurückgezogen",
+          message: `${member.memberName} hat einen Änderungsvorschlag für „${task.name}“ zurückgezogen.`,
+          relatedTaskId: task.id,
+        });
+      }
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "change_proposal_withdrawn",
+        description: `${member.memberName} hat einen Änderungsvorschlag für „${task.name}“ zurückgezogen.`,
+        relatedItemId: task.id,
+        metadata: { proposalId: proposal.id, proposedByMemberId: input.memberId },
+      });
+      return { success: true };
     }),
 
   /** Verantwortliche Mitglieder nehmen einen Änderungsvorschlag an oder lehnen ihn ab. */

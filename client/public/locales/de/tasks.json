@@ -217,7 +217,9 @@
     "proposalSent": "Änderungsvorschlag gesendet",
     "proposalReviewed": "Änderungsvorschlag entschieden",
     "noChanges": "Es wurden keine Änderungen vorgenommen.",
-    "excludedMembers": "Ausgeschlossene Mitglieder"
+    "excludedMembers": "Ausgeschlossene Mitglieder",
+    "withdrawProposal": "Vorschlag zurückziehen",
+    "proposalWithdrawn": "Änderungsvorschlag zurückgezogen"
   },
   "occurrences": {
     "title": "Kommende Termine",

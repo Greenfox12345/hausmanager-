@@ -217,7 +217,9 @@
     "proposalSent": "تم إرسال اقتراح التعديل",
     "proposalReviewed": "تم اتخاذ قرار بشأن اقتراح التعديل",
     "noChanges": "لم يتم إجراء أي تغييرات.",
-    "excludedMembers": "الأعضاء المستبعدون"
+    "excludedMembers": "الأعضاء المستبعدون",
+    "withdrawProposal": "سحب الاقتراح",
+    "proposalWithdrawn": "تم سحب اقتراح التغيير"
   },
   "occurrences": {
     "title": "المواعيد القادمة",

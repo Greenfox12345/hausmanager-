@@ -217,7 +217,9 @@
     "proposalSent": "Değişiklik önerisi gönderildi",
     "proposalReviewed": "Değişiklik önerisi karara bağlandı",
     "noChanges": "Herhangi bir değişiklik yapılmadı.",
-    "excludedMembers": "Hariç tutulan üyeler"
+    "excludedMembers": "Hariç tutulan üyeler",
+    "withdrawProposal": "Öneriyi geri çek",
+    "proposalWithdrawn": "Değişiklik önerisi geri çekildi"
   },
   "occurrences": {
     "title": "Yaklaşan Randevular",

@@ -618,7 +618,9 @@
     "proposalSent": "Propuesta de cambio enviada",
     "proposalReviewed": "Propuesta de cambio revisada",
     "noChanges": "No se realizaron cambios.",
-    "excludedMembers": "Miembros excluidos"
+    "excludedMembers": "Miembros excluidos",
+    "withdrawProposal": "Retirar propuesta",
+    "proposalWithdrawn": "Propuesta de cambio retirada"
   },
   "occurrences": {
     "title": "Próximas citas",

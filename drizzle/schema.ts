@@ -122,7 +122,7 @@ export const taskChangeProposals = mysqlTable("task_change_proposals", {
   proposalType: mysqlEnum("proposalType", ["update", "complete", "delete"]).notNull(),
   payload: json("payload").$type<Record<string, unknown>>().notNull(),
   note: text("note"),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "withdrawn"]).default("pending").notNull(),
   reviewedByMemberId: int("reviewedByMemberId").references(() => householdMembers.id, { onDelete: "set null" }),
   reviewNote: text("reviewNote"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

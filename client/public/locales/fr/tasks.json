@@ -217,7 +217,9 @@
     "proposalSent": "Proposition de modification envoyée",
     "proposalReviewed": "Proposition de modification examinée",
     "noChanges": "Aucune modification n’a été effectuée.",
-    "excludedMembers": "Membres exclus"
+    "excludedMembers": "Membres exclus",
+    "withdrawProposal": "Retirer la proposition",
+    "proposalWithdrawn": "Proposition de modification retirée"
   },
   "occurrences": {
     "title": "Rendez-vous à venir",

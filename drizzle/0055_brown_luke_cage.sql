@@ -1,0 +1,1 @@
+ALTER TABLE `task_change_proposals` MODIFY COLUMN `status` enum('pending','approved','rejected','withdrawn') NOT NULL DEFAULT 'pending';

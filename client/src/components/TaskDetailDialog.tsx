@@ -176,6 +176,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     },
     onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht entschieden werden")),
   });
+  const withdrawTaskChangeProposalMutation = trpc.tasks.withdrawTaskChangeProposal.useMutation({
+    onSuccess: () => {
+      if (task?.id && household?.householdId) {
+        utils.tasks.listTaskChangeProposals.invalidate({ householdId: household.householdId, taskId: task.id });
+        utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id });
+      }
+      toast.success(t("dialog.proposalWithdrawn", "Änderungsvorschlag zurückgezogen"));
+    },
+    onError: () => toast.error(t("messages.genericError", "Änderungsvorschlag konnte nicht zurückgezogen werden")),
+  });
   
   // Sub-tab state for history tab
   const [historySubTab, setHistorySubTab] = useState<"activities" | "past_appointments">("activities");
@@ -2502,7 +2512,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                       const interval = Number(source.repeatInterval ?? 1) || 1;
                       const unit = source.repeatUnit;
                       const unitLabel = unit === "days" ? t("repeat.days", "Tage") : unit === "weeks" ? t("repeat.weeks", "Wochen") : unit === "months" ? t("repeat.months", "Monate") : frequency === "daily" ? t("repeat.days", "Tage") : frequency === "weekly" ? t("repeat.weeks", "Wochen") : t("repeat.months", "Monate");
-                      const base = `${t("repeat.every", "Alle")} ${interval} ${unitLabel}`;
+                      const base = t("repeat.every", { interval, unit: unitLabel, defaultValue: `Alle ${interval} ${unitLabel}` });
                       if ((unit === "months" || frequency === "monthly") && source.monthlyRecurrenceMode === "same_weekday") return `${base} – ${t("repeat.sameWeekday", "am gleichen Wochentag")}`;
                       if (unit === "months" || frequency === "monthly") return `${base} – ${t("repeat.sameDate", "am gleichen Kalendertag")}`;
                       return base;
@@ -2573,6 +2583,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                           <div className="flex justify-end gap-2">
                             <Button size="sm" variant="outline" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "rejected" })}>{t("dialog.rejectProposal", "Ablehnen")}</Button>
                             <Button size="sm" onClick={() => reviewTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId, decision: "approved" })}>{t("dialog.approveProposal", "Annehmen")}</Button>
+                          </div>
+                        )}
+                        {proposal.proposedByMemberId === member.memberId && (
+                          <div className="flex justify-end">
+                            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => withdrawTaskChangeProposalMutation.mutate({ householdId: household.householdId, taskId: task.id, proposalId: proposal.id, memberId: member.memberId })}>
+                              {t("dialog.withdrawProposal", "Vorschlag zurückziehen")}
+                            </Button>
                           </div>
                         )}
                       </div>
