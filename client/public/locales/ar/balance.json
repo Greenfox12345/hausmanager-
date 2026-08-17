@@ -44,5 +44,9 @@
   "multipleEffortsHint": "يمكنك إضافة عدة دفعات وأوقات عمل لأشخاص مختلفين.",
   "requiredEffort": "يرجى إضافة إدخال ميزان مكتمل واحد على الأقل.",
   "effortNumber": "الجهد {{number}}",
-  "viewHistory": "فتح إدخال السجل المرتبط"
+  "viewHistory": "فتح إدخال السجل المرتبط",
+  "source": "المصدر",
+  "items": "العناصر",
+  "hours": "ساعة",
+  "minutes": "دقيقة"
 }

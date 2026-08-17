@@ -44,5 +44,9 @@
   "multipleEffortsHint": "您可以为不同成员添加多笔付款和工时。",
   "requiredEffort": "请至少添加一条完整记录。",
   "effortNumber": "记录 {{number}}",
-  "viewHistory": "打开关联的历史记录"
+  "viewHistory": "打开关联的历史记录",
+  "source": "来源",
+  "items": "商品",
+  "hours": "小时",
+  "minutes": "分钟"
 }

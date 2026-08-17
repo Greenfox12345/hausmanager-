@@ -96,6 +96,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Bilanz-Verlaufstexte | Haushaltssprachige Beschreibungen für Erfassung, Änderung und Löschung getestet |
 | Mehrfacherfassung | Mehrere vollständige Aufwände für unterschiedliche Mitglieder bleiben erhalten; unvollständige Zeilen werden einzeln ignoriert |
 | Bilanz-Verlauf | Bilanzposten werden dem neuesten zugehörigen Verlaufseintrag zugeordnet und können gezielt geöffnet werden |
-| Vollständiger Standardlauf | 44 Testdateien und 367 datenbankfreie Tests bestanden |
+| Detaillierte Bilanzverläufe | Zahlung oder Arbeitszeit, Person, Zweck, Quelle und bei Einkäufen die konkreten Artikel werden strukturiert protokolliert |
+| Vollständiger Standardlauf | 44 Testdateien und 368 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

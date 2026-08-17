@@ -44,5 +44,9 @@
   "multipleEffortsHint": "Puede añadir varios pagos y tiempos de trabajo para distintas personas.",
   "requiredEffort": "Añada al menos un gasto completo.",
   "effortNumber": "Esfuerzo {{number}}",
-  "viewHistory": "Abrir la entrada de historial relacionada"
+  "viewHistory": "Abrir la entrada de historial relacionada",
+  "source": "Origen",
+  "items": "Artículos",
+  "hours": "h",
+  "minutes": "min"
 }

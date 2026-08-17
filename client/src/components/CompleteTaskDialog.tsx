@@ -182,6 +182,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           description: effort.description,
           sourceType: "task",
           sourceId: taskId ?? task.id,
+          sourceLabel: task.name,
         })));
       }
       // Reset form

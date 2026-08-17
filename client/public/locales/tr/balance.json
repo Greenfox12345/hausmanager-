@@ -44,5 +44,9 @@
   "multipleEffortsHint": "Farklı kişiler için birden fazla ödeme ve çalışma süresi ekleyebilirsiniz.",
   "requiredEffort": "Lütfen en az bir tam bilanço kaydı ekleyin.",
   "effortNumber": "Efor {{number}}",
-  "viewHistory": "İlgili geçmiş kaydını aç"
+  "viewHistory": "İlgili geçmiş kaydını aç",
+  "source": "Kaynak",
+  "items": "Ürünler",
+  "hours": "sa.",
+  "minutes": "dk."
 }

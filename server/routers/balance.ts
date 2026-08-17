@@ -85,6 +85,8 @@ export const balanceRouter = router({
       description: z.string().trim().min(1).max(2000),
       sourceType: sourceTypeSchema.default("manual"),
       sourceId: z.number().int().positive().optional(),
+      sourceLabel: z.string().trim().min(1).max(1000).optional(),
+      sourceItems: z.array(z.object({ name: z.string().trim().min(1).max(500), quantity: z.string().max(80).nullable().optional() })).max(50).optional(),
       occurredAt: z.coerce.date().optional(),
     }))
     .mutation(async ({ input }) => {
@@ -113,9 +115,9 @@ export const balanceRouter = router({
         memberId: input.recordedByMemberId,
         activityType: "other",
         action: "balance_entry_created",
-        description: formatBalanceActivityText({ language, event: "created", memberName: responsibleMember.memberName, entryType: input.entryType, amount: input.amount, minutes: input.minutes, description: input.description }),
+        description: formatBalanceActivityText({ language, event: "created", memberName: responsibleMember.memberName, entryType: input.entryType, amount: input.amount, minutes: input.minutes, description: input.description, sourceType: input.sourceType, sourceLabel: input.sourceLabel }),
         relatedItemId: entryId,
-        metadata: { balanceEntryId: entryId, entryType: input.entryType, sourceType: input.sourceType, sourceId: input.sourceId },
+        metadata: { balance: { entryId, memberName: responsibleMember.memberName, entryType: input.entryType, amount: input.amount ?? null, minutes: input.minutes ?? null, description: input.description, sourceType: input.sourceType, sourceId: input.sourceId ?? null, sourceLabel: input.sourceLabel ?? null, sourceItems: input.sourceItems ?? [] } },
       });
       return { success: true, entryId };
     }),
@@ -146,7 +148,7 @@ export const balanceRouter = router({
         ...(input.occurredAt !== undefined ? { occurredAt: input.occurredAt } : {}),
       }).where(eq(balanceEntries.id, input.entryId));
       const language = await getHouseholdLang(input.householdId);
-      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_updated", description: formatBalanceActivityText({ language, event: "updated", description: entry.description }), relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
+      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_updated", description: formatBalanceActivityText({ language, event: "updated", memberName: entry.memberName, entryType: entry.entryType, amount: entry.amount, minutes: entry.minutes, description: input.description ?? entry.description, sourceType: entry.sourceType }), relatedItemId: input.entryId, metadata: { balance: { entryId: input.entryId, memberName: responsibleMember?.memberName ?? entry.memberName, entryType: entry.entryType, amount: input.amount ?? entry.amount, minutes: input.minutes ?? entry.minutes, description: input.description ?? entry.description, sourceType: entry.sourceType, sourceId: entry.sourceId } } });
       return { success: true };
     }),
 
@@ -162,7 +164,7 @@ export const balanceRouter = router({
       if (!canModifyBalanceEntry(entry.createdAt)) throw new TRPCError({ code: "FORBIDDEN", message: "Bilanzaufwände können nur fünf Tage lang gelöscht werden." });
       await db.delete(balanceEntries).where(eq(balanceEntries.id, input.entryId));
       const language = await getHouseholdLang(input.householdId);
-      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_deleted", description: formatBalanceActivityText({ language, event: "deleted", description: entry.description }), relatedItemId: input.entryId, metadata: { balanceEntryId: input.entryId } });
+      await createActivityLog({ householdId: input.householdId, memberId: input.editorMemberId, activityType: "other", action: "balance_entry_deleted", description: formatBalanceActivityText({ language, event: "deleted", memberName: entry.memberName, entryType: entry.entryType, amount: entry.amount, minutes: entry.minutes, description: entry.description, sourceType: entry.sourceType }), relatedItemId: input.entryId, metadata: { balance: { entryId: input.entryId, memberName: entry.memberName, entryType: entry.entryType, amount: entry.amount, minutes: entry.minutes, description: entry.description, sourceType: entry.sourceType, sourceId: entry.sourceId } } });
       return { success: true };
     }),
 });

@@ -44,5 +44,9 @@
   "multipleEffortsHint": "You can add several payments and work times for different people.",
   "requiredEffort": "Please add at least one complete balance effort.",
   "effortNumber": "Effort {{number}}",
-  "viewHistory": "Open related history entry"
+  "viewHistory": "Open related history entry",
+  "source": "Source",
+  "items": "Items",
+  "hours": "h",
+  "minutes": "min"
 }

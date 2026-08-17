@@ -166,6 +166,8 @@ export function CompleteShoppingItemDialog({
           description: effort.description,
           sourceType: "shopping",
           sourceId: items.length === 1 ? items[0]?.id : undefined,
+          sourceLabel: items.map((item) => item.name).join(", "),
+          sourceItems: items.map((item) => ({ name: item.name, quantity: item.quantity ?? null })),
         })));
       }
 

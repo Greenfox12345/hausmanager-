@@ -3820,3 +3820,8 @@
 ## Bilanz und Verlauf verknüpfen (2026-08-17)
 - [x] Mehrfachzeilen beim Erfassen als „Aufwand 1“, „Aufwand 2“ usw. statt als Personen nummerieren (lokalisiert in allen sieben Sprachen)
 - [x] Bilanzposten mit dem jeweils erzeugten Verlaufseintrag verknüpfen und über die Bilanzseite direkt dorthin navigieren können (je Bilanzposten wird der neueste zugehörige Verlaufseintrag ermittelt; der Link öffnet und hebt ihn in der Verlaufsseite hervor)
+
+## Vollständige Bilanz-Verlaufseinträge (2026-08-17)
+- [x] Automatisch erzeugte Bilanz-Verlaufseinträge mit Person, Zahlungs- oder Arbeitsart, Betrag beziehungsweise Zeit, Zweck und Quelltyp vollständig speichern und verständlich darstellen (strukturierte `metadata.balance` und lokalisiertes Beschreibungsschema für Erstellung, Änderung und Löschung)
+- [x] Bei bilanzrelevanten Einkäufen konkrete Artikel- und Einkaufsinformationen als Verlaufskontext übernehmen (Artikelnamen sowie vorhandene Mengen werden je Bilanzaufwand übergeben und protokolliert)
+- [x] Bilanzmetadaten in der zentralen Verlaufsansicht strukturiert und in der Haushaltssprache anzeigen (eigener Detailblock mit Person, Wert, Zweck, Quelle und Einkaufsartikeln)

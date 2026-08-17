@@ -81,6 +81,7 @@ const MilestoneDialogComponent = function MilestoneDialog({
           description: effort.description,
           sourceType: "milestone",
           sourceId: task.id,
+          sourceLabel: task.name,
         })));
       }
       // Reset form

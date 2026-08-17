@@ -29,7 +29,7 @@ import { formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHis
 import { BottomNav } from "@/components/BottomNav";
 
 export default function History() {
-  const { t, i18n } = useTranslation(["history", "common"]);
+  const { t, i18n } = useTranslation(["history", "common", "balance"]);
   const dateFnsLocale = getDateFnsLocaleSync(i18n.language);
   const [, setLocation] = useLocation();
   const search = useSearch();
@@ -422,6 +422,21 @@ export default function History() {
                               ))}
                             </div>
                           );
+                        })()}
+
+                        {activity.action.startsWith("balance_entry_") && (activity.metadata as any)?.balance && (() => {
+                          const balance = (activity.metadata as any).balance;
+                          const minutes = Number(balance.minutes ?? 0);
+                          const value = balance.entryType === "payment"
+                            ? Number(balance.amount ?? 0).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })
+                            : `${Math.floor(minutes / 60) > 0 ? `${Math.floor(minutes / 60)} ${t("balance:hours")} ` : ""}${minutes % 60} ${t("balance:minutes")}`;
+                          return <div className="mt-2 rounded-md border border-emerald-200 bg-emerald-50/60 p-3 text-sm space-y-1.5">
+                            <div><span className="font-semibold">{t("balance:person")}:</span> {balance.memberName}</div>
+                            <div><span className="font-semibold">{balance.entryType === "payment" ? t("balance:payment") : t("balance:work")}:</span> {value}</div>
+                            <div><span className="font-semibold">{t("balance:purpose")}:</span> {balance.description}</div>
+                            <div><span className="font-semibold">{t("balance:source")}:</span> {t(`balance:${balance.sourceType}`)}{balance.sourceLabel ? ` · ${balance.sourceLabel}` : ""}</div>
+                            {Array.isArray(balance.sourceItems) && balance.sourceItems.length > 0 && <div><span className="font-semibold">{t("balance:items")}:</span> {balance.sourceItems.map((item: { name: string; quantity?: string | null }) => `${item.name}${item.quantity ? ` (${item.quantity})` : ""}`).join(", ")}</div>}
+                          </div>;
                         })()}
 
                         {/* Linked Task Badge (for borrow entries linked to a task) */}
