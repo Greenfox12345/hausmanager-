@@ -3854,3 +3854,7 @@
 ## Fehlerkorrektur Karten und Projektstart (2026-08-17)
 - [x] Projektvariablen auch in Beschreibungen normaler Aufgaben- und Einkaufskarten dynamisch auflösen (Aufgabenkarten laden Projektvariablen wie der Detaildialog; Einkaufsname, Details und Notizen verwenden dieselbe Auflösung)
 - [x] Beim Projektstart aktuelle berechnete Variablenwerte einsetzen, ohne Formeln oder Vorlagentexte zu überschreiben (Projektstart und Phasenstart speichern die unveränderten VAR-Texte und ordnen erzeugte Einkaufsartikel nachträglich dem Projekt zu; die Anzeige löst stets aus aktuellen Projektdaten auf)
+
+## Projektvariablen wie Plankiste (2026-08-17)
+- [x] Vollständigen Variablenfluss beim Projektstart auf Eingaben, Formeldefinitionen, Überschreibungen, Einheiten und erzeugte Aufgaben sowie Einkäufe prüfen (Projektstart speichert Eingaben, übernimmt Formeln unverändert und verknüpft erzeugte Aufgaben sowie Einkäufe mit dem Projekt; die Anzeige rechnet dynamisch aus aktuellen Projektdaten)
+- [x] Projektvariablenverwaltung mit der Plankiste vereinheitlichen: Kategorien, Eingaben, berechnete Ergebnisse, Formeln, Einheiten, Bereiche und Überschreibungen nachvollziehbar nutzen (Eingaben zeigen Alias, Einheit, Bereich, Schieberegler und Sperre; Rechenvariablen zeigen Formel, Ergebnis und optionale Warnung bei manueller Überschreibung)

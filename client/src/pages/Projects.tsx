@@ -29,7 +29,9 @@ import {
   Calendar as CalendarIcon,
   Users,
   Globe,
-  AlertTriangle
+  AlertTriangle,
+  Lock,
+  Unlock
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { format, isPast } from "date-fns";
@@ -113,7 +115,10 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     const assignment = v.description ? parseVarAssignment(v.description) : null;
     return assignment?.varName === v.name ? assignment.formula : v.value;
   };
-  const isInputVar = (v: PlanVariable) => !Boolean(v.description && parseVarAssignment(v.description));
+  const isInputVar = (v: PlanVariable) => {
+    const assignment = v.description ? parseVarAssignment(v.description) : null;
+    return !assignment && !/VAR[A-Za-zÄÖÜäöüß]/.test(v.value ?? "");
+  };
   const formulaVariableMap = Object.fromEntries(variables.flatMap((v) => {
     const formula = getVariableFormula(v);
     return formula ? [[v.name, formula]] : [];
@@ -207,6 +212,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
         const formula = editingFormulaValues[v.name]?.trim();
         return {
           ...v,
+          value: undefined,
           description: formula ? `VAR${v.name} = ${formula}` : v.description,
           overrideValue: editingOverrideValues[v.name]?.trim() || undefined,
         };
@@ -214,6 +220,13 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       return v;
     });
     updatePlanDataMutation.mutate({ projectId, planVariables: updatedVars });
+  };
+
+  const toggleVariableLock = (varName: string) => {
+    updatePlanDataMutation.mutate({
+      projectId,
+      planVariables: variables.map((variable) => variable.name === varName ? { ...variable, locked: !variable.locked } : variable),
+    });
   };
 
   // Variablen für ausgewählte Phasen im Start-Dialog (dedupliziert)
@@ -239,8 +252,13 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     showReset = true
   ) => (
     <div className="space-y-2">
-      {vars.map(v => (
-        <div key={v.name} className="flex items-center gap-2">
+      {vars.map(v => {
+        const min = v.min ? Number(v.min) : NaN;
+        const max = v.max ? Number(v.max) : NaN;
+        const current = Number(values[v.name] ?? v.value ?? min);
+        const hasRange = Number.isFinite(min) && Number.isFinite(max) && min < max;
+        return <div key={v.name} className="space-y-1.5">
+        <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
           <span className="text-xs font-mono flex-shrink-0 min-w-0" style={{ color: v.color }}>
             {v.alias ? `&${v.alias}` : `VAR${v.name}`}
@@ -252,10 +270,14 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             type="number"
             value={values[v.name] ?? ""}
             onChange={e => setValues(prev => ({ ...prev, [v.name]: e.target.value }))}
+            disabled={v.locked}
             placeholder={v.description ?? v.name}
             className="flex-1 border border-border rounded px-2 py-1 text-xs bg-background min-w-0"
           />
           {v.unit && <span className="text-xs text-muted-foreground flex-shrink-0">{v.unit}</span>}
+          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => toggleVariableLock(v.name)} title={v.locked ? t("plankiste:variables.unlock", "Eingabe entsperren") : t("plankiste:variables.lock", "Eingabe sperren")}>
+            {v.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+          </Button>
           {showReset && values[v.name] && (
             <button
               type="button"
@@ -267,7 +289,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             </button>
           )}
         </div>
-      ))}
+        {hasRange && !v.locked && <input type="range" min={min} max={max} step={(max - min) >= 10 ? 1 : (max - min) >= 1 ? 0.1 : 0.01} value={Number.isFinite(current) ? current : min} onChange={e => setValues(prev => ({ ...prev, [v.name]: e.target.value }))} className="w-full accent-amber-600" />}
+        </div>;
+      })}
     </div>
   );
 

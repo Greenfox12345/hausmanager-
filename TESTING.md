@@ -103,6 +103,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Berechnete Projektvariablen | Direkte und formelbasierte, voneinander abhängige Projektvariablen werden inklusive Einheit in Aufgaben, Einkaufsnamen, Details und Notizen aufgelöst |
 | Projektvariablen-Überschreibung | Formeln bleiben im Projekt sichtbar und bearbeitbar; abweichende manuelle Ergebnisse werden mit Warnhinweis gekennzeichnet |
 | Dynamische Karten und Projektstart | Aufgabenkarten lösen Namen und Beschreibungen aus dem Projekt auf; Projektstarts übertragen unveränderte Vorlagentexte samt Projektzuordnung |
+| Projektvariablenverwaltung | Projektbereich unterstützt wie die Plankiste Eingabewerte mit Einheiten, Bereichen, Schieberegler und Sperre sowie sichtbare und editierbare Formeln mit gekennzeichneten Überschreibungen |
 | Vollständiger Standardlauf | 46 Testdateien und 371 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.
