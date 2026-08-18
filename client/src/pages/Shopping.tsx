@@ -1120,12 +1120,12 @@ export default function Shopping() {
       {/* Category Dialog */}
       {/* Edit Item Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{t("shopping:editItem", "Artikel bearbeiten")}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditItem}>
-            <div className="space-y-4 py-4">
+          <form onSubmit={handleEditItem} className="min-h-0 flex flex-col">
+            <div className="space-y-3 py-3 pr-1 overflow-y-auto min-h-0 max-h-[calc(90dvh-9rem)]">
               <div className="space-y-2">
                 <Label htmlFor="editItemName">{t("shopping:fields.itemName", "Artikelname")}</Label>
                 <Input
@@ -1159,13 +1159,15 @@ export default function Shopping() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="editItemQuantity">{t("shopping:fields.details", "Details")} ({t("common:labels.optional")})</Label>
-                <Input
+                <Textarea
                   id="editItemQuantity"
                   placeholder="z.B. Bio, frisch..."
                   value={editItemQuantity}
                   onChange={(e) => setEditItemQuantity(e.target.value)}
+                  rows={3}
+                  className="min-h-[72px] max-h-36 resize-y overflow-y-auto leading-relaxed"
                 />
               </div>
               <div className="space-y-2">
@@ -1228,6 +1230,7 @@ export default function Shopping() {
                   value={editItemNotes}
                   onChange={(e) => setEditItemNotes(e.target.value)}
                   rows={2}
+                  className="max-h-28 resize-y overflow-y-auto"
                 />
               </div>
             </div>

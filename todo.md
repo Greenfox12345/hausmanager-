@@ -3865,3 +3865,7 @@
 ## Vollständige Variable Auflösung und Einkaufsdetails (2026-08-17)
 - [x] Abhängige Variablen in Aufgaben- und Einkaufsnamen sowie Beschreibungen vollständig und rekursiv auflösen (Resolver liest direkte Werte, erhaltene Formeldefinitionen und Überschreibungen; er berechnet Abhängigkeiten rekursiv, respektiert Rundungen und zeigt Einheiten an)
 - [x] Einkaufsdetails in der Listenansicht und im Bearbeitungsbereich ausführlicher und besser lesbar darstellen (Details und Notizen stehen unterhalb der Kernangaben mit eigener Kennzeichnung, vollständigem Zeilenumbruch und dynamischer Variablenauflösung)
+
+## Kompakte Bearbeitung von Einkaufsdetails (2026-08-18)
+- [x] Detailsfeld im Einkaufsartikel-Bearbeitungsdialog begrenzen und bei langen Inhalten vertikal scrollbar machen (mehrzeiliges, größenanpassbares Detailsfeld mit begrenzter Höhe und Innen-Scrollbereich)
+- [x] Eingabefelder im Einkaufsartikel-Bearbeitungsdialog platzsparender und mobil besser lesbar anordnen (Dialog und Formularbereich begrenzt, vertikal scrollbar und mit reduzierten Abständen; Aktionen bleiben sichtbar)
