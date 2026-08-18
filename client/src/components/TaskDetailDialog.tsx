@@ -37,7 +37,7 @@ import { getStableProposalChanges } from "../../../shared/taskProposalFields";
 import { getWordDiff } from "../../../shared/textDiff";
 import { buildProposalDisplayEntries, recurrenceProposalFields } from "../../../shared/taskProposalDisplay";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
-import { resolveProjectVariableDisplay } from "../../../shared/projectVariableDisplay";
+import { ProjectVarText } from "@/components/ProjectVarText";
 import { formatActivityAction, formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHistoryDisplay";
 import {
   getFollowupClosure,
@@ -2664,9 +2664,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               
               <TabsContent value="details" className="space-y-4 mt-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{resolveProjectVariableDisplay(task.name, projectVariables[task.projectIds?.[0] ?? -1])}</h3>
+                  <h3 className="text-lg font-semibold"><ProjectVarText text={task.name} variables={projectVariables[task.projectIds?.[0] ?? -1]} /></h3>
                   {task.description && (
-                    <p className="text-sm text-muted-foreground mt-2">{resolveProjectVariableDisplay(task.description, projectVariables[task.projectIds?.[0] ?? -1])}</p>
+                    <p className="text-sm text-muted-foreground mt-2"><ProjectVarText text={task.description} variables={projectVariables[task.projectIds?.[0] ?? -1]} /></p>
                   )}
                 </div>
 

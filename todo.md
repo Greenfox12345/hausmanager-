@@ -3879,3 +3879,6 @@
 
 ## Variablenklick in Aufgabenbeschreibungen (2026-08-18)
 - [x] Klicks und Taps auf aufklappbare Variablen in Aufgabenbeschreibungen vom Öffnen der Aufgabenkarte entkoppeln (Variablen-Token stoppen Pointer- und Klick-Ereignisse, bevor sie die Karte erreichen; die klassische Namens-/Wertumschaltung bleibt erhalten)
+
+## Klassische Variablenauflösung in Aufgabendetails (2026-08-18)
+- [x] Aufgabendetailansicht für Namen und Beschreibungen auf die aufklappbare Plankiste-Variablenanzeige umstellen (Name und Beschreibung verwenden jetzt `ProjectVarText`; Wert, Einheit, Tipp zum Variablennamen und Fehlerhinweis verhalten sich wie in der Plankiste)
