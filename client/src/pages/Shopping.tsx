@@ -1638,7 +1638,7 @@ export default function Shopping() {
           {detailItem && (
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg">{detailItem.name}</h3>
+                <h3 className="font-semibold text-lg">{resolveProjectVariableDisplay(detailItem.name, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</h3>
                 <div className="mt-1">
                   <span 
                     className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
@@ -1652,7 +1652,14 @@ export default function Shopping() {
               {detailItem.details && (
                 <div>
                   <Label className="text-muted-foreground">{t("shopping:fields.details", "Details")}</Label>
-                  <p className="text-sm">{detailItem.details}</p>
+                  <p className="text-sm whitespace-pre-wrap">{resolveProjectVariableDisplay(detailItem.details, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</p>
+                </div>
+              )}
+
+              {detailItem.notes && (
+                <div>
+                  <Label className="text-muted-foreground">{t("shopping:fields.notes", "Notiz")}</Label>
+                  <p className="text-sm whitespace-pre-wrap italic">{resolveProjectVariableDisplay(detailItem.notes, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</p>
                 </div>
               )}
 

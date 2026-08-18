@@ -3869,3 +3869,6 @@
 ## Kompakte Bearbeitung von Einkaufsdetails (2026-08-18)
 - [x] Detailsfeld im Einkaufsartikel-Bearbeitungsdialog begrenzen und bei langen Inhalten vertikal scrollbar machen (mehrzeiliges, größenanpassbares Detailsfeld mit begrenzter Höhe und Innen-Scrollbereich)
 - [x] Eingabefelder im Einkaufsartikel-Bearbeitungsdialog platzsparender und mobil besser lesbar anordnen (Dialog und Formularbereich begrenzt, vertikal scrollbar und mit reduzierten Abständen; Aktionen bleiben sichtbar)
+
+## Fehlerkorrektur Variablen in Einkaufsdetails (2026-08-18)
+- [x] Projektvariablen in Details und Notizen von Einkaufslistenitems mit derselben rekursiven Auflösung wie Namen zuverlässig anzeigen (auch die geöffnete Artikel-Detailansicht nutzt jetzt den Projektkontext; Name, Details und Notiz werden rekursiv aufgelöst und Notizen sind sichtbar)
