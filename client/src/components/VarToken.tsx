@@ -55,7 +55,11 @@ export function VarToken({ varName, variables, unit }: VarTokenProps) {
     <button
       type="button"
       title={tooltipText}
-      onClick={() => setShowName(s => !s)}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        setShowName(s => !s);
+      }}
       className="inline-flex items-center rounded px-0.5 font-mono font-semibold text-[0.85em] leading-tight cursor-pointer hover:opacity-80 transition-opacity"
       style={{
         color,
