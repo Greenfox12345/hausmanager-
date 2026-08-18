@@ -28,7 +28,7 @@ import TaskDependencies from "@/components/TaskDependencies";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { PlanTaskBanner } from "@/components/PlanTaskBanner";
-import { resolveProjectVariableDisplay } from "../../../shared/projectVariableDisplay";
+import { ProjectVarText } from "@/components/ProjectVarText";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -131,8 +131,9 @@ export default function Tasks() {
     { projectIds: projectIdsWithTasks },
     { enabled: projectIdsWithTasks.length > 0 }
   );
-  const resolveTaskProjectText = (task: any, text: string | null | undefined) =>
-    resolveProjectVariableDisplay(text, projectVariables[task.projectIds?.[0] ?? -1]);
+  const renderTaskProjectText = (task: any, text: string | null | undefined) => (
+    <ProjectVarText text={text} variables={projectVariables[task.projectIds?.[0] ?? -1]} />
+  );
   
   // Open task detail dialog if taskId is in URL
   useEffect(() => {
@@ -1443,11 +1444,11 @@ export default function Tasks() {
                     )}
                     <div className="flex-1 min-w-0">
                       <div className={`font-medium ${task.isCompleted ? "line-through" : ""}`}>
-                        {resolveTaskProjectText(task, task.name)}
+                        {renderTaskProjectText(task, task.name)}
                       </div>
                       {task.description && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          {resolveTaskProjectText(task, task.description)}
+                          {renderTaskProjectText(task, task.description)}
                         </p>
                       )}
                       <div className="flex flex-wrap gap-2 mt-2">

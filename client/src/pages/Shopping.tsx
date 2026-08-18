@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 import { getCurrentLanguage } from "@/lib/i18n";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { PlanActiveBanner } from "@/components/PlanActiveBanner";
-import { resolveProjectVariableDisplay } from "../../../shared/projectVariableDisplay";
+import { ProjectVarText } from "@/components/ProjectVarText";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -140,6 +140,10 @@ export default function Shopping() {
   const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
     { projectIds: projects.map((project: any) => project.id) },
     { enabled: projects.length > 0 }
+  );
+  const getItemProjectVariables = (item: any) => projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1];
+  const renderItemProjectText = (item: any, text: string | null | undefined, className?: string) => (
+    <ProjectVarText text={text} variables={getItemProjectVariables(item)} className={className} />
   );
 
   const { data: units = [] } = trpc.units.list.useQuery(
@@ -963,7 +967,7 @@ export default function Shopping() {
                     <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setDetailItem(item); setShowDetailDialog(true); }}>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`font-medium text-sm ${selectedItemIds.has(item.id) ? "line-through text-muted-foreground" : ""}`}>
-                          {resolveProjectVariableDisplay(item.name, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}
+                          {renderItemProjectText(item, item.name)}
                         </span>
                         {item.taskId && <ShoppingCart className="h-3 w-3 text-primary shrink-0" />}
                         {item.neededBy && (() => {
@@ -997,8 +1001,8 @@ export default function Shopping() {
                       </div>
                       {(item.details || item.notes) && (
                         <div className="mt-1.5 space-y-1 border-l-2 border-muted pl-2 text-xs text-muted-foreground leading-relaxed">
-                          {item.details && <p><span className="font-medium text-foreground/80">{t("shopping:fields.details", "Details")}:</span> {resolveProjectVariableDisplay(item.details, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</p>}
-                          {item.notes && <p className="italic"><span className="font-medium not-italic text-foreground/80">{t("shopping:fields.notes", "Notiz")}:</span> {resolveProjectVariableDisplay(item.notes, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</p>}
+                          {item.details && <p><span className="font-medium text-foreground/80">{t("shopping:fields.details", "Details")}:</span> {renderItemProjectText(item, item.details)}</p>}
+                          {item.notes && <p className="italic"><span className="font-medium not-italic text-foreground/80">{t("shopping:fields.notes", "Notiz")}:</span> {renderItemProjectText(item, item.notes)}</p>}
                         </div>
                       )}
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
@@ -1607,7 +1611,7 @@ export default function Shopping() {
                   return item ? (
                     <div key={itemId} className="text-sm flex items-center gap-2">
                       <ShoppingCart className="h-3 w-3 text-primary" />
-                      {resolveProjectVariableDisplay(item.name, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}
+                      {renderItemProjectText(item, item.name)}
                     </div>
                   ) : null;
                 })}
@@ -1638,7 +1642,7 @@ export default function Shopping() {
           {detailItem && (
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg">{resolveProjectVariableDisplay(detailItem.name, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</h3>
+                <h3 className="font-semibold text-lg">{renderItemProjectText(detailItem, detailItem.name)}</h3>
                 <div className="mt-1">
                   <span 
                     className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border"
@@ -1652,14 +1656,14 @@ export default function Shopping() {
               {detailItem.details && (
                 <div>
                   <Label className="text-muted-foreground">{t("shopping:fields.details", "Details")}</Label>
-                  <p className="text-sm whitespace-pre-wrap">{resolveProjectVariableDisplay(detailItem.details, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</p>
+                  <p className="text-sm whitespace-pre-wrap">{renderItemProjectText(detailItem, detailItem.details)}</p>
                 </div>
               )}
 
               {detailItem.notes && (
                 <div>
                   <Label className="text-muted-foreground">{t("shopping:fields.notes", "Notiz")}</Label>
-                  <p className="text-sm whitespace-pre-wrap italic">{resolveProjectVariableDisplay(detailItem.notes, projectVariables[detailItem.projectId ?? allTasks.find((task: any) => task.id === detailItem.taskId)?.projectIds?.[0] ?? -1])}</p>
+                  <p className="text-sm whitespace-pre-wrap italic">{renderItemProjectText(detailItem, detailItem.notes)}</p>
                 </div>
               )}
 

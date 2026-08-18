@@ -3872,3 +3872,7 @@
 
 ## Fehlerkorrektur Variablen in Einkaufsdetails (2026-08-18)
 - [x] Projektvariablen in Details und Notizen von Einkaufslistenitems mit derselben rekursiven Auflösung wie Namen zuverlässig anzeigen (auch die geöffnete Artikel-Detailansicht nutzt jetzt den Projektkontext; Name, Details und Notiz werden rekursiv aufgelöst und Notizen sind sichtbar)
+
+## Aufklappbare Projektvariablen in Aufgaben und Einkäufen (2026-08-18)
+- [x] Aufgaben- und Einkaufsanzeigen auf die aufklappbare Variablenanzeige der Plankiste umstellen (alle bisherigen reinen Textauflösungen in Aufgaben- und Einkaufslisten sowie geöffneter Artikelansicht verwenden jetzt `ProjectVarText` und die klassische Klickanzeige)
+- [x] Abhängige Projektvariablen dabei zentral mit Formel, Rundung und Einheit in ein kompatibles Anzeigeformat berechnen (Formeldefinitionen und Überschreibungen werden für `VarText` priorisiert zu berechenbaren Werten; vorhandene Formel-Engine löst Abhängigkeiten, Rundungen und Einheiten auf)

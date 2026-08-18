@@ -106,6 +106,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Projektvariablenverwaltung | Projektbereich unterstützt wie die Plankiste Eingabewerte mit Einheiten, Bereichen, Schieberegler und Sperre sowie sichtbare und editierbare Formeln mit gekennzeichneten Überschreibungen |
 | Projektstart mit Variablenmengen | Variable Einkaufsmen­gen werden für die Datenbank numerisch berechnet; fehlende Werte werden sicher abgewiesen und können keinen `VAR…`-Text ins Zahlenfeld schreiben |
 | Rekursive Anzeigenauflösung | Direkte Werte, Formeln aus Variablendefinitionen, Abhängigkeiten, Rundungen und Einheiten werden in Namen, Beschreibungen und Notizen gezielt geprüft |
+| Aufklappbare Projektvariablen | Aufgaben- und Einkaufsanzeigen verwenden die bewährte VarText-Anzeige der Plankiste; Formeldefinitionen und Überschreibungen werden dafür in berechenbare Anzeigevariablen überführt |
 | Vollständiger Standardlauf | 47 Testdateien und 373 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.
