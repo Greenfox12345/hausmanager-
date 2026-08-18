@@ -252,6 +252,7 @@ export const tasks = mysqlTable("tasks", {
   durationDays: int("durationDays").default(0), // Duration in days
   durationMinutes: int("durationMinutes").default(0), // Duration in minutes (0-1439, max 23:59)
   projectIds: json("projectIds").$type<number[]>(),
+  planTaskItemId: int("planTaskItemId"), // Originale Planaufgabe für phasenübergreifende Abhängigkeiten
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),

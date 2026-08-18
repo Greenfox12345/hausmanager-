@@ -128,6 +128,57 @@ async function insertBidirectionalDependencies(
   }
 }
 
+/** Übernimmt alle Abhängigkeiten, deren Planaufgaben bereits als Projektaufgaben existieren. */
+async function syncPlanTaskDependencies(
+  db: any,
+  householdId: number,
+  projectId: number,
+  planItems: ProjectPlanTaskItem[],
+) {
+  const householdTasks = await db.select({
+    id: tasks.id,
+    projectIds: tasks.projectIds,
+    planTaskItemId: tasks.planTaskItemId,
+  }).from(tasks).where(eq(tasks.householdId, householdId));
+  const taskIdByPlanItemId = new Map<number, number>();
+  householdTasks.forEach((task: any) => {
+    if (task.planTaskItemId && task.projectIds?.includes(projectId)) {
+      taskIdByPlanItemId.set(task.planTaskItemId, task.id);
+    }
+  });
+  // Rückfall für bereits gestartete Projekte aus der Zeit vor planTaskItemId.
+  for (const item of planItems) {
+    if (item.id == null || taskIdByPlanItemId.has(item.id)) continue;
+    const matchingTask = householdTasks.find((task: any) =>
+      task.projectIds?.includes(projectId) && task.name === item.name,
+    );
+    if (matchingTask) taskIdByPlanItemId.set(item.id, matchingTask.id);
+  }
+  for (const item of planItems) {
+    if (item.id == null) continue;
+    const taskId = taskIdByPlanItemId.get(item.id);
+    if (!taskId) continue;
+    const prerequisites = (item.prerequisites ?? []).map((id) => taskIdByPlanItemId.get(id)).filter((id): id is number => id !== undefined);
+    const followups = (item.followups ?? []).map((id) => taskIdByPlanItemId.get(id)).filter((id): id is number => id !== undefined);
+    if (prerequisites.length || followups.length) {
+      await insertBidirectionalDependencies(db, taskId, prerequisites, followups);
+    }
+  }
+}
+
+async function linkCreatedPlanTasks(
+  db: any,
+  createdTaskIds: number[],
+  startedPlanItems: ProjectPlanTaskItem[],
+) {
+  for (let index = 0; index < createdTaskIds.length; index += 1) {
+    const taskId = createdTaskIds[index];
+    const planTaskItemId = startedPlanItems[index]?.id;
+    if (planTaskItemId == null) continue;
+    await db.update(tasks).set({ planTaskItemId }).where(eq(tasks.id, taskId));
+  }
+}
+
 export const projectsRouter = router({
   // List all projects accessible to the household
   list: protectedProcedure
@@ -771,7 +822,7 @@ export const planProjectsRouter = router({
       for (const item of taskItemsList) {
         const phaseId = (item as any).phaseId;
         if (phasesToStart !== null && phaseId && !phasesToStart.includes(phaseId)) continue;
-        // Übertragung beim initialen Projektstart
+        // Übertragung beim initialen Projektstart (Planaufgaben-Mapping)
         let dueDate: Date | undefined;
         if (item.daysOffset != null) {
           dueDate = new Date(startDate);
@@ -813,6 +864,15 @@ export const planProjectsRouter = router({
       if (createdShoppingIds.length > 0) {
         await db.update(shoppingItems).set({ projectId: input.projectId }).where(inArray(shoppingItems.id, createdShoppingIds));
       }
+      await linkCreatedPlanTasks(
+        db,
+        createdTaskIds,
+        taskItemsList.filter((item) => {
+          const phaseId = (item as any).phaseId;
+          return phasesToStart === null || !phaseId || phasesToStart.includes(phaseId);
+        }),
+      );
+      await syncPlanTaskDependencies(db, input.householdId, input.projectId, taskItemsList);
       await db.update(projectsExtended).set({ status: "active", startDate: startDate }).where(eq(projectsExtended.id, input.projectId));
       const household = await getHouseholdById(input.householdId);
       const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
@@ -902,6 +962,12 @@ export const planProjectsRouter = router({
       if (createdShoppingIds.length > 0) {
         await db.update(shoppingItems).set({ projectId: input.projectId }).where(inArray(shoppingItems.id, createdShoppingIds));
       }
+      await linkCreatedPlanTasks(
+        db,
+        createdTaskIds,
+        taskItemsList.filter((item) => (item as any).phaseId === input.phaseId),
+      );
+      await syncPlanTaskDependencies(db, input.householdId, input.projectId, taskItemsList);
       return { createdTaskIds, createdShoppingIds };
     }),
 

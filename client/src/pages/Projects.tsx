@@ -483,7 +483,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 {sortedPhases.map(phase => {
                   const phaseTaskCount = taskItemsList.filter(t => (t as any).phaseId === phase.id).length;
                   const phaseShopCount = shoppingItemsList.filter(s => (s as any).phaseId === phase.id).length;
-                  const phaseVars = enableVariables ? getInputVarsForPhase(phase.id) : [];
+                  const phaseTasks = taskItemsList.filter(task => (task as any).phaseId === phase.id);
                   const isSelected = selectedPhaseIds.includes(phase.id);
                   return (
                     <div key={phase.id} className={`rounded-lg border p-3 transition-colors ${isSelected ? "border-amber-300 bg-amber-50/50" : "border-border bg-muted/30 opacity-60"}`}>
@@ -501,33 +501,26 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                         <span className="text-sm font-medium flex-1">{phase.name}</span>
                         <span className="text-xs text-muted-foreground">{phaseTaskCount}A + {phaseShopCount}E</span>
                       </label>
-                      {/* Variablen dieser Phase */}
-                      {isSelected && phaseVars.length > 0 && (
-                        <div className="pl-6 space-y-1">
-                          <p className="text-xs text-muted-foreground mb-1">{t("plankiste:project.phaseVars", "Variablen:")}</p>
-                          {renderVarInputs(phaseVars, inputVarValues, setInputVarValues)}
+                      {/* Aufgaben dieser Phase */}
+                      {isSelected && phaseTasks.length > 0 && (
+                        <div className="pl-6 space-y-1.5">
+                          {phaseTasks.map((task, taskIndex) => (
+                            <div key={`${phase.id}-${task.name}-${taskIndex}`} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                              <CheckSquare className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                              <div>
+                                <div className="font-medium text-foreground"><VarText text={task.name} variables={calculatedVariables} /></div>
+                                {task.description && <div className="line-clamp-2 mt-0.5"><VarText text={task.description} variables={calculatedVariables} /></div>}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
                   );
                 })}
-                {/* Phasenlose Variablen */}
-                {enableVariables && phaselessVars.length > 0 && (
-                  <div className="rounded-lg border border-border p-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">{t("plankiste:project.generalVars", "Allgemeine Variablen:")}</p>
-                    {renderVarInputs(phaselessVars, inputVarValues, setInputVarValues)}
-                  </div>
-                )}
               </div>
             )}
 
-            {/* Ohne Phasen: alle Variablen direkt */}
-            {phases.length === 0 && enableVariables && allInputVars.length > 0 && (
-              <div className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.enterVarsForPhases", "Eingabe-Variablen:")}</p>
-                {renderVarInputs(allInputVars, inputVarValues, setInputVarValues)}
-              </div>
-            )}
 
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setStartDialogOpen(false)}>{t("common:cancel")}</Button>
@@ -553,7 +546,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       {phaseStartDialogId && (() => {
         const phase = phases.find(p => p.id === phaseStartDialogId);
         if (!phase) return null;
-        const phaseVars = enableVariables ? getInputVarsForPhase(phaseStartDialogId) : [];
+        const phaseTasks = taskItemsList.filter(task => (task as any).phaseId === phaseStartDialogId);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={() => setPhaseStartDialogId(null)} />
@@ -566,10 +559,17 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 <label className="text-sm font-medium">{t("plankiste:project.startDate", "Startdatum")}</label>
                 <input type="date" value={phaseStartDate} onChange={e => setPhaseStartDate(e.target.value)} className="mt-1 w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
               </div>
-              {phaseVars.length > 0 && (
-                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-xs font-medium text-amber-700 mb-2">{t("plankiste:project.phaseVars", "Variablen:")}</p>
-                  {renderVarInputs(phaseVars, phaseInputVarValues, setPhaseInputVarValues)}
+              {phaseTasks.length > 0 && (
+                <div className="mb-4 p-3 bg-muted/50 border border-border rounded-lg space-y-1.5">
+                  {phaseTasks.map((task, taskIndex) => (
+                    <div key={`${phaseStartDialogId}-${task.name}-${taskIndex}`} className="text-xs flex items-start gap-1.5">
+                      <CheckSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground flex-shrink-0" />
+                      <div>
+                        <div className="font-medium"><VarText text={task.name} variables={calculatedVariables} /></div>
+                        {task.description && <div className="text-muted-foreground line-clamp-2 mt-0.5"><VarText text={task.description} variables={calculatedVariables} /></div>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
               <div className="flex gap-2 justify-end">

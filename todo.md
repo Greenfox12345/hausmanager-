@@ -3882,3 +3882,8 @@
 
 ## Klassische Variablenauflösung in Aufgabendetails (2026-08-18)
 - [x] Aufgabendetailansicht für Namen und Beschreibungen auf die aufklappbare Plankiste-Variablenanzeige umstellen (Name und Beschreibung verwenden jetzt `ProjectVarText`; Wert, Einheit, Tipp zum Variablennamen und Fehlerhinweis verhalten sich wie in der Plankiste)
+
+## Projektstart mit Phasenaufgaben und Abhängigkeiten (2026-08-18)
+- [x] Projektstartdialog pro Phase auf die enthaltenen Aufgaben statt auf Variablen fokussieren (Phasen zeigen beim Start ihre Namen und Beschreibungen; Variableneingaben bleiben über den Projektbereich bearbeitbar)
+- [x] Voraussetzungen und Folgeaufgaben beim Projekt- und Phasenstart vollständig auf die erzeugten Aufgaben übertragen (erzeugte Aufgaben werden über ihre Planaufgaben-ID abgebildet; nach jedem Start werden alle inzwischen möglichen voraussetzungs- und Folgeaufgabenkanten synchronisiert)
+- [x] Grundlage schaffen, um Aufgaben mit noch unerfüllten Voraussetzungen später aus der Aufgabenansicht filtern zu können (dauerhafte `planTaskItemId` an Projektaufgaben und vollständige Einträge in `task_dependencies` ermöglichen die eindeutige Prüfung)
