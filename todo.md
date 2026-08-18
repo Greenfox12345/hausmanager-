@@ -3861,3 +3861,7 @@
 
 ## Fehlerkorrektur variable Einkaufsmenge beim Projektstart (2026-08-17)
 - [x] Variable Einkaufsmenge beim Projekt- und Phasenstart als gültige berechnete Zahl speichern, ohne dynamische Texte in Name und Notiz zu verlieren (direkte, formelbasierte und abhängige Variablen werden für das Datenbankfeld numerisch berechnet; nicht berechenbare Werte ergeben `null` statt eines fehlerhaften VAR-Textes)
+
+## Vollständige Variable Auflösung und Einkaufsdetails (2026-08-17)
+- [x] Abhängige Variablen in Aufgaben- und Einkaufsnamen sowie Beschreibungen vollständig und rekursiv auflösen (Resolver liest direkte Werte, erhaltene Formeldefinitionen und Überschreibungen; er berechnet Abhängigkeiten rekursiv, respektiert Rundungen und zeigt Einheiten an)
+- [x] Einkaufsdetails in der Listenansicht und im Bearbeitungsbereich ausführlicher und besser lesbar darstellen (Details und Notizen stehen unterhalb der Kernangaben mit eigener Kennzeichnung, vollständigem Zeilenumbruch und dynamischer Variablenauflösung)

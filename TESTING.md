@@ -105,6 +105,7 @@ Die Bilanz trennt **Geldzahlungen** und **Arbeitszeit** bewusst. Sie verwendet k
 | Dynamische Karten und Projektstart | Aufgabenkarten lösen Namen und Beschreibungen aus dem Projekt auf; Projektstarts übertragen unveränderte Vorlagentexte samt Projektzuordnung |
 | Projektvariablenverwaltung | Projektbereich unterstützt wie die Plankiste Eingabewerte mit Einheiten, Bereichen, Schieberegler und Sperre sowie sichtbare und editierbare Formeln mit gekennzeichneten Überschreibungen |
 | Projektstart mit Variablenmengen | Variable Einkaufsmen­gen werden für die Datenbank numerisch berechnet; fehlende Werte werden sicher abgewiesen und können keinen `VAR…`-Text ins Zahlenfeld schreiben |
+| Rekursive Anzeigenauflösung | Direkte Werte, Formeln aus Variablendefinitionen, Abhängigkeiten, Rundungen und Einheiten werden in Namen, Beschreibungen und Notizen gezielt geprüft |
 | Vollständiger Standardlauf | 47 Testdateien und 373 datenbankfreie Tests bestanden |
 
 Die Datenbankabläufe der Bilanz werden nach Bereitstellung von `TEST_DATABASE_URL` in den gesonderten Integrationstestlauf aufgenommen. Die produktive Datenbank wurde ausschließlich um zwei neue Tabellen erweitert; vorhandene Haushalts- und Verlaufsdaten wurden nicht verändert.

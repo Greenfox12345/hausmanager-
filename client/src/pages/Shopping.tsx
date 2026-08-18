@@ -994,13 +994,13 @@ export default function Shopping() {
                             {getCategoryName(item.categoryId)}
                           </span>
                         )}
-                        {item.details && (
-                          <span className="text-xs text-muted-foreground">{resolveProjectVariableDisplay(item.details, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</span>
-                        )}
-                        {item.notes && (
-                          <span className="text-xs text-muted-foreground italic">{resolveProjectVariableDisplay(item.notes, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</span>
-                        )}
                       </div>
+                      {(item.details || item.notes) && (
+                        <div className="mt-1.5 space-y-1 border-l-2 border-muted pl-2 text-xs text-muted-foreground leading-relaxed">
+                          {item.details && <p><span className="font-medium text-foreground/80">{t("shopping:fields.details", "Details")}:</span> {resolveProjectVariableDisplay(item.details, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</p>}
+                          {item.notes && <p className="italic"><span className="font-medium not-italic text-foreground/80">{t("shopping:fields.notes", "Notiz")}:</span> {resolveProjectVariableDisplay(item.notes, projectVariables[item.projectId ?? allTasks.find((task: any) => task.id === item.taskId)?.projectIds?.[0] ?? -1])}</p>}
+                        </div>
+                      )}
                       {item.photoUrls && item.photoUrls.length > 0 && (() => {
                         const photos = normalizePhotoUrls(item.photoUrls);
                         return (
