@@ -3887,3 +3887,7 @@
 - [x] Projektstartdialog pro Phase auf die enthaltenen Aufgaben statt auf Variablen fokussieren (Phasen zeigen beim Start ihre Namen und Beschreibungen; Variableneingaben bleiben über den Projektbereich bearbeitbar)
 - [x] Voraussetzungen und Folgeaufgaben beim Projekt- und Phasenstart vollständig auf die erzeugten Aufgaben übertragen (erzeugte Aufgaben werden über ihre Planaufgaben-ID abgebildet; nach jedem Start werden alle inzwischen möglichen voraussetzungs- und Folgeaufgabenkanten synchronisiert)
 - [x] Grundlage schaffen, um Aufgaben mit noch unerfüllten Voraussetzungen später aus der Aufgabenansicht filtern zu können (dauerhafte `planTaskItemId` an Projektaufgaben und vollständige Einträge in `task_dependencies` ermöglichen die eindeutige Prüfung)
+
+## Fehlerkorrektur Projektstart und Aufgabenvariablen (2026-08-18)
+- [x] Projektstartdialog tatsächlich aus den Phasenaufgaben statt aus Variablen aufbauen (Phasenaufgaben werden als unveränderte Namen und Beschreibungen mit Aufgaben-Symbol gezeigt, sodass die Anzeige nicht mehr wie Variablenkarten wirkt)
+- [x] In den Aufgabendetails einen Button „Variablen eingeben“ für relevante Projektvariablen ergänzen (Projektaufgaben öffnen einen Dialog für entsperrte Eingabevariablen mit Einheit; Speichern aktualisiert alle abhängigen Anzeigen)

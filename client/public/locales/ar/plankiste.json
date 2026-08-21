@@ -233,7 +233,8 @@
     "adoptTitle": "اعتماد تعريفات المتغيرات؟",
     "adoptDescription": "تم العثور على التعريفات التالية في وصف المهمة. لا يزال بإمكانك تعديل الصيغ:",
     "adoptIgnore": "لا، تجاهل",
-    "adoptConfirm": "نعم، اعتماد"
+    "adoptConfirm": "نعم، اعتماد",
+    "locked": "هذا المتغير مقفل."
   },
   "phases": {
     "title": "المراحل",
@@ -341,7 +342,9 @@
     "noValue": "لا قيمة",
     "formula": "المعادلة",
     "overrideValue": "تجاوز النتيجة (اختياري)",
-    "variableOverride": "تم التجاوز يدويًا"
+    "variableOverride": "تم التجاوز يدويًا",
+    "enterVariables": "إدخال المتغيرات",
+    "locked": "هذا المتغير مقفل."
   },
   "tasks": {
     "title": "المهام"

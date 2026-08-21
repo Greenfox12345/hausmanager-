@@ -233,7 +233,8 @@
     "adoptTitle": "Variablen-Definitionen übernehmen?",
     "adoptDescription": "In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden. Du kannst die Formeln noch anpassen:",
     "adoptIgnore": "Nein, ignorieren",
-    "adoptConfirm": "Ja, übernehmen"
+    "adoptConfirm": "Ja, übernehmen",
+    "locked": "Diese Variable ist gesperrt."
   },
   "phases": {
     "title": "Phasen",
@@ -341,7 +342,9 @@
     "noValue": "kein Wert",
     "formula": "Rechenweg",
     "overrideValue": "Ergebnis überschreiben (optional)",
-    "variableOverride": "Manuell überschrieben"
+    "variableOverride": "Manuell überschrieben",
+    "enterVariables": "Variablen eingeben",
+    "locked": "Diese Variable ist gesperrt."
   },
   "tasks": {
     "title": "Aufgaben"

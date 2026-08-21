@@ -233,7 +233,8 @@
     "adoptTitle": "¿Aplicar definiciones de variables?",
     "adoptDescription": "Se encontraron las siguientes definiciones en la descripción de la tarea. Aún puedes ajustar las fórmulas:",
     "adoptIgnore": "No, ignorar",
-    "adoptConfirm": "Sí, aplicar"
+    "adoptConfirm": "Sí, aplicar",
+    "locked": "Esta variable está bloqueada."
   },
   "phases": {
     "title": "Fases",
@@ -341,7 +342,9 @@
     "noValue": "sin valor",
     "formula": "Cálculo",
     "overrideValue": "Sobrescribir resultado (opcional)",
-    "variableOverride": "Sobrescrito manualmente"
+    "variableOverride": "Sobrescrito manualmente",
+    "enterVariables": "Introducir variables",
+    "locked": "Esta variable está bloqueada."
   },
   "tasks": {
     "title": "Tareas"

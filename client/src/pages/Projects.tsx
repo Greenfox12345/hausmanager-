@@ -504,12 +504,13 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                       {/* Aufgaben dieser Phase */}
                       {isSelected && phaseTasks.length > 0 && (
                         <div className="pl-6 space-y-1.5">
+                          <p className="text-xs font-medium text-muted-foreground">Aufgaben</p>
                           {phaseTasks.map((task, taskIndex) => (
                             <div key={`${phase.id}-${task.name}-${taskIndex}`} className="text-xs text-muted-foreground flex items-start gap-1.5">
                               <CheckSquare className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                               <div>
-                                <div className="font-medium text-foreground"><VarText text={task.name} variables={calculatedVariables} /></div>
-                                {task.description && <div className="line-clamp-2 mt-0.5"><VarText text={task.description} variables={calculatedVariables} /></div>}
+                                <div className="font-medium text-foreground">{task.name}</div>
+                                {task.description && <div className="line-clamp-2 mt-0.5">{task.description}</div>}
                               </div>
                             </div>
                           ))}
@@ -561,12 +562,13 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               </div>
               {phaseTasks.length > 0 && (
                 <div className="mb-4 p-3 bg-muted/50 border border-border rounded-lg space-y-1.5">
+                  <p className="text-xs font-medium text-muted-foreground">Aufgaben</p>
                   {phaseTasks.map((task, taskIndex) => (
                     <div key={`${phaseStartDialogId}-${task.name}-${taskIndex}`} className="text-xs flex items-start gap-1.5">
                       <CheckSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <div className="font-medium"><VarText text={task.name} variables={calculatedVariables} /></div>
-                        {task.description && <div className="text-muted-foreground line-clamp-2 mt-0.5"><VarText text={task.description} variables={calculatedVariables} /></div>}
+                        <div className="font-medium">{task.name}</div>
+                        {task.description && <div className="text-muted-foreground line-clamp-2 mt-0.5">{task.description}</div>}
                       </div>
                     </div>
                   ))}

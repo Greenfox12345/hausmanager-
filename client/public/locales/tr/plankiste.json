@@ -233,7 +233,8 @@
     "adoptTitle": "Değişken tanımları alınsın mı?",
     "adoptDescription": "Görev açıklamasında aşağıdaki tanımlar bulundu. Formülleri hâlâ değiştirebilirsiniz:",
     "adoptIgnore": "Hayır, yoksay",
-    "adoptConfirm": "Evet, al"
+    "adoptConfirm": "Evet, al",
+    "locked": "Bu değişken kilitli."
   },
   "phases": {
     "title": "Aşamalar",
@@ -341,7 +342,9 @@
     "noValue": "değer yok",
     "formula": "Hesaplama",
     "overrideValue": "Sonucu geçersiz kıl (isteğe bağlı)",
-    "variableOverride": "Elle geçersiz kılındı"
+    "variableOverride": "Elle geçersiz kılındı",
+    "enterVariables": "Değişkenleri gir",
+    "locked": "Bu değişken kilitli."
   },
   "tasks": {
     "title": "Görevler"

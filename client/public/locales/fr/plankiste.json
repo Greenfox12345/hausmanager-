@@ -233,7 +233,8 @@
     "adoptTitle": "Reprendre les définitions de variables ?",
     "adoptDescription": "Les définitions suivantes ont été trouvées dans la description de la tâche. Vous pouvez encore modifier les formules :",
     "adoptIgnore": "Non, ignorer",
-    "adoptConfirm": "Oui, reprendre"
+    "adoptConfirm": "Oui, reprendre",
+    "locked": "Cette variable est verrouillée."
   },
   "phases": {
     "title": "Phases",
@@ -341,7 +342,9 @@
     "noValue": "aucune valeur",
     "formula": "Formule",
     "overrideValue": "Remplacer le résultat (facultatif)",
-    "variableOverride": "Remplacé manuellement"
+    "variableOverride": "Remplacé manuellement",
+    "enterVariables": "Saisir les variables",
+    "locked": "Cette variable est verrouillée."
   },
   "tasks": {
     "title": "Tâches"

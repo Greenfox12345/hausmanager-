@@ -233,7 +233,8 @@
     "adoptTitle": "采用变量定义？",
     "adoptDescription": "在任务描述中发现了以下定义。您仍可以调整公式：",
     "adoptIgnore": "否，忽略",
-    "adoptConfirm": "是，采用"
+    "adoptConfirm": "是，采用",
+    "locked": "此变量已锁定。"
   },
   "phases": {
     "title": "阶段",
@@ -341,7 +342,9 @@
     "noValue": "无值",
     "formula": "计算公式",
     "overrideValue": "覆盖结果（可选）",
-    "variableOverride": "已手动覆盖"
+    "variableOverride": "已手动覆盖",
+    "enterVariables": "输入变量",
+    "locked": "此变量已锁定。"
   },
   "tasks": {
     "title": "任务"

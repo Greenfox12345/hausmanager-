@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ArrowLeft, SkipForward, Trash2, Star } from "lucide-react";
+import { Calendar, User, Repeat, Users, Edit, X, Check, History as HistoryIcon, ImageIcon, CheckCircle2, Target, Bell, RotateCcw, FileText, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ArrowLeft, SkipForward, Trash2, Star, Variable } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { toast } from "sonner";
@@ -102,6 +102,8 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   const utils = trpc.useUtils();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+  const [showProjectVariablesDialog, setShowProjectVariablesDialog] = useState(false);
+  const [taskProjectVariableValues, setTaskProjectVariableValues] = useState<Record<string, string>>({});
   
   // Action dialog states
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -257,6 +259,27 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { projectIds: task?.projectIds ?? [] },
     { enabled: Boolean(task?.projectIds?.length) && open }
   );
+  const taskProjectId = task?.projectIds?.[0];
+  const { data: taskProjectData } = trpc.planProjects.getWithPlanData.useQuery(
+    { projectId: taskProjectId ?? 0 },
+    { enabled: Boolean(taskProjectId) && open && showProjectVariablesDialog },
+  );
+  const updateTaskProjectVariablesMutation = trpc.planProjects.updatePlanData.useMutation({
+    onSuccess: () => {
+      if (taskProjectId) {
+        utils.planProjects.getWithPlanData.invalidate({ projectId: taskProjectId });
+        utils.planProjects.getVariablesForProjects.invalidate({ projectIds: task?.projectIds ?? [] });
+      }
+      setShowProjectVariablesDialog(false);
+      toast.success(t("plankiste:project.varsSaved", "Variablen gespeichert"));
+    },
+  });
+  useEffect(() => {
+    if (!showProjectVariablesDialog || !taskProjectData) return;
+    setTaskProjectVariableValues(Object.fromEntries(
+      ((taskProjectData.planVariables ?? []) as any[]).map((variable) => [variable.name, variable.value ?? ""]),
+    ));
+  }, [showProjectVariablesDialog, taskProjectData]);
 
   const { data: sharedHouseholds = [] } = trpc.tasks.getSharedHouseholds.useQuery(
     { taskId: task?.id ?? 0 },
@@ -2664,7 +2687,25 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
               
               <TabsContent value="details" className="space-y-4 mt-4">
                 <div>
-                  <h3 className="text-lg font-semibold"><ProjectVarText text={task.name} variables={projectVariables[task.projectIds?.[0] ?? -1]} /></h3>
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-lg font-semibold"><ProjectVarText text={task.name} variables={projectVariables[task.projectIds?.[0] ?? -1]} /></h3>
+                    {taskProjectId && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="shrink-0"
+                        onClick={() => {
+                          const values = Object.fromEntries(((taskProjectData?.planVariables ?? []) as any[]).map((variable) => [variable.name, variable.value ?? ""]));
+                          setTaskProjectVariableValues(values);
+                          setShowProjectVariablesDialog(true);
+                        }}
+                      >
+                        <Variable className="h-3.5 w-3.5 mr-1.5" />
+                        {t("plankiste:project.enterVariables", "Variablen eingeben")}
+                      </Button>
+                    )}
+                  </div>
                   {task.description && (
                     <p className="text-sm text-muted-foreground mt-2"><ProjectVarText text={task.description} variables={projectVariables[task.projectIds?.[0] ?? -1]} /></p>
                   )}
@@ -3952,6 +3993,47 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    <Dialog open={showProjectVariablesDialog} onOpenChange={setShowProjectVariablesDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("plankiste:project.enterVariables", "Variablen eingeben")}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+          {((taskProjectData?.planVariables ?? []) as any[])
+            .filter((variable) => !new RegExp(`VAR${variable.name}\\s*=`).test(variable.description ?? ""))
+            .map((variable) => (
+              <div key={variable.name} className="rounded-md border border-border p-3">
+                <Label className="text-sm">{variable.alias || variable.name}</Label>
+                {variable.unit && <span className="ml-2 text-xs text-muted-foreground">{variable.unit}</span>}
+                <Input
+                  className="mt-1.5"
+                  value={taskProjectVariableValues[variable.name] ?? ""}
+                  disabled={variable.locked}
+                  onChange={(event) => setTaskProjectVariableValues((values) => ({ ...values, [variable.name]: event.target.value }))}
+                />
+                {variable.locked && <p className="mt-1 text-xs text-muted-foreground">{t("plankiste:variables.locked", "Diese Variable ist gesperrt.")}</p>}
+              </div>
+            ))}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowProjectVariablesDialog(false)}>{t("common:actions.cancel", "Abbrechen")}</Button>
+          <Button
+            disabled={updateTaskProjectVariablesMutation.isPending || !taskProjectId}
+            onClick={() => updateTaskProjectVariablesMutation.mutate({
+              projectId: taskProjectId!,
+              planVariables: ((taskProjectData?.planVariables ?? []) as any[]).map((variable) => (
+                new RegExp(`VAR${variable.name}\\s*=`).test(variable.description ?? "") || variable.locked
+                  ? variable
+                  : { ...variable, value: taskProjectVariableValues[variable.name] ?? variable.value }
+              )),
+            })}
+          >
+            {t("common:actions.save", "Speichern")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </>
   );
 }

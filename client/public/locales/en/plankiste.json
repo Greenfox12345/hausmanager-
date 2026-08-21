@@ -233,7 +233,8 @@
     "adoptTitle": "Apply variable definitions?",
     "adoptDescription": "The following definitions were found in the task description. You can still adjust the formulas:",
     "adoptIgnore": "No, ignore",
-    "adoptConfirm": "Yes, apply"
+    "adoptConfirm": "Yes, apply",
+    "locked": "This variable is locked."
   },
   "phases": {
     "title": "Phases",
@@ -341,7 +342,9 @@
     "noValue": "no value",
     "formula": "Formula",
     "overrideValue": "Override result (optional)",
-    "variableOverride": "Manually overridden"
+    "variableOverride": "Manually overridden",
+    "enterVariables": "Enter variables",
+    "locked": "This variable is locked."
   },
   "tasks": {
     "title": "Tasks"
