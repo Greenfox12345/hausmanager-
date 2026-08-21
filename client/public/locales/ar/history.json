@@ -45,7 +45,8 @@
     "change_proposal_rejected": "تم رفض اقتراح التغيير",
     "balance_entry_created": "تم تسجيل إدخال الميزان",
     "balance_entry_updated": "تم تحديث إدخال الميزان",
-    "balance_entry_deleted": "تم حذف إدخال الميزان"
+    "balance_entry_deleted": "تم حذف إدخال الميزان",
+    "variable_input": "إدخال متغير"
   },
   "fields": {
     "date": "التاريخ",

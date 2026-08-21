@@ -45,7 +45,8 @@
     "change_proposal_rejected": "已拒绝修改建议",
     "balance_entry_created": "已添加收支与工时记录",
     "balance_entry_updated": "已更新收支与工时记录",
-    "balance_entry_deleted": "已删除收支与工时记录"
+    "balance_entry_deleted": "已删除收支与工时记录",
+    "variable_input": "变量输入"
   },
   "fields": {
     "date": "日期",

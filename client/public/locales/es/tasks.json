@@ -703,5 +703,26 @@
     "title": "Comentarios",
     "placeholder": "Escribir un comentario …",
     "add": "Añadir comentario"
+  },
+  "variableInput": {
+    "title": "Introducir variables",
+    "description": "Documente el valor determinado para esta tarea. Las entradas aparecen en el historial de la tarea.",
+    "saved": "Entrada de variable documentada",
+    "saveError": "No se pudo guardar la entrada de variable",
+    "open": "Introducir variables",
+    "assignmentTitle": "Variables que deben documentarse para esta tarea",
+    "assignmentHint": "Estos valores se pueden registrar en la tarjeta de la tarea o al completarla con una nota, foto y PDF.",
+    "noProjectVariables": "No hay variables para el proyecto seleccionado.",
+    "variable": "Variable",
+    "value": "Valor",
+    "valuePlaceholder": "p. ej. 120",
+    "unit": "Unidad",
+    "note": "Explicación",
+    "notePlaceholder": "Anote la medición, el cálculo o las particularidades",
+    "photos": "Foto o dibujo",
+    "pdfs": "Archivos PDF",
+    "save": "Guardar entrada",
+    "completionRequired": "Aún faltan variables documentadas antes de completar la tarea.",
+    "documentMissing": "Documentar entradas faltantes"
   }
 }

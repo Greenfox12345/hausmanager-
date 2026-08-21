@@ -653,5 +653,26 @@
     "title": "Kommentare",
     "placeholder": "Kommentar schreiben …",
     "add": "Kommentar hinzufügen"
+  },
+  "variableInput": {
+    "title": "Variablen eingeben",
+    "description": "Dokumentieren Sie den für diese Aufgabe ermittelten Wert. Einträge erscheinen im Verlauf der Aufgabe.",
+    "saved": "Variableneingabe dokumentiert",
+    "saveError": "Variableneingabe konnte nicht gespeichert werden",
+    "open": "Variablen eingeben",
+    "assignmentTitle": "Für diese Aufgabe zu dokumentierende Variablen",
+    "assignmentHint": "Diese Werte können auf der Aufgabenkarte oder beim Abschluss mit Notiz, Foto und PDF festgehalten werden.",
+    "noProjectVariables": "Für das ausgewählte Projekt sind keine Variablen vorhanden.",
+    "variable": "Variable",
+    "value": "Wert",
+    "valuePlaceholder": "z. B. 120",
+    "unit": "Einheit",
+    "note": "Erläuterung",
+    "notePlaceholder": "Messung, Berechnung oder Besonderheiten festhalten",
+    "photos": "Foto oder Zeichnung",
+    "pdfs": "PDF-Anhänge",
+    "save": "Eingabe speichern",
+    "completionRequired": "Vor dem Abschluss fehlen noch dokumentierte Variablen.",
+    "documentMissing": "Fehlende Eingaben dokumentieren"
   }
 }

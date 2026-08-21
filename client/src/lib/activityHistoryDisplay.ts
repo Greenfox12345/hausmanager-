@@ -10,6 +10,7 @@ const actionFallbacks: Record<string, string> = {
   uncompleted: "Als offen markiert",
   deleted: "Gelöscht",
   milestone: "Zwischenziel erfasst",
+  variable_input: "Variableneingabe",
   reminder: "Erinnerung gesendet",
   skipped: "Termin übersprungen",
   restored: "Termin wiederhergestellt",

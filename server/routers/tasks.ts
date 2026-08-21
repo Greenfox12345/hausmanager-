@@ -49,7 +49,17 @@ async function getHouseholdLang(householdId: number): Promise<Lang> {
   const l = hh?.language ?? "de";
   return (l === "en" || l === "es" || l === "fr" || l === "zh" || l === "tr" || l === "ar") ? l as Lang : "de";
 }
-import { taskRotationExclusions, activityHistory, projects, shoppingCategories, taskCategoryAssignments } from "../../drizzle/schema";
+
+function taskVariableInputRecordedText(lang: Lang, memberName: string, taskName: string, variableName: string, value: string): string {
+  if (lang === "en") return `${memberName} documented the variable “${variableName}” with ${value} for “${taskName}”.`;
+  if (lang === "es") return `${memberName} documentó la variable «${variableName}» con ${value} para «${taskName}».`;
+  if (lang === "fr") return `${memberName} a documenté la variable « ${variableName} » avec ${value} pour « ${taskName} ».`;
+  if (lang === "tr") return `${memberName}, “${taskName}” için “${variableName}” değişkenini ${value} değeriyle belgeledi.`;
+  if (lang === "zh") return `${memberName} 已为“${taskName}”记录变量“${variableName}”：${value}。`;
+  if (lang === "ar") return `وثّق ${memberName} المتغير «${variableName}» بالقيمة ${value} للمهمة «${taskName}».`;
+  return `${memberName} hat für „${taskName}“ die Variable „${variableName}“ mit ${value} dokumentiert.`;
+}
+import { taskRotationExclusions, activityHistory, projects, shoppingCategories, taskCategoryAssignments, taskVariableInputs } from "../../drizzle/schema";
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
@@ -425,6 +435,96 @@ export const tasksRouter = router({
       return await getTasks(input.householdId);
     }),
 
+  // Dokumentierte Eingaben der einer Aufgabe zugeordneten Projektvariablen laden.
+  listVariableInputs: publicProcedure
+    .input(z.object({ householdId: z.number(), taskId: z.number() }))
+    .query(async ({ input }) => {
+      const task = await getTaskById(input.taskId);
+      if (!task || task.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe nicht gefunden." });
+      }
+      const db = (await getDb())!;
+      const rows = await db.select()
+        .from(taskVariableInputs)
+        .where(and(eq(taskVariableInputs.householdId, input.householdId), eq(taskVariableInputs.taskId, input.taskId)))
+        .orderBy(asc(taskVariableInputs.createdAt));
+      return rows.map((row) => ({
+        ...row,
+        photoUrls: Array.isArray(row.photoUrls) ? row.photoUrls : [],
+        fileUrls: Array.isArray(row.fileUrls) ? row.fileUrls : [],
+      }));
+    }),
+
+  // Eine Variableneingabe mit optionalen Foto- und Dokumentationsanhängen festhalten.
+  addVariableInput: publicProcedure
+    .input(z.object({
+      householdId: z.number(),
+      taskId: z.number(),
+      memberId: z.number(),
+      projectId: z.number().optional(),
+      variableName: z.string().trim().min(1).max(191),
+      value: z.string().trim().min(1).max(255),
+      unit: z.string().trim().max(64).optional(),
+      note: z.string().max(10000).optional(),
+      photoUrls: z.array(z.object({ url: z.string().url(), filename: z.string().min(1).max(255) })).max(20).optional(),
+      fileUrls: z.array(z.object({ url: z.string().url(), filename: z.string().min(1).max(255) })).max(20).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const task = await getTaskById(input.taskId);
+      if (!task || task.householdId !== input.householdId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aufgabe nicht gefunden." });
+      }
+      assertDirectTaskPermission(task, input.memberId);
+
+      const allowedNames = Array.isArray(task.variableInputNames) ? task.variableInputNames : [];
+      if (!allowedNames.includes(input.variableName)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Diese Variable ist der Aufgabe nicht als Eingabe zugeordnet." });
+      }
+      const taskProjectIds = Array.isArray(task.projectIds) ? task.projectIds : [];
+      if (input.projectId !== undefined && !taskProjectIds.includes(input.projectId)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Das Projekt gehört nicht zu dieser Aufgabe." });
+      }
+
+      const member = await getHouseholdMemberById(input.memberId);
+      if (!member || member.householdId !== input.householdId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Haushaltsmitglied nicht gefunden." });
+      }
+      const db = (await getDb())!;
+      const result = await db.insert(taskVariableInputs).values({
+        householdId: input.householdId,
+        taskId: input.taskId,
+        projectId: input.projectId ?? taskProjectIds[0] ?? null,
+        variableName: input.variableName,
+        value: input.value,
+        unit: input.unit || null,
+        note: input.note?.trim() || null,
+        photoUrls: input.photoUrls ?? [],
+        fileUrls: input.fileUrls ?? [],
+        recordedByMemberId: input.memberId,
+      });
+      const id = Number(result[0].insertId);
+      const displayValue = `${input.value}${input.unit ? ` ${input.unit}` : ""}`;
+      const lang = await getHouseholdLang(input.householdId);
+      await createActivityLog({
+        householdId: input.householdId,
+        memberId: input.memberId,
+        activityType: "task",
+        action: "variable_input",
+        description: taskVariableInputRecordedText(lang, member.memberName, task.name, input.variableName, displayValue),
+        relatedItemId: input.taskId,
+        metadata: {
+          taskVariableInputId: id,
+          variableName: input.variableName,
+          value: input.value,
+          unit: input.unit || null,
+          note: input.note?.trim() || null,
+          photoCount: input.photoUrls?.length ?? 0,
+          fileCount: input.fileUrls?.length ?? 0,
+        },
+      });
+      return { id };
+    }),
+
   // Add new task
   add: publicProcedure
     .input(
@@ -450,6 +550,7 @@ export const tasksRouter = router({
         durationDays: z.number().min(0).optional(),
         durationMinutes: z.number().min(0).max(1439).optional(), // 0-1439 (max 23:59)
         projectIds: z.array(z.number()).optional(),
+        variableInputNames: z.array(z.string().trim().min(1).max(191)).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
         nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
       })
@@ -487,6 +588,7 @@ export const tasksRouter = router({
         durationDays: input.durationDays,
         durationMinutes: input.durationMinutes,
         projectIds: input.projectIds || [],
+        variableInputNames: input.variableInputNames || [],
         nonResponsiblePermission: input.nonResponsiblePermission,
         createdBy: input.memberId,
       });
@@ -583,6 +685,7 @@ export const tasksRouter = router({
         durationDays: z.number().min(0).optional(),
         durationMinutes: z.number().min(0).max(1439).optional(), // 0-1439 (max 23:59)
         projectIds: z.array(z.number()).optional(),
+        variableInputNames: z.array(z.string().trim().min(1).max(191)).optional(),
         sharedHouseholdIds: z.array(z.number()).optional(),
         nonResponsiblePermission: z.enum(["full", "milestones_reminders", "view_only"]).default("full"),
       })

@@ -442,7 +442,7 @@ export async function getTasks(householdId: number): Promise<(Task & { sharedHou
   const rawTasks = tasksResult as unknown as any[];
 
   // Parse JSON fields that come as strings from raw SQL
-  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls'];
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls', 'variableInputNames'];
   const tasksWithSharing = rawTasks.map(task => {
     const parsed = { ...task };
     for (const field of jsonFields) {
@@ -575,6 +575,7 @@ export async function createTask(data: {
   durationDays?: number;
   durationMinutes?: number;
   projectIds?: number[];
+  variableInputNames?: string[];
   nonResponsiblePermission?: "full" | "milestones_reminders" | "view_only";
   createdBy: number;
 }) {
@@ -607,7 +608,7 @@ export async function getTaskById(taskId: number): Promise<Task | null> {
   if (!rows || rows.length === 0) return null;
 
   const task = { ...rows[0] };
-  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls'];
+  const jsonFields = ['assignedTo', 'projectIds', 'sharedHouseholdIds', 'completionPhotoUrls', 'completionFileUrls', 'variableInputNames'];
   for (const field of jsonFields) {
     if (task[field] && typeof task[field] === 'string') {
       try { task[field] = JSON.parse(task[field]); } catch { /* leave as-is */ }

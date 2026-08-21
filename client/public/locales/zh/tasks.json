@@ -653,5 +653,26 @@
     "title": "评论",
     "placeholder": "撰写评论 …",
     "add": "添加评论"
+  },
+  "variableInput": {
+    "title": "录入变量",
+    "description": "记录为此任务确定的数值。条目会显示在任务历史中。",
+    "saved": "变量输入已记录",
+    "saveError": "无法保存变量输入",
+    "open": "录入变量",
+    "assignmentTitle": "需要为此任务记录的变量",
+    "assignmentHint": "这些数值可以在任务卡片上或完成任务时通过备注、照片和 PDF 记录。",
+    "noProjectVariables": "所选项目没有变量。",
+    "variable": "变量",
+    "value": "数值",
+    "valuePlaceholder": "例如 120",
+    "unit": "单位",
+    "note": "说明",
+    "notePlaceholder": "记录测量、计算或特殊情况",
+    "photos": "照片或图纸",
+    "pdfs": "PDF 附件",
+    "save": "保存输入",
+    "completionRequired": "完成任务前仍有变量需要记录。",
+    "documentMissing": "记录缺失输入"
   }
 }

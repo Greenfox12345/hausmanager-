@@ -253,6 +253,7 @@ export const tasks = mysqlTable("tasks", {
   durationMinutes: int("durationMinutes").default(0), // Duration in minutes (0-1439, max 23:59)
   projectIds: json("projectIds").$type<number[]>(),
   planTaskItemId: int("planTaskItemId"), // Originale Planaufgabe für phasenübergreifende Abhängigkeiten
+  variableInputNames: json("variableInputNames").$type<string[]>(), // Projektvariablen, die für diese Aufgabe als Eingabe dokumentiert werden
   isCompleted: boolean("isCompleted").default(false).notNull(),
   completedBy: int("completedBy").references(() => householdMembers.id),
   completedAt: timestamp("completedAt"),
@@ -267,6 +268,24 @@ export const tasks = mysqlTable("tasks", {
 
 export type Task = typeof tasks.$inferSelect; // Includes monthlyRecurrenceMode field
 export type InsertTask = typeof tasks.$inferInsert;
+
+/** Dokumentierte Eingabe einer einer Aufgabe zugeordneten Projektvariable. */
+export const taskVariableInputs = mysqlTable("task_variable_inputs", {
+  id: int("id").autoincrement().primaryKey(),
+  householdId: int("householdId").notNull().references(() => households.id, { onDelete: "cascade" }),
+  taskId: int("taskId").notNull().references(() => tasks.id, { onDelete: "cascade" }),
+  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
+  variableName: varchar("variableName", { length: 191 }).notNull(),
+  value: varchar("value", { length: 255 }).notNull(),
+  unit: varchar("unit", { length: 64 }),
+  note: text("note"),
+  photoUrls: json("photoUrls").$type<{ url: string; filename: string }[]>(),
+  fileUrls: json("fileUrls").$type<{ url: string; filename: string }[]>(),
+  recordedByMemberId: int("recordedByMemberId").notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TaskVariableInput = typeof taskVariableInputs.$inferSelect;
 
 /**
  * Task rotation exclusions - members excluded from specific task rotations

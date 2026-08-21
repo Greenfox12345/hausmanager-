@@ -45,7 +45,8 @@
     "change_proposal_rejected": "Änderungsvorschlag abgelehnt",
     "balance_entry_created": "Bilanzaufwand erfasst",
     "balance_entry_updated": "Bilanzaufwand aktualisiert",
-    "balance_entry_deleted": "Bilanzaufwand gelöscht"
+    "balance_entry_deleted": "Bilanzaufwand gelöscht",
+    "variable_input": "Variableneingabe"
   },
   "fields": {
     "date": "Datum",

@@ -21,6 +21,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { useTranslation } from "react-i18next";
+import { TaskVariableInputDialog } from "@/components/TaskVariableInputDialog";
+import { getMissingTaskVariableInputNames } from "../../../shared/taskVariableInputs";
 
 // Helper function to normalize photoUrls to object format
 const normalizePhotoUrls = (photoUrls: any): Array<{ url: string; filename: string }> => {
@@ -49,6 +51,8 @@ interface Task {
   dueDate?: Date | string | null;
   isSpecialOccurrence?: boolean;
   specialName?: string;
+  projectIds?: number[] | null;
+  variableInputNames?: string[] | null;
 }
 
 interface CompleteTaskDialogProps {
@@ -87,10 +91,21 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
   const [balanceEfforts, setBalanceEfforts] = useState<BalanceEffortDraft[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showVariableInputDialog, setShowVariableInputDialog] = useState(false);
   const prevOpenRef = useRef(open);
   
   const { household, member } = useCompatAuth();
   const createBalanceEntryMutation = trpc.balance.create.useMutation();
+  const configuredVariableNames = Array.isArray(task?.variableInputNames) ? task.variableInputNames : [];
+  const { data: documentedVariableInputs = [] } = trpc.tasks.listVariableInputs.useQuery(
+    { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
+    { enabled: Boolean(open && household?.householdId && task?.id && configuredVariableNames.length > 0) },
+  );
+  const missingVariableNames = getMissingTaskVariableInputNames(configuredVariableNames, documentedVariableInputs);
+  const { data: completionProjectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
+    { projectIds: task?.projectIds ?? [] },
+    { enabled: Boolean(open && task?.projectIds?.length) },
+  );
   
   // Load shopping categories (use as inventory categories)
   const { data: inventoryCategories = [] } = trpc.shopping.listCategories.useQuery(
@@ -145,6 +160,10 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
 
   const handleSubmit = async () => {
     if (!task) return;
+
+    if (missingVariableNames.length > 0) {
+      return;
+    }
 
     // Validate: Check if all selected items have a valid category
     const invalidItems = Array.from(selectedItems).filter(itemId => {
@@ -272,6 +291,16 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
               </div>
             )}
           </div>
+
+          {missingVariableNames.length > 0 && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+              <p className="text-sm font-semibold">{t("tasks:variableInput.completionRequired", "Vor dem Abschluss fehlen noch dokumentierte Variablen.")}</p>
+              <p className="mt-1 text-sm">{missingVariableNames.join(", ")}</p>
+              <Button type="button" size="sm" className="mt-3" onClick={() => setShowVariableInputDialog(true)}>
+                {t("tasks:variableInput.documentMissing", "Fehlende Eingaben dokumentieren")}
+              </Button>
+            </div>
+          )}
 
           {/* Comment */}
           <div className="space-y-2">
@@ -674,7 +703,7 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={isSubmitting || isUploading || (() => {
+            disabled={isSubmitting || isUploading || missingVariableNames.length > 0 || (() => {
               const invalidItems = Array.from(selectedItems).filter(itemId => {
                 const data = inventoryData[itemId];
                 return !data || !data.categoryId || data.categoryId === 0;
@@ -693,6 +722,14 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <TaskVariableInputDialog
+        open={showVariableInputDialog}
+        onOpenChange={setShowVariableInputDialog}
+        task={task}
+        variables={completionProjectVariables[task.projectIds?.[0] ?? -1]}
+        onlyVariableNames={missingVariableNames}
+      />
     </Dialog>
   );
 };

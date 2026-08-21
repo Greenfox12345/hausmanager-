@@ -45,7 +45,8 @@
     "change_proposal_rejected": "Change proposal rejected",
     "balance_entry_created": "Balance effort recorded",
     "balance_entry_updated": "Balance effort updated",
-    "balance_entry_deleted": "Balance effort deleted"
+    "balance_entry_deleted": "Balance effort deleted",
+    "variable_input": "Variable input"
   },
   "fields": {
     "date": "Date",

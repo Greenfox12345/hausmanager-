@@ -653,5 +653,26 @@
     "title": "Commentaires",
     "placeholder": "Écrire un commentaire …",
     "add": "Ajouter un commentaire"
+  },
+  "variableInput": {
+    "title": "Saisir des variables",
+    "description": "Documentez la valeur déterminée pour cette tâche. Les entrées apparaissent dans l'historique de la tâche.",
+    "saved": "Saisie de variable documentée",
+    "saveError": "La saisie de variable n'a pas pu être enregistrée",
+    "open": "Saisir des variables",
+    "assignmentTitle": "Variables à documenter pour cette tâche",
+    "assignmentHint": "Ces valeurs peuvent être consignées sur la carte de la tâche ou lors de sa finalisation avec une note, une photo et un PDF.",
+    "noProjectVariables": "Aucune variable n'est disponible pour le projet sélectionné.",
+    "variable": "Variable",
+    "value": "Valeur",
+    "valuePlaceholder": "p. ex. 120",
+    "unit": "Unité",
+    "note": "Explication",
+    "notePlaceholder": "Indiquez la mesure, le calcul ou les particularités",
+    "photos": "Photo ou dessin",
+    "pdfs": "Pièces jointes PDF",
+    "save": "Enregistrer la saisie",
+    "completionRequired": "Des variables documentées sont encore requises avant la finalisation.",
+    "documentMissing": "Documenter les saisies manquantes"
   }
 }

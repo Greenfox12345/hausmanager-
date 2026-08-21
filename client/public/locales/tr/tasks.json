@@ -653,5 +653,26 @@
     "title": "Yorumlar",
     "placeholder": "Yorum yazın …",
     "add": "Yorum ekle"
+  },
+  "variableInput": {
+    "title": "Değişken gir",
+    "description": "Bu görev için belirlenen değeri belgelendirin. Kayıtlar görev geçmişinde görünür.",
+    "saved": "Değişken girişi belgelendi",
+    "saveError": "Değişken girişi kaydedilemedi",
+    "open": "Değişken gir",
+    "assignmentTitle": "Bu görev için belgelenecek değişkenler",
+    "assignmentHint": "Bu değerler görev kartında veya görev tamamlanırken not, fotoğraf ve PDF ile kaydedilebilir.",
+    "noProjectVariables": "Seçilen proje için değişken yok.",
+    "variable": "Değişken",
+    "value": "Değer",
+    "valuePlaceholder": "örn. 120",
+    "unit": "Birim",
+    "note": "Açıklama",
+    "notePlaceholder": "Ölçümü, hesabı veya özellikleri kaydedin",
+    "photos": "Fotoğraf veya çizim",
+    "pdfs": "PDF ekleri",
+    "save": "Girişi kaydet",
+    "completionRequired": "Tamamlamadan önce belgelenmesi gereken değişkenler var.",
+    "documentMissing": "Eksik girişleri belgele"
   }
 }

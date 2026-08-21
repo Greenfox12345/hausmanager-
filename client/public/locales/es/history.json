@@ -55,7 +55,8 @@
     "change_proposal_rejected": "Propuesta de cambio rechazada",
     "balance_entry_created": "Gasto registrado",
     "balance_entry_updated": "Gasto actualizado",
-    "balance_entry_deleted": "Gasto eliminado"
+    "balance_entry_deleted": "Gasto eliminado",
+    "variable_input": "Entrada de variable"
   },
   "messages": {
     "loadError": "Error al cargar el historial.",

@@ -45,7 +45,8 @@
     "change_proposal_rejected": "Değişiklik önerisi reddedildi",
     "balance_entry_created": "Bilanço kaydı eklendi",
     "balance_entry_updated": "Bilanço kaydı güncellendi",
-    "balance_entry_deleted": "Bilanço kaydı silindi"
+    "balance_entry_deleted": "Bilanço kaydı silindi",
+    "variable_input": "Değişken girişi"
   },
   "fields": {
     "date": "Tarih",

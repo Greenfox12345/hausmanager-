@@ -45,7 +45,8 @@
     "change_proposal_rejected": "Proposition de modification refusée",
     "balance_entry_created": "Effort enregistré",
     "balance_entry_updated": "Effort mis à jour",
-    "balance_entry_deleted": "Effort supprimé"
+    "balance_entry_deleted": "Effort supprimé",
+    "variable_input": "Saisie de variable"
   },
   "fields": {
     "date": "Date",

@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, CheckSquare, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, CheckSquare, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users, ClipboardPenLine } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
@@ -29,6 +29,7 @@ import { DatePickerInput } from "@/components/DatePickerInput";
 import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { PlanTaskBanner } from "@/components/PlanTaskBanner";
 import { ProjectVarText } from "@/components/ProjectVarText";
+import { TaskVariableInputDialog } from "@/components/TaskVariableInputDialog";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -61,6 +62,7 @@ export default function Tasks() {
   // Project options
   const [isProjectTask, setIsProjectTask] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
+  const [newTaskVariableInputNames, setNewTaskVariableInputNames] = useState<string[]>([]);
   const [createNewProject, setCreateNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
@@ -77,6 +79,7 @@ export default function Tasks() {
   const [milestoneDialogOpen, setMilestoneDialogOpen] = useState(false);
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [variableInputDialogOpen, setVariableInputDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   
   // Batch selection states
@@ -127,13 +130,20 @@ export default function Tasks() {
     { enabled: !!household }
   );
   const projectIdsWithTasks = useMemo(() => Array.from(new Set(tasks.flatMap((task: any) => task.projectIds ?? []))), [tasks]);
+  const projectIdsWithVariables = useMemo(
+    () => Array.from(new Set([...projectIdsWithTasks, ...selectedProjectIds])),
+    [projectIdsWithTasks, selectedProjectIds],
+  );
   const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
-    { projectIds: projectIdsWithTasks },
-    { enabled: projectIdsWithTasks.length > 0 }
+    { projectIds: projectIdsWithVariables },
+    { enabled: projectIdsWithVariables.length > 0 }
   );
   const renderTaskProjectText = (task: any, text: string | null | undefined) => (
     <ProjectVarText text={text} variables={projectVariables[task.projectIds?.[0] ?? -1]} />
   );
+  const selectedProjectVariables = useMemo(() => Array.from(new Map(
+    selectedProjectIds.flatMap((projectId) => (projectVariables[projectId] ?? []).map((variable: any) => [variable.name, variable])),
+  ).values()), [projectVariables, selectedProjectIds]);
   
   // Open task detail dialog if taskId is in URL
   useEffect(() => {
@@ -369,6 +379,7 @@ export default function Tasks() {
         })(),
         assignedTo: selectedAssignees.length > 0 ? selectedAssignees : undefined, // Array of assignees
         projectIds: isProjectTask && finalProjectIds.length > 0 ? finalProjectIds : undefined,
+        variableInputNames: isProjectTask && finalProjectIds.length > 0 ? newTaskVariableInputNames : [],
         sharedHouseholdIds: shareWithNeighbors ? sharedHouseholdIds : [],
         nonResponsiblePermission: shareWithNeighbors && sharedHouseholdIds.length > 0 ? nonResponsiblePermission : "full",
       });
@@ -438,6 +449,7 @@ export default function Tasks() {
       setExcludedMembers([]);
       setIsProjectTask(false);
       setSelectedProjectIds([]);
+      setNewTaskVariableInputNames([]);
       setCreateNewProject(false);
       setNewProjectName("");
       setNewProjectDescription("");
@@ -1047,6 +1059,34 @@ export default function Tasks() {
                       </div>
                     </div>
 
+                    {selectedProjectIds.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm">{t("tasks:variableInput.assignmentTitle", "Für diese Aufgabe zu dokumentierende Variablen")}</Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("tasks:variableInput.assignmentHint", "Diese Werte können auf der Aufgabenkarte oder beim Abschluss mit Notiz, Foto und PDF festgehalten werden.")}
+                        </p>
+                        <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border p-2">
+                          {selectedProjectVariables.length === 0 ? (
+                            <p className="p-2 text-xs text-muted-foreground">{t("tasks:variableInput.noProjectVariables", "Für das ausgewählte Projekt sind keine Variablen vorhanden.")}</p>
+                          ) : selectedProjectVariables.map((variable: any) => (
+                            <div key={variable.name} className="flex items-center gap-2 rounded p-1.5 hover:bg-muted/50">
+                              <Checkbox
+                                id={`new-task-variable-input-${variable.name}`}
+                                checked={newTaskVariableInputNames.includes(variable.name)}
+                                onCheckedChange={(checked) => setNewTaskVariableInputNames((current) => checked
+                                  ? Array.from(new Set([...current, variable.name]))
+                                  : current.filter((name) => name !== variable.name),
+                                )}
+                              />
+                              <Label htmlFor={`new-task-variable-input-${variable.name}`} className="flex-1 cursor-pointer text-sm">
+                                {variable.name}{variable.unit ? ` (${variable.unit})` : ""}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Create new project inline */}
                     <div className="space-y-2 pt-2 border-t">
                       <div className="flex items-center space-x-2">
@@ -1560,6 +1600,21 @@ export default function Tasks() {
                     <div className="grid grid-cols-2 gap-1 shrink-0">
                       {canDirectlyManageTask(task.assignedTo, member?.memberId ?? 0) && !task.isCompleted && (
                         <>
+                          {Array.isArray((task as any).variableInputNames) && (task as any).variableInputNames.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="col-span-2 justify-start text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTask(task);
+                                setVariableInputDialogOpen(true);
+                              }}
+                            >
+                              <ClipboardPenLine className="mr-1.5 h-4 w-4" />
+                              {t("tasks:variableInput.open", "Variablen eingeben")}
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -1678,6 +1733,13 @@ export default function Tasks() {
             : undefined,
         } : null}
         onSendReminder={handleSendReminder}
+      />
+
+      <TaskVariableInputDialog
+        open={variableInputDialogOpen}
+        onOpenChange={setVariableInputDialogOpen}
+        task={selectedTask}
+        variables={projectVariables[selectedTask?.projectIds?.[0] ?? -1]}
       />
 
       <TaskDetailDialog

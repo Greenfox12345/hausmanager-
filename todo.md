@@ -3891,3 +3891,9 @@
 ## Fehlerkorrektur Projektstart und Aufgabenvariablen (2026-08-18)
 - [x] Projektstartdialog tatsächlich aus den Phasenaufgaben statt aus Variablen aufbauen (Phasenaufgaben werden als unveränderte Namen und Beschreibungen mit Aufgaben-Symbol gezeigt, sodass die Anzeige nicht mehr wie Variablenkarten wirkt)
 - [x] In den Aufgabendetails einen Button „Variablen eingeben“ für relevante Projektvariablen ergänzen (Projektaufgaben öffnen einen Dialog für entsperrte Eingabevariablen mit Einheit; Speichern aktualisiert alle abhängigen Anzeigen)
+
+## Aufgabenbezogene Variableneingaben (2026-08-21)
+- [x] Beim Erstellen und Bearbeiten einer Aufgabe bestimmte Projektvariablen als erforderliche Eingaben zuordnen können
+- [x] Auf Aufgabenkarte und in Aufgabendetails eine dokumentierte Variableneingabe als Zwischenziel anbieten
+- [x] Beim Aufgabenabschluss fehlende zugeordnete Variableneingaben erfassen oder den Abschluss nachvollziehbar blockieren
+- [x] Variableneingaben mit Zeitpunkt, verantwortlichem Mitglied, Verlaufseintrag sowie optionaler Zeichnung und PDF-Anhang speichern

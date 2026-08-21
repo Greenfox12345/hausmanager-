@@ -653,5 +653,26 @@
     "title": "Comments",
     "placeholder": "Write a comment …",
     "add": "Add comment"
+  },
+  "variableInput": {
+    "title": "Enter variables",
+    "description": "Document the value determined for this task. Entries are shown in the task history.",
+    "saved": "Variable input documented",
+    "saveError": "Variable input could not be saved",
+    "open": "Enter variables",
+    "assignmentTitle": "Variables to document for this task",
+    "assignmentHint": "These values can be recorded on the task card or when completing the task with a note, photo and PDF.",
+    "noProjectVariables": "There are no variables for the selected project.",
+    "variable": "Variable",
+    "value": "Value",
+    "valuePlaceholder": "e.g. 120",
+    "unit": "Unit",
+    "note": "Explanation",
+    "notePlaceholder": "Record measurement, calculation or special circumstances",
+    "photos": "Photo or drawing",
+    "pdfs": "PDF attachments",
+    "save": "Save input",
+    "completionRequired": "Documented variables are still required before completion.",
+    "documentMissing": "Document missing inputs"
   }
 }
