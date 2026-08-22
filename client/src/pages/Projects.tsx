@@ -131,6 +131,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [editingFormulaValues, setEditingFormulaValues] = useState<Record<string, string>>({});
   const [editingOverrideValues, setEditingOverrideValues] = useState<Record<string, string>>({});
   const [varEditMode, setVarEditMode] = useState(false);
+  const [editingPhases, setEditingPhases] = useState<EditableProjectPhase[]>([]);
+  const [phaseEditMode, setPhaseEditMode] = useState(false);
 
   const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
   const { data: currentProjectTasks = [] } = trpc.tasks.list.useQuery(
@@ -169,6 +171,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       toast.success(t("plankiste:project.varsSaved", "Variablen gespeichert"));
       utils.planProjects.getWithPlanData.invalidate({ projectId });
       setVarEditMode(false);
+      setPhaseEditMode(false);
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Speichern")),
   });
@@ -211,6 +214,19 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const enableVariables = project.enableVariables ?? false;
   const isActive = project.status !== "planning";
   const getPhase = (id?: string | null) => phases.find(p => p.id === id);
+  const startPhaseEdit = () => {
+    setEditingPhases(phases.map((phase) => ({ ...phase, status: phase.status as EditableProjectPhase["status"] })));
+    setPhaseEditMode(true);
+  };
+  const savePhaseEdit = () => {
+    const retainedPhaseIds = new Set(editingPhases.map((phase) => phase.id));
+    updatePlanDataMutation.mutate({
+      projectId,
+      planPhases: editingPhases,
+      planTaskItems: taskItemsList.map((item) => item.phaseId && !retainedPhaseIds.has(item.phaseId) ? { ...item, phaseId: undefined } : item),
+      planShoppingItems: shoppingItemsList.map((item) => item.phaseId && !retainedPhaseIds.has(item.phaseId) ? { ...item, phaseId: undefined } : item),
+    });
+  };
 
   const getVariableFormula = (v: PlanVariable) => {
     const assignment = v.description ? parseVarAssignment(v.description) : null;
@@ -486,24 +502,37 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             </button>
             {activeSection === "phases" && (
               <div className="space-y-1 mt-1 pl-2">
-                {sortedPhases.map(phase => (
-                  <div key={phase.id} className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
-                      <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
-                      {phase.name}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      {phase.status === "active" && <Badge variant="outline" className="text-xs text-green-600 border-green-300">{t("plankiste:project.phaseActive", "Aktiv")}</Badge>}
-                      {phase.status === "completed" && <Badge variant="outline" className="text-xs text-gray-500">{t("plankiste:project.phaseCompleted", "Abgeschlossen")}</Badge>}
-                      {(isActive || !project.planTemplateId) && (phase.status === "pending" || !phase.status) && (
-                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => project.planTemplateId ? openPhaseStartDialog(phase.id) : activateExistingPhaseMutation.mutate({ projectId, phaseId: phase.id, householdId })} disabled={activateExistingPhaseMutation.isPending}>
-                          <Play className="w-2.5 h-2.5 mr-1" />
-                          {t("plankiste:project.startPhase", "Starten")}
-                        </Button>
-                      )}
-                    </div>
+                {!phaseEditMode ? <>
+                  <div className="mb-2 flex justify-end">
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={startPhaseEdit}>
+                      <Edit2 className="mr-1 h-3 w-3" />{t("projects:phases.edit", "Phasen bearbeiten")}
+                    </Button>
                   </div>
-                ))}
+                  {sortedPhases.map(phase => (
+                    <div key={phase.id} className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border" style={{ borderColor: phase.color, color: phase.color }}>
+                        <span className="w-2 h-2 rounded-full" style={{ background: phase.color }} />
+                        {phase.name}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {phase.status === "active" && <Badge variant="outline" className="text-xs text-green-600 border-green-300">{t("plankiste:project.phaseActive", "Aktiv")}</Badge>}
+                        {phase.status === "completed" && <Badge variant="outline" className="text-xs text-gray-500">{t("plankiste:project.phaseCompleted", "Abgeschlossen")}</Badge>}
+                        {(isActive || !project.planTemplateId) && (phase.status === "pending" || !phase.status) && (
+                          <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => project.planTemplateId ? openPhaseStartDialog(phase.id) : activateExistingPhaseMutation.mutate({ projectId, phaseId: phase.id, householdId })} disabled={activateExistingPhaseMutation.isPending}>
+                            <Play className="w-2.5 h-2.5 mr-1" />
+                            {t("plankiste:project.startPhase", "Starten")}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </> : <div className="space-y-2">
+                  <ProjectPhasesEditor phases={editingPhases} onChange={setEditingPhases} t={t} />
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setPhaseEditMode(false)}>{t("common:cancel", "Abbrechen")}</Button>
+                    <Button size="sm" className="h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white" onClick={savePhaseEdit} disabled={updatePlanDataMutation.isPending}>{t("common:save", "Speichern")}</Button>
+                  </div>
+                </div>}
               </div>
             )}
           </div>
@@ -1363,7 +1392,7 @@ export default function Projects() {
                 {t("projects:newProject", "Neues Projekt")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{t("projects:createProject", "Neues Projekt erstellen")}</DialogTitle>
               </DialogHeader>
@@ -2448,7 +2477,7 @@ export default function Projects() {
 
         {/* Edit Project Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t("projects:editProject", "Projekt bearbeiten")}</DialogTitle>
             </DialogHeader>

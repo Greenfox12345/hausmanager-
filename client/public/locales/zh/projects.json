@@ -141,6 +141,7 @@
     "pending": "尚未开始",
     "taskPhaseHint": "尚未开始的阶段中的任务会在该阶段开始后才出现在任务列表中。",
     "moveUp": "上移",
-    "moveDown": "下移"
+    "moveDown": "下移",
+    "edit": "编辑阶段"
   }
 }

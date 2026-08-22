@@ -141,6 +141,7 @@
     "pending": "Noch nicht gestartet",
     "taskPhaseHint": "Aufgaben einer noch nicht gestarteten Phase werden erst nach deren Start in der Aufgabenansicht angezeigt.",
     "moveUp": "Nach oben",
-    "moveDown": "Nach unten"
+    "moveDown": "Nach unten",
+    "edit": "Phasen bearbeiten"
   }
 }

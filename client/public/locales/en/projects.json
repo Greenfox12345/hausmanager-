@@ -141,6 +141,7 @@
     "pending": "Not started yet",
     "taskPhaseHint": "Tasks in a phase that has not started appear in the task list only after the phase starts.",
     "moveUp": "Move up",
-    "moveDown": "Move down"
+    "moveDown": "Move down",
+    "edit": "Edit phases"
   }
 }

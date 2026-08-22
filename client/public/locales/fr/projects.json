@@ -139,6 +139,7 @@
     "pending": "Pas encore démarrée",
     "taskPhaseHint": "Les tâches d'une phase non démarrée n'apparaissent dans la liste qu'après son démarrage.",
     "moveUp": "Monter",
-    "moveDown": "Descendre"
+    "moveDown": "Descendre",
+    "edit": "Modifier les phases"
   }
 }

@@ -141,6 +141,7 @@
     "pending": "Henüz başlatılmadı",
     "taskPhaseHint": "Başlatılmamış bir aşamadaki görevler, aşama başladıktan sonra görev listesinde görünür.",
     "moveUp": "Yukarı taşı",
-    "moveDown": "Aşağı taşı"
+    "moveDown": "Aşağı taşı",
+    "edit": "Aşamaları düzenle"
   }
 }

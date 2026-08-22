@@ -3922,3 +3922,7 @@
 - [x] Noch nicht gestartete Phasen in der Projektansicht ausgegraut, aber nachvollziehbar anzeigen und einzeln aktivieren
 - [x] Durchlaufbezogene Eingabevariablen als freie, begrenzte oder von anderen Variablen abhängige Eingabe in einer Aufgabe konfigurieren
 - [x] Bereichsgrenzen beim Eingeben einer Variable auswerten, sichtbar erklären und eine Bestätigung im erlaubten Bereich erzwingen
+
+## Direkte Projektphasenbearbeitung und mobile Formulare (2026-08-22)
+- [x] Phasen direkt in der geöffneten Projektansicht hinzufügen, umbenennen, färben, sortieren und entfernen können
+- [x] Erstell- und Bearbeitungsdialoge für Projekte auf Mobilgeräten und bei langen Inhalten vertikal scrollbar halten

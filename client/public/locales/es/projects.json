@@ -194,6 +194,7 @@
     "pending": "Aún no iniciada",
     "taskPhaseHint": "Las tareas de una fase no iniciada solo aparecen después de iniciar la fase.",
     "moveUp": "Subir",
-    "moveDown": "Bajar"
+    "moveDown": "Bajar",
+    "edit": "Editar fases"
   }
 }
