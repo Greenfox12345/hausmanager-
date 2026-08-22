@@ -3897,3 +3897,9 @@
 - [x] Auf Aufgabenkarte und in Aufgabendetails eine dokumentierte Variableneingabe als Zwischenziel anbieten
 - [x] Beim Aufgabenabschluss fehlende zugeordnete Variableneingaben erfassen oder den Abschluss nachvollziehbar blockieren
 - [x] Variableneingaben mit Zeitpunkt, verantwortlichem Mitglied, Verlaufseintrag sowie optionaler Zeichnung und PDF-Anhang speichern
+
+## Projektwerte aus Aufgabenvariablen und Verfügbarkeitsprüfung (2026-08-22)
+- [x] Dokumentierte Variableneingaben nach Bestätigung als tatsächlichen Wert in die zugehörige Projektvariable übernehmen
+- [x] Vor dem Projekt- und Phasenstart prüfen, ob Aufgaben nur bereits eingegebene oder aus zuvor verfügbaren Werten berechenbare Variablen verwenden
+- [x] Unzulässige Reihenfolgen mit verständlichen Hinweisen in Aufgaben- und Phasenansicht sichtbar machen
+- [x] Die Aufgaben einer Phase als bevorzugten Ort für erstmals benötigte Eingabevariablen einordnen

@@ -51,6 +51,7 @@ import { VarText } from "@/components/VarToken";
 import { evaluateFormula, parseVarAssignment, type PlanVariable } from "@/lib/varParser";
 import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
+import { analyseProjectVariableAvailability, planTaskKey } from "../../../shared/projectVariableAvailability";
 
 // ─── Plan-Sektion für Projekte aus Plankiste ──────────────────────────────────
 function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: number; householdId: number; memberId: number }) {
@@ -61,12 +62,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [activeSection, setActiveSection] = useState<"phases" | "variables" | "shopping" | "tasks" | null>(null);
   // Phasen-Auswahl im Start-Dialog
   const [selectedPhaseIds, setSelectedPhaseIds] = useState<string[]>([]);
-  // Variablen-Werte die beim Start eingegeben werden (key = varName)
-  const [inputVarValues, setInputVarValues] = useState<Record<string, string>>({});
   // Phase-Start-Dialog
   const [phaseStartDialogId, setPhaseStartDialogId] = useState<string | null>(null);
   const [phaseStartDate, setPhaseStartDate] = useState(() => new Date().toISOString().split("T")[0]);
-  const [phaseInputVarValues, setPhaseInputVarValues] = useState<Record<string, string>>({});
   // Variablen-Bearbeitung während des Projekts
   const [editingVarValues, setEditingVarValues] = useState<Record<string, string>>({});
   const [editingFormulaValues, setEditingFormulaValues] = useState<Record<string, string>>({});
@@ -160,26 +158,17 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     return variables.filter(v => usedVarNames.has(v.name) && isInputVar(v));
   };
 
-  // Beim Öffnen des Start-Dialogs: alle Phasen vorauswählen, Variablen-Werte vorausfüllen
+  // Beim Öffnen des Start-Dialogs wird nur die erste Phase vorausgewählt.
+  // Ihre Eingabevariablen werden danach über die ersten passenden Aufgaben erfasst.
   const openStartDialog = () => {
-    setSelectedPhaseIds(phases.map(p => p.id));
-    // Vorausfüllen mit bestehenden Werten
-    const prefill: Record<string, string> = {};
-    for (const v of allInputVars) {
-      if (v.value) prefill[v.name] = v.value;
-    }
-    setInputVarValues(prefill);
+    const firstPhaseId = [...phases].sort((a, b) => a.order - b.order)[0]?.id;
+    setSelectedPhaseIds(firstPhaseId ? [firstPhaseId] : []);
     setStartDialogOpen(true);
   };
 
   // Beim Öffnen des Phase-Start-Dialogs
   const openPhaseStartDialog = (phaseId: string) => {
     setPhaseStartDate(new Date().toISOString().split("T")[0]);
-    const prefill: Record<string, string> = {};
-    for (const v of getInputVarsForPhase(phaseId)) {
-      if (v.value) prefill[v.name] = v.value;
-    }
-    setPhaseInputVarValues(prefill);
     setPhaseStartDialogId(phaseId);
   };
 
@@ -243,6 +232,37 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   ).values());
 
   const sortedPhases = [...phases].sort((a, b) => a.order - b.order);
+  const variableAvailability = enableVariables
+    ? analyseProjectVariableAvailability(variables, phases, taskItemsList, shoppingItemsList)
+    : null;
+  const getPhaseVariableIssues = (phaseId: string): string[] => {
+    if (!variableAvailability) return [];
+    const issues = new Set<string>();
+    taskItemsList.forEach((task, index) => {
+      if ((task as any).phaseId !== phaseId) return;
+      const taskKey = planTaskKey(task, index);
+      const unresolved = variableAvailability.unresolvedNamesByTaskKey[taskKey] ?? [];
+      if (unresolved.length > 0) {
+        issues.add(t("plankiste:project.variableAvailability.unresolvedTask", "Die Aufgabe „{{task}}“ enthält nicht auflösbare Variablen: {{variables}}.", { task: task.name, variables: unresolved.join(", ") }));
+      }
+      for (const inputName of variableAvailability.requiredInputNamesByTaskKey[taskKey] ?? []) {
+        if (variableAvailability.availableInputNames.includes(inputName)) continue;
+        const sourceKey = variableAvailability.inputTaskKeyByName[inputName];
+        const sourcePhaseId = sourceKey ? variableAvailability.taskPhaseIdByKey[sourceKey] : null;
+        if (!sourceKey) {
+          issues.add(t("plankiste:project.variableAvailability.noInputTask", "Für „{{variable}}“ gibt es keine Aufgabe, in der der Wert erfasst werden kann.", { variable: inputName }));
+        } else if (sourcePhaseId && sourcePhaseId !== phaseId) {
+          const sourcePhase = phases.find((phase) => phase.id === sourcePhaseId);
+          issues.add(t("plankiste:project.variableAvailability.previousPhaseRequired", "„{{variable}}“ muss zuerst in Phase „{{phase}}“ dokumentiert werden.", { variable: inputName, phase: sourcePhase?.name ?? sourcePhaseId }));
+        }
+      }
+    });
+    for (const inputName of variableAvailability.unassignableInputsByPhase[phaseId] ?? []) {
+      issues.add(t("plankiste:project.variableAvailability.shoppingNeedsValue", "„{{variable}}“ wird für einen Einkaufsartikel benötigt, kann aber keiner Eingabeaufgabe zugeordnet werden.", { variable: inputName }));
+    }
+    return Array.from(issues);
+  };
+  const selectedPhaseVariableIssues = Array.from(new Set(selectedPhaseIds.flatMap(getPhaseVariableIssues)));
 
   // Render-Hilfsfunktion: Variablen-Eingabe-Block
   const renderVarInputs = (
@@ -505,20 +525,36 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                       {isSelected && phaseTasks.length > 0 && (
                         <div className="pl-6 space-y-1.5">
                           <p className="text-xs font-medium text-muted-foreground">Aufgaben</p>
-                          {phaseTasks.map((task, taskIndex) => (
+                          {phaseTasks.map((task, taskIndex) => {
+                            const originalIndex = taskItemsList.indexOf(task);
+                            const inputNames = variableAvailability?.taskInputNamesByKey[planTaskKey(task, originalIndex)] ?? [];
+                            return (
                             <div key={`${phase.id}-${task.name}-${taskIndex}`} className="text-xs text-muted-foreground flex items-start gap-1.5">
                               <CheckSquare className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                               <div>
                                 <div className="font-medium text-foreground">{task.name}</div>
                                 {task.description && <div className="line-clamp-2 mt-0.5">{task.description}</div>}
+                                {inputNames.length > 0 && <div className="mt-1 text-emerald-700 dark:text-emerald-300">{t("plankiste:project.variableAvailability.inputTask", "Erfasst zu Beginn: {{variables}}", { variables: inputNames.join(", ") })}</div>}
                               </div>
                             </div>
-                          ))}
+                          )})}
+                        </div>
+                      )}
+                      {isSelected && getPhaseVariableIssues(phase.id).length > 0 && (
+                        <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+                          {getPhaseVariableIssues(phase.id).map((issue) => <p key={issue}>• {issue}</p>)}
                         </div>
                       )}
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {selectedPhaseVariableIssues.length > 0 && (
+              <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+                <p className="font-medium">{t("plankiste:project.variableAvailability.startBlocked", "Der Start ist noch nicht möglich.")}</p>
+                {selectedPhaseVariableIssues.map((issue) => <p key={issue} className="mt-1">• {issue}</p>)}
               </div>
             )}
 
@@ -531,9 +567,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 onClick={() => startMutation.mutate({
                   projectId, householdId, memberId, startDate,
                   phasesToStart: phases.length > 0 ? selectedPhaseIds : undefined,
-                  variableValues: Object.keys(inputVarValues).length > 0 ? inputVarValues : undefined,
                 })}
-                disabled={startMutation.isPending}
+                disabled={startMutation.isPending || selectedPhaseVariableIssues.length > 0}
               >
                 <Play className="w-3.5 h-3.5 mr-1.5" />
                 {t("plankiste:project.startNow", "Jetzt starten")}
@@ -548,6 +583,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
         const phase = phases.find(p => p.id === phaseStartDialogId);
         if (!phase) return null;
         const phaseTasks = taskItemsList.filter(task => (task as any).phaseId === phaseStartDialogId);
+        const phaseVariableIssues = getPhaseVariableIssues(phaseStartDialogId);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={() => setPhaseStartDialogId(null)} />
@@ -563,15 +599,25 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               {phaseTasks.length > 0 && (
                 <div className="mb-4 p-3 bg-muted/50 border border-border rounded-lg space-y-1.5">
                   <p className="text-xs font-medium text-muted-foreground">Aufgaben</p>
-                  {phaseTasks.map((task, taskIndex) => (
+                  {phaseTasks.map((task, taskIndex) => {
+                    const originalIndex = taskItemsList.indexOf(task);
+                    const inputNames = variableAvailability?.taskInputNamesByKey[planTaskKey(task, originalIndex)] ?? [];
+                    return (
                     <div key={`${phaseStartDialogId}-${task.name}-${taskIndex}`} className="text-xs flex items-start gap-1.5">
                       <CheckSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground flex-shrink-0" />
                       <div>
                         <div className="font-medium">{task.name}</div>
                         {task.description && <div className="text-muted-foreground line-clamp-2 mt-0.5">{task.description}</div>}
+                        {inputNames.length > 0 && <div className="mt-1 text-emerald-700 dark:text-emerald-300">{t("plankiste:project.variableAvailability.inputTask", "Erfasst zu Beginn: {{variables}}", { variables: inputNames.join(", ") })}</div>}
                       </div>
                     </div>
-                  ))}
+                  )})}
+                </div>
+              )}
+              {phaseVariableIssues.length > 0 && (
+                <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+                  <p className="font-medium">{t("plankiste:project.variableAvailability.startBlocked", "Der Start ist noch nicht möglich.")}</p>
+                  {phaseVariableIssues.map((issue) => <p key={issue} className="mt-1">• {issue}</p>)}
                 </div>
               )}
               <div className="flex gap-2 justify-end">
@@ -583,9 +629,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                     projectId, householdId, memberId,
                     phaseId: phaseStartDialogId,
                     startDate: phaseStartDate,
-                    variableValues: Object.keys(phaseInputVarValues).length > 0 ? phaseInputVarValues : undefined,
                   })}
-                  disabled={startPhaseMutation.isPending}
+                  disabled={startPhaseMutation.isPending || phaseVariableIssues.length > 0}
                 >
                   <Play className="w-3.5 h-3.5 mr-1.5" />
                   {t("plankiste:project.startNow", "Jetzt starten")}

@@ -13,6 +13,7 @@ import { projects, projectHouseholds, tasks, taskDependencies, householdMembers 
 import { eq, and, inArray, desc, asc } from "drizzle-orm";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import { resolveProjectVariableQuantity } from "../../shared/projectVariableQuantity";
+import { analyseProjectVariableAvailability, planTaskKey } from "../../shared/projectVariableAvailability";
 import {
   planTemplates,
   planTemplateShoppingItems,
@@ -166,16 +167,55 @@ async function syncPlanTaskDependencies(
   }
 }
 
+/**
+ * Verknüpft erzeugte Aufgaben zusätzlich mit der Aufgabe, die einen benötigten
+ * Eingabewert dokumentiert. So kann eine Folgeaufgabe erst abgeschlossen werden,
+ * wenn der zugrunde liegende Projektwert tatsächlich erfasst wurde.
+ */
+async function syncVariableInputDependencies(
+  db: any,
+  householdId: number,
+  projectId: number,
+  planItems: ProjectPlanTaskItem[],
+  availability: ReturnType<typeof analyseProjectVariableAvailability>,
+) {
+  const projectTasks = await db.select({ id: tasks.id, planTaskItemId: tasks.planTaskItemId, projectIds: tasks.projectIds })
+    .from(tasks)
+    .where(eq(tasks.householdId, householdId));
+  const taskIdByPlanKey = new Map<string, number>();
+  for (let index = 0; index < planItems.length; index += 1) {
+    const planItem = planItems[index];
+    if (planItem.id == null) continue;
+    const projectTask = projectTasks.find((task: any) => task.planTaskItemId === planItem.id && task.projectIds?.includes(projectId));
+    if (projectTask) taskIdByPlanKey.set(planTaskKey(planItem, index), projectTask.id);
+  }
+
+  for (const [taskKey, prerequisiteKeys] of Object.entries(availability.prerequisiteInputTaskKeysByKey)) {
+    const taskId = taskIdByPlanKey.get(taskKey);
+    if (!taskId) continue;
+    for (const prerequisiteKey of prerequisiteKeys) {
+      const prerequisiteTaskId = taskIdByPlanKey.get(prerequisiteKey);
+      if (prerequisiteTaskId && prerequisiteTaskId !== taskId) {
+        await insertBidirectionalDependencies(db, taskId, [prerequisiteTaskId], []);
+      }
+    }
+  }
+}
+
 async function linkCreatedPlanTasks(
   db: any,
   createdTaskIds: number[],
   startedPlanItems: ProjectPlanTaskItem[],
+  variableInputNamesByPlanTaskKey: Record<string, string[]> = {},
 ) {
   for (let index = 0; index < createdTaskIds.length; index += 1) {
     const taskId = createdTaskIds[index];
     const planTaskItemId = startedPlanItems[index]?.id;
     if (planTaskItemId == null) continue;
-    await db.update(tasks).set({ planTaskItemId }).where(eq(tasks.id, taskId));
+    await db.update(tasks).set({
+      planTaskItemId,
+      variableInputNames: variableInputNamesByPlanTaskKey[planTaskKey(startedPlanItems[index], index)] ?? [],
+    }).where(eq(tasks.id, taskId));
   }
 }
 
@@ -689,6 +729,71 @@ function resolveVarQuantity(
   return resolveProjectVariableQuantity(quantity, variables);
 }
 
+/**
+ * Verhindert, dass eine Phase Aufgaben oder Einkaufsartikel mit Werten startet,
+ * die weder bereits im Projekt gespeichert sind noch in einer gleichzeitig
+ * erzeugten Eingabeaufgabe dokumentiert werden können.
+ */
+function assertStartedItemsHaveAvailableVariables(
+  variables: PlanVariable[],
+  phases: Array<{ id: string; order: number; name: string }>,
+  taskItems: ProjectPlanTaskItem[],
+  shoppingItems: ProjectPlanShoppingItem[],
+  selectedPhaseIds: string[] | null,
+) {
+  const analysis = analyseProjectVariableAvailability(variables, phases, taskItems, shoppingItems);
+  const shouldStartTask = (task: ProjectPlanTaskItem) => selectedPhaseIds === null || !task.phaseId || selectedPhaseIds.includes(task.phaseId);
+  const shouldStartShopping = (item: ProjectPlanShoppingItem) => selectedPhaseIds === null || !item.phaseId || selectedPhaseIds.includes(item.phaseId);
+  const selectedTaskKeys = new Set(taskItems
+    .map((task, index) => ({ task, key: planTaskKey(task, index) }))
+    .filter(({ task }) => shouldStartTask(task))
+    .map(({ key }) => key));
+  const messages = new Set<string>();
+
+  for (let index = 0; index < taskItems.length; index += 1) {
+    const task = taskItems[index];
+    if (!shouldStartTask(task)) continue;
+    const key = planTaskKey(task, index);
+    const unresolved = analysis.unresolvedNamesByTaskKey[key] ?? [];
+    if (unresolved.length > 0) {
+      messages.add(`Aufgabe „${task.name}“ verwendet nicht auflösbare Variablen: ${unresolved.join(", ")}.`);
+    }
+    for (const inputName of analysis.requiredInputNamesByTaskKey[key] ?? []) {
+      if (analysis.availableInputNames.includes(inputName)) continue;
+      const sourceTaskKey = analysis.inputTaskKeyByName[inputName];
+      if (!sourceTaskKey || !selectedTaskKeys.has(sourceTaskKey)) {
+        messages.add(`Für Aufgabe „${task.name}“ muss „${inputName}“ vorher in einer gestarteten Eingabeaufgabe erfasst werden.`);
+      } else {
+        const sourcePhaseId = analysis.taskPhaseIdByKey[sourceTaskKey] ?? null;
+        const dependentPhaseId = task.phaseId ?? null;
+        if (selectedPhaseIds !== null && sourcePhaseId && dependentPhaseId && sourcePhaseId !== dependentPhaseId) {
+          messages.add(`Aufgabe „${task.name}“ verwendet „${inputName}“ aus einer gleichzeitig gestarteten früheren Phase. Starte die Folgephase erst nach der dokumentierten Eingabe.`);
+        }
+      }
+    }
+  }
+
+  for (let shoppingIndex = 0; shoppingIndex < shoppingItems.length; shoppingIndex += 1) {
+    const item = shoppingItems[shoppingIndex];
+    if (!shouldStartShopping(item)) continue;
+    const key = `index:${shoppingIndex}`;
+    const unresolved = analysis.unresolvedNamesByShoppingKey[key] ?? [];
+    if (unresolved.length > 0) {
+      messages.add(`Einkaufsartikel „${item.name}“ verwendet nicht auflösbare Variablen: ${unresolved.join(", ")}.`);
+    }
+    for (const inputName of analysis.requiredInputNamesByShoppingKey[key] ?? []) {
+      if (!analysis.availableInputNames.includes(inputName)) {
+        messages.add(`Für Einkaufsartikel „${item.name}“ muss „${inputName}“ bereits als Projektwert erfasst sein.`);
+      }
+    }
+  }
+
+  if (messages.size > 0) {
+    throw new Error(Array.from(messages).join(" "));
+  }
+  return analysis;
+}
+
 export const planProjectsRouter = router({
   /** Projekt aus einer Plankiste-Vorlage erstellen */
   createFromTemplate: protectedProcedure
@@ -804,25 +909,28 @@ export const planProjectsRouter = router({
           const newVal = input.variableValues![v.name];
           return newVal !== undefined ? { ...v, value: newVal } as PlanVariable : v;
         }) as PlanVariable[];
-        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
       }
       const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
       const phasesToStart = input.phasesToStart ?? null;
+      const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
+      const variableAvailability = assertStartedItemsHaveAvailableVariables(updatedVariables, phases, taskItemsList, shoppingItemsList, phasesToStart);
       const updatedPhases = phases.map(ph => ({
         ...ph,
         status: ((phasesToStart === null || phasesToStart.includes(ph.id)) ? "active" : (ph.status ?? "pending")) as "active" | "completed" | "pending",
       }));
+      if (input.variableValues && Object.keys(input.variableValues).length > 0) {
+        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
+      }
       if (phases.length > 0) {
         await db.update(projectsExtended).set({ planPhases: updatedPhases as any }).where(eq(projectsExtended.id, input.projectId));
       }
-      const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
-      const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
       const createdTaskIds: number[] = [];
       const createdShoppingIds: number[] = [];
       for (const item of taskItemsList) {
         const phaseId = (item as any).phaseId;
         if (phasesToStart !== null && phaseId && !phasesToStart.includes(phaseId)) continue;
-        // Übertragung beim initialen Projektstart (Planaufgaben-Mapping)
+        // Übertragung beim initialen Projektstart mit vorbereiteter Variableneingabe
         let dueDate: Date | undefined;
         if (item.daysOffset != null) {
           dueDate = new Date(startDate);
@@ -871,8 +979,10 @@ export const planProjectsRouter = router({
           const phaseId = (item as any).phaseId;
           return phasesToStart === null || !phaseId || phasesToStart.includes(phaseId);
         }),
+        variableAvailability.taskInputNamesByKey,
       );
       await syncPlanTaskDependencies(db, input.householdId, input.projectId, taskItemsList);
+      await syncVariableInputDependencies(db, input.householdId, input.projectId, taskItemsList, variableAvailability);
       await db.update(projectsExtended).set({ status: "active", startDate: startDate }).where(eq(projectsExtended.id, input.projectId));
       const household = await getHouseholdById(input.householdId);
       const lang = ((household?.language || "de") as "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar");
@@ -910,13 +1020,16 @@ export const planProjectsRouter = router({
           const newVal = input.variableValues![v.name];
           return newVal !== undefined ? { ...v, value: newVal } as PlanVariable : v;
         }) as PlanVariable[];
-        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
       }
       const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
-      const updatedPhases = phases.map(ph => ph.id === input.phaseId ? { ...ph, status: "active" as const } : ph);
-      await db.update(projectsExtended).set({ planPhases: updatedPhases as any }).where(eq(projectsExtended.id, input.projectId));
       const taskItemsList = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
       const shoppingItemsList = (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[];
+      const variableAvailability = assertStartedItemsHaveAvailableVariables(updatedVariables, phases, taskItemsList, shoppingItemsList, [input.phaseId]);
+      const updatedPhases = phases.map(ph => ph.id === input.phaseId ? { ...ph, status: "active" as const } : ph);
+      if (input.variableValues && Object.keys(input.variableValues).length > 0) {
+        await db.update(projectsExtended).set({ planVariables: updatedVariables as PlanVariable[] }).where(eq(projectsExtended.id, input.projectId));
+      }
+      await db.update(projectsExtended).set({ planPhases: updatedPhases as any }).where(eq(projectsExtended.id, input.projectId));
       const createdTaskIds: number[] = [];
       const createdShoppingIds: number[] = [];
       for (const item of taskItemsList) {
@@ -966,8 +1079,10 @@ export const planProjectsRouter = router({
         db,
         createdTaskIds,
         taskItemsList.filter((item) => (item as any).phaseId === input.phaseId),
+        variableAvailability.taskInputNamesByKey,
       );
       await syncPlanTaskDependencies(db, input.householdId, input.projectId, taskItemsList);
+      await syncVariableInputDependencies(db, input.householdId, input.projectId, taskItemsList, variableAvailability);
       return { createdTaskIds, createdShoppingIds };
     }),
 

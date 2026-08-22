@@ -344,7 +344,15 @@
     "overrideValue": "覆盖结果（可选）",
     "variableOverride": "已手动覆盖",
     "enterVariables": "输入变量",
-    "locked": "此变量已锁定。"
+    "locked": "此变量已锁定。",
+    "variableAvailability": {
+      "inputTask": "开始时记录：{{variables}}",
+      "startBlocked": "暂时无法开始。",
+      "unresolvedTask": "任务“{{task}}”包含无法解析的变量：{{variables}}。",
+      "noInputTask": "没有可记录“{{variable}}”数值的任务。",
+      "previousPhaseRequired": "必须先在阶段“{{phase}}”中记录“{{variable}}”。",
+      "shoppingNeedsValue": "购物项目需要“{{variable}}”，但无法将其分配给输入任务。"
+    }
   },
   "tasks": {
     "title": "任务"

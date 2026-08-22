@@ -344,7 +344,15 @@
     "overrideValue": "Sobrescribir resultado (opcional)",
     "variableOverride": "Sobrescrito manualmente",
     "enterVariables": "Introducir variables",
-    "locked": "Esta variable está bloqueada."
+    "locked": "Esta variable está bloqueada.",
+    "variableAvailability": {
+      "inputTask": "Registrar al inicio: {{variables}}",
+      "startBlocked": "Aún no es posible iniciar.",
+      "unresolvedTask": "La tarea «{{task}}» contiene variables que no se pueden resolver: {{variables}}.",
+      "noInputTask": "No hay ninguna tarea en la que se pueda registrar un valor para «{{variable}}».",
+      "previousPhaseRequired": "Primero se debe documentar «{{variable}}» en la fase «{{phase}}».",
+      "shoppingNeedsValue": "«{{variable}}» se necesita para un artículo de compra, pero no puede asignarse a una tarea de entrada."
+    }
   },
   "tasks": {
     "title": "Tareas"

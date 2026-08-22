@@ -344,7 +344,15 @@
     "overrideValue": "Sonucu geçersiz kıl (isteğe bağlı)",
     "variableOverride": "Elle geçersiz kılındı",
     "enterVariables": "Değişkenleri gir",
-    "locked": "Bu değişken kilitli."
+    "locked": "Bu değişken kilitli.",
+    "variableAvailability": {
+      "inputTask": "Başlangıçta kaydedilecek: {{variables}}",
+      "startBlocked": "Başlatmak henüz mümkün değil.",
+      "unresolvedTask": "“{{task}}” görevi çözülemeyen değişkenler içeriyor: {{variables}}.",
+      "noInputTask": "“{{variable}}” için değer kaydedilebilecek bir görev yok.",
+      "previousPhaseRequired": "“{{variable}}” önce “{{phase}}” aşamasında belgelenmelidir.",
+      "shoppingNeedsValue": "“{{variable}}” bir alışveriş ürünü için gerekli, ancak giriş görevine atanamıyor."
+    }
   },
   "tasks": {
     "title": "Görevler"

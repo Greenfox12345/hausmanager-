@@ -673,6 +673,7 @@
     "pdfs": "PDF attachments",
     "save": "Save input",
     "completionRequired": "Documented variables are still required before completion.",
-    "documentMissing": "Document missing inputs"
+    "documentMissing": "Document missing inputs",
+    "projectValueUpdate": "Saving also updates the current value of the project variable."
   }
 }

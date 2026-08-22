@@ -673,6 +673,7 @@
     "pdfs": "PDF ekleri",
     "save": "Girişi kaydet",
     "completionRequired": "Tamamlamadan önce belgelenmesi gereken değişkenler var.",
-    "documentMissing": "Eksik girişleri belgele"
+    "documentMissing": "Eksik girişleri belgele",
+    "projectValueUpdate": "Kaydetme işlemi proje değişkeninin güncel değerini de günceller."
   }
 }

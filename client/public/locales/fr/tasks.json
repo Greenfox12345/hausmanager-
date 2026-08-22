@@ -673,6 +673,7 @@
     "pdfs": "Pièces jointes PDF",
     "save": "Enregistrer la saisie",
     "completionRequired": "Des variables documentées sont encore requises avant la finalisation.",
-    "documentMissing": "Documenter les saisies manquantes"
+    "documentMissing": "Documenter les saisies manquantes",
+    "projectValueUpdate": "L'enregistrement met également à jour la valeur actuelle de la variable du projet."
   }
 }

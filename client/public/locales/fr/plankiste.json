@@ -344,7 +344,15 @@
     "overrideValue": "Remplacer le résultat (facultatif)",
     "variableOverride": "Remplacé manuellement",
     "enterVariables": "Saisir les variables",
-    "locked": "Cette variable est verrouillée."
+    "locked": "Cette variable est verrouillée.",
+    "variableAvailability": {
+      "inputTask": "À enregistrer au début : {{variables}}",
+      "startBlocked": "Le démarrage n'est pas encore possible.",
+      "unresolvedTask": "La tâche « {{task}} » contient des variables non résolues : {{variables}}.",
+      "noInputTask": "Aucune tâche ne permet d'enregistrer une valeur pour « {{variable}} ».",
+      "previousPhaseRequired": "« {{variable}} » doit d'abord être documentée dans la phase « {{phase}} ».",
+      "shoppingNeedsValue": "« {{variable}} » est nécessaire pour un article d'achat, mais ne peut être attribuée à aucune tâche de saisie."
+    }
   },
   "tasks": {
     "title": "Tâches"

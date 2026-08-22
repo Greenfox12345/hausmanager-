@@ -59,12 +59,13 @@ function taskVariableInputRecordedText(lang: Lang, memberName: string, taskName:
   if (lang === "ar") return `وثّق ${memberName} المتغير «${variableName}» بالقيمة ${value} للمهمة «${taskName}».`;
   return `${memberName} hat für „${taskName}“ die Variable „${variableName}“ mit ${value} dokumentiert.`;
 }
-import { taskRotationExclusions, activityHistory, projects, shoppingCategories, taskCategoryAssignments, taskVariableInputs } from "../../drizzle/schema";
+import { taskRotationExclusions, activityHistory, projects, projectsExtended, shoppingCategories, taskCategoryAssignments, taskVariableInputs } from "../../drizzle/schema";
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import { getTaskDueDateParts } from "../../shared/taskProposalApproval";
+import { isProjectInputVariable } from "../../shared/projectVariableAvailability";
 
 // ─── German label helpers ───────────────────────────────────────────────────
 
@@ -484,12 +485,34 @@ export const tasksRouter = router({
       if (input.projectId !== undefined && !taskProjectIds.includes(input.projectId)) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Das Projekt gehört nicht zu dieser Aufgabe." });
       }
+      const projectId = input.projectId ?? taskProjectIds[0];
+      if (!projectId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Für diese Aufgabe ist kein Projekt für die Variablenübernahme hinterlegt." });
+      }
 
       const member = await getHouseholdMemberById(input.memberId);
       if (!member || member.householdId !== input.householdId) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Haushaltsmitglied nicht gefunden." });
       }
       const db = (await getDb())!;
+      const [project] = await db.select({ id: projectsExtended.id, planVariables: projectsExtended.planVariables })
+        .from(projectsExtended)
+        .where(eq(projectsExtended.id, projectId));
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projekt nicht gefunden." });
+      }
+      const projectVariables = Array.isArray(project.planVariables) ? project.planVariables as any[] : [];
+      const projectVariable = projectVariables.find((variable) => variable.name === input.variableName);
+      if (!projectVariable) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Diese Projektvariable ist nicht mehr verfügbar." });
+      }
+      if (!isProjectInputVariable(projectVariable)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Nur Eingabevariablen können durch eine Aufgabe direkt gesetzt werden." });
+      }
+      const updatedProjectVariables = projectVariables.map((variable) => variable.name === input.variableName
+        ? { ...variable, value: input.value, ...(input.unit ? { unit: input.unit } : {}) }
+        : variable,
+      );
       const result = await db.insert(taskVariableInputs).values({
         householdId: input.householdId,
         taskId: input.taskId,
@@ -503,6 +526,9 @@ export const tasksRouter = router({
         recordedByMemberId: input.memberId,
       });
       const id = Number(result[0].insertId);
+      await db.update(projectsExtended)
+        .set({ planVariables: updatedProjectVariables })
+        .where(eq(projectsExtended.id, projectId));
       const displayValue = `${input.value}${input.unit ? ` ${input.unit}` : ""}`;
       const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
@@ -514,6 +540,8 @@ export const tasksRouter = router({
         relatedItemId: input.taskId,
         metadata: {
           taskVariableInputId: id,
+          projectId,
+          projectVariableUpdated: true,
           variableName: input.variableName,
           value: input.value,
           unit: input.unit || null,
@@ -522,7 +550,7 @@ export const tasksRouter = router({
           fileCount: input.fileUrls?.length ?? 0,
         },
       });
-      return { id };
+      return { id, projectId, projectVariableUpdated: true };
     }),
 
   // Add new task

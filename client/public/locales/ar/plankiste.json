@@ -344,7 +344,15 @@
     "overrideValue": "تجاوز النتيجة (اختياري)",
     "variableOverride": "تم التجاوز يدويًا",
     "enterVariables": "إدخال المتغيرات",
-    "locked": "هذا المتغير مقفل."
+    "locked": "هذا المتغير مقفل.",
+    "variableAvailability": {
+      "inputTask": "يُسجَّل في البداية: {{variables}}",
+      "startBlocked": "لا يمكن البدء بعد.",
+      "unresolvedTask": "تحتوي المهمة «{{task}}» على متغيرات لا يمكن حلها: {{variables}}.",
+      "noInputTask": "لا توجد مهمة يمكن تسجيل قيمة «{{variable}}» فيها.",
+      "previousPhaseRequired": "يجب توثيق «{{variable}}» أولاً في المرحلة «{{phase}}».",
+      "shoppingNeedsValue": "يلزم «{{variable}}» لعنصر تسوق، ولكن لا يمكن إسناده إلى مهمة إدخال."
+    }
   },
   "tasks": {
     "title": "المهام"

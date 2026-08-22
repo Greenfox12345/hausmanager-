@@ -673,6 +673,7 @@
     "pdfs": "PDF 附件",
     "save": "保存输入",
     "completionRequired": "完成任务前仍有变量需要记录。",
-    "documentMissing": "记录缺失输入"
+    "documentMissing": "记录缺失输入",
+    "projectValueUpdate": "保存时也会更新项目变量的当前数值。"
   }
 }

@@ -30,6 +30,7 @@ import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { PlanTaskBanner } from "@/components/PlanTaskBanner";
 import { ProjectVarText } from "@/components/ProjectVarText";
 import { TaskVariableInputDialog } from "@/components/TaskVariableInputDialog";
+import { isProjectInputVariable } from "../../../shared/projectVariableAvailability";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -142,7 +143,9 @@ export default function Tasks() {
     <ProjectVarText text={text} variables={projectVariables[task.projectIds?.[0] ?? -1]} />
   );
   const selectedProjectVariables = useMemo(() => Array.from(new Map(
-    selectedProjectIds.flatMap((projectId) => (projectVariables[projectId] ?? []).map((variable: any) => [variable.name, variable])),
+    selectedProjectIds.flatMap((projectId) => (projectVariables[projectId] ?? [])
+      .filter((variable: any) => isProjectInputVariable(variable))
+      .map((variable: any) => [variable.name, variable])),
   ).values()), [projectVariables, selectedProjectIds]);
   
   // Open task detail dialog if taskId is in URL

@@ -344,7 +344,15 @@
     "overrideValue": "Override result (optional)",
     "variableOverride": "Manually overridden",
     "enterVariables": "Enter variables",
-    "locked": "This variable is locked."
+    "locked": "This variable is locked.",
+    "variableAvailability": {
+      "inputTask": "Record at the start: {{variables}}",
+      "startBlocked": "The start is not possible yet.",
+      "unresolvedTask": "The task “{{task}}” contains variables that cannot be resolved: {{variables}}.",
+      "noInputTask": "There is no task where a value can be recorded for “{{variable}}”.",
+      "previousPhaseRequired": "“{{variable}}” must first be documented in phase “{{phase}}”.",
+      "shoppingNeedsValue": "“{{variable}}” is required for a shopping item but cannot be assigned to an input task."
+    }
   },
   "tasks": {
     "title": "Tasks"

@@ -39,6 +39,7 @@ import { buildProposalDisplayEntries, recurrenceProposalFields } from "../../../
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../../shared/taskPermissions";
 import { ProjectVarText } from "@/components/ProjectVarText";
 import { TaskVariableInputDialog } from "@/components/TaskVariableInputDialog";
+import { isProjectInputVariable } from "../../../shared/projectVariableAvailability";
 import { formatActivityAction, formatTaskHistoryValue, getHistoryChangeValue } from "@/lib/activityHistoryDisplay";
 import {
   getFollowupClosure,
@@ -264,7 +265,9 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { projectIds: activeVariableProjectIds },
     { enabled: Boolean(activeVariableProjectIds.length) && open }
   );
-  const selectableProjectVariables = activeVariableProjectIds.flatMap((projectId) => projectVariables[projectId] ?? []);
+  const selectableProjectVariables = activeVariableProjectIds
+    .flatMap((projectId) => projectVariables[projectId] ?? [])
+    .filter((variable: any) => isProjectInputVariable(variable));
   const taskProjectId = task?.projectIds?.[0];
   const { data: taskProjectData } = trpc.planProjects.getWithPlanData.useQuery(
     { projectId: taskProjectId ?? 0 },

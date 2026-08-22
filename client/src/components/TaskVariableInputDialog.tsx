@@ -56,6 +56,8 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
           utils.tasks.listVariableInputs.invalidate({ householdId: household.householdId, taskId: task.id }),
           utils.activities.getByTaskId.invalidate({ householdId: household.householdId, taskId: task.id }),
           utils.tasks.list.invalidate({ householdId: household.householdId }),
+          utils.planProjects.getWithPlanData.invalidate({ projectId: task.projectIds?.[0] ?? 0 }),
+          utils.planProjects.getVariablesForProjects.invalidate(),
         ]);
       }
       toast.success(t("tasks:variableInput.saved", "Variableneingabe dokumentiert"));
@@ -115,6 +117,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
           </DialogTitle>
           <DialogDescription>
             {t("tasks:variableInput.description", "Dokumentieren Sie den für diese Aufgabe ermittelten Wert. Einträge erscheinen im Verlauf der Aufgabe.")}
+            <span className="mt-1 block">{t("tasks:variableInput.projectValueUpdate", "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert.")}</span>
           </DialogDescription>
         </DialogHeader>
 

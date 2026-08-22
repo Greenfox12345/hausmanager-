@@ -344,7 +344,15 @@
     "overrideValue": "Ergebnis überschreiben (optional)",
     "variableOverride": "Manuell überschrieben",
     "enterVariables": "Variablen eingeben",
-    "locked": "Diese Variable ist gesperrt."
+    "locked": "Diese Variable ist gesperrt.",
+    "variableAvailability": {
+      "inputTask": "Erfasst zu Beginn: {{variables}}",
+      "startBlocked": "Der Start ist noch nicht möglich.",
+      "unresolvedTask": "Die Aufgabe „{{task}}“ enthält nicht auflösbare Variablen: {{variables}}.",
+      "noInputTask": "Für „{{variable}}“ gibt es keine Aufgabe, in der der Wert erfasst werden kann.",
+      "previousPhaseRequired": "„{{variable}}“ muss zuerst in Phase „{{phase}}“ dokumentiert werden.",
+      "shoppingNeedsValue": "„{{variable}}“ wird für einen Einkaufsartikel benötigt, kann aber keiner Eingabeaufgabe zugeordnet werden."
+    }
   },
   "tasks": {
     "title": "Aufgaben"
