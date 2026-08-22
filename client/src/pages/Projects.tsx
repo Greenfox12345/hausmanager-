@@ -186,15 +186,20 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   });
 
   const storedVariables = ((project as any)?.planVariables ?? []) as PlanVariable[];
-  const storedPlanTasks = ((project as any)?.planTaskItems ?? []) as Array<{ name?: string; description?: string | null }>;
+  const storedPlanTasks = ((project as any)?.planTaskItems ?? []) as Array<{ id?: number; taskId?: number; name?: string; description?: string | null; variableInputNames?: string[] }>;
   const projectTasksForRecognition = currentProjectTasks.filter((task: any) => task.projectIds?.includes(projectId));
   const inputTaskByVariableName = useMemo(() => {
     const mapping: Record<string, number> = {};
+    storedPlanTasks.forEach((task) => {
+      const taskId = Number(task.id ?? task.taskId);
+      if (!Number.isFinite(taskId)) return;
+      (task.variableInputNames ?? []).forEach((name: string) => { mapping[name] = taskId; });
+    });
     projectTasksForRecognition.forEach((task: any) => {
       (task.variableInputNames ?? []).forEach((name: string) => { mapping[name] = task.id; });
     });
     return mapping;
-  }, [projectTasksForRecognition]);
+  }, [storedPlanTasks, projectTasksForRecognition]);
   const recognizedProjectVariables = useMemo(() => {
     let merged = storedVariables;
     const sourceItems = [...storedPlanTasks, ...projectTasksForRecognition];

@@ -162,6 +162,8 @@ export interface PlanVariable {
   inputScope?: "fixed" | "runtime";
   /** Im aktuellen Projektdurchlauf mit einer Eingabeaufgabe bestätigte Herleitung oder Definition. */
   runtimeDefinition?: string;
+  /** Kennzeichnet den erst durch den Abschluss der Eingabeaufgabe bestätigten Durchlaufwert. */
+  runtimeConfirmed?: boolean;
 }
 
 export function mergeVarsFromText(

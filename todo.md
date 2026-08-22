@@ -3937,3 +3937,6 @@
 - [x] Der Eingabedialog einer zugeordneten Aufgabe soll Wert, Einheit und Definition der Variable sichtbar und bearbeitbar machen
 - [x] Dokumentierte Variablenwerte erst beim Abschließen der zugeordneten Aufgabe verbindlich als Projektwert bestätigen
 - [x] Bereits vorliegende Eingaben und Definitionen im Abschlussdialog einer Variablenaufgabe vollständig vorausfüllen und bestätigen
+
+## Fehlerkorrektur: Eingabeaufgaben-Zuordnung (2026-08-22)
+- [x] Das Speichern der Auswahl „In dieser Aufgabe eingeben“ für eine durchlaufbezogene Projektvariable reparieren

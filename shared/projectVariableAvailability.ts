@@ -4,6 +4,7 @@ export type AvailabilityVariable = {
   overrideValue?: string | null;
   description?: string | null;
   inputScope?: "fixed" | "runtime" | null;
+  runtimeConfirmed?: boolean | null;
 };
 
 export type AvailabilityPhase = {
@@ -130,7 +131,9 @@ export function analyseProjectVariableAvailability(
       return phaseDifference || ((left.task.sortOrder ?? left.index) - (right.task.sortOrder ?? right.index));
     });
   const availableInputNames = variables
-    .filter((variable) => isProjectInputVariable(variable) && Boolean(variable.value?.trim()))
+    .filter((variable) => isProjectInputVariable(variable) && Boolean(variable.value?.trim()) && (
+      variable.inputScope !== "runtime" || variable.runtimeConfirmed === true
+    ))
     .map((variable) => variable.name);
   const availableInputs = new Set(availableInputNames);
   const inputTaskKeyByName: Record<string, string | undefined> = {};
@@ -144,7 +147,7 @@ export function analyseProjectVariableAvailability(
   for (const entry of orderedTasks) {
     for (const name of entry.task.variableInputNames ?? []) {
       const variable = variables.find((candidate) => candidate.name === name);
-      if (variable && isProjectRuntimeInputVariable(variable) && !availableInputs.has(name)) {
+      if (variable && isProjectRuntimeInputVariable(variable)) {
         inputTaskKeyByName[name] = entry.key;
       }
     }

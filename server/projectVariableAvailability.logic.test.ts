@@ -56,4 +56,15 @@ describe("Projektvariablen-Verfügbarkeit", () => {
     expect(analysis.taskInputNamesByKey["id:32"]).toContain("Hoehe");
     expect(analysis.prerequisiteInputTaskKeysByKey["id:31"]).toContain("id:32");
   });
+
+  it("behandelt einen noch unbestätigten Durchlaufwert weiterhin als erforderliche Eingabe", () => {
+    const analysis = analyseProjectVariableAvailability([
+      { name: "Hoehe", value: "1", inputScope: "runtime" as const },
+    ], [{ id: "bau", order: 0 }], [
+      { id: 41, name: "Konkrete Höhe messen", phaseId: "bau", variableInputNames: ["Hoehe"] },
+    ]);
+
+    expect(analysis.availableInputNames).not.toContain("Hoehe");
+    expect(analysis.taskInputNamesByKey["id:41"]).toEqual(["Hoehe"]);
+  });
 });

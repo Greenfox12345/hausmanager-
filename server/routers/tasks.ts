@@ -115,6 +115,7 @@ async function confirmRuntimeTaskVariableInputs(task: any, householdId: number, 
       value: latest.value,
       ...(latest.unit ? { unit: latest.unit } : {}),
       ...(latest.definition ? { runtimeDefinition: latest.definition } : {}),
+      runtimeConfirmed: true,
     } : variable;
   });
   await db.update(projectsExtended).set({ planVariables: updatedVariables }).where(eq(projectsExtended.id, projectId));
