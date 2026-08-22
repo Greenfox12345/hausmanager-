@@ -3926,3 +3926,8 @@
 ## Direkte Projektphasenbearbeitung und mobile Formulare (2026-08-22)
 - [x] Phasen direkt in der geöffneten Projektansicht hinzufügen, umbenennen, färben, sortieren und entfernen können
 - [x] Erstell- und Bearbeitungsdialoge für Projekte auf Mobilgeräten und bei langen Inhalten vertikal scrollbar halten
+
+## Phasenanzeige und Aufgabenzuordnung (2026-08-22)
+- [x] Projektphasen in der geöffneten Projektansicht zuverlässig anzeigen
+- [x] In der Projektseite Voraussetzungen und Folgeaufgaben ausschließlich auf Aufgaben dieses Projekts beschränken
+- [x] Phasenzuordnung beim Erstellen und Bearbeiten von Aufgaben auf der Aufgaben-Seite anbieten und speichern

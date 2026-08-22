@@ -244,6 +244,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
   // Project state (must be declared before queries that use it)
   const [isProjectTask, setIsProjectTask] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
+  const [selectedTaskPhaseId, setSelectedTaskPhaseId] = useState("unphased");
   const [selectedVariableInputNames, setSelectedVariableInputNames] = useState<string[]>([]);
   const [prerequisites, setPrerequisites] = useState<number[]>([]);
   const [followups, setFollowups] = useState<number[]>([]);
@@ -261,6 +262,13 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
     { enabled: !!household && open }
   );
   const activeVariableProjectIds = isEditing ? selectedProjectIds : (task?.projectIds ?? []);
+  const { data: projectGroupingData = {} } = trpc.planProjects.getTaskGroupingData.useQuery(
+    { projectIds: activeVariableProjectIds },
+    { enabled: Boolean(activeVariableProjectIds.length) && open },
+  );
+  const primaryProjectId = isEditing ? selectedProjectIds[0] : task?.projectIds?.[0];
+  const primaryProjectGrouping = primaryProjectId ? (projectGroupingData as Record<number, any>)[primaryProjectId] : undefined;
+  const selectableProjectPhases = Array.isArray(primaryProjectGrouping?.phases) ? primaryProjectGrouping.phases : [];
   const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
     { projectIds: activeVariableProjectIds },
     { enabled: Boolean(activeVariableProjectIds.length) && open }
@@ -710,6 +718,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // Initialize project state
       setIsProjectTask(!!task.projectIds && task.projectIds.length > 0);
       setSelectedProjectIds(task.projectIds || []);
+      setSelectedTaskPhaseId("unphased");
       setSelectedVariableInputNames(Array.isArray(task.variableInputNames) ? task.variableInputNames : []);
       
       // Initialize permission
@@ -719,6 +728,15 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       // This will be set in a separate useEffect when sharedHouseholds loads
     }
   }, [task, open, editorResetKey]);
+
+  useEffect(() => {
+    if (!task?.id || !open || !task.projectIds?.[0]) return;
+    const grouping = (projectGroupingData as Record<number, any>)[task.projectIds[0]];
+    const phaseItem = Array.isArray(grouping?.taskItems)
+      ? grouping.taskItems.find((item: any) => Number(item.id ?? item.taskId) === task.id)
+      : undefined;
+    setSelectedTaskPhaseId(phaseItem?.phaseId ?? "unphased");
+  }, [task?.id, task?.projectIds, open, projectGroupingData]);
   
   // Load rotation schedule when data arrives (for rotation AND recurring tasks)
   useEffect(() => {
@@ -849,6 +867,7 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
       toast.error(t("messages.genericError", { message: error.message }));
     },
   });
+  const assignTaskPhaseMutation = trpc.planProjects.assignTaskPhase.useMutation();
 
   const setTaskCategoriesMutation = trpc.tasks.setTaskCategories.useMutation({
     onSuccess: () => {
@@ -1196,6 +1215,27 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
         sharedHouseholdIds: enableSharing ? selectedSharedHouseholds : [],
         nonResponsiblePermission: enableSharing && selectedSharedHouseholds.length > 0 ? nonResponsiblePermission : "full",
       });
+
+      const previousPrimaryProjectId = task.projectIds?.[0];
+      const nextPrimaryProjectId = isProjectTask ? selectedProjectIds[0] : undefined;
+      if (previousPrimaryProjectId && previousPrimaryProjectId !== nextPrimaryProjectId) {
+        await assignTaskPhaseMutation.mutateAsync({
+          householdId: household.householdId,
+          projectId: previousPrimaryProjectId,
+          taskId: task.id,
+          phaseId: null,
+        });
+      }
+      if (nextPrimaryProjectId) {
+        await assignTaskPhaseMutation.mutateAsync({
+          householdId: household.householdId,
+          projectId: nextPrimaryProjectId,
+          taskId: task.id,
+          phaseId: selectedTaskPhaseId === "unphased" ? null : selectedTaskPhaseId,
+        });
+        utils.planProjects.getTaskGroupingData.invalidate({ projectIds: selectedProjectIds });
+        utils.planProjects.getWithPlanData.invalidate({ projectId: nextPrimaryProjectId });
+      }
 
       await setTaskCategoriesMutation.mutateAsync({
         taskId: task.id,
@@ -2411,6 +2451,23 @@ export function TaskDetailDialog({ task, open, onOpenChange, members, onTaskUpda
                         )}
                       </div>
                     </div>
+
+                    {selectedProjectIds.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>{t("projects:phases.taskPhase", "Projektphase")}</Label>
+                        {selectedProjectIds.length > 1 && <p className="text-xs text-muted-foreground">{t("tasks:projectPhase.primaryProjectHint", "Die Phase wird für das zuerst ausgewählte Projekt festgelegt.")}</p>}
+                        <Select value={selectedTaskPhaseId} onValueChange={setSelectedTaskPhaseId}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unphased">{t("projects:phases.unphased", "Ohne Phase – sofort sichtbar")}</SelectItem>
+                            {selectableProjectPhases.map((phase: any) => (
+                              <SelectItem key={phase.id} value={phase.id}>{phase.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectableProjectPhases.length === 0 && <p className="text-xs text-muted-foreground">{t("tasks:projectPhase.noPhases", "Für dieses Projekt wurden noch keine Phasen angelegt.")}</p>}
+                      </div>
+                    )}
 
                     {selectedProjectIds.length > 0 && (
                       <div className="space-y-2">

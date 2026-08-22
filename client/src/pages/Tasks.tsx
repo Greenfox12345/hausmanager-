@@ -63,6 +63,7 @@ export default function Tasks() {
   // Project options
   const [isProjectTask, setIsProjectTask] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<number[]>([]);
+  const [newTaskPhaseId, setNewTaskPhaseId] = useState("unphased");
   const [newTaskVariableInputNames, setNewTaskVariableInputNames] = useState<string[]>([]);
   const [createNewProject, setCreateNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -138,13 +139,17 @@ export default function Tasks() {
     () => Array.from(new Set([...projectIdsWithTasks, ...selectedProjectIds])),
     [projectIdsWithTasks, selectedProjectIds],
   );
+  const projectIdsForGrouping = useMemo(
+    () => Array.from(new Set([...projectIdsWithTasks, ...selectedProjectIds])),
+    [projectIdsWithTasks, selectedProjectIds],
+  );
   const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
     { projectIds: projectIdsWithVariables },
     { enabled: projectIdsWithVariables.length > 0 }
   );
   const { data: projectGroupingData = {} } = trpc.planProjects.getTaskGroupingData.useQuery(
-    { projectIds: projectIdsWithTasks },
-    { enabled: projectIdsWithTasks.length > 0 }
+    { projectIds: projectIdsForGrouping },
+    { enabled: projectIdsForGrouping.length > 0 }
   );
   const renderTaskProjectText = (task: any, text: string | null | undefined) => (
     <ProjectVarText text={text} variables={projectVariables[task.projectIds?.[0] ?? -1]} />
@@ -154,6 +159,11 @@ export default function Tasks() {
       .filter((variable: any) => isProjectRuntimeInputVariable(variable))
       .map((variable: any) => [variable.name, variable])),
   ).values()), [projectVariables, selectedProjectIds]);
+  const newTaskPrimaryProjectId = selectedProjectIds[0];
+  const newTaskProjectPhases = useMemo(() => {
+    const grouping = newTaskPrimaryProjectId ? (projectGroupingData as Record<number, any>)[newTaskPrimaryProjectId] : undefined;
+    return Array.isArray(grouping?.phases) ? grouping.phases : [];
+  }, [newTaskPrimaryProjectId, projectGroupingData]);
   
   // Open task detail dialog if taskId is in URL
   useEffect(() => {
@@ -213,6 +223,7 @@ export default function Tasks() {
 
   const createProjectMutation = trpc.projects.create.useMutation();
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
+  const assignTaskPhaseMutation = trpc.planProjects.assignTaskPhase.useMutation();
   const updateBidirectionalDependenciesMutation = trpc.projects.updateBidirectionalDependencies.useMutation({
     onSuccess: () => {
       utils.tasks.list.invalidate();
@@ -394,6 +405,17 @@ export default function Tasks() {
         nonResponsiblePermission: shareWithNeighbors && sharedHouseholdIds.length > 0 ? nonResponsiblePermission : "full",
       });
 
+      if (isProjectTask && finalProjectIds[0]) {
+        await assignTaskPhaseMutation.mutateAsync({
+          householdId: household.householdId,
+          projectId: finalProjectIds[0],
+          taskId: taskResult.id,
+          phaseId: newTaskPhaseId === "unphased" ? null : newTaskPhaseId,
+        });
+        utils.planProjects.getTaskGroupingData.invalidate({ projectIds: finalProjectIds });
+        utils.planProjects.getWithPlanData.invalidate({ projectId: finalProjectIds[0] });
+      }
+
       // Kategorien zuweisen
       if (newTaskCategoryIds.length > 0) {
         await setTaskCategoriesMutation.mutateAsync({
@@ -459,6 +481,7 @@ export default function Tasks() {
       setExcludedMembers([]);
       setIsProjectTask(false);
       setSelectedProjectIds([]);
+      setNewTaskPhaseId("unphased");
       setNewTaskVariableInputNames([]);
       setCreateNewProject(false);
       setNewProjectName("");
@@ -1145,6 +1168,21 @@ export default function Tasks() {
                         )}
                       </div>
                     </div>
+
+                    {selectedProjectIds.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>{t("projects:phases.taskPhase", "Projektphase")}</Label>
+                        {selectedProjectIds.length > 1 && <p className="text-xs text-muted-foreground">{t("tasks:projectPhase.primaryProjectHint", "Die Phase wird für das zuerst ausgewählte Projekt festgelegt.")}</p>}
+                        <Select value={newTaskPhaseId} onValueChange={setNewTaskPhaseId}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unphased">{t("projects:phases.unphased", "Ohne Phase – sofort sichtbar")}</SelectItem>
+                            {newTaskProjectPhases.map((phase: any) => <SelectItem key={phase.id} value={phase.id}>{phase.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        {newTaskProjectPhases.length === 0 && <p className="text-xs text-muted-foreground">{t("tasks:projectPhase.noPhases", "Für dieses Projekt wurden noch keine Phasen angelegt.")}</p>}
+                      </div>
+                    )}
 
                     {selectedProjectIds.length > 0 && (
                       <div className="space-y-2">

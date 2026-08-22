@@ -37,6 +37,16 @@ RANGE_TEXTS = {
     "ar": {"range": "النطاق المسموح", "rangeSource": "الحدود", "rangeSlider": "اختر قيمة ضمن النطاق المسموح", "rangeError": "يجب أن تكون القيمة ضمن النطاق المسموح."},
 }
 
+TASK_PHASE_TEXTS = {
+    "de": {"primaryProjectHint": "Die Phase wird für das zuerst ausgewählte Projekt festgelegt.", "noPhases": "Für dieses Projekt wurden noch keine Phasen angelegt."},
+    "en": {"primaryProjectHint": "The phase is set for the first selected project.", "noPhases": "No phases have been created for this project yet."},
+    "es": {"primaryProjectHint": "La fase se establece para el primer proyecto seleccionado.", "noPhases": "Aún no se han creado fases para este proyecto."},
+    "fr": {"primaryProjectHint": "La phase est définie pour le premier projet sélectionné.", "noPhases": "Aucune phase n'a encore été créée pour ce projet."},
+    "tr": {"primaryProjectHint": "Aşama, ilk seçilen proje için belirlenir.", "noPhases": "Bu proje için henüz aşama oluşturulmadı."},
+    "zh": {"primaryProjectHint": "该阶段将为第一个选定的项目设置。", "noPhases": "此项目尚未创建阶段。"},
+    "ar": {"primaryProjectHint": "تُحدَّد المرحلة للمشروع المحدد أولاً.", "noPhases": "لم تُنشأ مراحل لهذا المشروع بعد."},
+}
+
 for language in PROJECT_PHASES:
     projects_path = ROOT / language / "projects.json"
     tasks_path = ROOT / language / "tasks.json"
@@ -44,5 +54,6 @@ for language in PROJECT_PHASES:
     tasks = json.loads(tasks_path.read_text(encoding="utf-8"))
     projects["phases"] = {**projects.get("phases", {}), **PROJECT_PHASES[language]}
     tasks.setdefault("variableInput", {}).update(RANGE_TEXTS[language])
+    tasks.setdefault("projectPhase", {}).update(TASK_PHASE_TEXTS[language])
     projects_path.write_text(json.dumps(projects, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tasks_path.write_text(json.dumps(tasks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

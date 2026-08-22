@@ -690,5 +690,9 @@
     "unknownProject": "未知项目",
     "withoutPhase": "无阶段",
     "standalone": "其他家庭任务"
+  },
+  "projectPhase": {
+    "primaryProjectHint": "该阶段将为第一个选定的项目设置。",
+    "noPhases": "此项目尚未创建阶段。"
   }
 }

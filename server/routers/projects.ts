@@ -1153,6 +1153,50 @@ export const planProjectsRouter = router({
       return { success: true, resetCount: resetVars.filter((v, i) => v.value === undefined && variables[i].value !== undefined).length };
     }),
 
+  /** Eine bestehende Projektaufgabe einer Phase zuordnen oder phasenlos machen. */
+  assignTaskPhase: protectedProcedure
+    .input(z.object({
+      householdId: z.number(),
+      projectId: z.number(),
+      taskId: z.number(),
+      phaseId: z.string().nullable(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [membership] = await db.select({ projectId: projectHouseholds.projectId })
+        .from(projectHouseholds)
+        .where(and(eq(projectHouseholds.projectId, input.projectId), eq(projectHouseholds.householdId, input.householdId)))
+        .limit(1);
+      if (!membership) throw new Error("Projekt gehört nicht zu diesem Haushalt");
+
+      const [task] = await db.select({ id: tasks.id, name: tasks.name, description: tasks.description, projectIds: tasks.projectIds, householdId: tasks.householdId })
+        .from(tasks).where(eq(tasks.id, input.taskId)).limit(1);
+      if (!task || task.householdId !== input.householdId || !(task.projectIds ?? []).includes(input.projectId)) {
+        throw new Error("Aufgabe gehört nicht zu diesem Projekt");
+      }
+
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId)).limit(1);
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const phases = (project.planPhases ?? []) as PlanPhase[];
+      if (input.phaseId && !phases.some((phase) => phase.id === input.phaseId)) {
+        throw new Error("Projektphase nicht gefunden");
+      }
+
+      const items = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const existingIndex = items.findIndex((item: any) => Number(item.id ?? item.taskId) === input.taskId);
+      const updatedItems = existingIndex >= 0
+        ? items.map((item: any, index) => index === existingIndex ? { ...item, phaseId: input.phaseId ?? undefined } : item)
+        : [...items, {
+            id: input.taskId,
+            name: task.name,
+            description: task.description ?? undefined,
+            phaseId: input.phaseId ?? undefined,
+            sortOrder: items.length,
+          } as ProjectPlanTaskItem];
+      await db.update(projectsExtended).set({ planTaskItems: updatedItems }).where(eq(projectsExtended.id, input.projectId));
+      return { success: true };
+    }),
+
   /** Erweitertes Projekt-Objekt mit Plan-Daten laden */
   getWithPlanData: protectedProcedure
     .input(z.object({ projectId: z.number() }))

@@ -494,7 +494,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
         {/* Phasen-Übersicht mit Status */}
-        {phases.length > 0 && (
+        {(!project.planTemplateId || phases.length > 0) && (
           <div>
             <button type="button" className="w-full flex items-center justify-between py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" onClick={() => setActiveSection(s => s === "phases" ? null : "phases")}>
               <span className="flex items-center gap-2"><Layers className="w-3.5 h-3.5" /> {t("plankiste:phases.title", "Phasen")} ({phases.length})</span>
@@ -2213,15 +2213,12 @@ export default function Projects() {
               <div className="space-y-2">
                 <Label>{t("tasks:prerequisites", "Voraussetzungen (optionale Aufgaben, die zuerst erledigt werden müssen)")}</Label>
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
-                  {tasks.filter(t => !t.isCompleted).length === 0 ? (
+                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground">{t("projects:noOpenTasks", "Keine offenen Aufgaben verfügbar")}</p>
                   ) : (
-                    <>
-                      {/* Project tasks */}
-                      {projectTasks.filter(t => !t.isCompleted).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
-                          {projectTasks.filter(t => !t.isCompleted).map((task) => (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
+                      {projectTasks.filter(t => !t.isCompleted).map((task) => (
                             <div key={`prereq-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`prereq-${task.id}`}
@@ -2238,34 +2235,8 @@ export default function Projects() {
                                 {task.name}
                               </Label>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                      {/* Other household tasks */}
-                      {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:otherHouseholdTasks", "Andere Haushaltsaufgaben")}</p>
-                          {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
-                            <div key={`prereq-other-${task.id}`} className="flex items-center gap-2 py-1">
-                              <Checkbox
-                                id={`prereq-${task.id}`}
-                                checked={taskPrerequisites.includes(task.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setTaskPrerequisites([...taskPrerequisites, task.id]);
-                                  } else {
-                                    setTaskPrerequisites(taskPrerequisites.filter(id => id !== task.id));
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`prereq-${task.id}`} className="text-sm font-normal cursor-pointer">
-                                {task.name}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
@@ -2273,15 +2244,12 @@ export default function Projects() {
               <div className="space-y-2">
                 <Label>{t("tasks:followups", "Folgeaufgaben (optionale Aufgaben, die danach kommen)")}</Label>
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3">
-                  {tasks.filter(t => !t.isCompleted).length === 0 ? (
+                  {projectTasks.filter(t => !t.isCompleted).length === 0 ? (
                     <p className="text-sm text-muted-foreground">{t("projects:noOpenTasks", "Keine offenen Aufgaben verfügbar")}</p>
                   ) : (
-                    <>
-                      {/* Project tasks */}
-                      {projectTasks.filter(t => !t.isCompleted).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
-                          {projectTasks.filter(t => !t.isCompleted).map((task) => (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:projectTasks", "Projektaufgaben")}</p>
+                      {projectTasks.filter(t => !t.isCompleted).map((task) => (
                             <div key={`followup-project-${task.id}`} className="flex items-center gap-2 py-1">
                               <Checkbox
                                 id={`followup-${task.id}`}
@@ -2298,34 +2266,8 @@ export default function Projects() {
                                 {task.name}
                               </Label>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                      {/* Other household tasks */}
-                      {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">{t("projects:otherHouseholdTasks", "Andere Haushaltsaufgaben")}</p>
-                          {tasks.filter(t => !t.isCompleted && !projectTasks.find(pt => pt.id === t.id)).map((task) => (
-                            <div key={`followup-other-${task.id}`} className="flex items-center gap-2 py-1">
-                              <Checkbox
-                                id={`followup-${task.id}`}
-                                checked={taskFollowups.includes(task.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setTaskFollowups([...taskFollowups, task.id]);
-                                  } else {
-                                    setTaskFollowups(taskFollowups.filter(id => id !== task.id));
-                                  }
-                                }}
-                              />
-                              <Label htmlFor={`followup-${task.id}`} className="text-sm font-normal cursor-pointer">
-                                {task.name}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

@@ -690,5 +690,9 @@
     "unknownProject": "Bilinmeyen proje",
     "withoutPhase": "Aşamasız",
     "standalone": "Diğer ev görevleri"
+  },
+  "projectPhase": {
+    "primaryProjectHint": "Aşama, ilk seçilen proje için belirlenir.",
+    "noPhases": "Bu proje için henüz aşama oluşturulmadı."
   }
 }

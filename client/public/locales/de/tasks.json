@@ -690,5 +690,9 @@
     "unknownProject": "Unbekanntes Projekt",
     "withoutPhase": "Ohne Phase",
     "standalone": "Weitere Haushaltsaufgaben"
+  },
+  "projectPhase": {
+    "primaryProjectHint": "Die Phase wird für das zuerst ausgewählte Projekt festgelegt.",
+    "noPhases": "Für dieses Projekt wurden noch keine Phasen angelegt."
   }
 }
