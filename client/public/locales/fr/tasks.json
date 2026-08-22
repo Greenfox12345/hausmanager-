@@ -451,7 +451,9 @@
     "description": "Documente une avancée pour \"{{name}}\". La tâche reste ouverte.",
     "progressLabel": "Description de l'avancement *",
     "progressPlaceholder": "ex. Première moitié terminée, matériaux achetés...",
-    "save": "Enregistrer l'étape clé"
+    "save": "Enregistrer l'étape clé",
+    "variableTitle": "Consigner une valeur d'exécution (facultatif)",
+    "variableHint": "La valeur est enregistrée provisoirement et confirmée pour cette exécution à la fin de la tâche."
   },
   "reminderDialog": {
     "title": "Envoyer un rappel",
@@ -674,7 +676,9 @@
     "save": "Enregistrer la saisie",
     "completionRequired": "Des variables documentées sont encore requises avant la finalisation.",
     "documentMissing": "Documenter les saisies manquantes",
-    "projectValueUpdate": "L'enregistrement met également à jour la valeur actuelle de la variable du projet."
+    "projectValueUpdate": "L'enregistrement met également à jour la valeur actuelle de la variable du projet.",
+    "completionConfirms": "La finalisation de la tâche confirme les valeurs documentées pour cette exécution du projet.",
+    "projectValueConfirmation": "La valeur est enregistrée provisoirement et n'est confirmée pour l'exécution du projet qu'à la fin de cette tâche."
   },
   "projectGroups": {
     "groupBy": "Projets et phases",

@@ -123,5 +123,9 @@
     "reminderError": "Error sending reminder",
     "taskUpdateError": "Error updating task"
   },
-  "taskProgress": "{{completed}} / {{total}} tasks completed"
+  "taskProgress": "{{completed}} / {{total}} tasks completed",
+  "variables": {
+    "use": "Use project variables",
+    "useDescription": "VAR names are recognised in tasks. Fixed settings and values per project run can then be managed separately."
+  }
 }

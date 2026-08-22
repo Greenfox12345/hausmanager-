@@ -357,7 +357,10 @@
     "projectStructureDesc": "Project variables are recognized from assigned tasks and can be managed here.",
     "variablesEnabledHint": "VAR names in tasks and descriptions are recognized and resolved.",
     "variablesDisabledHint": "Tasks are shown without variable recognition.",
-    "noRecognizedVariables": "No variables recognized yet. For example, use VARWidth in a project task or its description."
+    "noRecognizedVariables": "No variables recognized yet. For example, use VARWidth in a project task or its description.",
+    "variableScope": "Input variable type",
+    "variableScopeFixed": "Fixed project setting",
+    "variableScopeRuntime": "Per project run"
   },
   "tasks": {
     "title": "Tasks"

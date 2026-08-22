@@ -451,7 +451,9 @@
     "description": "Dokumentieren Sie einen Fortschritt bei \"{{name}}\". Die Aufgabe bleibt offen.",
     "progressLabel": "Fortschrittsbeschreibung *",
     "progressPlaceholder": "z.B. Erste Hälfte erledigt, Material besorgt...",
-    "save": "Zwischensieg speichern"
+    "save": "Zwischensieg speichern",
+    "variableTitle": "Durchlaufwert festhalten (optional)",
+    "variableHint": "Der Wert wird vorgemerkt und beim Abschluss der Aufgabe für diesen Projektdurchlauf bestätigt."
   },
   "reminderDialog": {
     "title": "Erinnerung senden",
@@ -674,7 +676,9 @@
     "save": "Eingabe speichern",
     "completionRequired": "Vor dem Abschluss fehlen noch dokumentierte Variablen.",
     "documentMissing": "Fehlende Eingaben dokumentieren",
-    "projectValueUpdate": "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert."
+    "projectValueUpdate": "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert.",
+    "completionConfirms": "Mit dem Abschluss bestätigen Sie die dokumentierten Werte verbindlich für diesen Projektdurchlauf.",
+    "projectValueConfirmation": "Der Wert wird vorgemerkt und erst beim Abschluss dieser Aufgabe für den Projektdurchlauf bestätigt."
   },
   "projectGroups": {
     "groupBy": "Projekte & Phasen",

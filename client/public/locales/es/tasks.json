@@ -377,7 +377,9 @@
     "description": "Describa el progreso alcanzado.",
     "progressLabel": "Progreso",
     "progressPlaceholder": "Descripción del progreso...",
-    "save": "Guardar hito"
+    "save": "Guardar hito",
+    "variableTitle": "Registrar valor de ejecución (opcional)",
+    "variableHint": "El valor queda guardado provisionalmente y se confirma para esta ejecución al completar la tarea."
   },
   "reminderDialog": {
     "title": "Enviar recordatorio",
@@ -724,7 +726,9 @@
     "save": "Guardar entrada",
     "completionRequired": "Aún faltan variables documentadas antes de completar la tarea.",
     "documentMissing": "Documentar entradas faltantes",
-    "projectValueUpdate": "Al guardar, también se actualiza el valor actual de la variable del proyecto."
+    "projectValueUpdate": "Al guardar, también se actualiza el valor actual de la variable del proyecto.",
+    "completionConfirms": "Al completar la tarea, confirma los valores documentados para esta ejecución del proyecto.",
+    "projectValueConfirmation": "El valor queda guardado provisionalmente y se confirma para la ejecución del proyecto al completar esta tarea."
   },
   "projectGroups": {
     "groupBy": "Proyectos y fases",

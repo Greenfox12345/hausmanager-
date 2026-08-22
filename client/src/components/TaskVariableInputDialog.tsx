@@ -47,6 +47,10 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
   const [photos, setPhotos] = useState<UploadReference[]>([]);
   const [files, setFiles] = useState<UploadReference[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const { data: existingInputs = [] } = trpc.tasks.listVariableInputs.useQuery(
+    { householdId: household?.householdId ?? 0, taskId: task?.id ?? 0 },
+    { enabled: open && Boolean(household?.householdId && task?.id) },
+  );
 
   const selectedVariable = variables?.find((candidate) => candidate.name === variableName);
   const addVariableInputMutation = trpc.tasks.addVariableInput.useMutation({
@@ -84,6 +88,15 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
     if (selectedVariable?.unit !== undefined) setUnit(selectedVariable.unit ?? "");
   }, [selectedVariable?.unit]);
 
+  useEffect(() => {
+    if (!open || !variableName) return;
+    const previous = [...existingInputs].reverse().find((entry) => entry.variableName === variableName);
+    if (!previous) return;
+    setValue(previous.value);
+    setUnit(previous.unit ?? selectedVariable?.unit ?? "");
+    setNote(previous.note ?? "");
+  }, [open, variableName, existingInputs, selectedVariable?.unit]);
+
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && (isUploading || addVariableInputMutation.isPending)) return;
     onOpenChange(nextOpen);
@@ -117,7 +130,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
           </DialogTitle>
           <DialogDescription>
             {t("tasks:variableInput.description", "Dokumentieren Sie den für diese Aufgabe ermittelten Wert. Einträge erscheinen im Verlauf der Aufgabe.")}
-            <span className="mt-1 block">{t("tasks:variableInput.projectValueUpdate", "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert.")}</span>
+            <span className="mt-1 block">{t("tasks:variableInput.projectValueConfirmation", "Der Wert wird vorgemerkt und erst beim Abschluss dieser Aufgabe für den Projektdurchlauf bestätigt.")}</span>
           </DialogDescription>
         </DialogHeader>
 

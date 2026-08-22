@@ -357,7 +357,10 @@
     "projectStructureDesc": "Projektvariablen werden aus den zugeordneten Aufgaben erkannt und können hier gepflegt werden.",
     "variablesEnabledHint": "VAR-Namen in Aufgaben und Beschreibungen werden erkannt und aufgelöst.",
     "variablesDisabledHint": "Aufgaben werden ohne Variablenerkennung angezeigt.",
-    "noRecognizedVariables": "Noch keine Variablen erkannt. Verwenden Sie zum Beispiel VARBreite in einer Projektaufgabe oder deren Beschreibung."
+    "noRecognizedVariables": "Noch keine Variablen erkannt. Verwenden Sie zum Beispiel VARBreite in einer Projektaufgabe oder deren Beschreibung.",
+    "variableScope": "Art der Eingabevariable",
+    "variableScopeFixed": "Feste Vorgabe",
+    "variableScopeRuntime": "Je Projektdurchlauf"
   },
   "tasks": {
     "title": "Aufgaben"

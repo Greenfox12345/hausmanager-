@@ -59,13 +59,72 @@ function taskVariableInputRecordedText(lang: Lang, memberName: string, taskName:
   if (lang === "ar") return `وثّق ${memberName} المتغير «${variableName}» بالقيمة ${value} للمهمة «${taskName}».`;
   return `${memberName} hat für „${taskName}“ die Variable „${variableName}“ mit ${value} dokumentiert.`;
 }
+
+function taskVariableInputConfirmedText(lang: Lang, memberName: string, taskName: string, names: string[]): string {
+  const list = names.join(", ");
+  if (lang === "en") return `${memberName} confirmed ${list} for this project run by completing “${taskName}”.`;
+  if (lang === "es") return `${memberName} confirmó ${list} para esta ejecución del proyecto al completar «${taskName}».`;
+  if (lang === "fr") return `${memberName} a confirmé ${list} pour cette exécution du projet en terminant « ${taskName} ».`;
+  if (lang === "tr") return `${memberName}, “${taskName}” görevini tamamlayarak bu proje yürütmesi için ${list} değerlerini onayladı.`;
+  if (lang === "zh") return `${memberName} 通过完成“${taskName}”确认了本次项目执行的 ${list}。`;
+  if (lang === "ar") return `أكّد ${memberName} القيم ${list} لهذا التنفيذ من المشروع عند إكمال المهمة «${taskName}».`;
+  return `${memberName} hat durch den Abschluss von „${taskName}“ die Werte ${list} für diesen Projektdurchlauf bestätigt.`;
+}
 import { taskRotationExclusions, activityHistory, projects, projectsExtended, shoppingCategories, taskCategoryAssignments, taskVariableInputs } from "../../drizzle/schema";
 import { handleRecurringCompletion, advanceByInterval, isTaskRecurring, TaskForCompletion } from "./taskCompletion";
 import { inArray } from "drizzle-orm";
 import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskPermissions";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import { getTaskDueDateParts } from "../../shared/taskProposalApproval";
-import { isProjectInputVariable } from "../../shared/projectVariableAvailability";
+import { isProjectRuntimeInputVariable } from "../../shared/projectVariableAvailability";
+
+async function confirmRuntimeTaskVariableInputs(task: any, householdId: number, memberId: number): Promise<string[]> {
+  const projectId = Array.isArray(task.projectIds) ? task.projectIds[0] : undefined;
+  const requestedNames = Array.isArray(task.variableInputNames) ? task.variableInputNames : [];
+  if (!projectId || requestedNames.length === 0) return [];
+  const db = (await getDb())!;
+  const [project] = await db.select({ id: projectsExtended.id, planVariables: projectsExtended.planVariables })
+    .from(projectsExtended)
+    .where(eq(projectsExtended.id, projectId));
+  if (!project) throw new TRPCError({ code: "NOT_FOUND", message: "Projekt für die Variablenbestätigung nicht gefunden." });
+
+  const variables = Array.isArray(project.planVariables) ? project.planVariables as any[] : [];
+  const runtimeNames = requestedNames.filter((name: string) => {
+    const variable = variables.find((entry) => entry.name === name);
+    return variable && isProjectRuntimeInputVariable(variable);
+  });
+  if (runtimeNames.length === 0) return [];
+
+  const inputRows = await db.select().from(taskVariableInputs)
+    .where(and(eq(taskVariableInputs.householdId, householdId), eq(taskVariableInputs.taskId, task.id)))
+    .orderBy(asc(taskVariableInputs.createdAt));
+  const latestByName = new Map<string, { value: string; unit: string | null }>();
+  inputRows.forEach((row) => {
+    if (runtimeNames.includes(row.variableName)) latestByName.set(row.variableName, { value: row.value, unit: row.unit });
+  });
+  const missingNames = runtimeNames.filter((name: string) => !latestByName.has(name));
+  if (missingNames.length > 0) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: `Vor dem Abschluss fehlen noch bestätigbare Eingaben: ${missingNames.join(", ")}.` });
+  }
+
+  const updatedVariables = variables.map((variable) => {
+    const latest = latestByName.get(variable.name);
+    return latest ? { ...variable, value: latest.value, ...(latest.unit ? { unit: latest.unit } : {}) } : variable;
+  });
+  await db.update(projectsExtended).set({ planVariables: updatedVariables }).where(eq(projectsExtended.id, projectId));
+  const member = await getHouseholdMemberById(memberId);
+  const lang = await getHouseholdLang(householdId);
+  await createActivityLog({
+    householdId,
+    memberId,
+    activityType: "task",
+    action: "variable_input_confirmed",
+    description: taskVariableInputConfirmedText(lang, member?.memberName ?? `#${memberId}`, task.name, runtimeNames),
+    relatedItemId: task.id,
+    metadata: { projectId, variableNames: runtimeNames, confirmedByTaskCompletion: true },
+  });
+  return runtimeNames;
+}
 
 // ─── German label helpers ───────────────────────────────────────────────────
 
@@ -506,13 +565,9 @@ export const tasksRouter = router({
       if (!projectVariable) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Diese Projektvariable ist nicht mehr verfügbar." });
       }
-      if (!isProjectInputVariable(projectVariable)) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Nur Eingabevariablen können durch eine Aufgabe direkt gesetzt werden." });
+      if (!isProjectRuntimeInputVariable(projectVariable)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Nur durchlaufbezogene Eingabevariablen können in dieser Aufgabe dokumentiert werden." });
       }
-      const updatedProjectVariables = projectVariables.map((variable) => variable.name === input.variableName
-        ? { ...variable, value: input.value, ...(input.unit ? { unit: input.unit } : {}) }
-        : variable,
-      );
       const result = await db.insert(taskVariableInputs).values({
         householdId: input.householdId,
         taskId: input.taskId,
@@ -526,9 +581,6 @@ export const tasksRouter = router({
         recordedByMemberId: input.memberId,
       });
       const id = Number(result[0].insertId);
-      await db.update(projectsExtended)
-        .set({ planVariables: updatedProjectVariables })
-        .where(eq(projectsExtended.id, projectId));
       const displayValue = `${input.value}${input.unit ? ` ${input.unit}` : ""}`;
       const lang = await getHouseholdLang(input.householdId);
       await createActivityLog({
@@ -541,7 +593,8 @@ export const tasksRouter = router({
         metadata: {
           taskVariableInputId: id,
           projectId,
-          projectVariableUpdated: true,
+          projectVariableUpdated: false,
+          awaitingTaskCompletionConfirmation: true,
           variableName: input.variableName,
           value: input.value,
           unit: input.unit || null,
@@ -550,7 +603,7 @@ export const tasksRouter = router({
           fileCount: input.fileUrls?.length ?? 0,
         },
       });
-      return { id, projectId, projectVariableUpdated: true };
+      return { id, projectId, projectVariableUpdated: false };
     }),
 
   // Add new task
@@ -838,6 +891,10 @@ export const tasksRouter = router({
       // Dieselbe Definition wie im ausführlichen Abschlussdialog verwenden.
       const isRecurring = isTaskRecurring(task);
 
+      if (input.isCompleted) {
+        await confirmRuntimeTaskVariableInputs(task, input.householdId, input.memberId);
+      }
+
       if (input.isCompleted && isRecurring) {
         // For recurring tasks: delegate all recurring logic to shared helper
         const { nextDueDate } = await handleRecurringCompletion(
@@ -1082,7 +1139,10 @@ export const tasksRouter = router({
         nextDueDate = result.nextDueDate;
       }
 
-      // ===== 3. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
+      // ===== 3. Bei durchlaufbezogenen Eingabeaufgaben dokumentierte Werte bestätigen =====
+      await confirmRuntimeTaskVariableInputs(task, input.householdId, input.memberId);
+
+      // ===== 4. Update task: for recurring → move to next occurrence; for one-time → mark completed =====
       if (isRecurring && nextDueDate) {
         await updateTask(input.taskId, {
           dueDate: nextDueDate,
@@ -1483,6 +1543,7 @@ export const tasksRouter = router({
             const task = tasksList.find(t => t.id === taskId);
             if (!task) return 0;
             if (!canDirectlyManageTask(task.assignedTo, input.memberId)) return 0;
+            await confirmRuntimeTaskVariableInputs(task, input.householdId, input.memberId);
 
             await updateTask(taskId, {
               isCompleted: true,

@@ -357,7 +357,10 @@
     "projectStructureDesc": "项目变量会从已关联的任务中识别，并可在此处维护。",
     "variablesEnabledHint": "任务和描述中的 VAR 名称会被识别并解析。",
     "variablesDisabledHint": "任务将不会进行变量识别。",
-    "noRecognizedVariables": "尚未识别到变量。请在项目任务或其描述中使用例如 VAR宽度。"
+    "noRecognizedVariables": "尚未识别到变量。请在项目任务或其描述中使用例如 VAR宽度。",
+    "variableScope": "输入变量类型",
+    "variableScopeFixed": "固定项目设定",
+    "variableScopeRuntime": "每次项目执行"
   },
   "tasks": {
     "title": "任务"

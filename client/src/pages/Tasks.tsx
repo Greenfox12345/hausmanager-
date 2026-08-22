@@ -1436,8 +1436,8 @@ export default function Tasks() {
         {/* Task list */}
         {!isLoading && tasks.length > 0 && (
           <div className="flex flex-col gap-3 mb-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
                 {batchMode ? (
                   <>
                     <Button variant="outline" size="sm" onClick={exitBatchMode}>
@@ -1467,7 +1467,7 @@ export default function Tasks() {
                 type="button"
                 variant={groupByProjectPhase ? "default" : "outline"}
                 size="sm"
-                className={groupByProjectPhase ? "bg-violet-600 hover:bg-violet-700 text-white" : ""}
+                className={`self-start sm:self-auto ${groupByProjectPhase ? "bg-violet-600 hover:bg-violet-700 text-white" : ""}`}
                 onClick={() => setGroupByProjectPhase((current) => !current)}
               >
                 <FolderKanban className="mr-1.5 h-4 w-4" />

@@ -158,6 +158,8 @@ export interface PlanVariable {
   max?: string;
   /** Wenn true, kann der Wert nicht über UI geändert werden */
   locked?: boolean;
+  /** Feste Vorgabe gilt projektweit; durchlaufbezogene Eingaben werden erst durch eine Aufgabe bestätigt. */
+  inputScope?: "fixed" | "runtime";
 }
 
 export function mergeVarsFromText(

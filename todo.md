@@ -3908,3 +3908,10 @@
 - [x] Projektbereich mit derselben Aktivierung, Erkennung und Darstellung von Variablen wie die Plankiste ausstatten
 - [x] Aufgabenansicht optional nach Projekten und innerhalb der Projekte nach Phasen sortieren und gruppieren
 - [x] Projekte und Phasen in der gruppierten Aufgabenansicht unabhängig auf- und zuklappbar machen
+
+## Feste und durchlaufbezogene Projektvariablen (2026-08-22)
+- [x] Aktivierung der Variablennutzung bereits beim Erstellen und Bearbeiten eines Projekts anbieten
+- [x] Projektvariablen als feste Vorgabe oder durchlaufbezogene Eingabevariable unterscheiden und verständlich verwalten
+- [x] Durchlaufbezogene Variablen in zugeordneten Aufgaben erfassen, zwischenspeichern und erst beim Aufgabenabschluss verbindlich bestätigen
+- [x] Bereits in einem Zwischenziel dokumentierte Werte beim Variablenabschluss vorausfüllen
+- [x] Projekt-Phasen-Schalter auf der Aufgabenseite so anordnen, dass die Mehrfachauswahl weiterhin uneingeschränkt bedienbar bleibt

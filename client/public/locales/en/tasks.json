@@ -451,7 +451,9 @@
     "description": "Document a progress update for \"{{name}}\". The task remains open.",
     "progressLabel": "Progress description *",
     "progressPlaceholder": "e.g. First half done, materials purchased...",
-    "save": "Save milestone"
+    "save": "Save milestone",
+    "variableTitle": "Record run value (optional)",
+    "variableHint": "The value is saved as a draft and confirmed for this project run when the task is completed."
   },
   "reminderDialog": {
     "title": "Send reminder",
@@ -674,7 +676,9 @@
     "save": "Save input",
     "completionRequired": "Documented variables are still required before completion.",
     "documentMissing": "Document missing inputs",
-    "projectValueUpdate": "Saving also updates the current value of the project variable."
+    "projectValueUpdate": "Saving also updates the current value of the project variable.",
+    "completionConfirms": "Completing the task confirms the documented values for this project run.",
+    "projectValueConfirmation": "The value is saved as a draft and confirmed for the project run only when this task is completed."
   },
   "projectGroups": {
     "groupBy": "Projects & phases",

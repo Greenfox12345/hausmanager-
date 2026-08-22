@@ -3,6 +3,7 @@ export type AvailabilityVariable = {
   value?: string | null;
   overrideValue?: string | null;
   description?: string | null;
+  inputScope?: "fixed" | "runtime" | null;
 };
 
 export type AvailabilityPhase = {
@@ -66,6 +67,11 @@ export function referencedProjectVariableNames(text: string | null | undefined, 
 
 export function isProjectInputVariable(variable: AvailabilityVariable): boolean {
   return !/VAR[A-Za-zÄÖÜäöüß]/.test(calculationDefinitionOf(variable) ?? "");
+}
+
+/** Nur diese Eingabevariablen werden an die erste passende Aufgabe eines Durchlaufs gebunden. */
+export function isProjectRuntimeInputVariable(variable: AvailabilityVariable): boolean {
+  return isProjectInputVariable(variable) && variable.inputScope === "runtime";
 }
 
 /** Leitet die direkten Eingaben einer Formel rekursiv und mit Zyklusschutz ab. */
@@ -139,7 +145,8 @@ export function analyseProjectVariableAvailability(
     unresolvedNamesByTaskKey[entry.key] = requirement.unresolved;
     requirement.unresolved.forEach((name) => unresolved.add(name));
     requirement.inputNames.forEach((name) => {
-      if (!availableInputs.has(name) && !inputTaskKeyByName[name]) inputTaskKeyByName[name] = entry.key;
+      const inputVariable = variables.find((variable) => variable.name === name);
+      if (inputVariable && isProjectRuntimeInputVariable(inputVariable) && !availableInputs.has(name) && !inputTaskKeyByName[name]) inputTaskKeyByName[name] = entry.key;
     });
   }
 

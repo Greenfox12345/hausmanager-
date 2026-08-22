@@ -123,5 +123,9 @@
     "reminderError": "Fehler beim Senden der Erinnerung",
     "taskUpdateError": "Fehler beim Aktualisieren der Aufgabe"
   },
-  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt"
+  "taskProgress": "{{completed}} / {{total}} Aufgaben erledigt",
+  "variables": {
+    "use": "Projektvariablen verwenden",
+    "useDescription": "VAR-Namen werden in Aufgaben erkannt. Feste Vorgaben und Werte je Projektdurchlauf können anschließend getrennt gepflegt werden."
+  }
 }

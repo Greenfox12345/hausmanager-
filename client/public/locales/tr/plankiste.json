@@ -357,7 +357,10 @@
     "projectStructureDesc": "Proje değişkenleri atanan görevlerden algılanır ve burada yönetilebilir.",
     "variablesEnabledHint": "Görevlerdeki ve açıklamalardaki VAR adları algılanır ve çözülür.",
     "variablesDisabledHint": "Görevler değişken algılama olmadan gösterilir.",
-    "noRecognizedVariables": "Henüz değişken algılanmadı. Örneğin bir proje görevinde veya açıklamasında VARGenişlik kullanın."
+    "noRecognizedVariables": "Henüz değişken algılanmadı. Örneğin bir proje görevinde veya açıklamasında VARGenişlik kullanın.",
+    "variableScope": "Girdi değişkeni türü",
+    "variableScopeFixed": "Sabit proje değeri",
+    "variableScopeRuntime": "Her proje yürütmesi için"
   },
   "tasks": {
     "title": "Görevler"

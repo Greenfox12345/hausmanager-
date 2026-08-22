@@ -451,7 +451,9 @@
     "description": "记录 \"{{name}}\" 的进展。任务将保持开放。",
     "progressLabel": "进展描述 *",
     "progressPlaceholder": "例如：完成了一半，材料已采购...",
-    "save": "保存里程碑"
+    "save": "保存里程碑",
+    "variableTitle": "记录本次执行数值（可选）",
+    "variableHint": "该数值会暂存，并在任务完成时确认用于本次项目执行。"
   },
   "reminderDialog": {
     "title": "发送提醒",
@@ -674,7 +676,9 @@
     "save": "保存输入",
     "completionRequired": "完成任务前仍有变量需要记录。",
     "documentMissing": "记录缺失输入",
-    "projectValueUpdate": "保存时也会更新项目变量的当前数值。"
+    "projectValueUpdate": "保存时也会更新项目变量的当前数值。",
+    "completionConfirms": "完成任务后，将确认本次项目执行中已记录的数值。",
+    "projectValueConfirmation": "该数值会暂存，并在完成此任务时确认用于本次项目执行。"
   },
   "projectGroups": {
     "groupBy": "项目与阶段",

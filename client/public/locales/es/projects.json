@@ -176,5 +176,9 @@
     "addTask": "Añadir tarea al proyecto",
     "assignToOtherProjects": "Asignar también a otros proyectos"
   },
-  "taskProgress": "{{completed}} / {{total}} tareas completadas"
+  "taskProgress": "{{completed}} / {{total}} tareas completadas",
+  "variables": {
+    "use": "Usar variables de proyecto",
+    "useDescription": "Los nombres VAR se reconocen en las tareas. Los valores fijos y los valores por ejecución se pueden gestionar por separado."
+  }
 }

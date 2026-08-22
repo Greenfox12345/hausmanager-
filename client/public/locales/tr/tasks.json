@@ -451,7 +451,9 @@
     "description": "\"{{name}}\" görevindeki bir ilerlemeyi belgeleyin. Görev açık kalır.",
     "progressLabel": "İlerleme Açıklaması *",
     "progressPlaceholder": "ör. İlk yarısı bitti, malzeme temin edildi...",
-    "save": "Ara Zaferi Kaydet"
+    "save": "Ara Zaferi Kaydet",
+    "variableTitle": "Yürütme değerini kaydet (isteğe bağlı)",
+    "variableHint": "Değer taslak olarak kaydedilir ve görev tamamlandığında bu proje yürütmesi için onaylanır."
   },
   "reminderDialog": {
     "title": "Hatırlatıcı Gönder",
@@ -674,7 +676,9 @@
     "save": "Girişi kaydet",
     "completionRequired": "Tamamlamadan önce belgelenmesi gereken değişkenler var.",
     "documentMissing": "Eksik girişleri belgele",
-    "projectValueUpdate": "Kaydetme işlemi proje değişkeninin güncel değerini de günceller."
+    "projectValueUpdate": "Kaydetme işlemi proje değişkeninin güncel değerini de günceller.",
+    "completionConfirms": "Görevi tamamlayarak bu proje yürütmesi için belgelenen değerleri onaylarsınız.",
+    "projectValueConfirmation": "Değer taslak olarak kaydedilir ve bu görev tamamlandığında proje yürütmesi için onaylanır."
   },
   "projectGroups": {
     "groupBy": "Projeler ve aşamalar",

@@ -357,7 +357,10 @@
     "projectStructureDesc": "يتم التعرّف على متغيرات المشروع من المهام المرتبطة ويمكن إدارتها هنا.",
     "variablesEnabledHint": "يتم التعرّف على أسماء VAR في المهام والأوصاف وحلّها.",
     "variablesDisabledHint": "تُعرض المهام دون التعرّف على المتغيرات.",
-    "noRecognizedVariables": "لم يتم التعرّف على متغيرات بعد. استخدم مثلاً VARالعرض في مهمة المشروع أو وصفها."
+    "noRecognizedVariables": "لم يتم التعرّف على متغيرات بعد. استخدم مثلاً VARالعرض في مهمة المشروع أو وصفها.",
+    "variableScope": "نوع متغير الإدخال",
+    "variableScopeFixed": "إعداد ثابت للمشروع",
+    "variableScopeRuntime": "لكل تنفيذ للمشروع"
   },
   "tasks": {
     "title": "المهام"

@@ -3,8 +3,8 @@ import { analyseProjectVariableAvailability, getRequiredInputVariableNames } fro
 
 describe("Projektvariablen-Verfügbarkeit", () => {
   const variables = [
-    { name: "Hoehe", value: "" },
-    { name: "Brettbreite", value: "" },
+    { name: "Hoehe", value: "", inputScope: "runtime" as const },
+    { name: "Brettbreite", value: "", inputScope: "runtime" as const },
     { name: "Bretter", description: "VARBretter = VARHoehe / VARBrettbreite" },
   ];
 
@@ -32,5 +32,17 @@ describe("Projektvariablen-Verfügbarkeit", () => {
   it("akzeptiert eine manuelle Überschreibung einer Rechenvariable ohne erneute Eingabe", () => {
     const overridden = variables.map((variable) => variable.name === "Bretter" ? { ...variable, overrideValue: "4" } : variable);
     expect(getRequiredInputVariableNames("Bretter", overridden)).toEqual({ inputNames: [], unresolved: [] });
+  });
+
+  it("ordnet feste Vorgaben keiner Eingabeaufgabe zu", () => {
+    const fixedVariables = [
+      { name: "MaxHoehe", value: "120", inputScope: "fixed" as const },
+      { name: "Bretter", description: "VARBretter = VARMaxHoehe / 20" },
+    ];
+    const analysis = analyseProjectVariableAvailability(fixedVariables, [{ id: "bau", order: 0 }], [
+      { id: 21, name: "Bretter berechnen", description: "Benötigt VARBretter", phaseId: "bau", sortOrder: 1 },
+    ]);
+    expect(analysis.taskInputNamesByKey).toEqual({});
+    expect(analysis.availableInputNames).toEqual(["MaxHoehe"]);
   });
 });

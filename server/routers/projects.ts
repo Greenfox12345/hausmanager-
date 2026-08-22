@@ -258,6 +258,7 @@ export const projectsRouter = router({
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         isNeighborhoodProject: z.boolean().default(false),
+        enableVariables: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
@@ -265,13 +266,14 @@ export const projectsRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Create project
-      const result = await db.insert(projects).values({
+      const result = await db.insert(projectsExtended).values({
         name: input.name,
         description: input.description,
         startDate: input.startDate ? new Date(input.startDate) : undefined,
         endDate: input.endDate ? new Date(input.endDate) : undefined,
         status: "planning",
         isNeighborhoodProject: input.isNeighborhoodProject,
+        enableVariables: input.enableVariables,
         createdBy: input.memberId,
       });
 
@@ -518,6 +520,7 @@ export const projectsRouter = router({
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         isNeighborhoodProject: z.boolean().optional(),
+        enableVariables: z.boolean().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -538,7 +541,7 @@ export const projectsRouter = router({
         processedData.endDate = new Date(updateData.endDate);
       }
 
-      await db.update(projects).set(processedData).where(eq(projects.id, id));
+      await db.update(projectsExtended).set(processedData).where(eq(projectsExtended.id, id));
 
       // Build change summary
       const changeParts: string[] = [];

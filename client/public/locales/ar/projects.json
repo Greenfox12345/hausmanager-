@@ -123,5 +123,9 @@
     "reminderError": "خطأ في إرسال التذكير",
     "taskUpdateError": "خطأ في تحديث المهمة"
   },
-  "taskProgress": "تم إنجاز {{completed}} / {{total}} مهام"
+  "taskProgress": "تم إنجاز {{completed}} / {{total}} مهام",
+  "variables": {
+    "use": "استخدام متغيرات المشروع",
+    "useDescription": "يتم التعرف على أسماء VAR في المهام. يمكن إدارة الإعدادات الثابتة وقيم كل تنفيذ للمشروع بشكل منفصل."
+  }
 }

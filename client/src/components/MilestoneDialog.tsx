@@ -8,6 +8,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "./PhotoUpload";
@@ -21,6 +23,8 @@ interface Task {
   id: number;
   name: string;
   description?: string;
+  projectIds?: number[] | null;
+  variableInputNames?: string[] | null;
 }
 
 interface MilestoneDialogProps {
@@ -43,8 +47,17 @@ const MilestoneDialogComponent = function MilestoneDialog({
   const [balanceEfforts, setBalanceEfforts] = useState<BalanceEffortDraft[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [variableName, setVariableName] = useState("");
+  const [variableValue, setVariableValue] = useState("");
+  const [variableUnit, setVariableUnit] = useState("");
   const { household, member } = useCompatAuth();
   const createBalanceEntryMutation = trpc.balance.create.useMutation();
+  const configuredVariableNames = Array.isArray(task?.variableInputNames) ? task.variableInputNames : [];
+  const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
+    { projectIds: task?.projectIds ?? [] },
+    { enabled: Boolean(open && task?.projectIds?.length) },
+  );
+  const addVariableInputMutation = trpc.tasks.addVariableInput.useMutation();
 
   // Callback for PhotoUpload
   const handlePhotosChange = (newPhotos: {url: string, filename: string}[]) => {
@@ -57,8 +70,20 @@ const MilestoneDialogComponent = function MilestoneDialog({
       setComment("");
       setPhotos([]);
       setFiles([]);
+      setVariableName("");
+      setVariableValue("");
+      setVariableUnit("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const initialName = configuredVariableNames[0] ?? "";
+    setVariableName(initialName);
+    const selectedProjectId = task?.projectIds?.[0] ?? -1;
+    const initialVariable = projectVariables[selectedProjectId]?.find((entry: any) => entry.name === initialName);
+    setVariableUnit(initialVariable?.unit ?? "");
+  }, [open, task?.id, configuredVariableNames, projectVariables, task?.projectIds]);
 
   const handleSubmit = async () => {
     if (!task) return;
@@ -70,6 +95,20 @@ const MilestoneDialogComponent = function MilestoneDialog({
         photoUrls: photos,
         fileUrls: files,
       });
+      if (variableName && variableValue.trim() && household?.householdId && member?.memberId && task.projectIds?.[0]) {
+        await addVariableInputMutation.mutateAsync({
+          householdId: household.householdId,
+          taskId: task.id,
+          memberId: member.memberId,
+          projectId: task.projectIds[0],
+          variableName,
+          value: variableValue.trim(),
+          unit: variableUnit.trim() || undefined,
+          note: comment.trim() || undefined,
+          photoUrls: photos,
+          fileUrls: files,
+        });
+      }
       if (household?.householdId && member?.memberId) {
         await Promise.all(balanceEfforts.map((effort) => createBalanceEntryMutation.mutateAsync({
           householdId: household.householdId,
@@ -89,6 +128,9 @@ const MilestoneDialogComponent = function MilestoneDialog({
       setPhotos([]);
       setFiles([]);
       setBalanceEfforts([]);
+      setVariableName("");
+      setVariableValue("");
+      setVariableUnit("");
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding milestone:", error);
@@ -154,6 +196,29 @@ const MilestoneDialogComponent = function MilestoneDialog({
               required
             />
           </div>
+
+          {configuredVariableNames.length > 0 && (
+            <div className="space-y-3 rounded-lg border border-violet-200 bg-violet-50/60 p-3 dark:border-violet-900 dark:bg-violet-950/20">
+              <div>
+                <Label className="text-sm font-medium">{t("tasks:milestoneDialog.variableTitle", "Durchlaufwert festhalten (optional)")}</Label>
+                <p className="mt-1 text-xs text-muted-foreground">{t("tasks:milestoneDialog.variableHint", "Der Wert wird vorgemerkt und beim Abschluss der Aufgabe für diesen Projektdurchlauf bestätigt.")}</p>
+              </div>
+              {configuredVariableNames.length > 1 ? (
+                <Select value={variableName} onValueChange={(name) => {
+                  setVariableName(name);
+                  const variable = projectVariables[task.projectIds?.[0] ?? -1]?.find((entry: any) => entry.name === name);
+                  setVariableUnit(variable?.unit ?? "");
+                }}>
+                  <SelectTrigger><SelectValue placeholder={t("tasks:variableInput.variable", "Variable")} /></SelectTrigger>
+                  <SelectContent>{configuredVariableNames.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent>
+                </Select>
+              ) : <p className="rounded-md border bg-background px-3 py-2 text-sm font-medium">{variableName}</p>}
+              <div className="grid grid-cols-[minmax(0,1fr)_110px] gap-3">
+                <div className="space-y-1"><Label htmlFor="milestone-variable-value">{t("tasks:variableInput.value", "Wert")}</Label><Input id="milestone-variable-value" value={variableValue} onChange={(event) => setVariableValue(event.target.value)} /></div>
+                <div className="space-y-1"><Label htmlFor="milestone-variable-unit">{t("tasks:variableInput.unit", "Einheit")}</Label><Input id="milestone-variable-unit" value={variableUnit} onChange={(event) => setVariableUnit(event.target.value)} /></div>
+              </div>
+            </div>
+          )}
 
           {household?.householdId && member?.memberId && (
             <BalanceEffortFields

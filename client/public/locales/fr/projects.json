@@ -121,5 +121,9 @@
     "reminderError": "Erreur lors de l'envoi du rappel",
     "taskUpdateError": "Erreur lors de la mise à jour de la tâche"
   },
-  "taskProgress": "{{completed}} / {{total}} tâches terminées"
+  "taskProgress": "{{completed}} / {{total}} tâches terminées",
+  "variables": {
+    "use": "Utiliser les variables du projet",
+    "useDescription": "Les noms VAR sont reconnus dans les tâches. Les paramètres fixes et les valeurs par exécution peuvent ensuite être gérés séparément."
+  }
 }

@@ -368,6 +368,7 @@ export const projects = mysqlTable("projects", {
   createdBy: int("createdBy").references(() => householdMembers.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  enableVariables: boolean("enableVariables").default(false).notNull(),
 });
 export const projectsExtended = mysqlTable("projects", {
   id: int("id").autoincrement().primaryKey(),

@@ -357,7 +357,10 @@
     "projectStructureDesc": "Les variables du projet sont reconnues à partir des tâches associées et peuvent être gérées ici.",
     "variablesEnabledHint": "Les noms VAR dans les tâches et descriptions sont reconnus et résolus.",
     "variablesDisabledHint": "Les tâches sont affichées sans reconnaissance des variables.",
-    "noRecognizedVariables": "Aucune variable reconnue pour le moment. Utilisez par exemple VARLargeur dans une tâche du projet ou sa description."
+    "noRecognizedVariables": "Aucune variable reconnue pour le moment. Utilisez par exemple VARLargeur dans une tâche du projet ou sa description.",
+    "variableScope": "Type de variable d'entrée",
+    "variableScopeFixed": "Paramètre fixe du projet",
+    "variableScopeRuntime": "Par exécution du projet"
   },
   "tasks": {
     "title": "Tâches"

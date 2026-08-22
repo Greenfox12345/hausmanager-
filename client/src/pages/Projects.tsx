@@ -67,6 +67,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [phaseStartDate, setPhaseStartDate] = useState(() => new Date().toISOString().split("T")[0]);
   // Variablen-Bearbeitung während des Projekts
   const [editingVarValues, setEditingVarValues] = useState<Record<string, string>>({});
+  const [editingInputScopes, setEditingInputScopes] = useState<Record<string, "fixed" | "runtime">>({});
   const [editingFormulaValues, setEditingFormulaValues] = useState<Record<string, string>>({});
   const [editingOverrideValues, setEditingOverrideValues] = useState<Record<string, string>>({});
   const [varEditMode, setVarEditMode] = useState(false);
@@ -207,10 +208,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   // Variablen-Bearbeitung starten
   const startVarEdit = () => {
     const vals: Record<string, string> = {};
+    const scopes: Record<string, "fixed" | "runtime"> = {};
     const formulas: Record<string, string> = {};
     const overrides: Record<string, string> = {};
     for (const v of allInputVars) {
       if (v.value) vals[v.name] = v.value;
+      scopes[v.name] = v.inputScope === "runtime" ? "runtime" : "fixed";
     }
     for (const v of variables.filter((item) => !isInputVar(item))) {
       const formula = getVariableFormula(v);
@@ -218,6 +221,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       if (v.overrideValue) overrides[v.name] = v.overrideValue;
     }
     setEditingVarValues(vals);
+    setEditingInputScopes(scopes);
     setEditingFormulaValues(formulas);
     setEditingOverrideValues(overrides);
     setVarEditMode(true);
@@ -227,8 +231,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const saveVarEdit = () => {
     const updatedVars = variables.map(v => {
       if (isInputVar(v) && editingVarValues[v.name] !== undefined) {
-        return { ...v, value: editingVarValues[v.name] || undefined };
+        return { ...v, value: editingVarValues[v.name] || undefined, inputScope: editingInputScopes[v.name] ?? "fixed" };
       }
+      if (isInputVar(v)) return { ...v, inputScope: editingInputScopes[v.name] ?? "fixed" };
       if (!isInputVar(v)) {
         const formula = editingFormulaValues[v.name]?.trim();
         return {
@@ -253,12 +258,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   // Variablen für ausgewählte Phasen im Start-Dialog (dedupliziert)
   const varsForSelectedPhases = enableVariables
     ? Array.from(new Map(
-        selectedPhaseIds.flatMap(pid => getInputVarsForPhase(pid)).map(v => [v.name, v] as [string, PlanVariable])
+        selectedPhaseIds.flatMap(pid => getInputVarsForPhase(pid).filter((variable) => variable.inputScope !== "runtime")).map(v => [v.name, v] as [string, PlanVariable])
       ).values())
     : [];
 
   // Auch phasenlose Variablen hinzufügen
-  const phaselessVars = enableVariables ? getInputVarsForPhase(null) : [];
+  const phaselessVars = enableVariables ? getInputVarsForPhase(null).filter((variable) => variable.inputScope !== "runtime") : [];
   const allStartVars = Array.from(new Map(
     [...varsForSelectedPhases, ...phaselessVars].map(v => [v.name, v] as [string, PlanVariable])
   ).values());
@@ -301,7 +306,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     vars: PlanVariable[],
     values: Record<string, string>,
     setValues: (fn: (prev: Record<string, string>) => Record<string, string>) => void,
-    showReset = true
+    showReset = true,
+    scopes?: Record<string, "fixed" | "runtime">,
+    setScopes?: (fn: (prev: Record<string, "fixed" | "runtime">) => Record<string, "fixed" | "runtime">) => void,
   ) => (
     <div className="space-y-2">
       {vars.map(v => {
@@ -315,6 +322,17 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
           <span className="text-xs font-mono flex-shrink-0 min-w-0" style={{ color: v.color }}>
             {v.alias ? `&${v.alias}` : `VAR${v.name}`}
           </span>
+          {scopes && setScopes && (
+            <select
+              value={scopes[v.name] ?? (v.inputScope === "runtime" ? "runtime" : "fixed")}
+              onChange={(event) => setScopes((previous) => ({ ...previous, [v.name]: event.target.value as "fixed" | "runtime" }))}
+              className="h-7 max-w-36 rounded border border-border bg-background px-1 text-[11px]"
+              aria-label={t("plankiste:project.variableScope", "Art der Eingabevariable")}
+            >
+              <option value="fixed">{t("plankiste:project.variableScopeFixed", "Feste Vorgabe")}</option>
+              <option value="runtime">{t("plankiste:project.variableScopeRuntime", "Je Projektdurchlauf")}</option>
+            </select>
+          )}
           {v.min && v.max && (
             <span className="text-xs text-muted-foreground flex-shrink-0">[{v.min}–{v.max}]</span>
           )}
@@ -371,24 +389,10 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
             ? t("plankiste:project.planSectionDesc", "Aus Plankiste-Vorlage. Beim Starten werden Aufgaben und Einkäufe übertragen.")
             : t("plankiste:project.projectStructureDesc", "Projektvariablen werden aus den zugeordneten Aufgaben erkannt und können hier gepflegt werden.")}
         </p>
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2 dark:border-violet-900 dark:bg-violet-950/20">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-violet-950 dark:text-violet-100">{t("plankiste:variables.toggle", "Variablen verwenden")}</p>
-            <p className="text-xs text-muted-foreground">{enableVariables
-              ? t("plankiste:project.variablesEnabledHint", "VAR-Namen in Aufgaben und Beschreibungen werden erkannt und aufgelöst.")
-              : t("plankiste:project.variablesDisabledHint", "Aufgaben werden ohne Variablenerkennung angezeigt.")}</p>
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            variant={enableVariables ? "default" : "outline"}
-            className={enableVariables ? "bg-violet-600 hover:bg-violet-700 text-white" : "border-violet-300 text-violet-700"}
-            onClick={() => updatePlanDataMutation.mutate({ projectId, enableVariables: !enableVariables, planVariables: variables })}
-            disabled={updatePlanDataMutation.isPending}
-          >
-            <Variable className="mr-1.5 h-3.5 w-3.5" />
-            {enableVariables ? t("plankiste:variables.on", "An") : t("plankiste:variables.off", "Aus")}
-          </Button>
+        <div className="mt-3 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2 text-xs text-muted-foreground dark:border-violet-900 dark:bg-violet-950/20">
+          {enableVariables ? (
+            <span className="flex items-center gap-1.5 text-violet-950 dark:text-violet-100"><Variable className="h-3.5 w-3.5" />{t("plankiste:project.variablesEnabledHint", "VAR-Namen in Aufgaben und Beschreibungen werden erkannt und aufgelöst.")}</span>
+          ) : t("plankiste:project.variablesDisabledHint", "Die Variablennutzung kann beim Erstellen oder Bearbeiten des Projekts aktiviert werden.")}
         </div>
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
@@ -451,6 +455,11 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                           <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: v.color }} />
                           <div className="min-w-0">
                             <span className="font-mono" style={{ color: v.color }}>{v.alias ? `&${v.alias}` : `VAR${v.name}`}</span>
+                            {isInputVar(source) && (
+                              <span className="ml-1 text-[10px] text-muted-foreground">{source.inputScope === "runtime"
+                                ? t("plankiste:project.variableScopeRuntime", "Je Projektdurchlauf")
+                                : t("plankiste:project.variableScopeFixed", "Feste Vorgabe")}</span>
+                            )}
                             {!isInputVar(source) && <span className="ml-1 text-muted-foreground">← {getVariableFormula(source)}</span>}
                             <div className="text-muted-foreground">= {v.value ? `${v.value}${v.unit ? ` ${v.unit}` : ""}` : t("plankiste:project.noValue", "kein Wert")}</div>
                           </div>
@@ -468,7 +477,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 ) : (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
                     <p className="text-xs font-medium text-amber-700">{t("plankiste:project.editVarsTitle", "Eingabe-Variablen bearbeiten:")}</p>
-                    {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues)}
+                    {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues, true, editingInputScopes, setEditingInputScopes)}
                     {variables.filter((v) => !isInputVar(v)).map((v) => (
                       <div key={v.name} className="border-t border-amber-200 pt-2 space-y-1">
                         <Label className="text-xs font-mono" style={{ color: v.color }}>VAR{v.name}</Label>
@@ -747,6 +756,7 @@ export default function Projects() {
   const [projectStartDate, setProjectStartDate] = useState("");
   const [projectEndDate, setProjectEndDate] = useState("");
   const [isNeighborhoodProject, setIsNeighborhoodProject] = useState(false);
+  const [enableProjectVariables, setEnableProjectVariables] = useState(false);
 
   const { data: projects = [], isLoading: projectsLoading, refetch: refetchProjects } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -925,6 +935,7 @@ export default function Projects() {
     setProjectStartDate("");
     setProjectEndDate("");
     setIsNeighborhoodProject(false);
+    setEnableProjectVariables(false);
   };
 
   const handleCreateProject = () => {
@@ -941,6 +952,7 @@ export default function Projects() {
       startDate: projectStartDate || undefined,
       endDate: projectEndDate || undefined,
       isNeighborhoodProject,
+      enableVariables: enableProjectVariables,
     });
   };
 
@@ -960,6 +972,7 @@ export default function Projects() {
       startDate: projectStartDate || undefined,
       endDate: projectEndDate || undefined,
       isNeighborhoodProject,
+      enableVariables: enableProjectVariables,
     });
   };
 
@@ -977,6 +990,7 @@ export default function Projects() {
     setProjectStartDate(project.startDate ? format(new Date(project.startDate), "yyyy-MM-dd") : "");
     setProjectEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
     setIsNeighborhoodProject(project.isNeighborhoodProject || false);
+    setEnableProjectVariables((project as any).enableVariables === true);
     setIsEditDialogOpen(true);
   };
 
@@ -1253,6 +1267,20 @@ export default function Projects() {
                   />
                 </div>
 
+                <div className="rounded-lg border border-violet-200 bg-violet-50/60 p-3 dark:border-violet-900 dark:bg-violet-950/20">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="project-use-variables"
+                      checked={enableProjectVariables}
+                      onCheckedChange={(checked) => setEnableProjectVariables(checked === true)}
+                    />
+                    <div className="min-w-0">
+                      <Label htmlFor="project-use-variables" className="cursor-pointer font-medium text-violet-950 dark:text-violet-100">{t("projects:variables.use", "Projektvariablen verwenden")}</Label>
+                      <p className="mt-1 text-xs text-muted-foreground">{t("projects:variables.useDescription", "VAR-Namen werden in Aufgaben erkannt. Feste Vorgaben und Werte je Projektdurchlauf können anschließend getrennt gepflegt werden.")}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="status">{t("common:labels.status", "Status")}</Label>
                   <Select value={projectStatus} onValueChange={(value: any) => setProjectStatus(value)}>
@@ -1489,6 +1517,7 @@ export default function Projects() {
                               setProjectStartDate(selectedProject.startDate ? format(new Date(selectedProject.startDate), "yyyy-MM-dd") : "");
                               setProjectEndDate(selectedProject.endDate ? format(new Date(selectedProject.endDate), "yyyy-MM-dd") : "");
                               setIsNeighborhoodProject(selectedProject.isNeighborhoodProject || false);
+                              setEnableProjectVariables((selectedProject as any).enableVariables === true);
                               setIsEditDialogOpen(true);
                             }}
                           >
@@ -2299,6 +2328,20 @@ export default function Projects() {
                   placeholder={t("projects:descriptionPlaceholder", "Projektbeschreibung...")}
                   rows={3}
                 />
+              </div>
+
+              <div className="rounded-lg border border-violet-200 bg-violet-50/60 p-3 dark:border-violet-900 dark:bg-violet-950/20">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="edit-project-use-variables"
+                    checked={enableProjectVariables}
+                    onCheckedChange={(checked) => setEnableProjectVariables(checked === true)}
+                  />
+                  <div className="min-w-0">
+                    <Label htmlFor="edit-project-use-variables" className="cursor-pointer font-medium text-violet-950 dark:text-violet-100">{t("projects:variables.use", "Projektvariablen verwenden")}</Label>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("projects:variables.useDescription", "VAR-Namen werden in Aufgaben erkannt. Feste Vorgaben und Werte je Projektdurchlauf können anschließend getrennt gepflegt werden.")}</p>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">

@@ -123,5 +123,9 @@
     "reminderError": "Hatırlatıcı gönderilirken hata oluştu",
     "taskUpdateError": "Görev güncellenirken hata oluştu"
   },
-  "taskProgress": "{{completed}} / {{total}} görev tamamlandı"
+  "taskProgress": "{{completed}} / {{total}} görev tamamlandı",
+  "variables": {
+    "use": "Proje değişkenlerini kullan",
+    "useDescription": "VAR adları görevlerde algılanır. Sabit değerler ve her proje yürütmesindeki değerler ayrı ayrı yönetilebilir."
+  }
 }

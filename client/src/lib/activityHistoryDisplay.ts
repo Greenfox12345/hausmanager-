@@ -11,6 +11,7 @@ const actionFallbacks: Record<string, string> = {
   deleted: "Gelöscht",
   milestone: "Zwischenziel erfasst",
   variable_input: "Variableneingabe",
+  variable_input_confirmed: "Durchlaufwert bestätigt",
   reminder: "Erinnerung gesendet",
   skipped: "Termin übersprungen",
   restored: "Termin wiederhergestellt",

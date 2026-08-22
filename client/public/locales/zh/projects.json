@@ -123,5 +123,9 @@
     "reminderError": "发送提醒出错",
     "taskUpdateError": "更新任务出错"
   },
-  "taskProgress": "已完成{{completed}} / 总计{{total}}个任务"
+  "taskProgress": "已完成{{completed}} / 总计{{total}}个任务",
+  "variables": {
+    "use": "使用项目变量",
+    "useDescription": "任务中会识别 VAR 名称。固定设定和每次项目执行的数值可分别管理。"
+  }
 }
