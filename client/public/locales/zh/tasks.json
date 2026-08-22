@@ -678,7 +678,11 @@
     "documentMissing": "记录缺失输入",
     "projectValueUpdate": "保存时也会更新项目变量的当前数值。",
     "completionConfirms": "完成任务后，将确认本次项目执行中已记录的数值。",
-    "projectValueConfirmation": "该数值会暂存，并在完成此任务时确认用于本次项目执行。"
+    "projectValueConfirmation": "该数值会暂存，并在完成此任务时确认用于本次项目执行。",
+    "range": "允许范围",
+    "rangeSource": "边界",
+    "rangeSlider": "在允许范围内选择数值",
+    "rangeError": "数值必须在允许范围内。"
   },
   "projectGroups": {
     "groupBy": "项目与阶段",

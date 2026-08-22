@@ -678,7 +678,11 @@
     "documentMissing": "Fehlende Eingaben dokumentieren",
     "projectValueUpdate": "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert.",
     "completionConfirms": "Mit dem Abschluss bestätigen Sie die dokumentierten Werte verbindlich für diesen Projektdurchlauf.",
-    "projectValueConfirmation": "Der Wert wird vorgemerkt und erst beim Abschluss dieser Aufgabe für den Projektdurchlauf bestätigt."
+    "projectValueConfirmation": "Der Wert wird vorgemerkt und erst beim Abschluss dieser Aufgabe für den Projektdurchlauf bestätigt.",
+    "range": "Erlaubter Bereich",
+    "rangeSource": "Grenzen",
+    "rangeSlider": "Wert im erlaubten Bereich auswählen",
+    "rangeError": "Der Wert muss innerhalb des erlaubten Bereichs liegen."
   },
   "projectGroups": {
     "groupBy": "Projekte & Phasen",

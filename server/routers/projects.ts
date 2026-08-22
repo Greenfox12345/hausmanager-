@@ -186,8 +186,12 @@ async function syncVariableInputDependencies(
   for (let index = 0; index < planItems.length; index += 1) {
     const planItem = planItems[index];
     if (planItem.id == null) continue;
-    const projectTask = projectTasks.find((task: any) => task.planTaskItemId === planItem.id && task.projectIds?.includes(projectId));
-    if (projectTask) taskIdByPlanKey.set(planTaskKey(planItem, index), projectTask.id);
+    const projectTask = projectTasks.find((task: any) => (task.planTaskItemId === planItem.id || task.id === planItem.id) && task.projectIds?.includes(projectId));
+    if (projectTask) {
+      const taskKey = planTaskKey(planItem, index);
+      taskIdByPlanKey.set(taskKey, projectTask.id);
+      await db.update(tasks).set({ variableInputNames: availability.taskInputNamesByKey[taskKey] ?? [] }).where(eq(tasks.id, projectTask.id));
+    }
   }
 
   for (const [taskKey, prerequisiteKeys] of Object.entries(availability.prerequisiteInputTaskKeysByKey)) {
@@ -240,9 +244,9 @@ export const projectsRouter = router({
       const projectIds = projectHouseholdRecords.map((ph) => ph.projectId);
       const projectList = await db
         .select()
-        .from(projects)
-        .where(inArray(projects.id, projectIds))
-        .orderBy(desc(projects.createdAt));
+        .from(projectsExtended)
+        .where(inArray(projectsExtended.id, projectIds))
+        .orderBy(desc(projectsExtended.createdAt));
 
       return projectList;
     }),
@@ -259,6 +263,13 @@ export const projectsRouter = router({
         endDate: z.string().optional(),
         isNeighborhoodProject: z.boolean().default(false),
         enableVariables: z.boolean().default(false),
+        planPhases: z.array(z.object({
+          id: z.string().min(1),
+          name: z.string().min(1),
+          color: z.string().min(1),
+          order: z.number().int().min(0),
+          status: z.enum(["pending", "active", "completed"]).optional(),
+        })).max(12).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -274,6 +285,7 @@ export const projectsRouter = router({
         status: "planning",
         isNeighborhoodProject: input.isNeighborhoodProject,
         enableVariables: input.enableVariables,
+        planPhases: input.planPhases,
         createdBy: input.memberId,
       });
 
@@ -521,6 +533,13 @@ export const projectsRouter = router({
         endDate: z.string().optional(),
         isNeighborhoodProject: z.boolean().optional(),
         enableVariables: z.boolean().optional(),
+        planPhases: z.array(z.object({
+          id: z.string().min(1),
+          name: z.string().min(1),
+          color: z.string().min(1),
+          order: z.number().int().min(0),
+          status: z.enum(["pending", "active", "completed"]).optional(),
+        })).max(12).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -1087,6 +1106,31 @@ export const planProjectsRouter = router({
       await syncPlanTaskDependencies(db, input.householdId, input.projectId, taskItemsList);
       await syncVariableInputDependencies(db, input.householdId, input.projectId, taskItemsList, variableAvailability);
       return { createdTaskIds, createdShoppingIds };
+    }),
+
+  /** Phase eines normalen Projekts aktivieren, ohne bereits existierende Aufgaben zu kopieren. */
+  activateExistingPhase: protectedProcedure
+    .input(z.object({ projectId: z.number(), phaseId: z.string(), householdId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId));
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
+      if (!phases.some((phase) => phase.id === input.phaseId)) throw new Error("Projektphase nicht gefunden");
+      const updatedPhases = phases.map((phase) => phase.id === input.phaseId ? { ...phase, status: "active" as const } : phase);
+      const planItems = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const availability = analyseProjectVariableAvailability(
+        (project.planVariables ?? []) as PlanVariable[],
+        phases,
+        planItems,
+        (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[],
+      );
+      await db.update(projectsExtended).set({
+        planPhases: updatedPhases as PlanPhase[],
+        status: project.status === "planning" ? "active" : project.status,
+      }).where(eq(projectsExtended.id, input.projectId));
+      await syncVariableInputDependencies(db, input.householdId, input.projectId, planItems, availability);
+      return { success: true };
     }),
 
   /** Eingabe-Variablen eines Projekts zurücksetzen (Werte löschen, Grenzen behalten) */

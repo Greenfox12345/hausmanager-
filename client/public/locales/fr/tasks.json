@@ -678,7 +678,11 @@
     "documentMissing": "Documenter les saisies manquantes",
     "projectValueUpdate": "L'enregistrement met également à jour la valeur actuelle de la variable du projet.",
     "completionConfirms": "La finalisation de la tâche confirme les valeurs documentées pour cette exécution du projet.",
-    "projectValueConfirmation": "La valeur est enregistrée provisoirement et n'est confirmée pour l'exécution du projet qu'à la fin de cette tâche."
+    "projectValueConfirmation": "La valeur est enregistrée provisoirement et n'est confirmée pour l'exécution du projet qu'à la fin de cette tâche.",
+    "range": "Plage autorisée",
+    "rangeSource": "Limites",
+    "rangeSlider": "Choisir une valeur dans la plage autorisée",
+    "rangeError": "La valeur doit se trouver dans la plage autorisée."
   },
   "projectGroups": {
     "groupBy": "Projets et phases",

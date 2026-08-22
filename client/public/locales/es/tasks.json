@@ -728,7 +728,11 @@
     "documentMissing": "Documentar entradas faltantes",
     "projectValueUpdate": "Al guardar, también se actualiza el valor actual de la variable del proyecto.",
     "completionConfirms": "Al completar la tarea, confirma los valores documentados para esta ejecución del proyecto.",
-    "projectValueConfirmation": "El valor queda guardado provisionalmente y se confirma para la ejecución del proyecto al completar esta tarea."
+    "projectValueConfirmation": "El valor queda guardado provisionalmente y se confirma para la ejecución del proyecto al completar esta tarea.",
+    "range": "Rango permitido",
+    "rangeSource": "Límites",
+    "rangeSlider": "Elegir un valor dentro del rango permitido",
+    "rangeError": "El valor debe estar dentro del rango permitido."
   },
   "projectGroups": {
     "groupBy": "Proyectos y fases",

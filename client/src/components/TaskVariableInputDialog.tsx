@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { trpc } from "@/lib/trpc";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
+import { buildVarValueMap, evaluateFormula, type PlanVariable } from "@/lib/varParser";
 
 type UploadReference = { url: string; filename: string };
 
@@ -24,7 +25,7 @@ type TaskVariableInputDialogProps = {
     projectIds?: number[] | null;
     variableInputNames?: string[] | null;
   } | null;
-  variables?: Array<{ name: string; unit?: string | null }> | null;
+  variables?: Array<{ name: string; unit?: string | null; min?: string | number | null; max?: string | number | null; value?: string | null; color?: string; alias?: string; inputScope?: "fixed" | "runtime" | null }> | null;
   /** Optional: Beim Abschluss nur bisher fehlende Variablen zur Auswahl anbieten. */
   onlyVariableNames?: string[];
 };
@@ -53,6 +54,23 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
   );
 
   const selectedVariable = variables?.find((candidate) => candidate.name === variableName);
+  const variableValueMap = useMemo(() => buildVarValueMap((variables ?? []) as PlanVariable[]), [variables]);
+  const resolveBoundary = (boundary: string | number | null | undefined) => {
+    if (boundary === undefined || boundary === null || String(boundary).trim() === "") return undefined;
+    const raw = String(boundary).trim().replace(",", ".");
+    const direct = Number(raw);
+    if (Number.isFinite(direct)) return direct;
+    const result = evaluateFormula(raw, variableValueMap);
+    return result.ok && Number.isFinite(result.value) ? result.value : undefined;
+  };
+  const rangeMin = resolveBoundary(selectedVariable?.min);
+  const rangeMax = resolveBoundary(selectedVariable?.max);
+  const hasResolvedRange = rangeMin !== undefined && rangeMax !== undefined && rangeMin <= rangeMax;
+  const numericValue = Number(value.replace(",", "."));
+  const isOutsideRange = hasResolvedRange && (!Number.isFinite(numericValue) || numericValue < rangeMin! || numericValue > rangeMax!);
+  const rangeLabel = hasResolvedRange
+    ? `${rangeMin}${selectedVariable?.unit ? ` ${selectedVariable.unit}` : ""} – ${rangeMax}${selectedVariable?.unit ? ` ${selectedVariable.unit}` : ""}`
+    : undefined;
   const addVariableInputMutation = trpc.tasks.addVariableInput.useMutation({
     onSuccess: async () => {
       if (household?.householdId && task?.id) {
@@ -104,6 +122,10 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
 
   const handleSubmit = () => {
     if (!task || !household?.householdId || !member?.memberId || !variableName || !value.trim()) return;
+    if (isOutsideRange) {
+      toast.error(t("tasks:variableInput.rangeError", "Der Wert muss innerhalb des erlaubten Bereichs liegen."));
+      return;
+    }
     addVariableInputMutation.mutate({
       householdId: household.householdId,
       taskId: task.id,
@@ -168,6 +190,24 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
             </div>
           </div>
 
+          {hasResolvedRange && (
+            <div className={`rounded-lg border p-3 ${isOutsideRange ? "border-destructive/60 bg-destructive/5" : "border-amber-200 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/20"}`}>
+              <p className="text-xs font-medium">{t("tasks:variableInput.range", "Erlaubter Bereich")}: {rangeLabel}</p>
+              {(selectedVariable?.min || selectedVariable?.max) && <p className="mt-1 text-xs text-muted-foreground">{t("tasks:variableInput.rangeSource", "Grenzen")}: {String(selectedVariable.min ?? "")} – {String(selectedVariable.max ?? "")}</p>}
+              <input
+                type="range"
+                min={rangeMin}
+                max={rangeMax}
+                step={(rangeMax! - rangeMin!) >= 10 ? 1 : (rangeMax! - rangeMin!) >= 1 ? 0.1 : 0.01}
+                value={Number.isFinite(numericValue) ? Math.min(rangeMax!, Math.max(rangeMin!, numericValue)) : rangeMin}
+                onChange={(event) => setValue(event.target.value)}
+                className="mt-3 w-full accent-blue-600"
+                aria-label={t("tasks:variableInput.rangeSlider", "Wert im erlaubten Bereich auswählen")}
+              />
+              {isOutsideRange && <p className="mt-2 text-xs font-medium text-destructive">{t("tasks:variableInput.rangeError", "Der Wert muss innerhalb des erlaubten Bereichs liegen.")}</p>}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="task-variable-note">{t("tasks:variableInput.note", "Erläuterung")}</Label>
             <Textarea id="task-variable-note" value={note} onChange={(event) => setNote(event.target.value)} rows={3} placeholder={t("tasks:variableInput.notePlaceholder", "Messung, Berechnung oder Besonderheiten festhalten")}/>
@@ -185,7 +225,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={addVariableInputMutation.isPending}>{t("common:actions.cancel", "Abbrechen")}</Button>
-          <Button onClick={handleSubmit} disabled={!variableName || !value.trim() || isUploading || addVariableInputMutation.isPending}>
+          <Button onClick={handleSubmit} disabled={!variableName || !value.trim() || isOutsideRange || isUploading || addVariableInputMutation.isPending}>
             {addVariableInputMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("common:actions.saving", "Speichern")}</> : t("tasks:variableInput.save", "Eingabe speichern")}
           </Button>
         </DialogFooter>

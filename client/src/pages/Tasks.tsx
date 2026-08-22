@@ -576,6 +576,16 @@ export default function Tasks() {
   const filteredAndSortedTasks = useMemo(() => {
     if (!tasks || tasks.length === 0) return [];
     let filtered = [...tasks];
+
+    // Aufgaben einer noch nicht gestarteten Projektphase bleiben bis zum Phasenstart unsichtbar.
+    filtered = filtered.filter((task: any) => {
+      const projectId = task.projectIds?.[0] as number | undefined;
+      if (!projectId) return true;
+      const projectData = (projectGroupingData as Record<number, any>)[projectId];
+      const planTask = (projectData?.taskItems ?? []).find((item: any) => item.id === (task.planTaskItemId ?? task.id));
+      const phase = planTask?.phaseId ? (projectData?.phases ?? []).find((item: any) => item.id === planTask.phaseId) : null;
+      return !phase || phase.status === "active" || phase.status === "completed";
+    });
     
     // Status filter
     if (statusFilter === "open") {
@@ -659,7 +669,7 @@ export default function Tasks() {
     });
     
     return filtered;
-  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments, dependencies]);
+  }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments, dependencies, projectGroupingData]);
 
   const projectPhaseGroups = useMemo(() => {
     type TaskGroup = { id: string; name: string; color?: string; order: number; tasks: any[] };
@@ -675,7 +685,7 @@ export default function Tasks() {
       }
       const projectData = (projectGroupingData as Record<number, any>)[projectId];
       const projectName = projectData?.name ?? projects.find((project: any) => project.id === projectId)?.name ?? t("tasks:projectGroups.unknownProject", "Unbekanntes Projekt");
-      const planTask = (projectData?.taskItems ?? []).find((item: any) => item.id === task.planTaskItemId);
+      const planTask = (projectData?.taskItems ?? []).find((item: any) => item.id === (task.planTaskItemId ?? task.id));
       const phaseId = planTask?.phaseId ?? "__without_phase__";
       const phase = (projectData?.phases ?? []).find((item: any) => item.id === phaseId);
       const phaseName = phase?.name ?? t("tasks:projectGroups.withoutPhase", "Ohne Phase");

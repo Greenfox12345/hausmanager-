@@ -125,5 +125,20 @@
   "variables": {
     "use": "Utiliser les variables du projet",
     "useDescription": "Les noms VAR sont reconnus dans les tâches. Les paramètres fixes et les valeurs par exécution peuvent ensuite être gérés séparément."
+  },
+  "phases": {
+    "title": "Phases du projet",
+    "description": "Les tâches peuvent être associées à une phase. Les phases non démarrées restent grisées et leurs tâches ne figurent pas encore dans la liste.",
+    "add": "Phase",
+    "newName": "Nouvelle phase",
+    "empty": "Sans phases, les tâches du projet restent immédiatement visibles comme auparavant.",
+    "color": "Couleur de la phase",
+    "name": "Nom de la phase",
+    "taskPhase": "Phase du projet",
+    "unphased": "Sans phase – visible immédiatement",
+    "pending": "Pas encore démarrée",
+    "taskPhaseHint": "Les tâches d'une phase non démarrée n'apparaissent dans la liste qu'après son démarrage.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre"
   }
 }

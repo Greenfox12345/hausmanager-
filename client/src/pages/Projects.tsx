@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useCompatAuth } from "@/hooks/useCompatAuth";
 import { trpc } from "@/lib/trpc";
@@ -53,6 +53,65 @@ import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
 import { analyseProjectVariableAvailability, planTaskKey } from "../../../shared/projectVariableAvailability";
 
+type EditableProjectPhase = {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+  status?: "pending" | "active" | "completed";
+};
+
+const PROJECT_PHASE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];
+
+function ProjectPhasesEditor({ phases, onChange, t }: { phases: EditableProjectPhase[]; onChange: (phases: EditableProjectPhase[]) => void; t: any }) {
+  const ordered = [...phases].sort((a, b) => a.order - b.order);
+  const replace = (next: EditableProjectPhase[]) => onChange(next.map((phase, index) => ({ ...phase, order: index })));
+  const addPhase = () => {
+    if (ordered.length >= 12) return;
+    replace([...ordered, {
+      id: `project-phase-${Date.now()}-${ordered.length}`,
+      name: t("projects:phases.newName", "Neue Phase"),
+      color: PROJECT_PHASE_COLORS[ordered.length % PROJECT_PHASE_COLORS.length],
+      order: ordered.length,
+      status: "pending",
+    }]);
+  };
+  const move = (index: number, offset: -1 | 1) => {
+    const target = index + offset;
+    if (target < 0 || target >= ordered.length) return;
+    const next = [...ordered];
+    [next[index], next[target]] = [next[target], next[index]];
+    replace(next);
+  };
+  return (
+    <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-900 dark:bg-amber-950/20">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <Label className="font-medium">{t("projects:phases.title", "Projektphasen")}</Label>
+          <p className="mt-1 text-xs text-muted-foreground">{t("projects:phases.description", "Aufgaben lassen sich einer Phase zuordnen. Nicht gestartete Phasen bleiben zunächst ausgegraut und ihre Aufgaben erscheinen nicht in der Aufgabenliste.")}</p>
+        </div>
+        <Button type="button" size="sm" variant="outline" className="shrink-0" onClick={addPhase} disabled={ordered.length >= 12}>
+          <Plus className="mr-1 h-3.5 w-3.5" />{t("projects:phases.add", "Phase")}
+        </Button>
+      </div>
+      {ordered.length > 0 && <div className="space-y-2">
+        {ordered.map((phase, index) => (
+          <div key={phase.id} className="grid grid-cols-[28px_minmax(0,1fr)_70px_auto] items-center gap-2 rounded-md border border-amber-200/80 bg-background p-2 dark:border-amber-900">
+            <input aria-label={t("projects:phases.color", "Phasenfarbe")} type="color" value={phase.color} onChange={(event) => replace(ordered.map((entry) => entry.id === phase.id ? { ...entry, color: event.target.value } : entry))} className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent p-0" />
+            <Input aria-label={t("projects:phases.name", "Phasenname")} value={phase.name} onChange={(event) => replace(ordered.map((entry) => entry.id === phase.id ? { ...entry, name: event.target.value } : entry))} className="h-8 text-sm" />
+            <div className="flex gap-1">
+              <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => move(index, -1)} disabled={index === 0} aria-label={t("projects:phases.moveUp", "Nach oben")}>↑</Button>
+              <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => move(index, 1)} disabled={index === ordered.length - 1} aria-label={t("projects:phases.moveDown", "Nach unten")}>↓</Button>
+            </div>
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => replace(ordered.filter((entry) => entry.id !== phase.id))} aria-label={t("common:delete", "Löschen")}><Trash2 className="h-3.5 w-3.5" /></Button>
+          </div>
+        ))}
+      </div>}
+      {ordered.length === 0 && <p className="text-xs text-muted-foreground">{t("projects:phases.empty", "Ohne Phasen bleiben Projektaufgaben wie bisher sofort sichtbar.")}</p>}
+    </div>
+  );
+}
+
 // ─── Plan-Sektion für Projekte aus Plankiste ──────────────────────────────────
 function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: number; householdId: number; memberId: number }) {
   const { t } = useTranslation(["plankiste", "common"]);
@@ -68,6 +127,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   // Variablen-Bearbeitung während des Projekts
   const [editingVarValues, setEditingVarValues] = useState<Record<string, string>>({});
   const [editingInputScopes, setEditingInputScopes] = useState<Record<string, "fixed" | "runtime">>({});
+  const [editingRangeValues, setEditingRangeValues] = useState<Record<string, { min: string; max: string }>>({});
   const [editingFormulaValues, setEditingFormulaValues] = useState<Record<string, string>>({});
   const [editingOverrideValues, setEditingOverrideValues] = useState<Record<string, string>>({});
   const [varEditMode, setVarEditMode] = useState(false);
@@ -91,6 +151,16 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
       utils.planProjects.getWithPlanData.invalidate({ projectId });
       utils.tasks.list.invalidate();
       setPhaseStartDialogId(null);
+    },
+    onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
+  });
+  const activateExistingPhaseMutation = trpc.planProjects.activateExistingPhase.useMutation({
+    onSuccess: () => {
+      toast.success(t("plankiste:project.phaseStarted", "Phase gestartet!"));
+      utils.planProjects.getWithPlanData.invalidate({ projectId });
+      utils.planProjects.getTaskGroupingData.invalidate();
+      utils.projects.list.invalidate({ householdId });
+      utils.tasks.list.invalidate();
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Starten")),
   });
@@ -209,11 +279,13 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const startVarEdit = () => {
     const vals: Record<string, string> = {};
     const scopes: Record<string, "fixed" | "runtime"> = {};
+    const ranges: Record<string, { min: string; max: string }> = {};
     const formulas: Record<string, string> = {};
     const overrides: Record<string, string> = {};
     for (const v of allInputVars) {
       if (v.value) vals[v.name] = v.value;
       scopes[v.name] = v.inputScope === "runtime" ? "runtime" : "fixed";
+      ranges[v.name] = { min: v.min === undefined ? "" : String(v.min), max: v.max === undefined ? "" : String(v.max) };
     }
     for (const v of variables.filter((item) => !isInputVar(item))) {
       const formula = getVariableFormula(v);
@@ -222,6 +294,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     }
     setEditingVarValues(vals);
     setEditingInputScopes(scopes);
+    setEditingRangeValues(ranges);
     setEditingFormulaValues(formulas);
     setEditingOverrideValues(overrides);
     setVarEditMode(true);
@@ -231,9 +304,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const saveVarEdit = () => {
     const updatedVars = variables.map(v => {
       if (isInputVar(v) && editingVarValues[v.name] !== undefined) {
-        return { ...v, value: editingVarValues[v.name] || undefined, inputScope: editingInputScopes[v.name] ?? "fixed" };
+        return { ...v, value: editingVarValues[v.name] || undefined, inputScope: editingInputScopes[v.name] ?? "fixed", min: editingRangeValues[v.name]?.min.trim() || undefined, max: editingRangeValues[v.name]?.max.trim() || undefined };
       }
-      if (isInputVar(v)) return { ...v, inputScope: editingInputScopes[v.name] ?? "fixed" };
+      if (isInputVar(v)) return { ...v, inputScope: editingInputScopes[v.name] ?? "fixed", min: editingRangeValues[v.name]?.min.trim() || undefined, max: editingRangeValues[v.name]?.max.trim() || undefined };
       if (!isInputVar(v)) {
         const formula = editingFormulaValues[v.name]?.trim();
         return {
@@ -309,6 +382,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     showReset = true,
     scopes?: Record<string, "fixed" | "runtime">,
     setScopes?: (fn: (prev: Record<string, "fixed" | "runtime">) => Record<string, "fixed" | "runtime">) => void,
+    ranges?: Record<string, { min: string; max: string }>,
+    setRanges?: (fn: (prev: Record<string, { min: string; max: string }>) => Record<string, { min: string; max: string }>) => void,
   ) => (
     <div className="space-y-2">
       {vars.map(v => {
@@ -360,6 +435,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
           )}
         </div>
         {hasRange && !v.locked && <input type="range" min={min} max={max} step={(max - min) >= 10 ? 1 : (max - min) >= 1 ? 0.1 : 0.01} value={Number.isFinite(current) ? current : min} onChange={e => setValues(prev => ({ ...prev, [v.name]: e.target.value }))} className="w-full accent-amber-600" />}
+        {ranges && setRanges && (
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
+            <Input value={ranges[v.name]?.min ?? ""} onChange={(event) => setRanges((previous) => ({ ...previous, [v.name]: { min: event.target.value, max: previous[v.name]?.max ?? "" } }))} placeholder={t("plankiste:variables.minPlaceholder", "Untergrenze, z. B. 30 oder VARMin") } className="h-7 text-xs" />
+            <Input value={ranges[v.name]?.max ?? ""} onChange={(event) => setRanges((previous) => ({ ...previous, [v.name]: { min: previous[v.name]?.min ?? "", max: event.target.value } }))} placeholder={t("plankiste:variables.maxPlaceholder", "Obergrenze, z. B. 120 oder VARMax") } className="h-7 text-xs" />
+          </div>
+        )}
         </div>;
       })}
     </div>
@@ -414,8 +495,8 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                     <div className="flex items-center gap-1.5">
                       {phase.status === "active" && <Badge variant="outline" className="text-xs text-green-600 border-green-300">{t("plankiste:project.phaseActive", "Aktiv")}</Badge>}
                       {phase.status === "completed" && <Badge variant="outline" className="text-xs text-gray-500">{t("plankiste:project.phaseCompleted", "Abgeschlossen")}</Badge>}
-                      {isActive && (phase.status === "pending" || !phase.status) && (
-                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => openPhaseStartDialog(phase.id)}>
+                      {(isActive || !project.planTemplateId) && (phase.status === "pending" || !phase.status) && (
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => project.planTemplateId ? openPhaseStartDialog(phase.id) : activateExistingPhaseMutation.mutate({ projectId, phaseId: phase.id, householdId })} disabled={activateExistingPhaseMutation.isPending}>
                           <Play className="w-2.5 h-2.5 mr-1" />
                           {t("plankiste:project.startPhase", "Starten")}
                         </Button>
@@ -477,7 +558,7 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                 ) : (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
                     <p className="text-xs font-medium text-amber-700">{t("plankiste:project.editVarsTitle", "Eingabe-Variablen bearbeiten:")}</p>
-                    {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues, true, editingInputScopes, setEditingInputScopes)}
+                    {renderVarInputs(allInputVars, editingVarValues, setEditingVarValues, true, editingInputScopes, setEditingInputScopes, editingRangeValues, setEditingRangeValues)}
                     {variables.filter((v) => !isInputVar(v)).map((v) => (
                       <div key={v.name} className="border-t border-amber-200 pt-2 space-y-1">
                         <Label className="text-xs font-mono" style={{ color: v.color }}>VAR{v.name}</Label>
@@ -738,6 +819,7 @@ export default function Projects() {
   const [taskDueTime, setTaskDueTime] = useState("");
   const [taskAssignees, setTaskAssignees] = useState<number[]>([]);
   const [taskPrerequisites, setTaskPrerequisites] = useState<number[]>([]);
+  const [taskPhaseId, setTaskPhaseId] = useState("unphased");
   const [taskFollowups, setTaskFollowups] = useState<number[]>([]);
   const [additionalProjectIds, setAdditionalProjectIds] = useState<number[]>([]);
   const [isRepeating, setIsRepeating] = useState(false);
@@ -757,6 +839,7 @@ export default function Projects() {
   const [projectEndDate, setProjectEndDate] = useState("");
   const [isNeighborhoodProject, setIsNeighborhoodProject] = useState(false);
   const [enableProjectVariables, setEnableProjectVariables] = useState(false);
+  const [projectPhases, setProjectPhases] = useState<EditableProjectPhase[]>([]);
 
   const { data: projects = [], isLoading: projectsLoading, refetch: refetchProjects } = trpc.projects.list.useQuery(
     { householdId: household?.householdId ?? 0 },
@@ -936,6 +1019,7 @@ export default function Projects() {
     setProjectEndDate("");
     setIsNeighborhoodProject(false);
     setEnableProjectVariables(false);
+    setProjectPhases([]);
   };
 
   const handleCreateProject = () => {
@@ -953,6 +1037,7 @@ export default function Projects() {
       endDate: projectEndDate || undefined,
       isNeighborhoodProject,
       enableVariables: enableProjectVariables,
+      planPhases: projectPhases,
     });
   };
 
@@ -973,6 +1058,7 @@ export default function Projects() {
       endDate: projectEndDate || undefined,
       isNeighborhoodProject,
       enableVariables: enableProjectVariables,
+      planPhases: projectPhases,
     });
   };
 
@@ -991,6 +1077,7 @@ export default function Projects() {
     setProjectEndDate(project.endDate ? format(new Date(project.endDate), "yyyy-MM-dd") : "");
     setIsNeighborhoodProject(project.isNeighborhoodProject || false);
     setEnableProjectVariables((project as any).enableVariables === true);
+    setProjectPhases(Array.isArray((project as any).planPhases) ? (project as any).planPhases : []);
     setIsEditDialogOpen(true);
   };
 
@@ -1001,6 +1088,16 @@ export default function Projects() {
   );
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const selectedProjectPhases = useMemo(
+    () => Array.isArray((selectedProject as any)?.planPhases)
+      ? ([...(selectedProject as any).planPhases] as EditableProjectPhase[]).sort((a, b) => a.order - b.order)
+      : [],
+    [selectedProject],
+  );
+  const selectedProjectPhaseByTaskId = useMemo(() => {
+    const items = Array.isArray((selectedProject as any)?.planTaskItems) ? (selectedProject as any).planTaskItems : [];
+    return new Map<number, string>(items.filter((item: any) => Number.isFinite(Number(item.id)) && item.phaseId).map((item: any) => [Number(item.id), item.phaseId]));
+  }, [selectedProject]);
   const projectTasks = useMemo(
     () => {
       if (!selectedProjectId) return [];
@@ -1016,12 +1113,24 @@ export default function Projects() {
     },
     [selectedProjectId, tasks, dependencies]
   );
+  const isTaskInStartedPhase = useCallback((task: any) => {
+    const phaseId = selectedProjectPhaseByTaskId.get(task.planTaskItemId ?? task.id);
+    if (!phaseId) return true;
+    const phase = selectedProjectPhases.find((entry) => entry.id === phaseId);
+    return phase?.status === "active" || phase?.status === "completed";
+  }, [selectedProjectPhaseByTaskId, selectedProjectPhases]);
+  const activeProjectTasks = useMemo(() => projectTasks.filter(isTaskInStartedPhase), [projectTasks, isTaskInStartedPhase]);
+  const pendingProjectPhases = useMemo(() => selectedProjectPhases
+    .filter((phase) => phase.status !== "active" && phase.status !== "completed")
+    .map((phase) => ({ ...phase, tasks: projectTasks.filter((task: any) => selectedProjectPhaseByTaskId.get(task.planTaskItemId ?? task.id) === phase.id) }))
+    .filter((phase) => phase.tasks.length > 0), [selectedProjectPhases, projectTasks, selectedProjectPhaseByTaskId]);
 
   const addTaskMutation = trpc.tasks.add.useMutation({
     onError: (error) => {
       toast.error(t("tasks:messages.createError", "Fehler beim Erstellen der Aufgabe") + ": " + error.message);
     },
   });
+  const updateProjectPlanDataMutation = trpc.planProjects.updatePlanData.useMutation();
 
   const addDependenciesMutation = trpc.projects.addDependencies.useMutation();
 
@@ -1044,6 +1153,7 @@ export default function Projects() {
     setTaskDueTime("");
     setTaskAssignees([]);
     setTaskPrerequisites([]);
+    setTaskPhaseId("unphased");
     setTaskFollowups([]);
     setAdditionalProjectIds([]);
     setShareWithNeighbors(false);
@@ -1095,6 +1205,18 @@ export default function Projects() {
         excludedMembers: hasRotation && rotationExcluded.length > 0 ? rotationExcluded : undefined,
         sharedHouseholdIds: shareWithNeighbors && sharedHouseholdIds.length > 0 ? sharedHouseholdIds : undefined,
       });
+
+      if (taskPhaseId !== "unphased") {
+        const currentPlanItems = Array.isArray((selectedProject as any)?.planTaskItems) ? (selectedProject as any).planTaskItems : [];
+        await updateProjectPlanDataMutation.mutateAsync({
+          projectId: selectedProjectId,
+          planTaskItems: [
+            ...currentPlanItems.filter((item: any) => Number(item.id) !== result.id),
+            { id: result.id, name: taskName, description: taskDescription || undefined, phaseId: taskPhaseId, sortOrder: currentPlanItems.length },
+          ],
+        });
+        await utils.projects.list.invalidate({ householdId: household.householdId });
+      }
 
       // Add dependencies if any
       if (taskPrerequisites.length > 0 || taskFollowups.length > 0) {
@@ -1280,6 +1402,8 @@ export default function Projects() {
                     </div>
                   </div>
                 </div>
+
+                <ProjectPhasesEditor phases={projectPhases} onChange={setProjectPhases} t={t} />
 
                 <div className="space-y-2">
                   <Label htmlFor="status">{t("common:labels.status", "Status")}</Label>
@@ -1509,17 +1633,7 @@ export default function Projects() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              setEditingProject(selectedProject);
-                              setProjectName(selectedProject.name);
-                              setProjectDescription(selectedProject.description || "");
-                              setProjectStatus(selectedProject.status);
-                              setProjectStartDate(selectedProject.startDate ? format(new Date(selectedProject.startDate), "yyyy-MM-dd") : "");
-                              setProjectEndDate(selectedProject.endDate ? format(new Date(selectedProject.endDate), "yyyy-MM-dd") : "");
-                              setIsNeighborhoodProject(selectedProject.isNeighborhoodProject || false);
-                              setEnableProjectVariables((selectedProject as any).enableVariables === true);
-                              setIsEditDialogOpen(true);
-                            }}
+                            onClick={() => openEditDialog(selectedProject)}
                           >
                             <Edit2 className="h-4 w-4 mr-1" />
                             {t("common:actions.edit", "Bearbeiten")}
@@ -1628,13 +1742,13 @@ export default function Projects() {
                         <CardTitle className="text-lg">{t("tasks:title", "Aufgaben")}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        {projectTasks.length === 0 ? (
+                        {activeProjectTasks.length === 0 && pendingProjectPhases.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-8">
                             {t("projects:messages.noTasksInProject", "Keine Aufgaben in diesem Projekt. Erstellen Sie Aufgaben auf der Aufgabenseite.")}
                           </p>
                         ) : (
                           <div className="space-y-2">
-                            {projectTasks.map((task) => {
+                            {activeProjectTasks.map((task) => {
                               const frequency = getFrequencyBadge(task);
 
                               return (
@@ -1769,6 +1883,18 @@ export default function Projects() {
                                 </Card>
                               );
                             })}
+                            {pendingProjectPhases.map((phase) => (
+                              <div key={phase.id} className="rounded-lg border border-dashed p-3 opacity-55" style={{ borderColor: phase.color }}>
+                                <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: phase.color }} />
+                                  {phase.name}
+                                  <Badge variant="outline" className="ml-auto text-xs">{t("projects:phases.pending", "Noch nicht gestartet")}</Badge>
+                                </div>
+                                <div className="space-y-1 pl-4 text-xs text-muted-foreground">
+                                  {phase.tasks.map((task: any) => <div key={task.id} className="flex items-center gap-2"><CheckSquare className="h-3.5 w-3.5" />{task.name}</div>)}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </CardContent>
@@ -1910,6 +2036,24 @@ export default function Projects() {
                   rows={3}
                 />
               </div>
+
+              {selectedProjectPhases.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="task-phase">{t("projects:phases.taskPhase", "Projektphase")}</Label>
+                  <Select value={taskPhaseId} onValueChange={setTaskPhaseId}>
+                    <SelectTrigger id="task-phase"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unphased">{t("projects:phases.unphased", "Ohne Phase – sofort sichtbar")}</SelectItem>
+                      {selectedProjectPhases.map((phase) => (
+                        <SelectItem key={phase.id} value={phase.id}>
+                          {phase.name}{phase.status !== "active" && phase.status !== "completed" ? ` · ${t("projects:phases.pending", "noch nicht gestartet")}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{t("projects:phases.taskPhaseHint", "Aufgaben einer noch nicht gestarteten Phase werden erst nach deren Start in der Aufgabenansicht angezeigt.")}</p>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -2343,6 +2487,8 @@ export default function Projects() {
                   </div>
                 </div>
               </div>
+
+              <ProjectPhasesEditor phases={projectPhases} onChange={setProjectPhases} t={t} />
 
               <div className="space-y-2">
                 <Label htmlFor="edit-status">{t("common:labels.status", "Status")}</Label>

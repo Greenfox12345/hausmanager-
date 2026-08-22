@@ -3915,3 +3915,10 @@
 - [x] Durchlaufbezogene Variablen in zugeordneten Aufgaben erfassen, zwischenspeichern und erst beim Aufgabenabschluss verbindlich bestätigen
 - [x] Bereits in einem Zwischenziel dokumentierte Werte beim Variablenabschluss vorausfüllen
 - [x] Projekt-Phasen-Schalter auf der Aufgabenseite so anordnen, dass die Mehrfachauswahl weiterhin uneingeschränkt bedienbar bleibt
+
+## Projektphasen und bereichsgebundene Variableneingaben (2026-08-22)
+- [x] Projekte beim Erstellen und Bearbeiten mit frei benennbaren und farblich unterscheidbaren Phasen ausstatten
+- [x] Projektaufgaben den Phasen zuordnen und nur Aufgaben gestarteter Phasen in der Aufgabenansicht sichtbar machen
+- [x] Noch nicht gestartete Phasen in der Projektansicht ausgegraut, aber nachvollziehbar anzeigen und einzeln aktivieren
+- [x] Durchlaufbezogene Eingabevariablen als freie, begrenzte oder von anderen Variablen abhängige Eingabe in einer Aufgabe konfigurieren
+- [x] Bereichsgrenzen beim Eingeben einer Variable auswerten, sichtbar erklären und eine Bestätigung im erlaubten Bereich erzwingen

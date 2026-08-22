@@ -127,5 +127,20 @@
   "variables": {
     "use": "Proje değişkenlerini kullan",
     "useDescription": "VAR adları görevlerde algılanır. Sabit değerler ve her proje yürütmesindeki değerler ayrı ayrı yönetilebilir."
+  },
+  "phases": {
+    "title": "Proje aşamaları",
+    "description": "Görevler bir aşamaya atanabilir. Başlatılmamış aşamalar soluk görünür ve görevleri henüz görev listesinde yer almaz.",
+    "add": "Aşama",
+    "newName": "Yeni aşama",
+    "empty": "Aşama olmadan proje görevleri eskisi gibi hemen görünür.",
+    "color": "Aşama rengi",
+    "name": "Aşama adı",
+    "taskPhase": "Proje aşaması",
+    "unphased": "Aşamasız – hemen görünür",
+    "pending": "Henüz başlatılmadı",
+    "taskPhaseHint": "Başlatılmamış bir aşamadaki görevler, aşama başladıktan sonra görev listesinde görünür.",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı"
   }
 }

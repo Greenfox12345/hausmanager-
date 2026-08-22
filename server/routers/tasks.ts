@@ -77,6 +77,7 @@ import { canDirectlyManageTask, canReviewTaskProposal } from "../../shared/taskP
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import { getTaskDueDateParts } from "../../shared/taskProposalApproval";
 import { isProjectRuntimeInputVariable } from "../../shared/projectVariableAvailability";
+import { buildVarValueMap, evaluateFormula, type PlanVariable } from "../../client/src/lib/varParser";
 
 async function confirmRuntimeTaskVariableInputs(task: any, householdId: number, memberId: number): Promise<string[]> {
   const projectId = Array.isArray(task.projectIds) ? task.projectIds[0] : undefined;
@@ -567,6 +568,20 @@ export const tasksRouter = router({
       }
       if (!isProjectRuntimeInputVariable(projectVariable)) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Nur durchlaufbezogene Eingabevariablen können in dieser Aufgabe dokumentiert werden." });
+      }
+      const resolveRangeBoundary = (boundary: unknown): number | undefined => {
+        if (boundary === undefined || boundary === null || String(boundary).trim() === "") return undefined;
+        const raw = String(boundary).trim().replace(",", ".");
+        const direct = Number(raw);
+        if (Number.isFinite(direct)) return direct;
+        const result = evaluateFormula(raw, buildVarValueMap(projectVariables as PlanVariable[]));
+        return result.ok && Number.isFinite(result.value) ? result.value : undefined;
+      };
+      const min = resolveRangeBoundary(projectVariable.min);
+      const max = resolveRangeBoundary(projectVariable.max);
+      const numericValue = Number(input.value.replace(",", "."));
+      if (min !== undefined && max !== undefined && min <= max && (!Number.isFinite(numericValue) || numericValue < min || numericValue > max)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `Der Wert muss zwischen ${min} und ${max} liegen.` });
       }
       const result = await db.insert(taskVariableInputs).values({
         householdId: input.householdId,

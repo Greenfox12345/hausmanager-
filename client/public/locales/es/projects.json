@@ -180,5 +180,20 @@
   "variables": {
     "use": "Usar variables de proyecto",
     "useDescription": "Los nombres VAR se reconocen en las tareas. Los valores fijos y los valores por ejecución se pueden gestionar por separado."
+  },
+  "phases": {
+    "title": "Fases del proyecto",
+    "description": "Las tareas pueden asignarse a una fase. Las fases no iniciadas se muestran atenuadas y sus tareas aún no aparecen en la lista.",
+    "add": "Fase",
+    "newName": "Nueva fase",
+    "empty": "Sin fases, las tareas del proyecto siguen visibles de inmediato.",
+    "color": "Color de fase",
+    "name": "Nombre de fase",
+    "taskPhase": "Fase del proyecto",
+    "unphased": "Sin fase – visible de inmediato",
+    "pending": "Aún no iniciada",
+    "taskPhaseHint": "Las tareas de una fase no iniciada solo aparecen después de iniciar la fase.",
+    "moveUp": "Subir",
+    "moveDown": "Bajar"
   }
 }

@@ -127,5 +127,20 @@
   "variables": {
     "use": "Use project variables",
     "useDescription": "VAR names are recognised in tasks. Fixed settings and values per project run can then be managed separately."
+  },
+  "phases": {
+    "title": "Project phases",
+    "description": "Tasks can be assigned to a phase. Phases that have not started remain dimmed and their tasks do not appear in the task list yet.",
+    "add": "Phase",
+    "newName": "New phase",
+    "empty": "Without phases, project tasks remain visible immediately as before.",
+    "color": "Phase color",
+    "name": "Phase name",
+    "taskPhase": "Project phase",
+    "unphased": "No phase – visible immediately",
+    "pending": "Not started yet",
+    "taskPhaseHint": "Tasks in a phase that has not started appear in the task list only after the phase starts.",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   }
 }

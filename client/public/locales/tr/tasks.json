@@ -678,7 +678,11 @@
     "documentMissing": "Eksik girişleri belgele",
     "projectValueUpdate": "Kaydetme işlemi proje değişkeninin güncel değerini de günceller.",
     "completionConfirms": "Görevi tamamlayarak bu proje yürütmesi için belgelenen değerleri onaylarsınız.",
-    "projectValueConfirmation": "Değer taslak olarak kaydedilir ve bu görev tamamlandığında proje yürütmesi için onaylanır."
+    "projectValueConfirmation": "Değer taslak olarak kaydedilir ve bu görev tamamlandığında proje yürütmesi için onaylanır.",
+    "range": "İzin verilen aralık",
+    "rangeSource": "Sınırlar",
+    "rangeSlider": "İzin verilen aralıktan bir değer seçin",
+    "rangeError": "Değer izin verilen aralıkta olmalıdır."
   },
   "projectGroups": {
     "groupBy": "Projeler ve aşamalar",
