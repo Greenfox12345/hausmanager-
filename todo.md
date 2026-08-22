@@ -3940,3 +3940,6 @@
 
 ## Fehlerkorrektur: Eingabeaufgaben-Zuordnung (2026-08-22)
 - [x] Das Speichern der Auswahl „In dieser Aufgabe eingeben“ für eine durchlaufbezogene Projektvariable reparieren
+
+## Vollständige Übersetzungen der Variablen-Eingabeaufgaben (2026-08-22)
+- [x] Alle Texte zu Eingabeaufgaben, Definitionen, Bestätigungen und Bereichsgrenzen in Deutsch, Englisch, Spanisch, Französisch, Türkisch, Chinesisch und Arabisch vollständig übersetzen
