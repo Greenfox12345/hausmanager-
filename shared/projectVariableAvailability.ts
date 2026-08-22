@@ -18,6 +18,7 @@ export type AvailabilityTask = {
   description?: string | null;
   phaseId?: string | null;
   sortOrder?: number | null;
+  variableInputNames?: string[] | null;
 };
 
 export type AvailabilityShoppingItem = {
@@ -138,8 +139,25 @@ export function analyseProjectVariableAvailability(
   const unresolvedNamesByTaskKey: Record<string, string[]> = {};
   const unresolved = new Set<string>();
 
+  // Eine im Projekt ausdrücklich gewählte Eingabeaufgabe hat Vorrang vor der
+  // automatischen Zuordnung zur ersten Verwendung der Variable.
+  for (const entry of orderedTasks) {
+    for (const name of entry.task.variableInputNames ?? []) {
+      const variable = variables.find((candidate) => candidate.name === name);
+      if (variable && isProjectRuntimeInputVariable(variable) && !availableInputs.has(name)) {
+        inputTaskKeyByName[name] = entry.key;
+      }
+    }
+  }
+
   for (const entry of orderedTasks) {
     const requirement = requiredInputsForTexts([entry.task.name, entry.task.description], variables);
+    for (const name of entry.task.variableInputNames ?? []) {
+      const variable = variables.find((candidate) => candidate.name === name);
+      if (variable && isProjectRuntimeInputVariable(variable) && !requirement.inputNames.includes(name)) {
+        requirement.inputNames.push(name);
+      }
+    }
     taskPhaseIdByKey[entry.key] = entry.task.phaseId;
     requiredInputNamesByTaskKey[entry.key] = requirement.inputNames;
     unresolvedNamesByTaskKey[entry.key] = requirement.unresolved;

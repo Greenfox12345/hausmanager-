@@ -99,9 +99,9 @@ async function confirmRuntimeTaskVariableInputs(task: any, householdId: number, 
   const inputRows = await db.select().from(taskVariableInputs)
     .where(and(eq(taskVariableInputs.householdId, householdId), eq(taskVariableInputs.taskId, task.id)))
     .orderBy(asc(taskVariableInputs.createdAt));
-  const latestByName = new Map<string, { value: string; unit: string | null }>();
+  const latestByName = new Map<string, { value: string; unit: string | null; definition: string | null }>();
   inputRows.forEach((row) => {
-    if (runtimeNames.includes(row.variableName)) latestByName.set(row.variableName, { value: row.value, unit: row.unit });
+    if (runtimeNames.includes(row.variableName)) latestByName.set(row.variableName, { value: row.value, unit: row.unit, definition: row.definition });
   });
   const missingNames = runtimeNames.filter((name: string) => !latestByName.has(name));
   if (missingNames.length > 0) {
@@ -110,7 +110,12 @@ async function confirmRuntimeTaskVariableInputs(task: any, householdId: number, 
 
   const updatedVariables = variables.map((variable) => {
     const latest = latestByName.get(variable.name);
-    return latest ? { ...variable, value: latest.value, ...(latest.unit ? { unit: latest.unit } : {}) } : variable;
+    return latest ? {
+      ...variable,
+      value: latest.value,
+      ...(latest.unit ? { unit: latest.unit } : {}),
+      ...(latest.definition ? { runtimeDefinition: latest.definition } : {}),
+    } : variable;
   });
   await db.update(projectsExtended).set({ planVariables: updatedVariables }).where(eq(projectsExtended.id, projectId));
   const member = await getHouseholdMemberById(memberId);
@@ -526,6 +531,7 @@ export const tasksRouter = router({
       variableName: z.string().trim().min(1).max(191),
       value: z.string().trim().min(1).max(255),
       unit: z.string().trim().max(64).optional(),
+      definition: z.string().trim().max(2000).optional(),
       note: z.string().max(10000).optional(),
       photoUrls: z.array(z.object({ url: z.string().url(), filename: z.string().min(1).max(255) })).max(20).optional(),
       fileUrls: z.array(z.object({ url: z.string().url(), filename: z.string().min(1).max(255) })).max(20).optional(),
@@ -590,6 +596,7 @@ export const tasksRouter = router({
         variableName: input.variableName,
         value: input.value,
         unit: input.unit || null,
+        definition: input.definition?.trim() || null,
         note: input.note?.trim() || null,
         photoUrls: input.photoUrls ?? [],
         fileUrls: input.fileUrls ?? [],
@@ -613,6 +620,7 @@ export const tasksRouter = router({
           variableName: input.variableName,
           value: input.value,
           unit: input.unit || null,
+          definition: input.definition?.trim() || null,
           note: input.note?.trim() || null,
           photoCount: input.photoUrls?.length ?? 0,
           fileCount: input.fileUrls?.length ?? 0,

@@ -102,6 +102,10 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
     { enabled: Boolean(open && household?.householdId && task?.id && configuredVariableNames.length > 0) },
   );
   const missingVariableNames = getMissingTaskVariableInputNames(configuredVariableNames, documentedVariableInputs);
+  const latestDocumentedVariableInputs = configuredVariableNames.flatMap((variableName) => {
+    const input = [...documentedVariableInputs].reverse().find((entry) => entry.variableName === variableName);
+    return input ? [{ variableName, input }] : [];
+  });
   const { data: completionProjectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
     { projectIds: task?.projectIds ?? [] },
     { enabled: Boolean(open && task?.projectIds?.length) },
@@ -303,7 +307,16 @@ const CompleteTaskDialogComponent = function CompleteTaskDialog({
           )}
           {configuredVariableNames.length > 0 && missingVariableNames.length === 0 && (
             <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-950 dark:bg-emerald-950/30 dark:text-emerald-100">
-              {t("tasks:variableInput.completionConfirms", "Mit dem Abschluss bestätigen Sie die dokumentierten Werte verbindlich für diesen Projektdurchlauf.")}
+              <p className="font-medium">{t("tasks:variableInput.completionConfirms", "Mit dem Abschluss bestätigen Sie die dokumentierten Werte verbindlich für diesen Projektdurchlauf.")}</p>
+              <div className="mt-2 space-y-1.5 text-xs">
+                {latestDocumentedVariableInputs.map(({ variableName, input }) => (
+                  <div key={variableName} className="rounded border border-emerald-200/80 bg-background/50 px-2 py-1.5 dark:border-emerald-900">
+                    <span className="font-mono font-medium">VAR{variableName}</span>
+                    <span className="ml-1">= {input.value}{input.unit ? ` ${input.unit}` : ""}</span>
+                    {input.definition && <p className="mt-1 text-muted-foreground">{t("tasks:variableInput.definition", "Definition oder Herleitung")}: {input.definition}</p>}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

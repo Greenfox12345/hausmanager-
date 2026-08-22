@@ -1,0 +1,1 @@
+ALTER TABLE `task_variable_inputs` ADD `definition` text;

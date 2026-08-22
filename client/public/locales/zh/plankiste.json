@@ -360,7 +360,10 @@
     "noRecognizedVariables": "尚未识别到变量。请在项目任务或其描述中使用例如 VAR宽度。",
     "variableScope": "输入变量类型",
     "variableScopeFixed": "固定项目设定",
-    "variableScopeRuntime": "每次项目执行"
+    "variableScopeRuntime": "每次项目执行",
+    "variableInputTask": "在此任务中输入",
+    "noVariableInputTask": "尚未分配",
+    "variableInputTaskSaved": "输入任务已保存"
   },
   "tasks": {
     "title": "任务"

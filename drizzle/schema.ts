@@ -278,6 +278,7 @@ export const taskVariableInputs = mysqlTable("task_variable_inputs", {
   variableName: varchar("variableName", { length: 191 }).notNull(),
   value: varchar("value", { length: 255 }).notNull(),
   unit: varchar("unit", { length: 64 }),
+  definition: text("definition"),
   note: text("note"),
   photoUrls: json("photoUrls").$type<{ url: string; filename: string }[]>(),
   fileUrls: json("fileUrls").$type<{ url: string; filename: string }[]>(),

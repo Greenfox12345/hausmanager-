@@ -337,6 +337,13 @@
       "when": 1787345038866,
       "tag": "0059_nice_purifiers",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "5",
+      "when": 1787431229024,
+      "tag": "0060_foamy_dragon_lord",
+      "breakpoints": true
     }
   ]
 }

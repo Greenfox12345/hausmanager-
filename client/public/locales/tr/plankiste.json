@@ -360,7 +360,10 @@
     "noRecognizedVariables": "Henüz değişken algılanmadı. Örneğin bir proje görevinde veya açıklamasında VARGenişlik kullanın.",
     "variableScope": "Girdi değişkeni türü",
     "variableScopeFixed": "Sabit proje değeri",
-    "variableScopeRuntime": "Her proje yürütmesi için"
+    "variableScopeRuntime": "Her proje yürütmesi için",
+    "variableInputTask": "Bu görevde gir",
+    "noVariableInputTask": "Henüz atanmadı",
+    "variableInputTaskSaved": "Giriş görevi kaydedildi"
   },
   "tasks": {
     "title": "Görevler"

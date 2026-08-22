@@ -160,6 +160,8 @@ export interface PlanVariable {
   locked?: boolean;
   /** Feste Vorgabe gilt projektweit; durchlaufbezogene Eingaben werden erst durch eine Aufgabe bestätigt. */
   inputScope?: "fixed" | "runtime";
+  /** Im aktuellen Projektdurchlauf mit einer Eingabeaufgabe bestätigte Herleitung oder Definition. */
+  runtimeDefinition?: string;
 }
 
 export function mergeVarsFromText(

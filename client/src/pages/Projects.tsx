@@ -51,7 +51,7 @@ import { VarText } from "@/components/VarToken";
 import { evaluateFormula, parseVarAssignment, mergeVarsFromText, type PlanVariable } from "@/lib/varParser";
 import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
-import { analyseProjectVariableAvailability, planTaskKey } from "../../../shared/projectVariableAvailability";
+import { analyseProjectVariableAvailability, isProjectRuntimeInputVariable, planTaskKey } from "../../../shared/projectVariableAvailability";
 
 type EditableProjectPhase = {
   id: string;
@@ -175,10 +175,26 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     },
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Speichern")),
   });
+  const assignVariableInputTaskMutation = trpc.planProjects.assignVariableInputTask.useMutation({
+    onSuccess: () => {
+      utils.planProjects.getWithPlanData.invalidate({ projectId });
+      utils.planProjects.getTaskGroupingData.invalidate();
+      utils.tasks.list.invalidate({ householdId });
+      toast.success(t("plankiste:project.variableInputTaskSaved", "Eingabeaufgabe gespeichert"));
+    },
+    onError: (error) => toast.error(error.message || t("plankiste:project.startError", "Fehler beim Speichern")),
+  });
 
   const storedVariables = ((project as any)?.planVariables ?? []) as PlanVariable[];
   const storedPlanTasks = ((project as any)?.planTaskItems ?? []) as Array<{ name?: string; description?: string | null }>;
   const projectTasksForRecognition = currentProjectTasks.filter((task: any) => task.projectIds?.includes(projectId));
+  const inputTaskByVariableName = useMemo(() => {
+    const mapping: Record<string, number> = {};
+    projectTasksForRecognition.forEach((task: any) => {
+      (task.variableInputNames ?? []).forEach((name: string) => { mapping[name] = task.id; });
+    });
+    return mapping;
+  }, [projectTasksForRecognition]);
   const recognizedProjectVariables = useMemo(() => {
     let merged = storedVariables;
     const sourceItems = [...storedPlanTasks, ...projectTasksForRecognition];
@@ -572,6 +588,27 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
                             )}
                             {!isInputVar(source) && <span className="ml-1 text-muted-foreground">← {getVariableFormula(source)}</span>}
                             <div className="text-muted-foreground">= {v.value ? `${v.value}${v.unit ? ` ${v.unit}` : ""}` : t("plankiste:project.noValue", "kein Wert")}</div>
+                            {isProjectRuntimeInputVariable(source) && (
+                              <div className="mt-2 flex flex-wrap items-center gap-2">
+                                <Label className="text-[11px] text-muted-foreground">{t("plankiste:project.variableInputTask", "In dieser Aufgabe eingeben")}</Label>
+                                <Select
+                                  value={inputTaskByVariableName[v.name] ? String(inputTaskByVariableName[v.name]) : "unassigned"}
+                                  onValueChange={(value) => assignVariableInputTaskMutation.mutate({
+                                    householdId,
+                                    projectId,
+                                    variableName: v.name,
+                                    taskId: value === "unassigned" ? null : Number(value),
+                                  })}
+                                  disabled={assignVariableInputTaskMutation.isPending}
+                                >
+                                  <SelectTrigger className="h-7 min-w-44 text-xs"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="unassigned">{t("plankiste:project.noVariableInputTask", "Noch nicht zugeordnet")}</SelectItem>
+                                    {projectTasksForRecognition.map((task: any) => <SelectItem key={task.id} value={String(task.id)}>{task.name}</SelectItem>)}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
                           </div>
                           {hasOverride && <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" aria-label={t("plankiste:project.variableOverride", "Manuell überschrieben")} />}
                         </div>;

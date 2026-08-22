@@ -360,7 +360,10 @@
     "noRecognizedVariables": "Aucune variable reconnue pour le moment. Utilisez par exemple VARLargeur dans une tâche du projet ou sa description.",
     "variableScope": "Type de variable d'entrée",
     "variableScopeFixed": "Paramètre fixe du projet",
-    "variableScopeRuntime": "Par exécution du projet"
+    "variableScopeRuntime": "Par exécution du projet",
+    "variableInputTask": "Saisir dans cette tâche",
+    "noVariableInputTask": "Pas encore attribuée",
+    "variableInputTaskSaved": "Tâche de saisie enregistrée"
   },
   "tasks": {
     "title": "Tâches"

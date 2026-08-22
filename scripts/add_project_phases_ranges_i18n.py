@@ -47,13 +47,27 @@ TASK_PHASE_TEXTS = {
     "ar": {"primaryProjectHint": "تُحدَّد المرحلة للمشروع المحدد أولاً.", "noPhases": "لم تُنشأ مراحل لهذا المشروع بعد."},
 }
 
+VARIABLE_INPUT_TASK_TEXTS = {
+    "de": {"variableInputTask": "In dieser Aufgabe eingeben", "noVariableInputTask": "Noch nicht zugeordnet", "variableInputTaskSaved": "Eingabeaufgabe gespeichert"},
+    "en": {"variableInputTask": "Enter in this task", "noVariableInputTask": "Not assigned yet", "variableInputTaskSaved": "Input task saved"},
+    "es": {"variableInputTask": "Introducir en esta tarea", "noVariableInputTask": "Aún no asignada", "variableInputTaskSaved": "Tarea de entrada guardada"},
+    "fr": {"variableInputTask": "Saisir dans cette tâche", "noVariableInputTask": "Pas encore attribuée", "variableInputTaskSaved": "Tâche de saisie enregistrée"},
+    "tr": {"variableInputTask": "Bu görevde gir", "noVariableInputTask": "Henüz atanmadı", "variableInputTaskSaved": "Giriş görevi kaydedildi"},
+    "zh": {"variableInputTask": "在此任务中输入", "noVariableInputTask": "尚未分配", "variableInputTaskSaved": "输入任务已保存"},
+    "ar": {"variableInputTask": "أدخل في هذه المهمة", "noVariableInputTask": "لم يُسند بعد", "variableInputTaskSaved": "تم حفظ مهمة الإدخال"},
+}
+
 for language in PROJECT_PHASES:
     projects_path = ROOT / language / "projects.json"
     tasks_path = ROOT / language / "tasks.json"
+    plankiste_path = ROOT / language / "plankiste.json"
     projects = json.loads(projects_path.read_text(encoding="utf-8"))
     tasks = json.loads(tasks_path.read_text(encoding="utf-8"))
+    plankiste = json.loads(plankiste_path.read_text(encoding="utf-8"))
     projects["phases"] = {**projects.get("phases", {}), **PROJECT_PHASES[language]}
     tasks.setdefault("variableInput", {}).update(RANGE_TEXTS[language])
     tasks.setdefault("projectPhase", {}).update(TASK_PHASE_TEXTS[language])
+    plankiste.setdefault("project", {}).update(VARIABLE_INPUT_TASK_TEXTS[language])
     projects_path.write_text(json.dumps(projects, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tasks_path.write_text(json.dumps(tasks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    plankiste_path.write_text(json.dumps(plankiste, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

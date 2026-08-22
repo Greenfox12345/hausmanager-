@@ -25,7 +25,7 @@ type TaskVariableInputDialogProps = {
     projectIds?: number[] | null;
     variableInputNames?: string[] | null;
   } | null;
-  variables?: Array<{ name: string; unit?: string | null; min?: string | number | null; max?: string | number | null; value?: string | null; color?: string; alias?: string; inputScope?: "fixed" | "runtime" | null }> | null;
+  variables?: Array<{ name: string; unit?: string | null; min?: string | number | null; max?: string | number | null; value?: string | null; runtimeDefinition?: string | null; color?: string; alias?: string; inputScope?: "fixed" | "runtime" | null }> | null;
   /** Optional: Beim Abschluss nur bisher fehlende Variablen zur Auswahl anbieten. */
   onlyVariableNames?: string[];
 };
@@ -44,6 +44,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
   const [variableName, setVariableName] = useState("");
   const [value, setValue] = useState("");
   const [unit, setUnit] = useState("");
+  const [definition, setDefinition] = useState("");
   const [note, setNote] = useState("");
   const [photos, setPhotos] = useState<UploadReference[]>([]);
   const [files, setFiles] = useState<UploadReference[]>([]);
@@ -84,6 +85,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
       }
       toast.success(t("tasks:variableInput.saved", "Variableneingabe dokumentiert"));
       setValue("");
+      setDefinition("");
       setNote("");
       setPhotos([]);
       setFiles([]);
@@ -97,6 +99,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
     setVariableName(initialName);
     setUnit(variables?.find((candidate) => candidate.name === initialName)?.unit ?? "");
     setValue("");
+    setDefinition(variables?.find((candidate) => candidate.name === initialName)?.runtimeDefinition ?? "");
     setNote("");
     setPhotos([]);
     setFiles([]);
@@ -112,6 +115,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
     if (!previous) return;
     setValue(previous.value);
     setUnit(previous.unit ?? selectedVariable?.unit ?? "");
+    setDefinition(previous.definition ?? selectedVariable?.runtimeDefinition ?? "");
     setNote(previous.note ?? "");
   }, [open, variableName, existingInputs, selectedVariable?.unit]);
 
@@ -134,6 +138,7 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
       variableName,
       value: value.trim(),
       unit: unit.trim() || undefined,
+      definition: definition.trim() || undefined,
       note: note.trim() || undefined,
       photoUrls: photos,
       fileUrls: files,
@@ -188,6 +193,18 @@ export function TaskVariableInputDialog({ open, onOpenChange, task, variables, o
               <Label htmlFor="task-variable-unit">{t("tasks:variableInput.unit", "Einheit")}</Label>
               <Input id="task-variable-unit" value={unit} onChange={(event) => setUnit(event.target.value)} placeholder="cm" />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="task-variable-definition">{t("tasks:variableInput.definition", "Definition oder Herleitung")}</Label>
+            <Textarea
+              id="task-variable-definition"
+              value={definition}
+              onChange={(event) => setDefinition(event.target.value)}
+              rows={2}
+              placeholder={t("tasks:variableInput.definitionPlaceholder", "z. B. gemessen am fertigen Rahmen oder aus VARBrettBreite berechnet")}
+            />
+            <p className="text-xs text-muted-foreground">{t("tasks:variableInput.definitionHint", "Die Definition wird vorgemerkt und beim Abschluss dieser Aufgabe für den Projektdurchlauf bestätigt.")}</p>
           </div>
 
           {hasResolvedRange && (

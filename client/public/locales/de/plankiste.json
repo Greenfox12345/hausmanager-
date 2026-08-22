@@ -360,7 +360,10 @@
     "noRecognizedVariables": "Noch keine Variablen erkannt. Verwenden Sie zum Beispiel VARBreite in einer Projektaufgabe oder deren Beschreibung.",
     "variableScope": "Art der Eingabevariable",
     "variableScopeFixed": "Feste Vorgabe",
-    "variableScopeRuntime": "Je Projektdurchlauf"
+    "variableScopeRuntime": "Je Projektdurchlauf",
+    "variableInputTask": "In dieser Aufgabe eingeben",
+    "noVariableInputTask": "Noch nicht zugeordnet",
+    "variableInputTaskSaved": "Eingabeaufgabe gespeichert"
   },
   "tasks": {
     "title": "Aufgaben"

@@ -13,7 +13,7 @@ import { projects, projectHouseholds, tasks, taskDependencies, householdMembers 
 import { eq, and, inArray, desc, asc } from "drizzle-orm";
 import { wouldCreatePrerequisiteCycle, type TaskDependencyEdge } from "../../shared/taskDependencies";
 import { resolveProjectVariableQuantity } from "../../shared/projectVariableQuantity";
-import { analyseProjectVariableAvailability, planTaskKey } from "../../shared/projectVariableAvailability";
+import { analyseProjectVariableAvailability, isProjectRuntimeInputVariable, planTaskKey } from "../../shared/projectVariableAvailability";
 import {
   planTemplates,
   planTemplateShoppingItems,
@@ -1194,6 +1194,73 @@ export const planProjectsRouter = router({
             sortOrder: items.length,
           } as ProjectPlanTaskItem];
       await db.update(projectsExtended).set({ planTaskItems: updatedItems }).where(eq(projectsExtended.id, input.projectId));
+      return { success: true };
+    }),
+
+  /** Legt fest, in welcher bestehenden Projektaufgabe eine Durchlaufvariable eingegeben wird. */
+  assignVariableInputTask: protectedProcedure
+    .input(z.object({
+      householdId: z.number(),
+      projectId: z.number(),
+      taskId: z.number().nullable(),
+      variableName: z.string().trim().min(1).max(191),
+    }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      const [membership] = await db.select({ projectId: projectHouseholds.projectId })
+        .from(projectHouseholds)
+        .where(and(eq(projectHouseholds.projectId, input.projectId), eq(projectHouseholds.householdId, input.householdId)))
+        .limit(1);
+      if (!membership) throw new Error("Projekt gehört nicht zu diesem Haushalt");
+
+      const [project] = await db.select().from(projectsExtended).where(eq(projectsExtended.id, input.projectId)).limit(1);
+      if (!project) throw new Error("Projekt nicht gefunden");
+      const variables = (project.planVariables ?? []) as PlanVariable[];
+      const variable = variables.find((entry) => entry.name === input.variableName);
+      if (!variable || !isProjectRuntimeInputVariable(variable)) {
+        throw new Error("Nur durchlaufbezogene Eingabevariablen können einer Aufgabe zugeordnet werden");
+      }
+
+      const projectTasks = await db.select({ id: tasks.id, name: tasks.name, description: tasks.description, projectIds: tasks.projectIds, householdId: tasks.householdId })
+        .from(tasks).where(eq(tasks.householdId, input.householdId));
+      const targetTask = input.taskId === null ? undefined : projectTasks.find((task: any) => task.id === input.taskId && task.projectIds?.includes(input.projectId));
+      if (input.taskId !== null && !targetTask) throw new Error("Die ausgewählte Aufgabe gehört nicht zu diesem Projekt");
+
+      const planItems = (project.planTaskItems ?? []) as ProjectPlanTaskItem[];
+      const updatedPlanItems = planItems.map((item: any) => ({
+        ...item,
+        variableInputNames: (item.variableInputNames ?? []).filter((name: string) => name !== input.variableName),
+      }));
+      const targetIndex = targetTask ? updatedPlanItems.findIndex((item: any) => Number(item.id ?? item.taskId) === targetTask.id) : -1;
+      if (targetTask && targetIndex >= 0) {
+        const target = updatedPlanItems[targetIndex] as any;
+        updatedPlanItems[targetIndex] = { ...target, variableInputNames: Array.from(new Set([...(target.variableInputNames ?? []), input.variableName])) };
+      } else if (targetTask) {
+        updatedPlanItems.push({
+          id: targetTask.id,
+          name: targetTask.name,
+          description: targetTask.description ?? undefined,
+          sortOrder: updatedPlanItems.length,
+          variableInputNames: [input.variableName],
+        } as ProjectPlanTaskItem);
+      }
+
+      const availability = analyseProjectVariableAvailability(
+        variables,
+        (project.planPhases ?? []) as PlanPhase[],
+        updatedPlanItems,
+        (project.planShoppingItems ?? []) as ProjectPlanShoppingItem[],
+      );
+      await db.update(projectsExtended).set({ planTaskItems: updatedPlanItems }).where(eq(projectsExtended.id, input.projectId));
+      for (const projectTask of projectTasks.filter((task: any) => task.projectIds?.includes(input.projectId))) {
+        const existingNames = Array.isArray((projectTask as any).variableInputNames) ? (projectTask as any).variableInputNames : [];
+        const namesWithoutVariable = existingNames.filter((name: string) => name !== input.variableName);
+        const nextNames = targetTask?.id === projectTask.id
+          ? Array.from(new Set([...namesWithoutVariable, input.variableName]))
+          : namesWithoutVariable;
+        await db.update(tasks).set({ variableInputNames: nextNames }).where(eq(tasks.id, projectTask.id));
+      }
+      await syncVariableInputDependencies(db, input.householdId, input.projectId, updatedPlanItems, availability);
       return { success: true };
     }),
 

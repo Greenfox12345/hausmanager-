@@ -3931,3 +3931,9 @@
 - [x] Projektphasen in der geöffneten Projektansicht zuverlässig anzeigen
 - [x] In der Projektseite Voraussetzungen und Folgeaufgaben ausschließlich auf Aufgaben dieses Projekts beschränken
 - [x] Phasenzuordnung beim Erstellen und Bearbeiten von Aufgaben auf der Aufgaben-Seite anbieten und speichern
+
+## Zuordnung und Bestätigung von Variableneingabeaufgaben (2026-08-22)
+- [x] Durchlaufbezogene Projektvariablen eindeutig einzelnen Eingabeaufgaben zuordnen können
+- [x] Der Eingabedialog einer zugeordneten Aufgabe soll Wert, Einheit und Definition der Variable sichtbar und bearbeitbar machen
+- [x] Dokumentierte Variablenwerte erst beim Abschließen der zugeordneten Aufgabe verbindlich als Projektwert bestätigen
+- [x] Bereits vorliegende Eingaben und Definitionen im Abschlussdialog einer Variablenaufgabe vollständig vorausfüllen und bestätigen

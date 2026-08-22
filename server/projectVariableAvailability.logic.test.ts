@@ -45,4 +45,15 @@ describe("Projektvariablen-Verfügbarkeit", () => {
     expect(analysis.taskInputNamesByKey).toEqual({});
     expect(analysis.availableInputNames).toEqual(["MaxHoehe"]);
   });
+
+  it("priorisiert eine ausdrücklich gewählte Eingabeaufgabe vor der ersten Variablenverwendung", () => {
+    const analysis = analyseProjectVariableAvailability(variables, [{ id: "bau", order: 0 }], [
+      { id: 31, name: "Bretter berechnen", description: "Benötigt VARBretter", phaseId: "bau", sortOrder: 1 },
+      { id: 32, name: "Maße am Material prüfen", phaseId: "bau", sortOrder: 2, variableInputNames: ["Hoehe"] },
+    ]);
+
+    expect(analysis.inputTaskKeyByName.Hoehe).toBe("id:32");
+    expect(analysis.taskInputNamesByKey["id:32"]).toContain("Hoehe");
+    expect(analysis.prerequisiteInputTaskKeysByKey["id:31"]).toContain("id:32");
+  });
 });

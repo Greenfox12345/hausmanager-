@@ -360,7 +360,10 @@
     "noRecognizedVariables": "لم يتم التعرّف على متغيرات بعد. استخدم مثلاً VARالعرض في مهمة المشروع أو وصفها.",
     "variableScope": "نوع متغير الإدخال",
     "variableScopeFixed": "إعداد ثابت للمشروع",
-    "variableScopeRuntime": "لكل تنفيذ للمشروع"
+    "variableScopeRuntime": "لكل تنفيذ للمشروع",
+    "variableInputTask": "أدخل في هذه المهمة",
+    "noVariableInputTask": "لم يُسند بعد",
+    "variableInputTaskSaved": "تم حفظ مهمة الإدخال"
   },
   "tasks": {
     "title": "المهام"

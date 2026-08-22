@@ -360,7 +360,10 @@
     "noRecognizedVariables": "No variables recognized yet. For example, use VARWidth in a project task or its description.",
     "variableScope": "Input variable type",
     "variableScopeFixed": "Fixed project setting",
-    "variableScopeRuntime": "Per project run"
+    "variableScopeRuntime": "Per project run",
+    "variableInputTask": "Enter in this task",
+    "noVariableInputTask": "Not assigned yet",
+    "variableInputTaskSaved": "Input task saved"
   },
   "tasks": {
     "title": "Tasks"

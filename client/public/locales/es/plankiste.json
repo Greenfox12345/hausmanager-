@@ -360,7 +360,10 @@
     "noRecognizedVariables": "Aún no se han reconocido variables. Por ejemplo, use VARAncho en una tarea del proyecto o en su descripción.",
     "variableScope": "Tipo de variable de entrada",
     "variableScopeFixed": "Valor fijo del proyecto",
-    "variableScopeRuntime": "Por ejecución del proyecto"
+    "variableScopeRuntime": "Por ejecución del proyecto",
+    "variableInputTask": "Introducir en esta tarea",
+    "noVariableInputTask": "Aún no asignada",
+    "variableInputTaskSaved": "Tarea de entrada guardada"
   },
   "tasks": {
     "title": "Tareas"
