@@ -352,7 +352,12 @@
       "noInputTask": "Aucune tâche ne permet d'enregistrer une valeur pour « {{variable}} ».",
       "previousPhaseRequired": "« {{variable}} » doit d'abord être documentée dans la phase « {{phase}} ».",
       "shoppingNeedsValue": "« {{variable}} » est nécessaire pour un article d'achat, mais ne peut être attribuée à aucune tâche de saisie."
-    }
+    },
+    "projectStructure": "Structure du projet",
+    "projectStructureDesc": "Les variables du projet sont reconnues à partir des tâches associées et peuvent être gérées ici.",
+    "variablesEnabledHint": "Les noms VAR dans les tâches et descriptions sont reconnus et résolus.",
+    "variablesDisabledHint": "Les tâches sont affichées sans reconnaissance des variables.",
+    "noRecognizedVariables": "Aucune variable reconnue pour le moment. Utilisez par exemple VARLargeur dans une tâche du projet ou sa description."
   },
   "tasks": {
     "title": "Tâches"

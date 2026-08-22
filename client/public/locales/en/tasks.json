@@ -675,5 +675,12 @@
     "completionRequired": "Documented variables are still required before completion.",
     "documentMissing": "Document missing inputs",
     "projectValueUpdate": "Saving also updates the current value of the project variable."
+  },
+  "projectGroups": {
+    "groupBy": "Projects & phases",
+    "grouped": "By projects",
+    "unknownProject": "Unknown project",
+    "withoutPhase": "Without phase",
+    "standalone": "Other household tasks"
   }
 }

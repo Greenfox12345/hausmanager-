@@ -352,7 +352,12 @@
       "noInputTask": "There is no task where a value can be recorded for “{{variable}}”.",
       "previousPhaseRequired": "“{{variable}}” must first be documented in phase “{{phase}}”.",
       "shoppingNeedsValue": "“{{variable}}” is required for a shopping item but cannot be assigned to an input task."
-    }
+    },
+    "projectStructure": "Project structure",
+    "projectStructureDesc": "Project variables are recognized from assigned tasks and can be managed here.",
+    "variablesEnabledHint": "VAR names in tasks and descriptions are recognized and resolved.",
+    "variablesDisabledHint": "Tasks are shown without variable recognition.",
+    "noRecognizedVariables": "No variables recognized yet. For example, use VARWidth in a project task or its description."
   },
   "tasks": {
     "title": "Tasks"

@@ -3903,3 +3903,8 @@
 - [x] Vor dem Projekt- und Phasenstart prüfen, ob Aufgaben nur bereits eingegebene oder aus zuvor verfügbaren Werten berechenbare Variablen verwenden
 - [x] Unzulässige Reihenfolgen mit verständlichen Hinweisen in Aufgaben- und Phasenansicht sichtbar machen
 - [x] Die Aufgaben einer Phase als bevorzugten Ort für erstmals benötigte Eingabevariablen einordnen
+
+## Projektvariablen und aufklappbare Aufgabenstruktur (2026-08-22)
+- [x] Projektbereich mit derselben Aktivierung, Erkennung und Darstellung von Variablen wie die Plankiste ausstatten
+- [x] Aufgabenansicht optional nach Projekten und innerhalb der Projekte nach Phasen sortieren und gruppieren
+- [x] Projekte und Phasen in der gruppierten Aufgabenansicht unabhängig auf- und zuklappbar machen

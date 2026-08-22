@@ -675,5 +675,12 @@
     "completionRequired": "Tamamlamadan önce belgelenmesi gereken değişkenler var.",
     "documentMissing": "Eksik girişleri belgele",
     "projectValueUpdate": "Kaydetme işlemi proje değişkeninin güncel değerini de günceller."
+  },
+  "projectGroups": {
+    "groupBy": "Projeler ve aşamalar",
+    "grouped": "Projelere göre",
+    "unknownProject": "Bilinmeyen proje",
+    "withoutPhase": "Aşamasız",
+    "standalone": "Diğer ev görevleri"
   }
 }

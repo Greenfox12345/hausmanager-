@@ -675,5 +675,12 @@
     "completionRequired": "Vor dem Abschluss fehlen noch dokumentierte Variablen.",
     "documentMissing": "Fehlende Eingaben dokumentieren",
     "projectValueUpdate": "Beim Speichern wird auch der aktuelle Wert der Projektvariable aktualisiert."
+  },
+  "projectGroups": {
+    "groupBy": "Projekte & Phasen",
+    "grouped": "Nach Projekten",
+    "unknownProject": "Unbekanntes Projekt",
+    "withoutPhase": "Ohne Phase",
+    "standalone": "Weitere Haushaltsaufgaben"
   }
 }

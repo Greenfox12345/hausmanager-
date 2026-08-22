@@ -352,7 +352,12 @@
       "noInputTask": "“{{variable}}” için değer kaydedilebilecek bir görev yok.",
       "previousPhaseRequired": "“{{variable}}” önce “{{phase}}” aşamasında belgelenmelidir.",
       "shoppingNeedsValue": "“{{variable}}” bir alışveriş ürünü için gerekli, ancak giriş görevine atanamıyor."
-    }
+    },
+    "projectStructure": "Proje yapısı",
+    "projectStructureDesc": "Proje değişkenleri atanan görevlerden algılanır ve burada yönetilebilir.",
+    "variablesEnabledHint": "Görevlerdeki ve açıklamalardaki VAR adları algılanır ve çözülür.",
+    "variablesDisabledHint": "Görevler değişken algılama olmadan gösterilir.",
+    "noRecognizedVariables": "Henüz değişken algılanmadı. Örneğin bir proje görevinde veya açıklamasında VARGenişlik kullanın."
   },
   "tasks": {
     "title": "Görevler"

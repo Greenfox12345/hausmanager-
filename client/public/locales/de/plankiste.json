@@ -352,7 +352,12 @@
       "noInputTask": "Für „{{variable}}“ gibt es keine Aufgabe, in der der Wert erfasst werden kann.",
       "previousPhaseRequired": "„{{variable}}“ muss zuerst in Phase „{{phase}}“ dokumentiert werden.",
       "shoppingNeedsValue": "„{{variable}}“ wird für einen Einkaufsartikel benötigt, kann aber keiner Eingabeaufgabe zugeordnet werden."
-    }
+    },
+    "projectStructure": "Projektstruktur",
+    "projectStructureDesc": "Projektvariablen werden aus den zugeordneten Aufgaben erkannt und können hier gepflegt werden.",
+    "variablesEnabledHint": "VAR-Namen in Aufgaben und Beschreibungen werden erkannt und aufgelöst.",
+    "variablesDisabledHint": "Aufgaben werden ohne Variablenerkennung angezeigt.",
+    "noRecognizedVariables": "Noch keine Variablen erkannt. Verwenden Sie zum Beispiel VARBreite in einer Projektaufgabe oder deren Beschreibung."
   },
   "tasks": {
     "title": "Aufgaben"

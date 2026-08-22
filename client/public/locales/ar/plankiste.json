@@ -352,7 +352,12 @@
       "noInputTask": "لا توجد مهمة يمكن تسجيل قيمة «{{variable}}» فيها.",
       "previousPhaseRequired": "يجب توثيق «{{variable}}» أولاً في المرحلة «{{phase}}».",
       "shoppingNeedsValue": "يلزم «{{variable}}» لعنصر تسوق، ولكن لا يمكن إسناده إلى مهمة إدخال."
-    }
+    },
+    "projectStructure": "بنية المشروع",
+    "projectStructureDesc": "يتم التعرّف على متغيرات المشروع من المهام المرتبطة ويمكن إدارتها هنا.",
+    "variablesEnabledHint": "يتم التعرّف على أسماء VAR في المهام والأوصاف وحلّها.",
+    "variablesDisabledHint": "تُعرض المهام دون التعرّف على المتغيرات.",
+    "noRecognizedVariables": "لم يتم التعرّف على متغيرات بعد. استخدم مثلاً VARالعرض في مهمة المشروع أو وصفها."
   },
   "tasks": {
     "title": "المهام"

@@ -352,7 +352,12 @@
       "noInputTask": "No hay ninguna tarea en la que se pueda registrar un valor para «{{variable}}».",
       "previousPhaseRequired": "Primero se debe documentar «{{variable}}» en la fase «{{phase}}».",
       "shoppingNeedsValue": "«{{variable}}» se necesita para un artículo de compra, pero no puede asignarse a una tarea de entrada."
-    }
+    },
+    "projectStructure": "Estructura del proyecto",
+    "projectStructureDesc": "Las variables del proyecto se reconocen a partir de las tareas asignadas y se pueden gestionar aquí.",
+    "variablesEnabledHint": "Se reconocen y resuelven los nombres VAR en tareas y descripciones.",
+    "variablesDisabledHint": "Las tareas se muestran sin reconocimiento de variables.",
+    "noRecognizedVariables": "Aún no se han reconocido variables. Por ejemplo, use VARAncho en una tarea del proyecto o en su descripción."
   },
   "tasks": {
     "title": "Tareas"

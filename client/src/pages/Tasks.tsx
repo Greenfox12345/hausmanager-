@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, CheckSquare, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, Users, ClipboardPenLine } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, CheckSquare, Target, Bell, Calendar, AlertCircle, RefreshCw, User, ChevronDown, ChevronRight, Users, ClipboardPenLine, FolderKanban, Layers } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { CompleteTaskDialog } from "@/components/CompleteTaskDialog";
 import { MilestoneDialog } from "@/components/MilestoneDialog";
@@ -101,6 +101,9 @@ export default function Tasks() {
   const [sortBy, setSortBy] = useState<"dueDate" | "name" | "createdAt" | "topological">("dueDate");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<number[]>([]); // Kategorie-Filter (Mehrfachauswahl)
+  const [groupByProjectPhase, setGroupByProjectPhase] = useState(false);
+  const [expandedProjectGroups, setExpandedProjectGroups] = useState<Record<string, boolean>>({});
+  const [expandedPhaseGroups, setExpandedPhaseGroups] = useState<Record<string, boolean>>({});
   
   const toggleTaskSelection = (taskId: number) => {
     setSelectedTaskIds(prev => 
@@ -138,6 +141,10 @@ export default function Tasks() {
   const { data: projectVariables = {} } = trpc.planProjects.getVariablesForProjects.useQuery(
     { projectIds: projectIdsWithVariables },
     { enabled: projectIdsWithVariables.length > 0 }
+  );
+  const { data: projectGroupingData = {} } = trpc.planProjects.getTaskGroupingData.useQuery(
+    { projectIds: projectIdsWithTasks },
+    { enabled: projectIdsWithTasks.length > 0 }
   );
   const renderTaskProjectText = (task: any, text: string | null | undefined) => (
     <ProjectVarText text={text} variables={projectVariables[task.projectIds?.[0] ?? -1]} />
@@ -653,6 +660,73 @@ export default function Tasks() {
     
     return filtered;
   }, [tasks, statusFilter, assigneeFilter, dueDateFilter, sortBy, sortDirection, categoryFilter, taskCategoryAssignments, dependencies]);
+
+  const projectPhaseGroups = useMemo(() => {
+    type TaskGroup = { id: string; name: string; color?: string; order: number; tasks: any[] };
+    type ProjectGroup = { id: number; name: string; phases: TaskGroup[] };
+    const projectMap = new Map<number, ProjectGroup>();
+    const standaloneTasks: any[] = [];
+
+    for (const task of filteredAndSortedTasks as any[]) {
+      const projectId = task.projectIds?.[0] as number | undefined;
+      if (!projectId) {
+        standaloneTasks.push(task);
+        continue;
+      }
+      const projectData = (projectGroupingData as Record<number, any>)[projectId];
+      const projectName = projectData?.name ?? projects.find((project: any) => project.id === projectId)?.name ?? t("tasks:projectGroups.unknownProject", "Unbekanntes Projekt");
+      const planTask = (projectData?.taskItems ?? []).find((item: any) => item.id === task.planTaskItemId);
+      const phaseId = planTask?.phaseId ?? "__without_phase__";
+      const phase = (projectData?.phases ?? []).find((item: any) => item.id === phaseId);
+      const phaseName = phase?.name ?? t("tasks:projectGroups.withoutPhase", "Ohne Phase");
+      const phaseKey = `${projectId}:${phaseId}`;
+
+      let projectGroup = projectMap.get(projectId);
+      if (!projectGroup) {
+        projectGroup = { id: projectId, name: projectName, phases: [] };
+        projectMap.set(projectId, projectGroup);
+      }
+      let phaseGroup = projectGroup.phases.find((group) => group.id === phaseKey);
+      if (!phaseGroup) {
+        phaseGroup = { id: phaseKey, name: phaseName, color: phase?.color, order: phase?.order ?? Number.MAX_SAFE_INTEGER, tasks: [] };
+        projectGroup.phases.push(phaseGroup);
+      }
+      phaseGroup.tasks.push(task);
+    }
+
+    return {
+      projects: Array.from(projectMap.values())
+        .map((project) => ({ ...project, phases: [...project.phases].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name)) }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      standaloneTasks,
+    };
+  }, [filteredAndSortedTasks, projectGroupingData, projects, t]);
+
+  const taskListEntries = useMemo(() => {
+    type ListEntry =
+      | { type: "task"; key: string; task: any }
+      | { type: "project"; key: string; id: number; name: string; count: number }
+      | { type: "phase"; key: string; id: string; name: string; color?: string; count: number }
+      | { type: "standalone"; key: string; count: number };
+    if (!groupByProjectPhase) {
+      return filteredAndSortedTasks.map((task: any) => ({ type: "task", key: `task-${task.id}`, task }) as ListEntry);
+    }
+    const entries: ListEntry[] = [];
+    for (const project of projectPhaseGroups.projects) {
+      entries.push({ type: "project", key: `project-${project.id}`, id: project.id, name: project.name, count: project.phases.reduce((sum, phase) => sum + phase.tasks.length, 0) });
+      if (expandedProjectGroups[String(project.id)] === false) continue;
+      for (const phase of project.phases) {
+        entries.push({ type: "phase", key: `phase-${phase.id}`, id: phase.id, name: phase.name, color: phase.color, count: phase.tasks.length });
+        if (expandedPhaseGroups[phase.id] === false) continue;
+        phase.tasks.forEach((task) => entries.push({ type: "task", key: `task-${task.id}`, task }));
+      }
+    }
+    if (projectPhaseGroups.standaloneTasks.length > 0) {
+      entries.push({ type: "standalone", key: "standalone", count: projectPhaseGroups.standaloneTasks.length });
+      projectPhaseGroups.standaloneTasks.forEach((task) => entries.push({ type: "task", key: `task-${task.id}`, task }));
+    }
+    return entries;
+  }, [filteredAndSortedTasks, groupByProjectPhase, projectPhaseGroups, expandedProjectGroups, expandedPhaseGroups]);
   
   const resetFilters = () => {
     setStatusFilter("all");
@@ -1362,7 +1436,7 @@ export default function Tasks() {
         {/* Task list */}
         {!isLoading && tasks.length > 0 && (
           <div className="flex flex-col gap-3 mb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 {batchMode ? (
                   <>
@@ -1389,6 +1463,18 @@ export default function Tasks() {
                   </Button>
                 )}
               </div>
+              <Button
+                type="button"
+                variant={groupByProjectPhase ? "default" : "outline"}
+                size="sm"
+                className={groupByProjectPhase ? "bg-violet-600 hover:bg-violet-700 text-white" : ""}
+                onClick={() => setGroupByProjectPhase((current) => !current)}
+              >
+                <FolderKanban className="mr-1.5 h-4 w-4" />
+                {groupByProjectPhase
+                  ? t("tasks:projectGroups.grouped", "Nach Projekten")
+                  : t("tasks:projectGroups.groupBy", "Projekte & Phasen")}
+              </Button>
             </div>
             
             {/* Batch Action Toolbar */}
@@ -1449,7 +1535,40 @@ export default function Tasks() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {filteredAndSortedTasks.map((task) => (
+            {taskListEntries.map((entry) => {
+              if (entry.type === "project") {
+                const isOpen = expandedProjectGroups[String(entry.id)] !== false;
+                return (
+                  <button
+                    key={entry.key}
+                    type="button"
+                    className="flex w-full items-center justify-between rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-left text-violet-950 transition-colors hover:bg-violet-100 dark:border-violet-900 dark:bg-violet-950/30 dark:text-violet-100 dark:hover:bg-violet-950/50"
+                    onClick={() => setExpandedProjectGroups((current) => ({ ...current, [String(entry.id)]: !isOpen }))}
+                  >
+                    <span className="flex min-w-0 items-center gap-2 font-semibold"><FolderKanban className="h-4 w-4 shrink-0" /> <span className="truncate">{entry.name}</span></span>
+                    <span className="flex shrink-0 items-center gap-2 text-xs font-medium"><span>{entry.count}</span>{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</span>
+                  </button>
+                );
+              }
+              if (entry.type === "phase") {
+                const isOpen = expandedPhaseGroups[entry.id] !== false;
+                return (
+                  <button
+                    key={entry.key}
+                    type="button"
+                    className="ml-3 flex w-[calc(100%-0.75rem)] items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+                    onClick={() => setExpandedPhaseGroups((current) => ({ ...current, [entry.id]: !isOpen }))}
+                  >
+                    <span className="flex min-w-0 items-center gap-2 font-medium"><Layers className="h-3.5 w-3.5 shrink-0" style={{ color: entry.color }} /> <span className="truncate">{entry.name}</span></span>
+                    <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground"><span>{entry.count}</span>{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</span>
+                  </button>
+                );
+              }
+              if (entry.type === "standalone") {
+                return <div key={entry.key} className="flex items-center gap-2 pt-2 text-sm font-semibold text-muted-foreground"><CheckSquare className="h-4 w-4" />{t("tasks:projectGroups.standalone", "Weitere Haushaltsaufgaben")} <span className="text-xs font-normal">({entry.count})</span></div>;
+              }
+              const task = entry.task;
+              return (
               <Card
                 key={task.id}
                 className={`shadow-sm transition-all duration-200 ${
@@ -1677,7 +1796,8 @@ export default function Tasks() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

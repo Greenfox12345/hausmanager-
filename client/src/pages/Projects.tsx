@@ -48,7 +48,7 @@ import { useTranslation } from "react-i18next";
 import { DatePickerInput } from "@/components/DatePickerInput";
 import { ShoppingCart, CheckSquare, Variable, Play, Layers } from "lucide-react";
 import { VarText } from "@/components/VarToken";
-import { evaluateFormula, parseVarAssignment, type PlanVariable } from "@/lib/varParser";
+import { evaluateFormula, parseVarAssignment, mergeVarsFromText, type PlanVariable } from "@/lib/varParser";
 import { canDirectlyManageTask } from "../../../shared/taskPermissions";
 import { topoSortTasks } from "@/lib/varParser";
 import { analyseProjectVariableAvailability, planTaskKey } from "../../../shared/projectVariableAvailability";
@@ -72,6 +72,9 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   const [varEditMode, setVarEditMode] = useState(false);
 
   const { data: project } = trpc.planProjects.getWithPlanData.useQuery({ projectId });
+  const { data: currentProjectTasks = [] } = trpc.tasks.list.useQuery(
+    { householdId }, { enabled: householdId > 0 },
+  );
   const startMutation = trpc.planProjects.startProject.useMutation({
     onSuccess: (data) => {
       toast.success(`${t("plankiste:project.started", "Projekt gestartet!")} ${data.createdTaskIds.length} Aufgaben, ${data.createdShoppingIds.length} Einkaufsartikel.`);
@@ -99,10 +102,39 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
     onError: () => toast.error(t("plankiste:project.startError", "Fehler beim Speichern")),
   });
 
-  if (!project || !project.planTemplateId) return null;
+  const storedVariables = ((project as any)?.planVariables ?? []) as PlanVariable[];
+  const storedPlanTasks = ((project as any)?.planTaskItems ?? []) as Array<{ name?: string; description?: string | null }>;
+  const projectTasksForRecognition = currentProjectTasks.filter((task: any) => task.projectIds?.includes(projectId));
+  const recognizedProjectVariables = useMemo(() => {
+    let merged = storedVariables;
+    const sourceItems = [...storedPlanTasks, ...projectTasksForRecognition];
+    for (const item of sourceItems) {
+      merged = mergeVarsFromText(`${item.name ?? ""} ${item.description ?? ""}`, merged);
+      const assignments = String(item.description ?? "").split(/[;\n]/)
+        .map((line) => parseVarAssignment(line.trim()))
+        .filter((assignment): assignment is NonNullable<typeof assignment> => Boolean(assignment));
+      if (assignments.length > 0) {
+        merged = merged.map((variable) => {
+          const assignment = assignments.find((entry) => entry.varName === variable.name);
+          return assignment && !variable.value ? { ...variable, value: assignment.formula } : variable;
+        });
+      }
+    }
+    return merged;
+  }, [storedVariables, storedPlanTasks, projectTasksForRecognition]);
+
+  useEffect(() => {
+    if (!project || !project.enableVariables) return;
+    if (JSON.stringify(recognizedProjectVariables) === JSON.stringify(storedVariables)) return;
+    updatePlanDataMutation.mutate({ projectId, planVariables: recognizedProjectVariables });
+  // Die Variablenliste wird nur bei einer echten Text-/Strukturänderung zurückgeschrieben.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project?.id, project?.enableVariables, JSON.stringify(recognizedProjectVariables), JSON.stringify(storedVariables)]);
+
+  if (!project) return null;
 
   const phases = (project.planPhases ?? []) as Array<{ id: string; name: string; color: string; order: number; status?: string }>;
-  const variables = (project.planVariables ?? []) as PlanVariable[];
+  const variables = recognizedProjectVariables;
   const shoppingItemsList = (project.planShoppingItems ?? []) as Array<{ name: string; quantity?: string; notes?: string; phaseId?: string }>;
   const taskItemsList = (project.planTaskItems ?? []) as Array<{ name: string; description?: string; phaseId?: string; daysOffset?: number }>;
   const enableVariables = project.enableVariables ?? false;
@@ -318,25 +350,46 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
   return (
     <Card className="shadow-md border-amber-200">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base flex items-center gap-2">
             <Layers className="w-4 h-4 text-amber-600" />
-            {t("plankiste:project.planSection", "Plan-Inhalte")}
+            {project.planTemplateId ? t("plankiste:project.planSection", "Plan-Inhalte") : t("plankiste:project.projectStructure", "Projektstruktur")}
           </CardTitle>
-          {!isActive ? (
+          {!isActive && project.planTemplateId ? (
             <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={openStartDialog}>
               <Play className="w-3.5 h-3.5 mr-1.5" />
               {t("plankiste:project.startProject", "Projekt starten")}
             </Button>
-          ) : (
+          ) : project.planTemplateId ? (
             <Badge variant="outline" className="text-green-600 border-green-300">
               {t("plankiste:project.alreadyStarted", "Gestartet")}
             </Badge>
-          )}
+          ) : null}
         </div>
         <p className="text-xs text-muted-foreground mt-1">
-          {t("plankiste:project.planSectionDesc", "Aus Plankiste-Vorlage. Beim Starten werden Aufgaben und Einkäufe übertragen.")}
+          {project.planTemplateId
+            ? t("plankiste:project.planSectionDesc", "Aus Plankiste-Vorlage. Beim Starten werden Aufgaben und Einkäufe übertragen.")
+            : t("plankiste:project.projectStructureDesc", "Projektvariablen werden aus den zugeordneten Aufgaben erkannt und können hier gepflegt werden.")}
         </p>
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2 dark:border-violet-900 dark:bg-violet-950/20">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-violet-950 dark:text-violet-100">{t("plankiste:variables.toggle", "Variablen verwenden")}</p>
+            <p className="text-xs text-muted-foreground">{enableVariables
+              ? t("plankiste:project.variablesEnabledHint", "VAR-Namen in Aufgaben und Beschreibungen werden erkannt und aufgelöst.")
+              : t("plankiste:project.variablesDisabledHint", "Aufgaben werden ohne Variablenerkennung angezeigt.")}</p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant={enableVariables ? "default" : "outline"}
+            className={enableVariables ? "bg-violet-600 hover:bg-violet-700 text-white" : "border-violet-300 text-violet-700"}
+            onClick={() => updatePlanDataMutation.mutate({ projectId, enableVariables: !enableVariables, planVariables: variables })}
+            disabled={updatePlanDataMutation.isPending}
+          >
+            <Variable className="mr-1.5 h-3.5 w-3.5" />
+            {enableVariables ? t("plankiste:variables.on", "An") : t("plankiste:variables.off", "Aus")}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
         {/* Phasen-Übersicht mit Status */}
@@ -369,6 +422,12 @@ function ProjectPlanSection({ projectId, householdId, memberId }: { projectId: n
               </div>
             )}
           </div>
+        )}
+
+        {enableVariables && variables.length === 0 && (
+          <p className="rounded-md border border-dashed border-violet-300 bg-violet-50/50 px-3 py-2 text-xs text-violet-950 dark:text-violet-100">
+            {t("plankiste:project.noRecognizedVariables", "Noch keine Variablen erkannt. Verwenden Sie zum Beispiel VARBreite in einer Projektaufgabe oder deren Beschreibung.")}
+          </p>
         )}
 
         {/* Variablen-Sektion – editierbar */}

@@ -675,5 +675,12 @@
     "completionRequired": "完成任务前仍有变量需要记录。",
     "documentMissing": "记录缺失输入",
     "projectValueUpdate": "保存时也会更新项目变量的当前数值。"
+  },
+  "projectGroups": {
+    "groupBy": "项目与阶段",
+    "grouped": "按项目",
+    "unknownProject": "未知项目",
+    "withoutPhase": "无阶段",
+    "standalone": "其他家庭任务"
   }
 }

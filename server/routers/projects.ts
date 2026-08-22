@@ -1126,4 +1126,23 @@ export const planProjectsRouter = router({
         .where(inArray(projectsExtended.id, input.projectIds));
       return Object.fromEntries(rows.map((row) => [row.id, row.variables ?? []]));
     }),
+
+  /** Projektname und Phasen für die aufklappbare Gruppierung in der Aufgabenansicht laden. */
+  getTaskGroupingData: protectedProcedure
+    .input(z.object({ projectIds: z.array(z.number()).max(24) }))
+    .query(async ({ input }) => {
+      if (input.projectIds.length === 0) return {};
+      const db = (await getDb())!;
+      const rows = await db.select({
+        id: projectsExtended.id,
+        name: projectsExtended.name,
+        phases: projectsExtended.planPhases,
+        taskItems: projectsExtended.planTaskItems,
+      }).from(projectsExtended).where(inArray(projectsExtended.id, input.projectIds));
+      return Object.fromEntries(rows.map((row) => [row.id, {
+        name: row.name,
+        phases: Array.isArray(row.phases) ? row.phases : [],
+        taskItems: Array.isArray(row.taskItems) ? row.taskItems : [],
+      }]));
+    }),
 });

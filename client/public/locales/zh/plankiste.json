@@ -352,7 +352,12 @@
       "noInputTask": "没有可记录“{{variable}}”数值的任务。",
       "previousPhaseRequired": "必须先在阶段“{{phase}}”中记录“{{variable}}”。",
       "shoppingNeedsValue": "购物项目需要“{{variable}}”，但无法将其分配给输入任务。"
-    }
+    },
+    "projectStructure": "项目结构",
+    "projectStructureDesc": "项目变量会从已关联的任务中识别，并可在此处维护。",
+    "variablesEnabledHint": "任务和描述中的 VAR 名称会被识别并解析。",
+    "variablesDisabledHint": "任务将不会进行变量识别。",
+    "noRecognizedVariables": "尚未识别到变量。请在项目任务或其描述中使用例如 VAR宽度。"
   },
   "tasks": {
     "title": "任务"

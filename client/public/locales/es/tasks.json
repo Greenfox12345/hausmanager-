@@ -725,5 +725,12 @@
     "completionRequired": "Aún faltan variables documentadas antes de completar la tarea.",
     "documentMissing": "Documentar entradas faltantes",
     "projectValueUpdate": "Al guardar, también se actualiza el valor actual de la variable del proyecto."
+  },
+  "projectGroups": {
+    "groupBy": "Proyectos y fases",
+    "grouped": "Por proyectos",
+    "unknownProject": "Proyecto desconocido",
+    "withoutPhase": "Sin fase",
+    "standalone": "Otras tareas del hogar"
   }
 }
