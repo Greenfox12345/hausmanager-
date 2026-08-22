@@ -30,7 +30,7 @@ import { TaskCategorySelector } from "@/components/TaskCategorySelector";
 import { PlanTaskBanner } from "@/components/PlanTaskBanner";
 import { ProjectVarText } from "@/components/ProjectVarText";
 import { TaskVariableInputDialog } from "@/components/TaskVariableInputDialog";
-import { isProjectInputVariable } from "../../../shared/projectVariableAvailability";
+import { isProjectRuntimeInputVariable } from "../../../shared/projectVariableAvailability";
 
 export default function Tasks() {
   const { t } = useTranslation(["tasks", "common"]);
@@ -151,7 +151,7 @@ export default function Tasks() {
   );
   const selectedProjectVariables = useMemo(() => Array.from(new Map(
     selectedProjectIds.flatMap((projectId) => (projectVariables[projectId] ?? [])
-      .filter((variable: any) => isProjectInputVariable(variable))
+      .filter((variable: any) => isProjectRuntimeInputVariable(variable))
       .map((variable: any) => [variable.name, variable])),
   ).values()), [projectVariables, selectedProjectIds]);
   
