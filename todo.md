@@ -3949,5 +3949,9 @@
 - [x] Die Zuordnung in der Variablenansicht der Plankiste verständlich anzeigen, ändern und aufheben können
 - [x] Manuelle Eingabeaufgaben-Zuordnungen beim Projektstart auf die entsprechenden realen Aufgaben übertragen
 
+## Fehlerkorrektur: Gültigkeit und Eingabeaufgaben in der Plankiste (2026-08-25)
+- [x] Die Auswahl „Je Projektdurchlauf“ für Planvariablen dauerhaft speichern und anschließend korrekt anzeigen
+- [x] Für durchlaufbezogene Planvariablen die Auswahl „In dieser Planaufgabe eingeben“ zuverlässig anzeigen und speichern
+
 ## Checkpoint-Synchronisation prüfen (2026-08-25)
-- [ ] GitHub-Verbindung und den gemeldeten Zusammenführungskonflikt prüfen, ohne lokale Plankisten-Änderungen zu verlieren
+- [x] GitHub-Verbindung und den gemeldeten Zusammenführungskonflikt prüfen, ohne lokale Plankisten-Änderungen zu verlieren

@@ -159,6 +159,7 @@ export const planTemplatesRouter = router({
         min: z.string().optional(),
         max: z.string().optional(),
         locked: z.boolean().optional(),
+        inputScope: z.enum(["fixed", "runtime"]).optional(),
       })).optional(),
       phases: z.array(z.object({
         id: z.string(),
