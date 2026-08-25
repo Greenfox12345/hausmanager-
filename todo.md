@@ -3943,6 +3943,3 @@
 
 ## Vollständige Übersetzungen der Variablen-Eingabeaufgaben (2026-08-22)
 - [x] Alle Texte zu Eingabeaufgaben, Definitionen, Bestätigungen und Bereichsgrenzen in Deutsch, Englisch, Spanisch, Französisch, Türkisch, Chinesisch und Arabisch vollständig übersetzen
-
-## Vollständiger Datenbankexport (2026-08-22)
-- [x] Einen vollständigen SQL-Export der Haushaltsmanager-Datenbank erstellen und sicher bereitstellen
