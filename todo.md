@@ -3953,5 +3953,8 @@
 - [x] Die Auswahl „Je Projektdurchlauf“ für Planvariablen dauerhaft speichern und anschließend korrekt anzeigen
 - [x] Für durchlaufbezogene Planvariablen die Auswahl „In dieser Planaufgabe eingeben“ zuverlässig anzeigen und speichern
 
+## Verifikation: Speicherweg der Planaufgaben-Zuordnung (2026-08-25)
+- [x] Prüfen und reparieren, dass der Button zur Eingabeaufgaben-Zuordnung die Änderung tatsächlich in der Plankiste speichert
+
 ## Checkpoint-Synchronisation prüfen (2026-08-25)
 - [x] GitHub-Verbindung und den gemeldeten Zusammenführungskonflikt prüfen, ohne lokale Plankisten-Änderungen zu verlieren

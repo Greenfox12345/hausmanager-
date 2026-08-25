@@ -24,6 +24,7 @@ import {
 } from "../../drizzle/schema";
 import { eq, and, asc, desc } from "drizzle-orm";
 import { getDb, createActivityLog, getHouseholdById } from "../db";
+import { buildTemplateVariableInputTaskUpdates } from "../../shared/templateVariableInputTask";
 
 type Lang = "de" | "en" | "es" | "fr" | "zh" | "tr" | "ar";
 async function getLang(householdId: number): Promise<Lang> {
@@ -815,6 +816,42 @@ export const planTemplatesRouter = router({
         }
       }
       return { ok: true, count: input.updates.length };
+    }),
+
+  /**
+   * Legt eindeutig fest, in welcher Planaufgabe eine durchlaufbezogene Variable
+   * erfasst wird. Eine Variable kann innerhalb eines Plans nur einer Aufgabe
+   * zugeordnet sein; eine leere Auswahl hebt die Zuordnung auf.
+   */
+  assignVariableInputTask: publicProcedure
+    .input(z.object({
+      templateId: z.number(),
+      variableName: z.string().min(1),
+      taskItemId: z.number().nullable(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB nicht verfügbar");
+
+      const taskItems = await db
+        .select({ id: planTemplateTaskItems.id, variableInputNames: planTemplateTaskItems.variableInputNames })
+        .from(planTemplateTaskItems)
+        .where(eq(planTemplateTaskItems.templateId, input.templateId));
+
+      if (input.taskItemId !== null && !taskItems.some(task => task.id === input.taskItemId)) {
+        throw new Error("Die ausgewählte Eingabeaufgabe gehört nicht zu diesem Plan");
+      }
+
+      const updates = buildTemplateVariableInputTaskUpdates(taskItems, input.variableName, input.taskItemId);
+      const updatedTaskIds: number[] = [];
+      for (const update of updates) {
+          await db.update(planTemplateTaskItems)
+            .set({ variableInputNames: update.variableInputNames })
+            .where(eq(planTemplateTaskItems.id, update.id));
+          updatedTaskIds.push(update.id);
+      }
+
+      return { ok: true, updatedTaskIds };
     }),
 
   /** Aufgaben einer Instanz abrufen */

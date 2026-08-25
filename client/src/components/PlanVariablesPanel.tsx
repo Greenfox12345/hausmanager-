@@ -88,6 +88,13 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     onError: () => toast.error(t("variables.saveError")),
   });
 
+  const assignInputTaskMutation = trpc.planTemplates.assignVariableInputTask.useMutation({
+    onSuccess: () => {
+      utils.planTemplates.listTemplateTaskItems.invalidate({ templateId });
+    },
+    onError: () => toast.error(t("variables.saveError")),
+  });
+
   const [editingVar, setEditingVar] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [editUnit, setEditUnit] = useState("");
@@ -195,17 +202,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
 
   /** Eine Durchlaufvariable darf pro Plan nur einer Eingabeaufgabe zugeordnet sein. */
   const assignInputTask = (varName: string, nextTaskId: number | null) => {
-    const updates = (taskItems as any[]).map((task: any) => {
-      const currentNames = Array.isArray(task.variableInputNames) ? task.variableInputNames as string[] : [];
-      const withoutVariable = currentNames.filter(name => name !== varName);
-      const nextNames = task.id === nextTaskId ? [...withoutVariable, varName] : withoutVariable;
-      const changed = nextNames.length !== currentNames.length || nextNames.some((name, index) => name !== currentNames[index]);
-      return changed ? { itemId: task.id, variableInputNames: nextNames } : null;
-    }).filter((update): update is { itemId: number; variableInputNames: string[] } => update !== null);
-
-    if (updates.length > 0) {
-      bulkUpdateMutation.mutate({ updates });
-    }
+    assignInputTaskMutation.mutate({ templateId, variableName: varName, taskItemId: nextTaskId });
   };
 
   // Variable aus der Liste löschen
@@ -553,7 +550,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                   value={selectedInputTaskId?.toString() ?? "none"}
                   onChange={event => assignInputTask(v.name, event.target.value === "none" ? null : Number(event.target.value))}
                   className="h-7 min-w-0 flex-1 rounded border border-border bg-background px-2 text-xs text-foreground"
-                  disabled={bulkUpdateMutation.isPending}
+                  disabled={assignInputTaskMutation.isPending}
                 >
                   <option value="none">{t("variables.inputTaskNone")}</option>
                   {(taskItems as any[]).map((task: any) => (
