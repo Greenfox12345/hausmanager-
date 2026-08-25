@@ -1,0 +1,1 @@
+ALTER TABLE `plan_template_task_items` ADD `variableInputNames` json;

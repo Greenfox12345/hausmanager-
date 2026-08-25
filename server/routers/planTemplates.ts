@@ -696,6 +696,7 @@ export const planTemplatesRouter = router({
       requiredPersons: z.number().nullable().optional(),
       prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
+      variableInputNames: z.array(z.string()).optional(),
       sortOrder: z.number().default(0),
       phaseId: z.string().nullable().optional(),
     }))
@@ -718,6 +719,7 @@ export const planTemplatesRouter = router({
         requiredPersons: input.requiredPersons ?? null,
         prerequisiteItemIds: input.prerequisiteItemIds ?? [],
         followupItemIds: input.followupItemIds ?? [],
+        variableInputNames: input.variableInputNames ?? [],
         sortOrder: input.sortOrder,
         phaseId: input.phaseId ?? null,
       });
@@ -742,6 +744,7 @@ export const planTemplatesRouter = router({
       requiredPersons: z.number().nullable().optional(),
       prerequisiteItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
       followupItemIds: z.array(z.object({ id: z.number(), gapDays: z.number().optional() })).optional(),
+      variableInputNames: z.array(z.string()).optional(),
       phaseId: z.string().nullable().optional(),
       sortOrder: z.number().optional(),
     }))
@@ -764,6 +767,7 @@ export const planTemplatesRouter = router({
       if (fields.requiredPersons !== undefined) update.requiredPersons = fields.requiredPersons;
       if (fields.prerequisiteItemIds !== undefined) update.prerequisiteItemIds = fields.prerequisiteItemIds;
       if (fields.followupItemIds !== undefined) update.followupItemIds = fields.followupItemIds;
+      if (fields.variableInputNames !== undefined) update.variableInputNames = fields.variableInputNames;
       if (fields.phaseId !== undefined) update.phaseId = fields.phaseId;
       if (fields.sortOrder !== undefined) update.sortOrder = fields.sortOrder;
       if (Object.keys(update).length > 0) {
@@ -792,6 +796,7 @@ export const planTemplatesRouter = router({
         itemId: z.number(),
         name: z.string().optional(),
         description: z.string().nullable().optional(),
+        variableInputNames: z.array(z.string()).optional(),
       })),
     }))
     .mutation(async ({ input }) => {
@@ -801,6 +806,7 @@ export const planTemplatesRouter = router({
         const update: Record<string, unknown> = {};
         if (u.name !== undefined) update.name = u.name;
         if (u.description !== undefined) update.description = u.description;
+        if (u.variableInputNames !== undefined) update.variableInputNames = u.variableInputNames;
         if (Object.keys(update).length > 0) {
           await db.update(planTemplateTaskItems)
             .set(update)

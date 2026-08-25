@@ -234,7 +234,12 @@
     "adoptDescription": "Les définitions suivantes ont été trouvées dans la description de la tâche. Vous pouvez encore modifier les formules :",
     "adoptIgnore": "Non, ignorer",
     "adoptConfirm": "Oui, reprendre",
-    "locked": "Cette variable est verrouillée."
+    "locked": "Cette variable est verrouillée.",
+    "inputTaskLabel": "Saisir dans cette tâche",
+    "inputTaskNone": "Pas encore attribuée à une tâche",
+    "inputScopeLabel": "Portée",
+    "inputScopeFixed": "Paramètre fixe du projet",
+    "inputScopeRuntime": "Saisir pour chaque exécution du projet"
   },
   "phases": {
     "title": "Phases",

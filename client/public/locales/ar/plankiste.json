@@ -234,7 +234,12 @@
     "adoptDescription": "تم العثور على التعريفات التالية في وصف المهمة. لا يزال بإمكانك تعديل الصيغ:",
     "adoptIgnore": "لا، تجاهل",
     "adoptConfirm": "نعم، اعتماد",
-    "locked": "هذا المتغير مقفل."
+    "locked": "هذا المتغير مقفل.",
+    "inputTaskLabel": "أدخل في هذه المهمة",
+    "inputTaskNone": "لم تُسند إلى مهمة بعد",
+    "inputScopeLabel": "النطاق",
+    "inputScopeFixed": "إعداد ثابت للمشروع",
+    "inputScopeRuntime": "أدخل لكل تنفيذ للمشروع"
   },
   "phases": {
     "title": "المراحل",

@@ -3943,3 +3943,11 @@
 
 ## Vollständige Übersetzungen der Variablen-Eingabeaufgaben (2026-08-22)
 - [x] Alle Texte zu Eingabeaufgaben, Definitionen, Bestätigungen und Bereichsgrenzen in Deutsch, Englisch, Spanisch, Französisch, Türkisch, Chinesisch und Arabisch vollständig übersetzen
+
+## Variablen-Eingabeaufgaben in der Plankiste (2026-08-22)
+- [x] Durchlaufbezogene Planvariablen einer konkreten Planaufgabe als Eingabeaufgabe zuordnen können
+- [x] Die Zuordnung in der Variablenansicht der Plankiste verständlich anzeigen, ändern und aufheben können
+- [x] Manuelle Eingabeaufgaben-Zuordnungen beim Projektstart auf die entsprechenden realen Aufgaben übertragen
+
+## Checkpoint-Synchronisation prüfen (2026-08-25)
+- [ ] GitHub-Verbindung und den gemeldeten Zusammenführungskonflikt prüfen, ohne lokale Plankisten-Änderungen zu verlieren

@@ -234,7 +234,12 @@
     "adoptDescription": "Görev açıklamasında aşağıdaki tanımlar bulundu. Formülleri hâlâ değiştirebilirsiniz:",
     "adoptIgnore": "Hayır, yoksay",
     "adoptConfirm": "Evet, al",
-    "locked": "Bu değişken kilitli."
+    "locked": "Bu değişken kilitli.",
+    "inputTaskLabel": "Bu görevde gir",
+    "inputTaskNone": "Henüz bir göreve atanmadı",
+    "inputScopeLabel": "Kapsam",
+    "inputScopeFixed": "Sabit proje ayarı",
+    "inputScopeRuntime": "Her proje çalışması için gir"
   },
   "phases": {
     "title": "Aşamalar",

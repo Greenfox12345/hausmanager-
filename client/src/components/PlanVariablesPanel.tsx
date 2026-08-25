@@ -95,6 +95,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
   const [editAlias, setEditAlias] = useState("");
   const [editMin, setEditMin] = useState("");
   const [editMax, setEditMax] = useState("");
+  const [editInputScope, setEditInputScope] = useState<"fixed" | "runtime">("fixed");
 
   // Lokaler Schieberegler-State: varName → aktueller Draft-Wert (vor dem Speichern)
   const [sliderDrafts, setSliderDrafts] = useState<Record<string, number>>({});
@@ -159,6 +160,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
             alias: editAlias || undefined,
             min: editMin || undefined,
             max: editMax || undefined,
+            inputScope: editInputScope,
           }
         : v
     );
@@ -174,6 +176,7 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     setEditAlias(v.alias ?? "");
     setEditMin(v.min ?? "");
     setEditMax(v.max ?? "");
+    setEditInputScope(v.inputScope ?? "fixed");
   };
 
   const toggleLock = (varName: string) => {
@@ -188,6 +191,21 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
       v.name === varName ? { ...v, value: newValue } : v
     );
     updateMutation.mutate({ templateId, householdId, memberId, variables: updated });
+  };
+
+  /** Eine Durchlaufvariable darf pro Plan nur einer Eingabeaufgabe zugeordnet sein. */
+  const assignInputTask = (varName: string, nextTaskId: number | null) => {
+    const updates = (taskItems as any[]).map((task: any) => {
+      const currentNames = Array.isArray(task.variableInputNames) ? task.variableInputNames as string[] : [];
+      const withoutVariable = currentNames.filter(name => name !== varName);
+      const nextNames = task.id === nextTaskId ? [...withoutVariable, varName] : withoutVariable;
+      const changed = nextNames.length !== currentNames.length || nextNames.some((name, index) => name !== currentNames[index]);
+      return changed ? { itemId: task.id, variableInputNames: nextNames } : null;
+    }).filter((update): update is { itemId: number; variableInputNames: string[] } => update !== null);
+
+    if (updates.length > 0) {
+      bulkUpdateMutation.mutate({ updates });
+    }
   };
 
   // Variable aus der Liste löschen
@@ -321,6 +339,10 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
     const hasNewUnit = unitHint && unitHint.unit !== v.unit;
     const mentions = countMentions(v.name);
     const isInput = !isComputedVar(v);
+    const isRuntimeInput = isInput && v.inputScope === "runtime";
+    const selectedInputTaskId = (taskItems as any[]).find((task: any) =>
+      Array.isArray(task.variableInputNames) && task.variableInputNames.includes(v.name)
+    )?.id as number | undefined;
     const hasRange = isInput && (v.min !== undefined || v.max !== undefined);
     const minNum = resolveNumeric(v.min);
     const maxNum = resolveNumeric(v.max);
@@ -387,6 +409,19 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                   onChange={e => setEditMax(e.target.value)}
                   className="h-7 text-xs flex-1"
                 />
+              </div>
+            )}
+            {isInput && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground w-16 flex-shrink-0">{t("variables.inputScopeLabel")}:</span>
+                <select
+                  value={editInputScope}
+                  onChange={event => setEditInputScope(event.target.value as "fixed" | "runtime")}
+                  className="h-7 min-w-0 flex-1 rounded border border-border bg-background px-2 text-xs text-foreground"
+                >
+                  <option value="fixed">{t("variables.inputScopeFixed")}</option>
+                  <option value="runtime">{t("variables.inputScopeRuntime")}</option>
+                </select>
               </div>
             )}
             <div className="flex gap-1.5">
@@ -508,6 +543,25 @@ export function PlanVariablesPanel({ templateId, householdId, memberId }: PlanVa
                 )
               )}
             </div>
+
+            {isRuntimeInput && (
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-[11px] text-muted-foreground flex-shrink-0">
+                  {t("variables.inputTaskLabel")}
+                </span>
+                <select
+                  value={selectedInputTaskId?.toString() ?? "none"}
+                  onChange={event => assignInputTask(v.name, event.target.value === "none" ? null : Number(event.target.value))}
+                  className="h-7 min-w-0 flex-1 rounded border border-border bg-background px-2 text-xs text-foreground"
+                  disabled={bulkUpdateMutation.isPending}
+                >
+                  <option value="none">{t("variables.inputTaskNone")}</option>
+                  {(taskItems as any[]).map((task: any) => (
+                    <option key={task.id} value={task.id.toString()}>{task.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Zeile 3: Schieberegler (nur Eingabe-Variablen, entsperrt, mit Range) */}
             {hasSlider && (() => {

@@ -406,6 +406,8 @@ export type ProjectPlanTaskItem = {
   id?: number;
   name: string;
   description?: string | null;
+  /** Durchlaufbezogene Variablen, die in dieser Aufgabe erfasst und bestätigt werden. */
+  variableInputNames?: string[];
   phaseId?: string | null;
   sortOrder?: number;
   repeatType?: string | null;
@@ -929,6 +931,8 @@ export const planTemplateTaskItems = mysqlTable("plan_template_task_items", {
   // Format: [{id: number, gapDays?: number}]
   prerequisiteItemIds: json("prerequisiteItemIds").$type<{id: number; gapDays?: number}[]>(),
   followupItemIds: json("followupItemIds").$type<{id: number; gapDays?: number}[]>(),
+  /** Durchlaufbezogene Variablen, die diese Planaufgabe als Eingabeaufgabe dokumentiert. */
+  variableInputNames: json("variableInputNames").$type<string[]>(),
   sortOrder: int("sortOrder").default(0).notNull(),
   phaseId: varchar("phaseId", { length: 64 }),
   createdAt: datetime("createdAt").$defaultFn(() => new Date()).notNull(),

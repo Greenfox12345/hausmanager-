@@ -234,7 +234,12 @@
     "adoptDescription": "The following definitions were found in the task description. You can still adjust the formulas:",
     "adoptIgnore": "No, ignore",
     "adoptConfirm": "Yes, apply",
-    "locked": "This variable is locked."
+    "locked": "This variable is locked.",
+    "inputTaskLabel": "Enter in this task",
+    "inputTaskNone": "Not assigned to a task yet",
+    "inputScopeLabel": "Scope",
+    "inputScopeFixed": "Fixed project setting",
+    "inputScopeRuntime": "Enter for each project run"
   },
   "phases": {
     "title": "Phases",

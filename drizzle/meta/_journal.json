@@ -344,6 +344,13 @@
       "when": 1787431229024,
       "tag": "0060_foamy_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "5",
+      "when": 1787682383604,
+      "tag": "0061_sleepy_zombie",
+      "breakpoints": true
     }
   ]
 }

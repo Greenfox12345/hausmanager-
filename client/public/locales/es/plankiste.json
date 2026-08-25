@@ -234,7 +234,12 @@
     "adoptDescription": "Se encontraron las siguientes definiciones en la descripción de la tarea. Aún puedes ajustar las fórmulas:",
     "adoptIgnore": "No, ignorar",
     "adoptConfirm": "Sí, aplicar",
-    "locked": "Esta variable está bloqueada."
+    "locked": "Esta variable está bloqueada.",
+    "inputTaskLabel": "Introducir en esta tarea",
+    "inputTaskNone": "Aún no asignada a una tarea",
+    "inputScopeLabel": "Ámbito",
+    "inputScopeFixed": "Valor fijo del proyecto",
+    "inputScopeRuntime": "Introducir en cada ejecución del proyecto"
   },
   "phases": {
     "title": "Fases",

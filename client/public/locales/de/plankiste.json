@@ -234,7 +234,12 @@
     "adoptDescription": "In der Aufgaben-Beschreibung wurden folgende Definitionen gefunden. Du kannst die Formeln noch anpassen:",
     "adoptIgnore": "Nein, ignorieren",
     "adoptConfirm": "Ja, übernehmen",
-    "locked": "Diese Variable ist gesperrt."
+    "locked": "Diese Variable ist gesperrt.",
+    "inputTaskLabel": "In dieser Aufgabe eingeben",
+    "inputTaskNone": "Noch keiner Aufgabe zugeordnet",
+    "inputScopeLabel": "Gültigkeit",
+    "inputScopeFixed": "Feste Projektvorgabe",
+    "inputScopeRuntime": "Je Projektdurchlauf eingeben"
   },
   "phases": {
     "title": "Phasen",

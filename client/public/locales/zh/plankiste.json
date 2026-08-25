@@ -234,7 +234,12 @@
     "adoptDescription": "在任务描述中发现了以下定义。您仍可以调整公式：",
     "adoptIgnore": "否，忽略",
     "adoptConfirm": "是，采用",
-    "locked": "此变量已锁定。"
+    "locked": "此变量已锁定。",
+    "inputTaskLabel": "在此任务中输入",
+    "inputTaskNone": "尚未分配给任务",
+    "inputScopeLabel": "适用范围",
+    "inputScopeFixed": "固定项目设定",
+    "inputScopeRuntime": "每次项目执行时输入"
   },
   "phases": {
     "title": "阶段",

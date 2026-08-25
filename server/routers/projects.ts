@@ -868,6 +868,7 @@ export const planProjectsRouter = router({
           daysOffset: item.dueDaysFromStart ?? undefined,
           prerequisites: (item.prerequisiteItemIds ?? []).map((p: any) => typeof p === "object" ? p.id : p),
           followups: (item.followupItemIds ?? []).map((f: any) => typeof f === "object" ? f.id : f),
+          variableInputNames: (item.variableInputNames ?? []) as string[],
         })) as ProjectPlanTaskItem[],
       });
       const projectId = Number(result.insertId);
