@@ -48,5 +48,15 @@
   "source": "来源",
   "items": "商品",
   "hours": "小时",
-  "minutes": "分钟"
+  "minutes": "分钟",
+  "settlementSuggestions": "生成结算建议",
+  "settlementTitle": "建议的结算付款",
+  "settlementDescription": "付款会在活跃家庭成员之间平均分摊。这仅是建议：不会自动记录或转账。",
+  "settlementTotalPayments": "已记录付款",
+  "settlementParticipants": "{{count}} 位活跃成员",
+  "settlementNotEnoughMembers": "结算至少需要两位活跃成员。",
+  "settlementNoPayments": "尚未记录付款。工作时间不会被自动换算为欧元。",
+  "settlementAlreadyBalanced": "已记录的付款已经平衡。",
+  "settlementFromTo": "{{payer}} 向 {{recipient}} 支付",
+  "settlementClose": "关闭"
 }

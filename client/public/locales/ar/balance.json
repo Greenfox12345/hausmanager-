@@ -48,5 +48,15 @@
   "source": "المصدر",
   "items": "العناصر",
   "hours": "ساعة",
-  "minutes": "دقيقة"
+  "minutes": "دقيقة",
+  "settlementSuggestions": "اقتراح تسوية",
+  "settlementTitle": "دفعات التسوية المقترحة",
+  "settlementDescription": "تُقسَّم الدفعات بالتساوي بين أعضاء المنزل النشطين. هذا مجرد اقتراح، ولا يتم تسجيل أو تحويل أي شيء تلقائياً.",
+  "settlementTotalPayments": "الدفعات المسجلة",
+  "settlementParticipants": "{{count}} أعضاء نشطون",
+  "settlementNotEnoughMembers": "يلزم عضوان نشطان على الأقل لإجراء التسوية.",
+  "settlementNoPayments": "لم تُسجل أي دفعات بعد. لا يُحوَّل وقت العمل إلى يورو تلقائياً.",
+  "settlementAlreadyBalanced": "الدفعات المسجلة متوازنة بالفعل.",
+  "settlementFromTo": "{{payer}} يدفع إلى {{recipient}}",
+  "settlementClose": "إغلاق"
 }

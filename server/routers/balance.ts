@@ -4,6 +4,7 @@ import { z } from "zod";
 import { activityHistory, balanceEntries } from "../../drizzle/schema";
 import { canModifyBalanceEntry } from "../../shared/balanceRules";
 import { summarizeBalanceEntries } from "../../shared/balanceSummary";
+import { calculateBalanceSettlementSuggestions } from "../../shared/balanceSettlement";
 import { formatBalanceActivityText } from "../../shared/balanceActivityText";
 import { attachBalanceHistoryLinks } from "../../shared/balanceHistoryLinks";
 import { createActivityLog, getDb, getHouseholdById, getHouseholdMemberById, getHouseholdMembers } from "../db";
@@ -72,6 +73,19 @@ export const balanceRouter = router({
         getHouseholdMembers(input.householdId),
       ]);
       return summarizeBalanceEntries(entries, members);
+    }),
+
+  settlementSuggestions: publicProcedure
+    .input(z.object({ householdId: z.number(), memberId: z.number() }))
+    .query(async ({ input }) => {
+      await assertActiveMember(input.householdId, input.memberId);
+      const db = await getDb();
+      if (!db) throw new Error("Datenbank nicht verfügbar");
+      const [entries, members] = await Promise.all([
+        db.select().from(balanceEntries).where(eq(balanceEntries.householdId, input.householdId)),
+        getHouseholdMembers(input.householdId),
+      ]);
+      return calculateBalanceSettlementSuggestions(entries, members);
     }),
 
   create: publicProcedure

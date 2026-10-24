@@ -48,5 +48,15 @@
   "source": "Kaynak",
   "items": "Ürünler",
   "hours": "sa.",
-  "minutes": "dk."
+  "minutes": "dk.",
+  "settlementSuggestions": "Dengeleme öner",
+  "settlementTitle": "Önerilen dengeleme ödemeleri",
+  "settlementDescription": "Ödemeler etkin hane üyeleri arasında eşit paylaştırılır. Bu yalnızca bir öneridir; hiçbir kayıt veya para transferi yapılmaz.",
+  "settlementTotalPayments": "Kaydedilen ödemeler",
+  "settlementParticipants": "{{count}} etkin üye",
+  "settlementNotEnoughMembers": "Dengeleme için en az iki etkin üye gerekir.",
+  "settlementNoPayments": "Henüz ödeme kaydedilmedi. Çalışma süresi bilinçli olarak euroya çevrilmez.",
+  "settlementAlreadyBalanced": "Kaydedilen ödemeler zaten dengeli.",
+  "settlementFromTo": "{{payer}}, {{recipient}} kişisine ödeme yapar",
+  "settlementClose": "Kapat"
 }

@@ -48,5 +48,15 @@
   "source": "Source",
   "items": "Articles",
   "hours": "h",
-  "minutes": "min"
+  "minutes": "min",
+  "settlementSuggestions": "Proposer un règlement",
+  "settlementTitle": "Paiements de règlement proposés",
+  "settlementDescription": "Les paiements sont répartis équitablement entre les membres actifs du foyer. Ceci n’est qu’une proposition : rien n’est enregistré ni transféré.",
+  "settlementTotalPayments": "Paiements enregistrés",
+  "settlementParticipants": "{{count}} membres actifs",
+  "settlementNotEnoughMembers": "Au moins deux membres actifs sont nécessaires pour un règlement.",
+  "settlementNoPayments": "Aucun paiement n’a encore été enregistré. Le temps de travail n’est volontairement pas converti en euros.",
+  "settlementAlreadyBalanced": "Les paiements enregistrés sont déjà équilibrés.",
+  "settlementFromTo": "{{payer}} paie {{recipient}}",
+  "settlementClose": "Fermer"
 }

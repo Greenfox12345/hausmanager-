@@ -48,5 +48,15 @@
   "source": "Quelle",
   "items": "Artikel",
   "hours": "Std.",
-  "minutes": "Min."
+  "minutes": "Min.",
+  "settlementSuggestions": "Ausgleich vorschlagen",
+  "settlementTitle": "Vorgeschlagene Ausgleichszahlungen",
+  "settlementDescription": "Die Zahlungen werden gleichmäßig auf die aktiven Haushaltsmitglieder verteilt. Dies ist nur ein Vorschlag – es wird nichts gebucht oder überwiesen.",
+  "settlementTotalPayments": "Erfasste Zahlungen",
+  "settlementParticipants": "{{count}} aktive Mitglieder",
+  "settlementNotEnoughMembers": "Für einen Ausgleich werden mindestens zwei aktive Mitglieder benötigt.",
+  "settlementNoPayments": "Es sind noch keine Geldzahlungen erfasst. Arbeitszeit wird bewusst nicht in Euro umgerechnet.",
+  "settlementAlreadyBalanced": "Die erfassten Zahlungen sind bereits ausgeglichen.",
+  "settlementFromTo": "{{payer}} zahlt an {{recipient}}",
+  "settlementClose": "Schließen"
 }

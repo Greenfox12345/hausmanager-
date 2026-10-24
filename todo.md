@@ -3958,3 +3958,8 @@
 
 ## Checkpoint-Synchronisation prüfen (2026-08-25)
 - [x] GitHub-Verbindung und den gemeldeten Zusammenführungskonflikt prüfen, ohne lokale Plankisten-Änderungen zu verlieren
+
+## Ausgleichsvorschläge in der Bilanz (2026-10-24)
+- [x] Einen Button in der Bilanz ergänzen, der aus den erfassten Zahlungen faire Ausgleichszahlungen vorschlägt, ohne Einträge oder Überweisungen automatisch vorzunehmen
+- [x] Ausgleichsvorschläge für zwei oder mehr aktive Haushaltsmitglieder testbar berechnen und im mobil bedienbaren Dialog darstellen
+- [x] Neue Bilanztexte in Deutsch, Englisch, Spanisch, Französisch, Türkisch, Chinesisch und Arabisch ergänzen und prüfen

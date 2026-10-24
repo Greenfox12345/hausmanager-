@@ -48,5 +48,15 @@
   "source": "Origen",
   "items": "Artículos",
   "hours": "h",
-  "minutes": "min"
+  "minutes": "min",
+  "settlementSuggestions": "Proponer compensación",
+  "settlementTitle": "Pagos de compensación sugeridos",
+  "settlementDescription": "Los pagos se reparten por igual entre los miembros activos del hogar. Es solo una propuesta: no se registra ni se transfiere nada.",
+  "settlementTotalPayments": "Pagos registrados",
+  "settlementParticipants": "{{count}} miembros activos",
+  "settlementNotEnoughMembers": "Se necesitan al menos dos miembros activos para una compensación.",
+  "settlementNoPayments": "Aún no se han registrado pagos. El tiempo de trabajo no se convierte automáticamente en euros.",
+  "settlementAlreadyBalanced": "Los pagos registrados ya están equilibrados.",
+  "settlementFromTo": "{{payer}} paga a {{recipient}}",
+  "settlementClose": "Cerrar"
 }

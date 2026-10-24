@@ -48,5 +48,15 @@
   "source": "Source",
   "items": "Items",
   "hours": "h",
-  "minutes": "min"
+  "minutes": "min",
+  "settlementSuggestions": "Suggest settlement",
+  "settlementTitle": "Suggested settlement payments",
+  "settlementDescription": "Payments are split evenly among active household members. This is only a suggestion – nothing is recorded or transferred.",
+  "settlementTotalPayments": "Recorded payments",
+  "settlementParticipants": "{{count}} active members",
+  "settlementNotEnoughMembers": "At least two active members are needed for a settlement.",
+  "settlementNoPayments": "No payments have been recorded yet. Work time is deliberately not converted into euros.",
+  "settlementAlreadyBalanced": "The recorded payments are already balanced.",
+  "settlementFromTo": "{{payer}} pays {{recipient}}",
+  "settlementClose": "Close"
 }

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { ArrowLeft, Banknote, BriefcaseBusiness, ChevronLeft, History as HistoryIcon, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Banknote, BriefcaseBusiness, ChevronLeft, HandCoins, History as HistoryIcon, Pencil, Plus, Trash2, Users } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ export default function Balance() {
   const householdId = household?.householdId ?? 0;
   const memberId = member?.memberId ?? 0;
   const [createOpen, setCreateOpen] = useState(false);
+  const [settlementOpen, setSettlementOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<any | null>(null);
   const [entryType, setEntryType] = useState<EntryType>("payment");
   const [selectedMemberId, setSelectedMemberId] = useState("");
@@ -55,6 +56,10 @@ export default function Balance() {
     { enabled: !!householdId && !!memberId },
   );
   const { data: entries = [] } = trpc.balance.list.useQuery(
+    { householdId, memberId },
+    { enabled: !!householdId && !!memberId },
+  );
+  const { data: settlement } = trpc.balance.settlementSuggestions.useQuery(
     { householdId, memberId },
     { enabled: !!householdId && !!memberId },
   );
@@ -174,12 +179,19 @@ export default function Balance() {
     </div>
   );
 
+  const formatSettlementAmount = (amountCents: number) => (
+    (amountCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })
+  );
+
   return (
     <AppLayout>
       <div className="container max-w-3xl py-6 pb-24 space-y-6">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3"><Button variant="ghost" size="icon" onClick={() => setLocation("/")}><ChevronLeft className="h-5 w-5" /></Button><div><h1 className="text-2xl font-bold flex items-center gap-2"><Users className="h-6 w-6" /> {t("balance:title")}</h1><p className="text-sm text-muted-foreground">{t("balance:subtitle")}</p></div></div>
-          <Button onClick={openCreate} className="gap-2 shrink-0"><Plus className="h-4 w-4" /> {t("balance:addEffort")}</Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button variant="outline" onClick={() => setSettlementOpen(true)} className="gap-2"><HandCoins className="h-4 w-4" /> {t("balance:settlementSuggestions")}</Button>
+            <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" /> {t("balance:addEffort")}</Button>
+          </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -198,6 +210,41 @@ export default function Balance() {
       </div>
       <Dialog open={createOpen || !!editingEntry} onOpenChange={(open) => { if (!open) { setCreateOpen(false); setEditingEntry(null); } }}>
       <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editingEntry ? t("balance:edit") : t("balance:create")}</DialogTitle><DialogDescription>{editingEntry ? t("balance:separateHint") : t("balance:multipleEffortsHint")}</DialogDescription></DialogHeader>{editingEntry ? renderForm() : <BalanceEffortFields householdId={householdId} memberId={memberId} defaultDescription="" onChange={setManualEfforts} />}<div className="space-y-2"><Label htmlFor="balance-date">{t("balance:date")}</Label><Input id="balance-date" type="date" value={occurredDate} onChange={(event) => setOccurredDate(event.target.value)} /></div><DialogFooter><Button variant="outline" onClick={() => { setCreateOpen(false); setEditingEntry(null); resetForm(); }}>{t("balance:cancel")}</Button><Button onClick={submit} disabled={createMutation.isPending || updateMutation.isPending}>{editingEntry ? t("balance:save") : t("balance:record")}</Button></DialogFooter></DialogContent>
+      </Dialog>
+      <Dialog open={settlementOpen} onOpenChange={setSettlementOpen}>
+        <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><HandCoins className="h-5 w-5" /> {t("balance:settlementTitle")}</DialogTitle>
+            <DialogDescription>{t("balance:settlementDescription")}</DialogDescription>
+          </DialogHeader>
+          {!settlement ? <div className="h-24 animate-pulse rounded-lg bg-muted" /> : (
+            <div className="space-y-3">
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm space-y-1">
+                <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{t("balance:settlementTotalPayments")}</span><strong>{formatSettlementAmount(settlement.totalPaymentCents)}</strong></div>
+                <p className="text-xs text-muted-foreground">{t("balance:settlementParticipants", { count: settlement.participantCount })}</p>
+              </div>
+              {settlement.participantCount < 2 ? (
+                <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">{t("balance:settlementNotEnoughMembers")}</p>
+              ) : settlement.totalPaymentCents === 0 ? (
+                <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">{t("balance:settlementNoPayments")}</p>
+              ) : settlement.suggestions.length === 0 ? (
+                <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">{t("balance:settlementAlreadyBalanced")}</p>
+              ) : (
+                <div className="space-y-2">
+                  {settlement.suggestions.map((suggestion) => (
+                    <div key={`${suggestion.payerMemberId}-${suggestion.recipientMemberId}`} className="rounded-lg border bg-card p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-medium">{t("balance:settlementFromTo", { payer: suggestion.payerMemberName, recipient: suggestion.recipientMemberName })}</p>
+                        <strong className="text-emerald-700">{formatSettlementAmount(suggestion.amountCents)}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter><Button onClick={() => setSettlementOpen(false)}>{t("balance:settlementClose")}</Button></DialogFooter>
+        </DialogContent>
       </Dialog>
       <BottomNav />
     </AppLayout>
